@@ -579,28 +579,51 @@ class _CenterAction extends StatelessWidget {
           curve: ChromeMetrics.morphCurve,
           width: session == null ? size : ChromeMetrics.timerCapsuleWidth,
           height: size,
-          decoration: BoxDecoration(
-            color: AppColors.training,
-            borderRadius: BorderRadius.circular(AppRadius.chip),
-          ),
-          child: GestureDetector(
-            key: const ValueKey('dock-center-action'),
-            behavior: HitTestBehavior.opaque,
-            onTap: activate,
-            child: AnimatedSwitcher(
-              duration: duration,
-              child: session == null
-                  ? Icon(
-                      Icons.add,
-                      key: const ValueKey('plus'),
-                      size: metrics.iconSize + 8,
-                      color: AppColors.onTraining,
-                    )
-                  : _TimerLabel(key: const ValueKey('timer'), workout: session),
+          child: CenterActionSurface(
+            child: GestureDetector(
+              key: const ValueKey('dock-center-action'),
+              behavior: HitTestBehavior.opaque,
+              onTap: activate,
+              child: AnimatedSwitcher(
+                duration: duration,
+                child: session == null
+                    ? Icon(
+                        Icons.add,
+                        key: const ValueKey('plus'),
+                        size: metrics.actionIconSize,
+                        color: CenterActionSurface.foreground,
+                      )
+                    : _TimerLabel(
+                        key: const ValueKey('timer'),
+                        workout: session,
+                      ),
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Solid green surface of the centre action. The quick-log menu's × wears
+/// the same, since it stands in for「+」while the menu is open.
+class CenterActionSurface extends StatelessWidget {
+  const CenterActionSurface({super.key, required this.child});
+
+  /// Colour of what sits on the surface: the「+」, ×, and workout timer.
+  static const foreground = AppColors.onTraining;
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const ShapeDecoration(
+        shape: StadiumBorder(),
+        color: AppColors.training,
+      ),
+      child: Material(type: MaterialType.transparency, child: child),
     );
   }
 }
@@ -621,7 +644,7 @@ class _TimerLabel extends StatelessWidget {
             Icon(
               workout.isPaused ? Icons.pause : Icons.circle,
               size: workout.isPaused ? 16 : 10,
-              color: AppColors.onTraining,
+              color: CenterActionSurface.foreground,
             ),
             const SizedBox(width: AppSpacing.xs),
             ElapsedClock(
@@ -629,7 +652,7 @@ class _TimerLabel extends StatelessWidget {
               builder: (_, elapsed) => Text(
                 elapsed,
                 style: AppTextStyles.buttonLabel.copyWith(
-                  color: AppColors.onTraining,
+                  color: CenterActionSurface.foreground,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),

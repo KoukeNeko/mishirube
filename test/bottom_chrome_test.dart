@@ -638,4 +638,18 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('× is the same glyph size as the「+」it replaces', (tester) async {
+    await _pumpApp(tester, FakeClock());
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+
+    final sizes = tester
+        .widgetList<Icon>(find.byIcon(Icons.add))
+        .map((icon) => icon.size)
+        .toSet();
+    expect(find.byIcon(Icons.add), findsNWidgets(2), reason: '「+」and ×');
+    expect(sizes, hasLength(1));
+    await disposeTree(tester);
+  });
 }

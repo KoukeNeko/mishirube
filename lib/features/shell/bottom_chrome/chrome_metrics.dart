@@ -112,6 +112,10 @@ class DockMetrics {
   final double labelHeight;
   final double labelGap;
 
+  /// Glyph of the centre action; the quick-log menu's × uses it too, so
+  /// the two match when one replaces the other.
+  double get actionIconSize => iconSize + 8;
+
   double heightFor({required bool isMinimized}) =>
       isMinimized ? minimizedHeight : height;
 

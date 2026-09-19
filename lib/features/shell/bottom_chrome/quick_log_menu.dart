@@ -6,9 +6,14 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../record/add_record_sheet.dart';
 import 'chrome_metrics.dart';
+import 'press_feedback.dart';
+import 'split_dock.dart';
 import '../../../shared/haptics.dart';
 
 const _menuDuration = Duration(milliseconds: 280);
+
+/// Leaving is quicker than arriving: the user has already decided.
+const _menuCloseDuration = Duration(milliseconds: 180);
 const _quickOptionCount = 4;
 const _staggerStep = 0.12;
 const _itemSpacing = 10.0;
@@ -40,7 +45,8 @@ Future<void> showQuickLogMenu(
   BuildContext context, {
   required ProxyAnimation recess,
 }) {
-  final route = RawDialogRoute<void>(
+  final route = _QuickLogRoute(
+    reverseDuration: chromeDuration(context, _menuCloseDuration),
     barrierDismissible: true,
     barrierLabel: '關閉快速記錄',
     // The recessed app carries the dimming.
@@ -291,24 +297,76 @@ class _CloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: size,
-      child: FloatingActionButton(
-        heroTag: null,
-        tooltip: '關閉',
-        elevation: 0,
-        backgroundColor: AppColors.training,
-        foregroundColor: AppColors.onTraining,
-        shape: const CircleBorder(),
-        onPressed: () {
-          AppHaptics.tap();
-          Navigator.of(context).pop();
-        },
-        child: RotationTransition(
-          turns: Tween(begin: 0.0, end: 0.125).animate(animation),
-          child: const Icon(Icons.add, size: 32),
+    void close() {
+      AppHaptics.tap();
+      Navigator.of(context).pop();
+    }
+
+    return Semantics(
+      button: true,
+      label: '關閉',
+      onTap: close,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: '關閉',
+        excludeFromSemantics: true,
+        // Squeezes like the「+」it replaces.
+        child: PressScale(
+          pressedScale: ChromeMetrics.actionPressedScale,
+          child: SizedBox.square(
+            dimension: size,
+            child: CenterActionSurface(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: close,
+                child: Center(
+                  // Turns into × well before the items finish arriving.
+                  child: RotationTransition(
+                    turns: Tween(begin: 0.0, end: 0.125).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: const Interval(
+                          0,
+                          0.45,
+                          curve: Curves.easeOutCubic,
+                        ),
+                        // Closing turns it back first, too.
+                        reverseCurve: const Interval(
+                          0.55,
+                          1,
+                          curve: Curves.easeInCubic,
+                        ),
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: DockMetrics.of(context).actionIconSize,
+                      color: CenterActionSurface.foreground,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+class _QuickLogRoute extends RawDialogRoute<void> {
+  _QuickLogRoute({
+    required this.reverseDuration,
+    required super.pageBuilder,
+    super.barrierDismissible,
+    super.barrierLabel,
+    super.barrierColor,
+    super.transitionDuration,
+    super.transitionBuilder,
+  });
+
+  final Duration reverseDuration;
+
+  @override
+  Duration get reverseTransitionDuration => reverseDuration;
 }
