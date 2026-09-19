@@ -34,6 +34,23 @@ abstract final class ChromeMetrics {
   static const lensPressedFillOpacity = 0.12;
   static const lensBorderOpacity = 0.1;
   static const lensFadeDuration = Duration(milliseconds: 150);
+
+  /// Where the lens settles after a tap or a drag: a hint of overshoot,
+  /// the same model as SwiftUI's `spring(duration:bounce:)`.
+  static final lensSnapSpring = SpringDescription.withDurationAndBounce(
+    duration: const Duration(milliseconds: 280),
+    bounce: 0.12,
+  );
+
+  /// Dragging across a capsule's tabs, like the iOS 26 tab bar: sliding
+  /// sideways starts it at once; resting a finger this long first also
+  /// does. Apple publishes no values; these are the design's own.
+  static const scrubHoldDuration = Duration(milliseconds: 200);
+  static const scrubLensScale = 1.04;
+
+  /// Dead band around a tab boundary, so a finger resting on it does not
+  /// flip the preview (and buzz) back and forth.
+  static const scrubHysteresis = 6.0;
 }
 
 /// Platform geometry of the floating dock. The quick-log menu reads the

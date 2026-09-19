@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 
@@ -117,67 +120,198 @@ class _Capsule extends StatefulWidget {
 class _CapsuleState extends State<_Capsule> {
   int? _pressedIndex;
 
+  /// Tab under the finger while dragging; the selection itself only
+  /// changes on release.
+  int? _previewIndex;
+
+  /// Lens centre in tab units (0 = first tab) while it follows the finger.
+  double? _dragPosition;
+
+  /// Whether releasing now would select [_previewIndex]; false while the
+  /// finger is sideways off the capsule (e.g. over「+」).
+  bool _isArmed = false;
+  Size _size = Size.zero;
+
+  int get _selectedIndex =>
+      widget.tabs.indexWhere((spec) => spec.tab == widget.selected);
+
+  bool get _isScrubbing => _dragPosition != null;
+
   void _select(HomeTab tab) {
     // A selection tick only when the selection actually changes; Android
     // tab bars do not buzz.
-    if (tab != widget.selected &&
-        Theme.of(context).platform == TargetPlatform.iOS) {
-      HapticFeedback.selectionClick();
-    }
+    if (tab != widget.selected && _isIOS) HapticFeedback.selectionClick();
     widget.onSelect(tab);
+  }
+
+  bool get _isIOS => Theme.of(context).platform == TargetPlatform.iOS;
+
+  double get _cellWidth => _size.width / widget.tabs.length;
+
+  void _startScrub(Offset position) {
+    setState(() {
+      _previewIndex = _selectedIndex < 0 ? null : _selectedIndex;
+      _updateScrub(position);
+    });
+  }
+
+  void _moveScrub(Offset position) {
+    setState(() => _updateScrub(position));
+  }
+
+  void _updateScrub(Offset position) {
+    // Only straying sideways (onto「+」or the gap) cancels; a finger that
+    // drifts up or down while sliding still picks the tab below it.
+    _isArmed = position.dx >= 0 && position.dx <= _size.width;
+    // The lens tracks the finger 1:1 but never leaves the capsule.
+    _dragPosition = (position.dx / _cellWidth - 0.5).clamp(
+      0.0,
+      widget.tabs.length - 1.0,
+    );
+    if (!_isArmed) return;
+    final preview = _previewAt(position.dx);
+    if (preview != _previewIndex) {
+      _previewIndex = preview;
+      if (_isIOS) HapticFeedback.selectionClick();
+    }
+  }
+
+  int _previewAt(double x) {
+    final raw = (x / _cellWidth).floor().clamp(0, widget.tabs.length - 1);
+    final current = _previewIndex;
+    if (current == null || raw == current) return raw;
+    final boundary = math.max(raw, current) * _cellWidth;
+    return (x - boundary).abs() >= ChromeMetrics.scrubHysteresis
+        ? raw
+        : current;
+  }
+
+  void _onScrubCancel() {
+    if (_isScrubbing) _endScrub();
+  }
+
+  void _endScrub() {
+    final preview = _previewIndex;
+    final commit = _isArmed && preview != null;
+    setState(() {
+      _dragPosition = null;
+      _previewIndex = null;
+      _isArmed = false;
+    });
+    // The drag already ticked on each change, so no release haptic.
+    if (commit && preview != _selectedIndex) {
+      widget.onSelect(widget.tabs[preview].tab);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = widget.tabs.indexWhere(
-      (spec) => spec.tab == widget.selected,
+    final selectedIndex = _selectedIndex;
+    final shownIndex = _isScrubbing
+        ? _previewIndex
+        : (selectedIndex < 0 ? null : selectedIndex);
+    // VoiceOver users switch tabs by double-tapping; no drag to learn.
+    final canScrub = !MediaQuery.accessibleNavigationOf(context);
+    final capsule = LayoutBuilder(
+      builder: (context, constraints) {
+        _size = constraints.biggest;
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: _SelectionLens(
+                index: shownIndex,
+                count: widget.tabs.length,
+                dragPosition: _dragPosition,
+                isPressed:
+                    _isScrubbing ||
+                    (_pressedIndex != null && _pressedIndex == selectedIndex),
+              ),
+            ),
+            Row(
+              children: [
+                for (var i = 0; i < widget.tabs.length; i++)
+                  Expanded(
+                    child: _TabButton(
+                      spec: widget.tabs[i],
+                      metrics: widget.metrics,
+                      isSelected: i == selectedIndex,
+                      isHighlighted: i == shownIndex,
+                      isScrubbing: _isScrubbing,
+                      showLabel: widget.showLabels,
+                      onTap: () => _select(widget.tabs[i].tab),
+                      onPressedChanged: (isPressed) =>
+                          setState(() => _pressedIndex = isPressed ? i : null),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
     );
     return ChromeSurface(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: _SelectionLens(
-              index: selectedIndex < 0 ? null : selectedIndex,
-              count: widget.tabs.length,
-              isPressed:
-                  _pressedIndex != null && _pressedIndex == selectedIndex,
+      child: !canScrub
+          ? capsule
+          : RawGestureDetector(
+              // Only the capsule, never the whole dock row: content beside
+              // it keeps scrolling normally.
+              // Two ways into a drag: slide sideways right away, or rest a
+              // finger briefly and then slide. A tap that does neither
+              // stays a tap.
+              gestures: {
+                HorizontalDragGestureRecognizer:
+                    GestureRecognizerFactoryWithHandlers<
+                      HorizontalDragGestureRecognizer
+                    >(
+                      HorizontalDragGestureRecognizer.new,
+                      (recognizer) => recognizer
+                        ..onStart = ((details) =>
+                            _startScrub(details.localPosition))
+                        ..onUpdate = ((details) =>
+                            _moveScrub(details.localPosition))
+                        ..onEnd = ((_) => _endScrub())
+                        ..onCancel = _onScrubCancel,
+                    ),
+                LongPressGestureRecognizer:
+                    GestureRecognizerFactoryWithHandlers<
+                      LongPressGestureRecognizer
+                    >(
+                      () => LongPressGestureRecognizer(
+                        duration: ChromeMetrics.scrubHoldDuration,
+                      ),
+                      (recognizer) => recognizer
+                        ..onLongPressStart = ((details) =>
+                            _startScrub(details.localPosition))
+                        ..onLongPressMoveUpdate = ((details) =>
+                            _moveScrub(details.localPosition))
+                        ..onLongPressEnd = ((_) => _endScrub())
+                        ..onLongPressCancel = _onScrubCancel,
+                    ),
+              },
+              child: capsule,
             ),
-          ),
-          Row(
-            children: [
-              for (var i = 0; i < widget.tabs.length; i++)
-                Expanded(
-                  child: _TabButton(
-                    spec: widget.tabs[i],
-                    metrics: widget.metrics,
-                    isSelected: i == selectedIndex,
-                    showLabel: widget.showLabels,
-                    onTap: () => _select(widget.tabs[i].tab),
-                    onPressedChanged: (isPressed) =>
-                        setState(() => _pressedIndex = isPressed ? i : null),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
 
-/// Faint glass patch behind the selected tab that springs between the
-/// tabs of its capsule. It fades in when selection enters the capsule and
-/// out when it leaves, rather than sliding across the centre action.
+/// Faint glass patch behind the selected tab. A tap springs it to the new
+/// tab; a drag makes it follow the finger, slightly enlarged, and springs
+/// it into place on release. It fades in when selection enters the capsule
+/// and out when it leaves, rather than sliding across the centre action.
 class _SelectionLens extends StatefulWidget {
   const _SelectionLens({
     required this.index,
     required this.count,
+    required this.dragPosition,
     required this.isPressed,
   });
 
-  /// Selected tab in this capsule, or null when it is in the other one.
+  /// Tab the lens rests on, or null when selection is in the other capsule.
   final int? index;
   final int count;
+
+  /// Finger position in tab units while dragging.
+  final double? dragPosition;
   final bool isPressed;
 
   @override
@@ -194,14 +328,23 @@ class _SelectionLensState extends State<_SelectionLens>
   @override
   void didUpdateWidget(_SelectionLens oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final drag = widget.dragPosition;
+    if (drag != null) {
+      // Direct tracking: a spring chasing the finger would lag behind it.
+      _position.value = drag;
+      return;
+    }
     final target = widget.index;
-    if (target == null || target == oldWidget.index) return;
-    if (oldWidget.index == null || prefersReducedMotion(context)) {
+    if (target == null) return;
+    final wasDragging = oldWidget.dragPosition != null;
+    if (!wasDragging && target == oldWidget.index) return;
+    if ((!wasDragging && oldWidget.index == null) ||
+        prefersReducedMotion(context)) {
       _position.value = target.toDouble();
     } else {
       _position.animateWith(
         SpringSimulation(
-          ChromeMetrics.pressSpring,
+          ChromeMetrics.lensSnapSpring,
           _position.value,
           target.toDouble(),
           _position.velocity,
@@ -219,9 +362,10 @@ class _SelectionLensState extends State<_SelectionLens>
   @override
   Widget build(BuildContext context) {
     const inset = ChromeMetrics.lensInset;
+    final isDragging = widget.dragPosition != null;
     return IgnorePointer(
       child: AnimatedOpacity(
-        opacity: widget.index == null ? 0 : 1,
+        opacity: widget.index == null && !isDragging ? 0 : 1,
         duration: chromeDuration(context, ChromeMetrics.lensFadeDuration),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -242,21 +386,28 @@ class _SelectionLensState extends State<_SelectionLens>
                   ),
                 ],
               ),
-              child: AnimatedContainer(
-                key: const ValueKey('dock-selection-lens'),
-                duration: ChromeMetrics.pressDuration,
-                decoration: ShapeDecoration(
-                  shape: StadiumBorder(
-                    side: BorderSide(
-                      color: Colors.white.withValues(
-                        alpha: ChromeMetrics.lensBorderOpacity,
+              child: AnimatedScale(
+                scale: isDragging && !prefersReducedMotion(context)
+                    ? ChromeMetrics.scrubLensScale
+                    : 1,
+                duration: ChromeMetrics.lensFadeDuration,
+                curve: Curves.easeOutCubic,
+                child: AnimatedContainer(
+                  key: const ValueKey('dock-selection-lens'),
+                  duration: ChromeMetrics.pressDuration,
+                  decoration: ShapeDecoration(
+                    shape: StadiumBorder(
+                      side: BorderSide(
+                        color: Colors.white.withValues(
+                          alpha: ChromeMetrics.lensBorderOpacity,
+                        ),
                       ),
                     ),
-                  ),
-                  color: Colors.white.withValues(
-                    alpha: widget.isPressed
-                        ? ChromeMetrics.lensPressedFillOpacity
-                        : ChromeMetrics.lensFillOpacity,
+                    color: Colors.white.withValues(
+                      alpha: widget.isPressed
+                          ? ChromeMetrics.lensPressedFillOpacity
+                          : ChromeMetrics.lensFillOpacity,
+                    ),
                   ),
                 ),
               ),
@@ -273,6 +424,8 @@ class _TabButton extends StatelessWidget {
     required this.spec,
     required this.metrics,
     required this.isSelected,
+    required this.isHighlighted,
+    required this.isScrubbing,
     required this.showLabel,
     required this.onTap,
     required this.onPressedChanged,
@@ -280,14 +433,21 @@ class _TabButton extends StatelessWidget {
 
   final _TabSpec spec;
   final DockMetrics metrics;
+
+  /// The tab that is actually selected (what assistive tech reports).
   final bool isSelected;
+
+  /// Drawn as selected: the selected tab, or the one under a dragging
+  /// finger.
+  final bool isHighlighted;
+  final bool isScrubbing;
   final bool showLabel;
   final VoidCallback onTap;
   final ValueChanged<bool> onPressedChanged;
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? AppColors.training : AppColors.textSecondary;
+    final color = isHighlighted ? AppColors.training : AppColors.textSecondary;
     final indicatorSize = Size(_indicatorWidth, metrics.iconBox);
     return Semantics(
       label: spec.label,
@@ -299,6 +459,9 @@ class _TabButton extends StatelessWidget {
       // so squeezing it squeezes just the icon and label.
       child: PressScale(
         pressedScale: ChromeMetrics.tabPressedScale,
+        // Once a drag takes over, the lens is the feedback; the pressed
+        // tab springs back instead of staying squeezed.
+        isSuppressed: isScrubbing,
         onPressedChanged: onPressedChanged,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -314,7 +477,7 @@ class _TabButton extends StatelessWidget {
                   SizedBox.fromSize(
                     size: indicatorSize,
                     child: Icon(
-                      isSelected ? spec.selectedIcon : spec.icon,
+                      isHighlighted ? spec.selectedIcon : spec.icon,
                       color: color,
                       size: metrics.iconSize,
                     ),

@@ -348,4 +348,130 @@ void main() {
       },
     );
   });
+
+  group('dock hold-to-drag', () {
+    Finder dockLabel(String label) =>
+        find.descendant(of: find.byType(SplitDock), matching: find.text(label));
+    final lens = find.byKey(const ValueKey('dock-selection-lens')).first;
+
+    Future<TestGesture> holdOn(WidgetTester tester, String label) async {
+      final gesture = await tester.startGesture(
+        tester.getCenter(dockLabel(label)),
+      );
+      await tester.pump(ChromeMetrics.scrubHoldDuration);
+      await tester.pump(const Duration(milliseconds: 50));
+      return gesture;
+    }
+
+    testWidgets(
+      'holding and dragging selects the tab under the finger on release',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        final haptics = <Object?>[];
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              haptics.add(call.arguments);
+            }
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        final store = await _pumpApp(tester, FakeClock());
+        final target = tester.getCenter(dockLabel('紀錄'));
+
+        final gesture = await holdOn(tester, '今天');
+        await gesture.moveTo(target);
+        await tester.pump();
+        expect(store.selectedTab, HomeTab.today, reason: 'only a preview');
+        expect(tester.getCenter(lens).dx, closeTo(target.dx, 0.5));
+        expect(haptics, ['HapticFeedbackType.selectionClick']);
+
+        await gesture.up();
+        await _settleFor(tester);
+        expect(store.selectedTab, HomeTab.log);
+        expect(haptics, hasLength(1), reason: 'no extra tick on release');
+        await disposeTree(tester);
+      },
+    );
+
+    testWidgets('releasing over「+」cancels without opening the menu', (
+      tester,
+    ) async {
+      final store = await _pumpApp(tester, FakeClock());
+
+      final gesture = await holdOn(tester, '今天');
+      await gesture.moveTo(tester.getCenter(dockLabel('紀錄')));
+      await tester.pump();
+      await gesture.moveTo(tester.getCenter(find.byKey(_centerAction)));
+      await tester.pump();
+      await gesture.up();
+      await _settleFor(tester);
+
+      expect(store.selectedTab, HomeTab.today);
+      expect(find.byKey(quickLogMenuKey), findsNothing);
+      expect(
+        tester.getCenter(lens).dx,
+        closeTo(tester.getCenter(dockLabel('今天')).dx, 0.5),
+        reason: 'the lens springs back to the selected tab',
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('a quick tap still selects without dragging', (tester) async {
+      final store = await _pumpApp(tester, FakeClock());
+      await tester.tap(dockLabel('趨勢'));
+      await _settleFor(tester);
+      expect(store.selectedTab, HomeTab.trends);
+      await disposeTree(tester);
+    });
+  });
+
+  testWidgets('sliding sideways drags without holding first', (tester) async {
+    final store = await _pumpApp(tester, FakeClock());
+    Finder dockLabel(String label) =>
+        find.descendant(of: find.byType(SplitDock), matching: find.text(label));
+
+    final gesture = await tester.startGesture(
+      tester.getCenter(dockLabel('今天')),
+    );
+    final target = tester.getCenter(dockLabel('紀錄'));
+    for (var i = 1; i <= 5; i++) {
+      await gesture.moveTo(
+        Offset.lerp(tester.getCenter(dockLabel('今天')), target, i / 5)!,
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(store.selectedTab, HomeTab.today);
+    await gesture.up();
+    await _settleFor(tester);
+    expect(store.selectedTab, HomeTab.log);
+    await disposeTree(tester);
+  });
+
+  testWidgets('releasing above the dock still selects the tab below', (
+    tester,
+  ) async {
+    final store = await _pumpApp(tester, FakeClock());
+    Finder dockLabel(String label) =>
+        find.descendant(of: find.byType(SplitDock), matching: find.text(label));
+
+    final start = tester.getCenter(dockLabel('今天'));
+    final gesture = await tester.startGesture(start);
+    final target = tester.getCenter(dockLabel('紀錄')) - const Offset(0, 120);
+    for (var i = 1; i <= 5; i++) {
+      await gesture.moveTo(Offset.lerp(start, target, i / 5)!);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await gesture.up();
+    await _settleFor(tester);
+    expect(store.selectedTab, HomeTab.log);
+    await disposeTree(tester);
+  });
 }

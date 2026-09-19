@@ -13,10 +13,15 @@ class PressScale extends StatefulWidget {
     required this.pressedScale,
     required this.child,
     this.onPressedChanged,
+    this.isSuppressed = false,
   });
 
   final double pressedScale;
   final Widget child;
+
+  /// Releases the squeeze while the finger is still down, e.g. once a drag
+  /// gesture takes over from the press.
+  final bool isSuppressed;
   final ValueChanged<bool>? onPressedChanged;
 
   @override
@@ -27,9 +32,26 @@ class _PressScaleState extends State<PressScale>
     with SingleTickerProviderStateMixin {
   late final _scale = AnimationController.unbounded(vsync: this, value: 1);
 
+  @override
+  void didUpdateWidget(PressScale oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isSuppressed && !oldWidget.isSuppressed) _springBack();
+  }
+
+  void _springBack() {
+    _scale.animateWith(
+      SpringSimulation(
+        ChromeMetrics.pressSpring,
+        _scale.value,
+        1,
+        _scale.velocity,
+      ),
+    );
+  }
+
   void _setPressed(bool isPressed) {
     widget.onPressedChanged?.call(isPressed);
-    if (prefersReducedMotion(context)) {
+    if (prefersReducedMotion(context) || (isPressed && widget.isSuppressed)) {
       _scale.value = 1;
     } else if (isPressed) {
       _scale.animateTo(
@@ -38,14 +60,7 @@ class _PressScaleState extends State<PressScale>
         curve: Curves.easeOutCubic,
       );
     } else {
-      _scale.animateWith(
-        SpringSimulation(
-          ChromeMetrics.pressSpring,
-          _scale.value,
-          1,
-          _scale.velocity,
-        ),
-      );
+      _springBack();
     }
   }
 
