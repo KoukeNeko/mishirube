@@ -211,4 +211,26 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets('month calendar ignores the page insets', (tester) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(
+      MishirubeApp(store: _store()..selectTab(HomeTab.log)),
+    );
+    await tester.pump();
+    await tester.tap(find.text('月曆').hitTestable());
+    await tester.pump();
+
+    final weekday = tester.getRect(find.text('二').hitTestable());
+    final firstDay = tester.getRect(
+      find
+          .ancestor(
+            of: find.text('1').hitTestable(),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    expect(firstDay.top - weekday.bottom, AppSpacing.xs);
+    await disposeTree(tester);
+  });
 }

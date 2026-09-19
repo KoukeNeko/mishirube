@@ -8,7 +8,8 @@ const _daysInSeptember = 30;
 
 /// Weekday offset of 2026-09-01 (a Tuesday) in a Monday-first grid.
 const _firstDayOffset = 1;
-const _cellSpacing = 6.0;
+const _cellSpacing = 4.0;
+const _cellMinHeight = 44.0;
 const _dotSize = 5.0;
 
 class MonthCalendar extends StatelessWidget {
@@ -27,6 +28,17 @@ class MonthCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cells = <Widget>[
+      for (var i = 0; i < _firstDayOffset; i++) const SizedBox.shrink(),
+      for (var day = 1; day <= _daysInSeptember; day++)
+        _DayCell(
+          day: day,
+          isSelected: day == selectedDay,
+          isFuture: day > today,
+          dots: dotsByDay[day] ?? const [],
+          onTap: day > today ? null : () => onSelect(day),
+        ),
+    ];
     return Column(
       children: [
         Row(
@@ -38,24 +50,21 @@ class MonthCalendar extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.xs),
-        GridView.count(
-          crossAxisCount: _weekdayLabels.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: _cellSpacing,
-          crossAxisSpacing: _cellSpacing,
-          children: [
-            for (var i = 0; i < _firstDayOffset; i++) const SizedBox.shrink(),
-            for (var day = 1; day <= _daysInSeptember; day++)
-              _DayCell(
-                day: day,
-                isSelected: day == selectedDay,
-                isFuture: day > today,
-                dots: dotsByDay[day] ?? const [],
-                onTap: day > today ? null : () => onSelect(day),
-              ),
-          ],
-        ),
+        // Plain rows, not a GridView: a nested scroll view would pick up
+        // the page's edge-to-edge insets as padding.
+        for (var week = 0; week * 7 < cells.length; week++) ...[
+          if (week > 0) const SizedBox(height: _cellSpacing),
+          Row(
+            children: [
+              for (var i = week * 7; i < week * 7 + 7; i++) ...[
+                if (i > week * 7) const SizedBox(width: _cellSpacing),
+                Expanded(
+                  child: i < cells.length ? cells[i] : const SizedBox.shrink(),
+                ),
+              ],
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -93,34 +102,44 @@ class _DayCell extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.small),
         onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$day',
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: _cellMinHeight),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$day',
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            const SizedBox(height: 3),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (final category in dots)
-                  Container(
-                    width: _dotSize,
-                    height: _dotSize,
-                    margin: const EdgeInsets.symmetric(horizontal: 1),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.onTraining : category.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 3),
+              // Always as tall as a dot, so dates line up across cells.
+              SizedBox(
+                height: _dotSize,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (final category in dots)
+                      Container(
+                        width: _dotSize,
+                        height: _dotSize,
+                        margin: const EdgeInsets.symmetric(horizontal: 1),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.onTraining
+                              : category.color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
