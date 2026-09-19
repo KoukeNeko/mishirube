@@ -433,21 +433,34 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: leading == null ? AppSpacing.screenGutter : AppSpacing.xs,
-        right: AppSpacing.md,
-      ),
-      child: Row(
-        children: [
-          ?leading,
-          Expanded(child: title),
-          for (final action in actions) ...[
-            const SizedBox(width: AppSpacing.xs),
-            action,
-          ],
-        ],
-      ),
+    // Like page content, the bar adds no inset of its own: each slot keeps
+    // its distance from the screen edge, the same 20pt gutter as the page.
+    return Row(
+      children: [
+        if (leading != null)
+          Padding(
+            // The back glyph sits inside its touch target, so a small
+            // inset lines the glyph up with the page gutter.
+            padding: const EdgeInsetsDirectional.only(start: AppSpacing.xs),
+            child: leading,
+          ),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(
+              start: leading == null ? AppSpacing.screenGutter : 0,
+            ),
+            child: title,
+          ),
+        ),
+        for (var i = 0; i < actions.length; i++)
+          Padding(
+            padding: EdgeInsetsDirectional.only(
+              start: AppSpacing.xs,
+              end: i == actions.length - 1 ? AppSpacing.screenGutter : 0,
+            ),
+            child: actions[i],
+          ),
+      ],
     );
   }
 }

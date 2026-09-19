@@ -389,4 +389,22 @@ void main() {
     handle.dispose();
     await disposeTree(tester);
   });
+
+  testWidgets(
+    'header actions keep the page gutter, like page content',
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    (tester) async {
+      await _pumpShell(tester, tab: HomeTab.log);
+
+      final search = tester.getRect(
+        find.bySemanticsLabel('搜尋紀錄').hitTestable(),
+      );
+      expect(phoneSize.width - search.right, AppSpacing.screenGutter);
+      expect(
+        tester.getRect(find.text('紀錄').hitTestable().first).left,
+        AppSpacing.screenGutter,
+      );
+      await disposeTree(tester);
+    },
+  );
 }
