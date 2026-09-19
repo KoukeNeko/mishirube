@@ -275,6 +275,11 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
             SizedBox(
               height: toolbarHeight,
               child: ClipRect(
+                // Sliding away, the bar passes under the status bar like
+                // scrolled content; a clip here would cut it off at the
+                // inset. Tucking away (auto-hide) it must not cover the
+                // title below.
+                clipBehavior: scrollsToolbarAway ? Clip.none : Clip.hardEdge,
                 child: Opacity(
                   opacity: toolbarOpacity,
                   // The control row hangs from the top of the bar; on iOS
