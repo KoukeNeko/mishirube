@@ -4,10 +4,6 @@ import '../../app/theme.dart';
 import '../../data/models.dart';
 
 const _weekdayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-const _daysInSeptember = 30;
-
-/// Weekday offset of 2026-09-01 (a Tuesday) in a Monday-first grid.
-const _firstDayOffset = 1;
 const _cellSpacing = 4.0;
 const _cellMinHeight = 44.0;
 const _dotSize = 5.0;
@@ -15,28 +11,36 @@ const _dotSize = 5.0;
 class MonthCalendar extends StatelessWidget {
   const MonthCalendar({
     super.key,
+    required this.month,
     required this.selectedDay,
     required this.today,
     required this.dotsByDay,
     required this.onSelect,
   });
 
+  /// First day of the month shown.
+  final DateTime month;
   final int selectedDay;
-  final int today;
+  final DateTime today;
   final Map<int, List<RecordCategory>> dotsByDay;
   final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    // Monday-first grid.
+    final leadingBlanks = month.weekday - DateTime.monday;
+    bool isFuture(int day) =>
+        DateTime(month.year, month.month, day).isAfter(today);
     final cells = <Widget>[
-      for (var i = 0; i < _firstDayOffset; i++) const SizedBox.shrink(),
-      for (var day = 1; day <= _daysInSeptember; day++)
+      for (var i = 0; i < leadingBlanks; i++) const SizedBox.shrink(),
+      for (var day = 1; day <= daysInMonth; day++)
         _DayCell(
           day: day,
           isSelected: day == selectedDay,
-          isFuture: day > today,
+          isFuture: isFuture(day),
           dots: dotsByDay[day] ?? const [],
-          onTap: day > today ? null : () => onSelect(day),
+          onTap: isFuture(day) ? null : () => onSelect(day),
         ),
     ];
     return Column(

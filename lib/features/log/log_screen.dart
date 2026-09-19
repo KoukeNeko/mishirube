@@ -8,6 +8,7 @@ import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
+import 'month_picker_sheet.dart';
 
 enum _LogView { timeline, calendar }
 
@@ -37,7 +38,28 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   _LogView _view = _LogView.timeline;
   _LogFilter _filter = _LogFilter.all;
+
+  /// First day of the month being browsed.
+  DateTime _month = DateTime(mockToday.year, mockToday.month);
   int _selectedDay = mockToday.day;
+
+  bool get _isCurrentMonth =>
+      _month.year == mockToday.year && _month.month == mockToday.month;
+
+  Future<void> _pickMonth() async {
+    final month = await showMonthPickerSheet(
+      context,
+      selected: _month,
+      earliest: mockEarliestMonth,
+      latest: DateTime(mockToday.year, mockToday.month),
+    );
+    if (month == null || !mounted) return;
+    setState(() {
+      _month = month;
+      // Today in the current month; otherwise the month's first day.
+      _selectedDay = _isCurrentMonth ? mockToday.day : 1;
+    });
+  }
 
   void _openEntry(TimelineEntry entry) {
     final destination = switch (entry.category) {
@@ -56,14 +78,14 @@ class _LogScreenState extends State<LogScreen> {
   Widget build(BuildContext context) {
     return CollapsingPage(
       title: '紀錄',
-      subtitle: '2026 年 9 月',
+      subtitle: '${_month.year} 年 ${_month.month} 月',
       compactBar: CompactBarBehavior.none,
       actions: [
         HeaderAction(
           icon: Icons.calendar_month_outlined,
-          label: '9月',
-          semanticLabel: '切換月份，目前 2026 年 9 月',
-          onTap: () => showToast(context, '月份切換尚未設計'),
+          label: '${_month.month}月',
+          semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
+          onTap: _pickMonth,
         ),
         HeaderAction(
           icon: Icons.search,
@@ -108,31 +130,42 @@ class _LogScreenState extends State<LogScreen> {
           },
         ),
       ),
-      for (final day in MockTimeline.days) ...[
-        Gutter(child: _DayHeader(day: day)),
-        for (final entry in day.entries.where(_filter.accepts))
-          Gutter(
-            child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+      if (_month == MockTimeline.recordMonth)
+        for (final day in MockTimeline.days) ...[
+          Gutter(child: _DayHeader(day: day)),
+          for (final entry in day.entries.where(_filter.accepts))
+            Gutter(
+              child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+            ),
+        ]
+      else
+        Gutter(
+          child: EmptyStateCard(
+            icon: Icons.event_busy_outlined,
+            title: '${_month.month} 月沒有紀錄',
+            message: '換一個月份看看，或從「+」新增一筆紀錄。',
           ),
-      ],
+        ),
     ];
   }
 
   List<Widget> _calendar() {
-    final dots = MockTimeline.septemberDots[_selectedDay] ?? const [];
+    final dotsByDay = MockTimeline.dotsIn(_month);
+    final dots = dotsByDay[_selectedDay] ?? const [];
     return [
       Gutter(
         child: MonthCalendar(
+          month: _month,
           selectedDay: _selectedDay,
-          today: mockToday.day,
-          dotsByDay: MockTimeline.septemberDots,
+          today: mockToday,
+          dotsByDay: dotsByDay,
           onSelect: (day) => setState(() => _selectedDay = day),
         ),
       ),
       Gutter(child: const _CalendarLegend()),
       Gutter(
         child: SectionLabel(
-          '9 月 $_selectedDay 日',
+          '${_month.month} 月 $_selectedDay 日',
           trailing: LinkText(
             label: '在時間軸開啟',
             onTap: () => setState(() => _view = _LogView.timeline),

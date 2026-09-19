@@ -3,6 +3,9 @@ import 'models.dart';
 /// Fixed "now" used by the mock so every screen matches the design (2026/9/19).
 final mockToday = DateTime(2026, 9, 19);
 
+/// First month the log can be browsed back to.
+final mockEarliestMonth = DateTime(2025);
+
 abstract final class MockExercises {
   static const backSquat = ExerciseDefinition(
     id: 'back-squat',
@@ -425,6 +428,13 @@ abstract final class MockTimeline {
       ],
     ),
   ];
+
+  /// The only month with mock records; [days] and [septemberDots] are in it.
+  static final recordMonth = DateTime(2026, 9);
+
+  /// Calendar dots for the month starting at [month].
+  static Map<int, List<RecordCategory>> dotsIn(DateTime month) =>
+      month == recordMonth ? septemberDots : const {};
 
   /// Categories recorded on each day of September 2026 (calendar dots).
   static const septemberDots = <int, List<RecordCategory>>{

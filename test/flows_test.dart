@@ -118,4 +118,37 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('log month picker switches months and blocks the future', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.text('9月').hitTestable());
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(find.text('2026 年'), findsOneWidget);
+
+    // Future months are shown but cannot be picked.
+    await tester.tap(find.text('10 月'));
+    await tester.pump(_pageTransition);
+    expect(find.text('2026 年'), findsOneWidget);
+
+    await tester.tap(find.text('8 月'));
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(find.text('2026 年'), findsNothing);
+    expect(find.text('2026 年 8 月'), findsOneWidget);
+    expect(find.text('8月'), findsOneWidget);
+    expect(find.text('8 月沒有紀錄'), findsOneWidget);
+
+    await tester.tap(find.text('月曆').hitTestable());
+    await tester.pump();
+    expect(find.text('8 月 1 日'), findsOneWidget);
+    await disposeTree(tester);
+  });
 }
