@@ -307,16 +307,14 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                 height: pinnedHeight,
                 // As the bar, the control sits where toolbar controls do:
                 // in the control row, with the bar's extra space below.
+                // Horizontal spacing is the pinned element's own (see
+                // Gutter), not the slot's.
                 child: Padding(
                   padding: scrollsToolbarAway
-                      ? EdgeInsets.fromLTRB(
-                          AppSpacing.screenGutter,
-                          0,
-                          AppSpacing.screenGutter,
-                          toolbar.height - toolbar.controlRowHeight,
+                      ? EdgeInsets.only(
+                          bottom: toolbar.height - toolbar.controlRowHeight,
                         )
                       : const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.screenGutter,
                           vertical: _pinnedVerticalPadding,
                         ),
                   child: scrollsToolbarAway ? Center(child: pinned) : pinned,
@@ -617,12 +615,13 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
         controller: _controller,
         slivers: [
           SliverPersistentHeader(pinned: true, delegate: widget.header),
+          // Only vertical clearance for the floating chrome; each element
+          // brings its own horizontal spacing (see Gutter).
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.screenGutter,
-              _contentTopGap,
-              AppSpacing.screenGutter,
-              widget.bottomPadding + MediaQuery.paddingOf(context).bottom,
+            padding: EdgeInsets.only(
+              top: _contentTopGap,
+              bottom:
+                  widget.bottomPadding + MediaQuery.paddingOf(context).bottom,
             ),
             sliver: SliverList.separated(
               itemCount: widget.children.length,

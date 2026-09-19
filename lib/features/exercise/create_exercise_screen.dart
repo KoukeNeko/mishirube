@@ -98,38 +98,55 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       ),
       children: [
         if (duplicates.isNotEmpty)
-          _DuplicateWarning(
-            candidates: duplicates,
-            onUse: (exercise) => Navigator.of(context).pop(exercise),
+          Gutter(
+            child: _DuplicateWarning(
+              candidates: duplicates,
+              onUse: (exercise) => Navigator.of(context).pop(exercise),
+            ),
           ),
-        const SectionLabel('名稱'),
-        AppTextField(controller: _nameController, hint: '例如：啞鈴臥推'),
-        const SectionLabel('追蹤方式'),
-        ChipWrap(
-          options: TrackingType.values,
-          labelOf: (type) => type.label,
-          isSelected: (type) => type == _trackingType,
-          onTap: (type) => setState(() => _trackingType = type),
+        Gutter(child: const SectionLabel('名稱')),
+        Gutter(
+          child: AppTextField(controller: _nameController, hint: '例如：啞鈴臥推'),
         ),
-        const Text(
-          '追蹤方式決定歷史怎麼被解讀。之後要改成不相容的方式，必須建立新動作。',
-          style: AppTextStyles.caption,
+        Gutter(child: const SectionLabel('追蹤方式')),
+        Gutter(
+          child: ChipWrap(
+            options: TrackingType.values,
+            labelOf: (type) => type.label,
+            isSelected: (type) => type == _trackingType,
+            onTap: (type) => setState(() => _trackingType = type),
+          ),
         ),
-        const SectionLabel('主要肌群或動作模式'),
-        ChipWrap(
-          options: _BodyRegion.values,
-          labelOf: (region) => region.label,
-          isSelected: (region) => region == _region,
-          onTap: (region) => setState(() => _region = region),
+        Gutter(
+          child: const Text(
+            '追蹤方式決定歷史怎麼被解讀。之後要改成不相容的方式，必須建立新動作。',
+            style: AppTextStyles.caption,
+          ),
         ),
-        const SectionLabel('器材'),
-        ChipWrap(
-          options: _equipmentChoices,
-          labelOf: (equipment) => equipment?.label ?? '不指定',
-          isSelected: (equipment) => equipment == _equipment,
-          onTap: (equipment) => setState(() => _equipment = equipment),
+        Gutter(child: const SectionLabel('主要肌群或動作模式')),
+        Gutter(
+          child: ChipWrap(
+            options: _BodyRegion.values,
+            labelOf: (region) => region.label,
+            isSelected: (region) => region == _region,
+            onTap: (region) => setState(() => _region = region),
+          ),
         ),
-        const Text('別名、說明、媒體與次要肌群之後都能補。', style: AppTextStyles.caption),
+        Gutter(child: const SectionLabel('器材')),
+        Gutter(
+          child: ChipWrap(
+            options: _equipmentChoices,
+            labelOf: (equipment) => equipment?.label ?? '不指定',
+            isSelected: (equipment) => equipment == _equipment,
+            onTap: (equipment) => setState(() => _equipment = equipment),
+          ),
+        ),
+        Gutter(
+          child: const Text(
+            '別名、說明、媒體與次要肌群之後都能補。',
+            style: AppTextStyles.caption,
+          ),
+        ),
       ],
     );
   }

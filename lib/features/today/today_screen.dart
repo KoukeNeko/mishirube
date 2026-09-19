@@ -49,42 +49,48 @@ class TodayScreen extends StatelessWidget {
   List<Widget> _morning(BuildContext context, AppStore store) {
     final routine = store.routine;
     return [
-      const WeekStrip(),
-      NextWorkoutCard(
-        routine: routine,
-        onStart: () => startWorkoutFlow(context),
-        onOpenRoutine: () => pushPage(context, const RoutineDetailScreen()),
-      ),
-      IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Expanded(child: _WeightTile()),
-            const SizedBox(width: AppSpacing.xs),
-            const Expanded(
-              child: QuickStatTile(
-                category: '睡眠',
-                color: AppColors.wellness,
-                value: '6:52',
-                caption: 'Apple Health',
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: QuickActionTile(
-                category: '飲食',
-                color: AppColors.nutrition,
-                action: '記錄早餐',
-                caption: '今天還沒有紀錄',
-                onTap: () => pushPage(context, const MealEntryScreen()),
-              ),
-            ),
-          ],
+      Gutter(child: const WeekStrip()),
+      Gutter(
+        child: NextWorkoutCard(
+          routine: routine,
+          onStart: () => startWorkoutFlow(context),
+          onOpenRoutine: () => pushPage(context, const RoutineDetailScreen()),
         ),
       ),
-      InsightCard(
-        insight: MockInsights.squatVolume,
-        onTap: () => pushPage(context, const InsightDetailScreen()),
+      Gutter(
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Expanded(child: _WeightTile()),
+              const SizedBox(width: AppSpacing.xs),
+              const Expanded(
+                child: QuickStatTile(
+                  category: '睡眠',
+                  color: AppColors.wellness,
+                  value: '6:52',
+                  caption: 'Apple Health',
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: QuickActionTile(
+                  category: '飲食',
+                  color: AppColors.nutrition,
+                  action: '記錄早餐',
+                  caption: '今天還沒有紀錄',
+                  onTap: () => pushPage(context, const MealEntryScreen()),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      Gutter(
+        child: InsightCard(
+          insight: MockInsights.squatVolume,
+          onTap: () => pushPage(context, const InsightDetailScreen()),
+        ),
       ),
     ];
   }
@@ -92,58 +98,70 @@ class TodayScreen extends StatelessWidget {
   List<Widget> _noon(BuildContext context, AppStore store) {
     return [
       if (!store.isLunchLogged)
-        NextMealCard(
-          onPhoto: () => pushPage(context, const MealConfirmScreen()),
-          onVoice: () => pushPage(context, const MealEntryScreen()),
-          onSearch: () => pushPage(context, const MealEntryScreen()),
+        Gutter(
+          child: NextMealCard(
+            onPhoto: () => pushPage(context, const MealConfirmScreen()),
+            onVoice: () => pushPage(context, const MealEntryScreen()),
+            onSearch: () => pushPage(context, const MealEntryScreen()),
+          ),
         ),
-      IntakeCard(
-        store: store,
-        onTap: () => pushPage(context, const DailyNutritionScreen()),
+      Gutter(
+        child: IntakeCard(
+          store: store,
+          onTap: () => pushPage(context, const DailyNutritionScreen()),
+        ),
       ),
-      AccentRow(
-        color: AppColors.training,
-        title: store.routine.name,
-        subtitle: '今晚的訓練',
-        showChevron: true,
-        onTap: () => pushPage(context, const RoutineDetailScreen()),
+      Gutter(
+        child: AccentRow(
+          color: AppColors.training,
+          title: store.routine.name,
+          subtitle: '今晚的訓練',
+          showChevron: true,
+          onTap: () => pushPage(context, const RoutineDetailScreen()),
+        ),
       ),
     ];
   }
 
   List<Widget> _evening(BuildContext context, AppStore store) {
     return [
-      const WeekStrip(),
-      NextActionCard(
-        title: '記錄晚餐',
-        message: '訓練後還沒有任何飲食紀錄',
-        buttonLabel: '記錄晚餐',
-        onTap: () => pushPage(context, const MealEntryScreen()),
-      ),
-      CompletedWorkoutCard(
-        workout: store.lastFinishedWorkout,
-        onTap: () => pushPage(context, const WorkoutSummaryScreen()),
-      ),
-      IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: QuickStatTile(
-                category: '飲食',
-                color: AppColors.nutrition,
-                value: '~${formatKcal(store.todayKcal)}',
-                unit: 'kcal',
-                caption: '${store.todayMeals.length} 餐 · 含估計值',
-                onTap: () => pushPage(context, const DailyNutritionScreen()),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            const Expanded(child: _WeightTile()),
-          ],
+      Gutter(child: const WeekStrip()),
+      Gutter(
+        child: NextActionCard(
+          title: '記錄晚餐',
+          message: '訓練後還沒有任何飲食紀錄',
+          buttonLabel: '記錄晚餐',
+          onTap: () => pushPage(context, const MealEntryScreen()),
         ),
       ),
-      const InsightCard(insight: MockInsights.weeklyGoalReached),
+      Gutter(
+        child: CompletedWorkoutCard(
+          workout: store.lastFinishedWorkout,
+          onTap: () => pushPage(context, const WorkoutSummaryScreen()),
+        ),
+      ),
+      Gutter(
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: QuickStatTile(
+                  category: '飲食',
+                  color: AppColors.nutrition,
+                  value: '~${formatKcal(store.todayKcal)}',
+                  unit: 'kcal',
+                  caption: '${store.todayMeals.length} 餐 · 含估計值',
+                  onTap: () => pushPage(context, const DailyNutritionScreen()),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              const Expanded(child: _WeightTile()),
+            ],
+          ),
+        ),
+      ),
+      Gutter(child: const InsightCard(insight: MockInsights.weeklyGoalReached)),
     ];
   }
 }

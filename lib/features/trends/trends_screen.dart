@@ -35,39 +35,54 @@ class _TrendsScreenState extends State<TrendsScreen> {
       subtitle: '8 / 23 – 9 / 19・你的訓練與身體變化',
       compactBar: CompactBarBehavior.none,
       // The range drives every chart below, so it stays pinned.
-      pinned: SegmentedChoice(
-        options: _TrendRange.values,
-        selected: _range,
-        labelOf: (range) => range.label,
-        onChanged: (range) => setState(() => _range = range),
+      pinned: Gutter(
+        child: SegmentedChoice(
+          options: _TrendRange.values,
+          selected: _range,
+          labelOf: (range) => range.label,
+          onChanged: (range) => setState(() => _range = range),
+        ),
       ),
       children: [
-        const InsightCard(title: '結論', insight: MockInsights.weightTrend),
-        InsightCard(
-          title: '結論',
-          insight: MockInsights.squatVolumeShort,
-          onTap: () => pushPage(context, const InsightDetailScreen()),
+        Gutter(
+          child: const InsightCard(
+            title: '結論',
+            insight: MockInsights.weightTrend,
+          ),
         ),
-        const SectionLabel('摘要'),
-        const _SummaryGrid(),
-        const SectionLabel('看得更細'),
-        AccentRow(
-          color: AppColors.training,
-          title: '訓練的詳細圖表',
-          showChevron: true,
-          onTap: () => pushPage(context, const InsightDetailScreen()),
+        Gutter(
+          child: InsightCard(
+            title: '結論',
+            insight: MockInsights.squatVolumeShort,
+            onTap: () => pushPage(context, const InsightDetailScreen()),
+          ),
         ),
-        AccentRow(
-          color: AppColors.nutrition,
-          title: '飲食的詳細圖表',
-          showChevron: true,
-          onTap: () => pushPage(context, const DailyNutritionScreen()),
+        Gutter(child: const SectionLabel('摘要')),
+        Gutter(child: const _SummaryGrid()),
+        Gutter(child: const SectionLabel('看得更細')),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.training,
+            title: '訓練的詳細圖表',
+            showChevron: true,
+            onTap: () => pushPage(context, const InsightDetailScreen()),
+          ),
         ),
-        AccentRow(
-          color: AppColors.body,
-          title: '身體的詳細圖表',
-          showChevron: true,
-          onTap: () => pushPage(context, const TrendsEmptyScreen()),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.nutrition,
+            title: '飲食的詳細圖表',
+            showChevron: true,
+            onTap: () => pushPage(context, const DailyNutritionScreen()),
+          ),
+        ),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.body,
+            title: '身體的詳細圖表',
+            showChevron: true,
+            onTap: () => pushPage(context, const TrendsEmptyScreen()),
+          ),
         ),
       ],
     );

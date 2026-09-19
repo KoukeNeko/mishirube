@@ -24,43 +24,53 @@ class MealEntryScreen extends StatelessWidget {
         subtitle: '午餐 · 9 月 19 日 12:35',
       ),
       children: [
-        _MethodCard(
-          icon: Icons.photo_camera_outlined,
-          title: '拍照',
-          subtitle: '辨識料理與成分，確認後才存入',
-          isPrimary: true,
-          onTap: () => pushPage(context, const MealConfirmScreen()),
-        ),
-        _MethodCard(
-          icon: Icons.mic_none,
-          title: '說出來',
-          subtitle: '「牛肉麵一碗，湯喝一半」',
-          onTap: () => pushPage(context, const MealConfirmScreen()),
-        ),
-        _MethodCard(
-          icon: Icons.search,
-          title: '搜尋或輸入',
-          subtitle: '食物資料庫、自訂食物',
-          onTap: () => showToast(context, '食物搜尋尚未設計'),
-        ),
-        const SectionLabel('最近吃過'),
-        for (final (name, time, kcal) in MockNutrition.recentFoods)
-          _RecentFoodRow(
-            name: name,
-            time: time,
-            kcal: kcal,
-            onAdd: () => _addRecent(context, name),
+        Gutter(
+          child: _MethodCard(
+            icon: Icons.photo_camera_outlined,
+            title: '拍照',
+            subtitle: '辨識料理與成分，確認後才存入',
+            isPrimary: true,
+            onTap: () => pushPage(context, const MealConfirmScreen()),
           ),
-        Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
-          children: [
-            for (final label in const ['掃條碼', '餐點模板', '從網址匯入食譜'])
-              GestureDetector(
-                onTap: () => showToast(context, '「$label」尚未設計'),
-                child: TagChip(label: label),
-              ),
-          ],
+        ),
+        Gutter(
+          child: _MethodCard(
+            icon: Icons.mic_none,
+            title: '說出來',
+            subtitle: '「牛肉麵一碗，湯喝一半」',
+            onTap: () => pushPage(context, const MealConfirmScreen()),
+          ),
+        ),
+        Gutter(
+          child: _MethodCard(
+            icon: Icons.search,
+            title: '搜尋或輸入',
+            subtitle: '食物資料庫、自訂食物',
+            onTap: () => showToast(context, '食物搜尋尚未設計'),
+          ),
+        ),
+        Gutter(child: const SectionLabel('最近吃過')),
+        for (final (name, time, kcal) in MockNutrition.recentFoods)
+          Gutter(
+            child: _RecentFoodRow(
+              name: name,
+              time: time,
+              kcal: kcal,
+              onAdd: () => _addRecent(context, name),
+            ),
+          ),
+        Gutter(
+          child: Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              for (final label in const ['掃條碼', '餐點模板', '從網址匯入食譜'])
+                GestureDetector(
+                  onTap: () => showToast(context, '「$label」尚未設計'),
+                  child: TagChip(label: label),
+                ),
+            ],
+          ),
         ),
       ],
     );

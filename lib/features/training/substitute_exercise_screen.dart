@@ -68,29 +68,37 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
         ),
       ),
       children: [
-        const SectionLabel('候選動作'),
+        Gutter(child: const SectionLabel('候選動作')),
         for (var i = 0; i < candidates.length; i++)
-          _CandidateCard(
-            option: candidates[i],
-            isSelected: i == _selectedCandidate,
-            onTap: () => setState(() => _selectedCandidate = i),
+          Gutter(
+            child: _CandidateCard(
+              option: candidates[i],
+              isSelected: i == _selectedCandidate,
+              onTap: () => setState(() => _selectedCandidate = i),
+            ),
           ),
-        const SectionLabel('套用範圍'),
+        Gutter(child: const SectionLabel('套用範圍')),
         for (final scope in _ReplaceScope.values)
-          RadioRow(
-            title: scope.title,
-            subtitle: scope.subtitle,
-            isSelected: scope == _scope,
-            onTap: () => setState(() => _scope = scope),
+          Gutter(
+            child: RadioRow(
+              title: scope.title,
+              subtitle: scope.subtitle,
+              isSelected: scope == _scope,
+              onTap: () => setState(() => _scope = scope),
+            ),
           ),
         if (needsWeightReset)
-          InfoBanner(
-            tone: CardTone.warning,
-            message:
-                '${current.equipment.label}換${selected.exercise.equipment.label}'
-                '沒有可靠的重量換算，只保留組數、次數與 RIR，重量要重新設定。',
+          Gutter(
+            child: InfoBanner(
+              tone: CardTone.warning,
+              message:
+                  '${current.equipment.label}換${selected.exercise.equipment.label}'
+                  '沒有可靠的重量換算，只保留組數、次數與 RIR，重量要重新設定。',
+            ),
           ),
-        const Text('已完成的訓練紀錄不會被改寫。', style: AppTextStyles.caption),
+        Gutter(
+          child: const Text('已完成的訓練紀錄不會被改寫。', style: AppTextStyles.caption),
+        ),
       ],
     );
   }

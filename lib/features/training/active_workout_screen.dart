@@ -100,35 +100,39 @@ class ActiveWorkoutScreen extends StatelessWidget {
             ),
           ),
           children: [
-            _SuggestionCard(exercise: exercise),
-            const _SuggestionTags(),
-            const _SetTypeHeader(),
+            Gutter(child: _SuggestionCard(exercise: exercise)),
+            Gutter(child: const _SuggestionTags()),
+            Gutter(child: const _SetTypeHeader()),
             for (var i = 0; i < exercise.sets.length; i++)
-              _SetRow(
-                number: i + 1,
-                set: exercise.sets[i],
-                isCurrent: i == exercise.nextSetIndex,
-                onToggle: () => store.toggleSet(i),
+              Gutter(
+                child: _SetRow(
+                  number: i + 1,
+                  set: exercise.sets[i],
+                  isCurrent: i == exercise.nextSetIndex,
+                  onToggle: () => store.toggleSet(i),
+                ),
               ),
-            Row(
-              children: [
-                Expanded(
-                  child: DashedActionCard(
-                    label: '加入動作',
-                    onTap: () => _addExercises(context),
+            Gutter(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DashedActionCard(
+                      label: '加入動作',
+                      onTap: () => _addExercises(context),
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: SecondaryButton(
-                    label: '替換這個動作',
-                    icon: Icons.swap_horiz,
-                    isCompact: true,
-                    onPressed: () =>
-                        pushPage(context, const SubstituteExerciseScreen()),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: SecondaryButton(
+                      label: '替換這個動作',
+                      icon: Icons.swap_horiz,
+                      isCompact: true,
+                      onPressed: () =>
+                          pushPage(context, const SubstituteExerciseScreen()),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

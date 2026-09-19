@@ -42,26 +42,34 @@ class RoutineDetailScreen extends StatelessWidget {
         },
       ),
       children: [
-        const InfoBanner(message: '修改這份訓練模板只會影響之後的訓練，已完成的訓練紀錄不會被改寫。'),
-        const SectionLabel('計畫的動作'),
+        Gutter(
+          child: const InfoBanner(message: '修改這份訓練模板只會影響之後的訓練，已完成的訓練紀錄不會被改寫。'),
+        ),
+        Gutter(child: const SectionLabel('計畫的動作')),
         for (final planned in routine.exercises)
-          _PlannedExerciseCard(planned: planned),
-        DashedActionCard(
-          label: '加入動作',
-          onTap: () => _addExercises(context, routine),
+          Gutter(child: _PlannedExerciseCard(planned: planned)),
+        Gutter(
+          child: DashedActionCard(
+            label: '加入動作',
+            onTap: () => _addExercises(context, routine),
+          ),
         ),
-        const SectionLabel('最近實際完成'),
-        AccentRow(
-          color: AppColors.training,
-          title: '9 月 16 日',
-          subtitle: '16 組 · 54 分',
-          showChevron: true,
-          onTap: () => pushPage(context, const WorkoutSummaryScreen()),
+        Gutter(child: const SectionLabel('最近實際完成')),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.training,
+            title: '9 月 16 日',
+            subtitle: '16 組 · 54 分',
+            showChevron: true,
+            onTap: () => pushPage(context, const WorkoutSummaryScreen()),
+          ),
         ),
-        const AccentRow(
-          color: AppColors.training,
-          title: '9 月 12 日',
-          subtitle: '16 組 · 57 分',
+        Gutter(
+          child: const AccentRow(
+            color: AppColors.training,
+            title: '9 月 12 日',
+            subtitle: '16 組 · 57 分',
+          ),
         ),
       ],
     );

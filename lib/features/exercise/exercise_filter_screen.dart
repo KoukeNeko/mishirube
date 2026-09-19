@@ -57,64 +57,78 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
         onPressed: () => Navigator.of(context).pop(_filter),
       ),
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: SecondaryButton(
-            label: '清除全部',
-            isCompact: true,
-            onPressed: () => _update(const ExerciseFilter()),
-          ).withWidth(120),
-        ),
-        _FilterGroup(
-          title: '主要肌群',
-          options: _muscleShortcuts,
-          labelOf: (muscle) => muscle.label,
-          selected: _filter.muscles,
-          onToggle: (muscle) => _update(
-            _filter.copyWith(muscles: toggled(_filter.muscles, muscle)),
+        Gutter(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: SecondaryButton(
+              label: '清除全部',
+              isCompact: true,
+              onPressed: () => _update(const ExerciseFilter()),
+            ).withWidth(120),
           ),
         ),
-        _FilterGroup(
-          title: '器材',
-          options: _equipmentOptions,
-          labelOf: (item) => item.label,
-          selected: _filter.equipment,
-          onToggle: (item) => _update(
-            _filter.copyWith(equipment: toggled(_filter.equipment, item)),
-          ),
-        ),
-        _FilterGroup(
-          title: '動作模式',
-          options: MovementPattern.values,
-          labelOf: (pattern) => pattern.label,
-          selected: _filter.patterns,
-          onToggle: (pattern) => _update(
-            _filter.copyWith(patterns: toggled(_filter.patterns, pattern)),
-          ),
-        ),
-        _FilterGroup(
-          title: '追蹤方式',
-          options: TrackingType.values,
-          labelOf: (type) => type.label,
-          selected: _filter.trackingTypes,
-          onToggle: (type) => _update(
-            _filter.copyWith(
-              trackingTypes: toggled(_filter.trackingTypes, type),
+        Gutter(
+          child: _FilterGroup(
+            title: '主要肌群',
+            options: _muscleShortcuts,
+            labelOf: (muscle) => muscle.label,
+            selected: _filter.muscles,
+            onToggle: (muscle) => _update(
+              _filter.copyWith(muscles: toggled(_filter.muscles, muscle)),
             ),
           ),
         ),
-        _FilterGroup(
-          title: '來源',
-          options: ExerciseSource.values,
-          labelOf: (source) => source.label,
-          selected: _filter.sources,
-          onToggle: (source) => _update(
-            _filter.copyWith(sources: toggled(_filter.sources, source)),
+        Gutter(
+          child: _FilterGroup(
+            title: '器材',
+            options: _equipmentOptions,
+            labelOf: (item) => item.label,
+            selected: _filter.equipment,
+            onToggle: (item) => _update(
+              _filter.copyWith(equipment: toggled(_filter.equipment, item)),
+            ),
           ),
         ),
-        const Text(
-          '條件之間可以自由組合。肌群只是快捷方式，不是唯一的篩選維度。',
-          style: AppTextStyles.caption,
+        Gutter(
+          child: _FilterGroup(
+            title: '動作模式',
+            options: MovementPattern.values,
+            labelOf: (pattern) => pattern.label,
+            selected: _filter.patterns,
+            onToggle: (pattern) => _update(
+              _filter.copyWith(patterns: toggled(_filter.patterns, pattern)),
+            ),
+          ),
+        ),
+        Gutter(
+          child: _FilterGroup(
+            title: '追蹤方式',
+            options: TrackingType.values,
+            labelOf: (type) => type.label,
+            selected: _filter.trackingTypes,
+            onToggle: (type) => _update(
+              _filter.copyWith(
+                trackingTypes: toggled(_filter.trackingTypes, type),
+              ),
+            ),
+          ),
+        ),
+        Gutter(
+          child: _FilterGroup(
+            title: '來源',
+            options: ExerciseSource.values,
+            labelOf: (source) => source.label,
+            selected: _filter.sources,
+            onToggle: (source) => _update(
+              _filter.copyWith(sources: toggled(_filter.sources, source)),
+            ),
+          ),
+        ),
+        Gutter(
+          child: const Text(
+            '條件之間可以自由組合。肌群只是快捷方式，不是唯一的篩選維度。',
+            style: AppTextStyles.caption,
+          ),
         ),
       ],
     );

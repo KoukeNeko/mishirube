@@ -148,10 +148,12 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
         onClose: () => Navigator.of(context).pop(),
       ),
       // Searching is the main job here, so the search row stays pinned.
-      pinned: _SearchRow(
-        controller: _searchController,
-        filterCount: _filter.activeCount,
-        onFilter: _openFilter,
+      pinned: Gutter(
+        child: _SearchRow(
+          controller: _searchController,
+          filterCount: _filter.activeCount,
+          onFilter: _openFilter,
+        ),
       ),
       pinnedHeight: _searchRowHeight,
       footer: _selected.isNotEmpty
@@ -162,31 +164,43 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
             )
           : null,
       children: [
+        // Full-bleed like the Log chips: the tab row pads its own content.
         if (_query.isEmpty) _TabRow(selected: _tab, onSelect: _selectTab),
         if (!_filter.isEmpty)
-          _FilterSummary(
-            summary: _filter.summary,
-            onClear: () => setState(() => _filter = const ExerciseFilter()),
+          Gutter(
+            child: _FilterSummary(
+              summary: _filter.summary,
+              onClear: () => setState(() => _filter = const ExerciseFilter()),
+            ),
           ),
         if (exercises.isEmpty)
-          _NoResults(
-            query: _query,
-            filter: _filter,
-            suggestions: _suggestionsIgnoringFilters(),
-            onClearEquipment: () =>
-                setState(() => _filter = _filter.copyWith(equipment: {})),
-            onOpenSuggestion: _openDetail,
-            onCreate: () => _createExercise(initialName: _query),
+          Gutter(
+            child: _NoResults(
+              query: _query,
+              filter: _filter,
+              suggestions: _suggestionsIgnoringFilters(),
+              onClearEquipment: () =>
+                  setState(() => _filter = _filter.copyWith(equipment: {})),
+              onOpenSuggestion: _openDetail,
+              onCreate: () => _createExercise(initialName: _query),
+            ),
           )
         else ...[
           for (final exercise in exercises)
-            _ExerciseTile(
-              exercise: exercise,
-              order: _selected.indexOf(exercise) + 1,
-              onTap: () => _toggle(exercise),
-              onInfo: () => _openDetail(exercise),
+            Gutter(
+              child: _ExerciseTile(
+                exercise: exercise,
+                order: _selected.indexOf(exercise) + 1,
+                onTap: () => _toggle(exercise),
+                onInfo: () => _openDetail(exercise),
+              ),
             ),
-          DashedActionCard(label: '找不到？建立自訂動作', onTap: _createExercise),
+          Gutter(
+            child: DashedActionCard(
+              label: '找不到？建立自訂動作',
+              onTap: _createExercise,
+            ),
+          ),
         ],
       ],
     );
@@ -244,7 +258,10 @@ class _TabRow extends StatelessWidget {
       height: 64,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.screenGutter,
+          vertical: AppSpacing.sm,
+        ),
         itemCount: _PickerTab.values.length,
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
         itemBuilder: (_, index) {

@@ -33,47 +33,57 @@ class ImportScreen extends StatelessWidget {
         ),
       ),
       children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'strong_export_2026-09-18.csv',
-                style: AppTextStyles.caption,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              StatRow(
-                stats: [
-                  const StatBlock(value: '1,284', label: '讀到'),
-                  const StatBlock(value: '1,190', label: '可直接對應'),
-                  StatBlock(
-                    value: '$issueCount',
-                    label: '需要處理',
-                    valueColor: AppColors.warning,
-                  ),
-                ],
-              ),
-            ],
+        Gutter(
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'strong_export_2026-09-18.csv',
+                  style: AppTextStyles.caption,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                StatRow(
+                  stats: [
+                    const StatBlock(value: '1,284', label: '讀到'),
+                    const StatBlock(value: '1,190', label: '可直接對應'),
+                    StatBlock(
+                      value: '$issueCount',
+                      label: '需要處理',
+                      valueColor: AppColors.warning,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const InfoBanner(
-          tone: CardTone.warning,
-          message: '這是試跑，還沒有寫入任何資料。確認後可以整批復原。',
+        Gutter(
+          child: const InfoBanner(
+            tone: CardTone.warning,
+            message: '這是試跑，還沒有寫入任何資料。確認後可以整批復原。',
+          ),
         ),
-        SectionLabel('需要處理的 $issueCount 筆'),
+        Gutter(child: SectionLabel('需要處理的 $issueCount 筆')),
         for (final (count, title, detail) in _issues)
-          _IssueRow(count: count, title: title, detail: detail),
-        const SectionLabel('匯出'),
-        NavCard(
-          title: '完整封存（JSON）',
-          subtitle: '帶 schema 版本，可完整還原',
-          onTap: () => showToast(context, '已建立完整封存', kind: ToastKind.success),
+          Gutter(
+            child: _IssueRow(count: count, title: title, detail: detail),
+          ),
+        Gutter(child: const SectionLabel('匯出')),
+        Gutter(
+          child: NavCard(
+            title: '完整封存（JSON）',
+            subtitle: '帶 schema 版本，可完整還原',
+            onTap: () => showToast(context, '已建立完整封存', kind: ToastKind.success),
+          ),
         ),
-        NavCard(
-          title: 'CSV 檢視',
-          subtitle: '方便閱讀，不保證無損',
-          onTap: () =>
-              showToast(context, '已建立 CSV 檢視', kind: ToastKind.success),
+        Gutter(
+          child: NavCard(
+            title: 'CSV 檢視',
+            subtitle: '方便閱讀，不保證無損',
+            onTap: () =>
+                showToast(context, '已建立 CSV 檢視', kind: ToastKind.success),
+          ),
         ),
       ],
     );

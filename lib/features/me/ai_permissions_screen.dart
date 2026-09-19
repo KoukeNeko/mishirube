@@ -42,37 +42,51 @@ class _AiPermissionsScreenState extends State<AiPermissionsScreen> {
     return DetailPage(
       appBar: const PageAppBar(title: 'AI 權限', subtitle: '自備金鑰 · 可隨時關閉'),
       children: [
-        const AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('提供者', style: AppTextStyles.overline),
-              SizedBox(height: AppSpacing.xs),
-              Text('OpenAI-compatible · 自架端點', style: AppTextStyles.pageTitle),
-              SizedBox(height: AppSpacing.sm),
-              Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xs,
-                children: [
-                  TagChip(label: '金鑰存在系統鑰匙圈', tone: TagTone.training),
-                  TagChip(label: '不寫入資料庫、log 或匯出檔'),
-                ],
-              ),
-            ],
+        Gutter(
+          child: const AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('提供者', style: AppTextStyles.overline),
+                SizedBox(height: AppSpacing.xs),
+                Text(
+                  'OpenAI-compatible · 自架端點',
+                  style: AppTextStyles.pageTitle,
+                ),
+                SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    TagChip(label: '金鑰存在系統鑰匙圈', tone: TagTone.training),
+                    TagChip(label: '不寫入資料庫、log 或匯出檔'),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const SectionLabel('可以讀取哪些資料'),
-        _checkList(_readableData),
-        const Text('每次請求前，會先列出實際要送出的資料範圍。', style: AppTextStyles.caption),
-        const SectionLabel('可以做哪些操作'),
-        _checkList(_allowedActions),
-        const Text(
-          'AI 只會產生草稿。任何修改都會先顯示差異，由你確認才寫入。',
-          style: AppTextStyles.caption,
+        Gutter(child: const SectionLabel('可以讀取哪些資料')),
+        Gutter(child: _checkList(_readableData)),
+        Gutter(
+          child: const Text(
+            '每次請求前，會先列出實際要送出的資料範圍。',
+            style: AppTextStyles.caption,
+          ),
         ),
-        SecondaryButton(
-          label: '查看修改紀錄',
-          onPressed: () => pushPage(context, const AiProposalScreen()),
+        Gutter(child: const SectionLabel('可以做哪些操作')),
+        Gutter(child: _checkList(_allowedActions)),
+        Gutter(
+          child: const Text(
+            'AI 只會產生草稿。任何修改都會先顯示差異，由你確認才寫入。',
+            style: AppTextStyles.caption,
+          ),
+        ),
+        Gutter(
+          child: SecondaryButton(
+            label: '查看修改紀錄',
+            onPressed: () => pushPage(context, const AiProposalScreen()),
+          ),
         ),
       ],
     );

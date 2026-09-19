@@ -40,10 +40,12 @@ class OnboardingScreen extends StatelessWidget {
       ),
       children: [
         for (final module in AppModule.values)
-          _ModuleTile(
-            module: module,
-            isEnabled: enabled.contains(module),
-            onTap: () => store.toggleModule(module),
+          Gutter(
+            child: _ModuleTile(
+              module: module,
+              isEnabled: enabled.contains(module),
+              onTap: () => store.toggleModule(module),
+            ),
           ),
       ],
     );

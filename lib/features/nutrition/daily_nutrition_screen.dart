@@ -50,11 +50,14 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       ),
       children: [
         for (final meal in meals)
-          _MealCard(
-            meal: meal,
-            isExpanded: (dish) => _expanded.contains('${meal.id}/${dish.name}'),
-            onToggle: (dish) => _toggle('${meal.id}/${dish.name}'),
-            onSplit: (dishIndex) => _split(meal, dishIndex),
+          Gutter(
+            child: _MealCard(
+              meal: meal,
+              isExpanded: (dish) =>
+                  _expanded.contains('${meal.id}/${dish.name}'),
+              onToggle: (dish) => _toggle('${meal.id}/${dish.name}'),
+              onSplit: (dishIndex) => _split(meal, dishIndex),
+            ),
           ),
       ],
     );

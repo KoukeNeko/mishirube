@@ -171,4 +171,44 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('pages add no side padding; elements space themselves', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(
+      MishirubeApp(store: _store()..selectTab(HomeTab.log)),
+    );
+    await tester.pump();
+
+    final visibleList = find.byType(CustomScrollView).hitTestable().first;
+    final listPadding = tester
+        .widget<SliverPadding>(
+          // The page's own list padding comes first; the chip row's inner
+          // ListView has one too.
+          find
+              .descendant(of: visibleList, matching: find.byType(SliverPadding))
+              .first,
+        )
+        .padding
+        .resolve(TextDirection.ltr);
+    expect(listPadding.left, 0);
+    expect(listPadding.right, 0);
+
+    // An ordinary element brings its own 20pt.
+    expect(
+      tester.getRect(find.text('今天 · 9 月 19 日（週六）')).left,
+      AppSpacing.screenGutter,
+    );
+
+    // Full-bleed chip row: runs edge to edge, content still starts at 20.
+    final chips = find.byType(ListView).hitTestable().first;
+    expect(tester.getRect(chips).left, 0);
+    expect(tester.getRect(chips).width, phoneSize.width);
+    expect(
+      tester.getRect(find.text('全部')).left,
+      greaterThan(AppSpacing.screenGutter),
+    );
+    await disposeTree(tester);
+  });
 }

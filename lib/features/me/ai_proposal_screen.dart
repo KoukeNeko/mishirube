@@ -48,45 +48,52 @@ class AiProposalScreen extends StatelessWidget {
         ),
       ),
       children: [
-        const AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('你問的是', style: AppTextStyles.overline),
-              SizedBox(height: AppSpacing.xs),
-              Text('「最近深蹲的組數是不是太少了？幫我加回來。」', style: AppTextStyles.body),
-            ],
+        Gutter(
+          child: const AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('你問的是', style: AppTextStyles.overline),
+                SizedBox(height: AppSpacing.xs),
+                Text('「最近深蹲的組數是不是太少了？幫我加回來。」', style: AppTextStyles.body),
+              ],
+            ),
           ),
         ),
-        const SectionLabel('會改動 2 個動作'),
-        for (final change in _changes) _ChangeRow(change: change),
-        const AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('理由', style: AppTextStyles.overline),
-              SizedBox(height: AppSpacing.xs),
-              Text(
-                '每週有效組數從 12 降到 8，依你設定的「肌力維持」目標，'
-                '訓練引擎建議的區間是 10 – 12 組。',
-                style: AppTextStyles.body,
-              ),
-              SizedBox(height: AppSpacing.md),
-              Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.xs,
-                children: [
-                  TagChip(label: '送出的資料：近 4 週訓練紀錄'),
-                  TagChip(label: '模型：自架端點'),
-                  TagChip(label: '不會改到訓練紀錄', tone: TagTone.training),
-                ],
-              ),
-            ],
+        Gutter(child: const SectionLabel('會改動 2 個動作')),
+        for (final change in _changes)
+          Gutter(child: _ChangeRow(change: change)),
+        Gutter(
+          child: const AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('理由', style: AppTextStyles.overline),
+                SizedBox(height: AppSpacing.xs),
+                Text(
+                  '每週有效組數從 12 降到 8，依你設定的「肌力維持」目標，'
+                  '訓練引擎建議的區間是 10 – 12 組。',
+                  style: AppTextStyles.body,
+                ),
+                SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    TagChip(label: '送出的資料：近 4 週訓練紀錄'),
+                    TagChip(label: '模型：自架端點'),
+                    TagChip(label: '不會改到訓練紀錄', tone: TagTone.training),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const Text(
-          '接受後會留下紀錄：什麼模型、什麼時間、你確認了哪些項目。',
-          style: AppTextStyles.caption,
+        Gutter(
+          child: const Text(
+            '接受後會留下紀錄：什麼模型、什麼時間、你確認了哪些項目。',
+            style: AppTextStyles.caption,
+          ),
         ),
       ],
     );

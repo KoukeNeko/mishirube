@@ -52,35 +52,37 @@ class WorkoutSummaryScreen extends StatelessWidget {
         onPressed: () => returnToTab(context, HomeTab.today),
       ),
       children: [
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              StatRow(
-                stats: [
-                  StatBlock(value: duration, label: '時長'),
-                  StatBlock(value: '$totalSets', label: '總組數'),
-                  StatBlock(
-                    value: '$records',
-                    label: '新紀錄',
-                    valueColor: AppColors.training,
-                  ),
-                ],
-              ),
-              if (records > 0) ...const [
-                Divider(height: AppSpacing.xxl),
-                Text(
-                  '槓鈴深蹲 100 kg × 5，估計最大重量從 114 kg 升到 117 kg。',
-                  style: AppTextStyles.body,
+        Gutter(
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StatRow(
+                  stats: [
+                    StatBlock(value: duration, label: '時長'),
+                    StatBlock(value: '$totalSets', label: '總組數'),
+                    StatBlock(
+                      value: '$records',
+                      label: '新紀錄',
+                      valueColor: AppColors.training,
+                    ),
+                  ],
                 ),
-                SizedBox(height: AppSpacing.sm),
-                TagWrap(labels: ['Epley 公式估計', '非實測']),
+                if (records > 0) ...const [
+                  Divider(height: AppSpacing.xxl),
+                  Text(
+                    '槓鈴深蹲 100 kg × 5，估計最大重量從 114 kg 升到 117 kg。',
+                    style: AppTextStyles.body,
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                  TagWrap(labels: ['Epley 公式估計', '非實測']),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-        const SectionLabel('動作'),
-        for (final result in results) _ResultRow(result: result),
+        Gutter(child: const SectionLabel('動作')),
+        for (final result in results) Gutter(child: _ResultRow(result: result)),
       ],
     );
   }

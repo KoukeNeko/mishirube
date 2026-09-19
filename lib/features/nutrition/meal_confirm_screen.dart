@@ -86,38 +86,42 @@ class _MealConfirmScreenState extends State<MealConfirmScreen> {
         ),
       ),
       children: [
-        const _PhotoPlaceholder(),
-        const InfoBanner(
-          tone: CardTone.nutrition,
-          message: '以下是推測結果，份量以區間表示。確認後才會存成你的紀錄。',
+        Gutter(child: const _PhotoPlaceholder()),
+        Gutter(
+          child: const InfoBanner(
+            tone: CardTone.nutrition,
+            message: '以下是推測結果，份量以區間表示。確認後才會存成你的紀錄。',
+          ),
         ),
-        const _InferredDishCard(dish: MockNutrition.sandwich),
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('幫我確認兩件事', style: AppTextStyles.itemTitle),
-              const SizedBox(height: AppSpacing.sm),
-              const Text('美乃滋的份量比較接近？', style: AppTextStyles.caption),
-              const SizedBox(height: AppSpacing.xs),
-              SegmentedChoice(
-                options: _MayoAmount.values,
-                selected: _mayo,
-                labelOf: (amount) => amount.label,
-                selectedColor: AppColors.nutrition,
-                onChanged: (amount) => setState(() => _mayo = amount),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const Text('雞腿肉大約幾克？', style: AppTextStyles.caption),
-              const SizedBox(height: AppSpacing.xs),
-              SegmentedChoice<_ChickenAmount?>(
-                options: _ChickenAmount.values,
-                selected: _chicken,
-                labelOf: (amount) => amount!.label,
-                selectedColor: AppColors.nutrition,
-                onChanged: (amount) => setState(() => _chicken = amount),
-              ),
-            ],
+        Gutter(child: const _InferredDishCard(dish: MockNutrition.sandwich)),
+        Gutter(
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('幫我確認兩件事', style: AppTextStyles.itemTitle),
+                const SizedBox(height: AppSpacing.sm),
+                const Text('美乃滋的份量比較接近？', style: AppTextStyles.caption),
+                const SizedBox(height: AppSpacing.xs),
+                SegmentedChoice(
+                  options: _MayoAmount.values,
+                  selected: _mayo,
+                  labelOf: (amount) => amount.label,
+                  selectedColor: AppColors.nutrition,
+                  onChanged: (amount) => setState(() => _mayo = amount),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                const Text('雞腿肉大約幾克？', style: AppTextStyles.caption),
+                const SizedBox(height: AppSpacing.xs),
+                SegmentedChoice<_ChickenAmount?>(
+                  options: _ChickenAmount.values,
+                  selected: _chicken,
+                  labelOf: (amount) => amount!.label,
+                  selectedColor: AppColors.nutrition,
+                  onChanged: (amount) => setState(() => _chicken = amount),
+                ),
+              ],
+            ),
           ),
         ),
       ],

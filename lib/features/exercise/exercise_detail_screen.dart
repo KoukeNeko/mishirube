@@ -45,34 +45,37 @@ class ExerciseDetailScreen extends StatelessWidget {
             )
           : null,
       children: [
-        const _DemoPlaceholder(),
-        _SpecCard(exercise: exercise),
+        Gutter(child: const _DemoPlaceholder()),
+        Gutter(child: _SpecCard(exercise: exercise)),
         if (exercise.cues.isNotEmpty) ...[
-          const SectionLabel('重點提示'),
-          _CueList(cues: exercise.cues),
+          Gutter(child: const SectionLabel('重點提示')),
+          Gutter(child: _CueList(cues: exercise.cues)),
         ],
-        const SectionLabel('你的紀錄'),
+        Gutter(child: const SectionLabel('你的紀錄')),
         if (hasHistory)
-          const _HistoryCard()
+          Gutter(child: const _HistoryCard())
         else
-          const InfoBanner(message: '還沒有這個動作的紀錄，做過一次之後這裡會顯示歷史。'),
-        const SectionLabel('管理'),
-        GroupedCard(
-          children: [
-            NavRow(
-              title: exercise.isFavorite ? '取消收藏' : '加入收藏',
-              onTap: () => showToast(context, '已更新收藏', kind: ToastKind.success),
-            ),
-            NavRow(
-              title: '編輯我的別名',
-              subtitle: exercise.aliases.join('、'),
-              onTap: () => showToast(context, '別名只影響你自己的搜尋'),
-            ),
-            NavRow(
-              title: '隱藏這個動作',
-              onTap: () => showToast(context, '隱藏不會刪除歷史紀錄'),
-            ),
-          ],
+          Gutter(child: const InfoBanner(message: '還沒有這個動作的紀錄，做過一次之後這裡會顯示歷史。')),
+        Gutter(child: const SectionLabel('管理')),
+        Gutter(
+          child: GroupedCard(
+            children: [
+              NavRow(
+                title: exercise.isFavorite ? '取消收藏' : '加入收藏',
+                onTap: () =>
+                    showToast(context, '已更新收藏', kind: ToastKind.success),
+              ),
+              NavRow(
+                title: '編輯我的別名',
+                subtitle: exercise.aliases.join('、'),
+                onTap: () => showToast(context, '別名只影響你自己的搜尋'),
+              ),
+              NavRow(
+                title: '隱藏這個動作',
+                onTap: () => showToast(context, '隱藏不會刪除歷史紀錄'),
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -73,11 +73,13 @@ class _LogScreenState extends State<LogScreen> {
       ],
       // Switching views changes the whole page, so it stays pinned; the
       // category chips only narrow the list and scroll away with it.
-      pinned: SegmentedChoice(
-        options: _LogView.values,
-        selected: _view,
-        labelOf: (view) => view == _LogView.timeline ? '時間軸' : '月曆',
-        onChanged: (view) => setState(() => _view = view),
+      pinned: Gutter(
+        child: SegmentedChoice(
+          options: _LogView.values,
+          selected: _view,
+          labelOf: (view) => view == _LogView.timeline ? '時間軸' : '月曆',
+          onChanged: (view) => setState(() => _view = view),
+        ),
       ),
       children: _view == _LogView.timeline ? _timeline() : _calendar(),
     );
@@ -85,10 +87,15 @@ class _LogScreenState extends State<LogScreen> {
 
   List<Widget> _timeline() {
     return [
+      // Full-bleed: the chips scroll to the screen edge, so the row pads
+      // its own content instead of taking a Gutter.
       SizedBox(
         height: 44,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenGutter,
+          ),
           itemCount: _LogFilter.values.length,
           separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
           itemBuilder: (_, index) {
@@ -102,9 +109,11 @@ class _LogScreenState extends State<LogScreen> {
         ),
       ),
       for (final day in MockTimeline.days) ...[
-        _DayHeader(day: day),
+        Gutter(child: _DayHeader(day: day)),
         for (final entry in day.entries.where(_filter.accepts))
-          _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+          Gutter(
+            child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+          ),
       ],
     ];
   }
@@ -112,25 +121,32 @@ class _LogScreenState extends State<LogScreen> {
   List<Widget> _calendar() {
     final dots = MockTimeline.septemberDots[_selectedDay] ?? const [];
     return [
-      MonthCalendar(
-        selectedDay: _selectedDay,
-        today: mockToday.day,
-        dotsByDay: MockTimeline.septemberDots,
-        onSelect: (day) => setState(() => _selectedDay = day),
+      Gutter(
+        child: MonthCalendar(
+          selectedDay: _selectedDay,
+          today: mockToday.day,
+          dotsByDay: MockTimeline.septemberDots,
+          onSelect: (day) => setState(() => _selectedDay = day),
+        ),
       ),
-      const _CalendarLegend(),
-      SectionLabel(
-        '9 月 $_selectedDay 日',
-        trailing: LinkText(
-          label: '在時間軸開啟',
-          onTap: () => setState(() => _view = _LogView.timeline),
+      Gutter(child: const _CalendarLegend()),
+      Gutter(
+        child: SectionLabel(
+          '9 月 $_selectedDay 日',
+          trailing: LinkText(
+            label: '在時間軸開啟',
+            onTap: () => setState(() => _view = _LogView.timeline),
+          ),
         ),
       ),
       if (dots.isEmpty)
-        const InfoBanner(message: '這天沒有紀錄。')
+        Gutter(child: const InfoBanner(message: '這天沒有紀錄。'))
       else
-        for (final category in dots) _DaySummaryRow(category: category),
-      const Text('尚未發生的日期不顯示 0 或 --。', style: AppTextStyles.caption),
+        for (final category in dots)
+          Gutter(child: _DaySummaryRow(category: category)),
+      Gutter(
+        child: const Text('尚未發生的日期不顯示 0 或 --。', style: AppTextStyles.caption),
+      ),
     ];
   }
 }

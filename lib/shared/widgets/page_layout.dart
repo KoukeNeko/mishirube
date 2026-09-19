@@ -7,6 +7,24 @@ import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
 import '../toast/toast_host.dart';
 
+/// Page layouts add no horizontal padding; each element on a page spaces
+/// itself from the screen edges by wrapping itself in a Gutter. Elements
+/// that should run edge to edge (horizontal chip rows) skip it and pad their
+/// own content instead.
+class Gutter extends StatelessWidget {
+  const Gutter({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenGutter),
+      child: child,
+    );
+  }
+}
+
 enum AppBarLeading { back, none }
 
 /// What a page shows in the shared app bar. Every page renders it through
