@@ -8,7 +8,6 @@ export '../../../shared/motion.dart';
 abstract final class ChromeMetrics {
   static const gap = 8.0;
   static const minTapTarget = 44.0;
-  static const blurSigma = 24.0;
   static const accessoryHeight = 54.0;
   static const timerCapsuleWidth = 136.0;
 

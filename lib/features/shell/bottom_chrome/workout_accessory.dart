@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../data/models.dart';
+import '../../../shared/widgets/chrome_surface.dart';
 import '../../../shared/widgets/elapsed_clock.dart';
 import 'chrome_metrics.dart';
-import 'chrome_surface.dart';
 
 /// Persistent bar above the dock while a workout runs, so the other tabs
 /// stay reachable mid-session.

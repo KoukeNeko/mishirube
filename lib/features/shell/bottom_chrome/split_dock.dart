@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../app/app_store.dart';
 import '../../../app/theme.dart';
 import '../../../data/models.dart';
+import '../../../shared/widgets/chrome_surface.dart';
 import '../../../shared/widgets/elapsed_clock.dart';
 import 'chrome_metrics.dart';
-import 'chrome_surface.dart';
 
 /// Width of a tab's icon area; its height comes from [DockMetrics.iconBox].
 const _indicatorWidth = 56.0;
