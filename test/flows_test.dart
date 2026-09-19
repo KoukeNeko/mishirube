@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -171,6 +172,88 @@ void main() {
     await tester.tap(find.text('今天').hitTestable().first);
     await tester.pump();
     expect(find.text('2026 年 9 月'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('log search stretches over the header and filters', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.bySemanticsLabel('搜尋紀錄').hitTestable());
+    await tester.pumpAndSettle();
+    final field = find.byType(TextField).hitTestable();
+    expect(field, findsOneWidget);
+    final todayAction = find.widgetWithText(HeaderAction, '今天');
+    expect(
+      todayAction.hitTestable(),
+      findsNothing,
+      reason: 'the other actions are pushed out of the row',
+    );
+    final bar = tester.getRect(
+      find.ancestor(of: field, matching: find.byType(Container)).first,
+    );
+    expect(bar.left, AppSpacing.screenGutter, reason: 'reaches the gutter');
+    expect(
+      tester.getRect(todayAction).right,
+      lessThan(0),
+      reason: 'pushed right off the screen, not clipped short of it',
+    );
+
+    await tester.enterText(field, '午餐');
+    await tester.pump();
+    expect(find.text('晚餐'), findsNothing);
+    expect(find.text('午餐'), findsWidgets);
+
+    await tester.enterText(field, '不存在的紀錄');
+    await tester.pump();
+    expect(find.text('找不到符合「不存在的紀錄」的紀錄。'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('關閉搜尋'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField).hitTestable(), findsNothing);
+    expect(todayAction.hitTestable(), findsOneWidget);
+    expect(find.text('晚餐'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('tapping outside search puts the keyboard away', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+    final todayAction = find.widgetWithText(HeaderAction, '今天');
+    Future<void> openSearch() async {
+      await tester.tap(find.bySemanticsLabel('搜尋紀錄').hitTestable());
+      await tester.pumpAndSettle();
+    }
+
+    // With a query: keyboard goes, search and its results stay.
+    await openSearch();
+    final field = find.byType(TextField).hitTestable();
+    await tester.enterText(field, '午餐');
+    await tester.pump();
+    // Blank space beside the large title.
+    await tester.tapAt(const Offset(300, 110));
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isFalse);
+    expect(field, findsOneWidget);
+    expect(find.text('晚餐'), findsNothing);
+
+    // Empty: leaving the field closes search too.
+    await tester.tap(find.bySemanticsLabel('關閉搜尋'));
+    await tester.pumpAndSettle();
+    await openSearch();
+    // Blank space beside the large title.
+    await tester.tapAt(const Offset(300, 110));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField).hitTestable(), findsNothing);
+    expect(todayAction.hitTestable(), findsOneWidget);
     await disposeTree(tester);
   });
 }

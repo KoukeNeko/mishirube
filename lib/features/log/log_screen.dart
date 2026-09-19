@@ -37,6 +37,7 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   _LogView _view = _LogView.timeline;
   _LogFilter _filter = _LogFilter.all;
+  String _query = '';
 
   /// First day of the month being browsed.
   DateTime _month = DateTime(mockToday.year, mockToday.month);
@@ -52,6 +53,22 @@ class _LogScreenState extends State<LogScreen> {
       _selectedDay = _isCurrentMonth ? mockToday.day : 1;
     });
   }
+
+  void _search(String query) {
+    setState(() {
+      _query = query.trim();
+      // Results are listed on the timeline.
+      if (_query.isNotEmpty) _view = _LogView.timeline;
+    });
+  }
+
+  bool _matchesQuery(TimelineEntry entry) =>
+      _query.isEmpty ||
+      [
+        entry.title,
+        entry.detail,
+        ...entry.tags,
+      ].any((text) => text.contains(_query));
 
   void _goToToday() {
     setState(() {
@@ -93,24 +110,26 @@ class _LogScreenState extends State<LogScreen> {
       subtitle: '${_month.year} 年 ${_month.month} 月',
       compactBar: CompactBarBehavior.none,
       actions: [
-        HeaderAction(
-          icon: Icons.today_outlined,
-          label: '今天',
-          semanticLabel: '回到今天',
-          onTap: _goToToday,
-        ),
-        Builder(
-          builder: (buttonContext) => HeaderAction(
-            icon: Icons.calendar_month_outlined,
-            label: '${_month.month}月',
-            semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
-            onTap: () => _pickMonth(buttonContext),
-          ),
-        ),
-        HeaderAction(
-          icon: Icons.search,
-          semanticLabel: '搜尋紀錄',
-          onTap: () => showToast(context, '紀錄搜尋尚未設計'),
+        SearchableHeaderActions(
+          hint: '搜尋紀錄',
+          searchLabel: '搜尋紀錄',
+          onChanged: _search,
+          actions: [
+            HeaderAction(
+              icon: Icons.today_outlined,
+              label: '今天',
+              semanticLabel: '回到今天',
+              onTap: _goToToday,
+            ),
+            Builder(
+              builder: (buttonContext) => HeaderAction(
+                icon: Icons.calendar_month_outlined,
+                label: '${_month.month}月',
+                semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
+                onTap: () => _pickMonth(buttonContext),
+              ),
+            ),
+          ],
         ),
       ],
       // Switching views changes the whole page, so it stays pinned; the
@@ -128,6 +147,12 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   List<Widget> _timeline() {
+    final days = [
+      for (final day in MockTimeline.days)
+        if (day.entries.where(_filter.accepts).where(_matchesQuery).toList()
+            case final entries when entries.isNotEmpty || _query.isEmpty)
+          (day, entries),
+    ];
     return [
       // Full-bleed: the chips scroll to the screen edge, so the row pads
       // its own content instead of taking a Gutter.
@@ -150,10 +175,12 @@ class _LogScreenState extends State<LogScreen> {
           },
         ),
       ),
-      if (_month == MockTimeline.recordMonth)
-        for (final day in MockTimeline.days) ...[
+      if (_month == MockTimeline.recordMonth && days.isEmpty)
+        Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
+      else if (_month == MockTimeline.recordMonth)
+        for (final (day, entries) in days) ...[
           Gutter(child: _DayHeader(day: day)),
-          for (final entry in day.entries.where(_filter.accepts))
+          for (final entry in entries)
             Gutter(
               child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
             ),
