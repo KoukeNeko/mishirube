@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../haptics.dart';
 
 const _buttonHeight = 60.0;
 const _compactButtonHeight = 48.0;
@@ -111,7 +112,7 @@ class _AppButton extends StatelessWidget {
       height: height,
       width: double.infinity,
       child: FilledButton(
-        onPressed: onPressed,
+        onPressed: _withTap(onPressed),
         style: FilledButton.styleFrom(
           backgroundColor: background,
           foregroundColor: foreground,
@@ -159,7 +160,7 @@ class SquareIconButton extends StatelessWidget {
       dimension: size,
       child: IconButton.filled(
         tooltip: tooltip,
-        onPressed: onPressed,
+        onPressed: _withTap(onPressed),
         style: IconButton.styleFrom(
           backgroundColor: AppColors.surfaceRaised,
           foregroundColor: color,
@@ -192,7 +193,7 @@ class LinkText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: _withTap(onTap),
       child: ConstrainedBox(
         // Text-sized, but still a full touch target.
         constraints: const BoxConstraints(minHeight: 44),
@@ -212,3 +213,11 @@ class LinkText extends StatelessWidget {
     );
   }
 }
+
+/// Wraps a button callback with the shared press haptic.
+VoidCallback? _withTap(VoidCallback? onPressed) => onPressed == null
+    ? null
+    : () {
+        AppHaptics.tap();
+        onPressed();
+      };

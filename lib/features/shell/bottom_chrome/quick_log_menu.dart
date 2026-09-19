@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../record/add_record_sheet.dart';
 import 'chrome_metrics.dart';
+import '../../../shared/haptics.dart';
 
 const _menuDuration = Duration(milliseconds: 280);
 const _quickOptionCount = 4;
@@ -256,7 +257,10 @@ class _MenuItem extends StatelessWidget {
       shadowColor: Colors.black,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          AppHaptics.tap();
+          onTap();
+        },
         child: SizedBox(
           height: _itemHeight,
           child: Padding(
@@ -296,7 +300,10 @@ class _CloseButton extends StatelessWidget {
         backgroundColor: AppColors.training,
         foregroundColor: AppColors.onTraining,
         shape: const CircleBorder(),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          AppHaptics.tap();
+          Navigator.of(context).pop();
+        },
         child: RotationTransition(
           turns: Tween(begin: 0.0, end: 0.125).animate(animation),
           child: const Icon(Icons.add, size: 32),

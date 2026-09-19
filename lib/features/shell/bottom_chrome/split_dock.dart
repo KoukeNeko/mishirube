@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/services.dart';
 
 import '../../../app/app_store.dart';
 import '../../../app/theme.dart';
@@ -12,6 +11,7 @@ import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
+import '../../../shared/haptics.dart';
 
 /// Width of a tab's icon area; its height comes from [DockMetrics.iconBox].
 const _indicatorWidth = 56.0;
@@ -167,11 +167,9 @@ class _CapsuleState extends State<_Capsule> {
   void _select(HomeTab tab) {
     // A selection tick only when the selection actually changes; Android
     // tab bars do not buzz.
-    if (tab != widget.selected && _isIOS) HapticFeedback.selectionClick();
+    if (tab != widget.selected) AppHaptics.selection(context);
     widget.onSelect(tab);
   }
-
-  bool get _isIOS => Theme.of(context).platform == TargetPlatform.iOS;
 
   double get _cellWidth => _size.width / widget.tabs.length;
 
@@ -199,7 +197,7 @@ class _CapsuleState extends State<_Capsule> {
     final preview = _previewAt(position.dx);
     if (preview != _previewIndex) {
       _previewIndex = preview;
-      if (_isIOS) HapticFeedback.selectionClick();
+      AppHaptics.selection(context);
     }
   }
 
@@ -565,7 +563,7 @@ class _CenterAction extends StatelessWidget {
     final session = workout;
     void activate() {
       // The primary action gets a firmer tap than tab selection.
-      HapticFeedback.lightImpact();
+      AppHaptics.tap();
       session == null ? onQuickLog() : onOpenWorkout();
     }
 

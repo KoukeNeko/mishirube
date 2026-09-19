@@ -5,6 +5,7 @@ import '../../../data/models.dart';
 import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
+import '../../../shared/haptics.dart';
 
 /// Persistent bar above the dock while a workout runs, so the other tabs
 /// stay reachable mid-session.
@@ -46,7 +47,10 @@ class WorkoutAccessory extends StatelessWidget {
                 excludeSemantics: true,
                 child: InkWell(
                   key: const ValueKey('workout-accessory-open'),
-                  onTap: onOpen,
+                  onTap: () {
+                    AppHaptics.tap();
+                    onOpen();
+                  },
                   customBorder: const StadiumBorder(),
                   child: SizedBox.expand(child: _Status(workout: workout)),
                 ),
@@ -117,7 +121,10 @@ class _AccessoryIcon extends StatelessWidget {
       dimension: ChromeMetrics.accessoryHeight,
       child: IconButton(
         tooltip: tooltip,
-        onPressed: onTap,
+        onPressed: () {
+          AppHaptics.tap();
+          onTap();
+        },
         color: AppColors.textPrimary,
         icon: Icon(icon),
       ),

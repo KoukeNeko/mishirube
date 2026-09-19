@@ -4,11 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
-import 'package:mishirube/shared/widgets/chrome/chrome_surface.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -588,6 +589,52 @@ void main() {
         tester.getCenter(find.byKey(_centerAction)).dx,
         closeTo(dock.center.dx, 0.01),
       );
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
+    'buttons tap, choices tick, back stays silent',
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    (tester) async {
+      final haptics = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'HapticFeedback.vibrate') {
+            haptics.add(call.arguments);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      final store = await _pumpApp(tester, FakeClock());
+      store.selectTab(HomeTab.log);
+      await _settleFor(tester);
+
+      await tester.tap(find.text('飲食').hitTestable().first);
+      await tester.pump();
+      expect(haptics, ['HapticFeedbackType.selectionClick']);
+
+      await tester.tap(find.text('今天').hitTestable().first);
+      await tester.pump();
+      expect(haptics.last, 'HapticFeedbackType.lightImpact');
+
+      haptics.clear();
+      await disposeTree(tester);
+      await pumpScreen(
+        tester,
+        const ImportScreen(),
+        store: AppStore(clock: FakeClock().now, isOnboarded: true),
+      );
+      await tester.tap(find.byType(AppBarBackButton));
+      await tester.pump();
+      expect(haptics, isEmpty);
       await disposeTree(tester);
     },
   );

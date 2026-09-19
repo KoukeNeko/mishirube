@@ -83,6 +83,7 @@ class SelectChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = Pill(
       onTap: onTap,
+      isSelection: true,
       color: isSelected ? selectedColor : AppColors.surfaceRaised,
       foregroundColor: isSelected
           ? AppColors.onTraining

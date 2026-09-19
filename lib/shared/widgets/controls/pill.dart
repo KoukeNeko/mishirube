@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../page/collapsing_header.dart';
+import '../../haptics.dart';
 
 const _pillLabelStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
 const _pillVerticalPadding = AppSpacing.xs;
@@ -34,6 +35,7 @@ class Pill extends StatelessWidget {
     this.color = AppColors.surfaceRaised,
     this.foregroundColor = AppColors.textPrimary,
     this.horizontalPadding = AppSpacing.md,
+    this.isSelection = false,
   });
 
   final Widget child;
@@ -41,6 +43,10 @@ class Pill extends StatelessWidget {
   final Color color;
   final Color foregroundColor;
   final double horizontalPadding;
+
+  /// Picks an option (chip, segment) rather than acting: ticks like a
+  /// selection instead of tapping like a button.
+  final bool isSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +56,12 @@ class Pill extends StatelessWidget {
       shape: const StadiumBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap == null
+            ? null
+            : () {
+                isSelection ? AppHaptics.selection(context) : AppHaptics.tap();
+                onTap!();
+              },
         child: ConstrainedBox(
           constraints: BoxConstraints(minWidth: size, minHeight: size),
           child: Padding(
