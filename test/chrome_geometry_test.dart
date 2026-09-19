@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -179,6 +180,47 @@ void main() {
       expect(pill.height, toolbar.actionVisualSize);
       expect(pill.center.dy, closeTo(rowCenter, 0.5));
       expect(title.center.dy, closeTo(rowCenter, 0.5));
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
+    'every page shrinks to the same bar height',
+    variant: bothPlatforms,
+    (tester) async {
+      final toolbar = toolbarMetrics();
+      Future<double> shrunkHeight() async {
+        for (var i = 0; i < 3; i++) {
+          await _dragAndSettle(tester, 600);
+        }
+        return tester
+            .getRect(find.byType(ScrollEdgeGlass).hitTestable().first)
+            .height;
+      }
+
+      final store = await _pumpShell(tester);
+      for (final tab in HomeTab.values) {
+        store.selectTab(tab);
+        await tester.pump(_settle);
+        expect(
+          await shrunkHeight(),
+          phoneTopInset + toolbar.height,
+          reason: '$tab',
+        );
+      }
+
+      // Without a compact bar the pinned switch takes the toolbar's place.
+      store.selectTab(HomeTab.log);
+      await tester.pump(_settle);
+      final chip = tester.getRect(find.text('時間軸').hitTestable());
+      expect(
+        chip.center.dy,
+        closeTo(phoneTopInset + toolbar.controlRowHeight / 2, 0.5),
+      );
+      await disposeTree(tester);
+
+      await pumpScreen(tester, const ImportScreen(), store: store);
+      expect(await shrunkHeight(), phoneTopInset + toolbar.height);
       await disposeTree(tester);
     },
   );

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -133,6 +134,23 @@ double measurePinnedControlHeight(BuildContext context) {
     maxWidth: double.infinity,
   );
   return label + _chipVerticalPadding * 2 + _pinnedVerticalPadding * 2;
+}
+
+/// Height of the pinned slot, given its [measured] height (control plus the
+/// normal vertical padding). Without a compact bar the pinned row *is* the
+/// bar at its smallest, so it takes the toolbar's height and layout and only
+/// grows when large text needs it.
+double pinnedSlotHeight({
+  required double measured,
+  required ToolbarMetrics toolbar,
+  required bool isBar,
+}) {
+  if (!isBar) return measured;
+  final control = measured - _pinnedVerticalPadding * 2;
+  return math.max(
+    toolbar.height,
+    control + toolbar.height - toolbar.controlRowHeight,
+  );
 }
 
 /// A page header that starts as content (large title) and collapses into a
@@ -287,12 +305,21 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
             if (pinned != null)
               SizedBox(
                 height: pinnedHeight,
+                // As the bar, the control sits where toolbar controls do:
+                // in the control row, with the bar's extra space below.
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.screenGutter,
-                    vertical: _pinnedVerticalPadding,
-                  ),
-                  child: pinned,
+                  padding: scrollsToolbarAway
+                      ? EdgeInsets.fromLTRB(
+                          AppSpacing.screenGutter,
+                          0,
+                          AppSpacing.screenGutter,
+                          toolbar.height - toolbar.controlRowHeight,
+                        )
+                      : const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screenGutter,
+                          vertical: _pinnedVerticalPadding,
+                        ),
+                  child: scrollsToolbarAway ? Center(child: pinned) : pinned,
                 ),
               ),
           ],

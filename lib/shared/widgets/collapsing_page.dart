@@ -65,16 +65,22 @@ class CollapsingPage extends StatelessWidget {
           subtitle: subtitle,
           maxWidth: constraints.maxWidth - AppSpacing.screenGutter * 2,
         );
+        final toolbar = ToolbarMetrics.of(context);
         final pinnedHeight = pinned == null
             ? 0.0
-            : this.pinnedHeight ?? measurePinnedControlHeight(context);
+            : pinnedSlotHeight(
+                measured:
+                    this.pinnedHeight ?? measurePinnedControlHeight(context),
+                toolbar: toolbar,
+                isBar: compactBar == CompactBarBehavior.none,
+              );
         return TweenAnimationBuilder<double>(
           tween: Tween(end: shouldHide ? 1 : 0),
           duration: chromeDuration(context, _autoHideDuration),
           curve: Curves.easeOut,
           builder: (context, hideFraction, _) => CollapsingScrollView(
             header: CollapsingHeaderDelegate(
-              toolbar: ToolbarMetrics.of(context),
+              toolbar: toolbar,
               topInset: media.padding.top,
               largeHeight: largeHeight,
               large: LargeTitleBlock(title: title, subtitle: subtitle),
