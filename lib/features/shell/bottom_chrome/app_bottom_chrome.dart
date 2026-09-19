@@ -20,6 +20,7 @@ class AppBottomChrome extends StatelessWidget {
     required this.onOpenWorkout,
     required this.onTogglePause,
     required this.onFinishWorkout,
+    required this.quickLogProgress,
   });
 
   final HomeTab selected;
@@ -30,6 +31,7 @@ class AppBottomChrome extends StatelessWidget {
   final VoidCallback onOpenWorkout;
   final VoidCallback onTogglePause;
   final VoidCallback onFinishWorkout;
+  final Animation<double> quickLogProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +77,7 @@ class AppBottomChrome extends StatelessWidget {
               workout: workout,
               onQuickLog: onQuickLog,
               onOpenWorkout: onOpenWorkout,
+              quickLogProgress: quickLogProgress,
             ),
           ],
         ),

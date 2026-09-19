@@ -467,10 +467,31 @@ void main() {
           phoneSize.width,
           reason: 'the page background still fills the screen',
         );
+        expect(
+          tester
+              .widget<ImageFiltered>(find.byType(ImageFiltered).first)
+              .enabled,
+          isTrue,
+          reason: 'the app behind the menu is blurred',
+        );
+        double centerOpacity() => tester
+            .widget<Opacity>(
+              find.byKey(const ValueKey('dock-center-visibility')),
+            )
+            .opacity;
+        expect(centerOpacity(), 0, reason: '× stands in for the blurred「+」');
 
         await tester.tap(find.byTooltip('關閉'));
         await _settleFor(tester);
         expect(contentRect(tester).width, phoneSize.width);
+        expect(
+          tester
+              .widget<ImageFiltered>(find.byType(ImageFiltered).first)
+              .enabled,
+          isFalse,
+          reason: 'no filter left running once closed',
+        );
+        expect(centerOpacity(), 1);
         await disposeTree(tester);
       },
     );

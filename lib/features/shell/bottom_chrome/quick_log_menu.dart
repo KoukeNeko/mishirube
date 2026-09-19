@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble;
+import 'dart:ui' show ImageFilter, lerpDouble;
 
 import 'package:flutter/material.dart';
 
@@ -18,10 +18,15 @@ const _itemHeight = 52.0;
 /// A Flutter-drawn scale also cannot move the system status bar, so a bigger
 /// step would look detached from it.
 const _recessScale = 0.975;
-const _recessDimIOS = 0.32;
+const _recessDimIOS = 0.42;
+
+/// A light blur, so the page reads as out of focus behind the menu yet
+/// still shows where the user is. Stronger (Control Center territory)
+/// would lose that context and cost too much at 120 Hz.
+const _recessBlurSigma = 8.0;
 
 /// Material's FAB menu does not push content back, so Android only dims.
-const _recessDimAndroid = 0.24;
+const _recessDimAndroid = 0.32;
 
 const quickLogMenuKey = ValueKey('quick-log-menu');
 
@@ -41,14 +46,17 @@ Future<void> showQuickLogMenu(
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),
     pageBuilder: (_, animation, _) => _QuickLogMenu(animation: animation),
+    // No route-wide fade: the items stagger in on their own, and × must be
+    // fully there the moment the dock's「+」hides under it.
+    transitionBuilder: (_, _, _, child) => child,
   );
   final future = Navigator.of(context).push(route);
   recess.parent = route.animation;
   return future;
 }
 
-/// Dims the whole app, dock included, while the quick-log menu is open, so
-/// the menu is the only thing in front.
+/// Dims and softly blurs the whole app, dock included, while the quick-log
+/// menu is open, so the menu is the only thing in focus.
 class QuickLogScrim extends StatelessWidget {
   const QuickLogScrim({
     super.key,
@@ -65,21 +73,30 @@ class QuickLogScrim extends StatelessWidget {
     final isIOS =
         platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     final dim = isIOS ? _recessDimIOS : _recessDimAndroid;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        child,
-        IgnorePointer(
-          child: AnimatedBuilder(
-            animation: animation,
-            builder: (context, _) => ColoredBox(
-              color: Colors.black.withValues(
-                alpha: dim * Curves.easeOutCubic.transform(animation.value),
-              ),
+    return AnimatedBuilder(
+      animation: animation,
+      child: RepaintBoundary(child: child),
+      // The tree shape never changes with the animation, so the app keeps
+      // its state; the filter is only switched on while it has an effect.
+      builder: (context, child) {
+        final t = Curves.easeOutCubic.transform(animation.value);
+        final sigma = _recessBlurSigma * t;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Filters the app itself rather than a full-screen backdrop,
+            // which Flutter documents as the cheaper way to blur a subtree.
+            ImageFiltered(
+              enabled: t > 0,
+              imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+              child: child,
             ),
-          ),
-        ),
-      ],
+            IgnorePointer(
+              child: ColoredBox(color: Colors.black.withValues(alpha: dim * t)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

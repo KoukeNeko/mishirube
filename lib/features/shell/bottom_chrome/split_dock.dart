@@ -48,6 +48,7 @@ class SplitDock extends StatelessWidget {
     required this.workout,
     required this.onQuickLog,
     required this.onOpenWorkout,
+    required this.quickLogProgress,
   });
 
   final HomeTab selected;
@@ -56,6 +57,9 @@ class SplitDock extends StatelessWidget {
   final WorkoutSession? workout;
   final VoidCallback onQuickLog;
   final VoidCallback onOpenWorkout;
+
+  /// Open progress of the quick-log menu, whose × stands in for「+」.
+  final Animation<double> quickLogProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -71,12 +75,22 @@ class SplitDock extends StatelessWidget {
         children: [
           Expanded(child: _capsule(_leadingTabs, metrics)),
           const SizedBox(width: ChromeMetrics.gap),
-          _CenterAction(
-            size: height,
-            metrics: metrics,
-            workout: showTimer ? workout : null,
-            onQuickLog: onQuickLog,
-            onOpenWorkout: onOpenWorkout,
+          // Hidden while the quick-log menu is open: its × replaces「+」
+          // in the same spot, sharp above the blurred app.
+          AnimatedBuilder(
+            animation: quickLogProgress,
+            builder: (context, child) => Opacity(
+              key: const ValueKey('dock-center-visibility'),
+              opacity: quickLogProgress.value > 0 ? 0 : 1,
+              child: child,
+            ),
+            child: _CenterAction(
+              size: height,
+              metrics: metrics,
+              workout: showTimer ? workout : null,
+              onQuickLog: onQuickLog,
+              onOpenWorkout: onOpenWorkout,
+            ),
           ),
           const SizedBox(width: ChromeMetrics.gap),
           Expanded(child: _capsule(_trailingTabs, metrics)),
@@ -548,13 +562,6 @@ class _CenterAction extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.training,
             borderRadius: BorderRadius.circular(AppRadius.chip),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.training.withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 3),
-              ),
-            ],
           ),
           child: GestureDetector(
             key: const ValueKey('dock-center-action'),

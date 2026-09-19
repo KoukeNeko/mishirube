@@ -120,6 +120,7 @@ class _HomeShellState extends State<HomeShell> {
           onOpenWorkout: () => pushPage(context, const ActiveWorkoutScreen()),
           onTogglePause: store.togglePause,
           onFinishWorkout: () => _confirmFinish(store),
+          quickLogProgress: _quickLogProgress,
         ),
       ),
     );
