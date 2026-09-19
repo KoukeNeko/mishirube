@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../app/theme.dart';
+import '../motion.dart';
 
 const _blurSigma = 24.0;
 const _glassOpacity = 0.72;
@@ -548,7 +549,7 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
     final target = offset < range / 2 ? 0.0 : range;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_controller.hasClients) return;
-      if (MediaQuery.disableAnimationsOf(context)) {
+      if (prefersReducedMotion(context)) {
         _controller.jumpTo(target);
       } else {
         _controller.animateTo(

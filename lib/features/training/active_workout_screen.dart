@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../data/models.dart';
 import '../../shared/format.dart';
+import '../../shared/motion.dart';
 import '../../shared/widgets/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
@@ -73,7 +74,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
             largeHeight: _WorkoutHero.measureHeight(context),
             solidColor: AppColors.trainingSurface,
             isHighContrast: media.highContrast,
-            reduceMotion: media.disableAnimations,
+            reduceMotion: prefersReducedMotion(context),
             leading: IconButton(
               tooltip: '收合',
               constraints: BoxConstraints.tightFor(

@@ -76,7 +76,7 @@ class CollapsingPage extends StatelessWidget {
               pinnedHeight: pinnedHeight,
               hideToolbarFraction: hideFraction,
               isHighContrast: media.highContrast,
-              reduceMotion: media.disableAnimations,
+              reduceMotion: prefersReducedMotion(context),
             ),
             children: children,
           ),

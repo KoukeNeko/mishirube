@@ -206,6 +206,26 @@ void main() {
     expect(duration, Duration.zero);
   });
 
+  testWidgets('iOS Reduce Motion also turns chrome animations off', (
+    tester,
+  ) async {
+    // iOS reports Reduce Motion without setting disableAnimations.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(reduceMotion: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    late Duration duration;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          duration = chromeDuration(context, ChromeMetrics.morphDuration);
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+
+    expect(duration, Duration.zero);
+  });
+
   test('paused time is excluded from workout duration', () {
     final clock = FakeClock();
     final store = AppStore(clock: clock.now, isOnboarded: true)..startWorkout();
