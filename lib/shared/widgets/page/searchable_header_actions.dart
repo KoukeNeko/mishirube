@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../haptics.dart';
 import '../../motion.dart';
+import '../chrome/chrome_surface.dart';
 import 'collapsing_header.dart';
 
 const _expandDuration = Duration(milliseconds: 320);
+const _closeFadeDuration = Duration(milliseconds: 150);
 
 /// A page's header actions ending in search. Tapping search stretches it
 /// across the whole toolbar row into a text field, pushing the other
@@ -192,69 +194,84 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final metrics = ToolbarMetrics.of(context);
+    final isSettled = reveal >= 1;
     return Center(
-      child: Container(
+      child: SizedBox(
         height: metrics.actionVisualSize,
-        clipBehavior: Clip.antiAlias,
-        decoration: ShapeDecoration(
-          shape: const StadiumBorder(),
-          color: AppColors.surfaceRaised.withValues(alpha: 0.8),
-        ),
-        // Laid out at full width from the start and revealed by the growing
-        // pill, so the field never reflows while it stretches.
-        child: OverflowBox(
-          alignment: Alignment.centerRight,
-          minWidth: fullWidth,
-          maxWidth: fullWidth,
-          child: Opacity(
-            opacity: ((reveal - 0.4) / 0.6).clamp(0.0, 1.0),
-            child: Row(
-              children: [
-                const SizedBox(width: AppSpacing.sm),
-                const Icon(
-                  Icons.search,
-                  size: 18,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    // Built only once search opens, so this is the open.
-                    autofocus: true,
-                    // Tapping anywhere else puts the keyboard away.
-                    onTapOutside: (_) => focusNode.unfocus(),
-                    onChanged: onChanged,
-                    textInputAction: TextInputAction.search,
-                    style: AppTextStyles.body,
-                    decoration: InputDecoration(
-                      isCollapsed: true,
-                      border: InputBorder.none,
-                      hintText: hint,
-                      hintStyle: const TextStyle(color: AppColors.textTertiary),
-                    ),
+        // The same glass as the search button it grows from.
+        child: ChromeSurface(
+          refracts: true,
+          tint: AppColors.surfaceRaised,
+          // Laid out at full width from the start and revealed by the growing
+          // pill, so the field never reflows while it stretches.
+          child: OverflowBox(
+            alignment: Alignment.centerRight,
+            minWidth: fullWidth,
+            maxWidth: fullWidth,
+            child: Opacity(
+              opacity: ((reveal - 0.4) / 0.6).clamp(0.0, 1.0),
+              child: Row(
+                children: [
+                  const SizedBox(width: AppSpacing.sm),
+                  const Icon(
+                    Icons.search,
+                    size: 18,
+                    color: AppColors.textSecondary,
                   ),
-                ),
-                Semantics(
-                  button: true,
-                  label: '關閉搜尋',
-                  onTap: onClose,
-                  excludeSemantics: true,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onClose,
-                    child: SizedBox.square(
-                      dimension: metrics.actionVisualSize,
-                      child: const Icon(
-                        Icons.close,
-                        size: 18,
-                        color: AppColors.textPrimary,
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      // Built only once search opens, so this is the open.
+                      autofocus: true,
+                      // Tapping anywhere else puts the keyboard away.
+                      onTapOutside: (_) => focusNode.unfocus(),
+                      onChanged: onChanged,
+                      textInputAction: TextInputAction.search,
+                      style: AppTextStyles.body,
+                      decoration: InputDecoration(
+                        isCollapsed: true,
+                        border: InputBorder.none,
+                        hintText: hint,
+                        hintStyle: const TextStyle(
+                          color: AppColors.textTertiary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  // Hidden until the field has fully stretched, then faded
+                  // in; revealed any earlier it pops in at the growing edge.
+                  AnimatedOpacity(
+                    opacity: isSettled ? 1 : 0,
+                    duration: chromeDuration(context, _closeFadeDuration),
+                    child: IgnorePointer(
+                      ignoring: !isSettled,
+                      child: ExcludeSemantics(
+                        excluding: !isSettled,
+                        child: Semantics(
+                          button: true,
+                          label: '關閉搜尋',
+                          onTap: onClose,
+                          excludeSemantics: true,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: onClose,
+                            child: SizedBox.square(
+                              dimension: metrics.actionVisualSize,
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

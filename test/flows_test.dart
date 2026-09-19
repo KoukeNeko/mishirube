@@ -185,7 +185,15 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.bySemanticsLabel('搜尋紀錄').hitTestable());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(
+      find.bySemanticsLabel('關閉搜尋'),
+      findsNothing,
+      reason: '× waits until the field has finished stretching',
+    );
     await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('關閉搜尋'), findsOneWidget);
     final field = find.byType(TextField).hitTestable();
     expect(field, findsOneWidget);
     final todayAction = find.widgetWithText(HeaderAction, '今天');
@@ -194,9 +202,16 @@ void main() {
       findsNothing,
       reason: 'the other actions are pushed out of the row',
     );
-    final bar = tester.getRect(
-      find.ancestor(of: field, matching: find.byType(Container)).first,
+    final barSurface = find.ancestor(
+      of: field,
+      matching: find.byType(ChromeSurface),
     );
+    expect(
+      tester.widget<ChromeSurface>(barSurface).refracts,
+      isTrue,
+      reason: 'stays glass once stretched into a field',
+    );
+    final bar = tester.getRect(barSurface);
     expect(bar.left, AppSpacing.screenGutter, reason: 'reaches the gutter');
     expect(
       tester.getRect(todayAction).right,
