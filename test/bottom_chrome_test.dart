@@ -433,6 +433,74 @@ void main() {
     });
   });
 
+  group('quick-log menu pushes the app back', () {
+    Rect contentRect(WidgetTester tester) => tester.getRect(
+      find
+          .descendant(
+            of: find.byType(QuickLogRecess),
+            matching: find.byType(IndexedStack),
+          )
+          .first,
+    );
+
+    testWidgets(
+      'iOS shrinks page content but not the dock',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        await _pumpApp(tester, FakeClock());
+        final dockBefore = tester.getRect(find.byType(SplitDock));
+
+        await tester.tap(find.byKey(_centerAction));
+        await _settleFor(tester);
+
+        expect(
+          contentRect(tester).width,
+          closeTo(phoneSize.width * 0.975, 0.01),
+        );
+        expect(
+          tester.getRect(find.byType(SplitDock)),
+          dockBefore,
+          reason: 'the dock keeps its size',
+        );
+        expect(
+          tester.getRect(find.byType(Scaffold).first).width,
+          phoneSize.width,
+          reason: 'the page background still fills the screen',
+        );
+
+        await tester.tap(find.byTooltip('關閉'));
+        await _settleFor(tester);
+        expect(contentRect(tester).width, phoneSize.width);
+        await disposeTree(tester);
+      },
+    );
+
+    testWidgets('Android only dims', (tester) async {
+      await _pumpApp(tester, FakeClock());
+      await tester.tap(find.byKey(_centerAction));
+      await _settleFor(tester);
+      expect(contentRect(tester).width, phoneSize.width);
+      await disposeTree(tester);
+    });
+
+    testWidgets(
+      'iOS Reduce Motion keeps the app full size',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(reduceMotion: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        await _pumpApp(tester, FakeClock());
+        await tester.tap(find.byKey(_centerAction));
+        await _settleFor(tester);
+        expect(contentRect(tester).width, phoneSize.width);
+        await disposeTree(tester);
+      },
+    );
+  });
+
   testWidgets('sliding sideways drags without holding first', (tester) async {
     final store = await _pumpApp(tester, FakeClock());
     Finder dockLabel(String label) =>

@@ -23,6 +23,9 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   bool _isChromeMinimized = false;
 
+  /// Follows the quick-log menu's animation while it is open.
+  final _quickLogProgress = ProxyAnimation(kAlwaysDismissedAnimation);
+
   void _setMinimized(bool value) {
     if (_isChromeMinimized != value) {
       setState(() => _isChromeMinimized = value);
@@ -55,7 +58,7 @@ class _HomeShellState extends State<HomeShell> {
   void _openQuickLog() {
     // The menu's close button is drawn where the expanded「+」sits.
     _setMinimized(false);
-    showQuickLogMenu(context);
+    showQuickLogMenu(context, recess: _quickLogProgress);
   }
 
   Future<void> _confirmFinish(AppStore store) async {
@@ -84,34 +87,40 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    return Scaffold(
-      // Content scrolls underneath the floating, translucent chrome.
-      extendBody: true,
-      // Pages paint their own headers behind the status bar.
-      body: ChromeVisibility(
-        isMinimized: _isChromeMinimized,
-        child: NotificationListener<UserScrollNotification>(
-          onNotification: _onScroll,
-          child: IndexedStack(
-            index: store.selectedTab.index,
-            children: const [
-              TodayScreen(),
-              LogScreen(),
-              TrendsScreen(),
-              MeScreen(),
-            ],
+    return QuickLogScrim(
+      animation: _quickLogProgress,
+      child: Scaffold(
+        // Content scrolls underneath the floating, translucent chrome.
+        extendBody: true,
+        // Pages paint their own headers behind the status bar.
+        body: ChromeVisibility(
+          isMinimized: _isChromeMinimized,
+          child: NotificationListener<UserScrollNotification>(
+            onNotification: _onScroll,
+            child: QuickLogRecess(
+              animation: _quickLogProgress,
+              child: IndexedStack(
+                index: store.selectedTab.index,
+                children: const [
+                  TodayScreen(),
+                  LogScreen(),
+                  TrendsScreen(),
+                  MeScreen(),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: AppBottomChrome(
-        selected: store.selectedTab,
-        onSelect: (tab) => _selectTab(store, tab),
-        isMinimized: _isChromeMinimized,
-        workout: store.activeWorkout,
-        onQuickLog: _openQuickLog,
-        onOpenWorkout: () => pushPage(context, const ActiveWorkoutScreen()),
-        onTogglePause: store.togglePause,
-        onFinishWorkout: () => _confirmFinish(store),
+        bottomNavigationBar: AppBottomChrome(
+          selected: store.selectedTab,
+          onSelect: (tab) => _selectTab(store, tab),
+          isMinimized: _isChromeMinimized,
+          workout: store.activeWorkout,
+          onQuickLog: _openQuickLog,
+          onOpenWorkout: () => pushPage(context, const ActiveWorkoutScreen()),
+          onTogglePause: store.togglePause,
+          onFinishWorkout: () => _confirmFinish(store),
+        ),
       ),
     );
   }

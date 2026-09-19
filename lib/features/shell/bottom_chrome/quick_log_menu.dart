@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
@@ -11,21 +12,114 @@ const _quickOptionCount = 4;
 const _staggerStep = 0.12;
 const _itemSpacing = 10.0;
 const _itemHeight = 52.0;
-const _scrimOpacity = 0.6;
+
+/// How far the app sinks back behind the menu. Deliberately lighter than a
+/// real sheet (~0.92): the user is picking an action, not leaving the page.
+/// A Flutter-drawn scale also cannot move the system status bar, so a bigger
+/// step would look detached from it.
+const _recessScale = 0.975;
+const _recessDimIOS = 0.32;
+
+/// Material's FAB menu does not push content back, so Android only dims.
+const _recessDimAndroid = 0.24;
 
 const quickLogMenuKey = ValueKey('quick-log-menu');
 
 /// Staggered action list that grows out of the dock's「+」. The first few
 /// record types are one tap away; the rest stay in the full sheet.
-Future<void> showQuickLogMenu(BuildContext context) {
-  return showGeneralDialog<void>(
-    context: context,
+///
+/// [recess] is pointed at the menu's animation so [QuickLogScrim] and
+/// [QuickLogRecess] can push the app back in step with the menu.
+Future<void> showQuickLogMenu(
+  BuildContext context, {
+  required ProxyAnimation recess,
+}) {
+  final route = RawDialogRoute<void>(
     barrierDismissible: true,
     barrierLabel: '關閉快速記錄',
-    barrierColor: Colors.black.withValues(alpha: _scrimOpacity),
+    // The recessed app carries the dimming.
+    barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),
     pageBuilder: (_, animation, _) => _QuickLogMenu(animation: animation),
   );
+  final future = Navigator.of(context).push(route);
+  recess.parent = route.animation;
+  return future;
+}
+
+/// Dims the whole app, dock included, while the quick-log menu is open, so
+/// the menu is the only thing in front.
+class QuickLogScrim extends StatelessWidget {
+  const QuickLogScrim({
+    super.key,
+    required this.animation,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final platform = Theme.of(context).platform;
+    final isIOS =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final dim = isIOS ? _recessDimIOS : _recessDimAndroid;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        IgnorePointer(
+          child: AnimatedBuilder(
+            animation: animation,
+            builder: (context, _) => ColoredBox(
+              color: Colors.black.withValues(
+                alpha: dim * Curves.easeOutCubic.transform(animation.value),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Pushes page content back while the quick-log menu is open. Only the
+/// content shrinks: the page background still fills the screen and the
+/// dock keeps its size. iOS only, and not with Reduce Motion.
+class QuickLogRecess extends StatelessWidget {
+  const QuickLogRecess({
+    super.key,
+    required this.animation,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final platform = Theme.of(context).platform;
+    final scales =
+        (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS) &&
+        !prefersReducedMotion(context);
+    // The tree shape never changes with the animation, so pages keep their
+    // state while the menu opens and closes.
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) => Transform.scale(
+        scale: scales
+            ? lerpDouble(
+                1,
+                _recessScale,
+                Curves.easeOutCubic.transform(animation.value),
+              )!
+            : 1,
+        child: child,
+      ),
+    );
+  }
 }
 
 class _QuickLogMenu extends StatelessWidget {
@@ -140,6 +234,9 @@ class _MenuItem extends StatelessWidget {
     return Material(
       color: AppColors.surfaceRaised,
       shape: const StadiumBorder(),
+      // With only a light scrim, a shadow keeps the pills above the page.
+      elevation: 8,
+      shadowColor: Colors.black,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
