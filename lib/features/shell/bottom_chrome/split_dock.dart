@@ -71,10 +71,25 @@ class SplitDock extends StatelessWidget {
       duration: duration,
       curve: ChromeMetrics.morphCurve,
       height: height,
-      child: Row(
+      // The centre action is painted after both capsules: their glass blurs
+      // whatever is painted before it, and would pick up its green.
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Expanded(child: _capsule(_leadingTabs, metrics)),
-          const SizedBox(width: ChromeMetrics.gap),
+          Row(
+            children: [
+              Expanded(child: _capsule(_leadingTabs, metrics)),
+              const SizedBox(width: ChromeMetrics.gap),
+              // Holds the centre action's place, sized and animated with it.
+              AnimatedContainer(
+                duration: duration,
+                curve: ChromeMetrics.morphCurve,
+                width: showTimer ? ChromeMetrics.timerCapsuleWidth : height,
+              ),
+              const SizedBox(width: ChromeMetrics.gap),
+              Expanded(child: _capsule(_trailingTabs, metrics)),
+            ],
+          ),
           // Hidden while the quick-log menu is open: its × replaces「+」
           // in the same spot, sharp above the blurred app.
           AnimatedBuilder(
@@ -92,8 +107,6 @@ class SplitDock extends StatelessWidget {
               onOpenWorkout: onOpenWorkout,
             ),
           ),
-          const SizedBox(width: ChromeMetrics.gap),
-          Expanded(child: _capsule(_trailingTabs, metrics)),
         ],
       ),
     );

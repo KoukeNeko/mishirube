@@ -563,4 +563,32 @@ void main() {
     expect(store.selectedTab, HomeTab.log);
     await disposeTree(tester);
   });
+
+  testWidgets(
+    '「+」is painted after the capsules so their glass cannot blur it',
+    (tester) async {
+      await _pumpApp(tester, FakeClock());
+      // Later in tree order paints later; a capsule's backdrop blur only
+      // samples what was painted before it.
+      final order = find
+          .descendant(
+            of: find.byType(SplitDock),
+            matching: find.byWidgetPredicate(
+              (widget) =>
+                  widget is ChromeSurface || widget.key == _centerAction,
+            ),
+          )
+          .evaluate()
+          .map((element) => element.widget is ChromeSurface ? 'glass' : '+')
+          .toList();
+      expect(order, ['glass', 'glass', '+']);
+
+      final dock = tester.getRect(find.byType(SplitDock));
+      expect(
+        tester.getCenter(find.byKey(_centerAction)).dx,
+        closeTo(dock.center.dx, 0.01),
+      );
+      await disposeTree(tester);
+    },
+  );
 }
