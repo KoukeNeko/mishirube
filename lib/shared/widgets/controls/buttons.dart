@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../../app/theme.dart';
 
 const _buttonHeight = 60.0;
 const _compactButtonHeight = 48.0;

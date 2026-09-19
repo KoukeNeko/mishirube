@@ -4,9 +4,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../app/theme.dart';
-import '../motion.dart';
-import 'pill.dart';
+import '../../../app/theme.dart';
+import '../../motion.dart';
+import '../controls/pill.dart';
 
 const _blurSigma = 24.0;
 const _glassOpacity = 0.72;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import 'chrome_surface.dart';
+import '../../../app/theme.dart';
+import '../chrome/chrome_surface.dart';
 import 'collapsing_header.dart';
 import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
-import '../toast/toast_host.dart';
+import '../../toast/toast_host.dart';
 
 /// Page layouts add no horizontal padding; each element on a page spaces
 /// itself from the screen edges by wrapping itself in a Gutter. Elements

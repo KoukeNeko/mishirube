@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../shared/widgets/chrome_visibility.dart';
+import '../../shared/widgets/chrome/chrome_visibility.dart';
 import '../log/log_screen.dart';
 import '../me/me_screen.dart';
 import '../today/today_screen.dart';

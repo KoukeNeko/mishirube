@@ -6,7 +6,7 @@ import '../../app/theme.dart';
 import '../../data/models.dart';
 import '../../shared/format.dart';
 import '../../shared/motion.dart';
-import '../../shared/widgets/elapsed_clock.dart';
+import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'rest_timer_screen.dart';

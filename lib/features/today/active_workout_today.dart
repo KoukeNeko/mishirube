@@ -4,7 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
-import '../../shared/widgets/elapsed_clock.dart';
+import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/active_workout_screen.dart';

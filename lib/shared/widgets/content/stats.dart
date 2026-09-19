@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../../app/theme.dart';
 
 /// A big number with an optional unit and a caption underneath.
 class StatBlock extends StatelessWidget {

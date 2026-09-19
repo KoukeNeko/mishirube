@@ -38,7 +38,11 @@ flutter test test/<file>_test.dart
 - `lib/data/` – domain models and mock data. Plan (`Routine`) and actual
   (`WorkoutSession`) stay separate: editing a template never rewrites a
   finished workout.
-- `lib/shared/widgets/` – shared UI; import through `widgets.dart`.
+- `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
+  widgets in the matching folder: `page/` (page frame, app bar, collapsing
+  header, footers), `chrome/` (floating glass surfaces), `controls/`
+  (buttons, chips, pills, inputs), `content/` (cards, rows, stats, charts,
+  banners).
 - `lib/shared/toast/` – app-wide toast host and controller.
 - `lib/features/<area>/` – screens per area; `shell/` holds the home shell
   and the floating bottom dock.

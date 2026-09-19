@@ -6,7 +6,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../data/models.dart';
 import '../../shared/format.dart';
-import '../../shared/widgets/elapsed_clock.dart';
+import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 
 const _defaultRest = Duration(seconds: 90);

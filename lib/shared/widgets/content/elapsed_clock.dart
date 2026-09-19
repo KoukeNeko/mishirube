@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
-import '../../data/models.dart';
-import '../format.dart';
+import '../../../app/app_store.dart';
+import '../../../data/models.dart';
+import '../../format.dart';
 
 const _tickInterval = Duration(seconds: 1);
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../../app/theme.dart';
 
 /// Minimal bar chart; the last bar is highlighted as "current period".
 class MiniBarChart extends StatelessWidget {

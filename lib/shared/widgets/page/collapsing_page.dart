@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import '../motion.dart';
-import 'chrome_visibility.dart';
+import '../../../app/theme.dart';
+import '../../motion.dart';
+import '../chrome/chrome_visibility.dart';
 import 'collapsing_header.dart';
 
 const _autoHideDuration = Duration(milliseconds: 250);

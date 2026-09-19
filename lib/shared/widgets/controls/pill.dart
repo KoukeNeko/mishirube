@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import 'collapsing_header.dart';
+import '../../../app/theme.dart';
+import '../page/collapsing_header.dart';
 
 const _pillLabelStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
 const _pillVerticalPadding = AppSpacing.xs;

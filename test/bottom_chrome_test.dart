@@ -8,7 +8,7 @@ import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
-import 'package:mishirube/shared/widgets/chrome_surface.dart';
+import 'package:mishirube/shared/widgets/chrome/chrome_surface.dart';
 
 import 'support/harness.dart';
 

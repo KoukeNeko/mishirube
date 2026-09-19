@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../../app/theme.dart';
 
 /// Settings-style row: title, subtitle and a chevron.
 class NavRow extends StatelessWidget {

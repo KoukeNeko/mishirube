@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/chrome_surface.dart';
+import '../../../shared/widgets/chrome/chrome_surface.dart';
 
 export '../../../shared/motion.dart';
 

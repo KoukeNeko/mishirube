@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
+import '../../../app/theme.dart';
 import 'cards.dart';
 
 /// Explanatory banner: an icon and a sentence on a tinted card.

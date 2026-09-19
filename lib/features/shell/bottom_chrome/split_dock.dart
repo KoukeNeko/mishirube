@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import '../../../app/app_store.dart';
 import '../../../app/theme.dart';
 import '../../../data/models.dart';
-import '../../../shared/widgets/chrome_surface.dart';
-import '../../../shared/widgets/elapsed_clock.dart';
+import '../../../shared/widgets/chrome/chrome_surface.dart';
+import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 

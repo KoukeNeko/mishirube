@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../../app/theme.dart';
+import '../../../data/models.dart';
 import 'cards.dart';
-import 'chips.dart';
+import '../controls/chips.dart';
 
 /// "值得注意" card: a plain-language statement and the evidence behind it.
 class InsightCard extends StatelessWidget {

@@ -4,9 +4,9 @@ import 'package:flutter/scheduler.dart';
 
 import '../../app/theme.dart';
 import '../motion.dart';
-import '../widgets/chrome_surface.dart';
-import '../widgets/collapsing_header.dart';
-import '../widgets/stats.dart';
+import '../widgets/chrome/chrome_surface.dart';
+import '../widgets/page/collapsing_header.dart';
+import '../widgets/content/stats.dart';
 import 'toast_controller.dart';
 
 /// Space between a toast and the chrome it floats above.
