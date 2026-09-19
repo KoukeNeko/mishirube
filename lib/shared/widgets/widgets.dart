@@ -13,5 +13,6 @@ export 'feedback.dart';
 export 'inputs.dart';
 export 'insight_card.dart';
 export 'page_layout.dart';
+export 'pill.dart';
 export 'rows.dart';
 export 'stats.dart';

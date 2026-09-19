@@ -224,4 +224,24 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets(
+    'header buttons, segmented control and chips share one height',
+    variant: bothPlatforms,
+    (tester) async {
+      await _pumpShell(tester, tab: HomeTab.log);
+      final toolbar = ToolbarMetrics.of(tester.element(_header));
+
+      double pillHeight(Finder label) => tester
+          .getRect(
+            find.ancestor(of: label, matching: find.byType(Material)).first,
+          )
+          .height;
+
+      expect(pillHeight(find.text('9月')), toolbar.actionVisualSize);
+      expect(pillHeight(find.text('時間軸')), toolbar.actionVisualSize);
+      expect(pillHeight(find.text('訓練').first), toolbar.actionVisualSize);
+      await disposeTree(tester);
+    },
+  );
 }

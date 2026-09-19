@@ -90,7 +90,7 @@ class _LogScreenState extends State<LogScreen> {
       // Full-bleed: the chips scroll to the screen edge, so the row pads
       // its own content instead of taking a Gutter.
       SizedBox(
-        height: 44,
+        height: pillHeight(context),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(

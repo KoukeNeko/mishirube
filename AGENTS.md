@@ -56,6 +56,8 @@ In particular, do not create a parallel version of:
 - toasts: `showToast` / `ToastScope.read(context).showUndo` – never
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
+- pill-shaped controls (header actions, chips, segmented controls): build
+  on `Pill` / `pillHeight` so they keep one height, fill and label style;
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 

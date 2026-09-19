@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/theme.dart';
 import '../motion.dart';
+import 'pill.dart';
 
 const _blurSigma = 24.0;
 const _glassOpacity = 0.72;
@@ -19,7 +20,6 @@ const _snapDuration = Duration(milliseconds: 220);
 const _subtitleGap = 2.0;
 const _subtitleMaxLines = 2;
 const _pinnedVerticalPadding = 8.0;
-const _chipVerticalPadding = 10.0;
 
 /// Progress (0–1) after which the compact title replaces the large one.
 const _titleSwapPoint = 0.5;
@@ -126,14 +126,7 @@ double measureLargeTitleHeight(
 
 /// Height of a pinned row holding a [SegmentedChoice]-style control.
 double measurePinnedControlHeight(BuildContext context) {
-  const chipLabelStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
-  final label = measureTextHeight(
-    context,
-    '時間軸',
-    chipLabelStyle,
-    maxWidth: double.infinity,
-  );
-  return label + _chipVerticalPadding * 2 + _pinnedVerticalPadding * 2;
+  return pillHeight(context) + _pinnedVerticalPadding * 2;
 }
 
 /// Height of the pinned slot, given its [measured] height (control plus the
@@ -498,41 +491,18 @@ class HeaderAction extends StatelessWidget {
           child: Align(
             widthFactor: 1,
             heightFactor: 1,
-            child: Material(
-              color: AppColors.surfaceRaised.withValues(alpha: 0.8),
-              shape: const StadiumBorder(),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: onTap,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: metrics.actionVisualSize,
-                    minHeight: metrics.actionVisualSize,
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: label == null ? 0 : AppSpacing.sm,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(icon, size: 18, color: AppColors.textPrimary),
-                        if (label != null) ...[
-                          const SizedBox(width: AppSpacing.xxs),
-                          Text(
-                            label!,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
+            child: Pill(
+              onTap: onTap,
+              horizontalPadding: label == null ? 0 : AppSpacing.sm,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon),
+                  if (label != null) ...[
+                    const SizedBox(width: AppSpacing.xxs),
+                    Text(label!),
+                  ],
+                ],
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import 'pill.dart';
 
 enum TagTone {
   neutral(AppColors.surfaceRaised, AppColors.textSecondary),
@@ -80,28 +81,13 @@ class SelectChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chip = Material(
+    final chip = Pill(
+      onTap: onTap,
       color: isSelected ? selectedColor : AppColors.surfaceRaised,
-      borderRadius: BorderRadius.circular(AppRadius.chip),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.chip),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm - 2,
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isSelected ? AppColors.onTraining : AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-            ),
-          ),
-        ),
-      ),
+      foregroundColor: isSelected
+          ? AppColors.onTraining
+          : AppColors.textPrimary,
+      child: Text(label),
     );
     return Semantics(selected: isSelected, button: true, child: chip);
   }
