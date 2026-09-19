@@ -166,6 +166,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoPicker), findsNothing);
     expect(find.text('8 月沒有紀錄'), findsOneWidget);
+
+    // 「今天」jumps back to the current month.
+    await tester.tap(find.text('今天').hitTestable().first);
+    await tester.pump();
+    expect(find.text('2026 年 9 月'), findsOneWidget);
     await disposeTree(tester);
   });
 }

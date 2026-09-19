@@ -53,6 +53,13 @@ class _LogScreenState extends State<LogScreen> {
     });
   }
 
+  void _goToToday() {
+    setState(() {
+      _month = DateTime(mockToday.year, mockToday.month);
+      _selectedDay = mockToday.day;
+    });
+  }
+
   /// Opens the month wheels under [buttonContext]'s button.
   void _pickMonth(BuildContext buttonContext) {
     final box = buttonContext.findRenderObject()! as RenderBox;
@@ -86,6 +93,12 @@ class _LogScreenState extends State<LogScreen> {
       subtitle: '${_month.year} 年 ${_month.month} 月',
       compactBar: CompactBarBehavior.none,
       actions: [
+        HeaderAction(
+          icon: Icons.today_outlined,
+          label: '今天',
+          semanticLabel: '回到今天',
+          onTap: _goToToday,
+        ),
         Builder(
           builder: (buttonContext) => HeaderAction(
             icon: Icons.calendar_month_outlined,
