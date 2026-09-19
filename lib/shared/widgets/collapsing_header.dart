@@ -646,6 +646,21 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
               itemBuilder: (_, index) => widget.children[index],
             ),
           ),
+          // Minimum page height: always enough to collapse the header fully,
+          // so content that shrinks (a day without records, a narrow filter)
+          // cannot pull a collapsed header back open.
+          SliverLayoutBuilder(
+            builder: (context, constraints) => SliverToBoxAdapter(
+              child: SizedBox(
+                height: math.max(
+                  0,
+                  constraints.viewportMainAxisExtent +
+                      widget.header.collapseRange -
+                      constraints.precedingScrollExtent,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

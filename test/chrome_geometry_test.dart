@@ -305,4 +305,27 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('a day without records keeps the header collapsed', (
+    tester,
+  ) async {
+    await _pumpShell(tester, tab: HomeTab.log);
+    await tester.tap(find.text('月曆').hitTestable());
+    await tester.pump(_settle);
+    // Past halfway, so it snaps fully collapsed.
+    await _dragAndSettle(tester, 150);
+    final scrollable = tester.state<ScrollableState>(
+      find
+          .descendant(of: _visibleScrollView, matching: find.byType(Scrollable))
+          .first,
+    );
+    final collapsed = scrollable.position.pixels;
+    expect(collapsed, greaterThan(0));
+
+    await tester.tap(find.text('7').hitTestable());
+    await tester.pump(_settle);
+    expect(find.text('這天沒有紀錄。'), findsOneWidget);
+    expect(scrollable.position.pixels, collapsed);
+    await disposeTree(tester);
+  });
 }
