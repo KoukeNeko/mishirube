@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -119,7 +121,7 @@ void main() {
     },
   );
 
-  testWidgets('log month picker switches months and blocks the future', (
+  testWidgets('month popover hangs under its button and blocks the future', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -128,27 +130,42 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pump();
 
+    final button = tester.getRect(
+      find.ancestor(
+        of: find.text('9月').hitTestable(),
+        matching: find.byType(HeaderAction),
+      ),
+    );
     await tester.tap(find.text('9月').hitTestable());
     await tester.pump();
     await tester.pump(_pageTransition);
-    expect(find.text('2026 年'), findsOneWidget);
+    final september = find.text('9 月');
+    final popover = tester.getRect(
+      find
+          .ancestor(
+            of: find.byType(CupertinoPicker).first,
+            matching: find.byType(ChromeSurface),
+          )
+          .first,
+    );
+    expect(popover.top, button.bottom + 8, reason: 'hangs under the button');
+    expect(popover.right, button.right);
 
-    // Future months are shown but cannot be picked.
-    await tester.tap(find.text('10 月'));
-    await tester.pump(_pageTransition);
-    expect(find.text('2026 年'), findsOneWidget);
+    // A future month settles back to the latest one.
+    await tester.drag(september, const Offset(0, -60));
+    await tester.pumpAndSettle();
+    expect(find.text('2026 年 9 月'), findsOneWidget);
 
-    await tester.tap(find.text('8 月'));
-    await tester.pump();
-    await tester.pump(_pageTransition);
-    expect(find.text('2026 年'), findsNothing);
+    await tester.drag(september, const Offset(0, 60));
+    await tester.pumpAndSettle();
     expect(find.text('2026 年 8 月'), findsOneWidget);
     expect(find.text('8月'), findsOneWidget);
-    expect(find.text('8 月沒有紀錄'), findsOneWidget);
 
-    await tester.tap(find.text('月曆').hitTestable());
-    await tester.pump();
-    expect(find.text('8 月 1 日'), findsOneWidget);
+    // Tapping outside closes it.
+    await tester.tapAt(const Offset(20, 600));
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoPicker), findsNothing);
+    expect(find.text('8 月沒有紀錄'), findsOneWidget);
     await disposeTree(tester);
   });
 }

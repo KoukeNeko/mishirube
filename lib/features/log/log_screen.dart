@@ -8,7 +8,7 @@ import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
-import 'month_picker_sheet.dart';
+import 'month_popover.dart';
 
 enum _LogView { timeline, calendar }
 
@@ -46,19 +46,25 @@ class _LogScreenState extends State<LogScreen> {
   bool get _isCurrentMonth =>
       _month.year == mockToday.year && _month.month == mockToday.month;
 
-  Future<void> _pickMonth() async {
-    final month = await showMonthPickerSheet(
-      context,
-      selected: _month,
-      earliest: mockEarliestMonth,
-      latest: DateTime(mockToday.year, mockToday.month),
-    );
-    if (month == null || !mounted) return;
+  void _setMonth(DateTime month) {
     setState(() {
       _month = month;
       // Today in the current month; otherwise the month's first day.
       _selectedDay = _isCurrentMonth ? mockToday.day : 1;
     });
+  }
+
+  /// Opens the month wheels under [buttonContext]'s button.
+  void _pickMonth(BuildContext buttonContext) {
+    final box = buttonContext.findRenderObject()! as RenderBox;
+    showMonthPopover(
+      context,
+      anchor: box.localToGlobal(Offset.zero) & box.size,
+      selected: _month,
+      earliest: mockEarliestMonth,
+      latest: DateTime(mockToday.year, mockToday.month),
+      onChanged: _setMonth,
+    );
   }
 
   void _openEntry(TimelineEntry entry) {
@@ -81,11 +87,13 @@ class _LogScreenState extends State<LogScreen> {
       subtitle: '${_month.year} 年 ${_month.month} 月',
       compactBar: CompactBarBehavior.none,
       actions: [
-        HeaderAction(
-          icon: Icons.calendar_month_outlined,
-          label: '${_month.month}月',
-          semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
-          onTap: _pickMonth,
+        Builder(
+          builder: (buttonContext) => HeaderAction(
+            icon: Icons.calendar_month_outlined,
+            label: '${_month.month}月',
+            semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
+            onTap: () => _pickMonth(buttonContext),
+          ),
         ),
         HeaderAction(
           icon: Icons.search,
