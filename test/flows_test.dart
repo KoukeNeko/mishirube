@@ -256,4 +256,42 @@ void main() {
     expect(todayAction.hitTestable(), findsOneWidget);
     await disposeTree(tester);
   });
+
+  testWidgets('log chips mark selection with a rim and keep icon colours', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    Material pillOf(String label) => tester.widget<Material>(
+      find
+          .descendant(
+            of: find.widgetWithText(SelectChip, label),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    Color? iconColorOf(IconData icon) => tester
+        .widget<Icon>(
+          find.descendant(
+            of: find.byType(SelectChip),
+            matching: find.byIcon(icon),
+          ),
+        )
+        .color;
+
+    await tester.tap(find.widgetWithText(SelectChip, '訓練'));
+    await tester.pump();
+    final selected = pillOf('訓練');
+    expect(selected.color, AppColors.surfaceRaised, reason: 'no fill');
+    expect((selected.shape! as StadiumBorder).side.color, AppColors.training);
+    expect((pillOf('飲食').shape! as StadiumBorder).side, BorderSide.none);
+    // Icons keep their category colour whether selected or not.
+    expect(iconColorOf(Icons.fitness_center), AppColors.training);
+    expect(iconColorOf(Icons.restaurant), AppColors.nutrition);
+    await disposeTree(tester);
+  });
 }

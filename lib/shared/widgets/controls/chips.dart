@@ -72,6 +72,9 @@ class SelectChip extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     this.selectedColor = AppColors.training,
+    this.icon,
+    this.iconColor,
+    this.showsSelectionAsOutline = false,
   });
 
   final String label;
@@ -79,16 +82,38 @@ class SelectChip extends StatelessWidget {
   final VoidCallback onTap;
   final Color selectedColor;
 
+  /// Optional leading glyph.
+  final IconData? icon;
+
+  /// Keeps [icon] in its own colour (e.g. a category's) whether or not the
+  /// chip is selected; null tints it with the label.
+  final Color? iconColor;
+
+  /// Marks selection with a [selectedColor] rim instead of a fill, so
+  /// coloured icons stay readable on every chip.
+  final bool showsSelectionAsOutline;
+
   @override
   Widget build(BuildContext context) {
+    final isFilled = isSelected && !showsSelectionAsOutline;
     final chip = Pill(
       onTap: onTap,
       isSelection: true,
-      color: isSelected ? selectedColor : AppColors.surfaceRaised,
-      foregroundColor: isSelected
-          ? AppColors.onTraining
-          : AppColors.textPrimary,
-      child: Text(label),
+      color: isFilled ? selectedColor : AppColors.surfaceRaised,
+      foregroundColor: isFilled ? AppColors.onTraining : AppColors.textPrimary,
+      outlineColor: isSelected && showsSelectionAsOutline
+          ? selectedColor
+          : null,
+      child: icon == null
+          ? Text(label)
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: iconColor),
+                const SizedBox(width: AppSpacing.xxs + 2),
+                Text(label),
+              ],
+            ),
     );
     return Semantics(selected: isSelected, button: true, child: chip);
   }

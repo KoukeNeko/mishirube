@@ -23,6 +23,10 @@ enum _LogFilter {
   final String label;
   final RecordCategory? category;
 
+  IconData get icon => category?.icon ?? Icons.apps;
+
+  Color get color => category?.color ?? AppColors.textPrimary;
+
   bool accepts(TimelineEntry entry) =>
       category == null || entry.category == category;
 }
@@ -169,6 +173,11 @@ class _LogScreenState extends State<LogScreen> {
             final filter = _LogFilter.values[index];
             return SelectChip(
               label: filter.label,
+              icon: filter.icon,
+              iconColor: filter.color,
+              // Rim in the category's colour; a fill would drown the icon.
+              showsSelectionAsOutline: true,
+              selectedColor: filter.color,
               isSelected: filter == _filter,
               onTap: () => setState(() => _filter = filter),
             );

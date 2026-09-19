@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
 enum RecordCategory {
-  training('訓練', AppColors.training),
-  nutrition('飲食', AppColors.nutrition),
-  body('身體', AppColors.body),
-  wellness('狀態', AppColors.wellness);
+  training('訓練', AppColors.training, Icons.fitness_center),
+  nutrition('飲食', AppColors.nutrition, Icons.restaurant),
+  body('身體', AppColors.body, Icons.monitor_weight_outlined),
+  wellness('狀態', AppColors.wellness, Icons.bedtime_outlined);
 
-  const RecordCategory(this.label, this.color);
+  const RecordCategory(this.label, this.color, this.icon);
 
   final String label;
   final Color color;
+  final IconData icon;
 }
 
 enum TrackingType {

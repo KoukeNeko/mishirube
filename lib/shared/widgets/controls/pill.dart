@@ -36,6 +36,7 @@ class Pill extends StatelessWidget {
     this.foregroundColor = AppColors.textPrimary,
     this.horizontalPadding = AppSpacing.md,
     this.isSelection = false,
+    this.outlineColor,
   });
 
   final Widget child;
@@ -43,6 +44,10 @@ class Pill extends StatelessWidget {
   final Color color;
   final Color foregroundColor;
   final double horizontalPadding;
+
+  /// Draws a rim in this colour, e.g. to mark a selected chip without
+  /// filling it.
+  final Color? outlineColor;
 
   /// Picks an option (chip, segment) rather than acting: ticks like a
   /// selection instead of tapping like a button.
@@ -53,7 +58,11 @@ class Pill extends StatelessWidget {
     final size = ToolbarMetrics.of(context).actionVisualSize;
     return Material(
       color: color,
-      shape: const StadiumBorder(),
+      shape: StadiumBorder(
+        side: outlineColor == null
+            ? BorderSide.none
+            : BorderSide(color: outlineColor!, width: 1.5),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap == null
