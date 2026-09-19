@@ -19,6 +19,7 @@ class PageAppBar {
     this.onBack,
     this.onClose,
     this.actions = const [],
+    this.compactBar = CompactBarBehavior.pinned,
   });
 
   final String title;
@@ -29,6 +30,7 @@ class PageAppBar {
   /// Modal pages get a close button at the trailing edge.
   final VoidCallback? onClose;
   final List<Widget> actions;
+  final CompactBarBehavior compactBar;
 }
 
 /// Scaffold whose body runs edge to edge under an optional floating footer.
@@ -96,6 +98,7 @@ class PageScaffold extends StatelessWidget {
         ],
         pinned: pinned,
         pinnedHeight: pinnedHeight,
+        compactBar: appBar.compactBar,
         children: children,
       ),
     );

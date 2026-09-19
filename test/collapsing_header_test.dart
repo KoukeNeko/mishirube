@@ -100,29 +100,49 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('view switch stays pinned and auto-hide tucks the toolbar away', (
+  testWidgets('Log has no compact bar: only the view switch stays', (
     tester,
   ) async {
     await _pumpApp(tester, tab: HomeTab.log);
-    final pinnedTopBefore = tester.getRect(find.text('時間軸').hitTestable()).top;
 
     await _scroll(tester, 500);
-
     final pinnedTop = tester.getRect(find.text('時間軸').hitTestable()).top;
-    expect(pinnedTop, lessThan(pinnedTopBefore));
     expect(
       pinnedTop,
       lessThan(phoneTopInset + _toolbarHeight),
-      reason: 'toolbar row hidden while reading down',
+      reason: 'no toolbar row above the pinned switch',
     );
-    expect(pinnedTop, greaterThanOrEqualTo(phoneTopInset));
 
     await _scroll(tester, -120);
     expect(
       tester.getRect(find.text('時間軸').hitTestable()).top,
-      greaterThanOrEqualTo(phoneTopInset + _toolbarHeight),
-      reason: 'scrolling back up brings the toolbar back',
+      pinnedTop,
+      reason: 'scrolling up does not bring a small bar back',
     );
+    expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
+  testWidgets('autoHide tucks the compact bar away while reading', (
+    tester,
+  ) async {
+    Widget page({required bool isMinimized}) => ChromeVisibility(
+      isMinimized: isMinimized,
+      child: CollapsingPage(
+        title: '測試',
+        compactBar: CompactBarBehavior.autoHide,
+        children: [for (var i = 0; i < 30; i++) SizedBox(height: 60)],
+      ),
+    );
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, page(isMinimized: false), store: store);
+    await _scroll(tester, 400);
+    final header = find.byType(ScrollEdgeGlass);
+    expect(tester.getRect(header).height, phoneTopInset + _toolbarHeight);
+
+    await pumpScreen(tester, page(isMinimized: true), store: store);
+    await tester.pump(_settle);
+    expect(tester.getRect(header).height, phoneTopInset);
     await disposeTree(tester);
   });
 

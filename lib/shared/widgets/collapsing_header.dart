@@ -150,6 +150,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.pinned,
     this.pinnedHeight = 0,
     this.hideToolbarFraction = 0,
+    this.scrollsToolbarAway = false,
     this.solidColor,
     this.isHighContrast = false,
     this.reduceMotion = false,
@@ -168,6 +169,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// 0 shows the compact toolbar; 1 tucks it away (auto-hide while reading).
   final double hideToolbarFraction;
 
+  /// No compact bar: once the large title has gone the toolbar row scrolls
+  /// away too, leaving only the pinned control (if any) and the status bar.
+  final bool scrollsToolbarAway;
+
   /// Opaque branded background instead of scroll-edge glass.
   final Color? solidColor;
   final bool isHighContrast;
@@ -177,7 +182,14 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
       toolbar.height * (1 - hideToolbarFraction);
 
   @override
-  double get minExtent => topInset + _visibleToolbarHeight + pinnedHeight;
+  double get minExtent =>
+      topInset +
+      (scrollsToolbarAway ? 0 : _visibleToolbarHeight) +
+      pinnedHeight;
+
+  /// How far the header shrinks before it stops, i.e. the range to snap in.
+  double get collapseRange =>
+      largeHeight + (scrollsToolbarAway ? toolbar.height : 0);
 
   @override
   double get maxExtent =>
@@ -198,7 +210,16 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   ) {
     final progress = _progress(shrinkOffset);
     final chromeOpacity = overlapsContent ? 1.0 : progress;
-    final showsCompactTitle = progress >= _titleSwapPoint;
+    final showsCompactTitle =
+        !scrollsToolbarAway && progress >= _titleSwapPoint;
+    // The large title goes first, then (without a compact bar) the toolbar.
+    final toolbarHeight = scrollsToolbarAway
+        ? (toolbar.height -
+              (shrinkOffset - largeHeight).clamp(0.0, toolbar.height))
+        : _visibleToolbarHeight;
+    final toolbarOpacity = scrollsToolbarAway
+        ? toolbarHeight / toolbar.height
+        : 1 - hideToolbarFraction;
     final compactOpacity =
         ((progress - _compactFadeStart) / (1 - _compactFadeStart)).clamp(
           0.0,
@@ -218,10 +239,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
           children: [
             SizedBox(height: topInset),
             SizedBox(
-              height: _visibleToolbarHeight,
+              height: toolbarHeight,
               child: ClipRect(
                 child: Opacity(
-                  opacity: 1 - hideToolbarFraction,
+                  opacity: toolbarOpacity,
                   // The control row hangs from the top of the bar; on iOS
                   // the bar's extra height is space below it.
                   child: OverflowBox(
@@ -236,7 +257,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                         child: Semantics(
                           header: true,
                           child: Opacity(
-                            opacity: compactOpacity,
+                            opacity: scrollsToolbarAway ? 0 : compactOpacity,
                             child: compactTitle,
                           ),
                         ),
@@ -544,7 +565,7 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
   void _snapIfHalfCollapsed(double offset) {
     final wasUserDriven = _isUserDriven;
     _isUserDriven = false;
-    final range = widget.header.largeHeight;
+    final range = widget.header.collapseRange;
     if (!wasUserDriven || offset <= 0 || offset >= range) return;
     final target = offset < range / 2 ? 0.0 : range;
     WidgetsBinding.instance.addPostFrameCallback((_) {

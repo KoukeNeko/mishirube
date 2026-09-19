@@ -57,7 +57,7 @@ class _LogScreenState extends State<LogScreen> {
     return CollapsingPage(
       title: '紀錄',
       subtitle: '2026 年 9 月',
-      autoHide: true,
+      compactBar: CompactBarBehavior.none,
       actions: [
         HeaderAction(
           icon: Icons.calendar_month_outlined,

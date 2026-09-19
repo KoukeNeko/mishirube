@@ -33,7 +33,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     return CollapsingPage(
       title: '趨勢',
       subtitle: '8 / 23 – 9 / 19・你的訓練與身體變化',
-      autoHide: true,
+      compactBar: CompactBarBehavior.none,
       // The range drives every chart below, so it stays pinned.
       pinned: SegmentedChoice(
         options: _TrendRange.values,

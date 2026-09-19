@@ -7,6 +7,18 @@ import 'collapsing_header.dart';
 
 const _autoHideDuration = Duration(milliseconds: 250);
 
+/// What a page's small (compact) bar does once the large title is gone.
+enum CompactBarBehavior {
+  /// Always shown.
+  pinned,
+
+  /// Tucked away while the user reads downwards, back on scrolling up.
+  autoHide,
+
+  /// Never shown: the bar scrolls away with the large title.
+  none,
+}
+
 /// Root tab page: large title + subtitle that collapse into a glass
 /// toolbar, an optional pinned view-mode control, and scrolling content.
 class CollapsingPage extends StatelessWidget {
@@ -19,7 +31,7 @@ class CollapsingPage extends StatelessWidget {
     this.actions = const [],
     this.pinned,
     this.pinnedHeight,
-    this.autoHide = false,
+    this.compactBar = CompactBarBehavior.pinned,
   });
 
   final String title;
@@ -35,14 +47,16 @@ class CollapsingPage extends StatelessWidget {
   /// Height of [pinned]; defaults to a segmented control's height.
   final double? pinnedHeight;
 
-  /// Tuck the compact toolbar away while the user reads downwards.
-  final bool autoHide;
+  /// What happens to the small bar once the large title has scrolled away.
+  final CompactBarBehavior compactBar;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    final shouldHide = autoHide && ChromeVisibility.isMinimizedOf(context);
+    final shouldHide =
+        compactBar == CompactBarBehavior.autoHide &&
+        ChromeVisibility.isMinimizedOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final largeHeight = measureLargeTitleHeight(
@@ -75,6 +89,7 @@ class CollapsingPage extends StatelessWidget {
               pinned: pinned,
               pinnedHeight: pinnedHeight,
               hideToolbarFraction: hideFraction,
+              scrollsToolbarAway: compactBar == CompactBarBehavior.none,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),
             ),
