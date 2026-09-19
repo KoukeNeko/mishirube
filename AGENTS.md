@@ -41,13 +41,32 @@ flutter test test/<file>_test.dart
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`
-  (buttons, chips, pills, inputs), `content/` (cards, rows, stats, charts,
-  banners).
+  (buttons, chips, pills, inputs, pickers), `content/` (cards, rows, stats,
+  charts, banners).
 - `lib/shared/toast/` – app-wide toast host and controller.
 - `lib/features/<area>/` – screens per area; `shell/` holds the home shell
   and the floating bottom dock.
 - `test/support/harness.dart` – shared test harness (phone viewport with
   iPhone insets, fake clock, `pumpScreen`).
+
+### Where a widget goes
+
+Decide by what the widget knows, not by who uses it first:
+
+- `lib/shared/widgets/<category>/` when it is domain-agnostic: it takes
+  plain values and callbacks and carries no feature data, mock data or
+  feature-specific wording (e.g. the month pickers, `Pill`, `SelectChip`).
+  This holds even while only one feature uses it. A shared widget may take
+  a `lib/data` model that several areas display (e.g. `ElapsedClock` with
+  `WorkoutSession`).
+- `lib/features/<area>/` when it encodes that area's content or data: its
+  models, mock data, copy or rules (e.g. `log/month_calendar.dart` with
+  record-category dots, `nutrition/split_dish_sheet.dart`). A private
+  widget used by one screen stays in that screen's file.
+- Moving a widget to `shared/` means stripping feature knowledge from it,
+  not copying it; there is still one implementation.
+- Inside `lib/shared/widgets/`, import sibling files directly; features
+  import `widgets.dart`.
 
 ## Reuse, don't duplicate
 

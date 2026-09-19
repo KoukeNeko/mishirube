@@ -14,6 +14,8 @@ export 'content/stats.dart';
 export 'controls/buttons.dart';
 export 'controls/chips.dart';
 export 'controls/inputs.dart';
+export 'controls/month_picker_sheet.dart';
+export 'controls/month_popover.dart';
 export 'controls/pill.dart';
 // Page frame: app bar, collapsing header, edge-to-edge layout, footers.
 export 'page/collapsing_header.dart';

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import '../../shared/widgets/widgets.dart';
+import '../../../app/theme.dart';
+import '../page/collapsing_header.dart';
+import 'chips.dart';
+import 'pill.dart';
 
 const _monthsPerRow = 3;
 

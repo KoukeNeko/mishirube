@@ -8,7 +8,6 @@ import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
-import 'month_popover.dart';
 
 enum _LogView { timeline, calendar }
 

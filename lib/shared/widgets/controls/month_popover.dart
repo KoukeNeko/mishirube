@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../app/theme.dart';
-import '../../shared/motion.dart';
-import '../../shared/widgets/widgets.dart';
+import '../../../app/theme.dart';
+import '../../motion.dart';
+import '../chrome/chrome_surface.dart';
 
 const _popoverWidth = 260.0;
 const _anchorGap = 8.0;
