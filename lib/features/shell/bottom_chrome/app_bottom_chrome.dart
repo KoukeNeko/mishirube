@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/app_store.dart';
 import '../../../data/models.dart';
+import '../../../shared/toast/toast_host.dart';
 import 'chrome_metrics.dart';
 import 'split_dock.dart';
 import 'workout_accessory.dart';
@@ -38,43 +39,45 @@ class AppBottomChrome extends StatelessWidget {
     final metrics = DockMetrics.of(context);
     // No SafeArea: like the native Liquid Glass tab bar, the dock dips into
     // the home-indicator area instead of stacking on top of it.
-    return AnimatedPadding(
-      duration: duration,
-      curve: ChromeMetrics.fadeCurve,
-      padding: EdgeInsets.fromLTRB(
-        metrics.insetFor(isMinimized: isMinimized),
-        0,
-        metrics.insetFor(isMinimized: isMinimized),
-        metrics.bottomOffset(context, isMinimized: isMinimized),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedSize(
-            duration: duration,
-            curve: ChromeMetrics.fadeCurve,
-            alignment: Alignment.bottomCenter,
-            child: showAccessory
-                ? Padding(
-                    padding: const EdgeInsets.only(bottom: ChromeMetrics.gap),
-                    child: WorkoutAccessory(
-                      workout: session,
-                      onTogglePause: onTogglePause,
-                      onOpen: onOpenWorkout,
-                      onFinish: onFinishWorkout,
-                    ),
-                  )
-                : const SizedBox(width: double.infinity),
-          ),
-          SplitDock(
-            selected: selected,
-            onSelect: onSelect,
-            isMinimized: isMinimized,
-            workout: workout,
-            onQuickLog: onQuickLog,
-            onOpenWorkout: onOpenWorkout,
-          ),
-        ],
+    return ToastObstruction(
+      child: AnimatedPadding(
+        duration: duration,
+        curve: ChromeMetrics.fadeCurve,
+        padding: EdgeInsets.fromLTRB(
+          metrics.insetFor(isMinimized: isMinimized),
+          0,
+          metrics.insetFor(isMinimized: isMinimized),
+          metrics.bottomOffset(context, isMinimized: isMinimized),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSize(
+              duration: duration,
+              curve: ChromeMetrics.fadeCurve,
+              alignment: Alignment.bottomCenter,
+              child: showAccessory
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: ChromeMetrics.gap),
+                      child: WorkoutAccessory(
+                        workout: session,
+                        onTogglePause: onTogglePause,
+                        onOpen: onOpenWorkout,
+                        onFinish: onFinishWorkout,
+                      ),
+                    )
+                  : const SizedBox(width: double.infinity),
+            ),
+            SplitDock(
+              selected: selected,
+              onSelect: onSelect,
+              isMinimized: isMinimized,
+              workout: workout,
+              onQuickLog: onQuickLog,
+              onOpenWorkout: onOpenWorkout,
+            ),
+          ],
+        ),
       ),
     );
   }

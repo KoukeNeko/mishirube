@@ -13,7 +13,7 @@ class MealEntryScreen extends StatelessWidget {
 
   void _addRecent(BuildContext context, String name) {
     AppStoreScope.read(context).confirmLunch();
-    showMockSnackBar(context, '已把「$name」加進午餐');
+    showToast(context, '已把「$name」加進午餐', kind: ToastKind.success);
   }
 
   @override
@@ -41,7 +41,7 @@ class MealEntryScreen extends StatelessWidget {
           icon: Icons.search,
           title: '搜尋或輸入',
           subtitle: '食物資料庫、自訂食物',
-          onTap: () => showMockSnackBar(context, '食物搜尋尚未設計'),
+          onTap: () => showToast(context, '食物搜尋尚未設計'),
         ),
         const SectionLabel('最近吃過'),
         for (final (name, time, kcal) in MockNutrition.recentFoods)
@@ -57,7 +57,7 @@ class MealEntryScreen extends StatelessWidget {
           children: [
             for (final label in const ['掃條碼', '餐點模板', '從網址匯入食譜'])
               GestureDetector(
-                onTap: () => showMockSnackBar(context, '「$label」尚未設計'),
+                onTap: () => showToast(context, '「$label」尚未設計'),
                 child: TagChip(label: label),
               ),
           ],

@@ -46,7 +46,7 @@ class _LogScreenState extends State<LogScreen> {
       _ => null,
     };
     if (destination == null) {
-      showMockSnackBar(context, '「${entry.title}」的詳細畫面尚未設計');
+      showToast(context, '「${entry.title}」的詳細畫面尚未設計');
       return;
     }
     pushPage(context, destination);
@@ -63,12 +63,12 @@ class _LogScreenState extends State<LogScreen> {
           icon: Icons.calendar_month_outlined,
           label: '9月',
           semanticLabel: '切換月份，目前 2026 年 9 月',
-          onTap: () => showMockSnackBar(context, '月份切換尚未設計'),
+          onTap: () => showToast(context, '月份切換尚未設計'),
         ),
         HeaderAction(
           icon: Icons.search,
           semanticLabel: '搜尋紀錄',
-          onTap: () => showMockSnackBar(context, '紀錄搜尋尚未設計'),
+          onTap: () => showToast(context, '紀錄搜尋尚未設計'),
         ),
       ],
       // Switching views changes the whole page, so it stays pinned; the

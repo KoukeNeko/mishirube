@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/shared/toast/toast_host.dart';
 
 /// iPhone-class logical size used by the design mock.
 const phoneSize = Size(390, 844);
@@ -38,7 +39,11 @@ Future<void> pumpScreen(
   await tester.pumpWidget(
     AppStoreScope(
       store: store,
-      child: MaterialApp(theme: buildAppTheme(), home: screen),
+      child: MaterialApp(
+        theme: buildAppTheme(),
+        builder: (_, child) => ToastHost(child: child!),
+        home: screen,
+      ),
     ),
   );
   await tester.pump();

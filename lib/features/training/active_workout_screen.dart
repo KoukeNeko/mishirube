@@ -313,8 +313,7 @@ class _SuggestionTags extends StatelessWidget {
         const TagChip(label: '線性進階 +2.5 kg', tone: TagTone.training),
         const TagChip(label: '估計最大重量 114 kg'),
         GestureDetector(
-          onTap: () =>
-              showMockSnackBar(context, '由訓練引擎 v0.4 依上次重量、RIR 與線性進階規則計算。'),
+          onTap: () => showToast(context, '由訓練引擎 v0.4 依上次重量、RIR 與線性進階規則計算。'),
           child: const TagChip(label: '這個建議怎麼來的', tone: TagTone.training),
         ),
       ],
@@ -334,7 +333,8 @@ class _SetTypeHeader extends StatelessWidget {
         for (final type in const ['熱身', '遞減', '力竭']) ...[
           const SizedBox(width: AppSpacing.xs),
           GestureDetector(
-            onTap: () => showMockSnackBar(context, '已加入一組「$type」'),
+            onTap: () =>
+                showToast(context, '已加入一組「$type」', kind: ToastKind.success),
             child: TagChip(label: type),
           ),
         ],

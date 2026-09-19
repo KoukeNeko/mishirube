@@ -1,7 +1,10 @@
+export '../toast/toast_controller.dart';
+export '../toast/toast_host.dart';
 export 'buttons.dart';
 export 'cards.dart';
 export 'charts.dart';
 export 'chips.dart';
+export 'chrome_surface.dart';
 export 'chrome_visibility.dart';
 export 'collapsing_header.dart';
 export 'collapsing_page.dart';

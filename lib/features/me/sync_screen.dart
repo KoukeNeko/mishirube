@@ -19,7 +19,7 @@ class SyncScreen extends StatelessWidget {
 
   void _resolve(BuildContext context, _ConflictChoice choice) {
     AppStoreScope.read(context).resolveSyncConflict();
-    showMockSnackBar(context, '已選擇「${choice.label}」');
+    showToast(context, '已選擇「${choice.label}」', kind: ToastKind.success);
   }
 
   @override

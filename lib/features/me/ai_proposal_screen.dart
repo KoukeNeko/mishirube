@@ -28,7 +28,7 @@ class AiProposalScreen extends StatelessWidget {
 
   void _accept(BuildContext context) {
     AppStoreScope.read(context).applyAiProposal();
-    showMockSnackBar(context, '已套用到「下肢 A」，已完成的訓練紀錄沒有被改動');
+    showToast(context, '已套用到「下肢 A」，已完成的訓練紀錄沒有被改動', kind: ToastKind.success);
     Navigator.of(context).pop();
   }
 

@@ -9,8 +9,6 @@ import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'split_dish_sheet.dart';
 
-const _undoWindow = Duration(seconds: 30);
-
 class DailyNutritionScreen extends StatefulWidget {
   const DailyNutritionScreen({super.key});
 
@@ -28,7 +26,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
 
   Future<void> _split(MealEvent meal, int dishIndex) async {
     final store = AppStoreScope.read(context);
-    final messenger = ScaffoldMessenger.of(context);
+    final toast = ToastScope.read(context);
     final shouldSplit = await showSplitDishSheet(
       context,
       meal.dishes[dishIndex],
@@ -36,16 +34,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     if (shouldSplit != true) return;
     final snapshot = store.splitDish(mealId: meal.id, dishIndex: dishIndex);
     if (snapshot == null) return;
-    messenger.showSnackBar(
-      SnackBar(
-        duration: _undoWindow,
-        content: const Text('已拆成獨立紀錄'),
-        action: SnackBarAction(
-          label: '復原',
-          onPressed: () => store.undoSplit(snapshot),
-        ),
-      ),
-    );
+    toast.showUndo('已拆成獨立紀錄', onUndo: () => store.undoSplit(snapshot));
   }
 
   @override

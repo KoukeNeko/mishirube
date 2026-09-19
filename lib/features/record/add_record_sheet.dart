@@ -80,12 +80,10 @@ final recordOptions = [
 void openRecordOption(BuildContext context, RecordOption option) {
   final destination = option.destination;
   final navigator = Navigator.of(context);
-  final messenger = ScaffoldMessenger.of(context);
+  final toast = ToastScope.read(context);
   navigator.pop();
   if (destination == null) {
-    messenger.showSnackBar(
-      SnackBar(content: Text('「${option.title}」的輸入畫面尚未設計')),
-    );
+    toast.show('「${option.title}」的輸入畫面尚未設計');
     return;
   }
   navigator.push(MaterialPageRoute<void>(builder: (_) => destination()));

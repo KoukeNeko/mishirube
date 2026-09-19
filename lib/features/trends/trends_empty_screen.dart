@@ -21,7 +21,7 @@ class TrendsEmptyScreen extends StatelessWidget {
             child: PrimaryButton(
               label: '記錄今天的體重',
               isCompact: true,
-              onPressed: () => showMockSnackBar(context, '體重輸入畫面尚未設計'),
+              onPressed: () => showToast(context, '體重輸入畫面尚未設計'),
             ),
           ),
         ),

@@ -15,7 +15,7 @@ class MeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final moduleNames = store.enabledModules.map((m) => m.title).join('、');
-    void notDesigned(String name) => showMockSnackBar(context, '「$name」尚未設計');
+    void notDesigned(String name) => showToast(context, '「$name」尚未設計');
 
     return CollapsingPage(
       title: '我的',

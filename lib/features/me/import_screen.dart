@@ -27,7 +27,7 @@ class ImportScreen extends StatelessWidget {
         primary: PrimaryButton(
           label: '確認匯入',
           onPressed: () {
-            showMockSnackBar(context, '已匯入 1,190 筆，可以整批復原');
+            showToast(context, '已匯入 1,190 筆，可以整批復原', kind: ToastKind.success);
             Navigator.of(context).pop();
           },
         ),
@@ -67,12 +67,13 @@ class ImportScreen extends StatelessWidget {
         NavCard(
           title: '完整封存（JSON）',
           subtitle: '帶 schema 版本，可完整還原',
-          onTap: () => showMockSnackBar(context, '已建立完整封存'),
+          onTap: () => showToast(context, '已建立完整封存', kind: ToastKind.success),
         ),
         NavCard(
           title: 'CSV 檢視',
           subtitle: '方便閱讀，不保證無損',
-          onTap: () => showMockSnackBar(context, '已建立 CSV 檢視'),
+          onTap: () =>
+              showToast(context, '已建立 CSV 檢視', kind: ToastKind.success),
         ),
       ],
     );

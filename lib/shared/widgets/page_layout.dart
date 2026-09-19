@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import 'collapsing_header.dart';
 import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
+import '../toast/toast_host.dart';
 
 enum AppBarLeading { back, none }
 
@@ -174,15 +175,17 @@ class BottomActionBar extends StatelessWidget {
                 shadowColor: WidgetStatePropertyAll(Colors.black),
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                child,
-                if (caption != null) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(caption!, style: AppTextStyles.caption),
+            child: ToastObstruction(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  child,
+                  if (caption != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(caption!, style: AppTextStyles.caption),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -234,10 +237,4 @@ class SectionLabel extends StatelessWidget {
       ),
     );
   }
-}
-
-void showMockSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
 }

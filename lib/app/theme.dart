@@ -145,12 +145,6 @@ ThemeData buildAppTheme() {
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,
     ),
-    snackBarTheme: const SnackBarThemeData(
-      backgroundColor: AppColors.surfaceRaised,
-      contentTextStyle: TextStyle(color: AppColors.textPrimary, fontSize: 14),
-      actionTextColor: AppColors.training,
-      behavior: SnackBarBehavior.floating,
-    ),
     dividerTheme: const DividerThemeData(color: AppColors.outline, space: 1),
     textSelectionTheme: const TextSelectionThemeData(
       cursorColor: AppColors.training,

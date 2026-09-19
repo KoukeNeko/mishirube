@@ -35,7 +35,7 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
     final store = AppStoreScope.read(context);
     store.replaceCurrentExercise(candidates[_selectedCandidate].exercise);
     if (_scope != _ReplaceScope.todayOnly) {
-      showMockSnackBar(context, '「${_scope.title}」在 mock 中只套用到今天');
+      showToast(context, '「${_scope.title}」在 mock 中只套用到今天');
     }
     Navigator.of(context).pop();
   }

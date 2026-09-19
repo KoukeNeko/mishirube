@@ -32,7 +32,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   icon: Icons.swap_horiz,
                   tooltip: '看替代動作',
                   size: 60,
-                  onPressed: () => showMockSnackBar(context, '替代動作只在訓練進行中提供'),
+                  onPressed: () => showToast(context, '替代動作只在訓練進行中提供'),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -61,16 +61,16 @@ class ExerciseDetailScreen extends StatelessWidget {
           children: [
             NavRow(
               title: exercise.isFavorite ? '取消收藏' : '加入收藏',
-              onTap: () => showMockSnackBar(context, '已更新收藏'),
+              onTap: () => showToast(context, '已更新收藏', kind: ToastKind.success),
             ),
             NavRow(
               title: '編輯我的別名',
               subtitle: exercise.aliases.join('、'),
-              onTap: () => showMockSnackBar(context, '別名只影響你自己的搜尋'),
+              onTap: () => showToast(context, '別名只影響你自己的搜尋'),
             ),
             NavRow(
               title: '隱藏這個動作',
-              onTap: () => showMockSnackBar(context, '隱藏不會刪除歷史紀錄'),
+              onTap: () => showToast(context, '隱藏不會刪除歷史紀錄'),
             ),
           ],
         ),
