@@ -12,8 +12,6 @@ import 'toast_controller.dart';
 /// Space between a toast and the chrome it floats above.
 const _chromeGap = 10.0;
 
-/// Distance from the screen edge when there is no bottom chrome.
-const _edgeGap = 16.0;
 const _gutter = 16.0;
 const _maxWidth = 370.0;
 const _minHeight = 52.0;
@@ -89,7 +87,7 @@ class _ToastLayer extends StatelessWidget {
           bottom: isAtTop
               ? null
               : obstructionTop == null
-              ? media.viewPadding.bottom + _edgeGap
+              ? floatingChromeBottomOffset(context)
               : media.size.height - obstructionTop + _chromeGap,
           child: Align(
             heightFactor: 1,

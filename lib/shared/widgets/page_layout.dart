@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import 'chrome_surface.dart';
 import 'collapsing_header.dart';
 import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
@@ -166,7 +167,7 @@ class BottomActionBar extends StatelessWidget {
             AppSpacing.screenGutter,
             _footerFadeHeight,
             AppSpacing.screenGutter,
-            AppSpacing.md + MediaQuery.paddingOf(context).bottom,
+            floatingChromeBottomOffset(context),
           ),
           child: FilledButtonTheme(
             data: const FilledButtonThemeData(

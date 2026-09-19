@@ -1,6 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/chrome_surface.dart';
 
 export '../../../shared/motion.dart';
 
@@ -29,12 +29,11 @@ class DockMetrics {
     required this.labelSize,
     required this.labelHeight,
     required this.labelGap,
-    required this.bottomOffsetFor,
   });
 
   /// Proportions of the iOS 26/27 Liquid Glass tab bar (62pt glass that
   /// dips ~13pt into the home-indicator area instead of sitting above it).
-  static final ios = DockMetrics._(
+  static const ios = DockMetrics._(
     height: 62,
     minimizedHeight: 48,
     horizontalInset: 21,
@@ -44,12 +43,10 @@ class DockMetrics {
     labelSize: 11,
     labelHeight: 13,
     labelGap: 1,
-    bottomOffsetFor: ({required safeBottom, required isMinimized}) =>
-        math.max(8, safeBottom - (isMinimized ? 6 : 13)),
   );
 
   /// Material 3 navigation bar proportions, kept clear of the gesture area.
-  static final android = DockMetrics._(
+  static const android = DockMetrics._(
     height: 64,
     minimizedHeight: 52,
     horizontalInset: 16,
@@ -59,8 +56,6 @@ class DockMetrics {
     labelSize: 12,
     labelHeight: 15,
     labelGap: 2,
-    bottomOffsetFor: ({required safeBottom, required isMinimized}) =>
-        safeBottom + 8,
   );
 
   static DockMetrics of(BuildContext context) {
@@ -79,8 +74,6 @@ class DockMetrics {
   final double labelSize;
   final double labelHeight;
   final double labelGap;
-  final double Function({required double safeBottom, required bool isMinimized})
-  bottomOffsetFor;
 
   double heightFor({required bool isMinimized}) =>
       isMinimized ? minimizedHeight : height;
@@ -89,10 +82,6 @@ class DockMetrics {
       isMinimized ? minimizedHorizontalInset : horizontalInset;
 
   /// Distance from the screen's bottom edge to the dock's bottom edge.
-  /// Reads `viewPadding`, the physical inset, which SafeArea never consumes.
   double bottomOffset(BuildContext context, {required bool isMinimized}) =>
-      bottomOffsetFor(
-        safeBottom: MediaQuery.viewPaddingOf(context).bottom,
-        isMinimized: isMinimized,
-      );
+      floatingChromeBottomOffset(context, isCompact: isMinimized);
 }

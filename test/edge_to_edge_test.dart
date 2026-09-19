@@ -151,4 +151,24 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets(
+    'iOS footer sits as low as the dock',
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    (tester) async {
+      await pumpScreen(tester, const ImportScreen(), store: _store());
+
+      final controls = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(BottomActionBar),
+              matching: find.byType(ToastObstruction),
+            )
+            .first,
+      );
+      // Same rule as the dock: dip 13pt into the home-indicator area.
+      expect(phoneSize.height - controls.bottom, phoneBottomInset - 13);
+      await disposeTree(tester);
+    },
+  );
 }

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -48,4 +49,20 @@ class ChromeSurface extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Distance from the screen's bottom edge to floating bottom chrome (dock,
+/// floating footers). On iOS it dips ~13pt into the home-indicator area like
+/// Liquid Glass bars (6pt when compact); on Android it clears the gesture
+/// area. Reads `viewPadding`, the physical inset SafeArea never consumes.
+double floatingChromeBottomOffset(
+  BuildContext context, {
+  bool isCompact = false,
+}) {
+  final safeBottom = MediaQuery.viewPaddingOf(context).bottom;
+  final platform = Theme.of(context).platform;
+  if (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS) {
+    return math.max(8, safeBottom - (isCompact ? 6 : 13));
+  }
+  return safeBottom + 8;
 }
