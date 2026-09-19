@@ -171,9 +171,10 @@ class _DishRow extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              GestureDetector(
+              ChipButton(
+                label: '拆成獨立紀錄',
+                tone: TagTone.nutrition,
                 onTap: onSplit,
-                child: const TagChip(label: '拆成獨立紀錄', tone: TagTone.nutrition),
               ),
               const SizedBox(width: AppSpacing.sm),
               const Text('展開只改變顯示', style: AppTextStyles.caption),

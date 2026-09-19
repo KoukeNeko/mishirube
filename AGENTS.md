@@ -80,7 +80,14 @@ In particular, do not create a parallel version of:
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
 - pill-shaped controls (header actions, chips, segmented controls): build
-  on `Pill` / `pillHeight` so they keep one height, fill and label style;
+  on `Pill` / `pillHeight` so they keep one height, fill and label style.
+  A chip that does something on tap is a `ChipButton`, never a `TagChip`
+  wrapped in a `GestureDetector`;
+- buttons: `PrimaryButton` / `SecondaryButton` / `NutritionButton`,
+  `SquareIconButton`, `LinkText` for inline text actions, and
+  `AppBarBackButton` for a leading back or collapse control. Do not use a
+  bare `TextButton`, `IconButton` or `GestureDetector` as a button in a
+  feature; standard dialogs keep their Material buttons;
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 

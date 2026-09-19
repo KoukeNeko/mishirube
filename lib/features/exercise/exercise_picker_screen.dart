@@ -300,13 +300,7 @@ class _FilterSummary extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(
-            onPressed: onClear,
-            child: const Text(
-              '清除',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ),
+          LinkText(label: '清除', color: AppColors.textSecondary, onTap: onClear),
         ],
       ),
     );
@@ -451,12 +445,11 @@ class _SelectionTray extends StatelessWidget {
             runSpacing: AppSpacing.xs,
             children: [
               for (var i = 0; i < selected.length; i++)
-                GestureDetector(
+                ChipButton(
+                  label: '${i + 1}  ${selected[i].name}',
+                  tone: TagTone.training,
+                  semanticLabel: '移除第 ${i + 1} 個：${selected[i].name}',
                   onTap: () => onRemove(selected[i]),
-                  child: TagChip(
-                    label: '${i + 1}  ${selected[i].name}',
-                    tone: TagTone.training,
-                  ),
                 ),
             ],
           ),

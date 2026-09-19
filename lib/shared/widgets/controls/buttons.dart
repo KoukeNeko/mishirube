@@ -144,12 +144,14 @@ class SquareIconButton extends StatelessWidget {
     required this.onPressed,
     this.tooltip,
     this.size = 48,
+    this.color = AppColors.textPrimary,
   });
 
   final IconData icon;
   final VoidCallback onPressed;
   final String? tooltip;
   final double size;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +162,7 @@ class SquareIconButton extends StatelessWidget {
         onPressed: onPressed,
         style: IconButton.styleFrom(
           backgroundColor: AppColors.surfaceRaised,
-          foregroundColor: AppColors.textPrimary,
+          foregroundColor: color,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
@@ -173,23 +175,37 @@ class SquareIconButton extends StatelessWidget {
 
 /// Inline text link such as「管理模組」or「查看這段期間的原始紀錄」.
 class LinkText extends StatelessWidget {
-  const LinkText({super.key, required this.label, required this.onTap});
+  const LinkText({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.color = AppColors.training,
+  });
 
   final String label;
   final VoidCallback onTap;
+
+  /// Green for going somewhere; secondary grey for dismissive actions such
+  /// as 取消 or 清除.
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.training,
-            fontWeight: FontWeight.w700,
-            fontSize: 15,
+      child: ConstrainedBox(
+        // Text-sized, but still a full touch target.
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Align(
+          widthFactor: 1,
+          heightFactor: 1,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+            ),
           ),
         ),
       ),

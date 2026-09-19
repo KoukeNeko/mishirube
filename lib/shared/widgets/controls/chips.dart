@@ -93,6 +93,43 @@ class SelectChip extends StatelessWidget {
   }
 }
 
+/// Pill-sized action in a chip's colours, for chips that do something
+/// when tapped (add a set type, remove a pick). Display-only labels stay
+/// [TagChip].
+class ChipButton extends StatelessWidget {
+  const ChipButton({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.tone = TagTone.neutral,
+    this.semanticLabel,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final TagTone tone;
+
+  /// What assistive tech reads when [label] alone does not say what the tap
+  /// does.
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticLabel ?? label,
+      onTap: onTap,
+      excludeSemantics: true,
+      child: Pill(
+        onTap: onTap,
+        color: tone.background,
+        foregroundColor: tone.foreground,
+        child: Text(label),
+      ),
+    );
+  }
+}
+
 /// Row of equally sized options where exactly one is selected.
 class SegmentedChoice<T> extends StatelessWidget {
   const SegmentedChoice({

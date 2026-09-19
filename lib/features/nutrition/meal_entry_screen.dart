@@ -65,9 +65,9 @@ class MealEntryScreen extends StatelessWidget {
             runSpacing: AppSpacing.xs,
             children: [
               for (final label in const ['掃條碼', '餐點模板', '從網址匯入食譜'])
-                GestureDetector(
+                ChipButton(
+                  label: label,
                   onTap: () => showToast(context, '「$label」尚未設計'),
-                  child: TagChip(label: label),
                 ),
             ],
           ),
@@ -168,14 +168,11 @@ class _RecentFoodRow extends StatelessWidget {
           ),
           Text(kcal, style: AppTextStyles.bigNumber.copyWith(fontSize: 20)),
           const SizedBox(width: AppSpacing.sm),
-          IconButton.filled(
+          SquareIconButton(
+            icon: Icons.add,
             tooltip: '加入$name',
+            color: AppColors.nutrition,
             onPressed: onAdd,
-            style: IconButton.styleFrom(
-              backgroundColor: AppColors.surfaceRaised,
-              foregroundColor: AppColors.nutrition,
-            ),
-            icon: const Icon(Icons.add),
           ),
         ],
       ),

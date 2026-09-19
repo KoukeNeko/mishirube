@@ -27,6 +27,34 @@ class Gutter extends StatelessWidget {
 
 enum AppBarLeading { back, none }
 
+/// The leading back control of every app bar. [icon] and [tooltip] change
+/// it into, for example, a collapse chevron; [onPressed] defaults to
+/// popping the route.
+class AppBarBackButton extends StatelessWidget {
+  const AppBarBackButton({
+    super.key,
+    this.icon = Icons.chevron_left,
+    this.tooltip = '返回',
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final hitSize = ToolbarMetrics.of(context).actionHitSize;
+    return IconButton(
+      tooltip: tooltip,
+      constraints: BoxConstraints.tightFor(width: hitSize, height: hitSize),
+      padding: EdgeInsets.zero,
+      onPressed: onPressed ?? () => Navigator.of(context).maybePop(),
+      icon: Icon(icon, size: 30),
+    );
+  }
+}
+
 /// What a page shows in the shared app bar. Every page renders it through
 /// [PageScaffold], so all headers collapse, blur and scale the same way.
 class PageAppBar {
@@ -93,17 +121,7 @@ class PageScaffold extends StatelessWidget {
         title: appBar.title,
         subtitle: appBar.subtitle,
         leading: appBar.leading == AppBarLeading.back
-            ? IconButton(
-                tooltip: '返回',
-                constraints: BoxConstraints.tightFor(
-                  width: ToolbarMetrics.of(context).actionHitSize,
-                  height: ToolbarMetrics.of(context).actionHitSize,
-                ),
-                padding: EdgeInsets.zero,
-                onPressed:
-                    appBar.onBack ?? () => Navigator.of(context).maybePop(),
-                icon: const Icon(Icons.chevron_left, size: 30),
-              )
+            ? AppBarBackButton(onPressed: appBar.onBack)
             : null,
         actions: [
           ...appBar.actions,

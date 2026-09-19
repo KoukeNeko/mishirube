@@ -198,16 +198,7 @@ class _DuplicateWarning extends StatelessWidget {
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => onUse(exercise),
-                    child: const Text(
-                      '使用這個',
-                      style: TextStyle(
-                        color: AppColors.training,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
+                  LinkText(label: '使用這個', onTap: () => onUse(exercise)),
                 ],
               ),
             ),

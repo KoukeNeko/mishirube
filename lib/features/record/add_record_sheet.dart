@@ -110,12 +110,10 @@ class AddRecordSheet extends StatelessWidget {
             children: [
               const Text('要記錄什麼？', style: AppTextStyles.pageTitle),
               const Spacer(),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text(
-                  '取消',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
+              LinkText(
+                label: '取消',
+                color: AppColors.textSecondary,
+                onTap: () => Navigator.of(context).pop(),
               ),
             ],
           ),

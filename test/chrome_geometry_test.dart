@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -319,13 +320,50 @@ void main() {
           .descendant(of: _visibleScrollView, matching: find.byType(Scrollable))
           .first,
     );
-    final collapsed = scrollable.position.pixels;
-    expect(collapsed, greaterThan(0));
+    final range =
+        (tester
+                    .widget<SliverPersistentHeader>(
+                      find
+                          .descendant(
+                            of: _visibleScrollView,
+                            matching: find.byType(SliverPersistentHeader),
+                          )
+                          .first,
+                    )
+                    .delegate
+                as CollapsingHeaderDelegate)
+            .collapseRange;
+    expect(scrollable.position.pixels, greaterThanOrEqualTo(range));
 
     await tester.tap(find.text('7').hitTestable());
     await tester.pump(_settle);
     expect(find.text('這天沒有紀錄。'), findsOneWidget);
-    expect(scrollable.position.pixels, collapsed);
+    expect(
+      scrollable.position.pixels,
+      greaterThanOrEqualTo(range),
+      reason: 'the header is still fully collapsed',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('action chips are full pills with button semantics', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout();
+    await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+    final handle = tester.ensureSemantics();
+
+    final chip = find.widgetWithText(ChipButton, '熱身');
+    expect(
+      tester.getSize(chip).height,
+      ToolbarMetrics.of(tester.element(chip)).actionVisualSize,
+    );
+    expect(
+      tester.getSemantics(chip),
+      matchesSemantics(label: '加入一組熱身', isButton: true, hasTapAction: true),
+    );
+    handle.dispose();
     await disposeTree(tester);
   });
 }

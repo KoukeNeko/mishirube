@@ -136,11 +136,7 @@ class _RestHeader extends StatelessWidget {
     final session = workout;
     return Row(
       children: [
-        IconButton(
-          tooltip: '返回',
-          onPressed: () => Navigator.of(context).maybePop(),
-          icon: const Icon(Icons.chevron_left, size: 30),
-        ),
+        const AppBarBackButton(),
         Expanded(
           child: Center(
             child: session == null
