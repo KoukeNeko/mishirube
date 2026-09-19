@@ -42,6 +42,14 @@ double _opacityOf(WidgetTester tester, Finder text) {
 Finder _inHeader(Finder finder) =>
     find.descendant(of: find.byType(SliverPersistentHeader), matching: finder);
 
+/// The header's own scroll-edge glass (its action pills are glass too).
+Finder get _headerGlass => _inHeader(
+  find.descendant(
+    of: find.byType(ScrollEdgeGlass),
+    matching: find.byType(BackdropFilter),
+  ),
+);
+
 /// Today's large title (other tabs' titles also exist, offstage).
 Finder get _largeTitle => find.descendant(
   of: find.byWidgetPredicate(
@@ -60,7 +68,7 @@ void main() {
     expect(find.text('9 月 19 日・週六・早上'), findsOneWidget);
     expect(_opacityOf(tester, _largeTitle), 1);
     expect(
-      _inHeader(find.byType(BackdropFilter)),
+      _headerGlass,
       findsNothing,
       reason: 'no glass while nothing scrolls underneath',
     );
@@ -79,7 +87,7 @@ void main() {
       1,
       reason: 'compact title fully visible once collapsed',
     );
-    expect(_inHeader(find.byType(BackdropFilter)), findsOneWidget);
+    expect(_headerGlass, findsOneWidget);
     expect(
       find.bySemanticsLabel('今天').evaluate().length,
       lessThanOrEqualTo(2),
@@ -215,7 +223,7 @@ void main() {
 
     await _scroll(tester, 400);
 
-    expect(_inHeader(find.byType(BackdropFilter)), findsNothing);
+    expect(_headerGlass, findsNothing);
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });

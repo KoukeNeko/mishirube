@@ -582,7 +582,8 @@ void main() {
           .evaluate()
           .map((element) => element.widget is ChromeSurface ? 'glass' : '+')
           .toList();
-      expect(order, ['glass', 'glass', '+']);
+      // Both capsules, then「+」on its own glass.
+      expect(order, ['glass', 'glass', 'glass', '+']);
 
       final dock = tester.getRect(find.byType(SplitDock));
       expect(

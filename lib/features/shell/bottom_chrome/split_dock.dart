@@ -275,6 +275,7 @@ class _CapsuleState extends State<_Capsule> {
       },
     );
     return ChromeSurface(
+      refracts: true,
       child: !canScrub
           ? capsule
           : RawGestureDetector(
@@ -606,8 +607,10 @@ class _CenterAction extends StatelessWidget {
   }
 }
 
-/// Solid green surface of the centre action. The quick-log menu's × wears
-/// the same, since it stands in for「+」while the menu is open.
+/// Green glass of the centre action: the dock's liquid glass tinted almost
+/// solid green, so it keeps the accent yet shares the capsules' rim and
+/// light. The quick-log menu's × wears the same, since it stands in for
+/// 「+」while the menu is open.
 class CenterActionSurface extends StatelessWidget {
   const CenterActionSurface({super.key, required this.child});
 
@@ -618,12 +621,12 @@ class CenterActionSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const ShapeDecoration(
-        shape: StadiumBorder(),
-        color: AppColors.training,
-      ),
-      child: Material(type: MaterialType.transparency, child: child),
+    return ChromeSurface(
+      refracts: true,
+      tint: AppColors.training,
+      tintOpacity: 0.7,
+      borderColor: AppColors.training,
+      child: child,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
+import '../chrome/chrome_surface.dart';
 import '../controls/pill.dart';
 
 const _blurSigma = 24.0;
@@ -553,18 +554,25 @@ class HeaderAction extends StatelessWidget {
           child: Align(
             widthFactor: 1,
             heightFactor: 1,
-            child: Pill(
-              onTap: onTap,
-              horizontalPadding: label == null ? 0 : AppSpacing.sm,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon),
-                  if (label != null) ...[
-                    const SizedBox(width: AppSpacing.xxs),
-                    Text(label!),
+            // Floating chrome over content: the dock's liquid glass, with the
+            // pill's own fill cleared so the glass shows.
+            child: ChromeSurface(
+              refracts: true,
+              tint: AppColors.surfaceRaised,
+              child: Pill(
+                onTap: onTap,
+                color: Colors.transparent,
+                horizontalPadding: label == null ? 0 : AppSpacing.sm,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon),
+                    if (label != null) ...[
+                      const SizedBox(width: AppSpacing.xxs),
+                      Text(label!),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
