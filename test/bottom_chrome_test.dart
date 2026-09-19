@@ -61,34 +61,22 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('tab ripple is confined to the indicator pill', (tester) async {
+  testWidgets('dock tabs and 「+」 show no Material ink', (tester) async {
     final store = await _pumpApp(tester, FakeClock());
 
-    Future<void> expectInkOnPill(IconData icon) async {
-      final inkFinder = find.descendant(
-        of: find.bySemanticsLabel('紀錄'),
-        matching: find.byType(InkWell),
+    for (final target in [
+      find.bySemanticsLabel('紀錄'),
+      find.byKey(_centerAction),
+    ]) {
+      expect(
+        find.descendant(of: target, matching: find.byType(InkResponse)),
+        findsNothing,
       );
-      final inkWell = tester.widget<InkWell>(inkFinder);
-      final inkBounds = inkWell.customBorder!
-          .getOuterPath(tester.getRect(inkFinder))
-          .getBounds();
-      final iconRect = tester.getRect(find.byIcon(icon));
-
-      expect(inkBounds.size, const Size(56, 30));
-      expect(inkBounds.center.dx, closeTo(iconRect.center.dx, 0.5));
-      expect(inkBounds.center.dy, closeTo(iconRect.center.dy, 0.5));
-      expect(tester.getRect(inkFinder).contains(inkBounds.topLeft), isTrue);
-      expect(tester.getRect(inkFinder).contains(inkBounds.bottomRight), isTrue);
     }
 
-    await expectInkOnPill(Icons.list_alt_outlined);
-
-    store.selectTab(HomeTab.log);
+    await tester.tap(find.bySemanticsLabel('紀錄'));
     await _settleFor(tester);
-    await tester.drag(_visibleScrollView, const Offset(0, -300));
-    await _settleFor(tester);
-    await expectInkOnPill(Icons.list_alt);
+    expect(store.selectedTab, HomeTab.log);
     await disposeTree(tester);
   });
 

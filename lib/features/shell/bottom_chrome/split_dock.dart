@@ -118,22 +118,16 @@ class _TabButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isSelected ? AppColors.training : AppColors.textSecondary;
     final indicatorSize = Size(_indicatorWidth, metrics.iconBox);
-    final contentHeight =
-        metrics.iconBox +
-        (showLabel ? metrics.labelGap + metrics.labelHeight : 0);
     return Semantics(
       label: spec.label,
       selected: isSelected,
       button: true,
       excludeSemantics: true,
-      // The whole cell is tappable, but ink stays inside the indicator pill
-      // like Material 3's NavigationBar.
-      child: InkWell(
+      // The whole cell is tappable. No ink: the selected state is the
+      // feedback, as with system tab bars.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        customBorder: _IndicatorInkBorder(
-          indicatorSize: indicatorSize,
-          contentHeight: contentHeight,
-        ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             minHeight: ChromeMetrics.minTapTarget,
@@ -176,58 +170,6 @@ class _TabButton extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Ink shape of a tab: only the indicator pill, found by centring the
-/// icon + label block in the cell exactly as the layout does.
-class _IndicatorInkBorder extends ShapeBorder {
-  const _IndicatorInkBorder({
-    required this.indicatorSize,
-    required this.contentHeight,
-  });
-
-  final Size indicatorSize;
-  final double contentHeight;
-
-  RRect _pill(Rect rect) {
-    final top = rect.center.dy - contentHeight / 2;
-    final pill = Rect.fromLTWH(
-      rect.center.dx - indicatorSize.width / 2,
-      top,
-      indicatorSize.width,
-      indicatorSize.height,
-    );
-    return RRect.fromRectAndRadius(
-      pill,
-      Radius.circular(indicatorSize.height / 2),
-    );
-  }
-
-  @override
-  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
-
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
-      getOuterPath(rect, textDirection: textDirection);
-
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
-      Path()..addRRect(_pill(rect));
-
-  @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
-
-  @override
-  ShapeBorder scale(double t) => this;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _IndicatorInkBorder &&
-      other.indicatorSize == indicatorSize &&
-      other.contentHeight == contentHeight;
-
-  @override
-  int get hashCode => Object.hash(indicatorSize, contentHeight);
 }
 
 /// 「+」as tall as the capsules (a separate action, not a raised FAB) that
@@ -273,23 +215,20 @@ class _CenterAction extends StatelessWidget {
             ),
           ],
         ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            key: const ValueKey('dock-center-action'),
-            customBorder: const StadiumBorder(),
-            onTap: session == null ? onQuickLog : onOpenWorkout,
-            child: AnimatedSwitcher(
-              duration: duration,
-              child: session == null
-                  ? Icon(
-                      Icons.add,
-                      key: const ValueKey('plus'),
-                      size: metrics.iconSize + 8,
-                      color: AppColors.onTraining,
-                    )
-                  : _TimerLabel(key: const ValueKey('timer'), workout: session),
-            ),
+        child: GestureDetector(
+          key: const ValueKey('dock-center-action'),
+          behavior: HitTestBehavior.opaque,
+          onTap: session == null ? onQuickLog : onOpenWorkout,
+          child: AnimatedSwitcher(
+            duration: duration,
+            child: session == null
+                ? Icon(
+                    Icons.add,
+                    key: const ValueKey('plus'),
+                    size: metrics.iconSize + 8,
+                    color: AppColors.onTraining,
+                  )
+                : _TimerLabel(key: const ValueKey('timer'), workout: session),
           ),
         ),
       ),
