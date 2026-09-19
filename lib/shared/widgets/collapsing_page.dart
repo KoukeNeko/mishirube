@@ -59,21 +59,35 @@ class CollapsingPage extends StatelessWidget {
         ChromeVisibility.isMinimizedOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
+        final toolbar = ToolbarMetrics.of(context);
+        final isBar = compactBar == CompactBarBehavior.none;
+        final measuredPinned = pinned == null
+            ? 0.0
+            : this.pinnedHeight ?? measurePinnedControlHeight(context);
+        final pinnedHeight = pinned == null
+            ? 0.0
+            : pinnedSlotHeight(
+                measured: measuredPinned,
+                toolbar: toolbar,
+                isBar: isBar,
+              );
+        final largeBottomPadding = largeTitleBottomPadding(
+          pinnedTopInset: pinned == null
+              ? null
+              : pinnedControlTopInset(
+                  measured: measuredPinned,
+                  slotHeight: pinnedHeight,
+                  toolbar: toolbar,
+                  isBar: isBar,
+                ),
+        );
         final largeHeight = measureLargeTitleHeight(
           context,
           title: title,
           subtitle: subtitle,
           maxWidth: constraints.maxWidth - AppSpacing.screenGutter * 2,
+          bottomPadding: largeBottomPadding,
         );
-        final toolbar = ToolbarMetrics.of(context);
-        final pinnedHeight = pinned == null
-            ? 0.0
-            : pinnedSlotHeight(
-                measured:
-                    this.pinnedHeight ?? measurePinnedControlHeight(context),
-                toolbar: toolbar,
-                isBar: compactBar == CompactBarBehavior.none,
-              );
         return TweenAnimationBuilder<double>(
           tween: Tween(end: shouldHide ? 1 : 0),
           duration: chromeDuration(context, _autoHideDuration),
@@ -83,7 +97,11 @@ class CollapsingPage extends StatelessWidget {
               toolbar: toolbar,
               topInset: media.padding.top,
               largeHeight: largeHeight,
-              large: LargeTitleBlock(title: title, subtitle: subtitle),
+              large: LargeTitleBlock(
+                title: title,
+                subtitle: subtitle,
+                bottomPadding: largeBottomPadding,
+              ),
               compactTitle: Text(
                 title,
                 maxLines: 1,

@@ -97,6 +97,28 @@ double measureTextHeight(
   return height;
 }
 
+/// Space between the top of the pinned slot and its control, for a slot of
+/// [slotHeight] holding a control [measured] as in [pinnedSlotHeight].
+double pinnedControlTopInset({
+  required double measured,
+  required double slotHeight,
+  required ToolbarMetrics toolbar,
+  required bool isBar,
+}) {
+  if (!isBar) return _pinnedVerticalPadding;
+  final control = measured - _pinnedVerticalPadding * 2;
+  final row = slotHeight - (toolbar.height - toolbar.controlRowHeight);
+  return (row - control) / 2;
+}
+
+/// Bottom padding of the large title block. Above a pinned control it tops
+/// up the control's own inset to the content gap; that space collapses with
+/// the title, so a pinned row acting as the bar keeps the bar's layout.
+double largeTitleBottomPadding({double? pinnedTopInset}) {
+  if (pinnedTopInset == null) return _largeBottomPadding;
+  return math.max(0, _contentTopGap - pinnedTopInset);
+}
+
 /// Height of the large title block, measured with the user's text size so
 /// Dynamic Type grows the header instead of overflowing it.
 double measureLargeTitleHeight(
@@ -104,6 +126,7 @@ double measureLargeTitleHeight(
   required String title,
   required double maxWidth,
   String? subtitle,
+  double bottomPadding = _largeBottomPadding,
 }) {
   final titleHeight = measureTextHeight(
     context,
@@ -121,7 +144,7 @@ double measureLargeTitleHeight(
               maxWidth: maxWidth,
               maxLines: _subtitleMaxLines,
             );
-  return _largeTopPadding + titleHeight + subtitleHeight + _largeBottomPadding;
+  return _largeTopPadding + titleHeight + subtitleHeight + bottomPadding;
 }
 
 /// Height of a pinned row holding a [SegmentedChoice]-style control.
@@ -255,21 +278,34 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                 child: Opacity(
                   opacity: toolbarOpacity,
                   // The control row hangs from the top of the bar; on iOS
-                  // the bar's extra height is space below it.
+                  // the bar's extra height is space below it. Scrolling
+                  // away, the whole bar slides up under the status bar, so
+                  // that space stays between the actions and the pinned
+                  // control instead of the control eating into the actions.
                   child: OverflowBox(
-                    alignment: Alignment.topCenter,
-                    minHeight: toolbar.controlRowHeight,
-                    maxHeight: toolbar.controlRowHeight,
-                    child: _Toolbar(
-                      leading: leading,
-                      actions: actions,
-                      title: ExcludeSemantics(
-                        excluding: !showsCompactTitle,
-                        child: Semantics(
-                          header: true,
-                          child: Opacity(
-                            opacity: scrollsToolbarAway ? 0 : compactOpacity,
-                            child: compactTitle,
+                    alignment: scrollsToolbarAway
+                        ? Alignment.bottomCenter
+                        : Alignment.topCenter,
+                    minHeight: toolbar.height,
+                    maxHeight: toolbar.height,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: SizedBox(
+                        height: toolbar.controlRowHeight,
+                        child: _Toolbar(
+                          leading: leading,
+                          actions: actions,
+                          title: ExcludeSemantics(
+                            excluding: !showsCompactTitle,
+                            child: Semantics(
+                              header: true,
+                              child: Opacity(
+                                opacity: scrollsToolbarAway
+                                    ? 0
+                                    : compactOpacity,
+                                child: compactTitle,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -413,19 +449,25 @@ class _Toolbar extends StatelessWidget {
 
 /// Large title + subtitle block shown before the header collapses.
 class LargeTitleBlock extends StatelessWidget {
-  const LargeTitleBlock({super.key, required this.title, this.subtitle});
+  const LargeTitleBlock({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.bottomPadding = _largeBottomPadding,
+  });
 
   final String title;
   final String? subtitle;
+  final double bottomPadding;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.screenGutter,
         _largeTopPadding,
         AppSpacing.screenGutter,
-        _largeBottomPadding,
+        bottomPadding,
       ),
       child: Semantics(
         header: true,

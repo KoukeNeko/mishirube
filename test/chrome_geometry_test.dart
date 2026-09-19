@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -241,6 +242,66 @@ void main() {
       expect(pillHeight(find.text('9月')), toolbar.actionVisualSize);
       expect(pillHeight(find.text('時間軸')), toolbar.actionVisualSize);
       expect(pillHeight(find.text('訓練').first), toolbar.actionVisualSize);
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
+    'pinned control keeps the content gap below the large title',
+    variant: bothPlatforms,
+    (tester) async {
+      await _pumpShell(tester, tab: HomeTab.log);
+
+      final subtitle = tester.getRect(find.text('2026 年 9 月').first);
+      final control = tester.getRect(
+        find
+            .ancestor(of: find.text('時間軸'), matching: find.byType(Material))
+            .first,
+      );
+      expect(control.top - subtitle.bottom, AppSpacing.md);
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
+    'toolbar slides away above the pinned control instead of under it',
+    variant: iosOnly,
+    (tester) async {
+      await _pumpShell(tester, tab: HomeTab.log);
+      final toolbar = ToolbarMetrics.of(tester.element(_header));
+      final delegate =
+          tester
+                  .widget<SliverPersistentHeader>(
+                    find
+                        .descendant(
+                          of: _visibleScrollView,
+                          matching: find.byType(SliverPersistentHeader),
+                        )
+                        .first,
+                  )
+                  .delegate
+              as CollapsingHeaderDelegate;
+
+      Rect pill(String label) => tester.getRect(
+        find
+            .ancestor(of: find.text(label), matching: find.byType(Material))
+            .first,
+      );
+
+      // Hold the finger part-way through the toolbar scrolling away.
+      final gesture = await tester.startGesture(
+        tester.getCenter(_visibleScrollView),
+      );
+      await gesture.moveBy(const Offset(0, -_slop));
+      for (final dy in [delegate.largeHeight + 15, 15.0]) {
+        await gesture.moveBy(Offset(0, -dy));
+        await tester.pump();
+        expect(
+          pill('時間軸').top - pill('9月').bottom,
+          toolbar.height - toolbar.controlRowHeight,
+        );
+      }
+      await gesture.up();
       await disposeTree(tester);
     },
   );
