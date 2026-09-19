@@ -41,6 +41,8 @@ class WorkoutAccessory extends StatelessWidget {
               child: Semantics(
                 button: true,
                 label: isPaused ? '訓練已暫停，回到訓練' : '訓練進行中，回到訓練',
+                // Excluding the child's semantics drops its tap too.
+                onTap: onOpen,
                 excludeSemantics: true,
                 child: InkWell(
                   key: const ValueKey('workout-accessory-open'),

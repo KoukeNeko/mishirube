@@ -480,6 +480,8 @@ class _TabButton extends StatelessWidget {
       label: spec.label,
       selected: isSelected,
       button: true,
+      // Excluding the child's semantics drops its tap too.
+      onTap: onTap,
       excludeSemantics: true,
       // The whole cell is tappable. No ink: the press squeeze, the lens
       // and the selected state are the feedback. The cell is transparent,
@@ -561,9 +563,16 @@ class _CenterAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final duration = chromeDuration(context, ChromeMetrics.morphDuration);
     final session = workout;
+    void activate() {
+      // The primary action gets a firmer tap than tab selection.
+      HapticFeedback.lightImpact();
+      session == null ? onQuickLog() : onOpenWorkout();
+    }
+
     return Semantics(
       button: true,
       label: session == null ? '新增紀錄' : '訓練進行中，回到訓練',
+      onTap: activate,
       excludeSemantics: true,
       child: PressScale(
         pressedScale: ChromeMetrics.actionPressedScale,
@@ -579,11 +588,7 @@ class _CenterAction extends StatelessWidget {
           child: GestureDetector(
             key: const ValueKey('dock-center-action'),
             behavior: HitTestBehavior.opaque,
-            onTap: () {
-              // The primary action gets a firmer tap than tab selection.
-              HapticFeedback.lightImpact();
-              session == null ? onQuickLog() : onOpenWorkout();
-            },
+            onTap: activate,
             child: AnimatedSwitcher(
               duration: duration,
               child: session == null

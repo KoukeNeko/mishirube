@@ -525,6 +525,8 @@ class HeaderAction extends StatelessWidget {
       button: true,
       enabled: onTap != null,
       label: semanticLabel,
+      // Excluding the child's semantics drops its tap too.
+      onTap: onTap,
       excludeSemantics: true,
       // Taps on the margin around the pill still count.
       child: GestureDetector(

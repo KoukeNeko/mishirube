@@ -366,4 +366,27 @@ void main() {
     handle.dispose();
     await disposeTree(tester);
   });
+
+  testWidgets('custom buttons stay activatable by screen readers', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    usePhoneViewport(tester);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+    final handle = tester.ensureSemantics();
+
+    // Each wraps its visuals in Semantics(excludeSemantics: true), which
+    // would otherwise drop the child's tap action.
+    for (final label in ['今天', '新增紀錄', '搜尋紀錄']) {
+      expect(
+        tester.getSemantics(find.bySemanticsLabel(label).last),
+        isSemantics(isButton: true, hasTapAction: true),
+        reason: label,
+      );
+    }
+    handle.dispose();
+    await disposeTree(tester);
+  });
 }
