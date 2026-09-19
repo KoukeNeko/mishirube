@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
+import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
+import 'package:mishirube/shared/widgets/chrome_surface.dart';
 
 import 'support/harness.dart';
 
@@ -227,5 +230,122 @@ void main() {
 
     final workout = store.lastFinishedWorkout!;
     expect(workout.elapsedAt(clock.now()), const Duration(minutes: 12));
+  });
+
+  group('dock press feedback', () {
+    Finder dockLabel(String label) =>
+        find.descendant(of: find.byType(SplitDock), matching: find.text(label));
+
+    double tabScale(WidgetTester tester) => tester
+        .widget<ScaleTransition>(
+          find
+              .descendant(
+                of: find.ancestor(
+                  of: dockLabel('紀錄'),
+                  matching: find.byType(PressScale),
+                ),
+                matching: find.byType(ScaleTransition),
+              )
+              .first,
+        )
+        .scale
+        .value;
+
+    testWidgets('a tab squeezes while held and springs back', (tester) async {
+      await _pumpApp(tester, FakeClock());
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(dockLabel('紀錄')),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tabScale(tester), ChromeMetrics.tabPressedScale);
+
+      await gesture.up();
+      await tester.pump();
+      await tester.pump(_settle);
+      expect(tabScale(tester), closeTo(1, 0.001));
+      await disposeTree(tester);
+    });
+
+    testWidgets('Reduce Motion keeps a held tab still', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(reduceMotion: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await _pumpApp(tester, FakeClock());
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(dockLabel('紀錄')),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tabScale(tester), 1);
+      await gesture.up();
+      await disposeTree(tester);
+    });
+
+    testWidgets('the lens follows selection within its capsule', (
+      tester,
+    ) async {
+      await _pumpApp(tester, FakeClock());
+      final lens = find.byKey(const ValueKey('dock-selection-lens')).first;
+
+      expect(
+        tester.getCenter(lens).dx,
+        closeTo(tester.getCenter(dockLabel('今天')).dx, 0.5),
+      );
+      await tester.tap(find.bySemanticsLabel('紀錄'));
+      await _settleFor(tester);
+      expect(
+        tester.getCenter(lens).dx,
+        closeTo(tester.getCenter(dockLabel('紀錄')).dx, 0.5),
+      );
+
+      // Concentric with its capsule at any dock height.
+      final capsule = tester.getRect(
+        find.ancestor(of: lens, matching: find.byType(ChromeSurface)).first,
+      );
+      final lensRect = tester.getRect(lens);
+      expect(lensRect.top - capsule.top, ChromeMetrics.lensInset);
+      expect(capsule.bottom - lensRect.bottom, ChromeMetrics.lensInset);
+      await disposeTree(tester);
+    });
+
+    testWidgets(
+      'iOS ticks only when the selection changes',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        final haptics = <Object?>[];
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              haptics.add(call.arguments);
+            }
+            return null;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        await _pumpApp(tester, FakeClock());
+
+        await tester.tap(find.bySemanticsLabel('紀錄'));
+        await _settleFor(tester);
+        await tester.tap(find.bySemanticsLabel('紀錄'));
+        await _settleFor(tester);
+        expect(haptics, ['HapticFeedbackType.selectionClick']);
+
+        await tester.tap(find.byKey(_centerAction));
+        await _settleFor(tester);
+        expect(haptics.last, 'HapticFeedbackType.lightImpact');
+        await disposeTree(tester);
+      },
+    );
   });
 }

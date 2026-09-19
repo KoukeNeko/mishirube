@@ -14,6 +14,26 @@ abstract final class ChromeMetrics {
   static const morphDuration = Duration(milliseconds: 320);
   static const morphCurve = Curves.easeOutBack;
   static const fadeCurve = Curves.easeOut;
+
+  /// Press feedback: a quick squeeze on touch, a spring back on release.
+  /// Tabs squeeze less than the primary action in the centre.
+  static const tabPressedScale = 0.96;
+  static const actionPressedScale = 0.94;
+  static const pressDuration = Duration(milliseconds: 70);
+
+  /// Slightly underdamped: alive, but never visibly overshoots.
+  static const pressSpring = SpringDescription(
+    mass: 1,
+    stiffness: 500,
+    damping: 32,
+  );
+
+  /// Selection lens: a faint patch of the same glass, not a second layer.
+  static const lensInset = 4.0;
+  static const lensFillOpacity = 0.07;
+  static const lensPressedFillOpacity = 0.12;
+  static const lensBorderOpacity = 0.1;
+  static const lensFadeDuration = Duration(milliseconds: 150);
 }
 
 /// Platform geometry of the floating dock. The quick-log menu reads the
