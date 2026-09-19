@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
+import 'dart:ui' as ui show Gradient;
 
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -10,11 +11,13 @@ const _blurSigma = 24.0;
 const _glassOpacity = 0.72;
 const _borderOpacity = 0.6;
 
-// The frosted rim, lit from above like iOS 27 glass: a light top edge and a
-// darker bottom edge, with the plain outline along the sides.
+// The frosted rim, lit like the liquid glass: its shader catches light on
+// the edge facing the light (up-left) and, at 80%, on the opposite edge, so
+// the rim glints at both ends of the light axis and keeps the plain outline
+// across it.
 const _rimWidth = 1.0;
 const _rimHighlight = 0.2;
-const _rimShade = 0.4;
+const _rimOppositeHighlight = _rimHighlight * 0.8;
 
 /// Liquid glass for the dock, tuned for a dark UI and away from the
 /// package's default chrome-like rim: exact-colour tint, a soft specular
@@ -131,20 +134,27 @@ class _FrostedRim extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
+    // Lit from the same angle as the liquid glass (up-left; the package
+    // measures it with y pointing up), in pixel space so a wide capsule
+    // is not lit side-on.
+    const angle = GlassDefaults.lightAngle;
+    final toLight = Offset(math.cos(angle), -math.sin(angle));
+    final reach =
+        (size.width * toLight.dx.abs() + size.height * toLight.dy.abs()) / 2;
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = _rimWidth
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
+      ..shader = ui.Gradient.linear(
+        rect.center + toLight * reach,
+        rect.center - toLight * reach,
+        [
           Colors.white.withValues(alpha: _rimHighlight),
           side,
           side,
-          Colors.black.withValues(alpha: _rimShade),
+          Colors.white.withValues(alpha: _rimOppositeHighlight),
         ],
-        stops: const [0, 0.35, 0.65, 1],
-      ).createShader(rect);
+        const [0, 0.35, 0.65, 1],
+      );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         rect.deflate(_rimWidth / 2),
