@@ -1,0 +1,588 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import '../../app/theme.dart';
+
+const _blurSigma = 24.0;
+const _glassOpacity = 0.72;
+const _largeTopPadding = 4.0;
+const _largeBottomPadding = 4.0;
+
+/// Breathing room between the (collapsed) bar and the first card; matches
+/// the prototype's title-to-card rhythm.
+const _contentTopGap = AppSpacing.md;
+const _snapDuration = Duration(milliseconds: 220);
+const _subtitleGap = 2.0;
+const _subtitleMaxLines = 2;
+const _pinnedVerticalPadding = 8.0;
+const _chipVerticalPadding = 10.0;
+
+/// Progress (0–1) after which the compact title replaces the large one.
+const _titleSwapPoint = 0.5;
+const _compactFadeStart = 0.6;
+
+const largeTitleStyle = AppTextStyles.screenTitle;
+final largeSubtitleStyle = AppTextStyles.caption.copyWith(fontSize: 14);
+
+/// iOS headline: 17pt semibold on a 22pt line.
+const compactTitleStyle = TextStyle(
+  fontSize: 17,
+  fontWeight: FontWeight.w600,
+  height: 22 / 17,
+  color: AppColors.textPrimary,
+);
+
+/// Top bar geometry per platform.
+class ToolbarMetrics {
+  const ToolbarMetrics._({
+    required this.height,
+    required this.controlRowHeight,
+    required this.actionVisualSize,
+    required this.actionHitSize,
+  });
+
+  /// iOS 27: a 44pt control row directly under the safe area plus 10pt of
+  /// space below it. Centring the row in the full 54pt would push it down.
+  static const ios = ToolbarMetrics._(
+    height: 54,
+    controlRowHeight: 44,
+    actionVisualSize: 44,
+    actionHitSize: 44,
+  );
+
+  /// Material top app bar: 56dp with centred contents, 48dp touch targets.
+  static const android = ToolbarMetrics._(
+    height: 56,
+    controlRowHeight: 56,
+    actionVisualSize: 40,
+    actionHitSize: 48,
+  );
+
+  static ToolbarMetrics of(BuildContext context) {
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS
+        ? ios
+        : android;
+  }
+
+  final double height;
+  final double controlRowHeight;
+  final double actionVisualSize;
+  final double actionHitSize;
+}
+
+/// Laid-out height of [text] with the ambient font and the user's text size.
+double measureTextHeight(
+  BuildContext context,
+  String text,
+  TextStyle style, {
+  required double maxWidth,
+  int maxLines = 1,
+}) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: text,
+      style: DefaultTextStyle.of(context).style.merge(style),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: maxLines,
+  )..layout(maxWidth: maxWidth);
+  final height = painter.height;
+  painter.dispose();
+  return height;
+}
+
+/// Height of the large title block, measured with the user's text size so
+/// Dynamic Type grows the header instead of overflowing it.
+double measureLargeTitleHeight(
+  BuildContext context, {
+  required String title,
+  required double maxWidth,
+  String? subtitle,
+}) {
+  final titleHeight = measureTextHeight(
+    context,
+    title,
+    largeTitleStyle,
+    maxWidth: maxWidth,
+  );
+  final subtitleHeight = subtitle == null
+      ? 0.0
+      : _subtitleGap +
+            measureTextHeight(
+              context,
+              subtitle,
+              largeSubtitleStyle,
+              maxWidth: maxWidth,
+              maxLines: _subtitleMaxLines,
+            );
+  return _largeTopPadding + titleHeight + subtitleHeight + _largeBottomPadding;
+}
+
+/// Height of a pinned row holding a [SegmentedChoice]-style control.
+double measurePinnedControlHeight(BuildContext context) {
+  const chipLabelStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
+  final label = measureTextHeight(
+    context,
+    '時間軸',
+    chipLabelStyle,
+    maxWidth: double.infinity,
+  );
+  return label + _chipVerticalPadding * 2 + _pinnedVerticalPadding * 2;
+}
+
+/// A page header that starts as content (large title) and collapses into a
+/// compact toolbar. The toolbar only turns into glass once content scrolls
+/// beneath it, like iOS scroll-edge effects.
+class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
+  CollapsingHeaderDelegate({
+    required this.toolbar,
+    required this.topInset,
+    required this.largeHeight,
+    required this.large,
+    required this.compactTitle,
+    this.leading,
+    this.actions = const [],
+    this.pinned,
+    this.pinnedHeight = 0,
+    this.hideToolbarFraction = 0,
+    this.solidColor,
+    this.isHighContrast = false,
+    this.reduceMotion = false,
+  });
+
+  final ToolbarMetrics toolbar;
+  final double topInset;
+  final double largeHeight;
+  final Widget large;
+  final Widget compactTitle;
+  final Widget? leading;
+  final List<Widget> actions;
+  final Widget? pinned;
+  final double pinnedHeight;
+
+  /// 0 shows the compact toolbar; 1 tucks it away (auto-hide while reading).
+  final double hideToolbarFraction;
+
+  /// Opaque branded background instead of scroll-edge glass.
+  final Color? solidColor;
+  final bool isHighContrast;
+  final bool reduceMotion;
+
+  double get _visibleToolbarHeight =>
+      toolbar.height * (1 - hideToolbarFraction);
+
+  @override
+  double get minExtent => topInset + _visibleToolbarHeight + pinnedHeight;
+
+  @override
+  double get maxExtent =>
+      topInset + toolbar.height + largeHeight + pinnedHeight;
+
+  double _progress(double shrinkOffset) {
+    if (largeHeight <= 0) return 1;
+    final progress = (shrinkOffset / largeHeight).clamp(0.0, 1.0);
+    if (!reduceMotion) return progress;
+    return progress < _titleSwapPoint ? 0 : 1;
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final progress = _progress(shrinkOffset);
+    final chromeOpacity = overlapsContent ? 1.0 : progress;
+    final showsCompactTitle = progress >= _titleSwapPoint;
+    final compactOpacity =
+        ((progress - _compactFadeStart) / (1 - _compactFadeStart)).clamp(
+          0.0,
+          1.0,
+        );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _HeaderBackground(
+          opacity: chromeOpacity,
+          solidColor: solidColor,
+          isHighContrast: isHighContrast,
+        ),
+        Column(
+          // Stretch so the large title can sit at the leading edge.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: topInset),
+            SizedBox(
+              height: _visibleToolbarHeight,
+              child: ClipRect(
+                child: Opacity(
+                  opacity: 1 - hideToolbarFraction,
+                  // The control row hangs from the top of the bar; on iOS
+                  // the bar's extra height is space below it.
+                  child: OverflowBox(
+                    alignment: Alignment.topCenter,
+                    minHeight: toolbar.controlRowHeight,
+                    maxHeight: toolbar.controlRowHeight,
+                    child: _Toolbar(
+                      leading: leading,
+                      actions: actions,
+                      title: ExcludeSemantics(
+                        excluding: !showsCompactTitle,
+                        child: Semantics(
+                          header: true,
+                          child: Opacity(
+                            opacity: compactOpacity,
+                            child: compactTitle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ClipRect(
+                // Bottom-aligned so shrinking reads as the title scrolling up.
+                child: OverflowBox(
+                  alignment: AlignmentDirectional.bottomStart,
+                  minHeight: largeHeight,
+                  maxHeight: largeHeight,
+                  child: ExcludeSemantics(
+                    excluding: showsCompactTitle,
+                    child: Opacity(
+                      opacity: (1 - progress / _titleSwapPoint).clamp(0.0, 1.0),
+                      child: large,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (pinned != null)
+              SizedBox(
+                height: pinnedHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.screenGutter,
+                    vertical: _pinnedVerticalPadding,
+                  ),
+                  child: pinned,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Every input can change per frame (text size, hide animation), and
+  // rebuilding a header is cheap.
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
+}
+
+class _HeaderBackground extends StatelessWidget {
+  const _HeaderBackground({
+    required this.opacity,
+    required this.solidColor,
+    required this.isHighContrast,
+  });
+
+  final double opacity;
+  final Color? solidColor;
+  final bool isHighContrast;
+
+  @override
+  Widget build(BuildContext context) {
+    final solid = solidColor;
+    if (solid != null) return ColoredBox(color: solid);
+    return ScrollEdgeGlass(opacity: opacity);
+  }
+}
+
+/// Frosted layer shown behind top chrome while content scrolls beneath it,
+/// with a hairline at its lower edge. "Increase Contrast" makes it opaque.
+class ScrollEdgeGlass extends StatelessWidget {
+  const ScrollEdgeGlass({super.key, required this.opacity});
+
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) {
+    if (opacity <= 0) return const SizedBox.shrink();
+    final isHighContrast = MediaQuery.highContrastOf(context);
+    final tint = AppColors.background.withValues(
+      alpha: isHighContrast ? opacity : opacity * _glassOpacity,
+    );
+    final surface = DecoratedBox(
+      decoration: BoxDecoration(
+        color: tint,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.outline.withValues(alpha: opacity),
+          ),
+        ),
+      ),
+    );
+    if (isHighContrast) return surface;
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: _blurSigma, sigmaY: _blurSigma),
+        child: surface,
+      ),
+    );
+  }
+}
+
+class _Toolbar extends StatelessWidget {
+  const _Toolbar({
+    required this.title,
+    required this.leading,
+    required this.actions,
+  });
+
+  final Widget title;
+  final Widget? leading;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: leading == null ? AppSpacing.screenGutter : AppSpacing.xs,
+        right: AppSpacing.md,
+      ),
+      child: Row(
+        children: [
+          ?leading,
+          Expanded(child: title),
+          for (final action in actions) ...[
+            const SizedBox(width: AppSpacing.xs),
+            action,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Large title + subtitle block shown before the header collapses.
+class LargeTitleBlock extends StatelessWidget {
+  const LargeTitleBlock({super.key, required this.title, this.subtitle});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenGutter,
+        _largeTopPadding,
+        AppSpacing.screenGutter,
+        _largeBottomPadding,
+      ),
+      child: Semantics(
+        header: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: largeTitleStyle,
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: _subtitleGap),
+              Text(
+                subtitle!,
+                maxLines: _subtitleMaxLines,
+                overflow: TextOverflow.ellipsis,
+                style: largeSubtitleStyle,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Toolbar action: a glass pill (icon, optional short label) centred in a
+/// platform-sized touch target (see [ToolbarMetrics]).
+class HeaderAction extends StatelessWidget {
+  const HeaderAction({
+    super.key,
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+    this.label,
+  });
+
+  final IconData icon;
+  final String semanticLabel;
+  final VoidCallback? onTap;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final metrics = ToolbarMetrics.of(context);
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: semanticLabel,
+      excludeSemantics: true,
+      // Taps on the margin around the pill still count.
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: metrics.actionHitSize,
+            minHeight: metrics.actionHitSize,
+          ),
+          child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Material(
+              color: AppColors.surfaceRaised.withValues(alpha: 0.8),
+              shape: const StadiumBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onTap,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: metrics.actionVisualSize,
+                    minHeight: metrics.actionVisualSize,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: label == null ? 0 : AppSpacing.sm,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(icon, size: 18, color: AppColors.textPrimary),
+                        if (label != null) ...[
+                          const SizedBox(width: AppSpacing.xxs),
+                          Text(
+                            label!,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Scroll view with a [CollapsingHeaderDelegate] pinned on top and the
+/// standard gutter/rhythm for its children.
+class CollapsingScrollView extends StatefulWidget {
+  const CollapsingScrollView({
+    super.key,
+    required this.header,
+    required this.children,
+    this.spacing = AppSpacing.sm,
+    this.bottomPadding = AppSpacing.xxl,
+  });
+
+  final CollapsingHeaderDelegate header;
+  final List<Widget> children;
+  final double spacing;
+  final double bottomPadding;
+
+  @override
+  State<CollapsingScrollView> createState() => _CollapsingScrollViewState();
+}
+
+class _CollapsingScrollViewState extends State<CollapsingScrollView> {
+  final _controller = ScrollController();
+
+  /// Only a scroll the user drove should snap; programmatic scrolls such as
+  /// `ensureVisible` must land exactly where they asked.
+  bool _isUserDriven = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool _onScroll(ScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    if (notification is UserScrollNotification &&
+        notification.direction != ScrollDirection.idle) {
+      _isUserDriven = true;
+    } else if (notification is ScrollEndNotification) {
+      _snapIfHalfCollapsed(notification.metrics.pixels);
+    }
+    return false;
+  }
+
+  /// Like iOS large titles, never come to rest half collapsed.
+  void _snapIfHalfCollapsed(double offset) {
+    final wasUserDriven = _isUserDriven;
+    _isUserDriven = false;
+    final range = widget.header.largeHeight;
+    if (!wasUserDriven || offset <= 0 || offset >= range) return;
+    final target = offset < range / 2 ? 0.0 : range;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_controller.hasClients) return;
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _controller.jumpTo(target);
+      } else {
+        _controller.animateTo(
+          target,
+          duration: _snapDuration,
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScroll,
+      child: CustomScrollView(
+        controller: _controller,
+        slivers: [
+          SliverPersistentHeader(pinned: true, delegate: widget.header),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenGutter,
+              _contentTopGap,
+              AppSpacing.screenGutter,
+              widget.bottomPadding + MediaQuery.paddingOf(context).bottom,
+            ),
+            sliver: SliverList.separated(
+              itemCount: widget.children.length,
+              separatorBuilder: (_, _) => SizedBox(height: widget.spacing),
+              itemBuilder: (_, index) => widget.children[index],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
