@@ -169,45 +169,36 @@ class _QuickLogMenu extends StatelessWidget {
       ),
       child: Align(
         alignment: Alignment.bottomCenter,
-        // Every pill is as wide as the longest label, so the stack reads
-        // as one menu rather than a ragged column.
-        child: IntrinsicWidth(
-          child: Column(
-            key: quickLogMenuKey,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (var i = 0; i < quickOptions.length; i++)
-                _Staggered(
-                  animation: animation,
-                  // Items nearest the button appear first.
-                  order: itemCount - 1 - i,
-                  child: _MenuItem(
-                    icon: quickOptions[i].icon,
-                    color: quickOptions[i].color,
-                    label: quickOptions[i].title,
-                    onTap: () => openRecordOption(context, quickOptions[i]),
-                  ),
-                ),
+        child: Column(
+          key: quickLogMenuKey,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < quickOptions.length; i++)
               _Staggered(
                 animation: animation,
-                order: 0,
+                // Items nearest the button appear first.
+                order: itemCount - 1 - i,
                 child: _MenuItem(
-                  icon: Icons.more_horiz,
-                  color: AppColors.textSecondary,
-                  label: '更多紀錄類型',
-                  onTap: () => _openMore(context),
+                  icon: quickOptions[i].icon,
+                  color: quickOptions[i].color,
+                  label: quickOptions[i].title,
+                  onTap: () => openRecordOption(context, quickOptions[i]),
                 ),
               ),
-              // Each item already carries the gap below it, so × sits the
-              // same distance from 「更多」 as the pills do from each other.
-              // The button stays square where 「+」 is, whatever the pills
-              // above it measure.
-              Align(
-                child: _CloseButton(animation: animation, size: metrics.height),
+            _Staggered(
+              animation: animation,
+              order: 0,
+              child: _MenuItem(
+                icon: Icons.more_horiz,
+                color: AppColors.textSecondary,
+                label: '更多紀錄類型',
+                onTap: () => _openMore(context),
               ),
-            ],
-          ),
+            ),
+            // Each item already carries the gap below it, so × sits the
+            // same distance from 「更多」 as the pills do from each other.
+            _CloseButton(animation: animation, size: metrics.height),
+          ],
         ),
       ),
     );

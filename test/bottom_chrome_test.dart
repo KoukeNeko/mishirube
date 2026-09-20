@@ -106,7 +106,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the menu pills share one width and fold back on close', (
+  testWidgets('the menu is evenly spaced and folds back on close', (
     tester,
   ) async {
     await _pumpApp(tester, FakeClock());
@@ -117,16 +117,6 @@ void main() {
       of: find.byKey(quickLogMenuKey),
       matching: find.byType(InkWell),
     );
-    final widths = {
-      for (var i = 0; i < pills.evaluate().length; i++)
-        tester.getSize(pills.at(i)).width,
-    };
-    expect(
-      widths,
-      hasLength(1),
-      reason: 'a ragged column reads as separate buttons, not one menu',
-    );
-
     // One rhythm all the way down, × included.
     final rows = [
       for (var i = 0; i < pills.evaluate().length; i++)
