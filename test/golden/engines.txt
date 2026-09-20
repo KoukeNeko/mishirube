@@ -1,0 +1,43 @@
+# engine versions
+training metrics: 1
+trend: 1
+insight: 1
+substitution: 1
+exercise search: 1
+
+# trends over 28 days
+weight: 7 points, per week -0.35
+weekly workouts: 2, 2, 3, 2
+food days: 16/17
+average sleep: null
+
+# insights
+- 體重以每週約 0.3 公斤的速度下降。
+  依據 7 筆體重紀錄 | 資料不完整，只有 7 / 28 天有紀錄 | 近 4 週
+- 本週已完成 2 次訓練，距離每週 3 次還差 1 次。
+  依據 本週訓練紀錄 | 每週目標 3 次
+
+# volume: 槓鈴深蹲
+sessions: 6
+weekly sets: 3, 6, 6, 3
+estimated max: 110.83
+
+# history and metrics
+back-squat: 24 sessions, last 95.00x5, e1RM 110.83
+bench-press: 19 sessions, last 70.00x5, e1RM 81.67
+plank: 0 sessions, last none, e1RM none
+
+# substitutions
+back-squat → goblet-squat: 同為深蹲模式 / 啞鈴可用 / 換啞鈴，重量需重新設定
+back-squat → front-squat: 同為深蹲模式 / 槓鈴可用
+back-squat → hack-squat: 同為深蹲模式 / 機械可用 / 換機械，重量需重新設定
+rdl → kb-swing: 同為髖伸模式 / 壺鈴可用 / 換壺鈴，重量需重新設定
+rdl → hip-thrust: 同為髖伸模式 / 槓鈴可用
+rdl → back-squat: 同樣練臀 / 槓鈴可用
+
+# search
+深蹲 → back-squat(122), goblet-squat(64), hack-squat(49)
+bench press → bench-press(109)
+bnech press → bench-press(29)
+RDL → rdl(116)
+壺鈴 → kb-swing(99)

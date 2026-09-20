@@ -169,7 +169,13 @@ task requires it.
 - Backend tests run real SQLite, in memory or in a temp file:
   `backend_test.dart` (persistence across restarts, rollback, audit,
   derived history, archive round trip), `strong_import_test.dart`
-  (importing) and `engines_test.dart` (engines and insights).
+  (importing) and `engines_test.dart` (engines, search and insights).
+- `engine_golden_test.dart` pins what the engines say about the demo
+  records. A deliberate rule change bumps that engine's version constant
+  and updates `test/golden/engines.txt` in the same commit; an unexpected
+  diff means the change reached further than intended.
+- `performance_test.dart` keeps the reads quick at 10,000 sets. They run
+  on the UI isolate, so a regression there is dropped frames on a phone.
 - Geometry tests (`chrome_geometry_test.dart`, `edge_to_edge_test.dart`,
   `collapsing_header_test.dart`, `toast_test.dart`) pin layout contracts.
   When you change the dock, app bar, footers, toasts or insets, update or
