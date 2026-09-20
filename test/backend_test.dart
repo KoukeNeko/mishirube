@@ -962,6 +962,57 @@ void main() {
       );
     });
 
+    test('a ceiling stays a ceiling, and says so', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      // What a Taiwanese chain has to publish is a maximum per cup, not
+      // the amount in the cup.
+      final latte = FoodItem(
+        id: store.newFoodId(),
+        name: '拿鐵',
+        brand: 'CITY CAFE',
+        kind: ConsumptionKind.beverage,
+        valueType: NutrientValueType.max,
+        sourceUrl: 'https://example.invalid/citycafe.pdf',
+        checkedAt: clock.now(),
+        servingAmount: 360,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 180,
+        nutrients: const {Nutrient.caffeine: 180},
+      );
+      store.saveFood(latte);
+
+      final stored = AppStore(
+        clock: clock.now,
+        backend: backend,
+      ).searchFoods('拿鐵').single;
+      expect(stored.valueType, NutrientValueType.max);
+      expect(stored.sourceUrl, 'https://example.invalid/citycafe.pdf');
+      expect(stored.checkedAt, isNotNull);
+      expect(
+        stored.valueType.write('180 mg'),
+        '≤180 mg',
+        reason: 'a ceiling printed as a bare number claims a precision '
+            'the figure does not have',
+      );
+
+      final logged = store.logPortion(FoodPortion(stored, 1));
+      expect(
+        logged.valueType,
+        NutrientValueType.max,
+        reason: 'the record remembers what kind of number it copied',
+      );
+      expect(
+        AppStore(clock: clock.now, backend: backend).todayMeals.last.valueType,
+        NutrientValueType.max,
+      );
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);

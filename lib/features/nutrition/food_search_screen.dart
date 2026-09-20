@@ -104,7 +104,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                   title: size.sizeName,
                   subtitle:
                       '${size.servingDescription} · '
-                      '${formatKcalOrDash(size.kcal)} kcal',
+                      '${size.valueType.write(formatKcalOrDash(size.kcal))}'
+                      ' kcal',
                   onTap: () => Navigator.of(sheetContext).pop(size),
                 ),
               const SizedBox(height: AppSpacing.md),
@@ -274,7 +275,8 @@ class _FoodRow extends StatelessWidget {
               subtitle: sizeCount > 0
                   ? '$sizeCount 種杯型'
                   : '${food.servingDescription} · '
-                        '${formatKcalOrDash(food.kcal)} kcal · '
+                        '${food.valueType.write(formatKcalOrDash(food.kcal))}'
+                        ' kcal · '
                         'P${_orDash(food.proteinGrams)} '
                         'C${_orDash(food.carbGrams)} F${_orDash(food.fatGrams)}',
               onTap: onTap,

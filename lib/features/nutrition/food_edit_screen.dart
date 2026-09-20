@@ -57,6 +57,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// actually decide it: soup is poured and is not a drink.
   late ConsumptionKind _kind =
       widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
+
+  /// What kind of number these figures are. Most hand entry is off a
+  /// packet, so it starts there.
+  late NutrientValueType _valueType =
+      widget.editing?.valueType ??
+      widget.sizeOf?.valueType ??
+      NutrientValueType.declared;
   late final _kcal = _number(widget.editing?.kcal);
   late final _protein = _number(widget.editing?.proteinGrams);
   late final _carb = _number(widget.editing?.carbGrams);
@@ -159,6 +166,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       parentId: widget.sizeOf?.id ?? widget.editing?.parentId,
       sizeName: _sizeName.text.trim(),
       kind: _kind,
+      valueType: _valueType,
+      sourceUrl: widget.editing?.sourceUrl ?? widget.sizeOf?.sourceUrl ?? '',
+      checkedAt: widget.editing?.checkedAt ?? widget.sizeOf?.checkedAt,
     );
     store.saveFood(food);
     Navigator.of(context).pop(logNow ? food : null);
@@ -359,6 +369,28 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           child: const Text(
             '留空的欄位不會被當成 0，而是沒有資料——包裝上印 0 g 也只代表低於'
             '標示門檻，不是真的沒有。',
+            style: AppTextStyles.caption,
+          ),
+        ),
+        Gutter(child: const SectionLabel('這些數字是什麼')),
+        Gutter(
+          child: ChipWrap(
+            options: NutrientValueType.values,
+            labelOf: (type) => type.label,
+            isSelected: (type) => type == _valueType,
+            onTap: (type) => setState(() => _valueType = type),
+          ),
+        ),
+        Gutter(
+          child: Text(
+            switch (_valueType) {
+              NutrientValueType.declared => '包裝或品牌公布的數值，照原樣顯示。',
+              NutrientValueType.max =>
+                '上限，不是這一杯的實際量——台灣連鎖飲料依法標的就是最高值。'
+                    '畫面上會顯示成「≤」。',
+              NutrientValueType.estimate =>
+                '同類東西的大概值，不是這一份的量。畫面上會顯示成「≈」。',
+            },
             style: AppTextStyles.caption,
           ),
         ),

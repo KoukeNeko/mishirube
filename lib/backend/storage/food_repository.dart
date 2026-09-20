@@ -64,7 +64,8 @@ class FoodRepository {
           'UPDATE foods SET name = ?, brand = ?, serving_label = ?, '
           'serving_amount = ?, serving_unit = ?, kcal = ?, protein_g = ?, '
           'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
-          'size_name = ?, consumption_kind = ?, deleted_at = NULL, '
+          'size_name = ?, consumption_kind = ?, value_type = ?, '
+          'source_url = ?, checked_at = ?, deleted_at = NULL, '
           'updated_at = ?, revision = revision + 1 WHERE id = ?',
           [
             food.name,
@@ -80,6 +81,9 @@ class FoodRepository {
             food.parentId,
             food.sizeName,
             food.kind.name,
+            food.valueType.name,
+            food.sourceUrl,
+            food.checkedAt?.millisecondsSinceEpoch,
             now,
             food.id,
           ],
@@ -88,9 +92,9 @@ class FoodRepository {
         _db.execute(
           'INSERT INTO foods (id, name, brand, serving_label, '
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
-          'fibre_g, parent_id, size_name, consumption_kind, created_at, '
-          'updated_at, source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'fibre_g, parent_id, size_name, consumption_kind, value_type, '
+          'source_url, checked_at, created_at, updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -106,6 +110,9 @@ class FoodRepository {
             food.parentId,
             food.sizeName,
             food.kind.name,
+            food.valueType.name,
+            food.sourceUrl,
+            food.checkedAt?.millisecondsSinceEpoch,
             now,
             now,
             source.name,
@@ -190,6 +197,12 @@ class FoodRepository {
       kind: ConsumptionKind.values.byName(
         row['consumption_kind']! as String,
       ),
+      valueType: NutrientValueType.values.byName(row['value_type']! as String),
+      sourceUrl: row['source_url']! as String,
+      checkedAt: switch (row['checked_at'] as int?) {
+        final at? => DateTime.fromMillisecondsSinceEpoch(at),
+        null => null,
+      },
     );
   }
 }

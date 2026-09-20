@@ -46,6 +46,7 @@ class MealEvent {
     this.millilitres,
     this.kind = ConsumptionKind.unknown,
     this.mealType,
+    this.valueType = NutrientValueType.declared,
   });
 
   final String id;
@@ -85,6 +86,10 @@ class MealEvent {
   /// failure to record: plenty of eating does not belong to a sitting.
   final MealType? mealType;
 
+  /// What kind of numbers these are, copied from the food when it was
+  /// logged. A day adding up ceilings has a ceiling for a total.
+  final NutrientValueType valueType;
+
   /// How much liquid this was, when it was logged by volume.
   ///
   /// It is what was drunk, not the water in it: 250 ml of milk is 250 ml
@@ -110,6 +115,7 @@ class MealEvent {
     int? millilitres,
     ConsumptionKind? kind,
     MealType? mealType,
+    NutrientValueType? valueType,
   }) => MealEvent(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -127,7 +133,43 @@ class MealEvent {
     millilitres: millilitres ?? this.millilitres,
     kind: kind ?? this.kind,
     mealType: mealType ?? this.mealType,
+    valueType: valueType ?? this.valueType,
   );
+}
+
+/// What kind of number a food's figures are.
+///
+/// The same 257 mg means different things depending on where it came
+/// from. Taiwan requires chains to publish a *maximum* caffeine figure
+/// per cup, not the amount in the cup you are holding; the FDA gives
+/// brewed coffee as a range of 113–247 mg per 355 ml; and one study
+/// sampling the same drink at the same shop on six days found 259 to
+/// 564 mg. Printing all of those as a bare number would be inventing a
+/// precision nobody has.
+enum NutrientValueType {
+  /// A figure the maker declares: a packet label, a brand's own table.
+  declared('標示值', ''),
+
+  /// A ceiling, not a measurement — what Taiwanese chains are required
+  /// to publish. Shown with a `≤` because that is what it means.
+  max('最高值', '≤'),
+
+  /// A general figure for this kind of thing, not this thing.
+  estimate('估計值', '≈');
+
+  const NutrientValueType(this.label, this.prefix);
+
+  final String label;
+
+  /// What goes in front of the number so it reads as what it is.
+  final String prefix;
+
+  /// [value] written as what it is: `195`, `≤257`, `≈120`.
+  ///
+  /// The prefix is not decoration. A Taiwanese chain publishes a
+  /// maximum per cup, not the amount in the cup, and printing that as a
+  /// bare number claims a precision the figure does not have.
+  String write(String value) => '$prefix$value';
 }
 
 /// Which sitting a record belongs to, when the user says so.
@@ -256,6 +298,9 @@ class FoodItem {
     this.parentId,
     this.sizeName = '',
     this.kind = ConsumptionKind.unknown,
+    this.valueType = NutrientValueType.declared,
+    this.sourceUrl = '',
+    this.checkedAt,
   });
 
   final String id;
@@ -299,6 +344,17 @@ class FoodItem {
   /// Whether this is eaten or drunk.
   final ConsumptionKind kind;
 
+  /// What kind of numbers the figures above are.
+  final NutrientValueType valueType;
+
+  /// Where they came from, when they came from somewhere citable.
+  /// Empty for a food somebody typed off the packet in front of them.
+  final String sourceUrl;
+
+  /// When that source was last read. A brand's table changes; a figure
+  /// with no date is a figure nobody can check.
+  final DateTime? checkedAt;
+
   /// The food this is a size of, when it is one.
   final String? parentId;
 
@@ -331,6 +387,9 @@ class FoodItem {
     String? parentId,
     String? sizeName,
     ConsumptionKind? kind,
+    NutrientValueType? valueType,
+    String? sourceUrl,
+    DateTime? checkedAt,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -347,6 +406,9 @@ class FoodItem {
     parentId: parentId ?? this.parentId,
     sizeName: sizeName ?? this.sizeName,
     kind: kind ?? this.kind,
+    valueType: valueType ?? this.valueType,
+    sourceUrl: sourceUrl ?? this.sourceUrl,
+    checkedAt: checkedAt ?? this.checkedAt,
   );
 }
 

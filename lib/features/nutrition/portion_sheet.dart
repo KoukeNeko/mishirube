@@ -135,7 +135,8 @@ class _PortionSheetState extends State<_PortionSheet> {
           Text(food.displayName, style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '一份 = ${food.servingDescription}',
+            '一份 = ${food.servingDescription}'
+            '${food.valueType == NutrientValueType.declared ? '' : ' · ${food.valueType.label}'}',
             style: AppTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -179,7 +180,9 @@ class _PortionSheetState extends State<_PortionSheet> {
               children: [
                 KeyValueRow(
                   label: '熱量',
-                  value: '${formatKcalOrDash(portion.kcal)} kcal',
+                  value: food.valueType.write(
+                    '${formatKcalOrDash(portion.kcal)} kcal',
+                  ),
                 ),
                 KeyValueRow(label: '蛋白質', value: _grams(portion.proteinGrams)),
                 KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),

@@ -223,6 +223,7 @@ class NutritionService {
         millilitres: portion.millilitres,
         kind: food.kind,
         mealType: mealType,
+        valueType: food.valueType,
         qualityTag: '自訂食物',
         dishes: [
           DishEntry(

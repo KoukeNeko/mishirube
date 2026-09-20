@@ -429,6 +429,17 @@ final List<String> _migrations = [
   -- values are the ones Health Connect defines.
   ALTER TABLE meals ADD COLUMN meal_type TEXT;
   ''',
+  '''
+  -- What kind of number a figure is, and where it came from. Taiwan
+  -- requires chains to publish a maximum caffeine figure per cup, which
+  -- is not the amount in the cup; printing that as a bare number would
+  -- be inventing a precision nobody has. Everything already stored was
+  -- typed off a packet, so it stays 'declared'.
+  ALTER TABLE foods ADD COLUMN value_type TEXT NOT NULL DEFAULT 'declared';
+  ALTER TABLE foods ADD COLUMN source_url TEXT NOT NULL DEFAULT '';
+  ALTER TABLE foods ADD COLUMN checked_at INTEGER;
+  ALTER TABLE meals ADD COLUMN value_type TEXT NOT NULL DEFAULT 'declared';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
