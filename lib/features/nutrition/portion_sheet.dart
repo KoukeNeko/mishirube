@@ -82,16 +82,6 @@ class _PortionSheetState extends State<_PortionSheet> {
     );
   }
 
-  /// Fills in [count] of a named portion. It is a shortcut for typing
-  /// the amount: everything after this is the same arithmetic.
-  void _pickNamed(NamedPortion portion) {
-    setState(() {
-      _unit = portion.unit;
-      _isEditingAmount = true;
-      _amount.text = formatAmount(portion.amount);
-    });
-  }
-
   void _pickUnit(ServingUnit unit) {
     setState(() {
       final servings = _portion.servings;
@@ -157,15 +147,6 @@ class _PortionSheetState extends State<_PortionSheet> {
               ],
             ],
           ),
-          if (food.portions.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            ChipWrap(
-              options: food.portions,
-              labelOf: (portion) => portion.name,
-              isSelected: (_) => false,
-              onTap: _pickNamed,
-            ),
-          ],
           if (_isMeasured &&
               food.servingUnit.comparable.length > 1) ...[
             const SizedBox(height: AppSpacing.sm),

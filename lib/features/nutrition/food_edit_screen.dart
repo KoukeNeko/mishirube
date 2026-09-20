@@ -5,7 +5,6 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
-import 'named_portion_sheet.dart';
 
 /// Creating or correcting one of the user's own foods.
 ///
@@ -36,10 +35,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   );
   late ServingUnit _servingUnit =
       widget.editing?.servingUnit ?? ServingUnit.gram;
-
-  /// Named shortcuts for this food: `一匙`, `一碗`. Each one is worth
-  /// whatever the user says it is worth.
-  late final _portions = [...?widget.editing?.portions];
   late final _kcal = _number(widget.editing?.kcal);
   late final _protein = _number(widget.editing?.proteinGrams);
   late final _carb = _number(widget.editing?.carbGrams);
@@ -115,7 +110,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       fatGrams: _valueOf(_fat),
       fibreGrams: _valueOf(_fibre),
       nutrients: _typedNutrients(),
-      portions: _portions,
     );
     store.saveFood(food);
     Navigator.of(context).pop(food);
@@ -137,12 +131,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// user did not.
   static int? _valueOf(TextEditingController controller) =>
       int.tryParse(controller.text.trim());
-
-  Future<void> _addPortion() async {
-    final portion = await showNamedPortionSheet(context, unit: _servingUnit);
-    if (portion == null || !mounted) return;
-    setState(() => _portions.add(portion));
-  }
 
   Widget _nutrientField(Nutrient nutrient) => _NumberField(
     label: nutrient.label,
@@ -197,53 +185,14 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         ),
         Gutter(
           child: Text(
-            switch (_servingUnit.dimension) {
-              ServingDimension.count =>
-                '選「份」代表這一份不是度量，App 不會替你換算成公克或毫升。',
-              ServingDimension.mass =>
-                '下次份量不同時可以改份數，或用 ${_unitLabels(ServingDimension.mass)} '
-                '任一種填實際重量。重量與容量之間不會互換——那需要密度。',
-              ServingDimension.volume =>
-                '下次份量不同時可以改份數，或用 ${_unitLabels(ServingDimension.volume)} '
-                '填實際容量。容量與重量之間不會互換——那需要密度。',
-            },
+            _servingUnit.isMeasured
+                ? '記錄時可以改份數，或直接填 ${_servingUnit.label}。'
+                : '「份」不是度量，不會換算成公克或毫升。',
             style: AppTextStyles.caption,
           ),
         ),
         Gutter(child: const SectionLabel('這一份叫什麼（可留空）')),
         Gutter(child: AppTextField(controller: _serving, hint: '例如：一片')),
-        Gutter(child: const SectionLabel('常用份量（可留空）')),
-        for (final (index, portion) in _portions.indexed)
-          Gutter(
-            child: AppCard(
-              padding: EdgeInsets.zero,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: NavRow(
-                      title: portion.name,
-                      subtitle: portion.description,
-                    ),
-                  ),
-                  SquareIconButton(
-                    icon: Icons.delete_outline,
-                    onPressed: () => setState(() => _portions.removeAt(index)),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                ],
-              ),
-            ),
-          ),
-        Gutter(
-          child: SecondaryButton(label: '新增常用份量', onPressed: _addPortion),
-        ),
-        Gutter(
-          child: const Text(
-            '例如「一匙 = 15 g」。一匙是多少由這份食物決定——一匙油和一匙美乃滋'
-            '不一樣重，所以 App 不會替你決定。記錄時它只是幫你把數字填好。',
-            style: AppTextStyles.caption,
-          ),
-        ),
         Gutter(child: const SectionLabel('每份營養')),
         Gutter(child: _NumberField(label: '熱量', unit: 'kcal', field: _kcal)),
         Gutter(child: _NumberField(label: '蛋白質', unit: 'g', field: _protein)),
@@ -273,12 +222,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     );
   }
 }
-
-/// The units of one kind of quantity, for a sentence: `g、kg、oz`.
-String _unitLabels(ServingDimension dimension) => ServingUnit.values
-    .where((unit) => unit.dimension == dimension)
-    .map((unit) => unit.label)
-    .join('、');
 
 /// What Taiwan's packaging law makes every label print, beyond the five
 /// the form asks for first. These are the ones a user can actually copy

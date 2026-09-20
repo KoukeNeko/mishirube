@@ -175,33 +175,6 @@ enum ServingUnit {
   }
 }
 
-/// A way of saying "one of these" for a particular food.
-///
-/// `一匙`, `一碗`, `一片`, `一顆` — what it is worth is defined by the
-/// food it belongs to, not by the app. That is the whole point: a
-/// tablespoon is 15 ml in most places and 20 ml in Australia, and a
-/// spoonful of oil and a spoonful of mayonnaise do not weigh the same.
-/// Nobody can write those constants down for every food, but the person
-/// holding the packet can write down this one.
-class NamedPortion {
-  const NamedPortion({
-    required this.name,
-    required this.amount,
-    required this.unit,
-  });
-
-  /// What the user calls it: `一匙`.
-  final String name;
-
-  /// How much one of them is, in [unit].
-  final double amount;
-
-  final ServingUnit unit;
-
-  /// `一匙 · 15 g`
-  String get description => '$name · ${formatAmount(amount)} ${unit.label}';
-}
-
 /// A food the user saved so they do not have to type it in again.
 ///
 /// This is the private layer of the food catalogue: it lives on this
@@ -221,7 +194,6 @@ class FoodItem {
     this.servingAmount = 1,
     this.servingUnit = ServingUnit.serving,
     this.nutrients = const {},
-    this.portions = const [],
   });
 
   final String id;
@@ -262,10 +234,6 @@ class FoodItem {
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;
 
-  /// Shortcuts for saying how much: `一匙`, `一碗`. They only fill in a
-  /// quantity — the arithmetic still runs on the amount behind them.
-  final List<NamedPortion> portions;
-
   /// `統一 雞胸肉` when it has a maker, otherwise just the name.
   String get displayName => brand.isEmpty ? name : '$brand $name';
 
@@ -282,7 +250,6 @@ class FoodItem {
     int? fatGrams,
     int? fibreGrams,
     Nutrients? nutrients,
-    List<NamedPortion>? portions,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -296,7 +263,6 @@ class FoodItem {
     fatGrams: fatGrams ?? this.fatGrams,
     fibreGrams: fibreGrams ?? this.fibreGrams,
     nutrients: nutrients ?? this.nutrients,
-    portions: portions ?? this.portions,
   );
 }
 

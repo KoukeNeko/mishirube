@@ -810,62 +810,6 @@ void main() {
       );
     });
 
-    test('a named portion is the food own definition, not the app', () {
-      final backend = openFile();
-      addTearDown(backend.close);
-      final store = AppStore(
-        clock: clock.now,
-        isOnboarded: true,
-        backend: backend,
-      );
-      // A spoon of oil and a spoon of mayonnaise do not weigh the same,
-      // so each food says what its own spoon is.
-      final oil = FoodItem(
-        id: store.newFoodId(),
-        name: '橄欖油',
-        servingAmount: 100,
-        servingUnit: ServingUnit.gram,
-        kcal: 884,
-        portions: const [
-          NamedPortion(name: '一匙', amount: 5, unit: ServingUnit.gram),
-        ],
-      );
-      final mayo = FoodItem(
-        id: store.newFoodId(),
-        name: '美乃滋',
-        servingAmount: 100,
-        servingUnit: ServingUnit.gram,
-        kcal: 680,
-        portions: const [
-          NamedPortion(name: '一匙', amount: 8, unit: ServingUnit.gram),
-        ],
-      );
-      store
-        ..saveFood(oil)
-        ..saveFood(mayo);
-
-      final reopened = AppStore(clock: clock.now, backend: backend);
-      final storedOil = reopened.searchFoods('橄欖油').single;
-      final storedMayo = reopened.searchFoods('美乃滋').single;
-
-      expect(storedOil.portions.single.description, '一匙 · 5 g');
-      expect(storedMayo.portions.single.description, '一匙 · 8 g');
-
-      final spoonOfOil = FoodPortion.ofAmount(
-        storedOil,
-        storedOil.portions.single.amount,
-        unit: storedOil.portions.single.unit,
-      );
-      final spoonOfMayo = FoodPortion.ofAmount(
-        storedMayo,
-        storedMayo.portions.single.amount,
-        unit: storedMayo.portions.single.unit,
-      );
-
-      expect(spoonOfOil.kcal, 44, reason: '884 × 0.05');
-      expect(spoonOfMayo.kcal, 54, reason: '680 × 0.08');
-    });
-
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);

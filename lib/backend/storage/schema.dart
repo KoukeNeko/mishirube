@@ -392,6 +392,11 @@ final List<String> _migrations = [
     PRIMARY KEY (food_id, position)
   );
   ''',
+  '''
+  -- Named portions are gone: one serving size per food is enough, and a
+  -- second way to say how much was more to keep than it was worth.
+  DROP TABLE food_portions;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
