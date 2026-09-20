@@ -155,7 +155,7 @@ class TodayScreen extends StatelessWidget {
                   color: AppColors.nutrition,
                   value: '~${formatKcal(store.todayKcal)}',
                   unit: 'kcal',
-                  caption: '${store.todayMeals.length} 餐 · 含估計值',
+                  caption: '${store.todaySummary.mealCount} 餐 · 含估計值',
                   onTap: () => pushPage(context, const DailyNutritionScreen()),
                 ),
               ),
