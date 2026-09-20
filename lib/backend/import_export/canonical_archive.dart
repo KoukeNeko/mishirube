@@ -157,6 +157,7 @@ const _tables = [
     _Column('fat_g', _Kind.integer),
     _Column('quality_tag', _Kind.text),
     _Column('is_estimated', _Kind.boolean),
+    _Column('is_favorite', _Kind.boolean),
     ..._entity,
   ], orderBy: 'id'),
   _Table('mealDishes', 'meal_dishes', [

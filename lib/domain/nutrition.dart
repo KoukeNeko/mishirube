@@ -38,6 +38,7 @@ class MealEvent {
     required this.carbGrams,
     required this.fatGrams,
     this.isEstimated = false,
+    this.isFavorite = false,
   });
 
   final String id;
@@ -53,10 +54,14 @@ class MealEvent {
   final int carbGrams;
   final int fatGrams;
 
+  /// Starred to log again without going looking for it.
+  final bool isFavorite;
+
   MealEvent copyWith({
     String? id,
     String? timeLabel,
     List<DishEntry>? dishes,
+    bool? isFavorite,
   }) => MealEvent(
     id: id ?? this.id,
     name: name,
@@ -67,6 +72,7 @@ class MealEvent {
     proteinGrams: proteinGrams,
     carbGrams: carbGrams,
     fatGrams: fatGrams,
+    isFavorite: isFavorite ?? this.isFavorite,
     isEstimated: isEstimated,
   );
 }

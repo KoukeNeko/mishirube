@@ -32,6 +32,13 @@ class MealEntryScreen extends StatelessWidget {
     showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
   }
 
+  void _toggleFavorite(BuildContext context, RecentMeal recent) {
+    final isFavorite = !recent.meal.isFavorite;
+    AppStoreScope.read(context)
+        .setMealFavorite(recent.meal, isFavorite: isFavorite);
+    showToast(context, isFavorite ? '已加入常用' : '已從常用移除');
+  }
+
   @override
   Widget build(BuildContext context) {
     return DetailPage(
@@ -65,16 +72,27 @@ class MealEntryScreen extends StatelessWidget {
             onTap: () => showToast(context, '食物搜尋尚未設計'),
           ),
         ),
+        if (AppStoreScope.of(context).favoriteMeals case final favorites
+            when favorites.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('常用')),
+          for (final favorite in favorites)
+            Gutter(
+              child: _RecentFoodRow(
+                meal: favorite,
+                when: _whenLabel(context, favorite.eatenAt),
+                onAdd: () => _logAgain(context, favorite),
+                onToggleFavorite: () => _toggleFavorite(context, favorite),
+              ),
+            ),
+        ],
         Gutter(child: const SectionLabel('最近吃過')),
         for (final recent in AppStoreScope.of(context).recentMeals)
           Gutter(
             child: _RecentFoodRow(
-              name: recent.label,
-              time: _whenLabel(context, recent.eatenAt),
-              kcal:
-                  '${recent.meal.isEstimated ? '~' : ''}'
-                  '${formatKcal(recent.meal.kcal)}',
+              meal: recent,
+              when: _whenLabel(context, recent.eatenAt),
               onAdd: () => _logAgain(context, recent),
+              onToggleFavorite: () => _toggleFavorite(context, recent),
             ),
           ),
         Gutter(
@@ -152,16 +170,16 @@ class _MethodCard extends StatelessWidget {
 
 class _RecentFoodRow extends StatelessWidget {
   const _RecentFoodRow({
-    required this.name,
-    required this.time,
-    required this.kcal,
+    required this.meal,
+    required this.when,
     required this.onAdd,
+    required this.onToggleFavorite,
   });
 
-  final String name;
-  final String time;
-  final String kcal;
+  final RecentMeal meal;
+  final String when;
   final VoidCallback onAdd;
+  final VoidCallback onToggleFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -179,16 +197,28 @@ class _RecentFoodRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: AppTextStyles.itemTitle),
-                Text(time, style: AppTextStyles.caption),
+                Text(meal.label, style: AppTextStyles.itemTitle),
+                Text(when, style: AppTextStyles.caption),
               ],
             ),
           ),
-          Text(kcal, style: AppTextStyles.bigNumber.copyWith(fontSize: 20)),
-          const SizedBox(width: AppSpacing.sm),
+          Text(
+            '${meal.meal.isEstimated ? '~' : ''}${formatKcal(meal.meal.kcal)}',
+            style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          SquareIconButton(
+            icon: meal.meal.isFavorite ? Icons.star : Icons.star_border,
+            tooltip: meal.meal.isFavorite ? '從常用移除' : '加入常用',
+            color: meal.meal.isFavorite
+                ? AppColors.nutrition
+                : AppColors.textSecondary,
+            onPressed: onToggleFavorite,
+          ),
+          const SizedBox(width: AppSpacing.xs),
           SquareIconButton(
             icon: Icons.add,
-            tooltip: '加入$name',
+            tooltip: '加入${meal.label}',
             color: AppColors.nutrition,
             onPressed: onAdd,
           ),

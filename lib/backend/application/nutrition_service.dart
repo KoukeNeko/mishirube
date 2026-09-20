@@ -62,13 +62,35 @@ class NutritionService {
     return recent;
   }
 
+  /// Starred meals, newest first and one per dish, the way [recent]
+  /// works: the same starred lunch is offered once.
+  List<RecentMeal> favorites({int limit = 5}) {
+    final seen = <String>{};
+    final favorites = <RecentMeal>[];
+    for (final (eatenAt, meal) in _meals.favorites()) {
+      final entry = RecentMeal(meal: meal, eatenAt: eatenAt);
+      if (!seen.add(entry.label)) continue;
+      favorites.add(entry);
+      if (favorites.length == limit) break;
+    }
+    return favorites;
+  }
+
+  /// Stars or unstars a meal.
+  void setFavorite(MealEvent meal, {required bool isFavorite}) =>
+      _meals.setFavorite(meal.id, isFavorite: isFavorite);
+
   List<(DateTime, MealEvent)> between(DateTime start, DateTime end) =>
       _meals.between(start, end);
 
   /// Logs [meal] again, as eaten now: a copy, not a link, so editing one
   /// never changes the other.
-  MealEvent copy(MealEvent meal) =>
-      logMeal(meal.copyWith(id: _db.newId()), eatenAt: _db.now());
+  /// The star stays on the meal that was starred, so logging a
+  /// favourite again does not quietly star the copy too.
+  MealEvent copy(MealEvent meal) => logMeal(
+    meal.copyWith(id: _db.newId(), isFavorite: false),
+    eatenAt: _db.now(),
+  );
 
   /// Stores [meal] eaten at [eatenAt], keeping its id free of collisions
   /// with a meal logged on another day.

@@ -905,6 +905,39 @@ void main() {
     });
   });
 
+  group('favourite meals', () {
+    test('a starred meal is offered again and survives a restart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      expect(store.favoriteMeals, isEmpty);
+      final meal = store.recentMeals.first;
+
+      store.setMealFavorite(meal.meal, isFavorite: true);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.favoriteMeals.map((m) => m.label), [meal.label]);
+
+      // Logging it again keeps the star on the one that was starred.
+      final copy = reopened.copyMeal(meal.meal);
+      expect(copy.isFavorite, isFalse);
+      expect(
+        AppStore(clock: clock.now, backend: backend).favoriteMeals,
+        hasLength(1),
+      );
+
+      reopened.setMealFavorite(meal.meal, isFavorite: false);
+      expect(
+        AppStore(clock: clock.now, backend: backend).favoriteMeals,
+        isEmpty,
+      );
+    });
+  });
+
   group('muscle load from records', () {
     test('the demo history is led by what the routine trains', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);

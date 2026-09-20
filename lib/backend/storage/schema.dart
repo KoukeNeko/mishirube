@@ -260,6 +260,10 @@ final List<String> _migrations = [
     $_entityColumns
   );
   ''',
+  '''
+  -- Meals the user starred, to log again without going looking.
+  ALTER TABLE meals ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

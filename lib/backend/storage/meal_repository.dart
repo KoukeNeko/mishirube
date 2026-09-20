@@ -21,6 +21,32 @@ class MealRepository {
   ];
 
   /// Meals eaten in `[start, end)` with their time, oldest first.
+  /// Stars or unstars a meal, so it can be logged again without going
+  /// looking for the day it was eaten.
+  void setFavorite(String id, {required bool isFavorite}) {
+    _db.transaction(() {
+      _db.execute(
+        'UPDATE meals SET is_favorite = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [isFavorite ? 1 : 0, _db.now().millisecondsSinceEpoch, id],
+      );
+      _db.audit(
+        entityType: 'meal',
+        entityId: id,
+        action: isFavorite ? 'favorite' : 'unfavorite',
+      );
+    });
+  }
+
+  /// Starred meals, newest first.
+  List<(DateTime, MealEvent)> favorites() => [
+    for (final row in _db.select(
+      'SELECT * FROM meals WHERE is_favorite = 1 AND deleted_at IS NULL '
+      'ORDER BY eaten_at DESC',
+    ))
+      (DateTime.fromMillisecondsSinceEpoch(row['eaten_at']), _fromRow(row)),
+  ];
+
   List<(DateTime, MealEvent)> between(DateTime start, DateTime end) => [
     for (final row in _db.select(
       'SELECT * FROM meals WHERE deleted_at IS NULL '
@@ -147,6 +173,7 @@ class MealRepository {
       fatGrams: row['fat_g']! as int,
       qualityTag: row['quality_tag']! as String,
       isEstimated: row['is_estimated'] == 1,
+      isFavorite: row['is_favorite'] == 1,
       dishes: [
         for (final dish in dishes)
           DishEntry(

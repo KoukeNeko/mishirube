@@ -245,6 +245,19 @@ class AppStore extends ChangeNotifier {
     Duration window = const Duration(days: 28),
   }) => _backend.insights.muscleLoad(window: window);
 
+  /// Starred meals, for logging again without going looking.
+  List<RecentMeal> get favoriteMeals => _backend.nutrition.favorites();
+
+  /// Stars or unstars a meal.
+  void setMealFavorite(MealEvent meal, {required bool isFavorite}) {
+    _backend.nutrition.setFavorite(meal, isFavorite: isFavorite);
+    final index = _todayMeals.indexWhere((item) => item.id == meal.id);
+    if (index >= 0) {
+      _todayMeals[index] = _todayMeals[index].copyWith(isFavorite: isFavorite);
+    }
+    notifyListeners();
+  }
+
   /// Records for the log; [month] is its first day.
   MonthRecords monthRecords(DateTime month) => _backend.timeline.month(month);
 
