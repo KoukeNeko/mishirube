@@ -442,6 +442,27 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a weight change is not painted as good or bad news', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.trends);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+
+    final delta = find.textContaining(RegExp('^[−+]'));
+    expect(delta, findsWidgets, reason: 'the demo weight is trending');
+    for (final text in tester.widgetList<Text>(delta)) {
+      expect(
+        text.style?.color,
+        isNot(isIn([AppColors.training, AppColors.destructive])),
+        reason: 'a week of fluctuation is not a verdict on the user',
+      );
+    }
+    await disposeTree(tester);
+  });
+
   testWidgets('correcting a meal takes the estimate mark off it', (
     tester,
   ) async {
