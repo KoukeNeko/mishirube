@@ -7,7 +7,19 @@ import 'package:sqlite3/sqlite3.dart';
 import 'schema.dart';
 
 /// Where a change came from, recorded on rows and in the audit log.
-enum ChangeSource { local, seed, aiDraft, strongImport, archiveImport }
+/// Where a change came from.
+///
+/// [catalogue] is the brand data shipped with the app. Those records
+/// are read-only: the app replaces them wholesale when it updates, and
+/// that is only safe because nobody has edited them in the meantime.
+enum ChangeSource {
+  local,
+  seed,
+  catalogue,
+  aiDraft,
+  strongImport,
+  archiveImport,
+}
 
 /// The on-device SQLite store: the app's source of truth.
 ///

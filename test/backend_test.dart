@@ -11,6 +11,8 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/schema.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/backend/seed/catalogue.dart';
+import 'package:mishirube/backend/storage/food_repository.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -1010,6 +1012,113 @@ void main() {
       expect(
         AppStore(clock: clock.now, backend: backend).todayMeals.last.valueType,
         NutrientValueType.max,
+      );
+    });
+
+    test('a catalogue drink is read-only and keeps its sizes apart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final foods = backend.storage.foods;
+      // The shape a bundled file describes: a drink and its cups, each
+      // cup carrying its own figures.
+      final parsed = parseCatalogue({
+        'brand': '星巴克',
+        'sourceUrl': 'https://example.invalid/tw/menu',
+        'checkedAt': '2026-09-21',
+        'valueType': 'declared',
+        'drinks': [
+          {
+            'id': 'sbux-tw-americano',
+            'name': '美式咖啡',
+            'sizes': [
+              {'name': 'Short', 'millilitres': 240, 'caffeineMg': 98},
+              {'name': 'Tall', 'millilitres': 350, 'caffeineMg': 195},
+            ],
+          },
+        ],
+      });
+      for (final food in parsed) {
+        foods.save(food, source: ChangeSource.catalogue);
+      }
+
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final drink = store.searchFoods('美式').single;
+      expect(drink.isBuiltIn, isTrue);
+      expect(drink.sourceUrl, 'https://example.invalid/tw/menu');
+
+      final sizes = store.sizesOf(drink.id);
+      expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
+      expect(sizes.last.nutrients[Nutrient.caffeine], 195);
+      expect(
+        sizes.last.servingAmount,
+        350,
+        reason: 'the cup is the serving, so the volume scales with it',
+      );
+
+      // Editing or deleting it is refused where it matters, not only in
+      // the screens.
+      expect(
+        () => foods.save(drink.copyWith(name: '改過的')),
+        throwsA(isA<BuiltInFoodRefused>()),
+      );
+      expect(
+        () => foods.delete(drink.id),
+        throwsA(isA<BuiltInFoodRefused>()),
+      );
+
+      // The catalogue itself may replace it, which is how an update works.
+      foods.save(
+        drink.copyWith(name: '美式咖啡（新配方）'),
+        source: ChangeSource.catalogue,
+      );
+      expect(
+        AppStore(clock: clock.now, backend: backend).searchFoods('美式').single.name,
+        '美式咖啡（新配方）',
+      );
+    });
+
+    test('the bundled catalogue file parses into drinks and cups', () {
+      final file = jsonDecode(
+        File('assets/catalogue/starbucks-tw.json').readAsStringSync(),
+      );
+      final parsed = parseCatalogue(file as Map<String, dynamic>);
+
+      expect(parsed, isNotEmpty);
+      for (final food in parsed) {
+        expect(food.brand, '星巴克');
+        expect(food.kind, ConsumptionKind.beverage);
+        expect(food.servingUnit, ServingUnit.millilitre);
+        expect(
+          food.servingAmount,
+          greaterThan(0),
+          reason: 'a cup with no volume cannot be logged',
+        );
+        expect(
+          food.sourceUrl,
+          isNotEmpty,
+          reason: 'a figure nobody can check should not ship',
+        );
+        expect(food.checkedAt, isNotNull);
+      }
+
+      // The americano is the one with a published figure for every cup.
+      final americano = parsed.where(
+        (food) => food.name == '美式咖啡' && food.sizeName.isNotEmpty,
+      );
+      expect(americano.map((size) => size.sizeName), [
+        '小杯',
+        '中杯',
+        '大杯',
+        '特大杯',
+      ]);
+      expect(
+        americano.map((size) => size.nutrients[Nutrient.caffeine]),
+        [98, 195, 293, 390],
+        reason: 'the cups are not proportional, so each carries its own',
       );
     });
 

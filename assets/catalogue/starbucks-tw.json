@@ -1,0 +1,320 @@
+{
+  "brand": "星巴克",
+  "market": "tw",
+  "sourceUrl": "https://www.starbucks.com.tw/products/drinks/",
+  "checkedAt": "2026-09-21",
+  "valueType": "declared",
+  "note": "熱濃縮咖啡飲品。每筆的頁面連結見 pageUrl。冰飲與冷萃尚未收錄。",
+  "drinks": [
+    {
+      "id": "sbux-tw-1043",
+      "name": "烤夏威夷果燕麥那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=1043",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 98
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-1035",
+      "name": "特選燕麥奶那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=1035",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 98
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-1029",
+      "name": "奶香榛果風味摩卡",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=1029",
+      "sizes": [
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 170
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 170
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-1021",
+      "name": "黑糖風味奶香咖啡",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=1021",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 195
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 293
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 390
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-965",
+      "name": "鹹焦糖奶油爆米花風味那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=965",
+      "sizes": [
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 182
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-963",
+      "name": "椰香綿雲那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=963",
+      "sizes": [
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 163
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-692",
+      "name": "那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=692",
+      "sizes": [
+        {
+          "name": "小杯",
+          "millilitres": 236,
+          "caffeineMg": 110
+        },
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 110
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 182
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 182
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-694",
+      "name": "焦糖瑪奇朵",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=694",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 98
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-699",
+      "name": "馥列白",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=699",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 163
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 247
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 325
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-700",
+      "name": "可可瑪奇朵",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=700",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 98
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-693",
+      "name": "美式咖啡",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=693",
+      "sizes": [
+        {
+          "name": "小杯",
+          "millilitres": 236,
+          "caffeineMg": 98
+        },
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 195
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 293
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 390
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-696",
+      "name": "卡布奇諾",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=696",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 98
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-697",
+      "name": "摩卡",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=697",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 124
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 228
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 241
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-698",
+      "name": "特選馥郁那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=698",
+      "sizes": [
+        {
+          "name": "中杯",
+          "millilitres": 354,
+          "caffeineMg": 190
+        },
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 348
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 349
+        }
+      ]
+    },
+    {
+      "id": "sbux-tw-1025",
+      "name": "焦糖奶香星享那堤",
+      "pageUrl": "https://www.starbucks.com.tw/products/drinks/product.jspx?catId=116&id=1025",
+      "sizes": [
+        {
+          "name": "大杯",
+          "millilitres": 473,
+          "caffeineMg": 195
+        },
+        {
+          "name": "特大杯",
+          "millilitres": 591,
+          "caffeineMg": 195
+        }
+      ]
+    }
+  ]
+}

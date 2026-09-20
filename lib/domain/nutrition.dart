@@ -301,6 +301,7 @@ class FoodItem {
     this.valueType = NutrientValueType.declared,
     this.sourceUrl = '',
     this.checkedAt,
+    this.isBuiltIn = false,
   });
 
   final String id;
@@ -355,6 +356,14 @@ class FoodItem {
   /// with no date is a figure nobody can check.
   final DateTime? checkedAt;
 
+  /// Shipped with the app, and read-only.
+  ///
+  /// The app replaces this data wholesale when it updates, which is only
+  /// safe while nobody has edited it: an edit would be silently undone by
+  /// the next release. Anyone wanting their own version makes their own
+  /// food.
+  final bool isBuiltIn;
+
   /// The food this is a size of, when it is one.
   final String? parentId;
 
@@ -390,6 +399,7 @@ class FoodItem {
     NutrientValueType? valueType,
     String? sourceUrl,
     DateTime? checkedAt,
+    bool? isBuiltIn,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -409,6 +419,7 @@ class FoodItem {
     valueType: valueType ?? this.valueType,
     sourceUrl: sourceUrl ?? this.sourceUrl,
     checkedAt: checkedAt ?? this.checkedAt,
+    isBuiltIn: isBuiltIn ?? this.isBuiltIn,
   );
 }
 

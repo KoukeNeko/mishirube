@@ -282,9 +282,13 @@ class _FoodRow extends StatelessWidget {
               onTap: onTap,
             ),
           ),
-          SquareIconButton(icon: Icons.edit_outlined, onPressed: onEdit),
-          const SizedBox(width: AppSpacing.xs),
-          SquareIconButton(icon: Icons.delete_outline, onPressed: onDelete),
+          // Food that ships with the app has no edit or delete: the next
+          // release replaces it, so a change here would not survive.
+          if (!food.isBuiltIn) ...[
+            SquareIconButton(icon: Icons.edit_outlined, onPressed: onEdit),
+            const SizedBox(width: AppSpacing.xs),
+            SquareIconButton(icon: Icons.delete_outline, onPressed: onDelete),
+          ],
           const SizedBox(width: AppSpacing.sm),
         ],
       ),

@@ -5,12 +5,17 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'app/app.dart';
 import 'app/app_store.dart';
 import 'backend/backend.dart';
+import 'backend/seed/catalogue.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   final backend = await Backend.openOnDevice();
+  // The bundled brand data is refreshed on every launch, so an app
+  // update brings the corrections with it. It is safe to replace because
+  // it is read-only, and meals logged from it kept their own numbers.
+  await loadCatalogue(backend.storage.foods);
   runApp(
     LiquidGlassWidgets.wrap(
       brightnessResolver: Theme.maybeBrightnessOf,

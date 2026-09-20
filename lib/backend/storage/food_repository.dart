@@ -1,6 +1,16 @@
 import '../../domain/domain.dart';
 import 'database.dart';
 
+/// Refusing to change a food that came with the app.
+class BuiltInFoodRefused implements Exception {
+  const BuiltInFoodRefused(this.id);
+
+  final String id;
+
+  @override
+  String toString() => 'BuiltInFoodRefused: $id ships with the app';
+}
+
 /// The foods the user saved, so a meal eaten often is typed once.
 ///
 /// Rows are never hard deleted: removing a food tombstones it, which
@@ -44,6 +54,14 @@ class FoodRepository {
       _fromRow(row),
   ];
 
+  bool _isBuiltIn(String id) =>
+      _db
+          .select('SELECT 1 FROM foods WHERE id = ? AND source = ?', [
+            id,
+            ChangeSource.catalogue.name,
+          ])
+          .isNotEmpty;
+
   FoodItem? byId(String id) {
     final rows = _db.select(
       'SELECT * FROM foods WHERE id = ? AND deleted_at IS NULL',
@@ -53,7 +71,16 @@ class FoodRepository {
   }
 
   /// Stores [food], inserting it or rewriting the one with its id.
+  ///
+  /// A food that shipped with the app cannot be rewritten by anything
+  /// other than the catalogue it came from: the next release replaces it
+  /// wholesale, so an edit here would quietly disappear later. Enforced
+  /// at this layer and not only in the screens, because a rule that only
+  /// the UI knows is not a rule.
   void save(FoodItem food, {ChangeSource source = ChangeSource.local}) {
+    if (source != ChangeSource.catalogue && _isBuiltIn(food.id)) {
+      throw BuiltInFoodRefused(food.id);
+    }
     _db.transaction(() {
       final now = _db.now().millisecondsSinceEpoch;
       final exists = _db
@@ -140,6 +167,7 @@ class FoodRepository {
   /// Tombstones [id] and any sizes of it. Meals logged from them keep
   /// their numbers: those were copied when the meal was logged.
   void delete(String id) {
+    if (_isBuiltIn(id)) throw BuiltInFoodRefused(id);
     _db.transaction(() {
       for (final size in sizesOf(id)) {
         _db.execute(
@@ -203,6 +231,7 @@ class FoodRepository {
         final at? => DateTime.fromMillisecondsSinceEpoch(at),
         null => null,
       },
+      isBuiltIn: row['source'] == ChangeSource.catalogue.name,
     );
   }
 }
