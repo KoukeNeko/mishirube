@@ -103,6 +103,10 @@ class AppStore extends ChangeNotifier {
   static const _modulesKey = 'enabled_modules';
   static const _selectedRoutineKey = 'selected_routine';
   static const _muscleFigureKey = 'muscle_figure';
+  static const _glassKey = 'glass_millilitres';
+
+  /// What one glass is, until the user says otherwise.
+  static const defaultGlassMillilitres = 250;
 
   final DateTime Function() _clock;
   final Backend _backend;
@@ -653,6 +657,28 @@ class AppStore extends ChangeNotifier {
   /// Saved foods matching [query]; an empty query is all of them.
   List<FoodItem> searchFoods(String query) =>
       _backend.nutrition.searchFoods(query);
+
+  /// How much one tap of the water shortcut logs. The user's own glass
+  /// or bottle, because nobody drinks in units the app picked.
+  int get glassMillilitres =>
+      int.tryParse(_backend.db.setting(_glassKey) ?? '') ??
+      defaultGlassMillilitres;
+
+  void setGlassMillilitres(int millilitres) {
+    _backend.db.setSetting(_glassKey, '$millilitres');
+    notifyListeners();
+  }
+
+  /// Logs a glass of water. It writes the same record every drink
+  /// writes, so the day's fluid stays one total.
+  MealEvent logWater([int? millilitres]) {
+    final logged = _backend.nutrition.logWater(
+      millilitres ?? glassMillilitres,
+    );
+    _todayMeals.add(logged);
+    notifyListeners();
+    return logged;
+  }
 
   /// The sizes of a food, smallest first. A food with none is logged as
   /// itself.

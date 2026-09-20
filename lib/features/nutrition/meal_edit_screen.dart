@@ -20,13 +20,16 @@ class MealEditScreen extends StatefulWidget {
 
 class _MealEditScreenState extends State<MealEditScreen> {
   late final _name = TextEditingController(text: widget.meal.name);
-  late final _kcal = TextEditingController(text: '${widget.meal.kcal}');
-  late final _protein = TextEditingController(
-    text: '${widget.meal.proteinGrams}',
-  );
-  late final _carbs = TextEditingController(text: '${widget.meal.carbGrams}');
-  late final _fat = TextEditingController(text: '${widget.meal.fatGrams}');
-  late final _fibre = TextEditingController(text: '${widget.meal.fibreGrams}');
+  late final _kcal = _field(widget.meal.kcal);
+  late final _protein = _field(widget.meal.proteinGrams);
+  late final _carbs = _field(widget.meal.carbGrams);
+  late final _fat = _field(widget.meal.fatGrams);
+  late final _fibre = _field(widget.meal.fibreGrams);
+
+  /// A figure nobody wrote down leaves the field empty. Printing `null`
+  /// into it was the screen saying the quiet part out loud.
+  static TextEditingController _field(int? value) =>
+      TextEditingController(text: value == null ? '' : '$value');
   String? _error;
 
   @override
@@ -51,20 +54,31 @@ class _MealEditScreenState extends State<MealEditScreen> {
       setState(() => _error = '名稱不能空白。');
       return;
     }
-    if ([
-      kcal,
-      protein,
-      carbs,
-      fat,
-    ].any((value) => value == null || value < 0)) {
-      setState(() => _error = '熱量與營養素請填 0 以上的整數。');
+    // Empty is allowed: it means nobody wrote the figure down, which is
+    // not the same as zero. A negative one is nonsense either way.
+    if ([kcal, protein, carbs, fat, fibre].any(
+      (value) => value != null && value < 0,
+    )) {
+      setState(() => _error = '營養素不能是負數。');
       return;
     }
     final store = AppStoreScope.read(context);
+    final meal = widget.meal;
     store.updateMeal(
-      widget.meal,
-      widget.meal.copyWith(
+      meal,
+      // Built by hand rather than with copyWith, which cannot put a
+      // figure back to "nobody wrote this down".
+      MealEvent(
+        id: meal.id,
         name: name,
+        timeLabel: meal.timeLabel,
+        dishes: meal.dishes,
+        nutrients: meal.nutrients,
+        millilitres: meal.millilitres,
+        kind: meal.kind,
+        mealType: meal.mealType,
+        valueType: meal.valueType,
+        isFavorite: meal.isFavorite,
         kcal: kcal,
         proteinGrams: protein,
         carbGrams: carbs,

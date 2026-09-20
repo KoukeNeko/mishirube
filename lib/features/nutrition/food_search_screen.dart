@@ -114,6 +114,29 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         ),
       );
 
+  void _logWater() {
+    final store = AppStoreScope.read(context);
+    final logged = store.logWater();
+    showToast(
+      context,
+      '已記錄 ${logged.millilitres} mL 水',
+      kind: ToastKind.success,
+    );
+  }
+
+  Future<void> _setGlass() async {
+    final store = AppStoreScope.read(context);
+    final typed = await showTextDialog(
+      context,
+      title: '一杯是多少毫升',
+      initial: '${store.glassMillilitres}',
+      confirmLabel: '好',
+    );
+    final millilitres = int.tryParse(typed?.trim() ?? '');
+    if (millilitres == null || millilitres <= 0 || !mounted) return;
+    store.setGlassMillilitres(millilitres);
+  }
+
   Future<void> _quickAdd() async {
     final logged = await showQuickAddSheet(context);
     if (logged != true || !mounted) return;
@@ -167,6 +190,28 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         Gutter(
           child: SearchField(controller: _query, hint: '搜尋吃過或存過的⋯⋯'),
         ),
+        // Water is the most repeated record there is, so it gets one
+        // tap. It writes the same record a drink writes; the day's
+        // fluid stays one total rather than two that disagree.
+        if (query.isEmpty)
+          Gutter(
+            child: Row(
+              children: [
+                Expanded(
+                  child: SecondaryButton(
+                    label: '水 ${store.glassMillilitres} mL',
+                    onPressed: _logWater,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                SquareIconButton(
+                  icon: Icons.tune,
+                  tooltip: '改一杯的量',
+                  onPressed: _setGlass,
+                ),
+              ],
+            ),
+          ),
         // Before anything is typed, what was eaten before is the most
         // likely answer, so it goes first.
         if (query.isEmpty) ...[

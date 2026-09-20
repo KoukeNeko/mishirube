@@ -178,6 +178,31 @@ class NutritionService {
     ];
   }
 
+  /// Logs a glass of water of [millilitres].
+  ///
+  /// A shortcut, not a second kind of record: it writes the same meal
+  /// every drink writes, so the day's fluid is one total rather than two
+  /// that disagree.
+  MealEvent logWater(int millilitres) {
+    final eatenAt = _db.now();
+    return logMeal(
+      MealEvent(
+        id: _db.newId(),
+        name: '水',
+        timeLabel: formatTimeOfDay(eatenAt),
+        qualityTag: '水',
+        dishes: const [],
+        kind: ConsumptionKind.beverage,
+        millilitres: millilitres,
+        kcal: 0,
+        proteinGrams: 0,
+        carbGrams: 0,
+        fatGrams: 0,
+      ),
+      eatenAt: eatenAt,
+    );
+  }
+
   /// The sizes of a food, smallest first.
   List<FoodItem> sizesOf(String foodId) => _foods.sizesOf(foodId);
 

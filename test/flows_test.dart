@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -946,6 +948,50 @@ void main() {
       hasLength(saved),
       reason: 'a one-off is logged without being saved for next time',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a glass of water is one tap and one kind of record', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = summariseFluid(store.todayMeals).millilitres;
+
+    await _tapText(tester, '水 250 mL');
+    await tester.pumpAndSettle();
+
+    expect(summariseFluid(store.todayMeals).millilitres, before + 250);
+    expect(
+      summariseDay(store.todayMeals).mealCount,
+      summariseDay(store.todayMeals.where((m) => m.name != '水')).mealCount,
+      reason: 'a glass of water is not a meal',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a meal with no figures edits without showing null', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    const unknown = FoodItem(
+      id: 'stall',
+      name: '路邊攤炒麵',
+      kind: ConsumptionKind.food,
+    );
+    final logged = store.logPortion(const FoodPortion(unknown, 1));
+    await pumpScreen(tester, MealEditScreen(meal: logged), store: store);
+
+    expect(
+      find.text('null'),
+      findsNothing,
+      reason: 'an empty field is a figure nobody wrote down',
+    );
+
+    // Saving it back keeps it unknown rather than inventing a zero.
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    expect(store.todayMeals.last.kcal, isNull);
     await disposeTree(tester);
   });
 }
