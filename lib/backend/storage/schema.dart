@@ -269,6 +269,18 @@ final List<String> _migrations = [
   -- before this step have no figure, which is not the same as none.
   ALTER TABLE meals ADD COLUMN fibre_g INTEGER NOT NULL DEFAULT 0;
   ''',
+  '''
+  -- Tape measurements, one row per site per measurement.
+  CREATE TABLE body_measurements (
+    id TEXT PRIMARY KEY,
+    measured_at INTEGER NOT NULL,
+    site TEXT NOT NULL,
+    centimetres REAL NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    $_entityColumns
+  );
+  CREATE INDEX body_measurements_at ON body_measurements(measured_at);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

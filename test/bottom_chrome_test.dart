@@ -90,7 +90,7 @@ void main() {
 
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
-    for (final label in ['訓練', '一餐', '體重與量測', '睡眠', '更多紀錄類型']) {
+    for (final label in ['訓練', '一餐', '體重', '睡眠', '更多紀錄類型']) {
       expect(
         find.descendant(
           of: find.byKey(quickLogMenuKey),

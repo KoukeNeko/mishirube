@@ -20,6 +20,29 @@ class JournalService {
     return weight;
   }
 
+  /// Records one tape measurement. Each site is its own record, so a
+  /// session where only the waist was measured says exactly that.
+  BodyMeasurement recordMeasurement(
+    MeasurementSite site,
+    double centimetres, {
+    String note = '',
+    DateTime? at,
+  }) {
+    final measurement = BodyMeasurement(
+      id: _db.newId(),
+      measuredAt: at ?? _db.now(),
+      site: site,
+      centimetres: centimetres,
+      note: note,
+    );
+    _journal.addMeasurement(measurement);
+    return measurement;
+  }
+
+  /// The last measurement of each site.
+  Map<MeasurementSite, BodyMeasurement> latestMeasurements() =>
+      _journal.latestMeasurements();
+
   WellnessEntry recordWellness(
     WellnessKind kind,
     int score, {

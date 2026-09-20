@@ -123,6 +123,64 @@ class JournalRepository {
   }
 
   /// Weights measured in `[start, end)`, oldest first.
+  void addMeasurement(
+    BodyMeasurement measurement, {
+    ChangeSource source = ChangeSource.local,
+  }) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO body_measurements (id, measured_at, site, centimetres, '
+        'note, created_at, updated_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          measurement.id,
+          measurement.measuredAt.millisecondsSinceEpoch,
+          measurement.site.name,
+          measurement.centimetres,
+          measurement.note,
+          now,
+          now,
+          source.name,
+        ],
+      );
+      _db.audit(
+        entityType: 'body_measurement',
+        entityId: measurement.id,
+        action: 'create',
+        source: source,
+      );
+    });
+  }
+
+  List<BodyMeasurement> measurementsBetween(DateTime start, DateTime end) => [
+    for (final row in _db.select(
+      'SELECT * FROM body_measurements WHERE deleted_at IS NULL '
+      'AND measured_at >= ? AND measured_at < ? ORDER BY measured_at',
+      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      _measurementFrom(row),
+  ];
+
+  /// The last measurement of each site, for prefilling and for showing
+  /// what has been tracked at all.
+  Map<MeasurementSite, BodyMeasurement> latestMeasurements() => {
+    for (final row in _db.select(
+      'SELECT * FROM body_measurements WHERE deleted_at IS NULL '
+      'ORDER BY measured_at',
+    ))
+      MeasurementSite.values.byName(row['site'] as String): _measurementFrom(
+        row,
+      ),
+  };
+
+  BodyMeasurement _measurementFrom(Map<String, Object?> row) => BodyMeasurement(
+    id: row['id']! as String,
+    measuredAt: DateTime.fromMillisecondsSinceEpoch(row['measured_at']! as int),
+    site: MeasurementSite.values.byName(row['site']! as String),
+    centimetres: (row['centimetres']! as num).toDouble(),
+    note: row['note']! as String,
+  );
+
   List<BodyWeight> weightsBetween(DateTime start, DateTime end) => [
     for (final row in _db.select(
       'SELECT * FROM body_weights WHERE deleted_at IS NULL '
@@ -164,7 +222,13 @@ class BodyWeightTimelineSource extends TimelineSource {
   RecordCategory get category => RecordCategory.body;
 
   @override
-  DateTime? earliest() => _journal._earliest('body_weights', 'measured_at');
+  DateTime? earliest() {
+    final dates = [
+      ?_journal._earliest('body_weights', 'measured_at'),
+      ?_journal._earliest('body_measurements', 'measured_at'),
+    ]..sort();
+    return dates.firstOrNull;
+  }
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
@@ -180,16 +244,35 @@ class BodyWeightTimelineSource extends TimelineSource {
           detail: weight.note,
         ),
       ),
+    for (final measurement in _journal.measurementsBetween(start, end))
+      (
+        measurement.measuredAt,
+        TimelineEntry(
+          timeLabel: formatTimeOfDay(measurement.measuredAt),
+          at: measurement.measuredAt,
+          recordId: measurement.id,
+          category: RecordCategory.body,
+          title: '${measurement.site.label} ${_size(measurement)}',
+          detail: measurement.note,
+        ),
+      ),
   ];
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
+    // A weight is the headline of a day that has both.
+    for (final measurement in _journal.measurementsBetween(start, end))
+      measurement.measuredAt.day:
+          '${measurement.site.label} ${_size(measurement)}',
     for (final weight in _journal.weightsBetween(start, end))
       weight.measuredAt.day: _label(weight),
   };
 
   static String _label(BodyWeight weight) =>
       '${formatWeight(weight.weightKg)} kg';
+
+  static String _size(BodyMeasurement measurement) =>
+      '${formatWeight(measurement.centimetres)} cm';
 }
 
 /// Nights of sleep as log rows.

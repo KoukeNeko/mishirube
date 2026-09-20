@@ -926,6 +926,57 @@ void main() {
     });
   });
 
+  group('body measurements', () {
+    test('only what was measured is recorded, and it reaches the log', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+
+      store
+        ..recordMeasurement(MeasurementSite.waist, 81.5)
+        ..recordMeasurement(MeasurementSite.arm, 34);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final latest = reopened.latestMeasurements;
+      expect(latest.keys, {MeasurementSite.waist, MeasurementSite.arm});
+      expect(latest[MeasurementSite.waist]!.centimetres, 81.5);
+      expect(
+        latest.containsKey(MeasurementSite.hips),
+        isFalse,
+        reason: 'a site that was not measured has no figure, not a zero',
+      );
+
+      final today = reopened.monthRecords(DateTime(2026, 9)).days.first;
+      expect(
+        today.entries.where((e) => e.title.startsWith('腰圍')),
+        hasLength(1),
+      );
+      expect(
+        today.entries.where((e) => e.category == RecordCategory.body),
+        hasLength(3),
+        reason: 'the weight and both measurements',
+      );
+    });
+
+    test('a later measurement replaces the one shown as last', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      store.recordMeasurement(MeasurementSite.waist, 82);
+      clock.advance(const Duration(days: 7));
+      store.recordMeasurement(MeasurementSite.waist, 80.5);
+
+      expect(
+        store.latestMeasurements[MeasurementSite.waist]!.centimetres,
+        80.5,
+      );
+    });
+  });
+
   group('favourite meals', () {
     test('a starred meal is offered again and survives a restart', () {
       final backend = openFile();

@@ -756,6 +756,21 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Records one tape measurement.
+  void recordMeasurement(
+    MeasurementSite site,
+    double centimetres, {
+    String note = '',
+  }) {
+    _backend.journal.recordMeasurement(site, centimetres, note: note);
+    notifyListeners();
+  }
+
+  /// The last measurement of each site, for prefilling and for showing
+  /// what has been tracked at all.
+  Map<MeasurementSite, BodyMeasurement> get latestMeasurements =>
+      _backend.journal.latestMeasurements();
+
   /// Records a night's sleep.
   void recordSleep(Duration slept, {int? score, String note = ''}) {
     _backend.journal.recordSleep(slept, score: score, note: note);

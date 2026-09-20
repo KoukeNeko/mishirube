@@ -24,6 +24,7 @@ import 'package:mishirube/features/nutrition/meal_entry_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
+import 'package:mishirube/features/journal/measurement_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
@@ -62,6 +63,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'onboarding': ((_) => const OnboardingScreen(), _noSetup),
   'weight entry': ((_) => const WeightEntryScreen(), _noSetup),
   'sleep entry': ((_) => const SleepEntryScreen(), _noSetup),
+  'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'wellness entry': ((_) => const WellnessEntryScreen(), _noSetup),
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),

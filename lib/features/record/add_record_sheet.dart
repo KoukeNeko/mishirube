@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/sleep_entry_screen.dart';
+import '../journal/measurement_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
 import '../nutrition/meal_entry_screen.dart';
@@ -73,11 +74,11 @@ final recordOptions = [
     destination: () => const MealEntryScreen(),
   ),
   RecordOption(
-    icon: Icons.straighten,
+    icon: Icons.monitor_weight_outlined,
     color: AppColors.body,
-    title: '體重與量測',
+    title: '體重',
     module: AppModule.weight,
-    subtitle: '體重、腰圍、體組成',
+    subtitle: '早晨空腹，或任何固定的時間',
     destination: () => const WeightEntryScreen(),
   ),
   RecordOption(
@@ -95,6 +96,14 @@ final recordOptions = [
     module: AppModule.wellness,
     subtitle: '簡短的一天狀態日誌',
     destination: () => const WellnessEntryScreen(),
+  ),
+  RecordOption(
+    icon: Icons.straighten,
+    color: AppColors.body,
+    title: '圍度',
+    module: AppModule.weight,
+    subtitle: '腰圍、臀圍、上臂等，量到的才記',
+    destination: () => const MeasurementEntryScreen(),
   ),
   const RecordOption(
     icon: Icons.description_outlined,
