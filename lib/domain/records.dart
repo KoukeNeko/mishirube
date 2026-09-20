@@ -6,7 +6,7 @@ enum RecordCategory {
   training('訓練', AppColors.training, Icons.fitness_center),
   nutrition('飲食', AppColors.nutrition, Icons.restaurant),
   body('身體', AppColors.body, Icons.monitor_weight_outlined),
-  wellness('狀態', AppColors.wellness, Icons.bedtime_outlined);
+  wellness('睡眠與狀態', AppColors.wellness, Icons.bedtime_outlined);
 
   const RecordCategory(this.label, this.color, this.icon);
 

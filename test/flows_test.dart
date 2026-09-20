@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -285,6 +286,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TextField).hitTestable(), findsNothing);
     expect(todayAction.hitTestable(), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the log filters follow the record categories', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    for (final category in RecordCategory.values) {
+      expect(
+        find.text(category.label),
+        findsWidgets,
+        reason:
+            '${category.name} has a filter chip without the screen '
+            'listing categories itself',
+      );
+    }
+    expect(find.text('全部'), findsOneWidget);
     await disposeTree(tester);
   });
 

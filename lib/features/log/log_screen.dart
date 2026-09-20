@@ -12,17 +12,21 @@ import 'month_calendar.dart';
 
 enum _LogView { timeline, calendar }
 
-enum _LogFilter {
-  all('全部', null),
-  training('訓練', RecordCategory.training),
-  nutrition('飲食', RecordCategory.nutrition),
-  body('身體', RecordCategory.body),
-  wellness('睡眠與狀態', RecordCategory.wellness);
+/// A chip in the log's filter row: everything, then one per category, so
+/// a new kind of record appears here without editing this screen.
+class _LogFilter {
+  const _LogFilter(this.category);
 
-  const _LogFilter(this.label, this.category);
+  static const all = _LogFilter(null);
+  static final values = [
+    all,
+    for (final category in RecordCategory.values) _LogFilter(category),
+  ];
 
-  final String label;
+  /// Null filters nothing out.
   final RecordCategory? category;
+
+  String get label => category?.label ?? '全部';
 
   IconData get icon => category?.icon ?? Icons.apps;
 
@@ -105,12 +109,14 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   void _openEntry(TimelineEntry entry) {
+    // Exhaustive on purpose: a new kind of record must decide what
+    // opening its row does, rather than silently doing nothing.
     final destination = switch (entry.category) {
       RecordCategory.training => WorkoutSummaryScreen(
         workoutId: entry.recordId,
       ),
       RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
-      _ => null,
+      RecordCategory.body || RecordCategory.wellness => null,
     };
     if (destination == null) {
       showToast(context, '「${entry.title}」的詳細畫面尚未設計');
@@ -374,11 +380,7 @@ class _CalendarLegend extends StatelessWidget {
     return Wrap(
       spacing: AppSpacing.md,
       children: [
-        for (final category in const [
-          RecordCategory.training,
-          RecordCategory.nutrition,
-          RecordCategory.body,
-        ])
+        for (final category in RecordCategory.values)
           CategoryLabel(label: category.label, color: category.color),
       ],
     );
