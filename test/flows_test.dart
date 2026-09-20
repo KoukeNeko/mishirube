@@ -82,8 +82,8 @@ void main() {
 
     await _tapText(tester, '確認並存入');
     expect(store.isLunchLogged, isTrue);
-    expect(find.text('飲食'), findsWidgets);
-
+    // Dishes start collapsed; the components appear when one is opened.
+    await _tapText(tester, '雞肉照燒蛋全麥三明治');
     await _tapText(tester, '拆成獨立紀錄');
     expect(find.textContaining('要把這道料理拆成 5 筆'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, '拆成獨立紀錄'));

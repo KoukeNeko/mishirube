@@ -7,8 +7,6 @@ import 'journal_repository.dart';
 import 'meal_repository.dart';
 import 'workout_repository.dart';
 
-const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
-
 /// Everything recorded in one month, as the log shows it.
 class MonthRecords {
   const MonthRecords({required this.days, required this.summaries});
@@ -73,6 +71,8 @@ class TimelineQuery {
         workout.finishedAt!,
         TimelineEntry(
           timeLabel: formatTimeOfDay(workout.finishedAt!),
+          at: workout.finishedAt!,
+          recordId: workout.id,
           category: RecordCategory.training,
           title: workout.routineName,
           detail: ['$sets 組', '$minutes 分', ?record].join(' · '),
@@ -89,6 +89,8 @@ class TimelineQuery {
         eatenAt,
         TimelineEntry(
           timeLabel: meal.timeLabel,
+          at: eatenAt,
+          recordId: meal.id,
           category: RecordCategory.nutrition,
           title: meal.name,
           detail: meal.dishes.map((dish) => dish.name).join('、'),
@@ -110,6 +112,8 @@ class TimelineQuery {
         weight.measuredAt,
         TimelineEntry(
           timeLabel: formatTimeOfDay(weight.measuredAt),
+          at: weight.measuredAt,
+          recordId: weight.id,
           category: RecordCategory.body,
           title: '體重 $label',
           detail: weight.note,
@@ -124,6 +128,8 @@ class TimelineQuery {
         entry.recordedAt,
         TimelineEntry(
           timeLabel: formatTimeOfDay(entry.recordedAt),
+          at: entry.recordedAt,
+          recordId: entry.id,
           category: RecordCategory.wellness,
           title: title,
           detail: entry.note.isEmpty ? '' : '備註：${entry.note}',
@@ -217,7 +223,7 @@ class TimelineQuery {
   );
 
   static String _dayLabel(DateTime day, DateTime today) {
-    final label = '${day.month} 月 ${day.day} 日（週${_weekdays[day.weekday - 1]}）';
+    final label = '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）';
     final isToday =
         day.year == today.year &&
         day.month == today.month &&

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
-import '../../backend/seed/demo_content.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -10,7 +9,10 @@ import 'component_list.dart';
 import 'split_dish_sheet.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
-  const DailyNutritionScreen({super.key});
+  const DailyNutritionScreen({super.key, this.day});
+
+  /// Which day to show; today when null.
+  final DateTime? day;
 
   @override
   State<DailyNutritionScreen> createState() => _DailyNutritionScreenState();
@@ -18,7 +20,9 @@ class DailyNutritionScreen extends StatefulWidget {
 
 class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   /// Keys of expanded dishes (`mealId/dishName`); display-only state.
-  final Set<String> _expanded = {'lunch/${DemoNutrition.sandwich.name}'};
+  final Set<String> _expanded = {};
+
+  DateTime get _day => widget.day ?? AppStoreScope.read(context).now();
 
   void _toggle(String key) => setState(() {
     if (!_expanded.remove(key)) _expanded.add(key);
@@ -27,12 +31,17 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   Future<void> _split(MealEvent meal, int dishIndex) async {
     final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
+    final day = _day;
     final shouldSplit = await showSplitDishSheet(
       context,
       meal.dishes[dishIndex],
     );
     if (shouldSplit != true) return;
-    final snapshot = store.splitDish(mealId: meal.id, dishIndex: dishIndex);
+    final snapshot = store.splitDish(
+      mealId: meal.id,
+      dishIndex: dishIndex,
+      day: day,
+    );
     if (snapshot == null) return;
     toast.showUndo('已拆成獨立紀錄', onUndo: () => store.undoSplit(snapshot));
   }
@@ -40,12 +49,17 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final meals = store.todayMeals;
+    final day = _day;
+    final meals = store.mealsOn(day);
+    final summary = store.summaryOf(day);
     return PageScaffold(
-      appBar: const PageAppBar(title: '飲食', subtitle: '9 月 19 日（週六）'),
+      appBar: PageAppBar(
+        title: '飲食',
+        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+      ),
       footer: _DailyTotalBar(
-        kcal: store.todayKcal,
-        mealCount: meals.length,
+        kcal: summary.kcal,
+        mealCount: summary.mealCount,
         isLunchLogged: store.isLunchLogged,
       ),
       children: [

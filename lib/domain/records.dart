@@ -18,16 +18,24 @@ enum RecordCategory {
 class TimelineEntry {
   const TimelineEntry({
     required this.timeLabel,
+    required this.at,
     required this.category,
     required this.title,
     required this.detail,
+    this.recordId,
     this.tags = const [],
   });
 
   final String timeLabel;
+
+  /// When it happened, so a row can open that day.
+  final DateTime at;
   final RecordCategory category;
   final String title;
   final String detail;
+
+  /// The record behind the row, where opening one makes sense.
+  final String? recordId;
   final List<String> tags;
 }
 

@@ -20,6 +20,11 @@ String formatWeight(double kilograms) {
       : kilograms.toStringAsFixed(1);
 }
 
+const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+
+/// The weekday of [day] as one character, Monday first.
+String weekdayLabel(DateTime day) => _weekdays[day.weekday - 1];
+
 String formatTimeOfDay(DateTime time) {
   final hour = time.hour.toString().padLeft(2, '0');
   final minute = time.minute.toString().padLeft(2, '0');

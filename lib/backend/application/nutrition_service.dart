@@ -5,12 +5,19 @@ import '../storage/meal_repository.dart';
 
 /// An exploded dish, kept so the change can be undone.
 class DishSplitSnapshot {
-  const DishSplitSnapshot({required this.mealIndex, required this.meal});
+  const DishSplitSnapshot({
+    required this.mealIndex,
+    required this.meal,
+    required this.day,
+  });
 
   final int mealIndex;
 
   /// The meal as it was before the dish was exploded.
   final MealEvent meal;
+
+  /// The day it was eaten, so the undo finds it again.
+  final DateTime day;
 }
 
 /// Logging food and changing how a meal is structured.
@@ -42,6 +49,7 @@ class NutritionService {
     List<MealEvent> meals, {
     required String mealId,
     required int dishIndex,
+    DateTime? day,
   }) {
     final mealIndex = meals.indexWhere((meal) => meal.id == mealId);
     if (mealIndex < 0) return null;
@@ -61,7 +69,14 @@ class NutritionService {
       ]);
     final exploded = meal.copyWith(dishes: dishes);
     _meals.replaceDishes(exploded, action: 'explode_dish', previous: meal);
-    return (exploded, DishSplitSnapshot(mealIndex: mealIndex, meal: meal));
+    return (
+      exploded,
+      DishSplitSnapshot(
+        mealIndex: mealIndex,
+        meal: meal,
+        day: day ?? _db.now(),
+      ),
+    );
   }
 
   void undoExplode(DishSplitSnapshot snapshot, {required MealEvent current}) {

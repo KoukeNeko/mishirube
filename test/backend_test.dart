@@ -161,6 +161,21 @@ void main() {
       expect(aiChange.single['source'], ChangeSource.aiDraft.name);
     });
 
+    test('a finished workout can be opened again by its id', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final september = store.monthRecords(DateTime(2026, 9));
+      final training = september.days
+          .expand((day) => day.entries)
+          .firstWhere((entry) => entry.category == RecordCategory.training);
+
+      final workout = store.workoutById(training.recordId!)!;
+
+      expect(workout.routineName, training.title);
+      expect(workout.finishedAt, isNotNull);
+      expect(store.workoutById('no-such-workout'), isNull);
+    });
+
     test('a finished workout becomes the next "last time"', () {
       final store = AppStore(clock: clock.now, isOnboarded: true)
         ..startWorkout();
@@ -200,6 +215,40 @@ void main() {
       final restored = AppStore(clock: clock.now, backend: backend);
       expect(restored.todayMeals.last.dishes, hasLength(lunchDishes));
       expect(restored.todayMeals.last.dishes.first.components, hasLength(5));
+    });
+
+    test('a past day can be read and its dish exploded', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final yesterday = clock.now().subtract(const Duration(days: 1));
+      final meals = store.mealsOn(yesterday);
+      final summary = store.summaryOf(yesterday);
+
+      expect(meals, hasLength(1));
+      expect(summary.mealCount, 1);
+      expect(summary.isComplete, isFalse, reason: 'only one meal that day');
+
+      final snapshot = store.splitDish(
+        mealId: meals.single.id,
+        dishIndex: 0,
+        day: yesterday,
+      )!;
+      expect(
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).mealsOn(yesterday).single.dishes,
+        hasLength(5),
+      );
+      expect(store.todayMeals, hasLength(1), reason: 'today is untouched');
+
+      store.undoSplit(snapshot);
+      expect(store.mealsOn(yesterday).single.dishes, hasLength(1));
     });
 
     test('a lunch on a later day gets its own id', () {

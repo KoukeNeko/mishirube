@@ -106,8 +106,10 @@ class _LogScreenState extends State<LogScreen> {
 
   void _openEntry(TimelineEntry entry) {
     final destination = switch (entry.category) {
-      RecordCategory.training => const WorkoutSummaryScreen(),
-      RecordCategory.nutrition => const DailyNutritionScreen(),
+      RecordCategory.training => WorkoutSummaryScreen(
+        workoutId: entry.recordId,
+      ),
+      RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
       _ => null,
     };
     if (destination == null) {

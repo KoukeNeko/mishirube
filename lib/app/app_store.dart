@@ -319,18 +319,33 @@ class AppStore extends ChangeNotifier {
     );
   }
 
+  /// One finished workout, for opening a row in the log.
+  WorkoutSession? workoutById(String id) =>
+      _backend.storage.workouts.byId(id, _exercise);
+
+  /// Meals eaten on [day]; today's come from what is already in memory.
+  List<MealEvent> mealsOn(DateTime day) =>
+      _isToday(day) ? todayMeals : _backend.nutrition.mealsOn(day);
+
+  /// Food totals for [day] and how complete its log is.
+  DaySummary summaryOf(DateTime day) =>
+      _isToday(day) ? todaySummary : _backend.nutrition.summaryOf(day);
+
   DishSplitSnapshot? splitDish({
     required String mealId,
     required int dishIndex,
+    DateTime? day,
   }) {
+    final date = day ?? now();
     final exploded = _backend.nutrition.explodeDish(
-      _todayMeals,
+      mealsOn(date),
       mealId: mealId,
       dishIndex: dishIndex,
+      day: date,
     );
     if (exploded == null) return null;
     final (meal, snapshot) = exploded;
-    _todayMeals[snapshot.mealIndex] = meal;
+    if (_isToday(date)) _todayMeals[snapshot.mealIndex] = meal;
     notifyListeners();
     return snapshot;
   }
@@ -338,10 +353,19 @@ class AppStore extends ChangeNotifier {
   void undoSplit(DishSplitSnapshot snapshot) {
     _backend.nutrition.undoExplode(
       snapshot,
-      current: _todayMeals[snapshot.mealIndex],
+      current: mealsOn(snapshot.day)[snapshot.mealIndex],
     );
-    _todayMeals[snapshot.mealIndex] = snapshot.meal;
+    if (_isToday(snapshot.day)) {
+      _todayMeals[snapshot.mealIndex] = snapshot.meal;
+    }
     notifyListeners();
+  }
+
+  bool _isToday(DateTime day) {
+    final today = now();
+    return day.year == today.year &&
+        day.month == today.month &&
+        day.day == today.day;
   }
 
   /// Records a body weight measured now.

@@ -23,12 +23,17 @@ class _ExerciseResult {
 }
 
 class WorkoutSummaryScreen extends StatelessWidget {
-  const WorkoutSummaryScreen({super.key});
+  const WorkoutSummaryScreen({super.key, this.workoutId});
+
+  /// Which finished workout to show; the last one when null.
+  final String? workoutId;
 
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final workout = store.lastFinishedWorkout;
+    final workout = workoutId == null
+        ? store.lastFinishedWorkout
+        : store.workoutById(workoutId!);
     final results = workout == null
         ? _plannedResults(store.routine)
         : _actualResults(workout);
@@ -45,7 +50,10 @@ class WorkoutSummaryScreen extends StatelessWidget {
     return DetailPage(
       appBar: PageAppBar(
         title: workout?.routineName ?? store.routine.name,
-        subtitle: '9 月 19 日 · $timeRange',
+        subtitle: workout == null
+            ? timeRange
+            : '${workout.startedAt.month} 月 ${workout.startedAt.day} 日 · '
+                  '$timeRange',
       ),
       footer: PrimaryButton(
         label: '回到今天',
