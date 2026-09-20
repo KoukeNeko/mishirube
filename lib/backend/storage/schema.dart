@@ -444,6 +444,13 @@ final List<String> _migrations = [
 
 int get latestSchemaVersion => _migrations.length;
 
+/// The steps themselves, for the test that pins them.
+///
+/// A released step must never change: a database that already ran it
+/// will not run it again, so an edit only ever takes effect on fresh
+/// installs and quietly gives the two different schemas.
+List<String> get schemaSteps => List.unmodifiable(_migrations);
+
 /// Brings [db] up to [latestSchemaVersion], all steps in one transaction.
 void migrate(Database db) {
   final from = db.userVersion;
