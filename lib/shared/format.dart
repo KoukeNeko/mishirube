@@ -13,12 +13,13 @@ String formatClock(Duration duration) {
 }
 
 /// Drops the trailing `.0` so 100.0 reads as `100` but 77.5 stays `77.5`.
-String formatWeight(double kilograms) {
-  final isWholeNumber = kilograms == kilograms.roundToDouble();
-  return isWholeNumber
-      ? kilograms.toStringAsFixed(0)
-      : kilograms.toStringAsFixed(1);
+String formatAmount(double value) {
+  final isWholeNumber = value == value.roundToDouble();
+  return isWholeNumber ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
 }
+
+/// A weight in kilograms, written the way [formatAmount] writes numbers.
+String formatWeight(double kilograms) => formatAmount(kilograms);
 
 /// A length of sleep or rest as `h:mm`, where seconds would be noise.
 String formatHoursMinutes(Duration duration) {

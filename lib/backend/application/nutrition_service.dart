@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 // The one place that decides how a typed search term is normalised; a
 // food is searched the same way an exercise is.
 import '../engines/exercise_search.dart' show normalizeTerm;
+import '../engines/food_portion.dart';
 import '../../shared/format.dart';
 import '../engines/nutrition_summary.dart';
 import '../storage/database.dart';
@@ -194,30 +195,29 @@ class NutritionService {
   /// A fresh id for a food the user is about to save.
   String newFoodId() => _db.newId();
 
-  /// Logs [servings] of [food] as a meal eaten now.
+  /// Logs [portion] of a saved food as a meal eaten now.
   ///
   /// The numbers are copied, not linked: correcting the food later is not
   /// a claim about what was eaten last Tuesday. They are also not marked
-  /// as estimated — the user typed them and chose them.
-  MealEvent logFood(FoodItem food, {int servings = 1}) {
+  /// as estimated — the user typed them and chose the portion.
+  MealEvent logPortion(FoodPortion portion) {
     final eatenAt = _db.now();
+    final food = portion.food;
     return logMeal(
       MealEvent(
         id: _db.newId(),
         name: food.displayName,
         timeLabel: formatTimeOfDay(eatenAt),
-        kcal: food.kcal * servings,
-        proteinGrams: food.proteinGrams * servings,
-        carbGrams: food.carbGrams * servings,
-        fatGrams: food.fatGrams * servings,
-        fibreGrams: food.fibreGrams * servings,
+        kcal: portion.kcal,
+        proteinGrams: portion.proteinGrams,
+        carbGrams: portion.carbGrams,
+        fatGrams: portion.fatGrams,
+        fibreGrams: portion.fibreGrams,
         qualityTag: '自訂食物',
         dishes: [
           DishEntry(
             name: food.displayName,
-            quantityLabel: servings == 1
-                ? food.servingLabel
-                : '$servings × ${food.servingLabel}',
+            quantityLabel: portion.label,
             subtitle: '自訂食物',
           ),
         ],

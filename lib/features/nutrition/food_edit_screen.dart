@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
 /// Creating or correcting one of the user's own foods.
@@ -29,6 +30,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late final _serving = TextEditingController(
     text: widget.editing?.servingLabel ?? '',
   );
+  late final _servingAmount = TextEditingController(
+    text: formatAmount(widget.editing?.servingAmount ?? 1),
+  );
+  late ServingUnit _servingUnit =
+      widget.editing?.servingUnit ?? ServingUnit.gram;
   late final _kcal = _number(widget.editing?.kcal);
   late final _protein = _number(widget.editing?.proteinGrams);
   late final _carb = _number(widget.editing?.carbGrams);
@@ -41,7 +47,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   @override
   void initState() {
     super.initState();
-    for (final controller in [_name, _serving]) {
+    for (final controller in [_name, _servingAmount]) {
       controller.addListener(() => setState(() {}));
     }
   }
@@ -52,6 +58,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _name,
       _brand,
       _serving,
+      _servingAmount,
       _kcal,
       _protein,
       _carb,
@@ -63,8 +70,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     super.dispose();
   }
 
-  bool get _canSave =>
-      _name.text.trim().isNotEmpty && _serving.text.trim().isNotEmpty;
+  double get _amount => double.tryParse(_servingAmount.text.trim()) ?? 0;
+
+  bool get _canSave => _name.text.trim().isNotEmpty && _amount > 0;
 
   void _save() {
     final store = AppStoreScope.read(context);
@@ -73,6 +81,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       name: _name.text.trim(),
       brand: _brand.text.trim(),
       servingLabel: _serving.text.trim(),
+      servingAmount: _amount,
+      servingUnit: _servingUnit,
       kcal: _valueOf(_kcal),
       proteinGrams: _valueOf(_protein),
       carbGrams: _valueOf(_carb),
@@ -109,14 +119,40 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(child: AppTextField(controller: _brand, hint: '例如：大成')),
         Gutter(child: const SectionLabel('一份是多少')),
         Gutter(
-          child: AppTextField(controller: _serving, hint: '例如：一片（約 100 g）'),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 120,
+                child: AppTextField(
+                  controller: _servingAmount,
+                  hint: '100',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: ChipWrap(
+                  options: ServingUnit.values,
+                  labelOf: (unit) => unit.label,
+                  isSelected: (unit) => unit == _servingUnit,
+                  onTap: (unit) => setState(() => _servingUnit = unit),
+                ),
+              ),
+            ],
+          ),
         ),
         Gutter(
-          child: const Text(
-            '這是一段文字，不是數量。App 不會替你換算單位，所以怎麼寫就怎麼讀。',
+          child: Text(
+            _servingUnit.isMeasured
+                ? '下次吃的份量不同時，可以直接改份數或改 ${_servingUnit.label}，剩下的自動算。'
+                : '選「份」代表這一份不是度量，App 不會替你換算成公克或毫升。',
             style: AppTextStyles.caption,
           ),
         ),
+        Gutter(child: const SectionLabel('這一份叫什麼（可留空）')),
+        Gutter(child: AppTextField(controller: _serving, hint: '例如：一片')),
         Gutter(child: const SectionLabel('每份營養')),
         Gutter(
           child: _NumberField(label: '熱量 (kcal)', controller: _kcal),

@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
+import 'portion_sheet.dart';
 
 /// The user's own foods: search them, log one, or save a new one.
 ///
@@ -47,9 +48,15 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     if (mounted) setState(() {});
   }
 
-  void _log(FoodItem food) {
-    AppStoreScope.read(context).logFood(food);
-    showToast(context, '已記錄「${food.displayName}」', kind: ToastKind.success);
+  Future<void> _log(FoodItem food) async {
+    final portion = await showPortionSheet(context, food);
+    if (portion == null || !mounted) return;
+    AppStoreScope.read(context).logPortion(portion);
+    showToast(
+      context,
+      '已記錄「${food.displayName}」${portion.label}',
+      kind: ToastKind.success,
+    );
     Navigator.of(context).pop();
   }
 

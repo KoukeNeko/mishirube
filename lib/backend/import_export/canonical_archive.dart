@@ -152,6 +152,8 @@ const _tables = [
     _Column('name', _Kind.text),
     _Column('brand', _Kind.text),
     _Column('serving_label', _Kind.text),
+    _Column('serving_amount', _Kind.real),
+    _Column('serving_unit', _Kind.text),
     _Column('kcal', _Kind.integer),
     _Column('protein_g', _Kind.integer),
     _Column('carb_g', _Kind.integer),

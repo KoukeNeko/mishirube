@@ -825,7 +825,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a food is saved once and then logged with one tap', (
+  testWidgets('a food is saved once, then logged at a different portion', (
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -836,9 +836,10 @@ void main() {
 
     await _tapText(tester, '新增食物');
     await tester.enterText(find.byType(AppTextField).at(0), '雞胸肉');
-    await tester.enterText(find.byType(AppTextField).at(2), '一片（約 100 g）');
-    await tester.enterText(find.byType(AppTextField).at(3), '165');
-    await tester.enterText(find.byType(AppTextField).at(4), '31');
+    // Name, brand, serving amount, then the per-serving nutrients.
+    await tester.enterText(find.byType(AppTextField).at(2), '100');
+    await tester.enterText(find.byType(AppTextField).at(4), '165');
+    await tester.enterText(find.byType(AppTextField).at(5), '31');
     await tester.pump();
     await _tapText(tester, '儲存');
     await tester.pumpAndSettle();
@@ -847,9 +848,17 @@ void main() {
 
     await _tapText(tester, '雞胸肉');
     await tester.pumpAndSettle();
+    expect(find.text('記錄 100 g'), findsOneWidget, reason: 'opens at a serving');
 
-    expect(store.todayKcal, before + 165);
-    expect(store.todayMeals.last.proteinGrams, 31);
+    // Eating 150 g instead: the servings follow the amount.
+    await tester.enterText(find.byType(AppTextField).last, '150');
+    await tester.pumpAndSettle();
+    await _tapText(tester, '記錄 150 g');
+    await tester.pumpAndSettle();
+
+    expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
+    expect(store.todayMeals.last.proteinGrams, 47);
+    expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
     await disposeTree(tester);
   });
 }

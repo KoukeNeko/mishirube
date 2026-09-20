@@ -8,6 +8,7 @@ import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
+import '../backend/engines/food_portion.dart';
 import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
 import '../backend/seed/seed.dart';
@@ -658,9 +659,9 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Logs [servings] of a saved food as a meal eaten now.
-  MealEvent logFood(FoodItem food, {int servings = 1}) {
-    final logged = _backend.nutrition.logFood(food, servings: servings);
+  /// Logs a portion of a saved food as a meal eaten now.
+  MealEvent logPortion(FoodPortion portion) {
+    final logged = _backend.nutrition.logPortion(portion);
     _todayMeals.add(logged);
     notifyListeners();
     return logged;

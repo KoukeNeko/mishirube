@@ -36,13 +36,15 @@ class FoodRepository {
       if (exists) {
         _db.execute(
           'UPDATE foods SET name = ?, brand = ?, serving_label = ?, '
-          'kcal = ?, protein_g = ?, carb_g = ?, fat_g = ?, fibre_g = ?, '
-          'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
-          'WHERE id = ?',
+          'serving_amount = ?, serving_unit = ?, kcal = ?, protein_g = ?, '
+          'carb_g = ?, fat_g = ?, fibre_g = ?, deleted_at = NULL, '
+          'updated_at = ?, revision = revision + 1 WHERE id = ?',
           [
             food.name,
             food.brand,
             food.servingLabel,
+            food.servingAmount,
+            food.servingUnit.name,
             food.kcal,
             food.proteinGrams,
             food.carbGrams,
@@ -54,14 +56,17 @@ class FoodRepository {
         );
       } else {
         _db.execute(
-          'INSERT INTO foods (id, name, brand, serving_label, kcal, '
-          'protein_g, carb_g, fat_g, fibre_g, created_at, updated_at, source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO foods (id, name, brand, serving_label, '
+          'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
+          'fibre_g, created_at, updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
             food.brand,
             food.servingLabel,
+            food.servingAmount,
+            food.servingUnit.name,
             food.kcal,
             food.proteinGrams,
             food.carbGrams,
@@ -116,6 +121,8 @@ class FoodRepository {
     name: row['name']! as String,
     brand: row['brand']! as String,
     servingLabel: row['serving_label']! as String,
+    servingAmount: (row['serving_amount']! as num).toDouble(),
+    servingUnit: ServingUnit.values.byName(row['serving_unit']! as String),
     kcal: row['kcal']! as int,
     proteinGrams: row['protein_g']! as int,
     carbGrams: row['carb_g']! as int,

@@ -1,3 +1,5 @@
+import '../shared/format.dart';
+
 class FoodComponent {
   const FoodComponent({
     required this.name,
@@ -91,6 +93,23 @@ class MealEvent {
   );
 }
 
+/// How much one serving of a food is.
+///
+/// [serving] means the size is not a measurement: one 便當 is one 便當,
+/// and the app must not pretend it knows how many grams that is.
+enum ServingUnit {
+  gram('g'),
+  millilitre('ml'),
+  serving('份');
+
+  const ServingUnit(this.label);
+
+  final String label;
+
+  /// Whether a portion can be entered as a raw amount in this unit.
+  bool get isMeasured => this != ServingUnit.serving;
+}
+
 /// A food the user saved so they do not have to type it in again.
 ///
 /// This is the private layer of the food catalogue: it lives on this
@@ -100,13 +119,15 @@ class FoodItem {
   const FoodItem({
     required this.id,
     required this.name,
-    required this.servingLabel,
     required this.kcal,
     required this.proteinGrams,
     required this.carbGrams,
     required this.fatGrams,
     this.brand = '',
     this.fibreGrams = 0,
+    this.servingLabel = '',
+    this.servingAmount = 1,
+    this.servingUnit = ServingUnit.serving,
   });
 
   final String id;
@@ -116,10 +137,22 @@ class FoodItem {
   /// The maker, when the food has one; empty for anything homemade.
   final String brand;
 
-  /// What one serving is, in the user's own words: `一碗 (250 g)`.
-  /// It is a label, not a quantity: the app does no unit conversion, so
-  /// it must not pretend to know how many grams that is.
+  /// What the user calls one serving: `一碗`, `一片`, `一罐`. Optional,
+  /// and separate from how much that is — what you call it and how much
+  /// it weighs are two different things.
   final String servingLabel;
+
+  /// How much one serving is, in [servingUnit]. Always positive.
+  final double servingAmount;
+
+  final ServingUnit servingUnit;
+
+  /// `一碗 · 250 ml`, or just the measurement when it has no name.
+  String get servingDescription {
+    final measured = '${formatAmount(servingAmount)} ${servingUnit.label}';
+    if (servingLabel.isEmpty) return measured;
+    return servingUnit.isMeasured ? '$servingLabel · $measured' : servingLabel;
+  }
 
   /// Per serving, as the user entered them.
   final int kcal;
@@ -138,6 +171,8 @@ class FoodItem {
     String? name,
     String? brand,
     String? servingLabel,
+    double? servingAmount,
+    ServingUnit? servingUnit,
     int? kcal,
     int? proteinGrams,
     int? carbGrams,
@@ -148,6 +183,8 @@ class FoodItem {
     name: name ?? this.name,
     brand: brand ?? this.brand,
     servingLabel: servingLabel ?? this.servingLabel,
+    servingAmount: servingAmount ?? this.servingAmount,
+    servingUnit: servingUnit ?? this.servingUnit,
     kcal: kcal ?? this.kcal,
     proteinGrams: proteinGrams ?? this.proteinGrams,
     carbGrams: carbGrams ?? this.carbGrams,

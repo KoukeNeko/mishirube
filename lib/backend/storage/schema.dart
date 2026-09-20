@@ -298,6 +298,13 @@ final List<String> _migrations = [
   );
   CREATE INDEX foods_name ON foods(name);
   ''',
+  '''
+  -- A serving becomes a measurable amount, so a different portion can be
+  -- worked out instead of retyped. Foods saved before this step keep
+  -- whole servings, which is what they were entered as.
+  ALTER TABLE foods ADD COLUMN serving_amount REAL NOT NULL DEFAULT 1;
+  ALTER TABLE foods ADD COLUMN serving_unit TEXT NOT NULL DEFAULT 'serving';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

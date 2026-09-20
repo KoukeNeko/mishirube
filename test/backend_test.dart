@@ -10,6 +10,7 @@ import 'package:mishirube/backend/import_export/csv_view.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/schema.dart';
+import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
@@ -496,7 +497,9 @@ void main() {
         id: store.newFoodId(),
         name: '雞胸肉',
         brand: '大成',
-        servingLabel: '一片（約 100 g）',
+        servingLabel: '一片',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
         kcal: 165,
         proteinGrams: 31,
         carbGrams: 0,
@@ -510,13 +513,72 @@ void main() {
       expect(stored.kcal, 165);
 
       final before = reopened.todayKcal;
-      final logged = reopened.logFood(stored, servings: 2);
+      final logged = reopened.logPortion(FoodPortion(stored, 2));
       expect(logged.kcal, 330);
       expect(logged.proteinGrams, 62);
       expect(reopened.todayKcal, before + 330);
       expect(
         AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
         330,
+      );
+    });
+
+    test('a different portion is worked out, not retyped', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final rice = FoodItem(
+        id: store.newFoodId(),
+        name: '白飯',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 130,
+        proteinGrams: 3,
+        carbGrams: 28,
+        fatGrams: 0,
+      );
+      store.saveFood(rice);
+
+      final byAmount = FoodPortion.ofAmount(rice, 150);
+      expect(byAmount.servings, 1.5);
+      expect(byAmount.kcal, 195);
+      expect(byAmount.label, '150 g');
+
+      final byServings = FoodPortion(rice, 1.5);
+      expect(byServings.amount, 150);
+      expect(byServings.kcal, byAmount.kcal);
+
+      final logged = store.logPortion(byAmount);
+      expect(logged.kcal, 195);
+      expect(logged.dishes.single.quantityLabel, '150 g');
+    });
+
+    test('an unmeasured serving stays in servings', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      const bento = FoodItem(
+        id: 'bento',
+        name: '排骨便當',
+        servingLabel: '一個',
+        kcal: 800,
+        proteinGrams: 30,
+        carbGrams: 100,
+        fatGrams: 28,
+      );
+
+      expect(bento.servingUnit, ServingUnit.serving);
+      expect(bento.servingDescription, '一個');
+      final half = FoodPortion(bento, 0.5);
+      expect(half.kcal, 400);
+      expect(half.label, '0.5 份');
+      expect(
+        FoodPortion.ofAmount(bento, 2).servings,
+        2,
+        reason: 'there is nothing to convert from, so the number is servings',
       );
     });
 
@@ -531,7 +593,8 @@ void main() {
       final food = FoodItem(
         id: store.newFoodId(),
         name: '豆漿',
-        servingLabel: '一杯',
+        servingAmount: 250,
+        servingUnit: ServingUnit.millilitre,
         kcal: 130,
         proteinGrams: 10,
         carbGrams: 12,
@@ -539,7 +602,7 @@ void main() {
       );
       store
         ..saveFood(food)
-        ..logFood(food);
+        ..logPortion(FoodPortion(food, 1));
 
       store.saveFood(food.copyWith(kcal: 90));
 
@@ -571,7 +634,7 @@ void main() {
       );
       store
         ..saveFood(food)
-        ..logFood(food)
+        ..logPortion(FoodPortion(food, 1))
         ..deleteFood(food.id);
 
       expect(store.searchFoods(''), isEmpty);
