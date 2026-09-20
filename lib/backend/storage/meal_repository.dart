@@ -1,6 +1,8 @@
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../engines/nutrition_summary.dart';
 import 'database.dart';
+import 'timeline_source.dart';
 
 /// Meals keep their real structure: meal → dish → component. Exploding a
 /// dish into standalone entries is an audited change that can be undone.
@@ -163,5 +165,87 @@ class MealRepository {
           ),
       ],
     );
+  }
+}
+
+/// Meals as log rows, plus the day's food totals and whether the day's log
+/// looks too thin to compare.
+class MealTimelineSource extends TimelineSource {
+  MealTimelineSource(this._meals);
+
+  final MealRepository _meals;
+
+  @override
+  RecordCategory get category => RecordCategory.nutrition;
+
+  @override
+  DateTime? earliest() {
+    final first = _meals._db
+        .select(
+          'SELECT MIN(eaten_at) AS first FROM meals '
+          'WHERE deleted_at IS NULL',
+        )
+        .first['first'];
+    return first == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(first as int);
+  }
+
+  @override
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
+    for (final (eatenAt, meal) in _meals.between(start, end))
+      (
+        eatenAt,
+        TimelineEntry(
+          timeLabel: meal.timeLabel,
+          at: eatenAt,
+          recordId: meal.id,
+          category: RecordCategory.nutrition,
+          title: meal.name,
+          detail: meal.dishes.map((dish) => dish.name).join('、'),
+          tags: [
+            '${meal.isEstimated ? '~' : ''}${formatKcal(meal.kcal)} kcal',
+            meal.qualityTag,
+          ],
+        ),
+      ),
+  ];
+
+  @override
+  Map<int, String> summariesIn(DateTime start, DateTime end) => {
+    for (final MapEntry(key: day, value: meals) in _byDay(start, end).entries)
+      day: _summaryOf(summariseDay(meals)),
+  };
+
+  @override
+  Map<int, String> warningsIn(DateTime start, DateTime end) {
+    final today = _meals._db.now();
+    final endOfYesterday = DateTime(today.year, today.month, today.day);
+    return {
+      for (final MapEntry(key: day, value: meals) in _byDay(start, end).entries)
+        if (isFoodLogIncomplete(
+          summariseDay(
+            meals,
+            isOver: DateTime(
+              start.year,
+              start.month,
+              day,
+            ).isBefore(endOfYesterday),
+          ),
+        ))
+          day: '飲食紀錄不完整',
+    };
+  }
+
+  static String _summaryOf(DaySummary summary) =>
+      '${summary.mealCount} 餐 · ${summary.hasEstimates ? '~' : ''}'
+      '${formatKcal(summary.kcal)} kcal';
+
+  Map<int, List<MealEvent>> _byDay(DateTime start, DateTime end) {
+    final byDay = <int, List<MealEvent>>{};
+    for (final (eatenAt, meal) in _meals.between(start, end)) {
+      (byDay[eatenAt.day] ??= []).add(meal);
+    }
+    return byDay;
   }
 }

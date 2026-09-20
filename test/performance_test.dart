@@ -63,10 +63,8 @@ void main() {
 
     final catalog = _time(backend.catalog.all);
     final month = _time(
-      () => backend.timeline.month(
-        DateTime(clock.now().year, clock.now().month),
-        (id) => backend.catalog.byId(id)!,
-      ),
+      () =>
+          backend.timeline.month(DateTime(clock.now().year, clock.now().month)),
     );
     final trends = _time(backend.insights.trends);
     final history = _time(() => backend.catalog.history('back-squat'));

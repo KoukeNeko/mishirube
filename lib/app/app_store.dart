@@ -146,8 +146,7 @@ class AppStore extends ChangeNotifier {
   }) => _backend.insights.volumeReport(exerciseId: exerciseId, window: window);
 
   /// Records for the log; [month] is its first day.
-  MonthRecords monthRecords(DateTime month) =>
-      _backend.timeline.month(month, _exercise);
+  MonthRecords monthRecords(DateTime month) => _backend.timeline.month(month);
 
   /// The first month the log can go back to.
   DateTime get earliestRecordMonth {

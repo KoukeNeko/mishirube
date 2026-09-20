@@ -1,5 +1,9 @@
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
+import '../engines/training_metrics.dart';
 import 'database.dart';
+import 'exercise_repository.dart';
+import 'timeline_source.dart';
 
 typedef ExerciseResolver = ExerciseDefinition Function(String id);
 
@@ -223,3 +227,101 @@ class WorkoutRepository {
 
 DateTime? _time(Object? millis) =>
     millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis as int);
+
+/// Finished workouts as log rows.
+class WorkoutTimelineSource extends TimelineSource {
+  WorkoutTimelineSource(this._workouts, this._exercises);
+
+  final WorkoutRepository _workouts;
+  final ExerciseRepository _exercises;
+
+  AppDatabase get _db => _workouts._db;
+
+  @override
+  RecordCategory get category => RecordCategory.training;
+
+  @override
+  DateTime? earliest() {
+    final first = _db
+        .select(
+          "SELECT MIN(started_at) AS first FROM workouts "
+          "WHERE status = 'completed' AND deleted_at IS NULL",
+        )
+        .first['first'];
+    return first == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(first as int);
+  }
+
+  @override
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) {
+    // One lookup per exercise per month, not per set.
+    final known = <String, ExerciseDefinition>{};
+    ExerciseDefinition resolve(String id) => known[id] ??= _exercises.byId(id)!;
+    return [
+      for (final workout in _completed(start, end, resolve))
+        (
+          workout.finishedAt!,
+          TimelineEntry(
+            timeLabel: formatTimeOfDay(workout.finishedAt!),
+            at: workout.finishedAt!,
+            recordId: workout.id,
+            category: RecordCategory.training,
+            title: workout.routineName,
+            detail: [
+              '${workout.completedSets} 組',
+              '${workout.elapsedAt(workout.finishedAt!).inMinutes} 分',
+              ?_personalRecord(workout),
+            ].join(' · '),
+          ),
+        ),
+    ];
+  }
+
+  @override
+  Map<int, String> summariesIn(DateTime start, DateTime end) => {
+    for (final workout in _completed(start, end, (id) => _exercises.byId(id)!))
+      workout.startedAt.day:
+          '${workout.routineName} · ${workout.completedSets} 組',
+  };
+
+  List<WorkoutSession> _completed(
+    DateTime start,
+    DateTime end,
+    ExerciseResolver exercises,
+  ) => [
+    for (final row in _db.select(
+      "SELECT id FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND started_at >= ? AND started_at < ? '
+      'ORDER BY started_at',
+      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      _workouts.byId(row['id'], exercises)!,
+  ];
+
+  /// A heavier set than any earlier finished session of the same exercise.
+  String? _personalRecord(WorkoutSession workout) {
+    for (final session in workout.exercises) {
+      final best = heaviestSet(session.sets);
+      if (best == null) continue;
+      final rows = _db.select(
+        '''
+        SELECT MAX(s.weight_kg) AS best FROM workout_sets s
+        JOIN workout_exercises we ON we.workout_id = s.workout_id
+          AND we.position = s.exercise_position
+        JOIN workouts w ON w.id = s.workout_id
+        WHERE we.exercise_id = ? AND w.status = 'completed'
+          AND w.deleted_at IS NULL AND w.started_at < ? AND s.is_done = 1
+          AND s.set_type != 'warmup'
+        ''',
+        [session.exercise.id, workout.startedAt.millisecondsSinceEpoch],
+      );
+      final previousBest = (rows.first['best'] as num?)?.toDouble();
+      if (previousBest != null && best.weightKg > previousBest) {
+        return '${session.exercise.name} ${formatWeight(best.weightKg)} kg × '
+            '${best.reps} 為新紀錄';
+      }
+    }
+    return null;
+  }
+}

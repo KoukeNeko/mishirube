@@ -27,7 +27,15 @@ class Storage {
       workouts = WorkoutRepository(db),
       meals = MealRepository(db),
       journal = JournalRepository(db) {
-    timeline = TimelineQuery(db, workouts, meals, journal);
+    timeline = TimelineQuery(db, [
+      WorkoutTimelineSource(workouts, exercises),
+      MealTimelineSource(meals),
+      BodyWeightTimelineSource(journal),
+      SleepTimelineSource(journal),
+      // After sleep: a check-in is the more specific thing to say about a
+      // day that has both.
+      WellnessTimelineSource(journal),
+    ]);
   }
 
   final AppDatabase db;
