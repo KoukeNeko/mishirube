@@ -147,6 +147,7 @@ class _SiteRow extends StatelessWidget {
           SizedBox(
             width: 72,
             child: TextField(
+              onTapOutside: dismissKeyboardOnTapOutside,
               key: ValueKey('measurement-${site.name}'),
               controller: controller,
               textAlign: TextAlign.end,

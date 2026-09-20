@@ -77,6 +77,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
               children: [
                 Expanded(
                   child: TextField(
+                    onTapOutside: dismissKeyboardOnTapOutside,
                     controller: _weight,
                     autofocus: true,
                     keyboardType: const TextInputType.numberWithOptions(

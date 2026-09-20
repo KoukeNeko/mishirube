@@ -142,6 +142,7 @@ class _NumberField extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
+              onTapOutside: dismissKeyboardOnTapOutside,
               controller: controller,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -178,6 +179,7 @@ class _MacroRow extends StatelessWidget {
           SizedBox(
             width: 72,
             child: TextField(
+              onTapOutside: dismissKeyboardOnTapOutside,
               controller: controller,
               textAlign: TextAlign.end,
               keyboardType: TextInputType.number,

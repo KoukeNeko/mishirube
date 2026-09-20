@@ -265,6 +265,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                     SizedBox(
                       width: 96,
                       child: TextField(
+                        onTapOutside: dismissKeyboardOnTapOutside,
                         key: const ValueKey('activity-minutes'),
                         keyboardType: TextInputType.number,
                         inputFormatters: [
@@ -378,6 +379,7 @@ class _MeasureField extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
+              onTapOutside: dismissKeyboardOnTapOutside,
               key: fieldKey,
               controller: controller,
               keyboardType: TextInputType.numberWithOptions(

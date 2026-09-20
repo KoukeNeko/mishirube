@@ -4,6 +4,14 @@ import '../../../app/theme.dart';
 
 const _fieldHeight = 56.0;
 
+/// Puts the keyboard away when a tap lands outside the field.
+///
+/// Pass this to every `TextField`'s `onTapOutside`. Flutter's own default
+/// only does this on desktop, and on a phone a keyboard that will not go
+/// away covers half the screen.
+void dismissKeyboardOnTapOutside(PointerDownEvent _) =>
+    FocusManager.instance.primaryFocus?.unfocus();
+
 InputDecoration _decoration({required String hint, Widget? prefixIcon}) {
   final border = OutlineInputBorder(
     borderRadius: BorderRadius.circular(AppRadius.small + 4),
@@ -40,6 +48,7 @@ class SearchField extends StatelessWidget {
       height: _fieldHeight,
       child: TextField(
         controller: controller,
+        onTapOutside: dismissKeyboardOnTapOutside,
         textInputAction: TextInputAction.search,
         style: AppTextStyles.body,
         decoration: _decoration(
@@ -77,6 +86,7 @@ class AppTextField extends StatelessWidget {
       child: TextField(
         controller: controller,
         autofocus: autofocus,
+        onTapOutside: dismissKeyboardOnTapOutside,
         maxLines: maxLines,
         keyboardType: keyboardType,
         style: AppTextStyles.body.copyWith(fontSize: 17),

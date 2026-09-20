@@ -7,6 +7,7 @@ import '../../../app/theme.dart';
 import '../../haptics.dart';
 import '../../motion.dart';
 import '../chrome/chrome_surface.dart';
+import '../controls/inputs.dart';
 import 'collapsing_header.dart';
 
 const _expandDuration = Duration(milliseconds: 320);
@@ -229,8 +230,7 @@ class _SearchBar extends StatelessWidget {
                       focusNode: focusNode,
                       // Built only once search opens, so this is the open.
                       autofocus: true,
-                      // Tapping anywhere else puts the keyboard away.
-                      onTapOutside: (_) => focusNode.unfocus(),
+                      onTapOutside: dismissKeyboardOnTapOutside,
                       onChanged: onChanged,
                       textInputAction: TextInputAction.search,
                       style: AppTextStyles.body,

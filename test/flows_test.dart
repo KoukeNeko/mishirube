@@ -8,6 +8,7 @@ import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
+import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
@@ -859,6 +860,21 @@ void main() {
     expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
     expect(store.todayMeals.last.proteinGrams, 47);
     expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
+    await disposeTree(tester);
+  });
+
+  testWidgets('leaving any field puts the keyboard away', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodEditScreen(), store: store);
+
+    await tester.tap(find.byType(AppTextField).first);
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isTrue);
+
+    // A tap on the page, outside every field.
+    await tester.tapAt(const Offset(200, 120));
+    await tester.pumpAndSettle();
+    expect(tester.testTextInput.isVisible, isFalse);
     await disposeTree(tester);
   });
 }
