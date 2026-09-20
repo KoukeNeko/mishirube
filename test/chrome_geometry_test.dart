@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -407,4 +408,51 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('the back control is the same glass as the actions', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const ImportScreen(), store: store);
+    final back = find.bySemanticsLabel('返回');
+
+    final surface = find.descendant(
+      of: back,
+      matching: find.byType(ChromeSurface),
+    );
+    expect(tester.widget<ChromeSurface>(surface.first).refracts, isTrue);
+    expect(
+      tester.getSize(back).shortestSide,
+      greaterThanOrEqualTo(
+        ToolbarMetrics.of(tester.element(back)).actionHitSize,
+      ),
+      reason: 'the touch target stays a full action, glass or not',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('going back stays silent', (tester) async {
+    final haptics = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'HapticFeedback.vibrate') haptics.add(call.method);
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const ImportScreen(), store: store);
+
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pump();
+
+    expect(haptics, isEmpty, reason: 'back controls feel like the system\'s');
+    await disposeTree(tester);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 }

@@ -36,6 +36,7 @@ class Pill extends StatelessWidget {
     this.foregroundColor = AppColors.textPrimary,
     this.horizontalPadding = AppSpacing.md,
     this.isSelection = false,
+    this.isSilent = false,
     this.outlineColor,
   });
 
@@ -53,6 +54,9 @@ class Pill extends StatelessWidget {
   /// selection instead of tapping like a button.
   final bool isSelection;
 
+  /// No haptic at all. Back controls stay silent, like the system's.
+  final bool isSilent;
+
   @override
   Widget build(BuildContext context) {
     final size = ToolbarMetrics.of(context).actionVisualSize;
@@ -68,7 +72,11 @@ class Pill extends StatelessWidget {
         onTap: onTap == null
             ? null
             : () {
-                isSelection ? AppHaptics.selection(context) : AppHaptics.tap();
+                if (!isSilent) {
+                  isSelection
+                      ? AppHaptics.selection(context)
+                      : AppHaptics.tap();
+                }
                 onTap!();
               },
         child: ConstrainedBox(

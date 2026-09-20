@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../chrome/chrome_surface.dart';
+import '../controls/pill.dart';
 import 'collapsing_header.dart';
 import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
@@ -27,6 +28,10 @@ class Gutter extends StatelessWidget {
 
 enum AppBarLeading { back, none }
 
+/// The chevron reads as a back control at this size; the pill's default
+/// icon size is meant for the smaller action glyphs.
+const _backIconSize = 24.0;
+
 /// The leading back control of every app bar. [icon] and [tooltip] change
 /// it into, for example, a collapse chevron; [onPressed] defaults to
 /// popping the route.
@@ -44,13 +49,46 @@ class AppBarBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hitSize = ToolbarMetrics.of(context).actionHitSize;
-    return IconButton(
-      tooltip: tooltip,
-      constraints: BoxConstraints.tightFor(width: hitSize, height: hitSize),
-      padding: EdgeInsets.zero,
-      onPressed: onPressed ?? () => Navigator.of(context).maybePop(),
-      icon: Icon(icon, size: 30),
+    final metrics = ToolbarMetrics.of(context);
+    final press = onPressed ?? () => Navigator.of(context).maybePop();
+    return Semantics(
+      button: true,
+      label: tooltip,
+      // Excluding the child's semantics drops its tap too.
+      onTap: press,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: tooltip,
+        // Taps on the margin around the circle still count.
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: press,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: metrics.actionHitSize,
+              minHeight: metrics.actionHitSize,
+            ),
+            child: Align(
+              widthFactor: 1,
+              heightFactor: 1,
+              // The same floating glass as the trailing actions, so both
+              // ends of the bar are made of one material.
+              child: ChromeSurface(
+                refracts: true,
+                tint: AppColors.surfaceRaised,
+                child: Pill(
+                  onTap: press,
+                  // Going back is not an action to confirm by feel.
+                  isSilent: true,
+                  color: Colors.transparent,
+                  horizontalPadding: 0,
+                  child: Icon(icon, size: _backIconSize),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
