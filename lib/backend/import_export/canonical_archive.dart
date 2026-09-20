@@ -295,7 +295,9 @@ Map<String, Object?> exportArchive(AppDatabase db) {
         for (final row in db.select(
           'SELECT * FROM ${table.name} ORDER BY ${table.orderBy}',
         ))
-          if (!(table.name == 'settings' && row['key'] == _extensionsKey))
+          if (!(table.name == 'settings' &&
+              (row['key'] == _extensionsKey ||
+                  AppDatabase.isSecret(row['key']! as String))))
             {
               for (final column in table.columns)
                 column.key: _toArchive(column, row[column.name]),
@@ -326,7 +328,13 @@ Map<String, Object?> archiveJsonSchema() => {
   r'$id': 'https://mishirube.app/schema/archive-$archiveFormatVersion.json',
   'title': 'MISHIRUBE archive',
   'type': 'object',
-  'required': ['format', 'formatVersion', 'exportedAt', 'schemaVersion', 'data'],
+  'required': [
+    'format',
+    'formatVersion',
+    'exportedAt',
+    'schemaVersion',
+    'data',
+  ],
   'properties': {
     'format': {'const': archiveFormat},
     'formatVersion': {'type': 'integer', 'minimum': 1},
@@ -415,7 +423,15 @@ void restoreArchive(AppDatabase db, Object? archive) {
 
   db.transaction(() {
     for (final table in _tables.reversed) {
-      db.execute('DELETE FROM ${table.name}');
+      // Secrets are never exported, so wiping them here would mean
+      // restoring your own backup quietly took your API key with it.
+      if (table.name == 'settings') {
+        db.execute('DELETE FROM settings WHERE key NOT LIKE ?', [
+          '${AppDatabase.secretKeyPrefix}%',
+        ]);
+      } else {
+        db.execute('DELETE FROM ${table.name}');
+      }
     }
     for (final MapEntry(key: table, value: rows) in rowsByTable.entries) {
       final names = table.columns.map((column) => column.name).join(', ');

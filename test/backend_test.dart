@@ -654,17 +654,15 @@ void main() {
         ..logPortion(const FoodPortion(milk, 1))
         ..logPortion(const FoodPortion(rice, 1));
 
-      final calcium = summariseNutrients(
-        store.todayMeals,
-      ).singleWhere((total) => total.nutrient == Nutrient.calcium);
+      final calcium = summariseNutrients(store.todayMeals)
+          .singleWhere((total) => total.nutrient == Nutrient.calcium);
 
       expect(calcium.amount, 250);
       expect(calcium.isComplete, isFalse, reason: 'the rice said nothing');
       expect(calcium.label, '至少 250 mg');
       expect(
-        summariseNutrients(store.todayMeals).any(
-          (total) => total.nutrient == Nutrient.iron,
-        ),
+        summariseNutrients(store.todayMeals)
+            .any((total) => total.nutrient == Nutrient.iron),
         isFalse,
         reason: 'a nutrient nobody recorded is left out, not listed as 0',
       );
@@ -792,11 +790,7 @@ void main() {
       expect(byPound.kcal, 374);
 
       // A Taiwanese catty is 600 g, so six servings exactly.
-      final byCatty = FoodPortion.ofAmount(
-        chicken,
-        1,
-        unit: ServingUnit.catty,
-      );
+      final byCatty = FoodPortion.ofAmount(chicken, 1, unit: ServingUnit.catty);
       expect(byCatty.servings, 6);
       expect(byCatty.kcal, 165 * 6);
 
@@ -868,11 +862,10 @@ void main() {
       expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
       expect(sizes.last.displayName, '星巴克 美式咖啡 Tall');
       expect(sizes.last.nutrients[Nutrient.caffeine], 195);
-      expect(
-        reopened.sizeNamesFor('星巴克'),
-        ['Short', 'Tall'],
-        reason: 'the next drink from the same shop offers the same cups',
-      );
+      expect(reopened.sizeNamesFor('星巴克'), [
+        'Short',
+        'Tall',
+      ], reason: 'the next drink from the same shop offers the same cups');
 
       final tall = reopened.logPortion(FoodPortion(sizes.last, 1));
       expect(tall.nutrients[Nutrient.caffeine], 195);
@@ -999,7 +992,8 @@ void main() {
       expect(
         stored.valueType.write('180 mg'),
         '≤180 mg',
-        reason: 'a ceiling printed as a bare number claims a precision '
+        reason:
+            'a ceiling printed as a bare number claims a precision '
             'the figure does not have',
       );
 
@@ -1065,10 +1059,7 @@ void main() {
         () => foods.save(drink.copyWith(name: '改過的')),
         throwsA(isA<BuiltInFoodRefused>()),
       );
-      expect(
-        () => foods.delete(drink.id),
-        throwsA(isA<BuiltInFoodRefused>()),
-      );
+      expect(() => foods.delete(drink.id), throwsA(isA<BuiltInFoodRefused>()));
 
       // The catalogue itself may replace it, which is how an update works.
       foods.save(
@@ -1076,7 +1067,10 @@ void main() {
         source: ChangeSource.catalogue,
       );
       expect(
-        AppStore(clock: clock.now, backend: backend).searchFoods('美式').single.name,
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).searchFoods('美式').single.name,
         '美式咖啡（新配方）',
       );
     });
@@ -1109,17 +1103,13 @@ void main() {
       final americano = parsed.where(
         (food) => food.name == '美式咖啡' && food.sizeName.isNotEmpty,
       );
-      expect(americano.map((size) => size.sizeName), [
-        '小杯',
-        '中杯',
-        '大杯',
-        '特大杯',
-      ]);
-      expect(
-        americano.map((size) => size.nutrients[Nutrient.caffeine]),
-        [98, 195, 293, 390],
-        reason: 'the cups are not proportional, so each carries its own',
-      );
+      expect(americano.map((size) => size.sizeName), ['小杯', '中杯', '大杯', '特大杯']);
+      expect(americano.map((size) => size.nutrients[Nutrient.caffeine]), [
+        98,
+        195,
+        293,
+        390,
+      ], reason: 'the cups are not proportional, so each carries its own');
     });
 
     test('correcting a food does not rewrite the meals logged from it', () {
@@ -1151,7 +1141,8 @@ void main() {
       expect(
         AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
         130,
-        reason: 'the meal copied the numbers; the correction is not a claim '
+        reason:
+            'the meal copied the numbers; the correction is not a claim '
             'about what was drunk',
       );
     });
@@ -1814,16 +1805,16 @@ void main() {
 
       final properties =
           (schema['properties']! as Map)['data']! as Map<String, Object?>;
-      final tables =
-          (properties['properties']! as Map).keys.toSet();
+      final tables = (properties['properties']! as Map).keys.toSet();
       expect(
         (archive as Map)['data'],
         isA<Map<String, Object?>>().having(
           (data) => data.keys.toSet(),
           'sections',
           tables,
-          ),
-        reason: 'the schema is generated from the same table list, so a '
+        ),
+        reason:
+            'the schema is generated from the same table list, so a '
             'section missing from either side is a drift bug',
       );
 
@@ -1833,10 +1824,10 @@ void main() {
               as Map<String, Object?>;
       expect(foods['required'], contains('id'));
       expect(foods['required'], isNot(contains('kcal')));
-      expect(
-        ((foods['properties']! as Map)['kcal']! as Map)['type'],
-        ['integer', 'null'],
-      );
+      expect(((foods['properties']! as Map)['kcal']! as Map)['type'], [
+        'integer',
+        'null',
+      ]);
       expect(
         ((foods['properties']! as Map)['createdAt']! as Map)['format'],
         'date-time',
@@ -1844,9 +1835,63 @@ void main() {
 
       // Kept on disk so anyone reading a backup has the contract without
       // running the app. Regenerated here, so it cannot go stale.
-      File(
-        'doc/archive.schema.json',
-      ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(schema)}\n');
+      File('doc/archive.schema.json').writeAsStringSync(
+        '${const JsonEncoder.withIndent('  ').convert(schema)}\n',
+      );
+    });
+
+    test('a secret never travels in a backup', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      backend.db.setSetting('glass_millilitres', '350');
+      backend.db.setSetting(
+        '${AppDatabase.secretKeyPrefix}openai_api_key',
+        'sk-should-never-leave-the-device',
+      );
+
+      final archive = encodeArchive(exportArchive(backend.db));
+
+      expect(
+        archive,
+        contains('glass_millilitres'),
+        reason: 'ordinary settings still belong in a backup',
+      );
+      expect(
+        archive,
+        isNot(contains('sk-should-never-leave-the-device')),
+        reason:
+            'the settings table is written into the archive whole, so '
+            'a key pasted in by the user would otherwise travel in every '
+            'backup they email themselves',
+      );
+      // The audit trail still says a secret was set, by name: that a
+      // setting changed is history, and the name is not the secret.
+      expect(
+        archive,
+        isNot(contains('"key": "${AppDatabase.secretKeyPrefix}')),
+        reason: 'no settings row for it either',
+      );
+      expect(
+        backend.db.setting('${AppDatabase.secretKeyPrefix}openai_api_key'),
+        'sk-should-never-leave-the-device',
+        reason: 'it is kept, just never exported',
+      );
+
+      // And because it is not in the file, a restore must not treat its
+      // absence as a deletion.
+      restoreArchive(backend.db, jsonDecode(archive));
+      expect(
+        backend.db.setting('${AppDatabase.secretKeyPrefix}openai_api_key'),
+        'sk-should-never-leave-the-device',
+        reason:
+            'restoring your own backup must not sign you out of your '
+            'AI provider',
+      );
+      expect(
+        backend.db.setting('glass_millilitres'),
+        '350',
+        reason: 'ordinary settings still come back from the file',
+      );
     });
 
     test('unknown archive sections are kept for the next export', () {

@@ -152,6 +152,18 @@ class AppDatabase {
     );
   }
 
+  /// Settings whose key starts with this are never exported.
+  ///
+  /// The settings table is written into the archive whole, so anything
+  /// stored there travels in every backup. A key the user pastes in is
+  /// not theirs to hand out with a file they might email themselves, so
+  /// it goes under this prefix and the export skips it. The safe default
+  /// is the one nobody has to remember.
+  static const secretKeyPrefix = 'secret.';
+
+  /// Whether [key] names something that must not leave the device.
+  static bool isSecret(String key) => key.startsWith(secretKeyPrefix);
+
   String? setting(String key) {
     final rows = _db.select('SELECT value FROM settings WHERE key = ?', [key]);
     return rows.isEmpty ? null : rows.first['value'] as String;
@@ -164,6 +176,8 @@ class AppDatabase {
         'ON CONFLICT(key) DO UPDATE SET value = excluded.value',
         [key, value],
       );
+      // The key's name is audited, never its value — an audit trail that
+      // quotes the secret is the same leak wearing a different hat.
       audit(entityType: 'setting', entityId: key, action: 'set');
     });
   }
