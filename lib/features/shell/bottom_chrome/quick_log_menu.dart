@@ -12,9 +12,6 @@ import '../../../shared/haptics.dart';
 
 const _menuDuration = Duration(milliseconds: 280);
 
-/// Leaving is quicker than arriving: the user has already decided.
-const _menuCloseDuration = Duration(milliseconds: 180);
-
 /// How many record types the menu offers before "更多": enough for the
 /// everyday ones, short enough to read at a glance.
 const _quickOptionCount = 5;
@@ -48,8 +45,7 @@ Future<void> showQuickLogMenu(
   BuildContext context, {
   required ProxyAnimation recess,
 }) {
-  final route = _QuickLogRoute(
-    reverseDuration: chromeDuration(context, _menuCloseDuration),
+  final route = RawDialogRoute<void>(
     barrierDismissible: true,
     barrierLabel: '關閉快速記錄',
     // The recessed app carries the dimming.
@@ -57,7 +53,8 @@ Future<void> showQuickLogMenu(
     transitionDuration: chromeDuration(context, _menuDuration),
     pageBuilder: (_, animation, _) => _QuickLogMenu(animation: animation),
     // No route-wide fade: the items stagger in on their own, and × must be
-    // fully there the moment the dock's「+」hides under it.
+    // fully there the moment the dock's「+」hides under it. Closing plays
+    // the same animation backwards, so the menu folds back into 「+」.
     transitionBuilder: (_, _, _, child) => child,
   );
   final future = Navigator.of(context).push(route);
@@ -172,35 +169,45 @@ class _QuickLogMenu extends StatelessWidget {
       ),
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: Column(
-          key: quickLogMenuKey,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < quickOptions.length; i++)
+        // Every pill is as wide as the longest label, so the stack reads
+        // as one menu rather than a ragged column.
+        child: IntrinsicWidth(
+          child: Column(
+            key: quickLogMenuKey,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < quickOptions.length; i++)
+                _Staggered(
+                  animation: animation,
+                  // Items nearest the button appear first.
+                  order: itemCount - 1 - i,
+                  child: _MenuItem(
+                    icon: quickOptions[i].icon,
+                    color: quickOptions[i].color,
+                    label: quickOptions[i].title,
+                    onTap: () => openRecordOption(context, quickOptions[i]),
+                  ),
+                ),
               _Staggered(
                 animation: animation,
-                // Items nearest the button appear first.
-                order: itemCount - 1 - i,
+                order: 0,
                 child: _MenuItem(
-                  icon: quickOptions[i].icon,
-                  color: quickOptions[i].color,
-                  label: quickOptions[i].title,
-                  onTap: () => openRecordOption(context, quickOptions[i]),
+                  icon: Icons.more_horiz,
+                  color: AppColors.textSecondary,
+                  label: '更多紀錄類型',
+                  onTap: () => _openMore(context),
                 ),
               ),
-            _Staggered(
-              animation: animation,
-              order: 0,
-              child: _MenuItem(
-                icon: Icons.more_horiz,
-                color: AppColors.textSecondary,
-                label: '更多紀錄類型',
-                onTap: () => _openMore(context),
+              // Each item already carries the gap below it, so × sits the
+              // same distance from 「更多」 as the pills do from each other.
+              // The button stays square where 「+」 is, whatever the pills
+              // above it measure.
+              Align(
+                child: _CloseButton(animation: animation, size: metrics.height),
               ),
-            ),
-            const SizedBox(height: _itemSpacing),
-            _CloseButton(animation: animation, size: metrics.height),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -221,22 +228,30 @@ class _Staggered extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final start = math.min(order * _staggerStep, 0.6);
-    final curved = CurvedAnimation(
+    // Leaving is the arrival played backwards, stagger included.
+    final moved = CurvedAnimation(
       parent: animation,
       curve: Interval(start, 1, curve: ChromeMetrics.morphCurve),
+      reverseCurve: Interval(start, 1, curve: ChromeMetrics.morphCurve),
+    );
+    // The movement overshoots on purpose; opacity cannot, so it runs on
+    // its own curve.
+    final faded = CurvedAnimation(
+      parent: animation,
+      curve: Interval(start, 1, curve: ChromeMetrics.fadeCurve),
       reverseCurve: Interval(start, 1, curve: ChromeMetrics.fadeCurve),
     );
     return Padding(
       padding: const EdgeInsets.only(bottom: _itemSpacing),
       child: FadeTransition(
-        opacity: curved,
+        opacity: faded,
         child: SlideTransition(
           position: Tween(
             begin: const Offset(0, 0.4),
             end: Offset.zero,
-          ).animate(curved),
+          ).animate(moved),
           child: ScaleTransition(
-            scale: Tween(begin: 0.85, end: 1.0).animate(curved),
+            scale: Tween(begin: 0.85, end: 1.0).animate(moved),
             child: child,
           ),
         ),
@@ -357,21 +372,4 @@ class _CloseButton extends StatelessWidget {
       ),
     );
   }
-}
-
-class _QuickLogRoute extends RawDialogRoute<void> {
-  _QuickLogRoute({
-    required this.reverseDuration,
-    required super.pageBuilder,
-    super.barrierDismissible,
-    super.barrierLabel,
-    super.barrierColor,
-    super.transitionDuration,
-    super.transitionBuilder,
-  });
-
-  final Duration reverseDuration;
-
-  @override
-  Duration get reverseTransitionDuration => reverseDuration;
 }

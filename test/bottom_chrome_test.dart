@@ -106,6 +106,52 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the menu pills share one width and fold back on close', (
+    tester,
+  ) async {
+    await _pumpApp(tester, FakeClock());
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    final pills = find.descendant(
+      of: find.byKey(quickLogMenuKey),
+      matching: find.byType(InkWell),
+    );
+    final widths = {
+      for (var i = 0; i < pills.evaluate().length; i++)
+        tester.getSize(pills.at(i)).width,
+    };
+    expect(
+      widths,
+      hasLength(1),
+      reason: 'a ragged column reads as separate buttons, not one menu',
+    );
+
+    // One rhythm all the way down, × included.
+    final rows = [
+      for (var i = 0; i < pills.evaluate().length; i++)
+        tester.getRect(pills.at(i)),
+      tester.getRect(find.byTooltip('關閉')),
+    ];
+    final gaps = {
+      for (var i = 1; i < rows.length; i++)
+        (rows[i].top - rows[i - 1].bottom).round(),
+    };
+    expect(gaps, hasLength(1), reason: 'the spacing is even, $gaps');
+
+    await tester.tap(find.byTooltip('關閉'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(
+      find.byKey(quickLogMenuKey),
+      findsOneWidget,
+      reason: 'closing plays the arrival backwards instead of cutting',
+    );
+    await _settleFor(tester);
+    expect(find.byKey(quickLogMenuKey), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('「更多紀錄類型」falls back to the full sheet', (tester) async {
     await _pumpApp(tester, FakeClock());
 
