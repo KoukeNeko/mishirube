@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -437,6 +438,32 @@ void main() {
       findsOneWidget,
       reason: 'the toolbar shows the week once there is a goal',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('browsing the catalogue picks nothing', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      const ExercisePickerScreen(purpose: PickerPurpose.browse),
+      store: store,
+    );
+
+    await tester.enterText(find.byType(TextField), '深蹲');
+    await tester.pump();
+    await tester.tap(
+      find
+          .ancestor(of: find.text('槓鈴深蹲'), matching: find.byType(AppCard))
+          .first,
+    );
+    await tester.pump();
+    await tester.pump(_pageTransition);
+
+    // The tap opened the exercise instead of selecting it, so there is
+    // nothing to confirm.
+    expect(find.text('加入 1 個動作'), findsNothing);
+    expect(find.text('加入這個動作'), findsNothing, reason: 'nothing to add to');
     await disposeTree(tester);
   });
 

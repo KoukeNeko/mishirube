@@ -28,7 +28,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     final store = AppStoreScope.read(context);
     final selected = await pushModalPage<List<ExerciseDefinition>>(
       context,
-      ExercisePickerScreen(targetName: routine.name, isTemplate: true),
+      ExercisePickerScreen(
+        targetName: routine.name,
+        purpose: PickerPurpose.template,
+      ),
     );
     if (selected == null || selected.isEmpty) return;
     store.addExercises(selected);

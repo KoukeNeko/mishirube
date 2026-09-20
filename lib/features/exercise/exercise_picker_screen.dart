@@ -32,16 +32,34 @@ enum _PickerTab {
   };
 }
 
+/// What the picker is open for. Browsing is the same screen with nothing
+/// to pick: the search, tabs and filters are the point either way, and a
+/// second catalogue screen would only drift from this one.
+enum PickerPurpose {
+  template('加入訓練模板'),
+  activeWorkout('加入進行中的'),
+  browse('瀏覽與搜尋所有動作');
+
+  const PickerPurpose(this.label);
+
+  final String label;
+
+  bool get picks => this != PickerPurpose.browse;
+}
+
 /// Multi-select exercise picker; pops with the chosen exercises in order.
+/// In [PickerPurpose.browse] it picks nothing and opens what is tapped.
 class ExercisePickerScreen extends StatefulWidget {
   const ExercisePickerScreen({
     super.key,
-    required this.targetName,
-    this.isTemplate = false,
+    this.targetName,
+    this.purpose = PickerPurpose.activeWorkout,
   });
 
-  final String targetName;
-  final bool isTemplate;
+  /// What the exercises are being added to; unused when browsing.
+  final String? targetName;
+
+  final PickerPurpose purpose;
 
   @override
   State<ExercisePickerScreen> createState() => _ExercisePickerScreenState();
@@ -101,7 +119,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   Future<void> _openDetail(ExerciseDefinition exercise) async {
     final shouldAdd = await pushPage<bool>(
       context,
-      ExerciseDetailScreen(exercise: exercise, canAdd: true),
+      ExerciseDetailScreen(exercise: exercise, canAdd: widget.purpose.picks),
     );
     if (shouldAdd == true && !_selected.contains(exercise)) _toggle(exercise);
   }
@@ -152,7 +170,6 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   @override
   Widget build(BuildContext context) {
     final exercises = _visibleExercises();
-    final action = widget.isTemplate ? '加入訓練模板' : '加入進行中的';
     return PopScope(
       canPop: _selected.isEmpty,
       // A system back with exercises picked asks before dropping them.
@@ -161,8 +178,10 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
       },
       child: PageScaffold(
         appBar: PageAppBar(
-          title: '新增動作',
-          subtitle: '$action「${widget.targetName}」',
+          title: widget.purpose.picks ? '新增動作' : '動作庫',
+          subtitle: widget.targetName == null
+              ? widget.purpose.label
+              : '${widget.purpose.label}「${widget.targetName}」',
           leading: AppBarLeading.none,
           onClose: _close,
         ),
@@ -210,7 +229,11 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
                 child: _ExerciseTile(
                   exercise: exercise,
                   order: _selected.indexOf(exercise) + 1,
-                  onTap: () => _toggle(exercise),
+                  // Browsing has nothing to select, so a tap goes where
+                  // the info button would have gone.
+                  onTap: widget.purpose.picks
+                      ? () => _toggle(exercise)
+                      : () => _openDetail(exercise),
                   onInfo: () => _openDetail(exercise),
                 ),
               ),

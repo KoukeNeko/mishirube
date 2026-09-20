@@ -87,7 +87,14 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withWorkout,
   ),
   'exercise picker': (
-    (_) => const ExercisePickerScreen(targetName: '下肢 A'),
+    (_) => const ExercisePickerScreen(
+      targetName: '下肢 A',
+      purpose: PickerPurpose.template,
+    ),
+    _noSetup,
+  ),
+  'exercise browse': (
+    (_) => const ExercisePickerScreen(purpose: PickerPurpose.browse),
     _noSetup,
   ),
   'exercise filter': (

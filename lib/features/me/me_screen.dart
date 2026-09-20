@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
+import '../exercise/exercise_picker_screen.dart';
 import '../goal/goal_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import 'ai_permissions_screen.dart';
@@ -36,6 +37,14 @@ class MeScreen extends StatelessWidget {
                 title: '每週目標',
                 subtitle: _goalSummary(store),
                 onTap: () => pushPage(context, const GoalScreen()),
+              ),
+              NavRow(
+                title: '動作庫',
+                subtitle: '瀏覽、搜尋與建立自訂動作',
+                onTap: () => pushModalPage<void>(
+                  context,
+                  const ExercisePickerScreen(purpose: PickerPurpose.browse),
+                ),
               ),
               NavRow(
                 title: '模組',
