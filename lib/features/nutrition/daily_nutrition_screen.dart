@@ -68,6 +68,14 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         isLunchLogged: store.isLunchLogged,
       ),
       children: [
+        if (meals.isEmpty)
+          Gutter(
+            child: const EmptyStateCard(
+              icon: Icons.no_meals_outlined,
+              title: '這一天沒有飲食紀錄',
+              message: '沒有記錄不代表沒有吃。這一天的數字是空的，不是零。',
+            ),
+          ),
         for (final meal in meals)
           Gutter(
             child: _MealCard(

@@ -66,6 +66,12 @@ void _withFood(AppStore store) => store.saveFood(
   ),
 );
 
+void _withoutRoutines(AppStore store) {
+  for (final routine in store.routines) {
+    store.deleteRoutine(routine);
+  }
+}
+
 void _withGoal(AppStore store) => store.setWeeklyGoal(3, applyThisWeek: true);
 
 void _withActivity(AppStore store) => store.logActivity(
@@ -87,6 +93,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
   'routine detail': ((_) => const RoutineDetailScreen(), _noSetup),
   'routine list': ((_) => const RoutineListScreen(), _noSetup),
+  'routine list (none)': ((_) => const RoutineListScreen(), _withoutRoutines),
   'goal (not set up)': ((_) => const GoalScreen(), _noSetup),
   'goal': ((_) => const GoalScreen(), _withGoal),
   'goal setup': (
@@ -154,6 +161,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'meal entry': ((_) => const MealEntryScreen(), _noSetup),
   'meal confirm': ((_) => const MealConfirmScreen(), _noSetup),
   'daily nutrition': ((_) => const DailyNutritionScreen(), _withLunch),
+  'daily nutrition (a day with nothing)': (
+    (store) => DailyNutritionScreen(
+      day: store.now().subtract(const Duration(days: 400)),
+    ),
+    _noSetup,
+  ),
   'meal edit': (
     (store) => MealEditScreen(meal: store.todayMeals.last),
     _withLunch,

@@ -29,6 +29,18 @@ class RoutineListScreen extends StatelessWidget {
       appBar: const PageAppBar(title: '所有訓練', subtitle: '選一份作為接下來的訓練'),
       children: [
         Gutter(child: const SectionLabel('訓練模板')),
+        if (store.routines.isEmpty)
+          Gutter(
+            child: EmptyStateCard(
+              icon: Icons.list_alt_outlined,
+              title: '還沒有訓練模板',
+              message: '模板是計畫，不是紀錄——建立或刪除它都不會動到練過的紀錄。',
+              action: PrimaryButton(
+                label: '新增訓練',
+                onPressed: () => _create(context),
+              ),
+            ),
+          ),
         for (final routine in store.routines)
           Gutter(
             child: AppCard(
