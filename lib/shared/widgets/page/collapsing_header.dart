@@ -448,9 +448,11 @@ class _Toolbar extends StatelessWidget {
       leading: leading == null
           ? null
           : Padding(
-              // The back glyph sits inside its touch target, so a small
-              // inset lines the glyph up with the page gutter.
-              padding: const EdgeInsetsDirectional.only(start: AppSpacing.xs),
+              // The control is a glass pill like the actions opposite it,
+              // so its edge keeps the same gutter as theirs.
+              padding: const EdgeInsetsDirectional.only(
+                start: AppSpacing.screenGutter,
+              ),
               child: leading,
             ),
       middle: title,

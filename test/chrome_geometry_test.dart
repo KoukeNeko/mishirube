@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
@@ -409,6 +410,31 @@ void main() {
       await disposeTree(tester);
     },
   );
+
+  testWidgets('both ends of the toolbar keep the same gutter', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..setWeeklyGoal(3, applyThisWeek: true);
+    await pumpScreen(tester, const GoalScreen(), store: store);
+
+    final back = tester.getRect(find.bySemanticsLabel('返回').hitTestable());
+    final action = tester.getRect(
+      find.bySemanticsLabel('調整每週目標').hitTestable(),
+    );
+    expect(back.left, AppSpacing.screenGutter);
+    expect(phoneSize.width - action.right, AppSpacing.screenGutter);
+
+    final glass = find.byType(ChromeSurface);
+    final leadingGlass = tester.getRect(glass.first);
+    final trailingGlass = tester.getRect(glass.at(1));
+    expect(
+      leadingGlass.left,
+      phoneSize.width - trailingGlass.right,
+      reason: 'the two pills sit the same distance from their edges',
+    );
+    expect(leadingGlass.top, trailingGlass.top);
+    await disposeTree(tester);
+  });
 
   testWidgets('the back control is the same glass as the actions', (
     tester,
