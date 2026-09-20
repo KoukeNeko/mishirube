@@ -11,9 +11,35 @@ class FoodRepository {
   final AppDatabase _db;
 
   /// Every saved food, by name so the list never shuffles between opens.
+  /// Sizes are left out: they belong to the food they are a size of.
   List<FoodItem> all() => [
     for (final row in _db.select(
-      'SELECT * FROM foods WHERE deleted_at IS NULL ORDER BY name',
+      'SELECT * FROM foods WHERE deleted_at IS NULL AND parent_id IS NULL '
+      'ORDER BY name',
+    ))
+      _fromRow(row),
+  ];
+
+  /// The size names this brand already uses, in the order they were
+  /// first seen. A brand's cups are a fixed set — Short, Tall, Grande,
+  /// Venti — so the second drink from the same shop should not have to
+  /// be told about them again.
+  List<String> sizeNamesFor(String brand) => [
+    for (final row in _db.select(
+      'SELECT DISTINCT size_name FROM foods '
+      'WHERE brand = ? AND size_name <> \'\' AND deleted_at IS NULL '
+      'ORDER BY serving_amount',
+      [brand],
+    ))
+      row['size_name']! as String,
+  ];
+
+  /// The sizes of [foodId], smallest first.
+  List<FoodItem> sizesOf(String foodId) => [
+    for (final row in _db.select(
+      'SELECT * FROM foods WHERE parent_id = ? AND deleted_at IS NULL '
+      'ORDER BY serving_amount',
+      [foodId],
     ))
       _fromRow(row),
   ];
@@ -37,8 +63,9 @@ class FoodRepository {
         _db.execute(
           'UPDATE foods SET name = ?, brand = ?, serving_label = ?, '
           'serving_amount = ?, serving_unit = ?, kcal = ?, protein_g = ?, '
-          'carb_g = ?, fat_g = ?, fibre_g = ?, deleted_at = NULL, '
-          'updated_at = ?, revision = revision + 1 WHERE id = ?',
+          'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
+          'size_name = ?, deleted_at = NULL, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ?',
           [
             food.name,
             food.brand,
@@ -50,6 +77,8 @@ class FoodRepository {
             food.carbGrams,
             food.fatGrams,
             food.fibreGrams,
+            food.parentId,
+            food.sizeName,
             now,
             food.id,
           ],
@@ -58,8 +87,8 @@ class FoodRepository {
         _db.execute(
           'INSERT INTO foods (id, name, brand, serving_label, '
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
-          'fibre_g, created_at, updated_at, source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'fibre_g, parent_id, size_name, created_at, updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -72,6 +101,8 @@ class FoodRepository {
             food.carbGrams,
             food.fatGrams,
             food.fibreGrams,
+            food.parentId,
+            food.sizeName,
             now,
             now,
             source.name,
@@ -96,10 +127,21 @@ class FoodRepository {
     });
   }
 
-  /// Tombstones [id]. Meals logged from it keep their numbers: they were
-  /// copied when the meal was logged, not linked.
+  /// Tombstones [id] and any sizes of it. Meals logged from them keep
+  /// their numbers: those were copied when the meal was logged.
   void delete(String id) {
     _db.transaction(() {
+      for (final size in sizesOf(id)) {
+        _db.execute(
+          'UPDATE foods SET deleted_at = ?, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ?',
+          [
+            _db.now().millisecondsSinceEpoch,
+            _db.now().millisecondsSinceEpoch,
+            size.id,
+          ],
+        );
+      }
       _db.execute(
         'UPDATE foods SET deleted_at = ?, updated_at = ?, '
         'revision = revision + 1 WHERE id = ? AND deleted_at IS NULL',
@@ -140,6 +182,8 @@ class FoodRepository {
       fatGrams: row['fat_g'] as int?,
       fibreGrams: row['fibre_g'] as int?,
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
+      parentId: row['parent_id'] as String?,
+      sizeName: row['size_name']! as String,
     );
   }
 }

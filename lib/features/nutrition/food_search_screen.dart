@@ -50,16 +50,53 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   Future<void> _log(FoodItem food) async {
-    final portion = await showPortionSheet(context, food);
+    final sizes = AppStoreScope.read(context).sizesOf(food.id);
+    // A size carries its own figures, so the one chosen is what gets
+    // logged — not the food scaled up to it.
+    final chosen = sizes.isEmpty ? food : await _pickSize(food, sizes);
+    if (chosen == null || !mounted) return;
+    final portion = await showPortionSheet(context, chosen);
     if (portion == null || !mounted) return;
     AppStoreScope.read(context).logPortion(portion);
     showToast(
       context,
-      '已記錄「${food.displayName}」${portion.label}',
+      '已記錄「${chosen.displayName}」${portion.label}',
       kind: ToastKind.success,
     );
     Navigator.of(context).pop();
   }
+
+  Future<FoodItem?> _pickSize(FoodItem food, List<FoodItem> sizes) =>
+      showModalBottomSheet<FoodItem>(
+        context: context,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.card),
+          ),
+        ),
+        builder: (sheetContext) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.screenGutter),
+                child: Text(food.displayName, style: AppTextStyles.pageTitle),
+              ),
+              for (final size in sizes)
+                NavRow(
+                  title: size.sizeName,
+                  subtitle:
+                      '${size.servingDescription} · '
+                      '${formatKcalOrDash(size.kcal)} kcal',
+                  onTap: () => Navigator.of(sheetContext).pop(size),
+                ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+          ),
+        ),
+      );
 
   void _delete(FoodItem food) {
     final store = AppStoreScope.read(context);
@@ -102,6 +139,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             Gutter(
               child: _FoodRow(
                 food: food,
+                sizeCount: store.sizesOf(food.id).length,
                 onTap: () => _log(food),
                 onEdit: () => _edit(food),
                 onDelete: () => _delete(food),
@@ -118,12 +156,17 @@ String _orDash(int? amount) => amount == null ? '—' : '$amount';
 class _FoodRow extends StatelessWidget {
   const _FoodRow({
     required this.food,
+    required this.sizeCount,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
   });
 
   final FoodItem food;
+
+  /// How many cup sizes it has; with any, tapping asks which one.
+  final int sizeCount;
+
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -137,11 +180,12 @@ class _FoodRow extends StatelessWidget {
           Expanded(
             child: NavRow(
               title: food.displayName,
-              subtitle:
-                  '${food.servingDescription} · '
-                  '${formatKcalOrDash(food.kcal)} kcal · '
-                  'P${_orDash(food.proteinGrams)} '
-                  'C${_orDash(food.carbGrams)} F${_orDash(food.fatGrams)}',
+              subtitle: sizeCount > 0
+                  ? '$sizeCount 種杯型'
+                  : '${food.servingDescription} · '
+                        '${formatKcalOrDash(food.kcal)} kcal · '
+                        'P${_orDash(food.proteinGrams)} '
+                        'C${_orDash(food.carbGrams)} F${_orDash(food.fatGrams)}',
               onTap: onTap,
             ),
           ),

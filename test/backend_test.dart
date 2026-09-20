@@ -810,6 +810,66 @@ void main() {
       );
     });
 
+    test('a cup size carries its own figures, not the small one scaled', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final americano = FoodItem(
+        id: store.newFoodId(),
+        name: '美式咖啡',
+        brand: '星巴克',
+        servingAmount: 240,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 5,
+      );
+      store.saveFood(americano);
+      // Short 240 ml / 98 mg, Tall 350 ml / 195 mg: the cup is 1.5 times
+      // bigger and the caffeine is double, because the shots differ.
+      for (final (name, ml, caffeine) in [
+        ('Short', 240.0, 98.0),
+        ('Tall', 350.0, 195.0),
+      ]) {
+        store.saveFood(
+          FoodItem(
+            id: store.newFoodId(),
+            name: '美式咖啡',
+            brand: '星巴克',
+            parentId: americano.id,
+            sizeName: name,
+            servingAmount: ml,
+            servingUnit: ServingUnit.millilitre,
+            kcal: 5,
+            nutrients: {Nutrient.caffeine: caffeine},
+          ),
+        );
+      }
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(
+        reopened.searchFoods(''),
+        hasLength(1),
+        reason: 'sizes belong to the drink, they are not loose in the list',
+      );
+
+      final sizes = reopened.sizesOf(americano.id);
+      expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
+      expect(sizes.last.displayName, '星巴克 美式咖啡 Tall');
+      expect(sizes.last.nutrients[Nutrient.caffeine], 195);
+      expect(
+        reopened.sizeNamesFor('星巴克'),
+        ['Short', 'Tall'],
+        reason: 'the next drink from the same shop offers the same cups',
+      );
+
+      final tall = reopened.logPortion(FoodPortion(sizes.last, 1));
+      expect(tall.nutrients[Nutrient.caffeine], 195);
+      expect(tall.millilitres, 350);
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);

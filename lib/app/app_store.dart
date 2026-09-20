@@ -654,6 +654,15 @@ class AppStore extends ChangeNotifier {
   List<FoodItem> searchFoods(String query) =>
       _backend.nutrition.searchFoods(query);
 
+  /// The sizes of a food, smallest first. A food with none is logged as
+  /// itself.
+  List<FoodItem> sizesOf(String foodId) => _backend.nutrition.sizesOf(foodId);
+
+  /// The size names this brand already uses, so a second drink from the
+  /// same shop offers the same cups.
+  List<String> sizeNamesFor(String brand) =>
+      _backend.nutrition.sizeNamesFor(brand);
+
   /// A fresh id for a food about to be saved.
   String newFoodId() => _backend.nutrition.newFoodId();
 

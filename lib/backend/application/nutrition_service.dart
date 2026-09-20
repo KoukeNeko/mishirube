@@ -178,6 +178,12 @@ class NutritionService {
     ];
   }
 
+  /// The sizes of a food, smallest first.
+  List<FoodItem> sizesOf(String foodId) => _foods.sizesOf(foodId);
+
+  /// The size names this brand already uses.
+  List<String> sizeNamesFor(String brand) => _foods.sizeNamesFor(brand);
+
   /// Stores a food, new or edited. Editing one never touches the meals
   /// already logged from it: those copied the numbers when they were
   /// logged.

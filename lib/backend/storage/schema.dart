@@ -397,6 +397,16 @@ final List<String> _migrations = [
   -- second way to say how much was more to keep than it was worth.
   DROP TABLE food_portions;
   ''',
+  '''
+  -- Cup sizes. A size is a food that belongs to another food, because
+  -- sizes are not proportional: a Starbucks americano is 98 mg of
+  -- caffeine in a 240 ml short and 195 mg in a 350 ml tall, so the
+  -- bigger cup is not the smaller one scaled up. Each size carries its
+  -- own figures and reuses everything a food already has.
+  ALTER TABLE foods ADD COLUMN parent_id TEXT REFERENCES foods(id);
+  ALTER TABLE foods ADD COLUMN size_name TEXT NOT NULL DEFAULT '';
+  CREATE INDEX foods_parent ON foods(parent_id);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

@@ -194,6 +194,8 @@ class FoodItem {
     this.servingAmount = 1,
     this.servingUnit = ServingUnit.serving,
     this.nutrients = const {},
+    this.parentId,
+    this.sizeName = '',
   });
 
   final String id;
@@ -234,8 +236,21 @@ class FoodItem {
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;
 
-  /// `統一 雞胸肉` when it has a maker, otherwise just the name.
-  String get displayName => brand.isEmpty ? name : '$brand $name';
+  /// The food this is a size of, when it is one.
+  final String? parentId;
+
+  /// What the size is called: `Tall`, `大杯`. Empty for a food that is
+  /// not a size of something else.
+  final String sizeName;
+
+  bool get isSize => parentId != null;
+
+  /// `統一 雞胸肉` when it has a maker, otherwise just the name. A size
+  /// says which one it is: `星巴克 美式咖啡 Tall`.
+  String get displayName {
+    final named = brand.isEmpty ? name : '$brand $name';
+    return sizeName.isEmpty ? named : '$named $sizeName';
+  }
 
   FoodItem copyWith({
     String? id,
@@ -250,6 +265,8 @@ class FoodItem {
     int? fatGrams,
     int? fibreGrams,
     Nutrients? nutrients,
+    String? parentId,
+    String? sizeName,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -263,6 +280,8 @@ class FoodItem {
     fatGrams: fatGrams ?? this.fatGrams,
     fibreGrams: fibreGrams ?? this.fibreGrams,
     nutrients: nutrients ?? this.nutrients,
+    parentId: parentId ?? this.parentId,
+    sizeName: sizeName ?? this.sizeName,
   );
 }
 

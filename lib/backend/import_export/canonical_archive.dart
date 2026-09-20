@@ -159,6 +159,8 @@ const _tables = [
     _Column('carb_g', _Kind.integer, isNullable: true),
     _Column('fat_g', _Kind.integer, isNullable: true),
     _Column('fibre_g', _Kind.integer, isNullable: true),
+    _Column('parent_id', _Kind.text, isNullable: true),
+    _Column('size_name', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
   _Table('foodNutrients', 'food_nutrients', [
