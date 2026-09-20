@@ -73,8 +73,7 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
       fatGrams: summary.fatGrams + (meal.fatGrams ?? 0),
       fibreGrams: summary.fibreGrams + (meal.fibreGrams ?? 0),
       mealCount:
-          summary.mealCount +
-          (meal.kind == ConsumptionKind.beverage ? 0 : 1),
+          summary.mealCount + (meal.kind == ConsumptionKind.beverage ? 0 : 1),
       hasEstimates: summary.hasEstimates || meal.isEstimated,
       isComplete: false,
       // A meal with no figures is counted, not skipped: the day has to

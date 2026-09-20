@@ -56,9 +56,13 @@ class _MealEditScreenState extends State<MealEditScreen> {
     }
     // Empty is allowed: it means nobody wrote the figure down, which is
     // not the same as zero. A negative one is nonsense either way.
-    if ([kcal, protein, carbs, fat, fibre].any(
-      (value) => value != null && value < 0,
-    )) {
+    if ([
+      kcal,
+      protein,
+      carbs,
+      fat,
+      fibre,
+    ].any((value) => value != null && value < 0)) {
       setState(() => _error = '營養素不能是負數。');
       return;
     }

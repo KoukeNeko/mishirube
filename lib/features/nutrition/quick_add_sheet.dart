@@ -91,10 +91,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
         children: [
           Text('快速記錄', style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            '只記這一次，不會存進清單。',
-            style: AppTextStyles.caption,
-          ),
+          Text('只記這一次，不會存進清單。', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.lg),
           AppTextField(controller: _name, hint: '這是什麼', autofocus: true),
           const SizedBox(height: AppSpacing.md),
@@ -103,10 +100,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
           _Field(label: '碳水', unit: 'g', field: _carb),
           _Field(label: '脂肪', unit: 'g', field: _fat),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            '留空的欄位不會被當成 0，而是沒有資料。',
-            style: AppTextStyles.caption,
-          ),
+          Text('留空的欄位不會被當成 0，而是沒有資料。', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.lg),
           Text('這是哪一餐（可不選）', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
@@ -126,11 +120,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
 }
 
 class _Field extends StatelessWidget {
-  const _Field({
-    required this.label,
-    required this.unit,
-    required this.field,
-  });
+  const _Field({required this.label, required this.unit, required this.field});
 
   final String label;
   final String unit;

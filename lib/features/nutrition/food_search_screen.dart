@@ -70,9 +70,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     if (chosen == null || !mounted) return;
     final logged = await showPortionScreen(context, chosen);
     if (logged == null || !mounted) return;
-    AppStoreScope.read(
-      context,
-    ).logPortion(logged.portion, mealType: logged.mealType);
+    AppStoreScope.read(context)
+        .logPortion(logged.portion, mealType: logged.mealType);
     showToast(
       context,
       '已記錄「${chosen.displayName}」${logged.portion.label}',
@@ -152,9 +151,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
-    AppStoreScope.read(
-      context,
-    ).setMealFavorite(recent.meal, isFavorite: isFavorite);
+    AppStoreScope.read(context)
+        .setMealFavorite(recent.meal, isFavorite: isFavorite);
     showToast(context, isFavorite ? '已加入常用' : '已從常用移除');
   }
 
@@ -181,10 +179,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       footer: ButtonPair(
         secondary: SecondaryButton(label: '快速記錄', onPressed: _quickAdd),
         primaryFlex: 2,
-        primary: SecondaryButton(
-          label: '新增食物或飲品',
-          onPressed: _create,
-        ),
+        primary: SecondaryButton(label: '新增食物或飲品', onPressed: _create),
       ),
       children: [
         Gutter(

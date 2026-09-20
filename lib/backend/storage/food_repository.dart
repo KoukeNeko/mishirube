@@ -54,13 +54,10 @@ class FoodRepository {
       _fromRow(row),
   ];
 
-  bool _isBuiltIn(String id) =>
-      _db
-          .select('SELECT 1 FROM foods WHERE id = ? AND source = ?', [
-            id,
-            ChangeSource.catalogue.name,
-          ])
-          .isNotEmpty;
+  bool _isBuiltIn(String id) => _db.select(
+    'SELECT 1 FROM foods WHERE id = ? AND source = ?',
+    [id, ChangeSource.catalogue.name],
+  ).isNotEmpty;
 
   FoodItem? byId(String id) {
     final rows = _db.select(
@@ -83,9 +80,9 @@ class FoodRepository {
     }
     _db.transaction(() {
       final now = _db.now().millisecondsSinceEpoch;
-      final exists = _db
-          .select('SELECT 1 FROM foods WHERE id = ?', [food.id])
-          .isNotEmpty;
+      final exists = _db.select('SELECT 1 FROM foods WHERE id = ?', [
+        food.id,
+      ]).isNotEmpty;
       if (exists) {
         _db.execute(
           'UPDATE foods SET name = ?, brand = ?, serving_label = ?, '
@@ -222,9 +219,7 @@ class FoodRepository {
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
       parentId: row['parent_id'] as String?,
       sizeName: row['size_name']! as String,
-      kind: ConsumptionKind.values.byName(
-        row['consumption_kind']! as String,
-      ),
+      kind: ConsumptionKind.values.byName(row['consumption_kind']! as String),
       valueType: NutrientValueType.values.byName(row['value_type']! as String),
       sourceUrl: row['source_url']! as String,
       checkedAt: switch (row['checked_at'] as int?) {

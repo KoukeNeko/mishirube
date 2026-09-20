@@ -62,8 +62,7 @@ class FoodPortion {
   /// The rest of what is known, scaled the same way. Nutrients the food
   /// does not hold stay absent — scaling cannot invent one.
   Nutrients get nutrients => {
-    for (final MapEntry(key: nutrient, value: amount)
-        in food.nutrients.entries)
+    for (final MapEntry(key: nutrient, value: amount) in food.nutrients.entries)
       nutrient: amount * servings,
   };
 

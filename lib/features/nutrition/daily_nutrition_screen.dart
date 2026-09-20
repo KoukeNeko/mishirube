@@ -278,7 +278,6 @@ class _DailyTotalBar extends StatelessWidget {
   }
 }
 
-
 /// The day's other nutrients, each saying how much of the day it could
 /// see. A nutrient nobody recorded is not listed at all — it would read
 /// as zero, and zero is a claim this screen cannot make.
@@ -304,16 +303,12 @@ class _NutrientTotals extends StatelessWidget {
         ),
         if (partial.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            '「至少」代表這一天有幾餐沒有記錄這項營養素，不是它們等於 0。',
-            style: AppTextStyles.caption,
-          ),
+          Text('「至少」代表這一天有幾餐沒有記錄這項營養素，不是它們等於 0。', style: AppTextStyles.caption),
         ],
       ],
     );
   }
 }
-
 
 /// What was drunk today, as recorded.
 ///
@@ -352,7 +347,6 @@ class _FluidLogged extends StatelessWidget {
     );
   }
 }
-
 
 /// Roughly how much caffeine is still in the body.
 ///

@@ -126,8 +126,7 @@ class _PortionScreenState extends State<PortionScreen> {
       footer: PrimaryButton(
         label: '記錄 ${portion.label}',
         onPressed: portion.servings > 0
-            ? () =>
-                  Navigator.of(context).pop(LoggedPortion(portion, _mealType))
+            ? () => Navigator.of(context).pop(LoggedPortion(portion, _mealType))
             : null,
       ),
       children: [
@@ -209,15 +208,11 @@ class _PortionScreenState extends State<PortionScreen> {
         ),
         if (type != NutrientValueType.declared)
           Gutter(
-            child: Text(
-              switch (type) {
-                NutrientValueType.max =>
-                  '這些是上限，不是這一份的實際量——台灣連鎖飲料依法標示的就是最高值。',
-                NutrientValueType.estimate => '這些是同類東西的大概值，不是這一份的量。',
-                NutrientValueType.declared => '',
-              },
-              style: AppTextStyles.caption,
-            ),
+            child: Text(switch (type) {
+              NutrientValueType.max => '這些是上限，不是這一份的實際量——台灣連鎖飲料依法標示的就是最高值。',
+              NutrientValueType.estimate => '這些是同類東西的大概值，不是這一份的量。',
+              NutrientValueType.declared => '',
+            }, style: AppTextStyles.caption),
           ),
         if (food.sourceUrl.isNotEmpty)
           Gutter(

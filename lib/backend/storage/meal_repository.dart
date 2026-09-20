@@ -236,9 +236,7 @@ class MealRepository {
       isEstimated: row['is_estimated'] == 1,
       isFavorite: row['is_favorite'] == 1,
       millilitres: row['millilitres'] as int?,
-      kind: ConsumptionKind.values.byName(
-        row['consumption_kind']! as String,
-      ),
+      kind: ConsumptionKind.values.byName(row['consumption_kind']! as String),
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,

@@ -70,7 +70,10 @@ void main() {
       );
       backend.storage.workouts.save(workout, action: 'create');
 
-      final read = backend.storage.workouts.byId('fixture', (id) => backend.storage.exercises.byId(id)!)!;
+      final read = backend.storage.workouts.byId(
+        'fixture',
+        (id) => backend.storage.exercises.byId(id)!,
+      )!;
       expect(read.exercises, hasLength(TrackingType.values.length));
       for (final (index, session) in read.exercises.indexed) {
         final tracking = TrackingType.values[index];

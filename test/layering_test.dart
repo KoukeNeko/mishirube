@@ -10,7 +10,10 @@ void main() {
   group('layering', () {
     test('the domain knows nothing about storage, engines or screens', () {
       expect(
-        _importsMatching('lib/domain', RegExp(r"import '.*(backend|features)/")),
+        _importsMatching(
+          'lib/domain',
+          RegExp(r"import '.*(backend|features)/"),
+        ),
         isEmpty,
         reason: 'domain types hold no storage, file or network logic',
       );

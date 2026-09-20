@@ -671,9 +671,7 @@ class AppStore extends ChangeNotifier {
   /// Logs a glass of water. It writes the same record every drink
   /// writes, so the day's fluid stays one total.
   MealEvent logWater([int? millilitres]) {
-    final logged = _backend.nutrition.logWater(
-      millilitres ?? glassMillilitres,
-    );
+    final logged = _backend.nutrition.logWater(millilitres ?? glassMillilitres);
     _todayMeals.add(logged);
     notifyListeners();
     return logged;
