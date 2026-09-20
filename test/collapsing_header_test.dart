@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -94,6 +95,45 @@ void main() {
       reason: 'one header title plus the dock tab, never two titles',
     );
     semantics.dispose();
+    await disposeTree(tester);
+  });
+
+  testWidgets('the compact title is centred on the bar', (tester) async {
+    await _pumpApp(tester);
+    await _scroll(tester, 400);
+    final compactTitle = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data == '今天' &&
+          widget.style == compactTitleStyle,
+    );
+
+    expect(
+      tester.getRect(compactTitle).center.dx,
+      closeTo(phoneSize.width / 2, 0.5),
+      reason: 'centred on the bar, not in the space left of the actions',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a back control does not push the title off centre', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const ImportScreen(), store: store);
+    final title = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data == '匯入 Strong 資料' &&
+          widget.style == compactTitleStyle,
+    );
+
+    expect(tester.getRect(title).center.dx, closeTo(phoneSize.width / 2, 0.5));
+    expect(
+      tester.getRect(find.bySemanticsLabel('返回')).left,
+      lessThan(tester.getRect(title).left),
+      reason: 'the back control keeps its place at the leading edge',
+    );
     await disposeTree(tester);
   });
 
