@@ -166,6 +166,17 @@ class Routine {
 
   int get totalSets => exercises.fold(0, (sum, item) => sum + item.sets);
 
+  /// A renamed template; the id stays, so finished workouts still point
+  /// at the same template.
+  Routine renamed(String name) => Routine(
+    id: id,
+    name: name,
+    programName: programName,
+    estimatedMinutes: estimatedMinutes,
+    lastCompletedLabel: lastCompletedLabel,
+    exercises: exercises,
+  );
+
   Routine copyWith({List<PlannedExercise>? exercises}) => Routine(
     id: id,
     name: name,
@@ -185,6 +196,10 @@ enum SetType {
   const SetType(this.label);
 
   final String label;
+
+  /// The kind without the word 組, for places that supply it themselves
+  /// (「加入一組熱身」).
+  String get kindLabel => label.replaceAll('組', '');
 }
 
 /// The actual side of training: what was really lifted today.
@@ -249,7 +264,9 @@ class WorkoutSession {
   final String id;
   final String? routineId;
   final String routineName;
-  final String? notes;
+
+  /// What the user wrote about this workout.
+  String? notes;
   final DateTime startedAt;
   final List<ExerciseSession> exercises;
   int currentExerciseIndex = 0;

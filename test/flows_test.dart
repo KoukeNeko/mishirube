@@ -325,4 +325,36 @@ void main() {
     expect(iconColorOf(Icons.restaurant), AppColors.nutrition);
     await disposeTree(tester);
   });
+
+  testWidgets('editing a training template reorders, removes and undoes', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+
+    await _tapText(tester, '下肢 A');
+    final planned = [
+      for (final exercise in store.routine.exercises) exercise.exercise.name,
+    ];
+    expect(find.text('上移'), findsNothing, reason: 'browsing cannot reorder');
+
+    await _tapText(tester, '編輯');
+    await tester.tap(find.text('下移').first);
+    await tester.pump();
+    expect(store.routine.exercises.first.exercise.name, planned[1]);
+
+    await tester.tap(find.text('移除').first);
+    await tester.pump();
+    expect(store.routine.exercises, hasLength(planned.length - 1));
+    expect(find.textContaining('已移除'), findsOneWidget);
+
+    await _tapText(tester, '復原');
+    expect(
+      [for (final exercise in store.routine.exercises) exercise.exercise.name],
+      [planned[1], planned[0], ...planned.skip(2)],
+      reason: 'undo takes back the removal, not the reorder before it',
+    );
+    await disposeTree(tester);
+  });
 }

@@ -325,22 +325,78 @@ class _SetTypeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    // Wraps instead of one row: at large text sizes the chips need the
+    // second line rather than overflowing it.
+    return Wrap(
+      spacing: AppSpacing.xs,
+      runSpacing: AppSpacing.xs,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         const Text('組', style: AppTextStyles.overline),
-        const Spacer(),
-        for (final type in const ['熱身', '遞減', '力竭']) ...[
-          const SizedBox(width: AppSpacing.xs),
+        ChipButton(
+          label: '備註',
+          semanticLabel: '為這次訓練寫備註',
+          onTap: () => _editNotes(context),
+        ),
+        for (final type in const [
+          SetType.warmup,
+          SetType.drop,
+          SetType.failure,
+        ])
           ChipButton(
-            label: type,
-            semanticLabel: '加入一組$type',
-            onTap: () =>
-                showToast(context, '已加入一組「$type」', kind: ToastKind.success),
+            label: type.kindLabel,
+            semanticLabel: '加入一組${type.kindLabel}',
+            onTap: () => _addSet(context, type),
           ),
-        ],
       ],
     );
   }
+}
+
+/// Asks for a note on the workout; it is kept with the record, not with
+/// the template.
+Future<void> _editNotes(BuildContext context) async {
+  final store = AppStoreScope.read(context);
+  final controller = TextEditingController(
+    text: store.activeWorkout?.notes ?? '',
+  );
+  final notes = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('這次訓練的備註'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        maxLines: 3,
+        decoration: const InputDecoration(hintText: '例如：睡不好，握力先到極限'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+          child: const Text('儲存'),
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  if (notes == null || !context.mounted) return;
+  store.setWorkoutNotes(notes.trim());
+  showToast(context, notes.trim().isEmpty ? '已清除備註' : '已存入備註');
+}
+
+/// Adds a set and says what it starts at, since the weight is a default.
+void _addSet(BuildContext context, SetType type) {
+  final set = AppStoreScope.read(context).addSet(type);
+  if (set == null) return;
+  showToast(
+    context,
+    '已加入一組${type.kindLabel} · ${formatWeight(set.weightKg)} kg',
+    kind: ToastKind.success,
+  );
 }
 
 class _SetRow extends StatelessWidget {
@@ -376,7 +432,15 @@ class _SetRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 24,
-            child: Text('$number', style: AppTextStyles.itemTitle),
+            child: set.type == SetType.working
+                ? Text('$number', style: AppTextStyles.itemTitle)
+                : Text(
+                    set.type.label.characters.first,
+                    style: AppTextStyles.itemTitle.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    semanticsLabel: set.type.label,
+                  ),
           ),
           Text(
             '上次\n${formatWeight(set.previousWeightKg)} × ${set.previousReps}',

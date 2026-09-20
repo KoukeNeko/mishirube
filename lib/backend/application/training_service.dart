@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../engines/training_metrics.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
 import '../storage/routine_repository.dart';
@@ -75,6 +76,30 @@ class TrainingService {
     }
     _workouts.save(workout, action: 'complete_set');
     return completed;
+  }
+
+  /// Adds one more set to the exercise being done. A warm-up or drop set
+  /// starts at a share of the working weight, rounded to the plates, for
+  /// the user to adjust.
+  WorkoutSet addSet(WorkoutSession workout, SetType type) {
+    final exercise = workout.currentExercise;
+    final working = exercise.sets.isEmpty ? 0.0 : exercise.sets.first.weightKg;
+    final set = WorkoutSet(
+      weightKg: startingWeight(working, type),
+      reps: exercise.sets.isEmpty ? 0 : exercise.sets.first.reps,
+      previousWeightKg: working,
+      previousReps: exercise.sets.isEmpty ? 0 : exercise.sets.first.reps,
+      type: type,
+    );
+    exercise.sets.add(set);
+    _workouts.save(workout, action: 'add_set');
+    return set;
+  }
+
+  /// Saves what the user wrote about the workout.
+  void setNotes(WorkoutSession workout, String notes) {
+    workout.notes = notes.isEmpty ? null : notes;
+    _workouts.save(workout, action: 'set_notes');
   }
 
   void toggleSet(WorkoutSession workout, int setIndex) {
@@ -158,6 +183,32 @@ class TrainingService {
       ],
     );
     _routines.save(updated, action: action, source: source);
+    return updated;
+  }
+
+  /// Drops one exercise from the template. History keeps every workout
+  /// that used it.
+  Routine removeFromRoutine(Routine routine, int index) {
+    final exercises = [...routine.exercises]..removeAt(index);
+    final updated = routine.copyWith(exercises: exercises);
+    _routines.save(updated, action: 'remove_exercise');
+    return updated;
+  }
+
+  /// Moves an exercise within the template; the order is the order they
+  /// are meant to be done in.
+  Routine reorderRoutine(Routine routine, int from, int to) {
+    if (from == to) return routine;
+    final exercises = [...routine.exercises];
+    exercises.insert(to, exercises.removeAt(from));
+    final updated = routine.copyWith(exercises: exercises);
+    _routines.save(updated, action: 'reorder_exercises');
+    return updated;
+  }
+
+  Routine renameRoutine(Routine routine, String name) {
+    final updated = routine.renamed(name);
+    _routines.save(updated, action: 'rename');
     return updated;
   }
 

@@ -3,6 +3,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
+import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
 import 'package:mishirube/domain/domain.dart';
 
@@ -454,6 +455,44 @@ void main() {
       // A new workout can start right away.
       store.startWorkout();
       expect(store.activeWorkout, isNotNull);
+    });
+  });
+
+  group('added sets', () {
+    test('plate rounding never suggests a weight a bar cannot hold', () {
+      expect(roundToPlate(61.3), 60);
+      expect(roundToPlate(60), 60);
+      expect(roundToPlate(1), plateStepKg, reason: 'never below one step');
+      expect(startingWeight(100, SetType.warmup), 60);
+      expect(startingWeight(100, SetType.drop), 80);
+      expect(startingWeight(100, SetType.failure), 100);
+    });
+
+    test('a warm-up set is logged but counts as no training volume', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+        ..startWorkout();
+      addTearDown(store.dispose);
+      final workout = store.activeWorkout!;
+      final working = workout.currentExercise.sets.first.weightKg;
+
+      final warmup = store.addSet(SetType.warmup)!;
+      store
+        ..toggleSet(workout.currentExercise.sets.length - 1)
+        ..completeNextSet();
+
+      expect(warmup.weightKg, startingWeight(working, SetType.warmup));
+      expect(warmup.type, SetType.warmup);
+      expect(volumeKg(workout.currentExercise.sets), working * 5);
+      expect(
+        store.backend.storage.workouts
+            .byId(workout.id, (id) => store.exercises.first)!
+            .currentExercise
+            .sets
+            .last
+            .type,
+        SetType.warmup,
+        reason: 'the set type survives a restart',
+      );
     });
   });
 }

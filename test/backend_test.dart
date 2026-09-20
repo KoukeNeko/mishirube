@@ -161,6 +161,40 @@ void main() {
       expect(aiChange.single['source'], ChangeSource.aiDraft.name);
     });
 
+    test('editing a plan never touches a finished workout', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(clock: clock.now, backend: backend)
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout();
+      final finishedId = store.lastFinishedWorkout!.id;
+      final planned = [
+        for (final exercise in store.routine.exercises) exercise.exercise.id,
+      ];
+
+      store
+        ..moveRoutineExercise(0, 2)
+        ..removeRoutineExercise(0)
+        ..renameRoutine('下肢 B');
+
+      final reloaded = AppStore(clock: clock.now, backend: backend);
+      expect(reloaded.routine.name, '下肢 B');
+      expect(
+        [for (final e in reloaded.routine.exercises) e.exercise.id],
+        [planned[2], planned[0], planned[3], planned[4]],
+      );
+      final finished = backend.storage.workouts.byId(
+        finishedId,
+        (id) => backend.catalog.byId(id)!,
+      )!;
+      expect(
+        [for (final e in finished.exercises) e.exercise.id],
+        planned,
+        reason: 'the workout keeps the exercises it was done with',
+      );
+    });
+
     test('a finished workout can be opened again by its id', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
@@ -174,6 +208,25 @@ void main() {
       expect(workout.routineName, training.title);
       expect(workout.finishedAt, isNotNull);
       expect(store.workoutById('no-such-workout'), isNull);
+    });
+
+    test('a note written during a workout is kept with the record', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store =
+          AppStore(clock: clock.now, isOnboarded: true, backend: backend)
+            ..startWorkout()
+            ..setWorkoutNotes('睡不好，握力先到極限');
+
+      expect(
+        AppStore(clock: clock.now, backend: backend).activeWorkout!.notes,
+        '睡不好，握力先到極限',
+      );
+
+      store
+        ..completeNextSet()
+        ..finishWorkout();
+      expect(store.lastFinishedWorkout!.notes, '睡不好，握力先到極限');
     });
 
     test('a finished workout becomes the next "last time"', () {

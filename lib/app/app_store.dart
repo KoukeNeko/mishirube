@@ -211,6 +211,23 @@ class AppStore extends ChangeNotifier {
     return completed;
   }
 
+  /// Saves a note on the running workout.
+  void setWorkoutNotes(String notes) {
+    final workout = _activeWorkout;
+    if (workout == null) return;
+    _backend.training.setNotes(workout, notes);
+    notifyListeners();
+  }
+
+  /// Adds one more set of [type] to the exercise being done.
+  WorkoutSet? addSet(SetType type) {
+    final workout = _activeWorkout;
+    if (workout == null) return null;
+    final set = _backend.training.addSet(workout, type);
+    notifyListeners();
+    return set;
+  }
+
   void toggleSet(int setIndex) {
     final workout = _activeWorkout;
     if (workout == null) return;
@@ -234,6 +251,30 @@ class AppStore extends ChangeNotifier {
     } else {
       _routine = _backend.training.addToRoutine(_routine, exercises);
     }
+    notifyListeners();
+  }
+
+  /// Removes the exercise at [index] from the template.
+  void removeRoutineExercise(int index) {
+    _routine = _backend.training.removeFromRoutine(_routine, index);
+    notifyListeners();
+  }
+
+  /// Moves an exercise within the template.
+  void moveRoutineExercise(int from, int to) {
+    _routine = _backend.training.reorderRoutine(_routine, from, to);
+    notifyListeners();
+  }
+
+  /// Puts a template back as it was, for undoing an edit.
+  void restoreRoutine(Routine routine) {
+    _routine = routine;
+    _backend.training.saveRoutine(routine, action: 'restore');
+    notifyListeners();
+  }
+
+  void renameRoutine(String name) {
+    _routine = _backend.training.renameRoutine(_routine, name);
     notifyListeners();
   }
 
