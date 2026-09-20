@@ -1,0 +1,1420 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mishirube.app/schema/archive-1.json",
+  "title": "MISHIRUBE archive",
+  "type": "object",
+  "required": [
+    "format",
+    "formatVersion",
+    "exportedAt",
+    "schemaVersion",
+    "data"
+  ],
+  "properties": {
+    "format": {
+      "const": "mishirube-archive"
+    },
+    "formatVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "exportedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "extensions": {
+      "type": "object"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "settings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "importBatches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "source",
+              "contentSha256",
+              "importedAt"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "fileName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "contentSha256": {
+                "type": "string"
+              },
+              "importedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "undoneAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "summary": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "exercises": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "aliases",
+              "personalAliases",
+              "equipment",
+              "primaryMuscles",
+              "secondaryMuscles",
+              "pattern",
+              "trackingType",
+              "ownership",
+              "cues",
+              "isFavorite",
+              "isHidden",
+              "isInHomeGym",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "aliases": {
+                "type": "array"
+              },
+              "personalAliases": {
+                "type": "array"
+              },
+              "equipment": {
+                "type": "string"
+              },
+              "primaryMuscles": {
+                "type": "array"
+              },
+              "secondaryMuscles": {
+                "type": "array"
+              },
+              "pattern": {
+                "type": "string"
+              },
+              "trackingType": {
+                "type": "string"
+              },
+              "ownership": {
+                "type": "string"
+              },
+              "cues": {
+                "type": "array"
+              },
+              "isFavorite": {
+                "type": "boolean"
+              },
+              "isHidden": {
+                "type": "boolean"
+              },
+              "isInHomeGym": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "externalExerciseNames": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source",
+              "name",
+              "exerciseId"
+            ],
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "exerciseId": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "routines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "programName",
+              "estimatedMinutes",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "programName": {
+                "type": "string"
+              },
+              "estimatedMinutes": {
+                "type": "integer"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "routineExercises": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "routineId",
+              "position",
+              "exerciseId",
+              "sets",
+              "reps",
+              "targetWeightKg",
+              "progressionLabel",
+              "isUnilateral"
+            ],
+            "properties": {
+              "routineId": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "exerciseId": {
+                "type": "string"
+              },
+              "sets": {
+                "type": "integer"
+              },
+              "reps": {
+                "type": "integer"
+              },
+              "rir": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "targetWeightKg": {
+                "type": "number"
+              },
+              "progressionLabel": {
+                "type": "string"
+              },
+              "isUnilateral": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "workouts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "status",
+              "startedAt",
+              "pausedTotalMs",
+              "currentExercise",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "routineId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "finishedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "pausedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "pausedTotalMs": {
+                "type": "integer"
+              },
+              "currentExercise": {
+                "type": "integer"
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "fingerprint": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "workoutExercises": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "workoutId",
+              "position",
+              "exerciseId",
+              "exerciseName",
+              "isPrCandidate"
+            ],
+            "properties": {
+              "workoutId": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "exerciseId": {
+                "type": "string"
+              },
+              "exerciseName": {
+                "type": "string"
+              },
+              "isPrCandidate": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "workoutSets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "workoutId",
+              "exercisePosition",
+              "position",
+              "setType",
+              "weightKg",
+              "reps",
+              "isDone"
+            ],
+            "properties": {
+              "workoutId": {
+                "type": "string"
+              },
+              "exercisePosition": {
+                "type": "integer"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "setType": {
+                "type": "string"
+              },
+              "weightKg": {
+                "type": "number"
+              },
+              "reps": {
+                "type": "integer"
+              },
+              "rir": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "rpe": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "durationS": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "distanceM": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "previousWeightKg": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "previousReps": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "isDone": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "foods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "brand",
+              "servingLabel",
+              "servingAmount",
+              "servingUnit",
+              "sizeName",
+              "consumptionKind",
+              "valueType",
+              "sourceUrl",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "brand": {
+                "type": "string"
+              },
+              "servingLabel": {
+                "type": "string"
+              },
+              "servingAmount": {
+                "type": "number"
+              },
+              "servingUnit": {
+                "type": "string"
+              },
+              "kcal": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "proteinG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "carbG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fatG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fibreG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "parentId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sizeName": {
+                "type": "string"
+              },
+              "consumptionKind": {
+                "type": "string"
+              },
+              "valueType": {
+                "type": "string"
+              },
+              "sourceUrl": {
+                "type": "string"
+              },
+              "checkedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "foodNutrients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "foodId",
+              "nutrient",
+              "amount"
+            ],
+            "properties": {
+              "foodId": {
+                "type": "string"
+              },
+              "nutrient": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "meals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "eatenAt",
+              "consumptionKind",
+              "valueType",
+              "qualityTag",
+              "isEstimated",
+              "isFavorite",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "eatenAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "kcal": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "proteinG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "carbG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fatG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fibreG": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "millilitres": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "consumptionKind": {
+                "type": "string"
+              },
+              "mealType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "valueType": {
+                "type": "string"
+              },
+              "qualityTag": {
+                "type": "string"
+              },
+              "isEstimated": {
+                "type": "boolean"
+              },
+              "isFavorite": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "mealDishes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mealId",
+              "position",
+              "name",
+              "quantityLabel",
+              "subtitle"
+            ],
+            "properties": {
+              "mealId": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "quantityLabel": {
+                "type": "string"
+              },
+              "subtitle": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "dishComponents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mealId",
+              "dishPosition",
+              "position",
+              "name",
+              "amountLabel",
+              "sourceLabel"
+            ],
+            "properties": {
+              "mealId": {
+                "type": "string"
+              },
+              "dishPosition": {
+                "type": "integer"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "amountLabel": {
+                "type": "string"
+              },
+              "sourceLabel": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "mealNutrients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mealId",
+              "nutrient",
+              "amount"
+            ],
+            "properties": {
+              "mealId": {
+                "type": "string"
+              },
+              "nutrient": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "bodyWeights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "measuredAt",
+              "weightKg",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "measuredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "weightKg": {
+                "type": "number"
+              },
+              "note": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "type",
+              "startedAt",
+              "endedAt",
+              "elapsedMs",
+              "note",
+              "status",
+              "pausedMs",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "nativeType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "elapsedMs": {
+                "type": "integer"
+              },
+              "distanceM": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "elevationGainM": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "effort": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "pausedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "pausedMs": {
+                "type": "integer"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "weeklyGoals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "effectiveFrom",
+              "targetDays",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "effectiveFrom": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "targetDays": {
+                "type": "integer"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "goalPauses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "startedAt",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "note": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "bodyMeasurements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "measuredAt",
+              "site",
+              "centimetres",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "measuredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "site": {
+                "type": "string"
+              },
+              "centimetres": {
+                "type": "number"
+              },
+              "note": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "sleepEntries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "sleptAt",
+              "durationMinutes",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "sleptAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "durationMinutes": {
+                "type": "integer"
+              },
+              "score": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "wellnessEntries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "recordedAt",
+              "kind",
+              "score",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "recordedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "score": {
+                "type": "integer"
+              },
+              "note": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "auditEvents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "occurredAt",
+              "entityType",
+              "entityId",
+              "action",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "entityType": {
+                "type": "string"
+              },
+              "entityId": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "payload": {
+                "type": [
+                  "array",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

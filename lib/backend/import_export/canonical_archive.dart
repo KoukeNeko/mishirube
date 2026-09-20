@@ -315,6 +315,67 @@ Map<String, Object?> exportArchive(AppDatabase db) {
   };
 }
 
+/// The archive's shape as a JSON Schema, generated from the same table
+/// definitions the export and the restore use.
+///
+/// Written rather than hand-maintained so it cannot drift: a column
+/// added to the archive appears here in the same change, and anyone
+/// reading a backup has a contract instead of an example file.
+Map<String, Object?> archiveJsonSchema() => {
+  r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+  r'$id': 'https://mishirube.app/schema/archive-$archiveFormatVersion.json',
+  'title': 'MISHIRUBE archive',
+  'type': 'object',
+  'required': ['format', 'formatVersion', 'exportedAt', 'schemaVersion', 'data'],
+  'properties': {
+    'format': {'const': archiveFormat},
+    'formatVersion': {'type': 'integer', 'minimum': 1},
+    'exportedAt': {'type': 'string', 'format': 'date-time'},
+    'schemaVersion': {'type': 'integer', 'minimum': 1},
+    // Anything a later version wrote here is carried across untouched,
+    // so this deliberately constrains nothing.
+    'extensions': {'type': 'object'},
+    'data': {
+      'type': 'object',
+      'additionalProperties': false,
+      'properties': {
+        for (final table in _tables)
+          table.key: {
+            'type': 'array',
+            'items': {
+              'type': 'object',
+              'additionalProperties': false,
+              'required': [
+                for (final column in table.columns)
+                  if (!column.isNullable) column.key,
+              ],
+              'properties': {
+                for (final column in table.columns)
+                  column.key: _columnSchema(column),
+              },
+            },
+          },
+      },
+    },
+  },
+};
+
+Map<String, Object?> _columnSchema(_Column column) {
+  final type = switch (column.kind) {
+    _Kind.text => 'string',
+    _Kind.integer => 'integer',
+    _Kind.real => 'number',
+    _Kind.boolean => 'boolean',
+    // Times travel as ISO 8601 strings so a backup stays readable.
+    _Kind.time => 'string',
+    _Kind.json => 'array',
+  };
+  return {
+    'type': column.isNullable ? [type, 'null'] : type,
+    if (column.kind == _Kind.time) 'format': 'date-time',
+  };
+}
+
 String encodeArchive(Map<String, Object?> archive) =>
     const JsonEncoder.withIndent('  ').convert(archive);
 

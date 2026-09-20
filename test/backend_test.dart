@@ -1801,6 +1801,54 @@ void main() {
       );
     });
 
+    test('the JSON Schema describes the archive it ships with', () {
+      final schema = archiveJsonSchema();
+      final source = AppStore(clock: clock.now, isOnboarded: true)
+        ..startWorkout()
+        ..completeNextSet()
+        ..confirmLunch();
+      addTearDown(source.dispose);
+      final archive = jsonDecode(
+        encodeArchive(exportArchive(source.backend.db)),
+      );
+
+      final properties =
+          (schema['properties']! as Map)['data']! as Map<String, Object?>;
+      final tables =
+          (properties['properties']! as Map).keys.toSet();
+      expect(
+        (archive as Map)['data'],
+        isA<Map<String, Object?>>().having(
+          (data) => data.keys.toSet(),
+          'sections',
+          tables,
+          ),
+        reason: 'the schema is generated from the same table list, so a '
+            'section missing from either side is a drift bug',
+      );
+
+      // Every non-null column is required, and a nullable one admits null.
+      final foods =
+          ((properties['properties']! as Map)['foods']! as Map)['items']!
+              as Map<String, Object?>;
+      expect(foods['required'], contains('id'));
+      expect(foods['required'], isNot(contains('kcal')));
+      expect(
+        ((foods['properties']! as Map)['kcal']! as Map)['type'],
+        ['integer', 'null'],
+      );
+      expect(
+        ((foods['properties']! as Map)['createdAt']! as Map)['format'],
+        'date-time',
+      );
+
+      // Kept on disk so anyone reading a backup has the contract without
+      // running the app. Regenerated here, so it cannot go stale.
+      File(
+        'doc/archive.schema.json',
+      ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(schema)}\n');
+    });
+
     test('unknown archive sections are kept for the next export', () {
       final source = Backend.inMemory(clock: clock.now);
       addTearDown(source.close);
