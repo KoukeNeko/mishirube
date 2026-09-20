@@ -8,7 +8,7 @@ import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
-import '../nutrition/meal_entry_screen.dart';
+import '../nutrition/food_search_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../training/routine_detail_screen.dart';
 
@@ -71,7 +71,7 @@ final recordOptions = [
     title: '飲食',
     module: AppModule.nutrition,
     subtitle: '吃的和喝的，都記在這裡',
-    destination: () => const MealEntryScreen(),
+    destination: () => const FoodSearchScreen(),
   ),
   RecordOption(
     icon: Icons.monitor_weight_outlined,

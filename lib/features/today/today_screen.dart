@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../goal/goal_entry_button.dart';
 import '../nutrition/daily_nutrition_screen.dart';
+import '../nutrition/food_search_screen.dart';
 import '../nutrition/meal_confirm_screen.dart';
 import '../nutrition/meal_entry_screen.dart';
 import '../training/active_workout_screen.dart';
@@ -80,7 +81,7 @@ class TodayScreen extends StatelessWidget {
                   color: AppColors.nutrition,
                   action: '記錄早餐',
                   caption: '今天還沒有紀錄',
-                  onTap: () => pushPage(context, const MealEntryScreen()),
+                  onTap: () => pushPage(context, const FoodSearchScreen()),
                 ),
               ),
             ],
@@ -105,7 +106,7 @@ class TodayScreen extends StatelessWidget {
           child: NextMealCard(
             onPhoto: () => pushPage(context, const MealConfirmScreen()),
             onVoice: () => pushPage(context, const MealEntryScreen()),
-            onSearch: () => pushPage(context, const MealEntryScreen()),
+            onSearch: () => pushPage(context, const FoodSearchScreen()),
           ),
         ),
       Gutter(
@@ -134,7 +135,7 @@ class TodayScreen extends StatelessWidget {
           title: '記錄晚餐',
           message: '訓練後還沒有任何飲食紀錄',
           buttonLabel: '記錄晚餐',
-          onTap: () => pushPage(context, const MealEntryScreen()),
+          onTap: () => pushPage(context, const FoodSearchScreen()),
         ),
       ),
       Gutter(

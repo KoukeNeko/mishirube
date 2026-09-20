@@ -123,7 +123,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _amount > 0 &&
       (!_isSize || _sizeName.text.trim().isNotEmpty);
 
-  void _save() {
+  /// Saves, and says whether the caller should log it straight away.
+  ///
+  /// Popping the food means "log this now"; popping nothing means it was
+  /// only saved. Filling in a whole label and then being sent back to
+  /// the list to find it again is a round trip with nothing in it.
+  void _save({required bool logNow}) {
     final store = AppStoreScope.read(context);
     final food = FoodItem(
       id: widget.editing?.id ?? store.newFoodId(),
@@ -142,7 +147,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       sizeName: _sizeName.text.trim(),
     );
     store.saveFood(food);
-    Navigator.of(context).pop(food);
+    Navigator.of(context).pop(logNow ? food : null);
   }
 
   /// Only the nutrients with a number in them. An empty field leaves the
@@ -201,10 +206,22 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         leading: AppBarLeading.none,
         onClose: () => Navigator.of(context).pop(),
       ),
-      footer: PrimaryButton(
-        label: isNew ? '儲存' : '儲存變更',
-        onPressed: _canSave ? _save : null,
-      ),
+      footer: isNew && !_isSize
+          ? ButtonPair(
+              secondary: SecondaryButton(
+                label: '只建立',
+                onPressed: _canSave ? () => _save(logNow: false) : null,
+              ),
+              primaryFlex: 2,
+              primary: PrimaryButton(
+                label: '建立並記錄',
+                onPressed: _canSave ? () => _save(logNow: true) : null,
+              ),
+            )
+          : PrimaryButton(
+              label: isNew ? '儲存' : '儲存變更',
+              onPressed: _canSave ? () => _save(logNow: false) : null,
+            ),
       children: [
         Gutter(child: const SectionLabel('名稱')),
         Gutter(child: AppTextField(controller: _name, hint: '例如：雞胸肉')),

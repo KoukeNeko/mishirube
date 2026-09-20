@@ -7,13 +7,22 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
+import 'meal_entry_screen.dart';
 import 'portion_sheet.dart';
+import 'recent_meal_row.dart';
 
-/// The user's own foods: search them, log one, or save a new one.
+/// Where a meal or a drink gets logged: search, or pick something eaten
+/// before.
 ///
-/// This is the private layer of the food catalogue. There is no shared
-/// database behind it yet, so the screen says so rather than implying a
-/// search that came up empty was a search of everything.
+/// Search is the whole screen rather than one option among several.
+/// Someone opening this already knows what they had; what they ate
+/// recently is shown as the answer to a search they have not typed yet,
+/// not as a separate feature. The other ways in — photo, voice, barcode
+/// — sit one level down.
+///
+/// This is also the private layer of the food catalogue. There is no
+/// shared database behind it yet, so the screen says so rather than
+/// implying a search that came up empty was a search of everything.
 class FoodSearchScreen extends StatefulWidget {
   const FoodSearchScreen({super.key});
 
@@ -37,11 +46,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   Future<void> _create() async {
-    await pushPage<FoodItem>(
+    // A food comes back when the user asked to log it straight away.
+    final created = await pushPage<FoodItem>(
       context,
       FoodEditScreen(initialName: _query.text.trim()),
     );
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    if (created != null) await _log(created);
   }
 
   Future<void> _edit(FoodItem food) async {
@@ -98,6 +110,20 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         ),
       );
 
+  void _logAgain(RecentMeal recent) {
+    AppStoreScope.read(context).copyMeal(recent.meal);
+    showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
+    Navigator.of(context).pop();
+  }
+
+  void _toggleFavorite(RecentMeal recent) {
+    final isFavorite = !recent.meal.isFavorite;
+    AppStoreScope.read(
+      context,
+    ).setMealFavorite(recent.meal, isFavorite: isFavorite);
+    showToast(context, isFavorite ? '已加入常用' : '已從常用移除');
+  }
+
   void _delete(FoodItem food) {
     final store = AppStoreScope.read(context);
     store.deleteFood(food.id);
@@ -117,21 +143,51 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final query = _query.text.trim();
     final foods = store.searchFoods(query);
     return DetailPage(
-      appBar: const PageAppBar(title: '食物', subtitle: '你自己存的食物'),
-      footer: SecondaryButton(label: '新增食物', onPressed: _create),
+      appBar: const PageAppBar(title: '飲食', subtitle: '吃的和喝的'),
+      footer: SecondaryButton(label: '新增食物或飲品', onPressed: _create),
       children: [
         Gutter(
-          child: SearchField(controller: _query, hint: '搜尋你存過的食物⋯⋯'),
+          child: SearchField(controller: _query, hint: '搜尋吃過或存過的⋯⋯'),
         ),
+        // Before anything is typed, what was eaten before is the most
+        // likely answer, so it goes first.
+        if (query.isEmpty) ...[
+          if (store.favoriteMeals case final favorites
+              when favorites.isNotEmpty) ...[
+            Gutter(child: const SectionLabel('常用')),
+            for (final favorite in favorites)
+              Gutter(
+                child: RecentMealRow(
+                  meal: favorite,
+                  when: mealWhenLabel(context, favorite.eatenAt),
+                  onAdd: () => _logAgain(favorite),
+                  onToggleFavorite: () => _toggleFavorite(favorite),
+                ),
+              ),
+          ],
+          if (store.recentMeals case final recents when recents.isNotEmpty) ...[
+            Gutter(child: const SectionLabel('最近')),
+            for (final recent in recents)
+              Gutter(
+                child: RecentMealRow(
+                  meal: recent,
+                  when: mealWhenLabel(context, recent.eatenAt),
+                  onAdd: () => _logAgain(recent),
+                  onToggleFavorite: () => _toggleFavorite(recent),
+                ),
+              ),
+          ],
+          Gutter(child: const SectionLabel('你存過的')),
+        ],
         if (foods.isEmpty)
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: query.isEmpty ? '還沒有存過食物' : '沒有符合的食物',
+              title: query.isEmpty ? '還沒有存過東西' : '沒有符合的項目',
               message: query.isEmpty
-                  ? '把常吃的東西存起來，下次直接點一下就記好了。'
-                  : '這裡只找你自己存過的食物，還沒有共用的食物資料庫。',
-              action: PrimaryButton(label: '新增食物', onPressed: _create),
+                  ? '把常吃常喝的存起來，下次直接點一下就記好了。'
+                  : '這裡只找你自己存過的，還沒有共用的食物資料庫。',
+              action: PrimaryButton(label: '新增食物或飲品', onPressed: _create),
             ),
           )
         else
@@ -145,6 +201,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                 onDelete: () => _delete(food),
               ),
             ),
+        if (query.isEmpty)
+          Gutter(
+            child: NavCard(
+              title: '其他記錄方式',
+              subtitle: '拍照、說出來、掃條碼、餐點模板',
+              onTap: () => pushPage(context, const MealEntryScreen()),
+            ),
+          ),
       ],
     );
   }

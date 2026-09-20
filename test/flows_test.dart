@@ -866,20 +866,16 @@ void main() {
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
     final before = store.todayKcal;
 
-    expect(find.text('還沒有存過食物'), findsOneWidget);
+    expect(find.text('還沒有存過東西'), findsOneWidget);
 
-    await _tapText(tester, '新增食物');
+    await _tapText(tester, '新增食物或飲品');
     await tester.enterText(find.byType(AppTextField).first, '雞胸肉');
     // The serving amount sits beside the unit chips.
     await tester.enterText(find.byType(AppTextField).at(2), '100');
     await _enterBeside(tester, '熱量', '165');
     await _enterBeside(tester, '蛋白質', '31');
-    await _tapText(tester, '儲存');
-    await tester.pumpAndSettle();
-
-    expect(find.text('雞胸肉'), findsOneWidget, reason: 'the saved food is listed');
-
-    await _tapText(tester, '雞胸肉');
+    // Creating and logging is one trip, not two.
+    await _tapText(tester, '建立並記錄');
     await tester.pumpAndSettle();
     expect(find.text('記錄 100 g'), findsOneWidget, reason: 'opens at a serving');
 
@@ -907,6 +903,27 @@ void main() {
     await tester.tapAt(const Offset(200, 120));
     await tester.pumpAndSettle();
     expect(tester.testTextInput.isVisible, isFalse);
+    await disposeTree(tester);
+  });
+
+  testWidgets('creating without logging leaves the day alone', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = store.todayMeals.length;
+
+    await _tapText(tester, '新增食物或飲品');
+    await tester.enterText(find.byType(AppTextField).first, '燕麥');
+    await tester.enterText(find.byType(AppTextField).at(2), '40');
+    await _enterBeside(tester, '熱量', '150');
+    await _tapText(tester, '只建立');
+    await tester.pumpAndSettle();
+
+    expect(find.text('燕麥'), findsOneWidget, reason: 'saved to the list');
+    expect(
+      store.todayMeals,
+      hasLength(before),
+      reason: 'saving a food is not eating it',
+    );
     await disposeTree(tester);
   });
 }
