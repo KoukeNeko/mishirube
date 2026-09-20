@@ -68,9 +68,9 @@ final recordOptions = [
   RecordOption(
     icon: Icons.restaurant,
     color: AppColors.nutrition,
-    title: '一餐',
+    title: '飲食',
     module: AppModule.nutrition,
-    subtitle: '拍照、說出來或搜尋',
+    subtitle: '吃的和喝的，都記在這裡',
     destination: () => const MealEntryScreen(),
   ),
   RecordOption(

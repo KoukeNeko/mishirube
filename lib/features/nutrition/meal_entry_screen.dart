@@ -44,7 +44,7 @@ class MealEntryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailPage(
       appBar: const PageAppBar(
-        title: '你吃了什麼？',
+        title: '吃了或喝了什麼？',
         subtitle: '午餐 · 9 月 19 日 12:35',
       ),
       children: [
@@ -69,7 +69,7 @@ class MealEntryScreen extends StatelessWidget {
           child: _MethodCard(
             icon: Icons.search,
             title: '搜尋或輸入',
-            subtitle: '你自己存的食物',
+            subtitle: '你自己存的食物和飲料',
             onTap: () => pushPage(context, const FoodSearchScreen()),
           ),
         ),
