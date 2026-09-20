@@ -7,6 +7,10 @@ import '../storage/workout_repository.dart';
 
 /// Defaults for an exercise added on the fly, until the user edits it.
 const _addedSets = 3;
+
+/// What a template the user made themselves belongs to, where a seeded
+/// one names its program.
+const _ownProgramName = '自己的訓練';
 const _addedReps = 10;
 const _addedWeightKg = 20.0;
 
@@ -221,6 +225,28 @@ class TrainingService {
 
   Routine? routine(String id, Map<String, ExerciseDefinition> exercises) =>
       _routines.byId(id, exercises);
+
+  List<Routine> routines(Map<String, ExerciseDefinition> exercises) =>
+      _routines.all(exercises);
+
+  /// A new, empty template. Exercises are added to it afterwards, the
+  /// same way they are added to any other.
+  Routine createRoutine(String name) {
+    final routine = Routine(
+      id: _db.newId(),
+      name: name,
+      programName: _ownProgramName,
+      estimatedMinutes: 0,
+      lastCompletedLabel: '還沒完成過',
+      exercises: const [],
+    );
+    _routines.save(routine, action: 'create');
+    return routine;
+  }
+
+  void deleteRoutine(String id) => _routines.remove(id);
+
+  void undeleteRoutine(String id) => _routines.restore(id);
 
   PlannedExercise planFor(ExerciseDefinition exercise) => PlannedExercise(
     exercise: exercise,

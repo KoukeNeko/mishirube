@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
+import 'routine_list_screen.dart';
 import 'workout_summary_screen.dart';
 
 /// A workout template (plan). Editing it never rewrites finished workouts.
@@ -43,25 +44,44 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   Future<void> _rename(Routine routine) async {
-    final controller = TextEditingController(text: routine.name);
-    final name = await showAppDialog<String>(
+    final name = await showTextDialog(
+      context,
+      title: '訓練名稱',
+      initial: routine.name,
+    );
+    if (name == null || name.trim().isEmpty || !mounted) return;
+    AppStoreScope.read(context).renameRoutine(name.trim());
+  }
+
+  /// Removing a template is undoable and never touches the workouts done
+  /// from it; the app keeps at least one to train from.
+  Future<void> _delete(Routine routine) async {
+    final store = AppStoreScope.read(context);
+    final confirmed = await showAppDialog<bool>(
       context,
       AppDialog(
-        title: '訓練名稱',
-        content: AppTextField(controller: controller, autofocus: true),
+        title: '刪除「${routine.name}」？',
+        message: '已完成的訓練紀錄會留著，只有這份計畫會消失。',
         actions: [
           DialogAction(
-            label: '儲存',
-            tone: DialogTone.primary,
-            onTap: () => Navigator.of(context).pop(controller.text.trim()),
+            label: '刪除這份訓練',
+            tone: DialogTone.destructive,
+            onTap: () => Navigator.of(context).pop(true),
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(label: '保留', onTap: () => Navigator.of(context).pop()),
         ],
       ),
     );
-    controller.dispose();
-    if (name == null || name.isEmpty || !mounted) return;
-    AppStoreScope.read(context).renameRoutine(name);
+    if (confirmed != true || !mounted) return;
+    if (!store.deleteRoutine(routine)) {
+      showToast(context, '至少要留下一份訓練', kind: ToastKind.warning);
+      return;
+    }
+    setState(() => _isEditing = false);
+    ToastScope.read(context).showUndo(
+      '已刪除「${routine.name}」',
+      onUndo: () => store.undeleteRoutine(routine.id),
+    );
   }
 
   @override
@@ -74,6 +94,11 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         title: routine.name,
         subtitle: '訓練模板 · ${routine.programName}',
         actions: [
+          HeaderAction(
+            icon: Icons.list_alt_outlined,
+            semanticLabel: '所有訓練',
+            onTap: () => pushPage(context, const RoutineListScreen()),
+          ),
           HeaderAction(
             icon: _isEditing ? Icons.check : Icons.edit_outlined,
             label: _isEditing ? '完成' : '編輯',
@@ -120,6 +145,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             onTap: () => _addExercises(context, routine),
           ),
         ),
+        if (_isEditing)
+          Gutter(
+            child: Center(
+              child: LinkText(
+                label: '刪除這份訓練',
+                color: AppColors.destructive,
+                onTap: () => _delete(routine),
+              ),
+            ),
+          ),
         Gutter(child: const SectionLabel('最近實際完成')),
         Gutter(
           child: AccentRow(

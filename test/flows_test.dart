@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -394,6 +395,34 @@ void main() {
     await tester.pump(_pageTransition);
     expect(store.activeSession, isA<ActiveActivity>());
     expect(find.textContaining('先結束運動'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a new training template becomes the one to train next', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    final before = store.routine.name;
+
+    await tester.tap(find.bySemanticsLabel('所有訓練'));
+    await tester.pumpAndSettle();
+    expect(find.text(before), findsWidgets);
+
+    await _tapText(tester, '新增訓練');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '上肢 B');
+    await tester.tap(find.text('建立'));
+    await tester.pumpAndSettle();
+
+    expect(store.routine.name, '上肢 B');
+    expect(
+      find.text('上肢 B'),
+      findsWidgets,
+      reason: 'the detail screen follows the choice',
+    );
+    expect(store.routines.map((routine) => routine.name), contains(before));
     await disposeTree(tester);
   });
 

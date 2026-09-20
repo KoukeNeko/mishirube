@@ -67,7 +67,8 @@ class AppStore extends ChangeNotifier {
         ]);
     }
     _reloadExercises();
-    _routine = _backend.training.routine(_mainRoutineId, _exercisesById)!;
+    _routine =
+        _storedRoutine ?? _backend.training.routines(_exercisesById).first;
     _session = switch ((
       _backend.training.active(),
       _backend.activity.active(),
@@ -84,7 +85,7 @@ class AppStore extends ChangeNotifier {
   static const _aiProposalLegCurlSets = 4;
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
-  static const _mainRoutineId = 'lower-a';
+  static const _selectedRoutineKey = 'selected_routine';
 
   final DateTime Function() _clock;
   final Backend _backend;
@@ -114,6 +115,12 @@ class AppStore extends ChangeNotifier {
 
   bool get _storedOnboarded => _backend.db.setting(_onboardedKey) == 'true';
 
+  /// The template last trained from, when it is still there.
+  Routine? get _storedRoutine {
+    final id = _backend.db.setting(_selectedRoutineKey);
+    return id == null ? null : _backend.training.routine(id, _exercisesById);
+  }
+
   void _reloadExercises() {
     _exercises = _backend.catalog.all();
     _exercisesById = {for (final e in _exercises) e.id: e};
@@ -128,6 +135,9 @@ class AppStore extends ChangeNotifier {
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
   DayPhase get phase => _phase;
   Routine get routine => _routine;
+
+  /// Every template, for choosing what to train.
+  List<Routine> get routines => _backend.training.routines(_exercisesById);
 
   /// Whatever is running, of whatever kind; null when nothing is.
   ActiveSession? get activeSession => _session;
@@ -272,6 +282,40 @@ class AppStore extends ChangeNotifier {
     if (workout == null) return;
     _backend.training.selectExercise(workout, index);
     notifyListeners();
+  }
+
+  /// Trains from [routine] from now on. The choice survives a restart,
+  /// because it is what the Today screen offers.
+  void selectRoutine(Routine routine) {
+    _routine = routine;
+    _backend.db.setSetting(_selectedRoutineKey, routine.id);
+    notifyListeners();
+  }
+
+  /// Adds an empty template and switches to it.
+  Routine createRoutine(String name) {
+    final created = _backend.training.createRoutine(name);
+    selectRoutine(created);
+    return created;
+  }
+
+  /// Removes the template being shown. Refuses to remove the last one:
+  /// the Today screen always has something to offer, and a template is
+  /// not the history, which stays either way. Returns false when it
+  /// refused, so the screen can say why.
+  bool deleteRoutine(Routine routine) {
+    final remaining = routines.where((other) => other.id != routine.id);
+    if (remaining.isEmpty) return false;
+    _backend.training.deleteRoutine(routine.id);
+    selectRoutine(remaining.first);
+    return true;
+  }
+
+  /// Puts a removed template back and trains from it again.
+  void undeleteRoutine(String id) {
+    _backend.training.undeleteRoutine(id);
+    final restored = _backend.training.routine(id, _exercisesById);
+    if (restored != null) selectRoutine(restored);
   }
 
   /// Adds [exercises] to the running workout, or to the template when no

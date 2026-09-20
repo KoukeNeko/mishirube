@@ -250,6 +250,82 @@ void main() {
     });
   });
 
+  group('routine persistence', () {
+    test('a new template is trained from next, across a restart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final before = store.routines.length;
+
+      final created = store.createRoutine('上肢 B');
+      expect(store.routines, hasLength(before + 1));
+      expect(store.routine.id, created.id);
+      expect(created.exercises, isEmpty);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(
+        reopened.routine.id,
+        created.id,
+        reason: 'the choice of what to train is not lost on restart',
+      );
+    });
+
+    test('deleting a template keeps the workouts done from it', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final deleted = store.routine;
+      final workouts = store
+          .monthRecords(DateTime(2026, 9))
+          .days
+          .expand((day) => day.entries)
+          .where((entry) => entry.category == RecordCategory.training)
+          .length;
+
+      expect(store.deleteRoutine(deleted), isTrue);
+      expect(store.routines.map((r) => r.id), isNot(contains(deleted.id)));
+      expect(
+        store.routine.id,
+        isNot(deleted.id),
+        reason: 'moved on to another',
+      );
+      expect(
+        store
+            .monthRecords(DateTime(2026, 9))
+            .days
+            .expand((day) => day.entries)
+            .where((entry) => entry.category == RecordCategory.training)
+            .length,
+        workouts,
+        reason: 'the plan is gone, the history is not',
+      );
+
+      store.undeleteRoutine(deleted.id);
+      expect(store.routines.map((r) => r.id), contains(deleted.id));
+      expect(store.routine.id, deleted.id);
+    });
+
+    test('the last template is kept, so there is always one to train', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      for (final routine in [...store.routines.skip(1)]) {
+        expect(store.deleteRoutine(routine), isTrue);
+      }
+      expect(store.routines, hasLength(1));
+      expect(store.deleteRoutine(store.routine), isFalse);
+      expect(store.routines, hasLength(1));
+    });
+  });
+
   group('nutrition persistence', () {
     test('an exploded dish and its undo are both stored', () {
       final backend = openFile();

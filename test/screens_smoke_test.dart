@@ -26,6 +26,7 @@ import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
 import 'package:mishirube/features/training/rest_timer_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
+import 'package:mishirube/features/training/routine_list_screen.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
@@ -60,6 +61,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
   'routine detail': ((_) => const RoutineDetailScreen(), _noSetup),
+  'routine list': ((_) => const RoutineListScreen(), _noSetup),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
   'rest timer': (
     (store) => RestTimerScreen(

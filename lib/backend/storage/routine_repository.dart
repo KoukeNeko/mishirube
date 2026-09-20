@@ -41,6 +41,33 @@ class RoutineRepository {
     );
   }
 
+  /// Every template, oldest first, so the list does not reshuffle itself
+  /// as they are edited.
+  List<Routine> all(Map<String, ExerciseDefinition> exercises) => [
+    for (final row in _db.select(
+      'SELECT id FROM routines WHERE deleted_at IS NULL ORDER BY created_at',
+    ))
+      byId(row['id']! as String, exercises)!,
+  ];
+
+  /// Tombstones a template. Finished workouts keep their own copy of what
+  /// was done, so history is untouched and [restore] brings the plan back.
+  void remove(String id) => _setDeleted(id, _db.now(), 'delete');
+
+  void restore(String id) => _setDeleted(id, null, 'restore');
+
+  void _setDeleted(String id, DateTime? deletedAt, String action) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE routines SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [deletedAt?.millisecondsSinceEpoch, now, id],
+      );
+      _db.audit(entityType: 'routine', entityId: id, action: action);
+    });
+  }
+
   String _lastCompletedLabel(String routineId) {
     final rows = _db.select(
       "SELECT MAX(started_at) AS last FROM workouts WHERE routine_id = ? "
