@@ -82,6 +82,18 @@ void main() {
 
     await _tapText(tester, '確認並存入');
     expect(store.isLunchLogged, isTrue);
+    final lunch = store.todayMeals.last;
+    expect(lunch.kcal, 665, reason: 'the confirmed estimate is what is kept');
+    expect(lunch.qualityTag, '份量為估計');
+    expect(
+      lunch.dishes.single.components
+          .firstWhere((component) => component.name == '美乃滋')
+          .amountLabel,
+      '~18 g',
+      reason: 'the answer replaces the inferred range',
+    );
+    expect(find.text('飲食'), findsWidgets);
+
     // Dishes start collapsed; the components appear when one is opened.
     await _tapText(tester, '雞肉照燒蛋全麥三明治');
     await _tapText(tester, '拆成獨立紀錄');

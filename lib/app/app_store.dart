@@ -12,7 +12,8 @@ import '../backend/storage/database.dart';
 import '../backend/storage/timeline_query.dart';
 import '../domain/domain.dart';
 
-export '../backend/application/nutrition_service.dart' show DishSplitSnapshot;
+export '../backend/application/nutrition_service.dart'
+    show DishSplitSnapshot, RecentMeal;
 
 /// Which moment of the mock day the Today screen is showing.
 enum DayPhase {
@@ -330,6 +331,25 @@ class AppStore extends ChangeNotifier {
   /// Food totals for [day] and how complete its log is.
   DaySummary summaryOf(DateTime day) =>
       _isToday(day) ? todaySummary : _backend.nutrition.summaryOf(day);
+
+  /// Meals worth offering again, newest first.
+  List<RecentMeal> get recentMeals => _backend.nutrition.recent();
+
+  /// Logs [meal] as eaten now.
+  MealEvent logMeal(MealEvent meal) {
+    final logged = _backend.nutrition.logMeal(meal, eatenAt: now());
+    _todayMeals.add(logged);
+    notifyListeners();
+    return logged;
+  }
+
+  /// Logs a meal eaten before all over again.
+  MealEvent copyMeal(MealEvent meal) {
+    final logged = _backend.nutrition.copy(meal);
+    _todayMeals.add(logged);
+    notifyListeners();
+    return logged;
+  }
 
   DishSplitSnapshot? splitDish({
     required String mealId,

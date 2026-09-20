@@ -217,6 +217,31 @@ void main() {
       expect(restored.todayMeals.last.dishes.first.components, hasLength(5));
     });
 
+    test('recent meals come from the records and can be logged again', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      final recent = store.recentMeals;
+      expect(recent, hasLength(3));
+      expect(recent.first.eatenAt.isAfter(recent.last.eatenAt), isTrue);
+      expect(
+        recent.map((meal) => meal.label).toSet(),
+        hasLength(3),
+        reason: 'the same dish is offered once, not once per day',
+      );
+
+      final before = store.todayKcal;
+      final again = store.copyMeal(recent.first.meal);
+
+      expect(store.todayMeals.last.id, again.id);
+      expect(store.todayKcal, before + recent.first.meal.kcal);
+      expect(
+        again.id,
+        isNot(recent.first.meal.id),
+        reason: 'a copy, not a link back to the meal eaten before',
+      );
+    });
+
     test('a past day can be read and its dish exploded', () {
       final backend = openFile();
       addTearDown(backend.close);

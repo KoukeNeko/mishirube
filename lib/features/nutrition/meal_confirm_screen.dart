@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/seed/demo_content.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'daily_nutrition_screen.dart';
@@ -12,29 +13,43 @@ import 'daily_nutrition_screen.dart';
 const _baseEstimateKcal = 620;
 const _estimateRangeKcal = 80;
 
-enum _MayoAmount {
-  little('少量', -40),
-  normal('一般', 0),
-  more('多一點', 45);
+/// Macros of the inferred meal, part of the same estimate as its energy.
+const _estimatedProteinGrams = 36;
+const _estimatedCarbGrams = 68;
+const _estimatedFatGrams = 21;
 
-  const _MayoAmount(this.label, this.kcalDelta);
+enum _MayoAmount {
+  little('少量', -40, '~8 g'),
+  normal('一般', 0, '~12 g'),
+  more('多一點', 45, '~18 g');
+
+  const _MayoAmount(this.label, this.kcalDelta, this.amountLabel);
 
   final String label;
   final int kcalDelta;
+
+  /// What the component reads as once this amount is confirmed.
+  final String amountLabel;
 }
 
 enum _ChickenAmount {
-  small('85 g', -25),
-  regular('100 g', 0),
-  unsure('不確定', 0);
+  small('85 g', -25, '85 g'),
+  regular('100 g', 0, '100 g'),
+  // Left as the range it was inferred as: an unsure answer is not a value.
+  unsure('不確定', 0, null);
 
-  const _ChickenAmount(this.label, this.kcalDelta);
+  const _ChickenAmount(this.label, this.kcalDelta, this.amountLabel);
 
   final String label;
   final int kcalDelta;
+  final String? amountLabel;
 }
 
-/// AI inference result that is only saved after the user confirms it.
+/// An inferred meal the user confirms before anything is stored.
+///
+/// There is no vision model yet, so the draft is fixed demo content; what
+/// is real is the flow around it: ranges stay ranges until the user
+/// answers, and the meal reaches the records only on confirmation.
 class MealConfirmScreen extends StatefulWidget {
   const MealConfirmScreen({super.key});
 
@@ -49,8 +64,50 @@ class _MealConfirmScreenState extends State<MealConfirmScreen> {
   int get _estimate =>
       _baseEstimateKcal + _mayo.kcalDelta + (_chicken?.kcalDelta ?? 0);
 
+  /// The inferred components with the user's answers filled in; what they
+  /// did not answer keeps the range it was guessed as.
+  List<FoodComponent> get _confirmedComponents => [
+    for (final component in DemoNutrition.sandwichComponents)
+      switch (component.name) {
+        '美乃滋' => FoodComponent(
+          name: component.name,
+          amountLabel: _mayo.amountLabel,
+          source: component.source,
+        ),
+        '照燒雞腿肉' when _chicken?.amountLabel != null => FoodComponent(
+          name: component.name,
+          amountLabel: _chicken!.amountLabel!,
+          source: component.source,
+        ),
+        _ => component,
+      },
+  ];
+
+  /// Nothing is stored until this runs: the inference alone is a draft.
   void _confirm() {
-    AppStoreScope.read(context).confirmLunch();
+    final store = AppStoreScope.read(context);
+    final isExact = _chicken != null && _chicken != _ChickenAmount.unsure;
+    store.logMeal(
+      MealEvent(
+        id: 'lunch',
+        name: '午餐',
+        timeLabel: formatTimeOfDay(store.now()),
+        kcal: _estimate,
+        qualityTag: isExact ? '已確認' : '份量為估計',
+        isEstimated: !isExact,
+        proteinGrams: _estimatedProteinGrams,
+        carbGrams: _estimatedCarbGrams,
+        fatGrams: _estimatedFatGrams,
+        dishes: [
+          DishEntry(
+            name: DemoNutrition.sandwich.name,
+            quantityLabel: DemoNutrition.sandwich.quantityLabel,
+            subtitle: DemoNutrition.sandwich.subtitle,
+            components: _confirmedComponents,
+          ),
+        ],
+      ),
+    );
     replaceWithPage(context, const DailyNutritionScreen());
   }
 
@@ -93,7 +150,16 @@ class _MealConfirmScreenState extends State<MealConfirmScreen> {
             message: '以下是推測結果，份量以區間表示。確認後才會存成你的紀錄。',
           ),
         ),
-        Gutter(child: const _InferredDishCard(dish: DemoNutrition.sandwich)),
+        Gutter(
+          child: _InferredDishCard(
+            dish: DishEntry(
+              name: DemoNutrition.sandwich.name,
+              quantityLabel: DemoNutrition.sandwich.quantityLabel,
+              subtitle: DemoNutrition.sandwich.subtitle,
+              components: _confirmedComponents,
+            ),
+          ),
+        ),
         Gutter(
           child: AppCard(
             child: Column(
@@ -174,10 +240,7 @@ class _InferredDishCard extends StatelessWidget {
             style: AppTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.sm),
-          ComponentList(
-            components: DemoNutrition.sandwichComponents,
-            showSource: true,
-          ),
+          ComponentList(components: dish.components, showSource: true),
         ],
       ),
     );

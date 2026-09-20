@@ -3,17 +3,33 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../backend/seed/demo_content.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'meal_confirm_screen.dart';
+
+/// `昨天 12:40` for the last two days, `9/17 19:20` before that.
+String _whenLabel(BuildContext context, DateTime at) {
+  final today = AppStoreScope.read(context).now();
+  final days = DateTime(
+    today.year,
+    today.month,
+    today.day,
+  ).difference(DateTime(at.year, at.month, at.day)).inDays;
+  final time = formatTimeOfDay(at);
+  return switch (days) {
+    0 => '今天 $time',
+    1 => '昨天 $time',
+    _ => '${at.month}/${at.day} $time',
+  };
+}
 
 /// "你吃了什麼？" — choose how to log a meal.
 class MealEntryScreen extends StatelessWidget {
   const MealEntryScreen({super.key});
 
-  void _addRecent(BuildContext context, String name) {
-    AppStoreScope.read(context).confirmLunch();
-    showToast(context, '已把「$name」加進午餐', kind: ToastKind.success);
+  void _logAgain(BuildContext context, RecentMeal recent) {
+    AppStoreScope.read(context).copyMeal(recent.meal);
+    showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
   }
 
   @override
@@ -50,13 +66,15 @@ class MealEntryScreen extends StatelessWidget {
           ),
         ),
         Gutter(child: const SectionLabel('最近吃過')),
-        for (final (name, time, kcal) in DemoNutrition.recentFoods)
+        for (final recent in AppStoreScope.of(context).recentMeals)
           Gutter(
             child: _RecentFoodRow(
-              name: name,
-              time: time,
-              kcal: kcal,
-              onAdd: () => _addRecent(context, name),
+              name: recent.label,
+              time: _whenLabel(context, recent.eatenAt),
+              kcal:
+                  '${recent.meal.isEstimated ? '~' : ''}'
+                  '${formatKcal(recent.meal.kcal)}',
+              onAdd: () => _logAgain(context, recent),
             ),
           ),
         Gutter(
