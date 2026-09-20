@@ -926,4 +926,26 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets('a quick record never joins the list', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = store.todayKcal;
+    final saved = store.searchFoods('').length;
+
+    await _tapText(tester, '快速記錄');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(AppTextField).first, '同事帶的蛋糕');
+    await _enterBeside(tester, '熱量', '320');
+    await _tapText(tester, '記錄');
+    await tester.pumpAndSettle();
+
+    expect(store.todayKcal, before + 320);
+    expect(
+      store.searchFoods(''),
+      hasLength(saved),
+      reason: 'a one-off is logged without being saved for next time',
+    );
+    await disposeTree(tester);
+  });
 }

@@ -71,9 +71,10 @@ class MealRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO meals (id, name, eaten_at, kcal, protein_g, carb_g, '
-        'fat_g, fibre_g, millilitres, quality_tag, is_estimated, created_at, '
-        'updated_at, source, import_batch_id) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
+        'quality_tag, is_estimated, created_at, updated_at, source, '
+        'import_batch_id) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -84,6 +85,8 @@ class MealRepository {
           meal.fatGrams,
           meal.fibreGrams,
           meal.millilitres,
+          meal.kind.name,
+          meal.mealType?.name,
           meal.qualityTag,
           meal.isEstimated ? 1 : 0,
           now,
@@ -232,6 +235,13 @@ class MealRepository {
       isEstimated: row['is_estimated'] == 1,
       isFavorite: row['is_favorite'] == 1,
       millilitres: row['millilitres'] as int?,
+      kind: ConsumptionKind.values.byName(
+        row['consumption_kind']! as String,
+      ),
+      mealType: switch (row['meal_type'] as String?) {
+        final name? => MealType.values.byName(name),
+        null => null,
+      },
       nutrients: readNutrients(_db, 'meal_nutrients', 'meal_id', id),
       dishes: [
         for (final dish in dishes)

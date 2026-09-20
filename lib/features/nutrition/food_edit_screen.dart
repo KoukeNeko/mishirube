@@ -51,6 +51,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   );
   late ServingUnit _servingUnit =
       widget.editing?.servingUnit ?? ServingUnit.gram;
+
+  /// Eaten or drunk. Prefilled from the unit because that is right more
+  /// often than not, but shown and changeable, because the unit does not
+  /// actually decide it: soup is poured and is not a drink.
+  late ConsumptionKind _kind =
+      widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
   late final _kcal = _number(widget.editing?.kcal);
   late final _protein = _number(widget.editing?.proteinGrams);
   late final _carb = _number(widget.editing?.carbGrams);
@@ -114,6 +120,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       ? const []
       : AppStoreScope.of(context).sizesOf(widget.editing!.id);
 
+  ConsumptionKind get _kindForUnit =>
+      switch (_servingUnit.dimension) {
+        ServingDimension.volume => ConsumptionKind.beverage,
+        ServingDimension.mass => ConsumptionKind.food,
+        ServingDimension.count => ConsumptionKind.unknown,
+      };
+
   double get _amount => double.tryParse(_servingAmount.text.trim()) ?? 0;
 
   bool get _isSize => widget.sizeOf != null || widget.editing?.isSize == true;
@@ -145,6 +158,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       nutrients: _typedNutrients(),
       parentId: widget.sizeOf?.id ?? widget.editing?.parentId,
       sizeName: _sizeName.text.trim(),
+      kind: _kind,
     );
     store.saveFood(food);
     Navigator.of(context).pop(logNow ? food : null);
@@ -242,6 +256,21 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         ],
         Gutter(child: const SectionLabel('品牌（沒有就留空）')),
         Gutter(child: AppTextField(controller: _brand, hint: '例如：大成')),
+        Gutter(child: const SectionLabel('這是吃的還是喝的')),
+        Gutter(
+          child: ChipWrap(
+            options: ConsumptionKind.values,
+            labelOf: (kind) => kind.label,
+            isSelected: (kind) => kind == _kind,
+            onTap: (kind) => setState(() => _kind = kind),
+          ),
+        ),
+        Gutter(
+          child: const Text(
+            '只有標成飲品的才會算進當日液體。湯用毫升記，但它不是飲品。',
+            style: AppTextStyles.caption,
+          ),
+        ),
         Gutter(child: const SectionLabel('一份是多少')),
         Gutter(
           child: Row(
@@ -265,7 +294,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             options: ServingUnit.values,
             labelOf: (unit) => unit.label,
             isSelected: (unit) => unit == _servingUnit,
-            onTap: (unit) => setState(() => _servingUnit = unit),
+            onTap: (unit) => setState(() {
+              final wasSuggested = _kind == _kindForUnit;
+              _servingUnit = unit;
+              if (wasSuggested) _kind = _kindForUnit;
+            }),
           ),
         ),
         Gutter(

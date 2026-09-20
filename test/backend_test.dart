@@ -594,6 +594,7 @@ void main() {
       final milk = FoodItem(
         id: store.newFoodId(),
         name: '鮮奶',
+        kind: ConsumptionKind.beverage,
         servingAmount: 250,
         servingUnit: ServingUnit.millilitre,
         kcal: 160,
@@ -628,6 +629,7 @@ void main() {
       const milk = FoodItem(
         id: 'milk',
         name: '鮮奶',
+        kind: ConsumptionKind.beverage,
         servingAmount: 250,
         servingUnit: ServingUnit.millilitre,
         kcal: 160,
@@ -725,6 +727,7 @@ void main() {
       const water = FoodItem(
         id: 'water',
         name: '水',
+        kind: ConsumptionKind.beverage,
         servingAmount: 500,
         servingUnit: ServingUnit.millilitre,
         kcal: 0,
@@ -732,6 +735,7 @@ void main() {
       const coffee = FoodItem(
         id: 'coffee',
         name: '黑咖啡',
+        kind: ConsumptionKind.beverage,
         servingAmount: 240,
         servingUnit: ServingUnit.millilitre,
         kcal: 5,
@@ -797,6 +801,7 @@ void main() {
       const milk = FoodItem(
         id: 'milk',
         name: '鮮奶',
+        kind: ConsumptionKind.beverage,
         servingAmount: 250,
         servingUnit: ServingUnit.millilitre,
         kcal: 160,
@@ -822,6 +827,7 @@ void main() {
         id: store.newFoodId(),
         name: '美式咖啡',
         brand: '星巴克',
+        kind: ConsumptionKind.beverage,
         servingAmount: 240,
         servingUnit: ServingUnit.millilitre,
         kcal: 5,
@@ -838,6 +844,7 @@ void main() {
             id: store.newFoodId(),
             name: '美式咖啡',
             brand: '星巴克',
+            kind: ConsumptionKind.beverage,
             parentId: americano.id,
             sizeName: name,
             servingAmount: ml,
@@ -870,6 +877,91 @@ void main() {
       expect(tall.millilitres, 350);
     });
 
+    test('soup is poured but is not a drink', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      // Both are measured in millilitres; only one of them is drunk.
+      const soup = FoodItem(
+        id: 'soup',
+        name: '玉米濃湯',
+        kind: ConsumptionKind.food,
+        servingAmount: 350,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 180,
+      );
+      const tea = FoodItem(
+        id: 'tea',
+        name: '無糖綠茶',
+        kind: ConsumptionKind.beverage,
+        servingAmount: 500,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 0,
+      );
+      final before = summariseFluid(store.todayMeals);
+      store
+        ..logPortion(const FoodPortion(soup, 1))
+        ..logPortion(const FoodPortion(tea, 1));
+
+      final fluid = summariseFluid(store.todayMeals);
+      expect(
+        fluid.millilitres,
+        before.millilitres + 500,
+        reason: 'the tea counts and the soup does not',
+      );
+      expect(store.todayMeals[store.todayMeals.length - 2].millilitres, isNull);
+    });
+
+    test('drinks do not make a day of meals look complete', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      const water = FoodItem(
+        id: 'water',
+        name: '水',
+        kind: ConsumptionKind.beverage,
+        servingAmount: 500,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 0,
+      );
+      final before = summariseDay(store.todayMeals).mealCount;
+      for (var i = 0; i < 3; i++) {
+        store.logPortion(const FoodPortion(water, 1));
+      }
+
+      expect(
+        summariseDay(store.todayMeals).mealCount,
+        before,
+        reason: 'three glasses of water is not three meals',
+      );
+    });
+
+    test('which sitting it was is recorded only when the user says', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      const toast = FoodItem(
+        id: 'toast',
+        name: '吐司',
+        kind: ConsumptionKind.food,
+        servingAmount: 1,
+        kcal: 150,
+      );
+      store
+        ..logPortion(const FoodPortion(toast, 1), mealType: MealType.breakfast)
+        ..logPortion(const FoodPortion(toast, 1));
+
+      final reopened = AppStore(clock: clock.now, backend: backend).todayMeals;
+      expect(reopened[reopened.length - 2].mealType, MealType.breakfast);
+      expect(
+        reopened.last.mealType,
+        isNull,
+        reason: 'the clock is not asked to guess which meal it was',
+      );
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);
@@ -881,6 +973,7 @@ void main() {
       final food = FoodItem(
         id: store.newFoodId(),
         name: '豆漿',
+        kind: ConsumptionKind.beverage,
         servingAmount: 250,
         servingUnit: ServingUnit.millilitre,
         kcal: 130,

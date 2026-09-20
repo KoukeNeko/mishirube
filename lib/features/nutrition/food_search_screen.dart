@@ -9,6 +9,7 @@ import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
 import 'meal_entry_screen.dart';
 import 'portion_sheet.dart';
+import 'quick_add_sheet.dart';
 import 'recent_meal_row.dart';
 
 /// Where a meal or a drink gets logged: search, or pick something eaten
@@ -67,12 +68,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     // logged — not the food scaled up to it.
     final chosen = sizes.isEmpty ? food : await _pickSize(food, sizes);
     if (chosen == null || !mounted) return;
-    final portion = await showPortionSheet(context, chosen);
-    if (portion == null || !mounted) return;
-    AppStoreScope.read(context).logPortion(portion);
+    final logged = await showPortionSheet(context, chosen);
+    if (logged == null || !mounted) return;
+    AppStoreScope.read(
+      context,
+    ).logPortion(logged.portion, mealType: logged.mealType);
     showToast(
       context,
-      '已記錄「${chosen.displayName}」${portion.label}',
+      '已記錄「${chosen.displayName}」${logged.portion.label}',
       kind: ToastKind.success,
     );
     Navigator.of(context).pop();
@@ -110,6 +113,13 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         ),
       );
 
+  Future<void> _quickAdd() async {
+    final logged = await showQuickAddSheet(context);
+    if (logged != true || !mounted) return;
+    showToast(context, '已記錄', kind: ToastKind.success);
+    Navigator.of(context).pop();
+  }
+
   void _logAgain(RecentMeal recent) {
     AppStoreScope.read(context).copyMeal(recent.meal);
     showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
@@ -144,7 +154,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final foods = store.searchFoods(query);
     return DetailPage(
       appBar: const PageAppBar(title: '飲食', subtitle: '吃的和喝的'),
-      footer: SecondaryButton(label: '新增食物或飲品', onPressed: _create),
+      footer: ButtonPair(
+        secondary: SecondaryButton(label: '快速記錄', onPressed: _quickAdd),
+        primaryFlex: 2,
+        primary: SecondaryButton(
+          label: '新增食物或飲品',
+          onPressed: _create,
+        ),
+      ),
       children: [
         Gutter(
           child: SearchField(controller: _query, hint: '搜尋吃過或存過的⋯⋯'),
@@ -177,7 +194,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                 ),
               ),
           ],
-          Gutter(child: const SectionLabel('你存過的')),
         ],
         if (foods.isEmpty)
           Gutter(
@@ -191,16 +207,27 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             ),
           )
         else
-          for (final food in foods)
-            Gutter(
-              child: _FoodRow(
-                food: food,
-                sizeCount: store.sizesOf(food.id).length,
-                onTap: () => _log(food),
-                onEdit: () => _edit(food),
-                onDelete: () => _delete(food),
+          // Drinks and food are listed apart: someone looking for a
+          // coffee is not scrolling past the rice to find it.
+          for (final kind in ConsumptionKind.values)
+            if (foods.where((food) => food.kind == kind) case final group
+                when group.isNotEmpty) ...[
+              Gutter(
+                child: SectionLabel(
+                  kind == ConsumptionKind.unknown ? '你存過的' : kind.label,
+                ),
               ),
-            ),
+              for (final food in group)
+                Gutter(
+                  child: _FoodRow(
+                    food: food,
+                    sizeCount: store.sizesOf(food.id).length,
+                    onTap: () => _log(food),
+                    onEdit: () => _edit(food),
+                    onDelete: () => _delete(food),
+                  ),
+                ),
+            ],
         if (query.isEmpty)
           Gutter(
             child: NavCard(

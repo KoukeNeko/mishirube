@@ -161,6 +161,7 @@ const _tables = [
     _Column('fibre_g', _Kind.integer, isNullable: true),
     _Column('parent_id', _Kind.text, isNullable: true),
     _Column('size_name', _Kind.text),
+    _Column('consumption_kind', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
   _Table('foodNutrients', 'food_nutrients', [
@@ -178,6 +179,8 @@ const _tables = [
     _Column('fat_g', _Kind.integer, isNullable: true),
     _Column('fibre_g', _Kind.integer, isNullable: true),
     _Column('millilitres', _Kind.integer, isNullable: true),
+    _Column('consumption_kind', _Kind.text),
+    _Column('meal_type', _Kind.text, isNullable: true),
     _Column('quality_tag', _Kind.text),
     _Column('is_estimated', _Kind.boolean),
     _Column('is_favorite', _Kind.boolean),

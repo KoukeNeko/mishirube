@@ -64,8 +64,8 @@ class FoodRepository {
           'UPDATE foods SET name = ?, brand = ?, serving_label = ?, '
           'serving_amount = ?, serving_unit = ?, kcal = ?, protein_g = ?, '
           'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
-          'size_name = ?, deleted_at = NULL, updated_at = ?, '
-          'revision = revision + 1 WHERE id = ?',
+          'size_name = ?, consumption_kind = ?, deleted_at = NULL, '
+          'updated_at = ?, revision = revision + 1 WHERE id = ?',
           [
             food.name,
             food.brand,
@@ -79,6 +79,7 @@ class FoodRepository {
             food.fibreGrams,
             food.parentId,
             food.sizeName,
+            food.kind.name,
             now,
             food.id,
           ],
@@ -87,8 +88,9 @@ class FoodRepository {
         _db.execute(
           'INSERT INTO foods (id, name, brand, serving_label, '
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
-          'fibre_g, parent_id, size_name, created_at, updated_at, source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'fibre_g, parent_id, size_name, consumption_kind, created_at, '
+          'updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -103,6 +105,7 @@ class FoodRepository {
             food.fibreGrams,
             food.parentId,
             food.sizeName,
+            food.kind.name,
             now,
             now,
             source.name,
@@ -184,6 +187,9 @@ class FoodRepository {
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
       parentId: row['parent_id'] as String?,
       sizeName: row['size_name']! as String,
+      kind: ConsumptionKind.values.byName(
+        row['consumption_kind']! as String,
+      ),
     );
   }
 }

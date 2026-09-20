@@ -407,6 +407,28 @@ final List<String> _migrations = [
   ALTER TABLE foods ADD COLUMN size_name TEXT NOT NULL DEFAULT '';
   CREATE INDEX foods_parent ON foods(parent_id);
   ''',
+  '''
+  -- Eaten or drunk, which is not the same question as how it is
+  -- measured: soup is poured and is not a drink, powder is weighed and
+  -- becomes one. Rows written before this step are backfilled from the
+  -- unit, which is what the app had been assuming anyway; from here on
+  -- the food says so itself.
+  ALTER TABLE foods ADD COLUMN consumption_kind TEXT NOT NULL
+    DEFAULT 'unknown';
+  UPDATE foods SET consumption_kind = 'beverage'
+    WHERE serving_unit IN ('millilitre', 'litre');
+  UPDATE foods SET consumption_kind = 'food'
+    WHERE serving_unit NOT IN ('millilitre', 'litre', 'serving');
+
+  ALTER TABLE meals ADD COLUMN consumption_kind TEXT NOT NULL
+    DEFAULT 'unknown';
+  UPDATE meals SET consumption_kind = 'beverage' WHERE millilitres IS NOT NULL;
+
+  -- Which sitting it was, when the user said. Optional on purpose: the
+  -- time is the fact and the meal is what they call it, and the five
+  -- values are the ones Health Connect defines.
+  ALTER TABLE meals ADD COLUMN meal_type TEXT;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

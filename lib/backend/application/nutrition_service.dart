@@ -206,7 +206,7 @@ class NutritionService {
   /// The numbers are copied, not linked: correcting the food later is not
   /// a claim about what was eaten last Tuesday. They are also not marked
   /// as estimated — the user typed them and chose the portion.
-  MealEvent logPortion(FoodPortion portion) {
+  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) {
     final eatenAt = _db.now();
     final food = portion.food;
     return logMeal(
@@ -221,6 +221,8 @@ class NutritionService {
         fibreGrams: portion.fibreGrams,
         nutrients: portion.nutrients,
         millilitres: portion.millilitres,
+        kind: food.kind,
+        mealType: mealType,
         qualityTag: '自訂食物',
         dishes: [
           DishEntry(

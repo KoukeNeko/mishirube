@@ -6,11 +6,21 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
+/// A portion, and which sitting the user said it belonged to.
+class LoggedPortion {
+  const LoggedPortion(this.portion, this.mealType);
+
+  final FoodPortion portion;
+
+  /// Null when they did not say, which is most of the time and is fine.
+  final MealType? mealType;
+}
+
 /// Asks how much of [food] is being logged, and resolves to that portion.
 ///
 /// It opens at one serving, so logging the usual amount is one more tap.
-Future<FoodPortion?> showPortionSheet(BuildContext context, FoodItem food) {
-  return showModalBottomSheet<FoodPortion>(
+Future<LoggedPortion?> showPortionSheet(BuildContext context, FoodItem food) {
+  return showModalBottomSheet<LoggedPortion>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -43,6 +53,11 @@ class _PortionSheetState extends State<_PortionSheet> {
   /// The field the user is typing in owns the number; the other one
   /// follows. Without this they would fight each other on every keypress.
   bool _isEditingAmount = false;
+
+  /// Which sitting this was. Never guessed from the clock: the time is
+  /// already recorded and is a fact, while what to call the sitting is
+  /// the user's own reading of it.
+  MealType? _mealType;
 
   bool get _isMeasured => widget.food.servingUnit.isMeasured;
 
@@ -173,10 +188,21 @@ class _PortionSheetState extends State<_PortionSheet> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
+          Text('這是哪一餐（可不選）', style: AppTextStyles.caption),
+          const SizedBox(height: AppSpacing.xs),
+          ChipWrap(
+            options: MealType.values,
+            labelOf: (type) => type.label,
+            isSelected: (type) => type == _mealType,
+            onTap: (type) =>
+                setState(() => _mealType = _mealType == type ? null : type),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           PrimaryButton(
             label: '記錄 ${portion.label}',
             onPressed: portion.servings > 0
-                ? () => Navigator.of(context).pop(portion)
+                ? () =>
+                      Navigator.of(context).pop(LoggedPortion(portion, _mealType))
                 : null,
           ),
         ],

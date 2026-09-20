@@ -1,6 +1,7 @@
 import '../../domain/domain.dart';
 
-/// Fewer meals than this on a finished day marks its food log incomplete.
+/// Fewer records of something eaten than this on a finished day marks
+/// its food log incomplete. Drinks do not count towards it.
 const mealsForCompleteDay = 3;
 
 /// A day's food totals with how complete and how exact the record is.
@@ -56,7 +57,12 @@ class DaySummary {
 }
 
 /// Adds up [meals]. A day is complete once it holds [mealsForCompleteDay]
-/// meals; a day still running is never called incomplete.
+/// records of something eaten; a day still running is never called
+/// incomplete.
+///
+/// Drinks are added to the totals but not counted towards that: three
+/// glasses of water is not three meals, and a day that called itself
+/// complete on the strength of them would be lying.
 DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
   var summary = DaySummary.empty;
   for (final meal in meals) {
@@ -66,7 +72,9 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
       carbGrams: summary.carbGrams + (meal.carbGrams ?? 0),
       fatGrams: summary.fatGrams + (meal.fatGrams ?? 0),
       fibreGrams: summary.fibreGrams + (meal.fibreGrams ?? 0),
-      mealCount: summary.mealCount + 1,
+      mealCount:
+          summary.mealCount +
+          (meal.kind == ConsumptionKind.beverage ? 0 : 1),
       hasEstimates: summary.hasEstimates || meal.isEstimated,
       isComplete: false,
       // A meal with no figures is counted, not skipped: the day has to

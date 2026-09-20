@@ -40,10 +40,14 @@ class FoodPortion {
   /// How much this portion is in the food's own unit.
   double get amount => food.servingAmount * servings;
 
-  /// The volume drunk, when the food is measured by volume at all. It is
-  /// the drink itself, not the water in it.
+  /// The volume drunk, for something the food says is a drink and
+  /// measures by volume. It is the drink itself, not the water in it.
+  ///
+  /// Being poured is not enough: soup is measured in millilitres and no
+  /// food authority calls it a drink, so the food has to say so.
   int? get millilitres =>
-      food.servingUnit.dimension == ServingDimension.volume
+      food.kind == ConsumptionKind.beverage &&
+          food.servingUnit.dimension == ServingDimension.volume
       ? food.servingUnit.convert(amount, ServingUnit.millilitre).round()
       : null;
 

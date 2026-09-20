@@ -685,8 +685,8 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Logs a portion of a saved food as a meal eaten now.
-  MealEvent logPortion(FoodPortion portion) {
-    final logged = _backend.nutrition.logPortion(portion);
+  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) {
+    final logged = _backend.nutrition.logPortion(portion, mealType: mealType);
     _todayMeals.add(logged);
     notifyListeners();
     return logged;

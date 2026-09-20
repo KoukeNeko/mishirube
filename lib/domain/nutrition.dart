@@ -44,6 +44,8 @@ class MealEvent {
     this.isFavorite = false,
     this.nutrients = const {},
     this.millilitres,
+    this.kind = ConsumptionKind.unknown,
+    this.mealType,
   });
 
   final String id;
@@ -75,6 +77,14 @@ class MealEvent {
   /// could not see.
   final Nutrients nutrients;
 
+  /// Whether this was eaten or drunk, as the food said when it was
+  /// logged. Copied, not looked up, like everything else here.
+  final ConsumptionKind kind;
+
+  /// Which sitting the user called it, if they said. Null is not a
+  /// failure to record: plenty of eating does not belong to a sitting.
+  final MealType? mealType;
+
   /// How much liquid this was, when it was logged by volume.
   ///
   /// It is what was drunk, not the water in it: 250 ml of milk is 250 ml
@@ -98,6 +108,8 @@ class MealEvent {
     String? qualityTag,
     Nutrients? nutrients,
     int? millilitres,
+    ConsumptionKind? kind,
+    MealType? mealType,
   }) => MealEvent(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -113,7 +125,54 @@ class MealEvent {
     isEstimated: isEstimated ?? this.isEstimated,
     nutrients: nutrients ?? this.nutrients,
     millilitres: millilitres ?? this.millilitres,
+    kind: kind ?? this.kind,
+    mealType: mealType ?? this.mealType,
   );
+}
+
+/// Which sitting a record belongs to, when the user says so.
+///
+/// Optional everywhere, and never guessed from the clock. The time is
+/// the fact; which meal that was is what the person calls it, and the
+/// two disagree more than you would think — asking people to name the
+/// sitting and classifying the same records by time only agree at an
+/// ICC of about 0.37. The American Heart Association says outright that
+/// meal and snack have no agreed definition and that letting people
+/// judge for themselves travels better between cultures.
+///
+/// These five are the values Health Connect defines, so a record can be
+/// handed over without inventing a mapping. HealthKit has no meal type
+/// at all; syncing there simply loses the note.
+enum MealType {
+  breakfast('早餐'),
+  lunch('午餐'),
+  dinner('晚餐'),
+  snack('點心');
+
+  const MealType(this.label);
+
+  final String label;
+}
+
+/// Whether something is eaten or drunk.
+///
+/// This is not the same question as how it is measured. Soup and sauces
+/// are poured by the millilitre and no food authority calls them drinks;
+/// drink powders and syrups are weighed in grams and become drinks. USDA,
+/// Codex and the TFDA all classify by how something is consumed, not by
+/// the unit on the packet — so the app asks rather than guesses.
+///
+/// [unknown] is where the genuinely arguable ones sit. It is not a
+/// failure to categorise: nobody has a definition of "beverage" that
+/// settles soup, so the app does not pretend to have one.
+enum ConsumptionKind {
+  food('食物'),
+  beverage('飲品'),
+  unknown('未指定');
+
+  const ConsumptionKind(this.label);
+
+  final String label;
 }
 
 /// What kind of quantity a unit measures.
@@ -196,6 +255,7 @@ class FoodItem {
     this.nutrients = const {},
     this.parentId,
     this.sizeName = '',
+    this.kind = ConsumptionKind.unknown,
   });
 
   final String id;
@@ -236,6 +296,9 @@ class FoodItem {
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;
 
+  /// Whether this is eaten or drunk.
+  final ConsumptionKind kind;
+
   /// The food this is a size of, when it is one.
   final String? parentId;
 
@@ -267,6 +330,7 @@ class FoodItem {
     Nutrients? nutrients,
     String? parentId,
     String? sizeName,
+    ConsumptionKind? kind,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -282,6 +346,7 @@ class FoodItem {
     nutrients: nutrients ?? this.nutrients,
     parentId: parentId ?? this.parentId,
     sizeName: sizeName ?? this.sizeName,
+    kind: kind ?? this.kind,
   );
 }
 
