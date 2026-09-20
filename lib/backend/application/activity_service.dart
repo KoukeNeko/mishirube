@@ -62,6 +62,17 @@ class ActivityService {
     return activity;
   }
 
+  ActivitySession? byId(String id) => _activities.byId(id);
+
+  /// Saves a correction to a session that was already logged.
+  void edit(ActivitySession activity) => _activities.update(activity);
+
+  /// Removes a session. The row is tombstoned, so [restore] can bring it
+  /// back from the undo on the toast.
+  void delete(String id) => _activities.remove(id);
+
+  void restore(String id) => _activities.restore(id);
+
   List<ActivitySession> on(DateTime day) => _activities.between(
     DateTime(day.year, day.month, day.day),
     DateTime(day.year, day.month, day.day + 1),

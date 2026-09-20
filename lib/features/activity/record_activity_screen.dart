@@ -18,9 +18,12 @@ const _maxDistanceKm = 1000.0;
 
 /// Logging exercise that has already happened, which is how most of it
 /// gets recorded. The end is now, the start follows from the duration, so
-/// nobody has to do the arithmetic.
+/// nobody has to do the arithmetic. Passing [activity] corrects that
+/// session instead of adding another one.
 class RecordActivityScreen extends StatefulWidget {
-  const RecordActivityScreen({super.key});
+  const RecordActivityScreen({super.key, this.activity});
+
+  final ActivitySession? activity;
 
   @override
   State<RecordActivityScreen> createState() => _RecordActivityScreenState();
@@ -39,6 +42,17 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   void initState() {
     super.initState();
     final store = AppStoreScope.read(context);
+    if (widget.activity case final activity?) {
+      _type = activity.type;
+      _minutes = activity.duration.inMinutes;
+      _startedAt = activity.startedAt;
+      _effort = activity.effort;
+      _note.text = activity.note;
+      if (activity.distanceMeters case final metres?) {
+        _distance.text = formatWeight(metres / 1000);
+      }
+      return;
+    }
     _type = store.recentActivityTypes.firstOrNull ?? ActivityTypes.running;
     _minutes = store.startingActivityDuration(_type).inMinutes;
     _startedAt = store.now().subtract(Duration(minutes: _minutes));
@@ -69,9 +83,13 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     if (type == null || !mounted) return;
     setState(() {
       _type = type;
-      _minutes = AppStoreScope.read(context)
-          .startingActivityDuration(type)
-          .inMinutes;
+      // Correcting a session keeps its length; a new one takes the
+      // length that type usually runs to.
+      if (widget.activity == null) {
+        _minutes = AppStoreScope.read(context)
+            .startingActivityDuration(type)
+            .inMinutes;
+      }
       if (!type.tracksDistance) _distance.clear();
     });
   }
@@ -120,18 +138,36 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       setState(() => _error = '距離請輸入 0 – ${_maxDistanceKm.round()} 公里之間。');
       return;
     }
-    AppStoreScope.read(context).logActivity(
-      type: _type,
-      startedAt: _startedAt,
-      duration: Duration(minutes: _minutes),
-      distanceMeters: _type.tracksDistance ? metres : null,
-      effort: _effort,
-      note: _note.text.trim(),
-    );
+    final store = AppStoreScope.read(context);
+    final edited = widget.activity;
+    if (edited == null) {
+      store.logActivity(
+        type: _type,
+        startedAt: _startedAt,
+        duration: Duration(minutes: _minutes),
+        distanceMeters: _type.tracksDistance ? metres : null,
+        effort: _effort,
+        note: _note.text.trim(),
+      );
+    } else {
+      store.updateActivity(
+        ActivitySession(
+          id: edited.id,
+          type: _type,
+          startedAt: _startedAt,
+          duration: Duration(minutes: _minutes),
+          distanceMeters: _type.tracksDistance ? metres : null,
+          elevationGainMeters: edited.elevationGainMeters,
+          effort: _effort,
+          note: _note.text.trim(),
+          nativeType: edited.nativeType,
+        ),
+      );
+    }
     Navigator.of(context).pop();
     showToast(
       context,
-      '已記錄${_type.label} $_minutes 分',
+      edited == null ? '已記錄${_type.label} $_minutes 分' : '已更新${_type.label}',
       kind: ToastKind.success,
     );
   }
@@ -146,7 +182,10 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       distanceMeters: _distanceMetres,
     ).pace;
     return DetailPage(
-      appBar: const PageAppBar(title: '記錄運動', subtitle: '事後補記'),
+      appBar: PageAppBar(
+        title: widget.activity == null ? '記錄運動' : '編輯運動',
+        subtitle: widget.activity == null ? '事後補記' : '修正已經記下的內容',
+      ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(

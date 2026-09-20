@@ -354,6 +354,38 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a logged session can be corrected and taken back', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.log);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('騎自行車').first);
+    await tester.pumpAndSettle();
+    expect(find.text('配速 /km'), findsOneWidget);
+
+    await tester.tap(find.text('編輯內容'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('60 分'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    expect(find.text('60'), findsWidgets, reason: 'the detail shows the fix');
+
+    await tester.tap(find.text('刪除這筆紀錄'));
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(find.text('騎自行車'), findsNothing);
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(find.text('騎自行車'), findsWidgets);
+    await disposeTree(tester);
+  });
+
   testWidgets('the log filters follow the record categories', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)

@@ -380,6 +380,53 @@ void main() {
       );
     });
 
+    test('a correction keeps the record, and a removal can be undone', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final logged = store.logActivity(
+        type: ActivityTypes.running,
+        startedAt: clock.now().subtract(const Duration(minutes: 30)),
+        duration: const Duration(minutes: 30),
+        distanceMeters: 5000,
+      );
+
+      store.updateActivity(
+        ActivitySession(
+          id: logged.id,
+          type: ActivityTypes.cycling,
+          startedAt: logged.startedAt,
+          duration: const Duration(minutes: 55),
+          distanceMeters: 21000,
+        ),
+      );
+      final corrected = AppStore(
+        clock: clock.now,
+        backend: backend,
+      ).activityById(logged.id)!;
+      expect(corrected.type, ActivityTypes.cycling);
+      expect(corrected.duration, const Duration(minutes: 55));
+
+      store.deleteActivity(logged.id);
+      expect(store.activityById(logged.id), isNull);
+      expect(
+        store.activitiesOn(clock.now()).map((session) => session.id),
+        isNot(contains(logged.id)),
+      );
+
+      store.restoreActivity(logged.id);
+      expect(store.activityById(logged.id), isNotNull);
+      expect(
+        AppStore(clock: clock.now, backend: backend).activityById(logged.id),
+        isNotNull,
+        reason: 'the undo is written through, not only held in memory',
+      );
+    });
+
     test('exercise is counted apart from training', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

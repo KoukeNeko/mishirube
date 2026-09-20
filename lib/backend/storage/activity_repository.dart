@@ -49,8 +49,64 @@ class ActivityRepository {
     });
   }
 
+  /// Rewrites a session in place. The id and its history stay; only what
+  /// the user corrected changes.
+  void update(
+    ActivitySession activity, {
+    ChangeSource source = ChangeSource.local,
+  }) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE activities SET type = ?, started_at = ?, ended_at = ?, '
+        'elapsed_ms = ?, distance_m = ?, elevation_gain_m = ?, effort = ?, '
+        'note = ?, updated_at = ?, revision = revision + 1 WHERE id = ?',
+        [
+          activity.type.id,
+          activity.startedAt.millisecondsSinceEpoch,
+          activity.endedAt.millisecondsSinceEpoch,
+          activity.duration.inMilliseconds,
+          activity.distanceMeters,
+          activity.elevationGainMeters,
+          activity.effort,
+          activity.note,
+          now,
+          activity.id,
+        ],
+      );
+      _db.audit(
+        entityType: 'activity',
+        entityId: activity.id,
+        action: 'update',
+        source: source,
+      );
+    });
+  }
+
+  /// Tombstones a session, so removing it can be taken back and the audit
+  /// trail still shows it happened.
+  void remove(String id) => _setDeleted(id, _db.now(), 'delete');
+
+  /// Puts a removed session back, for the undo on the toast.
+  void restore(String id) => _setDeleted(id, null, 'restore');
+
+  void _setDeleted(String id, DateTime? deletedAt, String action) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE activities SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [deletedAt?.millisecondsSinceEpoch, now, id],
+      );
+      _db.audit(entityType: 'activity', entityId: id, action: action);
+    });
+  }
+
   ActivitySession? byId(String id) {
-    final rows = _db.select('SELECT * FROM activities WHERE id = ?', [id]);
+    final rows = _db.select(
+      'SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL',
+      [id],
+    );
     return rows.isEmpty ? null : _fromRow(rows.first);
   }
 

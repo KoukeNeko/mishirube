@@ -496,6 +496,26 @@ class AppStore extends ChangeNotifier {
     return activity;
   }
 
+  /// A logged session, or null once it has been removed.
+  ActivitySession? activityById(String id) => _backend.activity.byId(id);
+
+  /// Saves a correction to a session already logged.
+  void updateActivity(ActivitySession activity) {
+    _backend.activity.edit(activity);
+    notifyListeners();
+  }
+
+  /// Removes a session; [restoreActivity] takes it back.
+  void deleteActivity(String id) {
+    _backend.activity.delete(id);
+    notifyListeners();
+  }
+
+  void restoreActivity(String id) {
+    _backend.activity.restore(id);
+    notifyListeners();
+  }
+
   /// Records a body weight measured now.
   void recordWeight(double kilograms, {String note = ''}) {
     _backend.journal.recordWeight(kilograms, note: note);

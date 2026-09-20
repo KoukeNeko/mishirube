@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/activity/activity_detail_screen.dart';
 import 'package:mishirube/features/activity/activity_type_picker.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
@@ -40,6 +41,15 @@ void _noSetup(AppStore store) {}
 void _withWorkout(AppStore store) => store.startWorkout();
 
 void _withLunch(AppStore store) => store.confirmLunch();
+
+void _withActivity(AppStore store) => store.logActivity(
+  type: ActivityTypes.running,
+  startedAt: store.now().subtract(const Duration(minutes: 30)),
+  duration: const Duration(minutes: 30),
+  distanceMeters: 5000,
+  effort: 6,
+  note: '河濱，風很大',
+);
 
 final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'onboarding': ((_) => const OnboardingScreen(), _noSetup),
@@ -84,6 +94,17 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _noSetup,
   ),
   'record activity': ((_) => const RecordActivityScreen(), _noSetup),
+  'edit activity': (
+    (store) =>
+        RecordActivityScreen(activity: store.activitiesOn(store.now()).last),
+    _withActivity,
+  ),
+  'activity detail': (
+    (store) => ActivityDetailScreen(
+      activityId: store.activitiesOn(store.now()).last.id,
+    ),
+    _withActivity,
+  ),
   'activity type picker': ((_) => const ActivityTypePicker(), _noSetup),
   'meal entry': ((_) => const MealEntryScreen(), _noSetup),
   'meal confirm': ((_) => const MealConfirmScreen(), _noSetup),

@@ -6,6 +6,7 @@ import '../../backend/storage/timeline_query.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/activity_detail_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
@@ -116,10 +117,11 @@ class _LogScreenState extends State<LogScreen> {
         workoutId: entry.recordId,
       ),
       RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
-      // Exercise, weights and check-ins say all they have in the row.
-      RecordCategory.activity ||
-      RecordCategory.body ||
-      RecordCategory.wellness => null,
+      RecordCategory.activity when entry.recordId != null =>
+        ActivityDetailScreen(activityId: entry.recordId!),
+      RecordCategory.activity => null,
+      // Weights and check-ins say all they have in the row.
+      RecordCategory.body || RecordCategory.wellness => null,
     };
     if (destination == null) {
       showToast(context, '「${entry.title}」的詳細畫面尚未設計');
