@@ -42,6 +42,17 @@ class CatalogService {
       result.exercise,
   ];
 
+  /// Folds [duplicate] into [canonical]: one history instead of two.
+  /// Nothing is deleted — the duplicate is tombstoned and the records it
+  /// held move across, so the past reads as one exercise from now on.
+  void merge({
+    required ExerciseDefinition duplicate,
+    required ExerciseDefinition canonical,
+  }) => _exercises.mergeInto(
+    duplicateId: duplicate.id,
+    canonicalId: canonical.id,
+  );
+
   /// Exercises that may already be what [name] describes, so the user can
   /// reuse one instead of starting a second history for it.
   List<ExerciseDefinition> duplicateCandidatesFor(String name) =>

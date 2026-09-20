@@ -213,6 +213,18 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Folds a duplicate exercise into the one it duplicates. The records
+  /// move with it; the plan is reloaded because it may name either.
+  void mergeExercise({
+    required ExerciseDefinition duplicate,
+    required ExerciseDefinition canonical,
+  }) {
+    _backend.catalog.merge(duplicate: duplicate, canonical: canonical);
+    _reloadExercises();
+    _routine = _backend.training.routine(_routine.id, _exercisesById)!;
+    notifyListeners();
+  }
+
   /// What to do with each planned exercise next time, with the reason.
   /// Nothing is applied until the user accepts it.
   List<(PlannedExercise, ProgressionSuggestion)> get progressionSuggestions =>

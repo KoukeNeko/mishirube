@@ -38,13 +38,18 @@ enum _PickerTab {
 enum PickerPurpose {
   template('加入訓練模板'),
   activeWorkout('加入進行中的'),
-  browse('瀏覽與搜尋所有動作');
+  browse('瀏覽與搜尋所有動作'),
+  single('選擇一個動作');
 
   const PickerPurpose(this.label);
 
   final String label;
 
+  /// Whether tapping a row chooses it at all.
   bool get picks => this != PickerPurpose.browse;
+
+  /// Whether one tap is the whole answer, with nothing to confirm.
+  bool get isSingle => this == PickerPurpose.single;
 }
 
 /// Multi-select exercise picker; pops with the chosen exercises in order.
@@ -178,7 +183,11 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
       },
       child: PageScaffold(
         appBar: PageAppBar(
-          title: widget.purpose.picks ? '新增動作' : '動作庫',
+          title: switch (widget.purpose) {
+            PickerPurpose.browse => '動作庫',
+            PickerPurpose.single => '選擇動作',
+            _ => '新增動作',
+          },
           subtitle: widget.targetName == null
               ? widget.purpose.label
               : '${widget.purpose.label}「${widget.targetName}」',
@@ -231,9 +240,13 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
                   order: _selected.indexOf(exercise) + 1,
                   // Browsing has nothing to select, so a tap goes where
                   // the info button would have gone.
-                  onTap: widget.purpose.picks
-                      ? () => _toggle(exercise)
-                      : () => _openDetail(exercise),
+                  onTap: switch (widget.purpose) {
+                    PickerPurpose.browse => () => _openDetail(exercise),
+                    PickerPurpose.single => () => Navigator.of(
+                      context,
+                    ).pop([exercise]),
+                    _ => () => _toggle(exercise),
+                  },
                   onInfo: () => _openDetail(exercise),
                 ),
               ),

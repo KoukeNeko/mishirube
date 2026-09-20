@@ -847,6 +847,64 @@ void main() {
     });
   });
 
+  group('merging a duplicate exercise', () {
+    test('the history moves across and the duplicate stops being offered', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final canonical = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      final duplicate = ExerciseDefinition(
+        id: 'custom-squat',
+        name: '深蹲（自己建的）',
+        equipment: canonical.equipment,
+        primaryMuscles: canonical.primaryMuscles,
+        pattern: canonical.pattern,
+        trackingType: canonical.trackingType,
+        source: ExerciseSource.custom,
+      );
+      store.createExercise(duplicate);
+
+      // Do a workout of the duplicate, so it has a history to move.
+      store
+        ..addExercises([duplicate])
+        ..startWorkout();
+      final index = store.activeWorkout!.exercises.indexWhere(
+        (session) => session.exercise.id == duplicate.id,
+      );
+      store.selectExercise(index);
+      store.completeNextSet();
+      clock.advance(const Duration(minutes: 30));
+      store.finishWorkout();
+
+      final before = store.exerciseHistory(canonical).sessionCount;
+      expect(store.exerciseHistory(duplicate).sessionCount, 1);
+
+      store.mergeExercise(duplicate: duplicate, canonical: canonical);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final merged = reopened.exercises.firstWhere((e) => e.id == 'back-squat');
+      expect(
+        reopened.exerciseHistory(merged).sessionCount,
+        before + 1,
+        reason: 'the session moved, it was not lost',
+      );
+      expect(
+        reopened.exercises.map((e) => e.id),
+        isNot(contains(duplicate.id)),
+        reason: 'the duplicate is no longer offered',
+      );
+      expect(
+        reopened.monthRecords(DateTime(2026, 9)).days.first.entries,
+        isNotEmpty,
+        reason: 'the workout itself is untouched',
+      );
+    });
+  });
+
   group('muscle load from records', () {
     test('the demo history is led by what the routine trains', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);

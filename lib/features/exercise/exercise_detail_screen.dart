@@ -6,6 +6,7 @@ import '../../domain/domain.dart';
 import '../../app/navigation.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'exercise_picker_screen.dart';
 import 'create_exercise_screen.dart';
 
 /// Asks for the names this user wants to find [exercise] by.
@@ -26,6 +27,46 @@ Future<void> _editAliases(
       if (alias.trim().isNotEmpty) alias.trim(),
   ]);
   showToast(context, '別名只影響你自己的搜尋');
+}
+
+/// Folds this exercise into another one, after the user picks which and
+/// says yes. Offered for the exercises a user can end up with twice.
+Future<void> _mergeInto(
+  BuildContext context,
+  ExerciseDefinition duplicate,
+) async {
+  final store = AppStoreScope.read(context);
+  final picked = await pushModalPage<List<ExerciseDefinition>>(
+    context,
+    const ExercisePickerScreen(purpose: PickerPurpose.single),
+  );
+  final canonical = picked?.firstOrNull;
+  if (canonical == null || !context.mounted) return;
+  if (canonical.id == duplicate.id) {
+    showToast(context, '不能和自己合併', kind: ToastKind.warning);
+    return;
+  }
+  final confirmed = await showAppDialog<bool>(
+    context,
+    AppDialog(
+      title: '把「${duplicate.name}」併入「${canonical.name}」？',
+      message:
+          '過去的紀錄會改成算在「${canonical.name}」下，動作本身不再出現在選擇器。'
+          '紀錄的內容不會被改寫，但這個合併無法復原。',
+      actions: [
+        DialogAction(
+          label: '合併',
+          tone: DialogTone.destructive,
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  store.mergeExercise(duplicate: duplicate, canonical: canonical);
+  Navigator.of(context).pop();
+  showToast(context, '已併入「${canonical.name}」', kind: ToastKind.success);
 }
 
 class ExerciseDetailScreen extends StatelessWidget {
@@ -112,6 +153,12 @@ class ExerciseDetailScreen extends StatelessWidget {
                     : exercise.personalAliases.join('、'),
                 onTap: () => _editAliases(context, exercise),
               ),
+              if (exercise.source != ExerciseSource.builtIn)
+                NavRow(
+                  title: '合併到另一個動作',
+                  subtitle: '重複建立時，把紀錄併到同一個動作下',
+                  onTap: () => _mergeInto(context, exercise),
+                ),
               NavRow(
                 title: exercise.isHidden ? '取消隱藏' : '隱藏這個動作',
                 subtitle: exercise.isHidden ? '目前不會出現在選擇器' : null,

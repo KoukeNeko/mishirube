@@ -207,6 +207,44 @@ class ExerciseRepository {
     });
   }
 
+  /// Folds a duplicate into the exercise it is a duplicate of: every
+  /// record that pointed at it now points at [canonicalId], and the
+  /// duplicate is tombstoned. The records themselves are untouched —
+  /// what was lifted stays what was lifted, under one name.
+  void mergeInto({required String duplicateId, required String canonicalId}) {
+    if (duplicateId == canonicalId) return;
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      final moved = _db.select(
+        'SELECT COUNT(*) AS n FROM workout_exercises WHERE exercise_id = ?',
+        [duplicateId],
+      ).first['n'];
+      for (final table in [
+        'workout_exercises',
+        'routine_exercises',
+        'external_exercise_names',
+      ]) {
+        _db.execute('UPDATE $table SET exercise_id = ? WHERE exercise_id = ?', [
+          canonicalId,
+          duplicateId,
+        ]);
+      }
+      // The name each finished workout kept is the name it was done
+      // under, so it is left alone.
+      _db.execute(
+        'UPDATE exercises SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [now, now, duplicateId],
+      );
+      _db.audit(
+        entityType: 'exercise',
+        entityId: duplicateId,
+        action: 'merge',
+        payload: {'into': canonicalId, 'workouts': moved},
+      );
+    });
+  }
+
   /// Hides or unhides an exercise. Hiding is not deleting: history keeps
   /// it and old workouts still show it.
   void setHidden(String id, {required bool isHidden}) {
