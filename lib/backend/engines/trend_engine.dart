@@ -7,6 +7,9 @@ const trendEngineVersion = 1;
 /// Below this many measurements a trend is not reported at all.
 const minimumPointsForTrend = 4;
 
+/// Finished weeks needed before "a normal week" means anything.
+const minimumWeeksForBaseline = 3;
+
 /// How many days a week has, spelled out where it is a rate conversion.
 const _daysPerWeek = 7;
 
@@ -125,6 +128,17 @@ List<WeeklyBar> weeklySums(
     if (index >= 0 && index < weeks) totals[index] += amount;
   }
   return [for (final (index, bar) in bars.indexed) (bar.$1, totals[index])];
+}
+
+/// What a normal week looks like in [bars]: the mean of the weeks that
+/// have finished, so the week in progress is not compared against itself.
+/// Null below [minimumWeeksForBaseline] finished weeks, because two weeks
+/// do not make a habit.
+int? typicalWeeklyAmount(List<WeeklyBar> bars) {
+  final finished = bars.take(bars.length - 1).toList();
+  if (finished.length < minimumWeeksForBaseline) return null;
+  final total = finished.fold(0, (sum, bar) => sum + bar.$2);
+  return (total / finished.length).round();
 }
 
 DateTime _startOfWeek(DateTime day) {

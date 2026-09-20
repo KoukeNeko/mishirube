@@ -58,6 +58,8 @@ class ActivityDetailScreen extends StatelessWidget {
                 ),
                 if (activity.distanceMeters case final metres?)
                   StatBlock(value: formatWeight(metres / 1000), label: '公里'),
+                if (activity.elevationGainMeters case final climb?)
+                  StatBlock(value: '${climb.round()}', label: '爬升 m'),
                 if (pace != null)
                   StatBlock(value: formatHoursMinutes(pace), label: '配速 /km'),
                 if (activity.effort case final effort?)

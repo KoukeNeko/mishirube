@@ -481,6 +481,7 @@ class AppStore extends ChangeNotifier {
     required DateTime startedAt,
     required Duration duration,
     double? distanceMeters,
+    double? elevationGainMeters,
     int? effort,
     String note = '',
   }) {
@@ -489,6 +490,7 @@ class AppStore extends ChangeNotifier {
       startedAt: startedAt,
       duration: duration,
       distanceMeters: distanceMeters,
+      elevationGainMeters: elevationGainMeters,
       effort: effort,
       note: note,
     );

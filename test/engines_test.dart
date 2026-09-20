@@ -117,6 +117,17 @@ void main() {
 
       expect(bars.map((bar) => bar.$2), [5, 7]);
     });
+
+    test('a normal week averages the finished weeks only', () {
+      const bars = [('8/24', 90), ('8/31', 120), ('9/7', 60), ('本週', 200)];
+
+      expect(typicalWeeklyAmount(bars), 90);
+      expect(
+        typicalWeeklyAmount(bars.sublist(1)),
+        isNull,
+        reason: 'two finished weeks do not make a normal',
+      );
+    });
   });
 
   group('insight engine', () {

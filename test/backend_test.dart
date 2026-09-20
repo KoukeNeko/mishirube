@@ -435,6 +435,12 @@ void main() {
       expect(summary.hasRecords, isTrue);
       expect(summary.thisWeek, 2, reason: 'the two sessions since Monday');
       expect(summary.weekly, hasLength(4));
+      expect(summary.minutesThisWeek, 82, reason: 'the ride and the run');
+      expect(
+        summary.typicalWeeklyMinutes,
+        isNotNull,
+        reason: 'three finished weeks are enough for a normal week',
+      );
       final workouts = store.trends().workoutsThisWeek;
       store.logActivity(
         type: ActivityTypes.swimming,

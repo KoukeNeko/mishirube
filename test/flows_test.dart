@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -351,6 +352,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('健走'), findsWidgets);
     expect(find.text('45 分'), findsWidgets);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the form asks only what the type can measure', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RecordActivityScreen(), store: store);
+
+    await tester.tap(find.text('運動類型'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('健行').last);
+    await tester.pumpAndSettle();
+    expect(find.text('距離（選填）'), findsOneWidget);
+    expect(find.text('爬升（選填）'), findsOneWidget);
+
+    await tester.tap(find.text('運動類型'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('瑜伽').last);
+    await tester.pumpAndSettle();
+    expect(find.text('距離（選填）'), findsNothing);
+    expect(
+      find.text('爬升（選填）'),
+      findsNothing,
+      reason: 'the form follows the type, not a list of sports',
+    );
     await disposeTree(tester);
   });
 

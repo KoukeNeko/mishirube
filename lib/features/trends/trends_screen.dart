@@ -166,9 +166,7 @@ class _SummaryGrid extends StatelessWidget {
           color: AppColors.activity,
           value: '${activity.thisWeek}',
           unit: '次 · 本週',
-          caption: activity.hasRecords
-              ? '${activity.time.inMinutes} 分鐘'
-              : '尚未記錄運動',
+          caption: _activityCaption(activity),
           chart: activity.hasRecords
               ? MiniBarChart(bars: activity.weekly, height: 40)
               : null,
@@ -200,6 +198,16 @@ class _SummaryGrid extends StatelessWidget {
       ],
     );
   }
+}
+
+/// What the week's minutes mean: against a normal week once there is one,
+/// and plainly until then.
+String _activityCaption(ActivitySummary activity) {
+  if (!activity.hasRecords) return '尚未記錄運動';
+  final minutes = activity.minutesThisWeek;
+  final typical = activity.typicalWeeklyMinutes;
+  if (typical == null) return '$minutes 分鐘';
+  return '$minutes 分鐘 · 平常 $typical 分';
 }
 
 class _SummaryTile extends StatelessWidget {

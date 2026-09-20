@@ -12,12 +12,14 @@ class ActivitySummary {
     required this.sessions,
     required this.time,
     required this.weekly,
+    required this.weeklyMinutes,
   });
 
   static const empty = ActivitySummary(
     sessions: 0,
     time: Duration.zero,
     weekly: [],
+    weeklyMinutes: [],
   );
 
   final int sessions;
@@ -26,9 +28,18 @@ class ActivitySummary {
   /// Sessions per week, oldest first, ending with this week.
   final List<WeeklyBar> weekly;
 
+  /// Minutes per week over the same weeks as [weekly].
+  final List<WeeklyBar> weeklyMinutes;
+
   bool get hasRecords => sessions > 0;
 
   int get thisWeek => weekly.isEmpty ? 0 : weekly.last.$2;
+
+  int get minutesThisWeek => weeklyMinutes.isEmpty ? 0 : weeklyMinutes.last.$2;
+
+  /// Minutes in a normal week, for saying whether this week is unusual.
+  /// Null until enough weeks have finished to have a normal.
+  int? get typicalWeeklyMinutes => typicalWeeklyAmount(weeklyMinutes);
 }
 
 /// Logging general exercise.
@@ -46,6 +57,7 @@ class ActivityService {
     required DateTime startedAt,
     required Duration duration,
     double? distanceMeters,
+    double? elevationGainMeters,
     int? effort,
     String note = '',
   }) {
@@ -55,6 +67,7 @@ class ActivityService {
       startedAt: startedAt,
       duration: duration,
       distanceMeters: distanceMeters,
+      elevationGainMeters: elevationGainMeters,
       effort: effort,
       note: note,
     );
@@ -94,13 +107,21 @@ class ActivityService {
       _db.nowInclusive,
     );
     if (sessions.isEmpty) return ActivitySummary.empty;
+    final weeks = (window.inDays / DateTime.daysPerWeek).ceil();
     return ActivitySummary(
       sessions: sessions.length,
       time: sessions.fold(Duration.zero, (sum, s) => sum + s.duration),
       weekly: weeklyCounts(
         sessions.map((session) => session.startedAt),
         now: now,
-        weeks: (window.inDays / DateTime.daysPerWeek).ceil(),
+        weeks: weeks,
+      ),
+      weeklyMinutes: weeklySums(
+        sessions.map(
+          (session) => (session.startedAt, session.duration.inMinutes),
+        ),
+        now: now,
+        weeks: weeks,
       ),
     );
   }

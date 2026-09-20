@@ -15,6 +15,7 @@ const _durationShortcuts = [15, 30, 45, 60];
 const _minMinutes = 1;
 const _maxMinutes = 600;
 const _maxDistanceKm = 1000.0;
+const _maxElevationM = 10000.0;
 
 /// Logging exercise that has already happened, which is how most of it
 /// gets recorded. The end is now, the start follows from the duration, so
@@ -34,6 +35,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   late DateTime _startedAt;
   late int _minutes;
   final _distance = TextEditingController();
+  final _elevation = TextEditingController();
   final _note = TextEditingController();
   int? _effort;
   String? _error;
@@ -51,6 +53,9 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       if (activity.distanceMeters case final metres?) {
         _distance.text = formatWeight(metres / 1000);
       }
+      if (activity.elevationGainMeters case final metres?) {
+        _elevation.text = metres.round().toString();
+      }
       return;
     }
     _type = store.recentActivityTypes.firstOrNull ?? ActivityTypes.running;
@@ -60,6 +65,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
 
   @override
   void dispose() {
+    _elevation.dispose();
     _distance.dispose();
     _note.dispose();
     super.dispose();
@@ -91,6 +97,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
             .inMinutes;
       }
       if (!type.tracksDistance) _distance.clear();
+      if (!type.tracksElevation) _elevation.clear();
     });
   }
 
@@ -119,6 +126,11 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     });
   }
 
+  double? get _elevationMetres {
+    final text = _elevation.text.trim();
+    return text.isEmpty ? null : double.tryParse(text);
+  }
+
   double? get _distanceMetres {
     final text = _distance.text.trim();
     if (text.isEmpty) return null;
@@ -138,6 +150,12 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       setState(() => _error = '距離請輸入 0 – ${_maxDistanceKm.round()} 公里之間。');
       return;
     }
+    final climb = _elevationMetres;
+    if (_elevation.text.trim().isNotEmpty &&
+        (climb == null || climb < 0 || climb > _maxElevationM)) {
+      setState(() => _error = '爬升請輸入 0 – ${_maxElevationM.round()} 公尺之間。');
+      return;
+    }
     final store = AppStoreScope.read(context);
     final edited = widget.activity;
     if (edited == null) {
@@ -146,6 +164,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
         startedAt: _startedAt,
         duration: Duration(minutes: _minutes),
         distanceMeters: _type.tracksDistance ? metres : null,
+        elevationGainMeters: _type.tracksElevation ? climb : null,
         effort: _effort,
         note: _note.text.trim(),
       );
@@ -157,7 +176,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           startedAt: _startedAt,
           duration: Duration(minutes: _minutes),
           distanceMeters: _type.tracksDistance ? metres : null,
-          elevationGainMeters: edited.elevationGainMeters,
+          elevationGainMeters: _type.tracksElevation ? climb : null,
           effort: _effort,
           note: _note.text.trim(),
           nativeType: edited.nativeType,
@@ -259,32 +278,12 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
         if (_type.tracksDistance) ...[
           Gutter(child: const SectionLabel('距離（選填）')),
           Gutter(
-            child: AppCard(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      key: const ValueKey('activity-distance'),
-                      controller: _distance,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                      ],
-                      onChanged: (_) => setState(() {}),
-                      style: AppTextStyles.bigNumber,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        hintText: '0.0',
-                        hintStyle: TextStyle(color: AppColors.textTertiary),
-                      ),
-                    ),
-                  ),
-                  const Text('km', style: AppTextStyles.itemTitle),
-                ],
-              ),
+            child: _MeasureField(
+              fieldKey: const ValueKey('activity-distance'),
+              controller: _distance,
+              unit: 'km',
+              allowsDecimals: true,
+              onChanged: () => setState(() {}),
             ),
           ),
           if (pace != null)
@@ -294,6 +293,16 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                 style: AppTextStyles.caption,
               ),
             ),
+        ],
+        if (_type.tracksElevation) ...[
+          Gutter(child: const SectionLabel('爬升（選填）')),
+          Gutter(
+            child: _MeasureField(
+              fieldKey: const ValueKey('activity-elevation'),
+              controller: _elevation,
+              unit: 'm',
+            ),
+          ),
         ],
         Gutter(child: const SectionLabel('強度（選填）')),
         Gutter(
@@ -321,6 +330,57 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
             child: InfoBanner(tone: CardTone.warning, message: error),
           ),
       ],
+    );
+  }
+}
+
+/// A number and its unit on a card: the optional measurements a type
+/// says it supports, which read the same whichever one it is.
+class _MeasureField extends StatelessWidget {
+  const _MeasureField({
+    required this.fieldKey,
+    required this.controller,
+    required this.unit,
+    this.allowsDecimals = false,
+    this.onChanged,
+  });
+
+  final Key fieldKey;
+  final TextEditingController controller;
+  final String unit;
+  final bool allowsDecimals;
+  final VoidCallback? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              key: fieldKey,
+              controller: controller,
+              keyboardType: TextInputType.numberWithOptions(
+                decimal: allowsDecimals,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  allowsDecimals ? RegExp(r'[0-9.]') : RegExp(r'[0-9]'),
+                ),
+              ],
+              onChanged: (_) => onChanged?.call(),
+              style: AppTextStyles.bigNumber,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+                hintText: allowsDecimals ? '0.0' : '0',
+                hintStyle: const TextStyle(color: AppColors.textTertiary),
+              ),
+            ),
+          ),
+          Text(unit, style: AppTextStyles.itemTitle),
+        ],
+      ),
     );
   }
 }

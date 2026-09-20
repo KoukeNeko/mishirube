@@ -51,6 +51,9 @@ class ActivityType {
 
   bool get tracksPace => capabilities.contains(ActivityCapability.pace);
 
+  bool get tracksElevation =>
+      capabilities.contains(ActivityCapability.elevation);
+
   @override
   bool operator ==(Object other) => other is ActivityType && other.id == id;
 
