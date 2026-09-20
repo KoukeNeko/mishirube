@@ -134,6 +134,7 @@ class ExerciseRepository {
         exercise.source.name,
         jsonEncode(exercise.cues),
         exercise.isFavorite ? 1 : 0,
+        exercise.isHidden ? 1 : 0,
         exercise.isInHomeGym ? 1 : 0,
       ];
       if (exists) {
@@ -141,7 +142,8 @@ class ExerciseRepository {
           'UPDATE exercises SET name = ?, aliases = ?, equipment = ?, '
           'primary_muscles = ?, secondary_muscles = ?, pattern = ?, '
           'tracking_type = ?, ownership = ?, cues = ?, is_favorite = ?, '
-          'is_in_home_gym = ?, updated_at = ?, revision = revision + 1 '
+          'is_hidden = ?, is_in_home_gym = ?, updated_at = ?, '
+          'revision = revision + 1 '
           'WHERE id = ?',
           [...values, now, exercise.id],
         );
@@ -149,9 +151,9 @@ class ExerciseRepository {
         _db.execute(
           'INSERT INTO exercises (name, aliases, equipment, primary_muscles, '
           'secondary_muscles, pattern, tracking_type, ownership, cues, '
-          'is_favorite, is_in_home_gym, id, created_at, updated_at, source, '
-          'import_batch_id) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_favorite, is_hidden, is_in_home_gym, id, created_at, '
+          'updated_at, source, import_batch_id) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [...values, exercise.id, now, now, source.name, importBatchId],
         );
       }
@@ -161,6 +163,23 @@ class ExerciseRepository {
         action: exists ? 'update' : 'create',
         source: source,
         importBatchId: importBatchId,
+      );
+    });
+  }
+
+  /// Hides or unhides an exercise. Hiding is not deleting: history keeps
+  /// it and old workouts still show it.
+  void setHidden(String id, {required bool isHidden}) {
+    _db.transaction(() {
+      _db.execute(
+        'UPDATE exercises SET is_hidden = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [isHidden ? 1 : 0, _db.now().millisecondsSinceEpoch, id],
+      );
+      _db.audit(
+        entityType: 'exercise',
+        entityId: id,
+        action: isHidden ? 'hide' : 'unhide',
       );
     });
   }
@@ -228,6 +247,7 @@ class ExerciseRepository {
       source: ExerciseSource.values.byName(row['ownership']),
       cues: _strings(row['cues']),
       isFavorite: row['is_favorite'] == 1,
+      isHidden: row['is_hidden'] == 1,
       isInHomeGym: row['is_in_home_gym'] == 1,
       recordCount: history.sessionCount,
       lastPerformance: last == null

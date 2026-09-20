@@ -33,6 +33,10 @@ class CatalogService {
   void setFavorite(String id, {required bool isFavorite}) =>
       _exercises.setFavorite(id, isFavorite: isFavorite);
 
+  /// Hides an exercise from the pickers without touching its history.
+  void setHidden(String id, {required bool isHidden}) =>
+      _exercises.setHidden(id, isHidden: isHidden);
+
   List<SubstitutionOption> substitutesFor(ExerciseDefinition exercise) =>
       engine.substitutesFor(exercise, all());
 

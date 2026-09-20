@@ -83,6 +83,21 @@ class WorkoutRepository {
       ..pausedTotal = Duration(milliseconds: row['paused_total_ms']);
   }
 
+  /// Abandons a running workout. The row stays with status `cancelled`,
+  /// so nothing counts it as training done, but the audit trail still
+  /// shows it happened.
+  void cancel(WorkoutSession workout) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        "UPDATE workouts SET status = 'cancelled', finished_at = ?, "
+        'updated_at = ?, revision = revision + 1 WHERE id = ?',
+        [now, now, workout.id],
+      );
+      _db.audit(entityType: 'workout', entityId: workout.id, action: 'discard');
+    });
+  }
+
   /// Writes the whole workout. [action] names what changed for the audit
   /// log (e.g. `start`, `complete_set`, `finish`).
   void save(

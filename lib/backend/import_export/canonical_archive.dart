@@ -82,6 +82,7 @@ const _tables = [
     _Column('ownership', _Kind.text),
     _Column('cues', _Kind.json),
     _Column('is_favorite', _Kind.boolean),
+    _Column('is_hidden', _Kind.boolean),
     _Column('is_in_home_gym', _Kind.boolean),
     ..._entity,
   ], orderBy: 'id'),

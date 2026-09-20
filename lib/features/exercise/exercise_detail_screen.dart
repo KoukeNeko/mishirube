@@ -80,8 +80,12 @@ class ExerciseDetailScreen extends StatelessWidget {
                 onTap: () => showToast(context, '別名只影響你自己的搜尋'),
               ),
               NavRow(
-                title: '隱藏這個動作',
-                onTap: () => showToast(context, '隱藏不會刪除歷史紀錄'),
+                title: exercise.isHidden ? '取消隱藏' : '隱藏這個動作',
+                subtitle: exercise.isHidden ? '目前不會出現在選擇器' : null,
+                onTap: () {
+                  store.toggleHidden(exercise);
+                  showToast(context, '隱藏不會刪除歷史紀錄');
+                },
               ),
             ],
           ),

@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../shared/widgets/chrome/chrome_visibility.dart';
+import '../../shared/widgets/widgets.dart';
 import '../log/log_screen.dart';
 import '../me/me_screen.dart';
 import '../today/today_screen.dart';
@@ -12,6 +12,9 @@ import '../training/workout_summary_screen.dart';
 import '../trends/trends_screen.dart';
 import 'bottom_chrome/app_bottom_chrome.dart';
 import 'bottom_chrome/quick_log_menu.dart';
+
+/// What the user chose in the "finish this workout?" dialog.
+enum _FinishChoice { keepGoing, discard, finish }
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -62,26 +65,41 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Future<void> _confirmFinish(AppStore store) async {
-    final shouldFinish = await showDialog<bool>(
+    final choice = await showDialog<_FinishChoice>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('結束這次訓練？'),
-        content: const Text('已完成的組數會存成紀錄。'),
+        content: const Text('已完成的組數會存成紀錄；放棄則不會算成一次訓練。'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(_FinishChoice.keepGoing),
             child: const Text('繼續訓練'),
           ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(_FinishChoice.discard),
+            child: const Text('放棄'),
+          ),
           FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(_FinishChoice.finish),
             child: const Text('結束'),
           ),
         ],
       ),
     );
-    if (shouldFinish != true || !mounted) return;
-    store.finishWorkout();
-    pushPage(context, const WorkoutSummaryScreen());
+    if (!mounted) return;
+    switch (choice) {
+      case null || _FinishChoice.keepGoing:
+        return;
+      case _FinishChoice.discard:
+        store.discardWorkout();
+        showToast(context, '已放棄這次訓練，沒有存成紀錄');
+      case _FinishChoice.finish:
+        store.finishWorkout();
+        pushPage(context, const WorkoutSummaryScreen());
+    }
   }
 
   @override

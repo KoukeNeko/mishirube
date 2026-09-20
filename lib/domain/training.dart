@@ -77,6 +77,7 @@ class ExerciseDefinition {
     this.trackingType = TrackingType.weightReps,
     this.source = ExerciseSource.builtIn,
     this.isFavorite = false,
+    this.isHidden = false,
     this.isInHomeGym = true,
     this.lastPerformance,
     this.lastUsedDaysAgo,
@@ -94,6 +95,9 @@ class ExerciseDefinition {
   final TrackingType trackingType;
   final ExerciseSource source;
   final bool isFavorite;
+
+  /// Kept out of pickers and suggestions; history and old workouts keep it.
+  final bool isHidden;
   final bool isInHomeGym;
   final String? lastPerformance;
   final int? lastUsedDaysAgo;
@@ -101,15 +105,6 @@ class ExerciseDefinition {
   final List<String> cues;
 
   String get muscleSummary => primaryMuscles.map((m) => m.label).join('、');
-
-  /// The same exercise whatever its usage figures: identity is the stable
-  /// id, so a definition reloaded from storage equals the one on screen.
-  @override
-  bool operator ==(Object other) =>
-      other is ExerciseDefinition && other.id == id;
-
-  @override
-  int get hashCode => id.hashCode;
 
   bool matchesQuery(String query) {
     final normalizedQuery = query.trim().toLowerCase();
@@ -120,6 +115,15 @@ class ExerciseDefinition {
       equipment.label,
     ].any((term) => term.toLowerCase().contains(normalizedQuery));
   }
+
+  /// The same exercise whatever its usage figures: identity is the stable
+  /// id, so a definition reloaded from storage equals the one on screen.
+  @override
+  bool operator ==(Object other) =>
+      other is ExerciseDefinition && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 /// The plan side of training: editing it never rewrites finished workouts.

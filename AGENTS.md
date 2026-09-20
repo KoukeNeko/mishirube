@@ -125,6 +125,8 @@ In particular, do not create a parallel version of:
   not stored or hard-coded. An engine that cannot support a statement
   returns null so the screen can say there is not enough data.
 - Imports go through a dry run first and commit as one undoable batch.
+- Nothing is hard deleted and nothing rewrites history: hiding an exercise
+  or abandoning a workout keeps the records and the audit trail.
 
 ## Layout rules
 

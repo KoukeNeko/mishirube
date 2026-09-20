@@ -188,6 +188,11 @@ final List<String> _migrations = [
   );
   CREATE INDEX wellness_entries_recorded ON wellness_entries(recorded_at);
   ''',
+  '''
+  -- Hidden exercises stay in history and in old workouts; they are only
+  -- kept out of pickers and suggestions.
+  ALTER TABLE exercises ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

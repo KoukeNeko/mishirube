@@ -294,4 +294,38 @@ void main() {
       );
     });
   });
+
+  group('discarding a workout', () {
+    test('it stops counting as training but stays in the audit trail', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+        ..startWorkout()
+        ..completeNextSet();
+      addTearDown(store.dispose);
+      final id = store.activeWorkout!.id;
+      final before = store.trends().workoutsThisWeek;
+
+      store.discardWorkout();
+
+      expect(store.activeWorkout, isNull);
+      expect(store.trends().workoutsThisWeek, before);
+      expect(
+        store.backend.storage.workouts.byId(id, (id) => store.exercises.first),
+        isNotNull,
+        reason: 'the workout is kept, not deleted',
+      );
+      expect(
+        store.backend.db
+            .select(
+              'SELECT action FROM audit_events WHERE entity_id = ? '
+              'ORDER BY id',
+              [id],
+            )
+            .map((row) => row['action']),
+        ['start', 'complete_set', 'discard'],
+      );
+      // A new workout can start right away.
+      store.startWorkout();
+      expect(store.activeWorkout, isNotNull);
+    });
+  });
 }

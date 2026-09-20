@@ -243,6 +243,12 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleHidden(ExerciseDefinition exercise) {
+    _backend.catalog.setHidden(exercise.id, isHidden: !exercise.isHidden);
+    _reloadExercises();
+    notifyListeners();
+  }
+
   void toggleFavorite(ExerciseDefinition exercise) {
     final isFavorite = !(_exercisesById[exercise.id]?.isFavorite ?? false);
     _backend.catalog.setFavorite(exercise.id, isFavorite: isFavorite);
@@ -261,6 +267,16 @@ class AppStore extends ChangeNotifier {
     final workout = _activeWorkout;
     if (workout == null) return;
     _backend.training.togglePause(workout);
+    notifyListeners();
+  }
+
+  /// Abandons the running workout. Logged sets stay in the audit trail
+  /// but the workout does not count as training done.
+  void discardWorkout() {
+    final workout = _activeWorkout;
+    if (workout == null) return;
+    _backend.training.discard(workout);
+    _activeWorkout = null;
     notifyListeners();
   }
 

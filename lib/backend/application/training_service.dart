@@ -133,6 +133,10 @@ class TrainingService {
     _workouts.save(workout, action: workout.isPaused ? 'pause' : 'resume');
   }
 
+  /// Gives up on a workout: it is kept as an abandoned one, not counted
+  /// as training and not deleted.
+  void discard(WorkoutSession workout) => _workouts.cancel(workout);
+
   void finish(WorkoutSession workout) {
     if (workout.isPaused) togglePause(workout);
     workout.finishedAt = _db.now();
