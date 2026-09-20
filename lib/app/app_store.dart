@@ -83,10 +83,15 @@ class AppStore extends ChangeNotifier {
   final bool _ownsBackend;
 
   late bool _isOnboarded;
+
+  /// On until the user says otherwise: the modules whose records the app
+  /// can actually log today.
   final Set<AppModule> _enabledModules = {
     AppModule.nutrition,
     AppModule.weight,
     AppModule.training,
+    AppModule.sleep,
+    AppModule.wellness,
   };
   DayPhase _phase = DayPhase.morning;
   late Routine _routine;

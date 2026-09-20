@@ -158,7 +158,9 @@ class _QuickLogMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final quickOptions = recordOptions.take(_quickOptionCount).toList();
+    final quickOptions = enabledRecordOptions(context)
+        .take(_quickOptionCount)
+        .toList();
     final itemCount = quickOptions.length + 1;
     final metrics = DockMetrics.of(context);
     return Padding(

@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -286,6 +287,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TextField).hitTestable(), findsNothing);
     expect(todayAction.hitTestable(), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('turning a module off takes it out of the add menu', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+    Finder inMenu(String label) => find.descendant(
+      of: find.byKey(quickLogMenuKey),
+      matching: find.text(label),
+    );
+    await tester.tap(find.bySemanticsLabel('新增紀錄'));
+    await tester.pumpAndSettle();
+    expect(inMenu('睡眠'), findsOneWidget);
+    await tester.tapAt(const Offset(20, 120));
+    await tester.pumpAndSettle();
+
+    store.toggleModule(AppModule.sleep);
+    await tester.pump();
+    await tester.tap(find.bySemanticsLabel('新增紀錄'));
+    await tester.pumpAndSettle();
+
+    expect(
+      inMenu('睡眠'),
+      findsNothing,
+      reason: 'the menu says it lists your modules, so it must',
+    );
     await disposeTree(tester);
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../journal/sleep_entry_screen.dart';
@@ -28,6 +29,7 @@ class RecordOption {
     required this.color,
     required this.title,
     required this.subtitle,
+    required this.module,
     this.destination,
   });
 
@@ -35,14 +37,21 @@ class RecordOption {
   final Color color;
   final String title;
   final String subtitle;
+
+  /// The module this record belongs to; turning the module off takes the
+  /// option out of the menu.
+  final AppModule module;
   final Widget Function()? destination;
 }
 
+/// What the user can add, most used first. The menu shows the ones whose
+/// module is on.
 final recordOptions = [
   RecordOption(
     icon: Icons.fitness_center,
     color: AppColors.training,
     title: '訓練',
+    module: AppModule.training,
     subtitle: '從訓練模板開始，或空白紀錄',
     destination: () => const RoutineDetailScreen(),
   ),
@@ -50,6 +59,7 @@ final recordOptions = [
     icon: Icons.restaurant,
     color: AppColors.nutrition,
     title: '一餐',
+    module: AppModule.nutrition,
     subtitle: '拍照、說出來或搜尋',
     destination: () => const MealEntryScreen(),
   ),
@@ -57,6 +67,7 @@ final recordOptions = [
     icon: Icons.straighten,
     color: AppColors.body,
     title: '體重與量測',
+    module: AppModule.weight,
     subtitle: '體重、腰圍、體組成',
     destination: () => const WeightEntryScreen(),
   ),
@@ -64,6 +75,7 @@ final recordOptions = [
     icon: Icons.bedtime_outlined,
     color: AppColors.wellness,
     title: '睡眠',
+    module: AppModule.sleep,
     subtitle: '手動補記或由 Apple Health 帶入',
     destination: () => const SleepEntryScreen(),
   ),
@@ -71,6 +83,7 @@ final recordOptions = [
     icon: Icons.sentiment_satisfied_outlined,
     color: AppColors.textSecondary,
     title: '心情、精力、症狀',
+    module: AppModule.wellness,
     subtitle: '簡短的一天狀態日誌',
     destination: () => const WellnessEntryScreen(),
   ),
@@ -78,9 +91,19 @@ final recordOptions = [
     icon: Icons.description_outlined,
     color: AppColors.textSecondary,
     title: '筆記',
+    module: AppModule.notes,
     subtitle: '和任何一天或一筆紀錄關聯',
   ),
 ];
+
+/// The options whose module the user has switched on.
+List<RecordOption> enabledRecordOptions(BuildContext context) {
+  final modules = AppStoreScope.of(context).enabledModules;
+  return [
+    for (final option in recordOptions)
+      if (modules.contains(option.module)) option,
+  ];
+}
 
 /// Closes the current popup (sheet or menu) and opens [option]'s screen.
 void openRecordOption(BuildContext context, RecordOption option) {
@@ -124,7 +147,7 @@ class AddRecordSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          for (final option in recordOptions) ...[
+          for (final option in enabledRecordOptions(context)) ...[
             _RecordOptionTile(
               option: option,
               onTap: () => openRecordOption(context, option),
