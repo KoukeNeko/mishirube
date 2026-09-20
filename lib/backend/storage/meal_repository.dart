@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../engines/nutrition_summary.dart';
 import 'database.dart';
+import 'food_repository.dart' show readNutrients;
 import 'timeline_source.dart';
 
 /// Meals keep their real structure: meal → dish → component. Exploding a
@@ -91,6 +92,7 @@ class MealRepository {
         ],
       );
       _writeDishes(meal);
+      _writeNutrients(meal);
       _db.audit(
         entityType: 'meal',
         entityId: meal.id,
@@ -167,6 +169,18 @@ class MealRepository {
     });
   }
 
+  void _writeNutrients(MealEvent meal) {
+    _db.execute('DELETE FROM meal_nutrients WHERE meal_id = ?', [meal.id]);
+    for (final MapEntry(key: nutrient, value: amount)
+        in meal.nutrients.entries) {
+      _db.execute(
+        'INSERT INTO meal_nutrients (meal_id, nutrient, amount) '
+        'VALUES (?, ?, ?)',
+        [meal.id, nutrient.name, amount],
+      );
+    }
+  }
+
   void _writeDishes(MealEvent meal) {
     for (final (position, dish) in meal.dishes.indexed) {
       _db.execute(
@@ -216,6 +230,7 @@ class MealRepository {
       qualityTag: row['quality_tag']! as String,
       isEstimated: row['is_estimated'] == 1,
       isFavorite: row['is_favorite'] == 1,
+      nutrients: readNutrients(_db, 'meal_nutrients', 'meal_id', id),
       dishes: [
         for (final dish in dishes)
           DishEntry(

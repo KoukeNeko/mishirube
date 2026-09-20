@@ -78,6 +78,15 @@ class FoodRepository {
           ],
         );
       }
+      _db.execute('DELETE FROM food_nutrients WHERE food_id = ?', [food.id]);
+      for (final MapEntry(key: nutrient, value: amount)
+          in food.nutrients.entries) {
+        _db.execute(
+          'INSERT INTO food_nutrients (food_id, nutrient, amount) '
+          'VALUES (?, ?, ?)',
+          [food.id, nutrient.name, amount],
+        );
+      }
       _db.audit(
         entityType: 'food',
         entityId: food.id,
@@ -116,17 +125,47 @@ class FoodRepository {
     });
   }
 
-  FoodItem _fromRow(Map<String, Object?> row) => FoodItem(
-    id: row['id']! as String,
-    name: row['name']! as String,
-    brand: row['brand']! as String,
-    servingLabel: row['serving_label']! as String,
-    servingAmount: (row['serving_amount']! as num).toDouble(),
-    servingUnit: ServingUnit.values.byName(row['serving_unit']! as String),
-    kcal: row['kcal']! as int,
-    proteinGrams: row['protein_g']! as int,
-    carbGrams: row['carb_g']! as int,
-    fatGrams: row['fat_g']! as int,
-    fibreGrams: row['fibre_g']! as int,
-  );
+  FoodItem _fromRow(Map<String, Object?> row) {
+    final id = row['id']! as String;
+    return FoodItem(
+      id: id,
+      name: row['name']! as String,
+      brand: row['brand']! as String,
+      servingLabel: row['serving_label']! as String,
+      servingAmount: (row['serving_amount']! as num).toDouble(),
+      servingUnit: ServingUnit.values.byName(row['serving_unit']! as String),
+      kcal: row['kcal']! as int,
+      proteinGrams: row['protein_g']! as int,
+      carbGrams: row['carb_g']! as int,
+      fatGrams: row['fat_g']! as int,
+      fibreGrams: row['fibre_g']! as int,
+      nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
+    );
+  }
+}
+
+/// The nutrients stored for one record. Only what is known has a row, so
+/// what comes back is only what somebody actually wrote down.
+Nutrients readNutrients(
+  AppDatabase db,
+  String table,
+  String idColumn,
+  String id,
+) => {
+  for (final row in db.select(
+    'SELECT nutrient, amount FROM $table WHERE $idColumn = ?',
+    [id],
+  ))
+    ?_nutrientNamed(row['nutrient']! as String): (row['amount']! as num)
+        .toDouble(),
+};
+
+/// Rows written by a later version of the app can name a nutrient this
+/// one does not have. Dropping them beats refusing to read the record;
+/// the archive still carries them across untouched.
+Nutrient? _nutrientNamed(String name) {
+  for (final nutrient in Nutrient.values) {
+    if (nutrient.name == name) return nutrient;
+  }
+  return null;
 }

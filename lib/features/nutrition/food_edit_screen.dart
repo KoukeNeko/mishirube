@@ -41,6 +41,26 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late final _fat = _number(widget.editing?.fatGrams);
   late final _fibre = _number(widget.editing?.fibreGrams);
 
+  /// One field per nutrient, created only for the ones on screen. A field
+  /// left empty stays out of the food: unknown is not zero.
+  late final _extra = {
+    for (final nutrient in Nutrient.values)
+      nutrient: TextEditingController(
+        text: switch (widget.editing?.nutrients[nutrient]) {
+          final amount? => formatAmount(amount),
+          null => '',
+        },
+      ),
+  };
+
+  /// Nutrients beyond the label's own stay folded away until asked for.
+  late bool _showsEveryNutrient =
+      widget.editing?.nutrients.keys.any(_isBeyondLabel) ?? false;
+
+  static bool _isBeyondLabel(Nutrient nutrient) => !_labelNutrients.contains(
+    nutrient,
+  );
+
   static TextEditingController _number(int? value) =>
       TextEditingController(text: value == null ? '' : '$value');
 
@@ -64,6 +84,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _carb,
       _fat,
       _fibre,
+      ..._extra.values,
     ]) {
       controller.dispose();
     }
@@ -88,9 +109,22 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       carbGrams: _valueOf(_carb),
       fatGrams: _valueOf(_fat),
       fibreGrams: _valueOf(_fibre),
+      nutrients: _typedNutrients(),
     );
     store.saveFood(food);
     Navigator.of(context).pop(food);
+  }
+
+  /// Only the nutrients with a number in them. An empty field leaves the
+  /// nutrient out of the food entirely, because not written down is not
+  /// the same as zero.
+  Nutrients _typedNutrients() {
+    final nutrients = <Nutrient, double>{};
+    for (final MapEntry(key: nutrient, value: field) in _extra.entries) {
+      final amount = double.tryParse(field.text.trim());
+      if (amount != null) nutrients[nutrient] = amount;
+    }
+    return nutrients;
   }
 
   /// An empty field is zero: the user left it out, which is not the same
@@ -163,7 +197,33 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(child: _NumberField(label: '膳食纖維 (g)', controller: _fibre)),
         Gutter(
           child: const Text(
-            '沒填的欄位會記成 0。這代表你沒有填，而不是這份食物真的是 0。',
+            '熱量與三大營養素沒填會記成 0。這代表你沒有填，而不是這份食物真的是 0。',
+            style: AppTextStyles.caption,
+          ),
+        ),
+        Gutter(child: const SectionLabel('包裝上還有什麼')),
+        for (final nutrient in _labelNutrients)
+          Gutter(child: _NutrientField(nutrient: nutrient, field: _extra[nutrient]!)),
+        if (_showsEveryNutrient)
+          for (final nutrient in Nutrient.values)
+            if (_isBeyondLabel(nutrient))
+              Gutter(
+                child: _NutrientField(
+                  nutrient: nutrient,
+                  field: _extra[nutrient]!,
+                ),
+              )
+        else
+          Gutter(
+            child: SecondaryButton(
+              label: '顯示其他營養素',
+              onPressed: () => setState(() => _showsEveryNutrient = true),
+            ),
+          ),
+        Gutter(
+          child: const Text(
+            '這裡留空的欄位不會被當成 0，而是沒有資料——包裝上印 0 g 也只代表低於'
+            '標示門檻，不是真的沒有。',
             style: AppTextStyles.caption,
           ),
         ),
@@ -190,6 +250,46 @@ class _NumberField extends StatelessWidget {
             hint: '0',
             keyboardType: TextInputType.number,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+
+/// What Taiwan's packaging law makes every label print, beyond the four
+/// the form already asks for. These are the ones a user can actually copy
+/// off the back of a packet, so they are the ones shown by default.
+const _labelNutrients = [
+  Nutrient.saturatedFat,
+  Nutrient.transFat,
+  Nutrient.sugar,
+  Nutrient.sodium,
+];
+
+class _NutrientField extends StatelessWidget {
+  const _NutrientField({required this.nutrient, required this.field});
+
+  final Nutrient nutrient;
+  final TextEditingController field;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Text(nutrient.label, style: AppTextStyles.body)),
+        SizedBox(
+          width: 120,
+          child: AppTextField(
+            controller: field,
+            hint: '—',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        SizedBox(
+          width: 28,
+          child: Text(nutrient.unit.label, style: AppTextStyles.caption),
         ),
       ],
     );

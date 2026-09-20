@@ -11,6 +11,7 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/schema.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
@@ -579,6 +580,89 @@ void main() {
         FoodPortion.ofAmount(bento, 2).servings,
         2,
         reason: 'there is nothing to convert from, so the number is servings',
+      );
+    });
+
+    test('a nutrient nobody wrote down never becomes zero', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final milk = FoodItem(
+        id: store.newFoodId(),
+        name: '鮮奶',
+        servingAmount: 250,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 160,
+        proteinGrams: 8,
+        carbGrams: 12,
+        fatGrams: 8,
+        nutrients: const {Nutrient.calcium: 250, Nutrient.sodium: 100},
+      );
+      store
+        ..saveFood(milk)
+        ..logPortion(FoodPortion(milk, 2));
+
+      final stored = AppStore(
+        clock: clock.now,
+        backend: backend,
+      ).searchFoods('鮮奶').single;
+      expect(stored.nutrients[Nutrient.calcium], 250);
+      expect(
+        stored.nutrients.containsKey(Nutrient.iron),
+        isFalse,
+        reason: 'the label said nothing about iron, so neither do we',
+      );
+
+      final meal = store.todayMeals.last;
+      expect(meal.nutrients[Nutrient.calcium], 500, reason: 'two servings');
+      expect(meal.nutrients.containsKey(Nutrient.iron), isFalse);
+    });
+
+    test('a day total says how much of the day it could not see', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      const milk = FoodItem(
+        id: 'milk',
+        name: '鮮奶',
+        servingAmount: 250,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 160,
+        proteinGrams: 8,
+        carbGrams: 12,
+        fatGrams: 8,
+        nutrients: {Nutrient.calcium: 250},
+      );
+      const rice = FoodItem(
+        id: 'rice',
+        name: '白飯',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 130,
+        proteinGrams: 3,
+        carbGrams: 28,
+        fatGrams: 0,
+      );
+      store
+        ..logPortion(const FoodPortion(milk, 1))
+        ..logPortion(const FoodPortion(rice, 1));
+
+      final calcium = summariseNutrients(
+        store.todayMeals,
+      ).singleWhere((total) => total.nutrient == Nutrient.calcium);
+
+      expect(calcium.amount, 250);
+      expect(calcium.isComplete, isFalse, reason: 'the rice said nothing');
+      expect(calcium.label, '至少 250 mg');
+      expect(
+        summariseNutrients(store.todayMeals).any(
+          (total) => total.nutrient == Nutrient.iron,
+        ),
+        isFalse,
+        reason: 'a nutrient nobody recorded is left out, not listed as 0',
       );
     });
 
@@ -1232,11 +1316,14 @@ void main() {
             id: source.newFoodId(),
             name: '雞胸肉',
             brand: '大成',
-            servingLabel: '一片（約 100 g）',
+            servingLabel: '一片',
+            servingAmount: 100,
+            servingUnit: ServingUnit.gram,
             kcal: 165,
             proteinGrams: 31,
             carbGrams: 0,
             fatGrams: 4,
+            nutrients: const {Nutrient.sodium: 74},
           ),
         );
       final archive = exportArchive(source.backend.db);
@@ -1251,6 +1338,10 @@ void main() {
       expect(restoredStore.activeWorkout!.completedSets, 1);
       expect(restoredStore.todayMeals, hasLength(2));
       expect(restoredStore.searchFoods('雞胸').single.kcal, 165);
+      expect(
+        restoredStore.searchFoods('雞胸').single.nutrients[Nutrient.sodium],
+        74,
+      );
     });
 
     test('unknown archive sections are kept for the next export', () {

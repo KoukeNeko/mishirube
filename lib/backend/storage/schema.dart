@@ -305,6 +305,27 @@ final List<String> _migrations = [
   ALTER TABLE foods ADD COLUMN serving_amount REAL NOT NULL DEFAULT 1;
   ALTER TABLE foods ADD COLUMN serving_unit TEXT NOT NULL DEFAULT 'serving';
   ''',
+  '''
+  -- Nutrients beyond the five every record carries. A row exists only
+  -- when the amount is actually known: a missing row is nobody having
+  -- written it down, which is not the same as zero.
+  CREATE TABLE food_nutrients (
+    food_id TEXT NOT NULL REFERENCES foods(id),
+    nutrient TEXT NOT NULL,
+    amount REAL NOT NULL,
+    PRIMARY KEY (food_id, nutrient)
+  );
+
+  -- A meal copies what was known when it was logged, the way it already
+  -- copies the calories: correcting the food later is not a claim about
+  -- what was eaten.
+  CREATE TABLE meal_nutrients (
+    meal_id TEXT NOT NULL REFERENCES meals(id),
+    nutrient TEXT NOT NULL,
+    amount REAL NOT NULL,
+    PRIMARY KEY (meal_id, nutrient)
+  );
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

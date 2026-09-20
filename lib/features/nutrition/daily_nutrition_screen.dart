@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -75,6 +76,11 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               onSplit: (dishIndex) => _split(meal, dishIndex),
             ),
           ),
+        if (summariseNutrients(meals) case final nutrients
+            when nutrients.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('其他營養素')),
+          Gutter(child: _NutrientTotals(totals: nutrients)),
+        ],
       ],
     );
   }
@@ -244,6 +250,42 @@ class _DailyTotalBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+/// The day's other nutrients, each saying how much of the day it could
+/// see. A nutrient nobody recorded is not listed at all — it would read
+/// as zero, and zero is a claim this screen cannot make.
+class _NutrientTotals extends StatelessWidget {
+  const _NutrientTotals({required this.totals});
+
+  final List<NutrientTotal> totals;
+
+  @override
+  Widget build(BuildContext context) {
+    final partial = totals.where((total) => !total.isComplete).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (final total in totals)
+                KeyValueRow(label: total.nutrient.label, value: total.label),
+            ],
+          ),
+        ),
+        if (partial.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '「至少」代表這一天有幾餐沒有記錄這項營養素，不是它們等於 0。',
+            style: AppTextStyles.caption,
+          ),
+        ],
+      ],
     );
   }
 }

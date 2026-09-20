@@ -34,6 +34,14 @@ class FoodPortion {
   int get fatGrams => _scaled(food.fatGrams);
   int get fibreGrams => _scaled(food.fibreGrams);
 
+  /// The rest of what is known, scaled the same way. Nutrients the food
+  /// does not hold stay absent — scaling cannot invent one.
+  Nutrients get nutrients => {
+    for (final MapEntry(key: nutrient, value: amount)
+        in food.nutrients.entries)
+      nutrient: amount * servings,
+  };
+
   /// What the log calls this portion: `150 g`, or `1.5 份` when the
   /// serving is not a measurement.
   String get label => food.servingUnit.isMeasured

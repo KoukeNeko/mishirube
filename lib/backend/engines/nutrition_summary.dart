@@ -78,3 +78,57 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
 /// not flagged: the user may simply not track food.
 bool isFoodLogIncomplete(DaySummary summary) =>
     summary.hasRecords && !summary.isComplete;
+
+/// A day's total for one nutrient, and how much of the day it could not
+/// see.
+///
+/// Meals that hold no figure for the nutrient are counted, not ignored
+/// and not treated as zero: "at least 3.4 µg, from 2 of 4 meals" is the
+/// truth, and "3.4 µg" alone is not.
+class NutrientTotal {
+  const NutrientTotal({
+    required this.nutrient,
+    required this.amount,
+    required this.knownMeals,
+    required this.unknownMeals,
+  });
+
+  final Nutrient nutrient;
+
+  /// The sum of what is known. Never the sum of what is assumed.
+  final double amount;
+
+  final int knownMeals;
+  final int unknownMeals;
+
+  /// Every meal in the day held a figure, so the total is the total.
+  bool get isComplete => unknownMeals == 0;
+
+  /// `3.4 µg`, marked as a floor while any meal is unaccounted for.
+  String get label =>
+      isComplete ? nutrient.format(amount) : '至少 ${nutrient.format(amount)}';
+}
+
+/// Totals [meals] for every nutrient any of them knows about, in the
+/// order [Nutrient] declares. Nutrients nobody recorded are left out
+/// rather than listed as zero.
+List<NutrientTotal> summariseNutrients(Iterable<MealEvent> meals) {
+  final all = meals.toList();
+  return [
+    for (final nutrient in Nutrient.values)
+      if (all.any((meal) => meal.nutrients.containsKey(nutrient)))
+        NutrientTotal(
+          nutrient: nutrient,
+          amount: all.fold(
+            0,
+            (sum, meal) => sum + (meal.nutrients[nutrient] ?? 0),
+          ),
+          knownMeals: all
+              .where((meal) => meal.nutrients.containsKey(nutrient))
+              .length,
+          unknownMeals: all
+              .where((meal) => !meal.nutrients.containsKey(nutrient))
+              .length,
+        ),
+  ];
+}

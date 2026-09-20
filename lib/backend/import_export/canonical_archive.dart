@@ -161,6 +161,11 @@ const _tables = [
     _Column('fibre_g', _Kind.integer),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('foodNutrients', 'food_nutrients', [
+    _Column('food_id', _Kind.text),
+    _Column('nutrient', _Kind.text),
+    _Column('amount', _Kind.real),
+  ], orderBy: 'food_id, nutrient'),
   _Table('meals', 'meals', [
     _Column('id', _Kind.text),
     _Column('name', _Kind.text),
@@ -190,6 +195,11 @@ const _tables = [
     _Column('amount_label', _Kind.text),
     _Column('source_label', _Kind.text),
   ], orderBy: 'meal_id, dish_position, position'),
+  _Table('mealNutrients', 'meal_nutrients', [
+    _Column('meal_id', _Kind.text),
+    _Column('nutrient', _Kind.text),
+    _Column('amount', _Kind.real),
+  ], orderBy: 'meal_id, nutrient'),
   _Table('bodyWeights', 'body_weights', [
     _Column('id', _Kind.text),
     _Column('measured_at', _Kind.time),

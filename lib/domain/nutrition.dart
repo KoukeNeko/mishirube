@@ -42,6 +42,7 @@ class MealEvent {
     this.fibreGrams = 0,
     this.isEstimated = false,
     this.isFavorite = false,
+    this.nutrients = const {},
   });
 
   final String id;
@@ -64,6 +65,11 @@ class MealEvent {
   /// Starred to log again without going looking for it.
   final bool isFavorite;
 
+  /// Everything else known about what was eaten. Absent means unknown,
+  /// so a day's total for a nutrient has to say how much of the day it
+  /// could not see.
+  final Nutrients nutrients;
+
   MealEvent copyWith({
     String? id,
     String? name,
@@ -77,6 +83,7 @@ class MealEvent {
     int? fibreGrams,
     bool? isEstimated,
     String? qualityTag,
+    Nutrients? nutrients,
   }) => MealEvent(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -90,6 +97,7 @@ class MealEvent {
     fibreGrams: fibreGrams ?? this.fibreGrams,
     isFavorite: isFavorite ?? this.isFavorite,
     isEstimated: isEstimated ?? this.isEstimated,
+    nutrients: nutrients ?? this.nutrients,
   );
 }
 
@@ -128,6 +136,7 @@ class FoodItem {
     this.servingLabel = '',
     this.servingAmount = 1,
     this.servingUnit = ServingUnit.serving,
+    this.nutrients = const {},
   });
 
   final String id;
@@ -163,6 +172,9 @@ class FoodItem {
   /// Fibre, part of the carbohydrate above; see [MealEvent.fibreGrams].
   final int fibreGrams;
 
+  /// Everything else known about one serving. Absent means unknown.
+  final Nutrients nutrients;
+
   /// `統一 雞胸肉` when it has a maker, otherwise just the name.
   String get displayName => brand.isEmpty ? name : '$brand $name';
 
@@ -178,6 +190,7 @@ class FoodItem {
     int? carbGrams,
     int? fatGrams,
     int? fibreGrams,
+    Nutrients? nutrients,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -190,5 +203,77 @@ class FoodItem {
     carbGrams: carbGrams ?? this.carbGrams,
     fatGrams: fatGrams ?? this.fatGrams,
     fibreGrams: fibreGrams ?? this.fibreGrams,
+    nutrients: nutrients ?? this.nutrients,
   );
 }
+
+/// The unit a nutrient is counted in.
+enum NutrientUnit {
+  gram('g'),
+  milligram('mg'),
+  microgram('µg');
+
+  const NutrientUnit(this.label);
+
+  final String label;
+}
+
+/// The nutrients this app can hold beyond the five it counts everywhere.
+///
+/// Energy, protein, carbohydrate, fat and fibre are not here: they are
+/// fields on every food and every meal, because every record has them.
+/// Everything below is held only when it is actually known, so a nutrient
+/// missing from a food means nobody wrote it down — not zero.
+///
+/// The order is the order the label prints them in, then the DRI groups.
+enum Nutrient {
+  // What Taiwan's packaging law requires beyond the five above.
+  saturatedFat('飽和脂肪', NutrientUnit.gram),
+  transFat('反式脂肪', NutrientUnit.gram),
+  sugar('糖', NutrientUnit.gram),
+  sodium('鈉', NutrientUnit.milligram),
+
+  // Commonly declared voluntarily.
+  cholesterol('膽固醇', NutrientUnit.milligram),
+  caffeine('咖啡因', NutrientUnit.milligram),
+
+  // Minerals in the DRIs.
+  calcium('鈣', NutrientUnit.milligram),
+  phosphorus('磷', NutrientUnit.milligram),
+  magnesium('鎂', NutrientUnit.milligram),
+  iron('鐵', NutrientUnit.milligram),
+  zinc('鋅', NutrientUnit.milligram),
+  potassium('鉀', NutrientUnit.milligram),
+  iodine('碘', NutrientUnit.microgram),
+  selenium('硒', NutrientUnit.microgram),
+
+  // Vitamins in the DRIs.
+  vitaminA('維生素 A', NutrientUnit.microgram),
+  vitaminD('維生素 D', NutrientUnit.microgram),
+  vitaminE('維生素 E', NutrientUnit.milligram),
+  vitaminK('維生素 K', NutrientUnit.microgram),
+  vitaminC('維生素 C', NutrientUnit.milligram),
+  vitaminB1('維生素 B1', NutrientUnit.milligram),
+  vitaminB2('維生素 B2', NutrientUnit.milligram),
+  niacin('菸鹼素', NutrientUnit.milligram),
+  vitaminB6('維生素 B6', NutrientUnit.milligram),
+  vitaminB12('維生素 B12', NutrientUnit.microgram),
+  folate('葉酸', NutrientUnit.microgram),
+  pantothenicAcid('泛酸', NutrientUnit.milligram),
+  biotin('生物素', NutrientUnit.microgram);
+
+  const Nutrient(this.label, this.unit);
+
+  final String label;
+  final NutrientUnit unit;
+
+  /// Written as `12.4 mg`.
+  String format(double amount) => '${formatAmount(amount)} ${unit.label}';
+}
+
+/// What is known about a food's nutrients, per serving.
+///
+/// A nutrient absent from the map is one nobody recorded. It is never
+/// read as zero: a label that prints `0 g` of fat only means under half a
+/// gram, and a label that prints nothing at all means nothing at all.
+typedef Nutrients = Map<Nutrient, double>;
