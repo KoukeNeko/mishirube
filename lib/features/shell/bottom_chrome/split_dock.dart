@@ -602,10 +602,12 @@ class _CenterAction extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // The「+」and the timer cross over as the capsule grows,
-                  // so neither pops in.
+                  // The「+」only gives way to a timer; with nothing running
+                  // it stays the「+」, minimised or not.
                   Opacity(
-                    opacity: (1 - timerProgress * 2).clamp(0.0, 1.0),
+                    opacity: running == null
+                        ? 1
+                        : (1 - timerProgress * 2).clamp(0.0, 1.0),
                     child: Icon(
                       Icons.add,
                       size: metrics.actionIconSize,

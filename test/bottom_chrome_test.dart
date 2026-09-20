@@ -160,21 +160,38 @@ void main() {
     final store = await _pumpApp(tester, clock);
     store.startWorkout();
     await _settleFor(tester);
-    expect(find.text('訓練進行中 · 0:00'), findsOneWidget);
+
+    // The state and the clock are separate: the clock stays put while the
+    // label gives way, so they are checked as a pair.
+    void expectAccessory(String state, String elapsed) {
+      final bar = find.byType(SessionAccessory);
+      expect(
+        find.descendant(of: bar, matching: find.textContaining(state)),
+        findsOneWidget,
+        reason: state,
+      );
+      expect(
+        find.descendant(of: bar, matching: find.text(elapsed)),
+        findsOneWidget,
+        reason: elapsed,
+      );
+    }
+
+    expectAccessory('訓練進行中', '0:00');
 
     clock.advance(const Duration(seconds: 65));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('訓練進行中 · 1:05'), findsOneWidget);
+    expectAccessory('訓練進行中', '1:05');
 
     await tester.tap(find.byTooltip('暫停訓練'));
     clock.advance(const Duration(minutes: 5));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('已暫停 · 1:05'), findsOneWidget);
+    expectAccessory('已暫停', '1:05');
 
     await tester.tap(find.byTooltip('繼續訓練'));
     clock.advance(const Duration(seconds: 10));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('訓練進行中 · 1:15'), findsOneWidget);
+    expectAccessory('訓練進行中', '1:15');
     await disposeTree(tester);
   });
 
@@ -197,6 +214,54 @@ void main() {
     await _settleFor(tester);
     expect(find.textContaining('訓練進行中 ·'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
+  testWidgets('minimising with nothing running keeps the「+」', (tester) async {
+    final store = await _pumpApp(tester, FakeClock());
+    store.selectTab(HomeTab.log);
+    await _settleFor(tester);
+
+    await tester.drag(_visibleScrollView, const Offset(0, -300));
+    await _settleFor(tester);
+
+    final plus = tester.widget<Opacity>(
+      find
+          .descendant(
+            of: find.byKey(_centerAction),
+            matching: find.byType(Opacity),
+          )
+          .first,
+    );
+    expect(plus.opacity, 1, reason: 'there is no timer to hand over to');
+    expect(find.byIcon(Icons.add), findsWidgets);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the running label comes back with the bar, not a tick later', (
+    tester,
+  ) async {
+    final clock = FakeClock();
+    final store = await _pumpApp(tester, clock);
+    store
+      ..startWorkout()
+      ..selectTab(HomeTab.log);
+    await _settleFor(tester);
+
+    await tester.drag(_visibleScrollView, const Offset(0, -300));
+    await _settleFor(tester);
+    await tester.drag(_visibleScrollView, const Offset(0, 200));
+    await _settleFor(tester);
+
+    // No clock tick in between: the label is driven by the animation,
+    // not by the second hand.
+    expect(
+      find.descendant(
+        of: find.byType(SessionAccessory),
+        matching: find.textContaining('訓練進行中'),
+      ),
+      findsOneWidget,
+    );
     await disposeTree(tester);
   });
 

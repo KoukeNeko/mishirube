@@ -103,6 +103,10 @@ class _Status extends StatelessWidget {
       ActiveActivity() => AppColors.activity,
       ActiveWorkout() => AppColors.training,
     };
+    final style = AppTextStyles.itemTitle.copyWith(
+      color: color,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -112,21 +116,38 @@ class _Status extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: AppSpacing.xs),
+        // What it is gives way as the bar narrows; the clock beside it is
+        // what carries over into the capsule, so it never moves out.
         Flexible(
-          child: ElapsedClock(
-            session: session,
-            builder: (_, elapsed) => Text(
-              // What it is drops away as the bar narrows; the clock is
-              // what carries over into the capsule.
-              '${_says(morph) ? '${session.isPaused ? '已暫停' : '${session.label}進行中'} · ' : ''}$elapsed',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.itemTitle.copyWith(
-                color: color,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
+          child: AnimatedBuilder(
+            animation: morph,
+            builder: (context, _) {
+              final gone = (morph.value.clamp(0.0, 1.0) / _labelGoesBy).clamp(
+                0.0,
+                1.0,
+              );
+              if (gone == 1) return const SizedBox.shrink();
+              return ClipRect(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  widthFactor: 1 - gone,
+                  child: Opacity(
+                    opacity: 1 - gone,
+                    child: Text(
+                      '${session.isPaused ? '已暫停' : '${session.label}進行中'} · ',
+                      maxLines: 1,
+                      softWrap: false,
+                      style: style,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
+        ),
+        ElapsedClock(
+          session: session,
+          builder: (_, elapsed) => Text(elapsed, style: style),
         ),
       ],
     );
@@ -170,8 +191,6 @@ class _Yielding extends StatelessWidget {
 const _yieldBy = 0.25;
 const _yieldShift = 10.0;
 const _labelGoesBy = 0.35;
-
-bool _says(Animation<double> morph) => morph.value < _labelGoesBy;
 
 class _AccessoryIcon extends StatelessWidget {
   const _AccessoryIcon({
