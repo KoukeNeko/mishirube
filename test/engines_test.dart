@@ -3,7 +3,9 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -714,6 +716,26 @@ void main() {
       ], weeks: 4);
 
       expect(weekly, [(MuscleGroup.quads, 6)]);
+    });
+  });
+
+  group('muscle map shading', () {
+    test('nothing logged is not a small amount of work', () {
+      expect(muscleShade(0), AppColors.surfaceRaised);
+      expect(muscleShade(-1), AppColors.surfaceRaised);
+    });
+
+    test('more sets read lighter, up to a fixed top of scale', () {
+      final light = muscleShade(muscleMapTopOfScale);
+      expect(
+        muscleShade(1).computeLuminance(),
+        lessThan(muscleShade(muscleMapTopOfScale ~/ 2).computeLuminance()),
+      );
+      expect(
+        muscleShade(muscleMapTopOfScale * 3),
+        light,
+        reason: 'the scale is fixed, so two weeks can be compared',
+      );
     });
   });
 

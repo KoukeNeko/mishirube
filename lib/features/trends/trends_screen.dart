@@ -79,7 +79,8 @@ class _TrendsScreenState extends State<TrendsScreen> {
         ),
         Gutter(
           child: const Text(
-            '每週的工作組數，只計動作的主要肌群；熱身組不算。',
+            '每週的工作組數，只計動作的主要肌群；熱身組不算。'
+            '顏色只反映記錄到的組數，不代表疲勞或恢復程度。',
             style: AppTextStyles.caption,
           ),
         ),

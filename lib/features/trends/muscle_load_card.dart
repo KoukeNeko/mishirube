@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'muscle_map.dart';
 
 const _barHeight = 8.0;
 const _labelWidth = 56.0;
@@ -24,6 +25,10 @@ class MuscleLoadCard extends StatelessWidget {
     return AppCard(
       child: Column(
         children: [
+          MuscleMap(setsByMuscle: {for (final (m, sets) in load) m: sets}),
+          const SizedBox(height: AppSpacing.sm),
+          const _Legend(),
+          const Divider(height: AppSpacing.xl),
           for (final (index, (muscle, sets)) in load.indexed) ...[
             if (index > 0) const SizedBox(height: AppSpacing.sm),
             Semantics(
@@ -70,6 +75,42 @@ class MuscleLoadCard extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// What the shading means, in the same units the list below uses.
+class _Legend extends StatelessWidget {
+  const _Legend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '色階由 0 到 $muscleMapTopOfScale 組以上',
+      excludeSemantics: true,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (final (index, stop) in muscleMapLegendStops.indexed) ...[
+            if (index > 0) const SizedBox(width: AppSpacing.xxs),
+            Container(
+              width: 22,
+              height: 8,
+              decoration: BoxDecoration(
+                color: muscleShade(stop),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xxs),
+            Text(
+              stop == muscleMapTopOfScale ? '$stop+' : '$stop',
+              style: AppTextStyles.caption,
+            ),
+          ],
+          const SizedBox(width: AppSpacing.xs),
+          const Text('組 / 週', style: AppTextStyles.caption),
         ],
       ),
     );
