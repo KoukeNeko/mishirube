@@ -123,18 +123,21 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   /// user did, and closing is easy to hit by mistake.
   Future<bool> _confirmDiscard() async {
     if (_selected.isEmpty) return true;
-    final shouldDiscard = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('放棄已選的 ${_selected.length} 個動作？'),
-        actions: [
-          TextButton(
+    final shouldDiscard = await showAppDialog<bool>(
+      context,
+      AppDialog(
+        title: '放棄已選的 ${_selected.length} 個動作？',
+        actions: (dialogContext) => [
+          SecondaryButton(
+            label: '繼續選擇',
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('繼續選擇'),
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('放棄'),
+          Center(
+            child: LinkText(
+              label: '放棄',
+              color: AppColors.warning,
+              onTap: () => Navigator.of(dialogContext).pop(true),
+            ),
           ),
         ],
       ),

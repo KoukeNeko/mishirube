@@ -397,6 +397,30 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('stopping a session asks in the app own dialog', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startActivity(ActivityTypes.running);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('結束跑步'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppDialog), findsOneWidget);
+    expect(
+      find.byType(AlertDialog),
+      findsNothing,
+      reason: 'dialogs wear the app chrome, not Material default',
+    );
+    expect(find.text('結束這次跑步？'), findsOneWidget);
+
+    await tester.tap(find.text('繼續跑步'));
+    await tester.pumpAndSettle();
+    expect(store.activeSession, isA<ActiveActivity>());
+    await disposeTree(tester);
+  });
+
   testWidgets('the form asks only what the type can measure', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -564,15 +588,16 @@ void main() {
     expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'selection order');
 
     await tester.tap(find.bySemanticsLabel('關閉'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(find.text('放棄已選的 1 個動作？'), findsOneWidget);
 
     await _tapText(tester, '繼續選擇');
+    await tester.pumpAndSettle();
     expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'nothing lost');
 
     await tester.tap(find.bySemanticsLabel('關閉'));
-    await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, '放棄'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('放棄'));
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(store.routine.exercises, hasLength(planned));

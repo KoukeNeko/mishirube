@@ -101,7 +101,10 @@ In particular, do not create a parallel version of:
   `SquareIconButton`, `LinkText` for inline text actions, and
   `AppBarBackButton` for a leading back or collapse control. Do not use a
   bare `TextButton`, `IconButton` or `GestureDetector` as a button in a
-  feature; standard dialogs keep their Material buttons;
+  feature;
+- dialogs: `AppDialog` shown with `showAppDialog` – the app's own frosted
+  dialog, with stacked full-width actions built from the buttons above.
+  Do not use `AlertDialog`, `showDialog` or Material dialog buttons;
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 

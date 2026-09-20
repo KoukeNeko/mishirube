@@ -365,24 +365,24 @@ Future<void> _editNotes(BuildContext context) async {
   final controller = TextEditingController(
     text: store.activeWorkout?.notes ?? '',
   );
-  final notes = await showDialog<String>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('這次訓練的備註'),
-      content: TextField(
+  final notes = await showAppDialog<String>(
+    context,
+    AppDialog(
+      title: '這次訓練的備註',
+      content: AppTextField(
         controller: controller,
         autofocus: true,
         maxLines: 3,
-        decoration: const InputDecoration(hintText: '例如：睡不好，握力先到極限'),
+        hint: '例如：睡不好，握力先到極限',
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('取消'),
-        ),
-        FilledButton(
+      actions: (dialogContext) => [
+        PrimaryButton(
+          label: '儲存',
           onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-          child: const Text('儲存'),
+        ),
+        SecondaryButton(
+          label: '取消',
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     ),

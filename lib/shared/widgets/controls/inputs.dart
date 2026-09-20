@@ -52,17 +52,28 @@ class SearchField extends StatelessWidget {
 }
 
 class AppTextField extends StatelessWidget {
-  const AppTextField({super.key, required this.controller, required this.hint});
+  const AppTextField({
+    super.key,
+    required this.controller,
+    this.hint = '',
+    this.autofocus = false,
+    this.maxLines = 1,
+  });
 
   final TextEditingController controller;
   final String hint;
+  final bool autofocus;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _fieldHeight,
+      // A field that takes several lines grows with them.
+      height: maxLines == 1 ? _fieldHeight : null,
       child: TextField(
         controller: controller,
+        autofocus: autofocus,
+        maxLines: maxLines,
         style: AppTextStyles.body.copyWith(fontSize: 17),
         decoration: _decoration(hint: hint),
       ),

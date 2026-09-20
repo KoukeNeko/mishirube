@@ -1,6 +1,7 @@
 export '../toast/toast_controller.dart';
 export '../toast/toast_host.dart';
 // Floating glass chrome: dock, toasts, footers.
+export 'chrome/app_dialog.dart';
 export 'chrome/chrome_surface.dart';
 export 'chrome/chrome_visibility.dart';
 // Display: cards, rows, stats, charts, banners.

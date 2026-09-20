@@ -17,23 +17,23 @@ Future<void> _editAliases(
   final controller = TextEditingController(
     text: exercise.personalAliases.join('、'),
   );
-  final entered = await showDialog<String>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('我的別名'),
-      content: TextField(
+  final entered = await showAppDialog<String>(
+    context,
+    AppDialog(
+      title: '我的別名',
+      content: AppTextField(
         controller: controller,
         autofocus: true,
-        decoration: const InputDecoration(hintText: '用、分隔，例如：深蹲、squat'),
+        hint: '用、分隔，例如：深蹲、squat',
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: const Text('取消'),
-        ),
-        FilledButton(
+      actions: (dialogContext) => [
+        PrimaryButton(
+          label: '儲存',
           onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-          child: const Text('儲存'),
+        ),
+        SecondaryButton(
+          label: '取消',
+          onPressed: () => Navigator.of(dialogContext).pop(),
         ),
       ],
     ),

@@ -44,20 +44,20 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
 
   Future<void> _rename(Routine routine) async {
     final controller = TextEditingController(text: routine.name);
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('訓練名稱'),
-        content: TextField(controller: controller, autofocus: true),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('取消'),
-          ),
-          FilledButton(
+    final name = await showAppDialog<String>(
+      context,
+      AppDialog(
+        title: '訓練名稱',
+        content: AppTextField(controller: controller, autofocus: true),
+        actions: (dialogContext) => [
+          PrimaryButton(
+            label: '儲存',
             onPressed: () =>
                 Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text('儲存'),
+          ),
+          SecondaryButton(
+            label: '取消',
+            onPressed: () => Navigator.of(dialogContext).pop(),
           ),
         ],
       ),

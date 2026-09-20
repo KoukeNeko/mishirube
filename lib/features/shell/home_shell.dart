@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/activity_detail_screen.dart';
@@ -75,29 +76,32 @@ class _HomeShellState extends State<HomeShell> {
 
   Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
     final label = session.label;
-    final choice = await showDialog<_FinishChoice>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('結束這次$label？'),
-        content: Text(switch (session) {
+    final choice = await showAppDialog<_FinishChoice>(
+      context,
+      AppDialog(
+        title: '結束這次$label？',
+        message: switch (session) {
           ActiveWorkout() => '已完成的組數會存成紀錄；放棄則不會算成一次訓練。',
           ActiveActivity() => '結束會存成一筆運動紀錄；放棄則什麼都不留。',
-        }),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_FinishChoice.keepGoing),
-            child: Text('繼續$label'),
-          ),
-          TextButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_FinishChoice.discard),
-            child: const Text('放棄'),
-          ),
-          FilledButton(
+        },
+        actions: (dialogContext) => [
+          PrimaryButton(
+            label: '結束',
             onPressed: () =>
                 Navigator.of(dialogContext).pop(_FinishChoice.finish),
-            child: const Text('結束'),
+          ),
+          SecondaryButton(
+            label: '繼續$label',
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(_FinishChoice.keepGoing),
+          ),
+          Center(
+            child: LinkText(
+              label: '放棄',
+              color: AppColors.warning,
+              onTap: () =>
+                  Navigator.of(dialogContext).pop(_FinishChoice.discard),
+            ),
           ),
         ],
       ),
