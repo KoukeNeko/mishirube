@@ -7,6 +7,7 @@ import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
+import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -437,6 +438,34 @@ void main() {
       find.byType(GoalEntryButton).hitTestable(),
       findsOneWidget,
       reason: 'the toolbar shows the week once there is a goal',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('correcting a meal takes the estimate mark off it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..confirmLunch();
+    final before = store.todayMeals.last;
+    await pumpScreen(tester, MealEditScreen(meal: before), store: store);
+
+    await tester.enterText(find.byType(TextField).at(1), '700');
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+
+    final after = store.todayMeals.last;
+    expect(after.kcal, 700, reason: 'the number the user typed');
+    expect(after.isEstimated, isFalse, reason: 'confirmed, not guessed');
+    expect(after.qualityTag, '已確認');
+    expect(
+      AppStore(
+        clock: FakeClock().now,
+        backend: store.backend,
+      ).mealsOn(store.now()).last.kcal,
+      700,
+      reason: 'and it is stored, not only shown',
     );
     await disposeTree(tester);
   });

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
+import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
+import 'meal_edit_screen.dart';
 import 'split_dish_sheet.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
@@ -109,8 +111,16 @@ class _MealCard extends StatelessWidget {
               Text(meal.timeLabel, style: AppTextStyles.caption),
               const Spacer(),
               Text(
-                '~${meal.kcal}',
+                '${meal.isEstimated ? '~' : ''}${meal.kcal}',
                 style: AppTextStyles.bigNumber.copyWith(fontSize: 26),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              SquareIconButton(
+                icon: Icons.edit_outlined,
+                tooltip: '編輯${meal.name}',
+                color: AppColors.nutrition,
+                size: 36,
+                onPressed: () => pushPage(context, MealEditScreen(meal: meal)),
               ),
             ],
           ),

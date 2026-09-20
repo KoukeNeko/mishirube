@@ -62,6 +62,13 @@ class NutritionService {
     return recent;
   }
 
+  /// Saves a correction to a meal's name and totals. Confirming the
+  /// numbers is what takes the estimate mark off them.
+  MealEvent edit(MealEvent previous, MealEvent corrected) {
+    _meals.updateTotals(corrected, previous: previous);
+    return corrected;
+  }
+
   /// Starred meals, newest first and one per dish, the way [recent]
   /// works: the same starred lunch is offered once.
   List<RecentMeal> favorites({int limit = 5}) {

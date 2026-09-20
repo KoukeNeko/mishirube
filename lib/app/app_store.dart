@@ -250,6 +250,14 @@ class AppStore extends ChangeNotifier {
   /// looking as though the records were never there.
   String? get recoveredDatabasePath => _backend.db.recoveredFrom;
 
+  /// Saves a correction to a meal.
+  void updateMeal(MealEvent previous, MealEvent corrected) {
+    _backend.nutrition.edit(previous, corrected);
+    final index = _todayMeals.indexWhere((item) => item.id == corrected.id);
+    if (index >= 0) _todayMeals[index] = corrected;
+    notifyListeners();
+  }
+
   /// Starred meals, for logging again without going looking.
   List<RecentMeal> get favoriteMeals => _backend.nutrition.favorites();
 

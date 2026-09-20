@@ -99,6 +99,44 @@ class MealRepository {
     });
   }
 
+  /// Rewrites what a meal was: its name and its totals. The dishes are
+  /// untouched — this is the user correcting the numbers, usually ones
+  /// that were estimated for them.
+  void updateTotals(MealEvent meal, {required MealEvent previous}) {
+    _db.transaction(() {
+      _db.execute(
+        'UPDATE meals SET name = ?, kcal = ?, protein_g = ?, carb_g = ?, '
+        'fat_g = ?, is_estimated = ?, quality_tag = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [
+          meal.name,
+          meal.kcal,
+          meal.proteinGrams,
+          meal.carbGrams,
+          meal.fatGrams,
+          meal.isEstimated ? 1 : 0,
+          meal.qualityTag,
+          _db.now().millisecondsSinceEpoch,
+          meal.id,
+        ],
+      );
+      _db.audit(
+        entityType: 'meal',
+        entityId: meal.id,
+        action: 'edit',
+        payload: {
+          'previous': {
+            'name': previous.name,
+            'kcal': previous.kcal,
+            'protein_g': previous.proteinGrams,
+            'carb_g': previous.carbGrams,
+            'fat_g': previous.fatGrams,
+          },
+        },
+      );
+    });
+  }
+
   /// Replaces the dishes of a stored meal. The previous dishes go into the
   /// audit payload so the change stays traceable after an undo.
   void replaceDishes(

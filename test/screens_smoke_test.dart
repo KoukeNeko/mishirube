@@ -19,6 +19,7 @@ import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/me/sync_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/meal_confirm_screen.dart';
+import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/nutrition/meal_entry_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
@@ -133,6 +134,10 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'meal entry': ((_) => const MealEntryScreen(), _noSetup),
   'meal confirm': ((_) => const MealConfirmScreen(), _noSetup),
   'daily nutrition': ((_) => const DailyNutritionScreen(), _withLunch),
+  'meal edit': (
+    (store) => MealEditScreen(meal: store.todayMeals.last),
+    _withLunch,
+  ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
   'trends empty': ((_) => const TrendsEmptyScreen(), _noSetup),
   'ai permissions': ((_) => const AiPermissionsScreen(), _noSetup),
