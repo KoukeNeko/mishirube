@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../app/app_store.dart';
 import '../../data/models.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
@@ -19,7 +20,13 @@ class ExerciseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasHistory = exercise.recordCount > 0;
+    final store = AppStoreScope.of(context);
+    // The stored definition, so favourite changes show up while open.
+    final exercise = store.exercises.firstWhere(
+      (candidate) => candidate == this.exercise,
+      orElse: () => this.exercise,
+    );
+    final history = store.exerciseHistory(exercise);
     return DetailPage(
       appBar: PageAppBar(
         title: exercise.name,
@@ -52,8 +59,8 @@ class ExerciseDetailScreen extends StatelessWidget {
           Gutter(child: _CueList(cues: exercise.cues)),
         ],
         Gutter(child: const SectionLabel('你的紀錄')),
-        if (hasHistory)
-          Gutter(child: const _HistoryCard())
+        if (history.last != null)
+          Gutter(child: _HistoryCard(history: history))
         else
           Gutter(child: const InfoBanner(message: '還沒有這個動作的紀錄，做過一次之後這裡會顯示歷史。')),
         Gutter(child: const SectionLabel('管理')),
@@ -62,8 +69,10 @@ class ExerciseDetailScreen extends StatelessWidget {
             children: [
               NavRow(
                 title: exercise.isFavorite ? '取消收藏' : '加入收藏',
-                onTap: () =>
-                    showToast(context, '已更新收藏', kind: ToastKind.success),
+                onTap: () {
+                  store.toggleFavorite(exercise);
+                  showToast(context, '已更新收藏', kind: ToastKind.success);
+                },
               ),
               NavRow(
                 title: '編輯我的別名',
@@ -159,36 +168,53 @@ class _CueList extends StatelessWidget {
 }
 
 class _HistoryCard extends StatelessWidget {
-  const _HistoryCard();
+  const _HistoryCard({required this.history});
+
+  static const _recentCount = 3;
+
+  final ExerciseHistory history;
 
   @override
   Widget build(BuildContext context) {
+    final estimate = history.estimatedOneRepMaxKg;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const StatRow(
+          StatRow(
             stats: [
-              StatBlock(value: '80', unit: 'kg', label: '上次工作組'),
               StatBlock(
-                value: '117',
+                value: formatWeight(history.last!.weightKg),
                 unit: 'kg',
+                label: '上次工作組',
+              ),
+              StatBlock(
+                value: estimate == null ? '—' : estimate.round().toString(),
+                unit: estimate == null ? null : 'kg',
                 label: '估計最大重量',
                 valueColor: AppColors.training,
               ),
-              StatBlock(value: '24', unit: '次', label: '訓練紀錄'),
+              StatBlock(
+                value: '${history.sessionCount}',
+                unit: '次',
+                label: '訓練紀錄',
+              ),
             ],
           ),
           const Divider(height: AppSpacing.xl),
-          for (final (date, result) in MockExercises.recentHistory)
+          for (final entry in history.recent.take(_recentCount))
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
               child: Row(
                 children: [
-                  Text(date, style: AppTextStyles.itemTitle),
+                  Text(
+                    '${entry.date.month} / ${entry.date.day}',
+                    style: AppTextStyles.itemTitle,
+                  ),
                   const Spacer(),
                   Text(
-                    result,
+                    '${formatWeight(entry.weightKg)} kg × ${entry.reps}'
+                    '${entry.rir == null ? '' : ' · RIR ${entry.rir}'}',
                     style: AppTextStyles.caption.copyWith(fontSize: 14),
                   ),
                 ],

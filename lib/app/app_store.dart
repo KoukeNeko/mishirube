@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 
+import '../backend/backend.dart';
+import '../backend/database.dart';
+import '../backend/seed.dart';
+import '../backend/timeline_query.dart';
 import '../data/mock_data.dart';
 import '../data/models.dart';
 
@@ -40,29 +46,71 @@ class DishSplitSnapshot {
 }
 
 class AppStore extends ChangeNotifier {
-  AppStore({DateTime Function()? clock, this._isOnboarded = false})
-    : _clock = clock ?? DateTime.now;
+  /// [backend] defaults to a seeded in-memory store (tests, previews); the
+  /// app passes the on-device one. A given [isOnboarded] overrides and
+  /// saves the stored value.
+  AppStore({DateTime Function()? clock, bool? isOnboarded, Backend? backend})
+    : _clock = clock ?? DateTime.now,
+      _backend = backend ?? Backend.inMemory(clock: clock),
+      _ownsBackend = backend == null {
+    seedDemoData(_backend, now());
+    if (isOnboarded != null && isOnboarded != _storedOnboarded) {
+      _backend.db.setSetting(_onboardedKey, '$isOnboarded');
+    }
+    _isOnboarded = _storedOnboarded;
+    if (_backend.db.setting(_modulesKey) case final stored?) {
+      _enabledModules
+        ..clear()
+        ..addAll([
+          for (final name in (jsonDecode(stored) as List).cast<String>())
+            AppModule.values.byName(name),
+        ]);
+    }
+    _reloadExercises();
+    _routine = _backend.routines.byId(_mainRoutineId, _exercisesById)!;
+    _activeWorkout = _backend.workouts.active(_exercise);
+    _lastFinishedWorkout = _backend.workouts.lastFinished(_exercise);
+    _todayMeals.addAll(_backend.meals.onDay(now()));
+  }
 
   static const _aiProposalSquatSets = 5;
   static const _aiProposalLegCurlSets = 4;
+  static const _onboardedKey = 'onboarded';
+  static const _modulesKey = 'enabled_modules';
+  static const _mainRoutineId = 'lower-a';
 
   final DateTime Function() _clock;
+  final Backend _backend;
+  final bool _ownsBackend;
 
-  bool _isOnboarded;
+  late bool _isOnboarded;
   final Set<AppModule> _enabledModules = {
     AppModule.nutrition,
     AppModule.weight,
     AppModule.training,
   };
   DayPhase _phase = DayPhase.morning;
-  Routine _routine = MockRoutines.lowerBodyA;
+  late Routine _routine;
   WorkoutSession? _activeWorkout;
   WorkoutSession? _lastFinishedWorkout;
-  final List<MealEvent> _todayMeals = [MockNutrition.breakfast];
+  final List<MealEvent> _todayMeals = [];
+  List<ExerciseDefinition> _exercises = const [];
+  Map<String, ExerciseDefinition> _exercisesById = const {};
   bool _hasSyncConflict = true;
   HomeTab _selectedTab = HomeTab.today;
 
+  bool get _storedOnboarded => _backend.db.setting(_onboardedKey) == 'true';
+
+  void _reloadExercises() {
+    _exercises = _backend.exercises.all();
+    _exercisesById = {for (final e in _exercises) e.id: e};
+  }
+
+  ExerciseDefinition _exercise(String id) =>
+      _exercisesById[id] ?? _backend.exercises.byId(id)!;
+
   DateTime now() => _clock();
+  Backend get backend => _backend;
   bool get isOnboarded => _isOnboarded;
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
   DayPhase get phase => _phase;
@@ -72,7 +120,25 @@ class AppStore extends ChangeNotifier {
   List<MealEvent> get todayMeals => List.unmodifiable(_todayMeals);
   bool get hasSyncConflict => _hasSyncConflict;
   HomeTab get selectedTab => _selectedTab;
-  bool get isLunchLogged => _todayMeals.any((meal) => meal.id == 'lunch');
+  bool get isLunchLogged =>
+      _todayMeals.any((meal) => meal.name == MockNutrition.lunch.name);
+
+  /// The exercise catalog with usage derived from finished workouts.
+  List<ExerciseDefinition> get exercises => List.unmodifiable(_exercises);
+
+  ExerciseHistory exerciseHistory(ExerciseDefinition exercise) =>
+      _backend.exercises.history(exercise.id);
+
+  /// Records for the log; [month] is its first day.
+  MonthRecords monthRecords(DateTime month) =>
+      _backend.timeline.month(month, _exercise);
+
+  /// The first month the log can go back to.
+  DateTime get earliestRecordMonth {
+    final today = now();
+    return _backend.timeline.earliestMonth() ??
+        DateTime(today.year, today.month);
+  }
 
   int get todayKcal => _sumMeals((meal) => meal.kcal);
   int get todayProteinGrams => _sumMeals((meal) => meal.proteinGrams);
@@ -82,6 +148,12 @@ class AppStore extends ChangeNotifier {
   int _sumMeals(int Function(MealEvent meal) valueOf) =>
       _todayMeals.fold(0, (sum, meal) => sum + valueOf(meal));
 
+  @override
+  void dispose() {
+    if (_ownsBackend) _backend.close();
+    super.dispose();
+  }
+
   void selectTab(HomeTab tab) {
     if (_selectedTab == tab) return;
     _selectedTab = tab;
@@ -90,11 +162,16 @@ class AppStore extends ChangeNotifier {
 
   void toggleModule(AppModule module) {
     if (!_enabledModules.remove(module)) _enabledModules.add(module);
+    _backend.db.setSetting(
+      _modulesKey,
+      jsonEncode([for (final m in _enabledModules) m.name]),
+    );
     notifyListeners();
   }
 
   void completeOnboarding() {
     _isOnboarded = true;
+    _backend.db.setSetting(_onboardedKey, 'true');
     notifyListeners();
   }
 
@@ -106,16 +183,35 @@ class AppStore extends ChangeNotifier {
   }
 
   void startWorkout() {
-    _activeWorkout ??= WorkoutSession(
+    if (_activeWorkout != null) {
+      notifyListeners();
+      return;
+    }
+    final workout = WorkoutSession(
+      id: _backend.db.newId(),
+      routineId: _routine.id,
       routineName: _routine.name,
       startedAt: now(),
       exercises: _routine.exercises.map(_buildExerciseSession).toList(),
     );
+    _backend.workouts.save(workout, action: 'start');
+    _activeWorkout = workout;
     notifyListeners();
   }
 
+  /// Commits the running workout after [action], so it survives the app
+  /// being killed.
+  void _saveActive(String action) {
+    final workout = _activeWorkout;
+    if (workout != null) _backend.workouts.save(workout, action: action);
+  }
+
   ExerciseSession _buildExerciseSession(PlannedExercise planned) {
-    final (previousWeight, previousReps) = MockPreviousPerformance.of(planned);
+    // "Last time" is the heaviest working set of the last finished session;
+    // with no history the plan itself is the reference.
+    final last = _backend.exercises.history(planned.exercise.id).last;
+    final previousWeight = last?.weightKg ?? planned.targetWeightKg;
+    final previousReps = last?.reps ?? planned.reps;
     return ExerciseSession(
       exercise: planned.exercise,
       isPersonalRecordCandidate: planned.targetWeightKg > previousWeight,
@@ -143,6 +239,7 @@ class AppStore extends ChangeNotifier {
 
     final completedSet = exercise.sets[setIndex]..isDone = true;
     if (exercise.isComplete) _advanceToNextPendingExercise(workout);
+    _saveActive('complete_set');
     notifyListeners();
     return completedSet;
   }
@@ -156,6 +253,7 @@ class AppStore extends ChangeNotifier {
     final set = _activeWorkout?.currentExercise.sets[setIndex];
     if (set == null) return;
     set.isDone = !set.isDone;
+    _saveActive(set.isDone ? 'complete_set' : 'reopen_set');
     notifyListeners();
   }
 
@@ -163,6 +261,7 @@ class AppStore extends ChangeNotifier {
     final workout = _activeWorkout;
     if (workout == null) return;
     workout.currentExerciseIndex = index.clamp(0, workout.exercises.length - 1);
+    _saveActive('select_exercise');
     notifyListeners();
   }
 
@@ -171,10 +270,12 @@ class AppStore extends ChangeNotifier {
     final workout = _activeWorkout;
     if (workout != null) {
       workout.exercises.addAll(planned.map(_buildExerciseSession));
+      _saveActive('add_exercises');
     } else {
       _routine = _routine.copyWith(
         exercises: [..._routine.exercises, ...planned],
       );
+      _backend.routines.save(_routine, action: 'add_exercises');
     }
     notifyListeners();
   }
@@ -186,6 +287,21 @@ class AppStore extends ChangeNotifier {
     targetWeightKg: 20,
     progressionLabel: '維持',
   );
+
+  /// Stores a new custom exercise and makes it available to pickers.
+  void createExercise(ExerciseDefinition exercise) {
+    if (_exercisesById.containsKey(exercise.id)) return;
+    _backend.exercises.save(exercise);
+    _reloadExercises();
+    notifyListeners();
+  }
+
+  void toggleFavorite(ExerciseDefinition exercise) {
+    final isFavorite = !(_exercisesById[exercise.id]?.isFavorite ?? false);
+    _backend.exercises.setFavorite(exercise.id, isFavorite: isFavorite);
+    _reloadExercises();
+    notifyListeners();
+  }
 
   void replaceCurrentExercise(ExerciseDefinition replacement) {
     final workout = _activeWorkout;
@@ -204,6 +320,7 @@ class AppStore extends ChangeNotifier {
           ),
       ],
     );
+    _saveActive('replace_exercise');
     notifyListeners();
   }
 
@@ -211,6 +328,7 @@ class AppStore extends ChangeNotifier {
     final workout = _activeWorkout;
     if (workout == null) return;
     _togglePause(workout);
+    _saveActive(workout.isPaused ? 'pause' : 'resume');
     notifyListeners();
   }
 
@@ -230,10 +348,13 @@ class AppStore extends ChangeNotifier {
     if (workout == null) return;
     if (workout.isPaused) _togglePause(workout);
     workout.finishedAt = now();
+    _backend.workouts.save(workout, action: 'finish');
     _lastFinishedWorkout = workout;
     _activeWorkout = null;
     _phase = DayPhase.evening;
     _ensureLunchLogged();
+    _routine = _backend.routines.byId(_routine.id, _exercisesById)!;
+    _reloadExercises();
     notifyListeners();
   }
 
@@ -243,7 +364,17 @@ class AppStore extends ChangeNotifier {
   }
 
   void _ensureLunchLogged() {
-    if (!isLunchLogged) _todayMeals.add(MockNutrition.lunch);
+    if (isLunchLogged) return;
+    final template = MockNutrition.lunch;
+    final lunch = _backend.meals.exists(template.id)
+        ? template.copyWith(id: _backend.db.newId())
+        : template;
+    final today = now();
+    _backend.meals.insert(
+      lunch,
+      eatenAt: DateTime(today.year, today.month, today.day, 12, 35),
+    );
+    _todayMeals.add(lunch);
   }
 
   DishSplitSnapshot? splitDish({
@@ -266,16 +397,25 @@ class AppStore extends ChangeNotifier {
     final dishes = [...meal.dishes]
       ..removeAt(dishIndex)
       ..insertAll(dishIndex, standaloneEntries);
-    _todayMeals[mealIndex] = meal.copyWith(dishes: dishes);
+    final split = meal.copyWith(dishes: dishes);
+    _backend.meals.replaceDishes(split, action: 'explode_dish', previous: meal);
+    _todayMeals[mealIndex] = split;
     notifyListeners();
     return DishSplitSnapshot(mealIndex: mealIndex, meal: meal);
   }
 
   void undoSplit(DishSplitSnapshot snapshot) {
+    _backend.meals.replaceDishes(
+      snapshot.meal,
+      action: 'undo_explode_dish',
+      previous: _todayMeals[snapshot.mealIndex],
+    );
     _todayMeals[snapshot.mealIndex] = snapshot.meal;
     notifyListeners();
   }
 
+  /// Accepts the AI's routine proposal: it changes the template only, and
+  /// the audit log records that the change came from an AI draft.
   void applyAiProposal() {
     final exercises = [
       for (final planned in _routine.exercises)
@@ -286,6 +426,11 @@ class AppStore extends ChangeNotifier {
         },
     ];
     _routine = _routine.copyWith(exercises: exercises);
+    _backend.routines.save(
+      _routine,
+      action: 'accept_ai_proposal',
+      source: ChangeSource.aiDraft,
+    );
     notifyListeners();
   }
 

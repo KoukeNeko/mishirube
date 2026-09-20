@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../backend/timeline_query.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
 import '../../data/models.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
@@ -44,17 +45,26 @@ class _LogScreenState extends State<LogScreen> {
   String _query = '';
 
   /// First day of the month being browsed.
-  DateTime _month = DateTime(mockToday.year, mockToday.month);
-  int _selectedDay = mockToday.day;
+  late DateTime _month;
+  late int _selectedDay;
+
+  DateTime get _today => AppStoreScope.read(context).now();
+
+  @override
+  void initState() {
+    super.initState();
+    _month = DateTime(_today.year, _today.month);
+    _selectedDay = _today.day;
+  }
 
   bool get _isCurrentMonth =>
-      _month.year == mockToday.year && _month.month == mockToday.month;
+      _month.year == _today.year && _month.month == _today.month;
 
   void _setMonth(DateTime month) {
     setState(() {
       _month = month;
       // Today in the current month; otherwise the month's first day.
-      _selectedDay = _isCurrentMonth ? mockToday.day : 1;
+      _selectedDay = _isCurrentMonth ? _today.day : 1;
     });
   }
 
@@ -76,8 +86,8 @@ class _LogScreenState extends State<LogScreen> {
 
   void _goToToday() {
     setState(() {
-      _month = DateTime(mockToday.year, mockToday.month);
-      _selectedDay = mockToday.day;
+      _month = DateTime(_today.year, _today.month);
+      _selectedDay = _today.day;
     });
   }
 
@@ -88,8 +98,8 @@ class _LogScreenState extends State<LogScreen> {
       context,
       anchor: box.localToGlobal(Offset.zero) & box.size,
       selected: _month,
-      earliest: mockEarliestMonth,
-      latest: DateTime(mockToday.year, mockToday.month),
+      earliest: AppStoreScope.read(context).earliestRecordMonth,
+      latest: DateTime(_today.year, _today.month),
       onChanged: _setMonth,
     );
   }
@@ -109,6 +119,7 @@ class _LogScreenState extends State<LogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final records = AppStoreScope.of(context).monthRecords(_month);
     return CollapsingPage(
       title: '紀錄',
       subtitle: '${_month.year} 年 ${_month.month} 月',
@@ -146,13 +157,15 @@ class _LogScreenState extends State<LogScreen> {
           onChanged: (view) => setState(() => _view = view),
         ),
       ),
-      children: _view == _LogView.timeline ? _timeline() : _calendar(),
+      children: _view == _LogView.timeline
+          ? _timeline(records)
+          : _calendar(records),
     );
   }
 
-  List<Widget> _timeline() {
+  List<Widget> _timeline(MonthRecords records) {
     final days = [
-      for (final day in MockTimeline.days)
+      for (final day in records.days)
         if (day.entries.where(_filter.accepts).where(_matchesQuery).toList()
             case final entries when entries.isNotEmpty || _query.isEmpty)
           (day, entries),
@@ -184,37 +197,36 @@ class _LogScreenState extends State<LogScreen> {
           },
         ),
       ),
-      if (_month == MockTimeline.recordMonth && days.isEmpty)
-        Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
-      else if (_month == MockTimeline.recordMonth)
-        for (final (day, entries) in days) ...[
-          Gutter(child: _DayHeader(day: day)),
-          for (final entry in entries)
-            Gutter(
-              child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
-            ),
-        ]
-      else
+      if (records.days.isEmpty)
         Gutter(
           child: EmptyStateCard(
             icon: Icons.event_busy_outlined,
             title: '${_month.month} 月沒有紀錄',
             message: '換一個月份看看，或從「+」新增一筆紀錄。',
           ),
-        ),
+        )
+      else if (days.isEmpty)
+        Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
+      else
+        for (final (day, entries) in days) ...[
+          Gutter(child: _DayHeader(day: day)),
+          for (final entry in entries)
+            Gutter(
+              child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+            ),
+        ],
     ];
   }
 
-  List<Widget> _calendar() {
-    final dotsByDay = MockTimeline.dotsIn(_month);
-    final dots = dotsByDay[_selectedDay] ?? const [];
+  List<Widget> _calendar(MonthRecords records) {
+    final summaries = records.summaries[_selectedDay] ?? const {};
     return [
       Gutter(
         child: MonthCalendar(
           month: _month,
           selectedDay: _selectedDay,
-          today: mockToday,
-          dotsByDay: dotsByDay,
+          today: _today,
+          dotsByDay: records.dots,
           onSelect: (day) => setState(() => _selectedDay = day),
         ),
       ),
@@ -228,11 +240,17 @@ class _LogScreenState extends State<LogScreen> {
           ),
         ),
       ),
-      if (dots.isEmpty)
+      if (summaries.isEmpty)
         Gutter(child: const InfoBanner(message: '這天沒有紀錄。'))
       else
-        for (final category in dots)
-          Gutter(child: _DaySummaryRow(category: category)),
+        for (final MapEntry(key: category, value: summary) in summaries.entries)
+          Gutter(
+            child: AccentRow(
+              color: category.color,
+              title: category.label,
+              trailing: summary,
+            ),
+          ),
       Gutter(
         child: const Text('尚未發生的日期不顯示 0 或 --。', style: AppTextStyles.caption),
       ),
@@ -361,28 +379,6 @@ class _CalendarLegend extends StatelessWidget {
         ])
           CategoryLabel(label: category.label, color: category.color),
       ],
-    );
-  }
-}
-
-class _DaySummaryRow extends StatelessWidget {
-  const _DaySummaryRow({required this.category});
-
-  final RecordCategory category;
-
-  String get _summary => switch (category) {
-    RecordCategory.training => '下肢 A · 16 組',
-    RecordCategory.nutrition => '3 餐 · ~1,960 kcal',
-    RecordCategory.body => '72.4 kg',
-    RecordCategory.wellness => '精力 3 / 5',
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return AccentRow(
-      color: category.color,
-      title: category.label,
-      trailing: _summary,
     );
   }
 }

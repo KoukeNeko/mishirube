@@ -119,6 +119,15 @@ class ExerciseDefinition {
 
   String get muscleSummary => primaryMuscles.map((m) => m.label).join('、');
 
+  /// The same exercise whatever its usage figures: identity is the stable
+  /// id, so a definition reloaded from storage equals the one on screen.
+  @override
+  bool operator ==(Object other) =>
+      other is ExerciseDefinition && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   bool matchesQuery(String query) {
     final normalizedQuery = query.trim().toLowerCase();
     if (normalizedQuery.isEmpty) return true;
@@ -190,6 +199,17 @@ class Routine {
   );
 }
 
+enum SetType {
+  working('工作組'),
+  warmup('熱身組'),
+  drop('遞減組'),
+  failure('力竭組');
+
+  const SetType(this.label);
+
+  final String label;
+}
+
 /// The actual side of training: what was really lifted today.
 class WorkoutSet {
   WorkoutSet({
@@ -198,6 +218,11 @@ class WorkoutSet {
     required this.previousWeightKg,
     required this.previousReps,
     this.rir,
+    this.rpe,
+    this.type = SetType.working,
+    this.durationSeconds,
+    this.distanceMeters,
+    this.isDone = false,
   });
 
   final double weightKg;
@@ -205,7 +230,11 @@ class WorkoutSet {
   final double previousWeightKg;
   final int previousReps;
   final int? rir;
-  bool isDone = false;
+  final double? rpe;
+  final SetType type;
+  final int? durationSeconds;
+  final double? distanceMeters;
+  bool isDone;
 }
 
 class ExerciseSession {
@@ -232,12 +261,18 @@ class ExerciseSession {
 
 class WorkoutSession {
   WorkoutSession({
+    required this.id,
     required this.routineName,
     required this.startedAt,
     required this.exercises,
+    this.routineId,
+    this.notes,
   });
 
+  final String id;
+  final String? routineId;
   final String routineName;
+  final String? notes;
   final DateTime startedAt;
   final List<ExerciseSession> exercises;
   int currentExerciseIndex = 0;
@@ -305,11 +340,15 @@ class MealEvent {
     required this.proteinGrams,
     required this.carbGrams,
     required this.fatGrams,
+    this.isEstimated = false,
   });
 
   final String id;
   final String name;
   final String timeLabel;
+
+  /// Some amount in the meal is a guess, so its totals read as `~`.
+  final bool isEstimated;
   final int kcal;
   final String qualityTag;
   final List<DishEntry> dishes;
@@ -317,16 +356,21 @@ class MealEvent {
   final int carbGrams;
   final int fatGrams;
 
-  MealEvent copyWith({List<DishEntry>? dishes}) => MealEvent(
-    id: id,
+  MealEvent copyWith({
+    String? id,
+    String? timeLabel,
+    List<DishEntry>? dishes,
+  }) => MealEvent(
+    id: id ?? this.id,
     name: name,
-    timeLabel: timeLabel,
+    timeLabel: timeLabel ?? this.timeLabel,
     kcal: kcal,
     qualityTag: qualityTag,
     dishes: dishes ?? this.dishes,
     proteinGrams: proteinGrams,
     carbGrams: carbGrams,
     fatGrams: fatGrams,
+    isEstimated: isEstimated,
   );
 }
 
@@ -367,4 +411,40 @@ class SubstitutionOption {
 
   final ExerciseDefinition exercise;
   final List<String> reasons;
+}
+
+/// One past session of an exercise, summarised by its heaviest completed
+/// working set.
+class ExerciseHistoryEntry {
+  const ExerciseHistoryEntry({
+    required this.date,
+    required this.weightKg,
+    required this.reps,
+    this.rir,
+  });
+
+  final DateTime date;
+  final double weightKg;
+  final int reps;
+  final int? rir;
+}
+
+/// What the user has done with one exercise, derived from finished workouts.
+class ExerciseHistory {
+  const ExerciseHistory({
+    required this.recent,
+    required this.sessionCount,
+    this.estimatedOneRepMaxKg,
+  });
+
+  static const empty = ExerciseHistory(recent: [], sessionCount: 0);
+
+  /// Newest first.
+  final List<ExerciseHistoryEntry> recent;
+  final int sessionCount;
+
+  /// Best Epley estimate within the estimate window; null without data.
+  final double? estimatedOneRepMaxKg;
+
+  ExerciseHistoryEntry? get last => recent.isEmpty ? null : recent.first;
 }

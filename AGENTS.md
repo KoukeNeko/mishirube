@@ -7,10 +7,11 @@ only records intent that cannot be read from them.
 
 ## Project
 
-MISHIRUBE is a clickable Flutter mock of a fitness and nutrition logging
-app (iOS and Android). All data is local mock data (`lib/data/`); there is
-no backend, HealthKit or AI integration. The UI is dark, edge-to-edge and
-built from custom floating glass chrome rather than stock Material widgets.
+MISHIRUBE is a local-first Flutter fitness and nutrition logging app (iOS
+and Android). Data lives in an on-device SQLite database (`lib/backend/`),
+seeded with the design's demo data on first launch; there is no server,
+sync, HealthKit or AI integration. The UI is dark, edge-to-edge and built
+from custom floating glass chrome rather than stock Material widgets.
 
 ## Toolchain
 
@@ -35,9 +36,13 @@ flutter test test/<file>_test.dart
 
 - `lib/app/` – app root (`app.dart`), theme tokens (`theme.dart`), mock state
   (`app_store.dart`), navigation helpers.
-- `lib/data/` – domain models and mock data. Plan (`Routine`) and actual
-  (`WorkoutSession`) stay separate: editing a template never rewrites a
-  finished workout.
+- `lib/data/` – domain models and the demo content the seed is built from.
+  Plan (`Routine`) and actual (`WorkoutSession`) stay separate: editing a
+  template never rewrites a finished workout.
+- `lib/backend/` – the local-first backend: `AppDatabase` (SQLite via
+  `package:sqlite3`, migrations in `schema.dart`), one repository per
+  domain, `TimelineQuery`, `training_metrics.dart` and the demo
+  `seed.dart`.
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`
@@ -91,6 +96,19 @@ In particular, do not create a parallel version of:
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 
+## Backend rules
+
+- The database is the source of truth. `AppStore` keeps what screens show
+  in memory and writes every change through a repository in the same call;
+  do not keep state that must survive a restart only in memory.
+- Every write runs in `AppDatabase.transaction` and records an
+  `audit_events` row in that transaction. Never hard delete a record:
+  set `deleted_at` (tombstone) and bump `revision`.
+- Schema changes append a step to `schema.dart`; never edit a released
+  step.
+- Usage figures (last performance, record counts, e1RM, timeline, calendar)
+  are derived from stored workouts and meals, not stored or hard-coded.
+
 ## Layout rules
 
 - The app is edge-to-edge. Do not wrap screens in `SafeArea`; the chrome
@@ -129,6 +147,9 @@ task requires it.
   errors and uses the shared app bar (the rest timer is the only listed
   exception).
 - Flow tests (`flows_test.dart`) cover multi-step user journeys.
+- Backend tests (`backend_test.dart`) run real SQLite, in memory or in a
+  temp file: persistence across restarts, rollback, audit and derived
+  history.
 - Geometry tests (`chrome_geometry_test.dart`, `edge_to_edge_test.dart`,
   `collapsing_header_test.dart`, `toast_test.dart`) pin layout contracts.
   When you change the dock, app bar, footers, toasts or insets, update or

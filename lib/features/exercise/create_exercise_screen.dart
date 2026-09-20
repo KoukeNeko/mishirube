@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../app/app_store.dart';
 import '../../data/models.dart';
 import '../../shared/widgets/widgets.dart';
 
@@ -63,7 +63,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
 
   List<ExerciseDefinition> _possibleDuplicates() {
     if (_name.isEmpty) return const [];
-    return MockExercises.catalog
+    return AppStoreScope.of(context).exercises
         .where((exercise) => exercise.matchesQuery(_name))
         .take(_maxDuplicateCandidates)
         .toList();

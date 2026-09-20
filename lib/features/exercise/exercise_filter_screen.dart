@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../app/app_store.dart';
 import '../../data/models.dart';
 import '../../shared/widgets/widgets.dart';
 import 'exercise_filter.dart';
@@ -39,7 +39,8 @@ class ExerciseFilterScreen extends StatefulWidget {
 class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
   late ExerciseFilter _filter = widget.initial;
 
-  int get _matchCount => MockExercises.catalog.where(_filter.matches).length;
+  int get _matchCount =>
+      AppStoreScope.of(context).exercises.where(_filter.matches).length;
 
   void _update(ExerciseFilter filter) => setState(() => _filter = filter);
 

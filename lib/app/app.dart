@@ -10,7 +10,8 @@ import 'theme.dart';
 class MishirubeApp extends StatefulWidget {
   const MishirubeApp({super.key, this.store});
 
-  /// Injected in tests; a fresh mock store is created otherwise.
+  /// The app passes one backed by the on-device database; without it a
+  /// seeded in-memory store is used.
   final AppStore? store;
 
   @override

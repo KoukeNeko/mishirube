@@ -166,7 +166,11 @@ void main() {
     await tester.tapAt(const Offset(20, 600));
     await tester.pumpAndSettle();
     expect(find.byType(CupertinoPicker), findsNothing);
-    expect(find.text('8 月沒有紀錄'), findsOneWidget);
+    expect(
+      find.text('8 月 29 日（週六）'),
+      findsOneWidget,
+      reason: 'the timeline shows the chosen month',
+    );
 
     // 「今天」jumps back to the current month.
     await tester.tap(find.text('今天').hitTestable().first);
@@ -221,7 +225,7 @@ void main() {
 
     await tester.enterText(field, '午餐');
     await tester.pump();
-    expect(find.text('晚餐'), findsNothing);
+    expect(find.text('早餐'), findsNothing);
     expect(find.text('午餐'), findsWidgets);
 
     await tester.enterText(field, '不存在的紀錄');
@@ -232,7 +236,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TextField).hitTestable(), findsNothing);
     expect(todayAction.hitTestable(), findsOneWidget);
-    expect(find.text('晚餐'), findsOneWidget);
+    expect(find.text('早餐'), findsWidgets);
     await disposeTree(tester);
   });
 

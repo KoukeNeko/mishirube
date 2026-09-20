@@ -1,11 +1,5 @@
 import 'models.dart';
 
-/// Fixed "now" used by the mock so every screen matches the design (2026/9/19).
-final mockToday = DateTime(2026, 9, 19);
-
-/// First month the log can be browsed back to.
-final mockEarliestMonth = DateTime(2025);
-
 abstract final class MockExercises {
   static const backSquat = ExerciseDefinition(
     id: 'back-squat',
@@ -16,9 +10,6 @@ abstract final class MockExercises {
     secondaryMuscles: [MuscleGroup.spinalErectors, MuscleGroup.core],
     pattern: MovementPattern.squat,
     isFavorite: true,
-    lastPerformance: '上次 80 kg × 5',
-    lastUsedDaysAgo: 3,
-    recordCount: 24,
     cues: ['站距與肩同寬，腳尖略外開。', '下蹲時膝蓋跟著腳尖方向走。', '維持軀幹張力，不要讓下背先鬆掉。'],
   );
 
@@ -29,9 +20,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.quads],
     pattern: MovementPattern.squat,
-    lastPerformance: '上次 60 kg × 6',
-    lastUsedDaysAgo: 14,
-    recordCount: 9,
   );
 
   static const hackSquat = ExerciseDefinition(
@@ -51,9 +39,6 @@ abstract final class MockExercises {
     primaryMuscles: [MuscleGroup.quads, MuscleGroup.glutes],
     pattern: MovementPattern.squat,
     isFavorite: true,
-    lastPerformance: '上次 24 kg × 12',
-    lastUsedDaysAgo: 6,
-    recordCount: 5,
   );
 
   static const smithSquat = ExerciseDefinition(
@@ -73,9 +58,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.hamstrings, MuscleGroup.glutes],
     pattern: MovementPattern.hinge,
-    lastPerformance: '上次 80 kg × 8',
-    lastUsedDaysAgo: 3,
-    recordCount: 18,
   );
 
   static const bulgarianSplitSquat = ExerciseDefinition(
@@ -85,9 +67,6 @@ abstract final class MockExercises {
     equipment: Equipment.dumbbell,
     primaryMuscles: [MuscleGroup.quads, MuscleGroup.glutes],
     pattern: MovementPattern.unilateral,
-    lastPerformance: '上次 20 kg × 10',
-    lastUsedDaysAgo: 3,
-    recordCount: 12,
   );
 
   static const legCurl = ExerciseDefinition(
@@ -97,9 +76,6 @@ abstract final class MockExercises {
     equipment: Equipment.machine,
     primaryMuscles: [MuscleGroup.hamstrings],
     pattern: MovementPattern.isolation,
-    lastPerformance: '上次 45 kg × 12',
-    lastUsedDaysAgo: 3,
-    recordCount: 15,
   );
 
   static const standingCalfRaise = ExerciseDefinition(
@@ -109,9 +85,6 @@ abstract final class MockExercises {
     equipment: Equipment.machine,
     primaryMuscles: [MuscleGroup.calves],
     pattern: MovementPattern.isolation,
-    lastPerformance: '上次 60 kg × 15',
-    lastUsedDaysAgo: 3,
-    recordCount: 15,
   );
 
   static const dumbbellBenchPress = ExerciseDefinition(
@@ -121,7 +94,6 @@ abstract final class MockExercises {
     equipment: Equipment.dumbbell,
     primaryMuscles: [MuscleGroup.chest],
     pattern: MovementPattern.horizontalPush,
-    recordCount: 24,
   );
 
   static const importedDumbbellBench = ExerciseDefinition(
@@ -132,7 +104,6 @@ abstract final class MockExercises {
     primaryMuscles: [MuscleGroup.chest],
     pattern: MovementPattern.horizontalPush,
     source: ExerciseSource.imported,
-    recordCount: 8,
   );
 
   static const customDbBench = ExerciseDefinition(
@@ -143,7 +114,6 @@ abstract final class MockExercises {
     primaryMuscles: [MuscleGroup.chest],
     pattern: MovementPattern.horizontalPush,
     source: ExerciseSource.custom,
-    recordCount: 3,
   );
 
   static const benchPress = ExerciseDefinition(
@@ -153,7 +123,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.chest],
     pattern: MovementPattern.horizontalPush,
-    recordCount: 30,
   );
 
   static const barbellRow = ExerciseDefinition(
@@ -163,7 +132,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.back],
     pattern: MovementPattern.horizontalPull,
-    recordCount: 20,
   );
 
   static const overheadPress = ExerciseDefinition(
@@ -173,7 +141,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.shoulders],
     pattern: MovementPattern.verticalPush,
-    recordCount: 16,
   );
 
   static const latPulldown = ExerciseDefinition(
@@ -183,7 +150,6 @@ abstract final class MockExercises {
     equipment: Equipment.cable,
     primaryMuscles: [MuscleGroup.back],
     pattern: MovementPattern.verticalPull,
-    recordCount: 14,
   );
 
   static const hipThrust = ExerciseDefinition(
@@ -193,7 +159,6 @@ abstract final class MockExercises {
     equipment: Equipment.barbell,
     primaryMuscles: [MuscleGroup.glutes],
     pattern: MovementPattern.hinge,
-    recordCount: 6,
   );
 
   static const kettlebellSwing = ExerciseDefinition(
@@ -213,7 +178,6 @@ abstract final class MockExercises {
     primaryMuscles: [MuscleGroup.core],
     pattern: MovementPattern.isolation,
     trackingType: TrackingType.duration,
-    recordCount: 10,
   );
 
   static const catalog = [
@@ -236,12 +200,6 @@ abstract final class MockExercises {
     hipThrust,
     kettlebellSwing,
     plank,
-  ];
-
-  static const recentHistory = [
-    ('9 / 16', '80 kg × 5 · RIR 2'),
-    ('9 / 12', '77.5 kg × 5 · RIR 2'),
-    ('9 / 9', '77.5 kg × 5 · RIR 3'),
   ];
 }
 
@@ -293,20 +251,6 @@ abstract final class MockRoutines {
       ),
     ],
   );
-}
-
-abstract final class MockPreviousPerformance {
-  static const _byExerciseId = {
-    'back-squat': (95.0, 5),
-    'rdl': (77.5, 8),
-    'bulgarian-split-squat': (20.0, 8),
-    'leg-curl': (42.5, 12),
-    'standing-calf-raise': (60.0, 12),
-  };
-
-  static (double, int) of(PlannedExercise planned) =>
-      _byExerciseId[planned.exercise.id] ??
-      (planned.targetWeightKg, planned.reps);
 }
 
 abstract final class MockNutrition {
@@ -367,107 +311,6 @@ abstract final class MockNutrition {
     ('牛肉麵（大碗）', '9/17 19:20', '~780'),
     ('無糖豆漿 450 ml', '9/17 08:05', '140'),
   ];
-}
-
-abstract final class MockTimeline {
-  static const days = [
-    TimelineDay(
-      label: '今天 · 9 月 19 日（週六）',
-      entries: [
-        TimelineEntry(
-          timeLabel: '20:41',
-          category: RecordCategory.training,
-          title: '下肢 A',
-          detail: '16 組 · 58 分 · 槓鈴深蹲 100 kg × 5 為新紀錄',
-        ),
-        TimelineEntry(
-          timeLabel: '19:05',
-          category: RecordCategory.nutrition,
-          title: '晚餐',
-          detail: '牛肉麵、燙青菜',
-          tags: ['~780 kcal', '已確認'],
-        ),
-        TimelineEntry(
-          timeLabel: '12:35',
-          category: RecordCategory.nutrition,
-          title: '午餐',
-          detail: '雞肉照燒蛋全麥三明治、香蕉、紅茶',
-          tags: ['~620 kcal', '份量為估計'],
-        ),
-        TimelineEntry(
-          timeLabel: '07:12',
-          category: RecordCategory.body,
-          title: '體重 72.4 kg',
-          detail: '早晨空腹 · 手動輸入',
-        ),
-      ],
-    ),
-    TimelineDay(
-      label: '9 月 18 日（週五）',
-      warning: '飲食紀錄不完整',
-      entries: [
-        TimelineEntry(
-          timeLabel: '22:10',
-          category: RecordCategory.wellness,
-          title: '精力 3 / 5',
-          detail: '備註：久坐一整天，下背有點緊',
-        ),
-        TimelineEntry(
-          timeLabel: '12:20',
-          category: RecordCategory.nutrition,
-          title: '午餐',
-          detail: '雞肉照燒蛋全麥三明治',
-          tags: ['~480 kcal'],
-        ),
-        TimelineEntry(
-          timeLabel: '07:05',
-          category: RecordCategory.body,
-          title: '體重 72.6 kg',
-          detail: '早晨空腹 · 手動輸入',
-        ),
-      ],
-    ),
-  ];
-
-  /// The only month with mock records; [days] and [septemberDots] are in it.
-  static final recordMonth = DateTime(2026, 9);
-
-  /// Calendar dots for the month starting at [month].
-  static Map<int, List<RecordCategory>> dotsIn(DateTime month) =>
-      month == recordMonth ? septemberDots : const {};
-
-  /// Categories recorded on each day of September 2026 (calendar dots).
-  static const septemberDots = <int, List<RecordCategory>>{
-    1: [RecordCategory.nutrition],
-    2: [RecordCategory.training, RecordCategory.nutrition],
-    3: [RecordCategory.nutrition, RecordCategory.body],
-    4: [RecordCategory.nutrition],
-    5: [RecordCategory.training, RecordCategory.nutrition, RecordCategory.body],
-    6: [RecordCategory.nutrition],
-    8: [RecordCategory.nutrition, RecordCategory.body],
-    9: [RecordCategory.training, RecordCategory.nutrition],
-    10: [RecordCategory.nutrition],
-    11: [
-      RecordCategory.training,
-      RecordCategory.nutrition,
-      RecordCategory.body,
-    ],
-    12: [RecordCategory.training, RecordCategory.nutrition],
-    13: [RecordCategory.nutrition],
-    15: [
-      RecordCategory.training,
-      RecordCategory.nutrition,
-      RecordCategory.body,
-    ],
-    16: [RecordCategory.training, RecordCategory.nutrition],
-    17: [RecordCategory.nutrition],
-    18: [RecordCategory.nutrition],
-    19: [
-      RecordCategory.training,
-      RecordCategory.nutrition,
-      RecordCategory.body,
-    ],
-  };
 }
 
 abstract final class MockInsights {

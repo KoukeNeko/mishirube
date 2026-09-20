@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../app/app_store.dart';
 import '../../data/models.dart';
 import '../../shared/widgets/widgets.dart';
 import 'create_exercise_screen.dart';
@@ -52,16 +52,12 @@ class ExercisePickerScreen extends StatefulWidget {
 class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   final _searchController = TextEditingController();
   final List<ExerciseDefinition> _selected = [];
-  final List<ExerciseDefinition> _customExercises = [];
   _PickerTab _tab = _PickerTab.recent;
   ExerciseFilter _filter = ExerciseFilter.defaultForLowerBody;
 
   String get _query => _searchController.text.trim();
 
-  List<ExerciseDefinition> get _catalog => [
-    ...MockExercises.catalog,
-    ..._customExercises,
-  ];
+  List<ExerciseDefinition> get _catalog => AppStoreScope.of(context).exercises;
 
   @override
   void initState() {
@@ -130,8 +126,9 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
       CreateExerciseScreen(initialName: initialName),
     );
     if (created == null) return;
+    if (!mounted) return;
+    AppStoreScope.read(context).createExercise(created);
     setState(() {
-      if (!_catalog.contains(created)) _customExercises.add(created);
       if (!_selected.contains(created)) _selected.add(created);
     });
   }
