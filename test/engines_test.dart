@@ -740,8 +740,13 @@ void main() {
 
   group('muscle map shading', () {
     test('nothing logged is not a small amount of work', () {
-      expect(muscleShade(0), AppColors.surfaceRaised);
-      expect(muscleShade(-1), AppColors.surfaceRaised);
+      // A resting muscle is its own neutral, distinct from the lightest
+      // shade the scale can produce for actual training.
+      expect(muscleShade(0), muscleShade(-1));
+      expect(
+        muscleShade(0).computeLuminance(),
+        lessThan(muscleShade(1).computeLuminance()),
+      );
     });
 
     test('more sets read lighter, up to a fixed top of scale', () {
