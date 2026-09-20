@@ -14,7 +14,6 @@ import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
 import '../backend/seed/seed.dart';
 import '../backend/storage/database.dart';
-import '../backend/storage/timeline_query.dart';
 import '../domain/domain.dart';
 
 export '../backend/application/catalog_service.dart' show TrackingChangeRefused;

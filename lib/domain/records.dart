@@ -54,3 +54,23 @@ class Insight {
   final String statement;
   final List<String> evidence;
 }
+
+/// A month of the log: the days that have records, and one short
+/// summary per category for the calendar.
+class MonthRecords {
+  const MonthRecords({required this.days, required this.summaries});
+
+  static const empty = MonthRecords(days: [], summaries: {});
+
+  /// Days with records, newest first.
+  final List<TimelineDay> days;
+
+  /// Per day of the month, one short summary per recorded category, in
+  /// [RecordCategory] order.
+  final Map<int, Map<RecordCategory, String>> summaries;
+
+  Map<int, List<RecordCategory>> get dots => {
+    for (final MapEntry(key: day, value: byCategory) in summaries.entries)
+      day: byCategory.keys.toList(),
+  };
+}

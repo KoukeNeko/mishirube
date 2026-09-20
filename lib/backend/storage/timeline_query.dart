@@ -3,25 +3,6 @@ import '../../shared/format.dart';
 import 'database.dart';
 import 'timeline_source.dart';
 
-/// Everything recorded in one month, as the log shows it.
-class MonthRecords {
-  const MonthRecords({required this.days, required this.summaries});
-
-  static const empty = MonthRecords(days: [], summaries: {});
-
-  /// Days with records, newest first.
-  final List<TimelineDay> days;
-
-  /// Per day of the month, one short summary per recorded category, in
-  /// [RecordCategory] order.
-  final Map<int, Map<RecordCategory, String>> summaries;
-
-  Map<int, List<RecordCategory>> get dots => {
-    for (final MapEntry(key: day, value: byCategory) in summaries.entries)
-      day: byCategory.keys.toList(),
-  };
-}
-
 /// The unified log: it merges what each [TimelineSource] contributes and
 /// knows nothing about workouts, meals or weights itself.
 class TimelineQuery {

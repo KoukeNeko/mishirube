@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../backend/storage/timeline_query.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
