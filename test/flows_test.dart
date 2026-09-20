@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/goal/goal_entry_button.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -395,6 +396,47 @@ void main() {
     await tester.pump(_pageTransition);
     expect(store.activeSession, isA<ActiveActivity>());
     expect(find.textContaining('先結束運動'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('setting a weekly goal puts the ring in the toolbar', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+    expect(
+      find.byType(GoalEntryButton).hitTestable(),
+      findsNothing,
+      reason: 'nothing is set up, so nothing is offered',
+    );
+
+    store.selectTab(HomeTab.me);
+    await tester.pumpAndSettle();
+    await _tapText(tester, '每週目標');
+    await tester.pumpAndSettle();
+    await _tapText(tester, '設定每週目標');
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('4 天'));
+    await tester.pump();
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+
+    expect(store.goalOverview.thisWeek.targetDays, 4);
+    expect(find.textContaining('本週'), findsWidgets);
+
+    // Back out of the goal page to the shell.
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pumpAndSettle();
+    store.selectTab(HomeTab.today);
+    await tester.pumpAndSettle();
+    expect(
+      find.byType(GoalEntryButton).hitTestable(),
+      findsOneWidget,
+      reason: 'the toolbar shows the week once there is a goal',
+    );
     await disposeTree(tester);
   });
 

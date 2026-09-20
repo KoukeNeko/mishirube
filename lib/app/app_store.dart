@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 import '../backend/application/activity_service.dart';
+import '../backend/application/goal_service.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
@@ -180,6 +181,36 @@ class AppStore extends ChangeNotifier {
     String? exerciseId,
     Duration window = const Duration(days: 28),
   }) => _backend.insights.volumeReport(exerciseId: exerciseId, window: window);
+
+  /// The weekly goal, the weeks measured against it, and the run of
+  /// weeks met, all derived from the records.
+  GoalOverview get goalOverview => _backend.goal.overview();
+
+  bool get isGoalEnabled => _backend.goal.isEnabled;
+
+  /// Sets how many days a week to move. From next week unless the user
+  /// asks for it to count now; earlier weeks keep their own goal.
+  void setWeeklyGoal(int days, {bool applyThisWeek = false}) {
+    _backend.goal.setGoal(days, applyThisWeek: applyThisWeek);
+    notifyListeners();
+  }
+
+  /// Stops the goal applying until [until], or until picked up again.
+  void pauseGoal({DateTime? until}) {
+    _backend.goal.pause(until: until);
+    notifyListeners();
+  }
+
+  void resumeGoal() {
+    _backend.goal.resume();
+    notifyListeners();
+  }
+
+  /// Turning the goal off hides it; the records and the trends stay.
+  void setGoalEnabled(bool value) {
+    _backend.goal.setEnabled(value);
+    notifyListeners();
+  }
 
   /// Records for the log; [month] is its first day.
   MonthRecords monthRecords(DateTime month) => _backend.timeline.month(month);

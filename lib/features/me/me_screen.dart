@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
+import '../goal/goal_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import 'ai_permissions_screen.dart';
 import 'import_screen.dart';
@@ -32,9 +33,9 @@ class MeScreen extends StatelessWidget {
           child: GroupedCard(
             children: [
               NavRow(
-                title: '目標',
-                subtitle: '減重 · 每週訓練 3 次',
-                onTap: () => notDesigned('目標'),
+                title: '每週目標',
+                subtitle: _goalSummary(store),
+                onTap: () => pushPage(context, const GoalScreen()),
               ),
               NavRow(
                 title: '模組',
@@ -105,4 +106,14 @@ class MeScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+/// What the row says without opening the page: the goal, or that there
+/// is not one yet.
+String _goalSummary(AppStore store) {
+  if (!store.isGoalEnabled) return '還沒設定';
+  final overview = store.goalOverview;
+  if (overview.isPaused) return '已暫停';
+  final week = overview.thisWeek;
+  return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';
 }

@@ -4,11 +4,13 @@ import 'package:sqlite3/sqlite3.dart' show sqlite3;
 
 import 'application/activity_service.dart';
 import 'application/catalog_service.dart';
+import 'application/goal_service.dart';
 import 'application/insights_service.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
 import 'application/training_service.dart';
 import 'storage/activity_repository.dart';
+import 'storage/goal_repository.dart';
 import 'storage/database.dart';
 import 'storage/exercise_repository.dart';
 import 'storage/journal_repository.dart';
@@ -25,6 +27,7 @@ const _databaseFileName = 'mishirube.sqlite3';
 class Storage {
   Storage(this.db)
     : activities = ActivityRepository(db),
+      goals = GoalRepository(db),
       exercises = ExerciseRepository(db),
       routines = RoutineRepository(db),
       workouts = WorkoutRepository(db),
@@ -44,6 +47,7 @@ class Storage {
 
   final AppDatabase db;
   final ActivityRepository activities;
+  final GoalRepository goals;
   final ExerciseRepository exercises;
   final RoutineRepository routines;
   final WorkoutRepository workouts;
@@ -67,6 +71,7 @@ class Backend {
     nutrition = NutritionService(db, storage.meals);
     activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
+    goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
     insights = InsightsService(
       db,
       storage.workouts,
@@ -95,6 +100,7 @@ class Backend {
   late final NutritionService nutrition;
   late final ActivityService activity;
   late final JournalService journal;
+  late final GoalService goal;
   late final InsightsService insights;
 
   AppDatabase get db => storage.db;

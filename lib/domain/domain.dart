@@ -7,6 +7,7 @@ library;
 export 'activity.dart';
 export 'body.dart';
 export 'exercise_filter.dart';
+export 'goal.dart';
 export 'history.dart';
 export 'nutrition.dart';
 export 'records.dart';

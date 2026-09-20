@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
+import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
@@ -589,6 +590,125 @@ void main() {
         SetType.warmup,
         reason: 'the set type survives a restart',
       );
+    });
+  });
+
+  group('streak engine', () {
+    // A Sunday, so the week in progress is nearly over.
+    final now = DateTime(2026, 9, 20, 10);
+    final monday = startOfWeek(now);
+    DateTime day(int offsetFromMonday) =>
+        monday.add(Duration(days: offsetFromMonday));
+
+    List<WeeklyGoal> goalOf(int days) => [
+      WeeklyGoal(id: 'goal', effectiveFrom: DateTime(2026), targetDays: days),
+    ];
+
+    List<WeekProgress> weeksOf(
+      Set<DateTime> days, {
+      List<WeeklyGoal>? goals,
+      List<GoalPause> pauses = const [],
+      int weeks = 4,
+    }) => weekProgress(
+      activeDays: days,
+      goals: goals ?? goalOf(3),
+      pauses: pauses,
+      now: now,
+      weeks: weeks,
+    );
+
+    test('a day counts once however much was done in it', () {
+      final days = activeDays([
+        day(0).add(const Duration(hours: 7)),
+        day(0).add(const Duration(hours: 18)),
+        day(0).add(const Duration(hours: 21)),
+        day(2).add(const Duration(hours: 8)),
+      ]);
+
+      expect(days, hasLength(2));
+      expect(weeksOf(days).last.activeDays, 2);
+    });
+
+    test('meeting the goal counts the week straight away', () {
+      final weeks = weeksOf(activeDays([day(0), day(1), day(2)]));
+
+      expect(weeks.last.isMet, isTrue);
+      expect(streak(weeks).current, 1);
+      expect(streak(weeks).isThisWeekPending, isFalse);
+    });
+
+    test('a week still running is pending, not broken', () {
+      final weeks = weeksOf(
+        activeDays([
+          // Three met weeks, then two days so far this week.
+          for (var w = 1; w <= 3; w++)
+            for (var d = 0; d < 3; d++) day(d - w * 7),
+          day(0),
+          day(1),
+        ]),
+      );
+
+      final run = streak(weeks);
+      expect(weeks.last.isMet, isFalse);
+      expect(weeks.last.isMissed, isFalse, reason: 'the week is not over');
+      expect(run.current, 3, reason: 'the run stands until the week ends');
+      expect(run.isThisWeekPending, isTrue);
+    });
+
+    test('a finished week that fell short ends the run', () {
+      final weeks = weeksOf(
+        activeDays([
+          for (var d = 0; d < 3; d++) day(d - 21),
+          // Last week: one day only.
+          day(-7),
+          for (var d = 0; d < 3; d++) day(d),
+        ]),
+      );
+
+      final run = streak(weeks);
+      expect(run.current, 1, reason: 'only this week');
+      expect(run.previous, 1, reason: 'what there is to get back to');
+      expect(run.best, 1);
+    });
+
+    test('a paused week neither extends nor breaks the run', () {
+      final pauses = [
+        GoalPause(id: 'ill', startedAt: day(-7), endedAt: day(-1)),
+      ];
+      final weeks = weeksOf(
+        activeDays([
+          for (var d = 0; d < 3; d++) day(d - 14),
+          for (var d = 0; d < 3; d++) day(d),
+        ]),
+        pauses: pauses,
+      );
+
+      expect(weeks[weeks.length - 2].isPaused, isTrue);
+      expect(weeks[weeks.length - 2].isMissed, isFalse);
+      expect(streak(weeks).current, 2, reason: 'the two met weeks join up');
+    });
+
+    test('each week is judged by the goal in force then', () {
+      final goals = [
+        WeeklyGoal(id: 'old', effectiveFrom: DateTime(2026), targetDays: 2),
+        WeeklyGoal(id: 'new', effectiveFrom: monday, targetDays: 5),
+      ];
+      final weeks = weeksOf(
+        activeDays([
+          for (var d = 0; d < 2; d++) day(d - 7),
+          for (var d = 0; d < 2; d++) day(d),
+        ]),
+        goals: goals,
+      );
+
+      expect(weeks[weeks.length - 2].targetDays, 2);
+      expect(
+        weeks[weeks.length - 2].isMet,
+        isTrue,
+        reason: 'raising the goal does not rewrite last week',
+      );
+      expect(weeks.last.targetDays, 5);
+      expect(weeks.last.isMet, isFalse);
     });
   });
 }

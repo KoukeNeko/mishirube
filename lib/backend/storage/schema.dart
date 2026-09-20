@@ -238,6 +238,28 @@ final List<String> _migrations = [
   CREATE UNIQUE INDEX activities_single_active
     ON activities(status) WHERE status = 'in_progress' AND deleted_at IS NULL;
   ''',
+  '''
+  -- How many days a week the user is aiming for, as a timeline: changing
+  -- the goal appends a row, so a past week keeps the goal it was judged
+  -- by. Whether anything is met is derived from the records, never stored.
+  CREATE TABLE weekly_goals (
+    id TEXT PRIMARY KEY,
+    effective_from INTEGER NOT NULL,
+    target_days INTEGER NOT NULL,
+    $_entityColumns
+  );
+  CREATE INDEX weekly_goals_from ON weekly_goals(effective_from);
+
+  -- Stretches where the goal does not apply: ill, injured, travelling.
+  -- An open pause has no end yet.
+  CREATE TABLE goal_pauses (
+    id TEXT PRIMARY KEY,
+    started_at INTEGER NOT NULL,
+    ended_at INTEGER,
+    note TEXT NOT NULL DEFAULT '',
+    $_entityColumns
+  );
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

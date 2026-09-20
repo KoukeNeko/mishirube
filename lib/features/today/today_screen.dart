@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../goal/goal_entry_button.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/meal_confirm_screen.dart';
 import '../nutrition/meal_entry_screen.dart';
@@ -26,6 +27,7 @@ class TodayScreen extends StatelessWidget {
     return CollapsingPage(
       title: '今天',
       subtitle: '9 月 19 日・週六・$phaseLabel',
+      leading: const GoalEntryButton(),
       actions: [
         // Mock-only: the date button walks through the day's scenarios.
         HeaderAction(

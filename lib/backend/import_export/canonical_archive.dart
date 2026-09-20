@@ -197,6 +197,19 @@ const _tables = [
     _Column('paused_ms', _Kind.integer),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('weeklyGoals', 'weekly_goals', [
+    _Column('id', _Kind.text),
+    _Column('effective_from', _Kind.time),
+    _Column('target_days', _Kind.integer),
+    ..._entity,
+  ], orderBy: 'id'),
+  _Table('goalPauses', 'goal_pauses', [
+    _Column('id', _Kind.text),
+    _Column('started_at', _Kind.time),
+    _Column('ended_at', _Kind.time, isNullable: true),
+    _Column('note', _Kind.text),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('sleepEntries', 'sleep_entries', [
     _Column('id', _Kind.text),
     _Column('slept_at', _Kind.time),

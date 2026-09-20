@@ -379,6 +379,89 @@ void main() {
     });
   });
 
+  group('weekly goal persistence', () {
+    test('the goal and its pause survive a restart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      expect(store.isGoalEnabled, isFalse, reason: 'nothing set by default');
+      expect(store.goalOverview.hasGoal, isFalse);
+
+      store.setWeeklyGoal(4, applyThisWeek: true);
+      store.pauseGoal();
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.isGoalEnabled, isTrue);
+      expect(reopened.goalOverview.thisWeek.targetDays, 4);
+      expect(reopened.goalOverview.isPaused, isTrue);
+
+      reopened.resumeGoal();
+      expect(
+        AppStore(clock: clock.now, backend: backend).goalOverview.isPaused,
+        isFalse,
+      );
+    });
+
+    test('a day with a workout and a run counts once', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true)
+        ..setWeeklyGoal(5, applyThisWeek: true);
+      addTearDown(store.dispose);
+      final before = store.goalOverview.thisWeek.activeDays;
+
+      store
+        ..logActivity(
+          type: ActivityTypes.running,
+          startedAt: clock.now(),
+          duration: const Duration(minutes: 30),
+        )
+        ..logActivity(
+          type: ActivityTypes.cycling,
+          startedAt: clock.now().subtract(const Duration(hours: 3)),
+          duration: const Duration(minutes: 40),
+        );
+
+      expect(
+        store.goalOverview.thisWeek.activeDays,
+        before + 1,
+        reason: 'two records on one day are still one active day',
+      );
+    });
+
+    test('a late record brings the week, and the run, back', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true)
+        ..setWeeklyGoal(3, applyThisWeek: true);
+      addTearDown(store.dispose);
+      final short = store.goalOverview.weeks.lastWhere(
+        (week) => !week.isCurrent && !week.isMet && !week.isPaused,
+      );
+      final before = store.goalOverview.streak;
+
+      // Fill that week in, as if catching up on records.
+      for (var i = 0; i < short.targetDays - short.activeDays; i++) {
+        store.logActivity(
+          type: ActivityTypes.walking,
+          startedAt: short.start.add(Duration(days: i, hours: 9)),
+          duration: const Duration(minutes: 30),
+        );
+      }
+
+      final after = store.goalOverview;
+      final filled = after.weeks.firstWhere(
+        (week) => week.start == short.start,
+      );
+      expect(filled.isMet, isTrue);
+      expect(
+        after.streak.current,
+        greaterThan(before.current),
+        reason: 'filling the week in counts it; no repair needed',
+      );
+    });
+  });
+
   group('nutrition persistence', () {
     test('an exploded dish and its undo are both stored', () {
       final backend = openFile();

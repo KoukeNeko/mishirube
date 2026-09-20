@@ -7,6 +7,8 @@ import 'package:mishirube/features/activity/activity_type_picker.dart';
 import 'package:mishirube/features/activity/live_activity_screen.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
+import 'package:mishirube/features/goal/goal_screen.dart';
+import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
@@ -44,6 +46,8 @@ void _withWorkout(AppStore store) => store.startWorkout();
 
 void _withLunch(AppStore store) => store.confirmLunch();
 
+void _withGoal(AppStore store) => store.setWeeklyGoal(3, applyThisWeek: true);
+
 void _withActivity(AppStore store) => store.logActivity(
   type: ActivityTypes.running,
   startedAt: store.now().subtract(const Duration(minutes: 30)),
@@ -62,6 +66,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
   'routine detail': ((_) => const RoutineDetailScreen(), _noSetup),
   'routine list': ((_) => const RoutineListScreen(), _noSetup),
+  'goal (not set up)': ((_) => const GoalScreen(), _noSetup),
+  'goal': ((_) => const GoalScreen(), _withGoal),
+  'goal setup': (
+    (store) => GoalSetupScreen(overview: store.goalOverview),
+    _withGoal,
+  ),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
   'rest timer': (
     (store) => RestTimerScreen(
