@@ -264,6 +264,11 @@ final List<String> _migrations = [
   -- Meals the user starred, to log again without going looking.
   ALTER TABLE meals ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0;
   ''',
+  '''
+  -- Fibre, counted apart from the carbohydrate it is part of. Rows from
+  -- before this step have no figure, which is not the same as none.
+  ALTER TABLE meals ADD COLUMN fibre_g INTEGER NOT NULL DEFAULT 0;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

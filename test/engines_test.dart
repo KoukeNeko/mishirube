@@ -14,19 +14,24 @@ import 'package:mishirube/domain/domain.dart';
 
 import 'support/harness.dart';
 
-MealEvent _meal(String name, {int kcal = 600, bool isEstimated = false}) =>
-    MealEvent(
-      id: name,
-      name: name,
-      timeLabel: '12:00',
-      kcal: kcal,
-      qualityTag: '已確認',
-      isEstimated: isEstimated,
-      proteinGrams: 30,
-      carbGrams: 60,
-      fatGrams: 20,
-      dishes: const [],
-    );
+MealEvent _meal(
+  String name, {
+  int kcal = 600,
+  bool isEstimated = false,
+  int fibreGrams = 4,
+}) => MealEvent(
+  id: name,
+  name: name,
+  timeLabel: '12:00',
+  kcal: kcal,
+  qualityTag: '已確認',
+  isEstimated: isEstimated,
+  proteinGrams: 30,
+  carbGrams: 60,
+  fatGrams: 20,
+  fibreGrams: fibreGrams,
+  dishes: const [],
+);
 
 BodyWeight _weight(DateTime at, double kg) =>
     BodyWeight(id: '$at', measuredAt: at, weightKg: kg);
@@ -35,6 +40,20 @@ void main() {
   final now = FakeClock().now();
 
   group('nutrition summary', () {
+    test('fibre adds up with the rest of the day', () {
+      final summary = summariseDay([
+        _meal('早餐', fibreGrams: 5),
+        _meal('午餐', fibreGrams: 7),
+      ]);
+
+      expect(summary.fibreGrams, 12);
+      expect(
+        summary.carbGrams,
+        120,
+        reason: 'fibre is part of the carbohydrate, not added to it',
+      );
+    });
+
     test('adds meals up and marks a short day incomplete', () {
       final summary = summariseDay([
         _meal('早餐', kcal: 500),

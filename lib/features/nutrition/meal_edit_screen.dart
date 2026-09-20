@@ -26,11 +26,12 @@ class _MealEditScreenState extends State<MealEditScreen> {
   );
   late final _carbs = TextEditingController(text: '${widget.meal.carbGrams}');
   late final _fat = TextEditingController(text: '${widget.meal.fatGrams}');
+  late final _fibre = TextEditingController(text: '${widget.meal.fibreGrams}');
   String? _error;
 
   @override
   void dispose() {
-    for (final controller in [_name, _kcal, _protein, _carbs, _fat]) {
+    for (final controller in [_name, _kcal, _protein, _carbs, _fat, _fibre]) {
       controller.dispose();
     }
     super.dispose();
@@ -45,6 +46,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
     final protein = _number(_protein);
     final carbs = _number(_carbs);
     final fat = _number(_fat);
+    final fibre = _number(_fibre);
     if (name.isEmpty) {
       setState(() => _error = '名稱不能空白。');
       return;
@@ -67,6 +69,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
         proteinGrams: protein,
         carbGrams: carbs,
         fatGrams: fat,
+        fibreGrams: fibre,
         // The user has just said what these are, so they are no longer
         // somebody's guess.
         isEstimated: false,
@@ -98,6 +101,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
               _MacroRow(label: '蛋白質', controller: _protein),
               _MacroRow(label: '碳水化合物', controller: _carbs),
               _MacroRow(label: '脂肪', controller: _fat),
+              _MacroRow(label: '纖維', controller: _fibre),
             ],
           ),
         ),

@@ -13,6 +13,7 @@ class DaySummary {
     required this.proteinGrams,
     required this.carbGrams,
     required this.fatGrams,
+    required this.fibreGrams,
     required this.mealCount,
     required this.hasEstimates,
     required this.isComplete,
@@ -23,6 +24,7 @@ class DaySummary {
     proteinGrams: 0,
     carbGrams: 0,
     fatGrams: 0,
+    fibreGrams: 0,
     mealCount: 0,
     hasEstimates: false,
     isComplete: false,
@@ -32,6 +34,7 @@ class DaySummary {
   final int proteinGrams;
   final int carbGrams;
   final int fatGrams;
+  final int fibreGrams;
   final int mealCount;
 
   /// Some portion in the day was estimated, so totals read as `~`.
@@ -53,6 +56,7 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
       proteinGrams: summary.proteinGrams + meal.proteinGrams,
       carbGrams: summary.carbGrams + meal.carbGrams,
       fatGrams: summary.fatGrams + meal.fatGrams,
+      fibreGrams: summary.fibreGrams + meal.fibreGrams,
       mealCount: summary.mealCount + 1,
       hasEstimates: summary.hasEstimates || meal.isEstimated,
       isComplete: false,
@@ -63,6 +67,7 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
     proteinGrams: summary.proteinGrams,
     carbGrams: summary.carbGrams,
     fatGrams: summary.fatGrams,
+    fibreGrams: summary.fibreGrams,
     mealCount: summary.mealCount,
     hasEstimates: summary.hasEstimates,
     isComplete: !isOver || summary.mealCount >= mealsForCompleteDay,

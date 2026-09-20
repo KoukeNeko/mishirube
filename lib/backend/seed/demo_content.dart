@@ -263,6 +263,7 @@ abstract final class DemoNutrition {
     proteinGrams: 28,
     carbGrams: 62,
     fatGrams: 18,
+    fibreGrams: 5,
     dishes: [
       DishEntry(name: '無糖豆漿', quantityLabel: '450 ml', subtitle: '包裝飲品 · 條碼'),
       DishEntry(name: '蛋餅', quantityLabel: '1 份', subtitle: '自訂食物'),
@@ -299,6 +300,7 @@ abstract final class DemoNutrition {
     proteinGrams: 36,
     carbGrams: 68,
     fatGrams: 21,
+    fibreGrams: 7,
     dishes: [
       sandwich,
       DishEntry(name: '香蕉', quantityLabel: '1 根', subtitle: 'TFDA'),

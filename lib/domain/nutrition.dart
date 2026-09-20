@@ -37,6 +37,7 @@ class MealEvent {
     required this.proteinGrams,
     required this.carbGrams,
     required this.fatGrams,
+    this.fibreGrams = 0,
     this.isEstimated = false,
     this.isFavorite = false,
   });
@@ -54,6 +55,10 @@ class MealEvent {
   final int carbGrams;
   final int fatGrams;
 
+  /// Fibre, which is part of the carbohydrate already counted above and
+  /// is tracked separately because it is what people actually watch.
+  final int fibreGrams;
+
   /// Starred to log again without going looking for it.
   final bool isFavorite;
 
@@ -67,6 +72,7 @@ class MealEvent {
     int? proteinGrams,
     int? carbGrams,
     int? fatGrams,
+    int? fibreGrams,
     bool? isEstimated,
     String? qualityTag,
   }) => MealEvent(
@@ -79,6 +85,7 @@ class MealEvent {
     proteinGrams: proteinGrams ?? this.proteinGrams,
     carbGrams: carbGrams ?? this.carbGrams,
     fatGrams: fatGrams ?? this.fatGrams,
+    fibreGrams: fibreGrams ?? this.fibreGrams,
     isFavorite: isFavorite ?? this.isFavorite,
     isEstimated: isEstimated ?? this.isEstimated,
   );

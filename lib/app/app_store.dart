@@ -288,6 +288,7 @@ class AppStore extends ChangeNotifier {
   int get todayProteinGrams => todaySummary.proteinGrams;
   int get todayCarbGrams => todaySummary.carbGrams;
   int get todayFatGrams => todaySummary.fatGrams;
+  int get todayFibreGrams => todaySummary.fibreGrams;
 
   @override
   void dispose() {

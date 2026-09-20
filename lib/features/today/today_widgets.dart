@@ -410,6 +410,8 @@ class IntakeCard extends StatelessWidget {
               _MacroTile(grams: store.todayCarbGrams, label: '碳水'),
               const SizedBox(width: AppSpacing.xs),
               _MacroTile(grams: store.todayFatGrams, label: '脂肪'),
+              const SizedBox(width: AppSpacing.xs),
+              _MacroTile(grams: store.todayFibreGrams, label: '纖維'),
             ],
           ),
           const Divider(height: AppSpacing.xxl),
