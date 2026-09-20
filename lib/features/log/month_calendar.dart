@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/widgets/widgets.dart';
 
-const _weekdayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-const _cellSpacing = 4.0;
 const _cellMinHeight = 44.0;
 const _dotSize = 5.0;
 
@@ -27,49 +26,17 @@ class MonthCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    // Monday-first grid.
-    final leadingBlanks = month.weekday - DateTime.monday;
     bool isFuture(int day) =>
         DateTime(month.year, month.month, day).isAfter(today);
-    final cells = <Widget>[
-      for (var i = 0; i < leadingBlanks; i++) const SizedBox.shrink(),
-      for (var day = 1; day <= daysInMonth; day++)
-        _DayCell(
-          day: day,
-          isSelected: day == selectedDay,
-          isFuture: isFuture(day),
-          dots: dotsByDay[day] ?? const [],
-          onTap: isFuture(day) ? null : () => onSelect(day),
-        ),
-    ];
-    return Column(
-      children: [
-        Row(
-          children: [
-            for (final label in _weekdayLabels)
-              Expanded(
-                child: Center(child: Text(label, style: AppTextStyles.caption)),
-              ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        // Plain rows, not a GridView: a nested scroll view would pick up
-        // the page's edge-to-edge insets as padding.
-        for (var week = 0; week * 7 < cells.length; week++) ...[
-          if (week > 0) const SizedBox(height: _cellSpacing),
-          Row(
-            children: [
-              for (var i = week * 7; i < week * 7 + 7; i++) ...[
-                if (i > week * 7) const SizedBox(width: _cellSpacing),
-                Expanded(
-                  child: i < cells.length ? cells[i] : const SizedBox.shrink(),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ],
+    return MonthGrid(
+      month: month,
+      dayBuilder: (context, day) => _DayCell(
+        day: day,
+        isSelected: day == selectedDay,
+        isFuture: isFuture(day),
+        dots: dotsByDay[day] ?? const [],
+        onTap: isFuture(day) ? null : () => onSelect(day),
+      ),
     );
   }
 }

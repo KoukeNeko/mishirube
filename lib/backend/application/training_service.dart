@@ -210,6 +210,26 @@ class TrainingService {
     return updated;
   }
 
+  /// Swaps a planned exercise for another, keeping what was planned for
+  /// it. Finished workouts are untouched, as with any template edit.
+  Routine replaceInRoutine(
+    Routine routine,
+    String exerciseId,
+    ExerciseDefinition replacement,
+  ) {
+    final updated = routine.copyWith(
+      exercises: [
+        for (final planned in routine.exercises)
+          if (planned.exercise.id == exerciseId)
+            planned.copyWith(exercise: replacement)
+          else
+            planned,
+      ],
+    );
+    _routines.save(updated, action: 'replace_exercise');
+    return updated;
+  }
+
   Routine renameRoutine(Routine routine, String name) {
     final updated = routine.renamed(name);
     _routines.save(updated, action: 'rename');

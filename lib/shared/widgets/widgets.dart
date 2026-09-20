@@ -9,6 +9,7 @@ export 'content/cards.dart';
 export 'content/charts.dart';
 export 'content/feedback.dart';
 export 'content/insight_card.dart';
+export 'content/month_grid.dart';
 export 'content/rows.dart';
 export 'content/stats.dart';
 // Interactive controls.

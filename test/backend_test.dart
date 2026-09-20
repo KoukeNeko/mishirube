@@ -326,6 +326,59 @@ void main() {
     });
   });
 
+  group('replacing an exercise', () {
+    test('only today leaves the template alone', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      )..startWorkout();
+      final planned = store.routine.exercises.first.exercise;
+      final replacement = store.exercises.firstWhere(
+        (exercise) => exercise.id != planned.id,
+      );
+
+      store.replaceCurrentExercise(replacement);
+
+      expect(store.activeWorkout!.currentExercise.exercise.id, replacement.id);
+      expect(
+        store.routine.exercises.first.exercise.id,
+        planned.id,
+        reason: 'the plan is unchanged unless the user says so',
+      );
+    });
+
+    test('updating the template keeps what was planned for the slot', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      )..startWorkout();
+      final slot = store.routine.exercises.first;
+      final replacement = store.exercises.firstWhere(
+        (exercise) => exercise.id != slot.exercise.id,
+      );
+
+      store.replaceCurrentExercise(replacement, updateTemplate: true);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final updated = reopened.routine.exercises.first;
+      expect(updated.exercise.id, replacement.id);
+      expect(updated.sets, slot.sets);
+      expect(updated.reps, slot.reps);
+      expect(updated.targetWeightKg, slot.targetWeightKg);
+      expect(
+        reopened.routine.exercises,
+        hasLength(store.routine.exercises.length),
+        reason: 'a swap, not an addition',
+      );
+    });
+  });
+
   group('nutrition persistence', () {
     test('an exploded dish and its undo are both stored', () {
       final backend = openFile();

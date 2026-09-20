@@ -140,15 +140,16 @@ class PlannedExercise {
   final int? rir;
   final bool isUnilateral;
 
-  PlannedExercise copyWith({int? sets}) => PlannedExercise(
-    exercise: exercise,
-    sets: sets ?? this.sets,
-    reps: reps,
-    targetWeightKg: targetWeightKg,
-    progressionLabel: progressionLabel,
-    rir: rir,
-    isUnilateral: isUnilateral,
-  );
+  PlannedExercise copyWith({int? sets, ExerciseDefinition? exercise}) =>
+      PlannedExercise(
+        exercise: exercise ?? this.exercise,
+        sets: sets ?? this.sets,
+        reps: reps,
+        targetWeightKg: targetWeightKg,
+        progressionLabel: progressionLabel,
+        rir: rir,
+        isUnilateral: isUnilateral,
+      );
 }
 
 class Routine {

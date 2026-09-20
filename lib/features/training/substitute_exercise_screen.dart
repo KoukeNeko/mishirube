@@ -7,10 +7,11 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 
+/// How far a swap reaches. There is no program above the template, so
+/// there is no third option to offer.
 enum _ReplaceScope {
-  todayOnly('只替換今天', '本次訓練紀錄使用新動作'),
-  template('更新這份訓練模板', '之後的「下肢 A」都改用新動作'),
-  program('更新計畫中未開始的同類訓練', '12 週肌力計畫裡尚未開始的部分');
+  todayOnly('只替換今天', '這次訓練用新動作，模板不變'),
+  template('也更新訓練模板', '之後從這份模板開始的訓練都改用新動作');
 
   const _ReplaceScope(this.title, this.subtitle);
 
@@ -30,13 +31,18 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
   int _selectedCandidate = 0;
   _ReplaceScope _scope = _ReplaceScope.todayOnly;
 
-  void _replace(List<SubstitutionOption> candidates) {
+  void _replace(List<SubstitutionOption> candidates, String routineName) {
     final store = AppStoreScope.read(context);
-    store.replaceCurrentExercise(candidates[_selectedCandidate].exercise);
-    if (_scope != _ReplaceScope.todayOnly) {
-      showToast(context, '「${_scope.title}」在 mock 中只套用到今天');
-    }
+    final replacement = candidates[_selectedCandidate].exercise;
+    store.replaceCurrentExercise(
+      replacement,
+      updateTemplate: _scope == _ReplaceScope.template,
+    );
     Navigator.of(context).pop();
+    showToast(context, switch (_scope) {
+      _ReplaceScope.todayOnly => '今天改做「${replacement.name}」',
+      _ReplaceScope.template => '今天與之後的「$routineName」都改做「${replacement.name}」',
+    }, kind: ToastKind.success);
   }
 
   @override
@@ -63,7 +69,9 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
         ),
         primary: PrimaryButton(
           label: '替換',
-          onPressed: candidates.isEmpty ? null : () => _replace(candidates),
+          onPressed: candidates.isEmpty
+              ? null
+              : () => _replace(candidates, workout.routineName),
         ),
       ),
       children: [
@@ -96,7 +104,10 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
             ),
           ),
         Gutter(
-          child: const Text('已完成的訓練紀錄不會被改寫。', style: AppTextStyles.caption),
+          child: const Text(
+            '已完成的訓練紀錄不會被改寫，修改模板只影響之後的訓練。',
+            style: AppTextStyles.caption,
+          ),
         ),
       ],
     );

@@ -400,11 +400,38 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void replaceCurrentExercise(ExerciseDefinition replacement) {
+  /// Swaps the exercise being done. With [updateTemplate] the plan the
+  /// workout came from is changed too, so the swap holds next time; the
+  /// workout's own record keeps whatever was actually done either way.
+  void replaceCurrentExercise(
+    ExerciseDefinition replacement, {
+    bool updateTemplate = false,
+  }) {
     final workout = activeWorkout;
     if (workout == null) return;
+    final replaced = workout.currentExercise.exercise.id;
     _backend.training.replaceCurrentExercise(workout, replacement);
+    if (updateTemplate) _replaceInTemplate(workout, replaced, replacement);
     notifyListeners();
+  }
+
+  void _replaceInTemplate(
+    WorkoutSession workout,
+    String replacedId,
+    ExerciseDefinition replacement,
+  ) {
+    final id = workout.routineId;
+    if (id == null) return;
+    final plan = id == _routine.id
+        ? _routine
+        : _backend.training.routine(id, _exercisesById);
+    if (plan == null) return;
+    final updated = _backend.training.replaceInRoutine(
+      plan,
+      replacedId,
+      replacement,
+    );
+    if (updated.id == _routine.id) _routine = updated;
   }
 
   /// Pauses whatever is running, or picks it up again.
