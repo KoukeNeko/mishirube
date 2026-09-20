@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:sqlite3/sqlite3.dart';
 
-import '../data/models.dart';
-import '../shared/format.dart';
+import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import 'database.dart';
-import 'training_metrics.dart';
+import '../engines/training_metrics.dart';
 
 /// The exercise catalog: built-in, custom and imported definitions. Usage
 /// figures (last performance, record count) are derived from finished
@@ -93,6 +93,24 @@ class ExerciseRepository {
       estimatedOneRepMaxKg: bestEstimate,
     );
   }
+
+  /// Working sets done per finished session of [exerciseId], oldest first.
+  List<(DateTime, int)> sessionSetCounts(String exerciseId) => [
+    for (final row in _db.select(
+      '''
+      SELECT w.started_at AS started, COUNT(*) AS sets
+      FROM workouts w
+      JOIN workout_exercises we ON we.workout_id = w.id
+      JOIN workout_sets s
+        ON s.workout_id = w.id AND s.exercise_position = we.position
+      WHERE we.exercise_id = ? AND w.status = 'completed'
+        AND w.deleted_at IS NULL AND s.is_done = 1 AND s.set_type != 'warmup'
+      GROUP BY w.id ORDER BY w.started_at
+      ''',
+      [exerciseId],
+    ))
+      (DateTime.fromMillisecondsSinceEpoch(row['started']), row['sets'] as int),
+  ];
 
   /// Creates or updates [exercise], bumping its revision on update.
   void save(

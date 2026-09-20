@@ -1,4 +1,4 @@
-import '../data/models.dart';
+import '../../domain/domain.dart';
 import 'database.dart';
 
 /// Training templates (the plan side). Saving a routine never touches

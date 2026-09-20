@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';

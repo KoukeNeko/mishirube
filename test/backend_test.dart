@@ -3,14 +3,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
-import 'package:mishirube/backend/archive/canonical_archive.dart';
-import 'package:mishirube/backend/archive/csv.dart';
-import 'package:mishirube/backend/archive/csv_view.dart';
+import 'package:mishirube/backend/import_export/canonical_archive.dart';
+import 'package:mishirube/backend/import_export/csv.dart';
+import 'package:mishirube/backend/import_export/csv_view.dart';
 import 'package:mishirube/backend/backend.dart';
-import 'package:mishirube/backend/database.dart';
-import 'package:mishirube/backend/schema.dart';
-import 'package:mishirube/backend/training_metrics.dart';
-import 'package:mishirube/data/models.dart';
+import 'package:mishirube/backend/storage/database.dart';
+import 'package:mishirube/backend/storage/schema.dart';
+import 'package:mishirube/backend/engines/training_metrics.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
 
 import 'support/harness.dart';
@@ -85,7 +85,7 @@ void main() {
       final running = store.activeWorkout!;
 
       expect(
-        () => store.backend.workouts.save(
+        () => store.backend.storage.workouts.save(
           WorkoutSession(
             id: 'second',
             routineName: running.routineName,
@@ -150,9 +150,9 @@ void main() {
 
       final reloaded = AppStore(clock: clock.now, backend: backend);
       expect(reloaded.routine.exercises.first.sets, 5);
-      final finished = backend.workouts.byId(
+      final finished = backend.storage.workouts.byId(
         finishedId,
-        (id) => backend.exercises.byId(id)!,
+        (id) => backend.storage.exercises.byId(id)!,
       )!;
       expect(finished.exercises.first.sets, hasLength(4));
       final aiChange = backend.db.select(

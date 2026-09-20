@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';

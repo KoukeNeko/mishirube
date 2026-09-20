@@ -1,5 +1,5 @@
-import '../data/models.dart';
-import '../shared/format.dart';
+import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import 'database.dart';
 
 /// Meals keep their real structure: meal → dish → component. Exploding a

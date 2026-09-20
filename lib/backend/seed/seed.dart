@@ -1,8 +1,7 @@
-import '../data/mock_data.dart';
-import '../data/models.dart';
-import 'backend.dart';
-import 'database.dart';
-import 'journal_repository.dart';
+import '../../domain/domain.dart';
+import '../backend.dart';
+import '../storage/database.dart';
+import 'demo_content.dart';
 
 const _seededKey = 'seeded_at';
 
@@ -15,28 +14,28 @@ const _upperBodyA = Routine(
   lastCompletedLabel: '',
   exercises: [
     PlannedExercise(
-      exercise: MockExercises.benchPress,
+      exercise: DemoExercises.benchPress,
       sets: 4,
       reps: 5,
       targetWeightKg: 70,
       progressionLabel: '達標後 +2.5 kg',
     ),
     PlannedExercise(
-      exercise: MockExercises.barbellRow,
+      exercise: DemoExercises.barbellRow,
       sets: 3,
       reps: 8,
       targetWeightKg: 60,
       progressionLabel: '達標後 +2.5 kg',
     ),
     PlannedExercise(
-      exercise: MockExercises.overheadPress,
+      exercise: DemoExercises.overheadPress,
       sets: 3,
       reps: 6,
       targetWeightKg: 40,
       progressionLabel: '達標後 +2.5 kg',
     ),
     PlannedExercise(
-      exercise: MockExercises.latPulldown,
+      exercise: DemoExercises.latPulldown,
       sets: 3,
       reps: 10,
       targetWeightKg: 55,
@@ -52,8 +51,8 @@ final _upperDaysAgo = [4, 8, for (var d = 24; d <= 136; d += 7) d];
 
 /// Extra exercises logged on single days, as a real history would have.
 const _oneOffs = {
-  7: (MockExercises.gobletSquat, 24.0, 12),
-  14: (MockExercises.frontSquat, 60.0, 6),
+  7: (DemoExercises.gobletSquat, 24.0, 12),
+  14: (DemoExercises.frontSquat, 60.0, 6),
 };
 
 /// Days in the demo month with no record at all.
@@ -81,11 +80,11 @@ void seedDemoData(Backend backend, DateTime today) {
       DateTime(day.year, day.month, day.day - daysAgo, hour, minute);
 
   db.transaction(() {
-    for (final exercise in MockExercises.catalog) {
-      backend.exercises.save(exercise, source: ChangeSource.seed);
+    for (final exercise in DemoExercises.catalog) {
+      backend.storage.exercises.save(exercise, source: ChangeSource.seed);
     }
-    for (final routine in [MockRoutines.lowerBodyA, _upperBodyA]) {
-      backend.routines.save(
+    for (final routine in [DemoRoutines.lowerBodyA, _upperBodyA]) {
+      backend.storage.routines.save(
         routine,
         action: 'create',
         source: ChangeSource.seed,
@@ -93,23 +92,23 @@ void seedDemoData(Backend backend, DateTime today) {
     }
 
     for (final (index, daysAgo) in _lowerDaysAgo.indexed) {
-      _seedWorkout(backend, MockRoutines.lowerBodyA, at(daysAgo, 18, 30), [
+      _seedWorkout(backend, DemoRoutines.lowerBodyA, at(daysAgo, 18, 30), [
         // Each session back is 2.5 kg lighter, ending on the design's
         // "last time" values.
-        (MockExercises.backSquat, 95 - 2.5 * index, 5),
-        (MockExercises.romanianDeadlift, 77.5 - 2.5 * (index ~/ 2), 8),
-        (MockExercises.bulgarianSplitSquat, 20, 8),
-        (MockExercises.legCurl, 42.5 - 2.5 * (index ~/ 3), 12),
-        (MockExercises.standingCalfRaise, 60, 12),
+        (DemoExercises.backSquat, 95 - 2.5 * index, 5),
+        (DemoExercises.romanianDeadlift, 77.5 - 2.5 * (index ~/ 2), 8),
+        (DemoExercises.bulgarianSplitSquat, 20, 8),
+        (DemoExercises.legCurl, 42.5 - 2.5 * (index ~/ 3), 12),
+        (DemoExercises.standingCalfRaise, 60, 12),
         ?_oneOffs[daysAgo],
       ]);
     }
     for (final (index, daysAgo) in _upperDaysAgo.indexed) {
       _seedWorkout(backend, _upperBodyA, at(daysAgo, 18, 30), [
-        (MockExercises.benchPress, 70 - 2.5 * (index ~/ 2), 5),
-        (MockExercises.barbellRow, 60 - 2.5 * (index ~/ 3), 8),
-        (MockExercises.overheadPress, 40 - 2.5 * (index ~/ 4), 6),
-        (MockExercises.latPulldown, 55, 10),
+        (DemoExercises.benchPress, 70 - 2.5 * (index ~/ 2), 5),
+        (DemoExercises.barbellRow, 60 - 2.5 * (index ~/ 3), 8),
+        (DemoExercises.overheadPress, 40 - 2.5 * (index ~/ 4), 6),
+        (DemoExercises.latPulldown, 55, 10),
       ]);
     }
 
@@ -124,10 +123,10 @@ void seedDemoData(Backend backend, DateTime today) {
       _seedMeal(backend, _lunch(daysAgo), at(daysAgo, 12, 30));
       _seedMeal(backend, _dinner(daysAgo), at(daysAgo, 19, 10));
     }
-    _seedMeal(backend, MockNutrition.breakfast, at(0, 8, 10));
+    _seedMeal(backend, DemoNutrition.breakfast, at(0, 8, 10));
 
     for (final MapEntry(key: daysAgo, value: kg) in _weights.entries) {
-      backend.journal.addWeight(
+      backend.storage.journal.addWeight(
         BodyWeight(
           id: 'seed-weight-$daysAgo',
           measuredAt: at(daysAgo, 7, 5 + daysAgo % 8),
@@ -137,7 +136,7 @@ void seedDemoData(Backend backend, DateTime today) {
         source: ChangeSource.seed,
       );
     }
-    backend.journal.addWellness(
+    backend.storage.journal.addWellness(
       WellnessEntry(
         id: 'seed-energy-1',
         recordedAt: at(1, 22, 10),
@@ -184,11 +183,15 @@ void _seedWorkout(
         )
         ..finishedAt = startedAt.add(const Duration(minutes: 55))
         ..currentExerciseIndex = lifts.length - 1;
-  backend.workouts.save(workout, action: 'create', source: ChangeSource.seed);
+  backend.storage.workouts.save(
+    workout,
+    action: 'create',
+    source: ChangeSource.seed,
+  );
 }
 
 void _seedMeal(Backend backend, MealEvent meal, DateTime eatenAt) {
-  backend.meals.insert(
+  backend.storage.meals.insert(
     meal.copyWith(id: 'seed-${meal.id}-${eatenAt.millisecondsSinceEpoch}'),
     eatenAt: eatenAt,
     source: ChangeSource.seed,
@@ -251,5 +254,5 @@ final _yesterdayLunch = MealEvent(
   proteinGrams: 30,
   carbGrams: 52,
   fatGrams: 16,
-  dishes: const [MockNutrition.sandwich],
+  dishes: const [DemoNutrition.sandwich],
 );

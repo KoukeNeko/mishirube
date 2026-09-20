@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 
@@ -45,7 +44,7 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
     final workout = AppStoreScope.of(context).activeWorkout;
     if (workout == null) return const Scaffold();
     final current = workout.currentExercise.exercise;
-    final candidates = MockSubstitutions.forExercise(current);
+    final candidates = AppStoreScope.of(context).substitutesFor(current);
     final selected = candidates.isEmpty ? null : candidates[_selectedCandidate];
     final needsWeightReset =
         selected != null && selected.exercise.equipment != current.equipment;

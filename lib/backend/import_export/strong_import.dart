@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../backend.dart';
-import '../database.dart';
+import '../storage/database.dart';
 import 'csv.dart';
 
 /// Source name for Strong in import batches and exercise name mappings.
@@ -338,12 +338,12 @@ class StrongImporter {
           ),
         );
       }
-      workout.isDuplicate = _backend.workouts.hasFingerprint(
+      workout.isDuplicate = _backend.storage.workouts.hasFingerprint(
         workout.fingerprint,
       );
     }
 
-    final catalog = _backend.exercises.all();
+    final catalog = _backend.storage.exercises.all();
     return StrongImportPlan._(
       fileName: fileName,
       contentSha256: sha256Hex,
@@ -371,8 +371,8 @@ class StrongImporter {
     Set<TrackingType> tracking,
   ) {
     final byId = {for (final e in catalog) e.id: e};
-    if (_backend.exercises.mappedId(strongSource, strongName) case final id?
-        when byId.containsKey(id)) {
+    if (_backend.storage.exercises.mappedId(strongSource, strongName)
+        case final id? when byId.containsKey(id)) {
       return StrongExerciseMatch(
         strongName,
         ExerciseMatchKind.remembered,
@@ -446,8 +446,8 @@ class StrongImporter {
       for (final match in plan.exercises.values) {
         final exercise = match.exercise;
         if (match.kind == ExerciseMatchKind.created) {
-          if (_backend.exercises.byId(exercise.id) == null) {
-            _backend.exercises.save(
+          if (_backend.storage.exercises.byId(exercise.id) == null) {
+            _backend.storage.exercises.save(
               exercise,
               source: ChangeSource.strongImport,
               importBatchId: batchId,
@@ -466,7 +466,7 @@ class StrongImporter {
         }
         idByName[match.strongName] = exercise.id;
         if (match.kind != ExerciseMatchKind.remembered) {
-          _backend.exercises.mapExternalName(
+          _backend.storage.exercises.mapExternalName(
             strongSource,
             match.strongName,
             exercise.id,
@@ -477,7 +477,7 @@ class StrongImporter {
 
       final exercises = {
         for (final MapEntry(key: name, value: id) in idByName.entries)
-          name: _backend.exercises.byId(id)!,
+          name: _backend.storage.exercises.byId(id)!,
       };
       for (final planned in plan._new) {
         final workout =
@@ -496,7 +496,7 @@ class StrongImporter {
                 planned.duration ?? Duration.zero,
               )
               ..currentExerciseIndex = planned.setsByExercise.length - 1;
-        _backend.workouts.save(
+        _backend.storage.workouts.save(
           workout,
           action: 'import',
           source: ChangeSource.strongImport,

@@ -1,4 +1,4 @@
-import '../database.dart';
+import '../storage/database.dart';
 import 'csv.dart';
 
 /// Human-readable CSV views of the store, one file per domain. Unlike the

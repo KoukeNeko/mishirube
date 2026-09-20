@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
@@ -86,12 +85,13 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
       ),
-      Gutter(
-        child: InsightCard(
-          insight: MockInsights.squatVolume,
-          onTap: () => pushPage(context, const InsightDetailScreen()),
+      for (final insight in store.todayInsights)
+        Gutter(
+          child: InsightCard(
+            insight: insight,
+            onTap: () => pushPage(context, const InsightDetailScreen()),
+          ),
         ),
-      ),
     ];
   }
 
@@ -161,7 +161,8 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
       ),
-      Gutter(child: const InsightCard(insight: MockInsights.weeklyGoalReached)),
+      for (final insight in store.todayInsights)
+        Gutter(child: InsightCard(insight: insight)),
     ];
   }
 }

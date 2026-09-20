@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import '../database.dart';
-import '../schema.dart';
+import '../storage/database.dart';
+import '../storage/schema.dart';
 
 /// Identifies a MISHIRUBE archive file.
 const archiveFormat = 'mishirube-archive';

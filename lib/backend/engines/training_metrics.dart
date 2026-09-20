@@ -1,4 +1,4 @@
-import '../data/models.dart';
+import '../../domain/domain.dart';
 
 /// Bumped whenever a formula below changes, so stored or exported results
 /// can say which rules produced them.

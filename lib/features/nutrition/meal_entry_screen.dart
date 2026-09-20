@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../backend/seed/demo_content.dart';
 import '../../shared/widgets/widgets.dart';
 import 'meal_confirm_screen.dart';
 
@@ -50,7 +50,7 @@ class MealEntryScreen extends StatelessWidget {
           ),
         ),
         Gutter(child: const SectionLabel('最近吃過')),
-        for (final (name, time, kcal) in MockNutrition.recentFoods)
+        for (final (name, time, kcal) in DemoNutrition.recentFoods)
           Gutter(
             child: _RecentFoodRow(
               name: name,

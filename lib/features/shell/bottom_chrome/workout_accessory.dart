@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
-import '../../../data/models.dart';
+import '../../../domain/domain.dart';
 import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';

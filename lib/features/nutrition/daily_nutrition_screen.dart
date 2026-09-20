@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
-import '../../data/models.dart';
+import '../../backend/seed/demo_content.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
@@ -18,7 +18,7 @@ class DailyNutritionScreen extends StatefulWidget {
 
 class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   /// Keys of expanded dishes (`mealId/dishName`); display-only state.
-  final Set<String> _expanded = {'lunch/${MockNutrition.sandwich.name}'};
+  final Set<String> _expanded = {'lunch/${DemoNutrition.sandwich.name}'};
 
   void _toggle(String key) => setState(() {
     if (!_expanded.remove(key)) _expanded.add(key);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 
 /// Indented list of a dish's components with a guide line on the left.

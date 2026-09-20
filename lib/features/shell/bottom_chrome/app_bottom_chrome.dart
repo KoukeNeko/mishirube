@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/app_store.dart';
-import '../../../data/models.dart';
+import '../../../domain/domain.dart';
 import '../../../shared/toast/toast_host.dart';
 import 'chrome_metrics.dart';
 import 'split_dock.dart';

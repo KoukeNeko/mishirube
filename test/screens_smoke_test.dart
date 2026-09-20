@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
-import 'package:mishirube/data/mock_data.dart';
+import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/features/exercise/exercise_filter.dart';
@@ -66,7 +66,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'exercise detail': (
     (_) => const ExerciseDetailScreen(
-      exercise: MockExercises.backSquat,
+      exercise: DemoExercises.backSquat,
       canAdd: true,
     ),
     _noSetup,

@@ -1,4 +1,4 @@
-import '../data/models.dart';
+import '../../domain/domain.dart';
 import 'database.dart';
 
 typedef ExerciseResolver = ExerciseDefinition Function(String id);
@@ -28,6 +28,16 @@ class WorkoutRepository {
     );
     return rows.isEmpty ? null : byId(rows.first['id'], exercises);
   }
+
+  /// When each finished workout started, oldest first.
+  List<DateTime> completedStarts({DateTime? since}) => [
+    for (final row in _db.select(
+      "SELECT started_at FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND started_at >= ? ORDER BY started_at',
+      [since?.millisecondsSinceEpoch ?? 0],
+    ))
+      DateTime.fromMillisecondsSinceEpoch(row['started_at']),
+  ];
 
   /// Whether a live workout was already imported with [fingerprint].
   bool hasFingerprint(String fingerprint) => _db.select(

@@ -1,4 +1,4 @@
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 
 /// Independent, combinable filter dimensions for the exercise catalog.
 /// An empty set means "no constraint" for that dimension.

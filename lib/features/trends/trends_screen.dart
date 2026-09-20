@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../backend/application/insights_service.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import 'insight_detail_screen.dart';
 import 'trends_empty_screen.dart';
 
 enum _TrendRange {
-  fourWeeks('近 4 週'),
-  threeMonths('3 個月'),
-  all('全部');
+  fourWeeks('近 4 週', Duration(days: 28)),
+  threeMonths('3 個月', Duration(days: 91)),
+  all('全部', Duration(days: 365));
 
-  const _TrendRange(this.label);
+  const _TrendRange(this.label, this.window);
 
   final String label;
+  final Duration window;
 }
 
 class TrendsScreen extends StatefulWidget {
@@ -30,9 +33,12 @@ class _TrendsScreenState extends State<TrendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final store = AppStoreScope.of(context);
+    final overview = store.trends(window: _range.window);
+    final volume = store.volumeReport(window: _range.window);
     return CollapsingPage(
       title: '趨勢',
-      subtitle: '8 / 23 – 9 / 19・你的訓練與身體變化',
+      subtitle: '${_date(overview.from)} – ${_date(overview.to)}・你的訓練與身體變化',
       compactBar: CompactBarBehavior.none,
       // The range drives every chart below, so it stays pinned.
       pinned: Gutter(
@@ -44,28 +50,34 @@ class _TrendsScreenState extends State<TrendsScreen> {
         ),
       ),
       children: [
-        Gutter(
-          child: const InsightCard(
-            title: '結論',
-            insight: MockInsights.weightTrend,
-          ),
-        ),
-        Gutter(
-          child: InsightCard(
-            title: '結論',
-            insight: MockInsights.squatVolumeShort,
-            onTap: () => pushPage(context, const InsightDetailScreen()),
-          ),
-        ),
+        if (overview.insights.isEmpty)
+          Gutter(child: const InfoBanner(message: '紀錄還不夠多，累積之後這裡會說明看得出什麼。'))
+        else
+          for (final insight in overview.insights)
+            Gutter(
+              child: InsightCard(
+                title: '結論',
+                insight: insight,
+                onTap: insight == volume?.insight
+                    ? () => pushPage(
+                        context,
+                        InsightDetailScreen(exerciseId: volume?.exercise.id),
+                      )
+                    : null,
+              ),
+            ),
         Gutter(child: const SectionLabel('摘要')),
-        Gutter(child: const _SummaryGrid()),
+        Gutter(child: _SummaryGrid(overview: overview)),
         Gutter(child: const SectionLabel('看得更細')),
         Gutter(
           child: AccentRow(
             color: AppColors.training,
             title: '訓練的詳細圖表',
             showChevron: true,
-            onTap: () => pushPage(context, const InsightDetailScreen()),
+            onTap: () => pushPage(
+              context,
+              InsightDetailScreen(exerciseId: volume?.exercise.id),
+            ),
           ),
         ),
         Gutter(
@@ -87,13 +99,20 @@ class _TrendsScreenState extends State<TrendsScreen> {
       ],
     );
   }
+
+  static String _date(DateTime day) => '${day.month} / ${day.day}';
 }
 
 class _SummaryGrid extends StatelessWidget {
-  const _SummaryGrid();
+  const _SummaryGrid({required this.overview});
+
+  final TrendsOverview overview;
 
   @override
   Widget build(BuildContext context) {
+    final weight = overview.weight;
+    final change = weight.change;
+    final foodDays = overview.foodDaysTracked;
     return Column(
       children: [
         IntrinsicHeight(
@@ -104,9 +123,18 @@ class _SummaryGrid extends StatelessWidget {
                 child: _SummaryTile(
                   category: '體重',
                   color: AppColors.body,
-                  value: '72.4',
-                  delta: '−1.2',
-                  chart: Sparkline(values: MockInsights.weightSeries),
+                  value: weight.latest == null
+                      ? '—'
+                      : formatWeight(weight.latest!),
+                  // A single measurement is a number, not a change.
+                  delta: change == null
+                      ? null
+                      : '${change < 0 ? '−' : '+'}'
+                            '${formatWeight(change.abs())}',
+                  caption: weight.values.isEmpty ? '尚未記錄體重' : null,
+                  chart: weight.values.length < 2
+                      ? null
+                      : Sparkline(values: weight.values),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -114,10 +142,10 @@ class _SummaryGrid extends StatelessWidget {
                 child: _SummaryTile(
                   category: '每週訓練',
                   color: AppColors.training,
-                  value: '3',
+                  value: '${overview.workoutsThisWeek}',
                   unit: '次 · 本週',
                   chart: MiniBarChart(
-                    bars: MockInsights.weeklyWorkouts,
+                    bars: overview.weeklyWorkouts,
                     height: 40,
                   ),
                 ),
@@ -126,21 +154,25 @@ class _SummaryGrid extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        const Row(
+        Row(
           children: [
             Expanded(
               child: _SummaryTile(
                 category: '平均睡眠',
-                value: '6:58',
-                caption: '26 / 28 天有資料',
+                value: overview.averageSleep == null
+                    ? '—'
+                    : formatClock(overview.averageSleep!),
+                caption: overview.averageSleep == null ? '尚未記錄睡眠' : null,
               ),
             ),
-            SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: _SummaryTile(
                 category: '飲食完整天數',
-                value: '19/28',
-                caption: '其餘只有部分餐點',
+                value: foodDays == 0
+                    ? '—'
+                    : '${overview.foodDaysComplete}/$foodDays',
+                caption: foodDays == 0 ? '尚未記錄飲食' : '其餘只有部分餐點',
               ),
             ),
           ],

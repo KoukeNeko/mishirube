@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import '../../../app/app_store.dart';
 import '../../../app/theme.dart';
-import '../../../data/models.dart';
+import '../../../domain/domain.dart';
 import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';

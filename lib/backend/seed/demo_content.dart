@@ -1,6 +1,6 @@
-import 'models.dart';
+import '../../domain/domain.dart';
 
-abstract final class MockExercises {
+abstract final class DemoExercises {
   static const backSquat = ExerciseDefinition(
     id: 'back-squat',
     name: '槓鈴深蹲',
@@ -203,7 +203,7 @@ abstract final class MockExercises {
   ];
 }
 
-abstract final class MockRoutines {
+abstract final class DemoRoutines {
   static const lowerBodyA = Routine(
     id: 'lower-a',
     name: '下肢 A',
@@ -212,7 +212,7 @@ abstract final class MockRoutines {
     lastCompletedLabel: '上次 9/16 完成',
     exercises: [
       PlannedExercise(
-        exercise: MockExercises.backSquat,
+        exercise: DemoExercises.backSquat,
         sets: 4,
         reps: 5,
         rir: 2,
@@ -220,7 +220,7 @@ abstract final class MockRoutines {
         progressionLabel: '達標後 +2.5 kg',
       ),
       PlannedExercise(
-        exercise: MockExercises.romanianDeadlift,
+        exercise: DemoExercises.romanianDeadlift,
         sets: 3,
         reps: 8,
         rir: 2,
@@ -228,7 +228,7 @@ abstract final class MockRoutines {
         progressionLabel: '達標後 +2.5 kg',
       ),
       PlannedExercise(
-        exercise: MockExercises.bulgarianSplitSquat,
+        exercise: DemoExercises.bulgarianSplitSquat,
         sets: 3,
         reps: 10,
         targetWeightKg: 20,
@@ -236,14 +236,14 @@ abstract final class MockRoutines {
         isUnilateral: true,
       ),
       PlannedExercise(
-        exercise: MockExercises.legCurl,
+        exercise: DemoExercises.legCurl,
         sets: 3,
         reps: 12,
         targetWeightKg: 45,
         progressionLabel: '達標後 +2.5 kg',
       ),
       PlannedExercise(
-        exercise: MockExercises.standingCalfRaise,
+        exercise: DemoExercises.standingCalfRaise,
         sets: 3,
         reps: 15,
         targetWeightKg: 60,
@@ -253,7 +253,7 @@ abstract final class MockRoutines {
   );
 }
 
-abstract final class MockNutrition {
+abstract final class DemoNutrition {
   static const breakfast = MealEvent(
     id: 'breakfast',
     name: '早餐',
@@ -311,90 +311,4 @@ abstract final class MockNutrition {
     ('牛肉麵（大碗）', '9/17 19:20', '~780'),
     ('無糖豆漿 450 ml', '9/17 08:05', '140'),
   ];
-}
-
-abstract final class MockInsights {
-  static const squatVolume = Insight(
-    statement: '深蹲的每週組數在近 4 週從 12 組掉到 8 組，估計最大重量沒有跟著掉。',
-    evidence: ['依據 24 筆訓練紀錄', '資料完整', '近 4 週'],
-  );
-
-  static const weeklyGoalReached = Insight(
-    statement: '這是本週第 3 次訓練，達成你設定的每週 3 次。',
-    evidence: ['依據 本週訓練紀錄', '9/15 – 9/19'],
-  );
-
-  static const weightTrend = Insight(
-    statement: '體重以每週約 0.3 公斤的速度下降，速度穩定，沒有停滯。',
-    evidence: ['依據 26 天體重紀錄', '資料完整', '近 4 週'],
-  );
-
-  static const squatVolumeShort = Insight(
-    statement: '深蹲的每週組數掉了三分之一，估計最大重量還沒有跟著掉。',
-    evidence: ['依據 12 次訓練紀錄', '資料完整', '近 4 週'],
-  );
-
-  static const weeklySquatSets = [
-    ('8/24', 12),
-    ('8/31', 11),
-    ('9/7', 9),
-    ('9/14', 8),
-  ];
-
-  static const weightSeries = [
-    73.6,
-    73.5,
-    73.5,
-    73.3,
-    73.2,
-    73.2,
-    73.0,
-    72.9,
-    72.8,
-    72.8,
-    72.6,
-    72.4,
-  ];
-
-  static const weeklyWorkouts = [('W1', 3), ('W2', 3), ('W3', 2), ('本週', 3)];
-}
-
-abstract final class MockSubstitutions {
-  static const _maxCandidates = 3;
-
-  static const _curated = {
-    'back-squat': [
-      SubstitutionOption(
-        exercise: MockExercises.gobletSquat,
-        reasons: ['同為深蹲模式', '啞鈴可用', '保留 5 × 5'],
-      ),
-      SubstitutionOption(
-        exercise: MockExercises.hackSquat,
-        reasons: ['同為深蹲模式', '穩定性需求較低'],
-      ),
-      SubstitutionOption(
-        exercise: MockExercises.bulgarianSplitSquat,
-        reasons: ['單側，次數請重新設定'],
-      ),
-    ],
-  };
-
-  static List<SubstitutionOption> forExercise(ExerciseDefinition exercise) {
-    final curated = _curated[exercise.id];
-    if (curated != null) return curated;
-    return MockExercises.catalog
-        .where(
-          (candidate) =>
-              candidate.id != exercise.id &&
-              candidate.pattern == exercise.pattern,
-        )
-        .take(_maxCandidates)
-        .map(
-          (candidate) => SubstitutionOption(
-            exercise: candidate,
-            reasons: ['同為${exercise.pattern.label}模式'],
-          ),
-        )
-        .toList();
-  }
 }

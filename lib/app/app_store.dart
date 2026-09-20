@@ -2,12 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
+import '../backend/application/insights_service.dart';
+import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
-import '../backend/database.dart';
-import '../backend/seed.dart';
-import '../backend/timeline_query.dart';
-import '../data/mock_data.dart';
-import '../data/models.dart';
+import '../backend/engines/nutrition_summary.dart';
+import '../backend/seed/demo_content.dart';
+import '../backend/seed/seed.dart';
+import '../backend/storage/database.dart';
+import '../backend/storage/timeline_query.dart';
+import '../domain/domain.dart';
+
+export '../backend/application/nutrition_service.dart' show DishSplitSnapshot;
 
 /// Which moment of the mock day the Today screen is showing.
 enum DayPhase {
@@ -37,14 +42,6 @@ enum AppModule {
 
 enum HomeTab { today, log, trends, me }
 
-/// Result of splitting a composite dish, kept so the change can be undone.
-class DishSplitSnapshot {
-  const DishSplitSnapshot({required this.mealIndex, required this.meal});
-
-  final int mealIndex;
-  final MealEvent meal;
-}
-
 class AppStore extends ChangeNotifier {
   /// [backend] defaults to a seeded in-memory store (tests, previews); the
   /// app passes the on-device one. A given [isOnboarded] overrides and
@@ -67,10 +64,10 @@ class AppStore extends ChangeNotifier {
         ]);
     }
     _reloadExercises();
-    _routine = _backend.routines.byId(_mainRoutineId, _exercisesById)!;
-    _activeWorkout = _backend.workouts.active(_exercise);
-    _lastFinishedWorkout = _backend.workouts.lastFinished(_exercise);
-    _todayMeals.addAll(_backend.meals.onDay(now()));
+    _routine = _backend.training.routine(_mainRoutineId, _exercisesById)!;
+    _activeWorkout = _backend.training.active();
+    _lastFinishedWorkout = _backend.training.lastFinished();
+    _todayMeals.addAll(_backend.nutrition.mealsOn(now()));
   }
 
   static const _aiProposalSquatSets = 5;
@@ -102,12 +99,12 @@ class AppStore extends ChangeNotifier {
   bool get _storedOnboarded => _backend.db.setting(_onboardedKey) == 'true';
 
   void _reloadExercises() {
-    _exercises = _backend.exercises.all();
+    _exercises = _backend.catalog.all();
     _exercisesById = {for (final e in _exercises) e.id: e};
   }
 
   ExerciseDefinition _exercise(String id) =>
-      _exercisesById[id] ?? _backend.exercises.byId(id)!;
+      _exercisesById[id] ?? _backend.catalog.byId(id)!;
 
   DateTime now() => _clock();
   Backend get backend => _backend;
@@ -121,13 +118,30 @@ class AppStore extends ChangeNotifier {
   bool get hasSyncConflict => _hasSyncConflict;
   HomeTab get selectedTab => _selectedTab;
   bool get isLunchLogged =>
-      _todayMeals.any((meal) => meal.name == MockNutrition.lunch.name);
+      _todayMeals.any((meal) => meal.name == DemoNutrition.lunch.name);
 
   /// The exercise catalog with usage derived from finished workouts.
   List<ExerciseDefinition> get exercises => List.unmodifiable(_exercises);
 
   ExerciseHistory exerciseHistory(ExerciseDefinition exercise) =>
-      _backend.exercises.history(exercise.id);
+      _backend.catalog.history(exercise.id);
+
+  /// Fair swaps for [exercise], each with the reason it is one.
+  List<SubstitutionOption> substitutesFor(ExerciseDefinition exercise) =>
+      _backend.catalog.substitutesFor(exercise);
+
+  /// Insights for the Today screen, derived from the records.
+  List<Insight> get todayInsights => _backend.insights.today();
+
+  /// Everything the Trends screen shows over [window].
+  TrendsOverview trends({Duration window = const Duration(days: 28)}) =>
+      _backend.insights.trends(window: window);
+
+  /// Training volume for one exercise, or for the most trained one.
+  VolumeReport? volumeReport({
+    String? exerciseId,
+    Duration window = const Duration(days: 28),
+  }) => _backend.insights.volumeReport(exerciseId: exerciseId, window: window);
 
   /// Records for the log; [month] is its first day.
   MonthRecords monthRecords(DateTime month) =>
@@ -140,13 +154,13 @@ class AppStore extends ChangeNotifier {
         DateTime(today.year, today.month);
   }
 
-  int get todayKcal => _sumMeals((meal) => meal.kcal);
-  int get todayProteinGrams => _sumMeals((meal) => meal.proteinGrams);
-  int get todayCarbGrams => _sumMeals((meal) => meal.carbGrams);
-  int get todayFatGrams => _sumMeals((meal) => meal.fatGrams);
+  /// Today's food totals and how complete the day's log is.
+  DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
 
-  int _sumMeals(int Function(MealEvent meal) valueOf) =>
-      _todayMeals.fold(0, (sum, meal) => sum + valueOf(meal));
+  int get todayKcal => todaySummary.kcal;
+  int get todayProteinGrams => todaySummary.proteinGrams;
+  int get todayCarbGrams => todaySummary.carbGrams;
+  int get todayFatGrams => todaySummary.fatGrams;
 
   @override
   void dispose() {
@@ -183,122 +197,55 @@ class AppStore extends ChangeNotifier {
   }
 
   void startWorkout() {
-    if (_activeWorkout != null) {
-      notifyListeners();
-      return;
-    }
-    final workout = WorkoutSession(
-      id: _backend.db.newId(),
-      routineId: _routine.id,
-      routineName: _routine.name,
-      startedAt: now(),
-      exercises: _routine.exercises.map(_buildExerciseSession).toList(),
-    );
-    _backend.workouts.save(workout, action: 'start');
-    _activeWorkout = workout;
+    _activeWorkout ??= _backend.training.start(_routine);
     notifyListeners();
   }
 
-  /// Commits the running workout after [action], so it survives the app
-  /// being killed.
-  void _saveActive(String action) {
-    final workout = _activeWorkout;
-    if (workout != null) _backend.workouts.save(workout, action: action);
-  }
-
-  ExerciseSession _buildExerciseSession(PlannedExercise planned) {
-    // "Last time" is the heaviest working set of the last finished session;
-    // with no history the plan itself is the reference.
-    final last = _backend.exercises.history(planned.exercise.id).last;
-    final previousWeight = last?.weightKg ?? planned.targetWeightKg;
-    final previousReps = last?.reps ?? planned.reps;
-    return ExerciseSession(
-      exercise: planned.exercise,
-      isPersonalRecordCandidate: planned.targetWeightKg > previousWeight,
-      sets: List.generate(
-        planned.sets,
-        (_) => WorkoutSet(
-          weightKg: planned.targetWeightKg,
-          reps: planned.reps,
-          rir: planned.rir,
-          previousWeightKg: previousWeight,
-          previousReps: previousReps,
-        ),
-      ),
-    );
-  }
-
-  /// Marks the next pending set of the current exercise as done and moves
-  /// on to the next exercise once every set is finished.
+  /// Marks the next pending set of the current exercise as done.
   WorkoutSet? completeNextSet() {
     final workout = _activeWorkout;
     if (workout == null) return null;
-    final exercise = workout.currentExercise;
-    final setIndex = exercise.nextSetIndex;
-    if (setIndex == null) return null;
-
-    final completedSet = exercise.sets[setIndex]..isDone = true;
-    if (exercise.isComplete) _advanceToNextPendingExercise(workout);
-    _saveActive('complete_set');
-    notifyListeners();
-    return completedSet;
-  }
-
-  void _advanceToNextPendingExercise(WorkoutSession workout) {
-    final nextIndex = workout.exercises.indexWhere((item) => !item.isComplete);
-    if (nextIndex >= 0) workout.currentExerciseIndex = nextIndex;
+    final completed = _backend.training.completeNextSet(workout);
+    if (completed != null) notifyListeners();
+    return completed;
   }
 
   void toggleSet(int setIndex) {
-    final set = _activeWorkout?.currentExercise.sets[setIndex];
-    if (set == null) return;
-    set.isDone = !set.isDone;
-    _saveActive(set.isDone ? 'complete_set' : 'reopen_set');
+    final workout = _activeWorkout;
+    if (workout == null) return;
+    _backend.training.toggleSet(workout, setIndex);
     notifyListeners();
   }
 
   void selectExercise(int index) {
     final workout = _activeWorkout;
     if (workout == null) return;
-    workout.currentExerciseIndex = index.clamp(0, workout.exercises.length - 1);
-    _saveActive('select_exercise');
+    _backend.training.selectExercise(workout, index);
     notifyListeners();
   }
 
+  /// Adds [exercises] to the running workout, or to the template when no
+  /// workout is running.
   void addExercises(List<ExerciseDefinition> exercises) {
-    final planned = exercises.map(_planFor).toList();
     final workout = _activeWorkout;
     if (workout != null) {
-      workout.exercises.addAll(planned.map(_buildExerciseSession));
-      _saveActive('add_exercises');
+      _backend.training.addExercises(workout, exercises);
     } else {
-      _routine = _routine.copyWith(
-        exercises: [..._routine.exercises, ...planned],
-      );
-      _backend.routines.save(_routine, action: 'add_exercises');
+      _routine = _backend.training.addToRoutine(_routine, exercises);
     }
     notifyListeners();
   }
 
-  PlannedExercise _planFor(ExerciseDefinition exercise) => PlannedExercise(
-    exercise: exercise,
-    sets: 3,
-    reps: 10,
-    targetWeightKg: 20,
-    progressionLabel: '維持',
-  );
-
   /// Stores a new custom exercise and makes it available to pickers.
   void createExercise(ExerciseDefinition exercise) {
-    if (_exercisesById.containsKey(exercise.id)) return;
-    _backend.exercises.save(exercise);
+    _backend.catalog.create(exercise);
     _reloadExercises();
     notifyListeners();
   }
 
   void toggleFavorite(ExerciseDefinition exercise) {
     final isFavorite = !(_exercisesById[exercise.id]?.isFavorite ?? false);
-    _backend.exercises.setFavorite(exercise.id, isFavorite: isFavorite);
+    _backend.catalog.setFavorite(exercise.id, isFavorite: isFavorite);
     _reloadExercises();
     notifyListeners();
   }
@@ -306,54 +253,26 @@ class AppStore extends ChangeNotifier {
   void replaceCurrentExercise(ExerciseDefinition replacement) {
     final workout = _activeWorkout;
     if (workout == null) return;
-    final current = workout.currentExercise;
-    workout.exercises[workout.currentExerciseIndex] = ExerciseSession(
-      exercise: replacement,
-      sets: [
-        for (final set in current.sets)
-          WorkoutSet(
-            weightKg: set.weightKg,
-            reps: set.reps,
-            rir: set.rir,
-            previousWeightKg: set.previousWeightKg,
-            previousReps: set.previousReps,
-          ),
-      ],
-    );
-    _saveActive('replace_exercise');
+    _backend.training.replaceCurrentExercise(workout, replacement);
     notifyListeners();
   }
 
   void togglePause() {
     final workout = _activeWorkout;
     if (workout == null) return;
-    _togglePause(workout);
-    _saveActive(workout.isPaused ? 'pause' : 'resume');
+    _backend.training.togglePause(workout);
     notifyListeners();
-  }
-
-  void _togglePause(WorkoutSession workout) {
-    final pausedAt = workout.pausedAt;
-    if (pausedAt == null) {
-      workout.pausedAt = now();
-      return;
-    }
-    workout
-      ..pausedTotal += now().difference(pausedAt)
-      ..pausedAt = null;
   }
 
   void finishWorkout() {
     final workout = _activeWorkout;
     if (workout == null) return;
-    if (workout.isPaused) _togglePause(workout);
-    workout.finishedAt = now();
-    _backend.workouts.save(workout, action: 'finish');
+    _backend.training.finish(workout);
     _lastFinishedWorkout = workout;
     _activeWorkout = null;
     _phase = DayPhase.evening;
     _ensureLunchLogged();
-    _routine = _backend.routines.byId(_routine.id, _exercisesById)!;
+    _routine = _backend.training.routine(_routine.id, _exercisesById)!;
     _reloadExercises();
     notifyListeners();
   }
@@ -365,52 +284,49 @@ class AppStore extends ChangeNotifier {
 
   void _ensureLunchLogged() {
     if (isLunchLogged) return;
-    final template = MockNutrition.lunch;
-    final lunch = _backend.meals.exists(template.id)
-        ? template.copyWith(id: _backend.db.newId())
-        : template;
     final today = now();
-    _backend.meals.insert(
-      lunch,
-      eatenAt: DateTime(today.year, today.month, today.day, 12, 35),
+    _todayMeals.add(
+      _backend.nutrition.logMeal(
+        DemoNutrition.lunch,
+        eatenAt: DateTime(today.year, today.month, today.day, 12, 35),
+      ),
     );
-    _todayMeals.add(lunch);
   }
 
   DishSplitSnapshot? splitDish({
     required String mealId,
     required int dishIndex,
   }) {
-    final mealIndex = _todayMeals.indexWhere((meal) => meal.id == mealId);
-    if (mealIndex < 0) return null;
-    final meal = _todayMeals[mealIndex];
-    final dish = meal.dishes[dishIndex];
-    if (!dish.isComposite) return null;
-
-    final standaloneEntries = dish.components.map(
-      (component) => DishEntry(
-        name: component.name,
-        quantityLabel: component.amountLabel,
-        subtitle: component.source,
-      ),
+    final exploded = _backend.nutrition.explodeDish(
+      _todayMeals,
+      mealId: mealId,
+      dishIndex: dishIndex,
     );
-    final dishes = [...meal.dishes]
-      ..removeAt(dishIndex)
-      ..insertAll(dishIndex, standaloneEntries);
-    final split = meal.copyWith(dishes: dishes);
-    _backend.meals.replaceDishes(split, action: 'explode_dish', previous: meal);
-    _todayMeals[mealIndex] = split;
+    if (exploded == null) return null;
+    final (meal, snapshot) = exploded;
+    _todayMeals[snapshot.mealIndex] = meal;
     notifyListeners();
-    return DishSplitSnapshot(mealIndex: mealIndex, meal: meal);
+    return snapshot;
   }
 
   void undoSplit(DishSplitSnapshot snapshot) {
-    _backend.meals.replaceDishes(
-      snapshot.meal,
-      action: 'undo_explode_dish',
-      previous: _todayMeals[snapshot.mealIndex],
+    _backend.nutrition.undoExplode(
+      snapshot,
+      current: _todayMeals[snapshot.mealIndex],
     );
     _todayMeals[snapshot.mealIndex] = snapshot.meal;
+    notifyListeners();
+  }
+
+  /// Records a body weight measured now.
+  void recordWeight(double kilograms, {String note = ''}) {
+    _backend.journal.recordWeight(kilograms, note: note);
+    notifyListeners();
+  }
+
+  /// Records a 1–5 wellness check-in.
+  void recordWellness(WellnessKind kind, int score, {String note = ''}) {
+    _backend.journal.recordWellness(kind, score, note: note);
     notifyListeners();
   }
 
@@ -426,7 +342,7 @@ class AppStore extends ChangeNotifier {
         },
     ];
     _routine = _routine.copyWith(exercises: exercises);
-    _backend.routines.save(
+    _backend.training.saveRoutine(
       _routine,
       action: 'accept_ai_proposal',
       source: ChangeSource.aiDraft,

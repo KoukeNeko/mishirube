@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';

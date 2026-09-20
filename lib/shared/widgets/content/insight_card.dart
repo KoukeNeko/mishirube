@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
-import '../../../data/models.dart';
+import '../../../domain/domain.dart';
 import 'cards.dart';
 import '../controls/chips.dart';
 

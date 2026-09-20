@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
-import 'package:mishirube/data/mock_data.dart';
+import 'package:mishirube/backend/seed/demo_content.dart';
 
 import 'support/harness.dart';
 
@@ -66,16 +66,16 @@ void main() {
 
     test('replaceCurrentExercise keeps the prescribed sets', () {
       store.startWorkout();
-      store.replaceCurrentExercise(MockExercises.gobletSquat);
+      store.replaceCurrentExercise(DemoExercises.gobletSquat);
 
       final current = store.activeWorkout!.currentExercise;
-      expect(current.exercise, MockExercises.gobletSquat);
+      expect(current.exercise, DemoExercises.gobletSquat);
       expect(current.sets, hasLength(4));
     });
 
     test('addExercises goes to the template when no workout runs', () {
       final before = store.routine.exercises.length;
-      store.addExercises([MockExercises.hipThrust]);
+      store.addExercises([DemoExercises.hipThrust]);
 
       expect(store.routine.exercises, hasLength(before + 1));
     });
@@ -123,7 +123,7 @@ void main() {
         hasLength(
           lunchBefore.dishes.length -
               1 +
-              MockNutrition.sandwich.components.length,
+              DemoNutrition.sandwich.components.length,
         ),
       );
       expect(lunchAfter.dishes.first.isComposite, isFalse);

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mishirube/backend/archive/strong_import.dart';
+import 'package:mishirube/backend/import_export/strong_import.dart';
 import 'package:mishirube/backend/backend.dart';
-import 'package:mishirube/backend/seed.dart';
-import 'package:mishirube/data/models.dart';
+import 'package:mishirube/backend/seed/seed.dart';
+import 'package:mishirube/domain/domain.dart';
 
 import 'support/harness.dart';
 
@@ -239,7 +239,7 @@ void main() {
       legs['finished_at'] - legs['started_at'],
       const Duration(seconds: 3480).inMilliseconds,
     );
-    final squat = backend.exercises.history('back-squat');
+    final squat = backend.storage.exercises.history('back-squat');
     expect(
       squat.recent.map((entry) => entry.date),
       contains(DateTime(2026, 8, 1, 9)),
@@ -284,7 +284,7 @@ void main() {
 
     expect(liveWorkouts(), 0);
     expect(
-      backend.exercises.all().map((e) => e.name),
+      backend.storage.exercises.all().map((e) => e.name),
       isNot(contains('Nordic Curl')),
     );
     final retry = importer.dryRun(_currentExport, fileName: 'strong.csv');
@@ -292,7 +292,10 @@ void main() {
     expect(retry.newWorkouts, 2);
     importer.commit(retry);
     expect(liveWorkouts(), 2);
-    expect(backend.exercises.all().map((e) => e.name), contains('Nordic Curl'));
+    expect(
+      backend.storage.exercises.all().map((e) => e.name),
+      contains('Nordic Curl'),
+    );
   });
 
   test('the legacy format converts pounds and reports unreadable rows', () {

@@ -34,15 +34,24 @@ flutter test test/<file>_test.dart
 
 ## Map
 
-- `lib/app/` – app root (`app.dart`), theme tokens (`theme.dart`), mock state
-  (`app_store.dart`), navigation helpers.
-- `lib/data/` – domain models and the demo content the seed is built from.
-  Plan (`Routine`) and actual (`WorkoutSession`) stay separate: editing a
-  template never rewrites a finished workout.
-- `lib/backend/` – the local-first backend: `AppDatabase` (SQLite via
-  `package:sqlite3`, migrations in `schema.dart`), one repository per
-  domain, `TimelineQuery`, `training_metrics.dart`, the demo `seed.dart`,
-  and `archive/` (canonical JSON archive, CSV views, Strong importer).
+- `lib/app/` – app root (`app.dart`), theme tokens (`theme.dart`), the
+  screen-facing state (`app_store.dart`), navigation helpers.
+- `lib/domain/` – the domain model, one file per area (`training.dart`,
+  `nutrition.dart`, `body.dart`, `wellness.dart`, `records.dart`,
+  `history.dart`), re-exported by `domain.dart`. Domain types hold no
+  storage, file or network logic. Plan (`Routine`) and actual
+  (`WorkoutSession`) stay separate: editing a template never rewrites a
+  finished workout.
+- `lib/backend/` – the local-first backend, in layers:
+  - `storage/` – `AppDatabase` (SQLite via `package:sqlite3`, migrations in
+    `schema.dart`), one repository per area, and `TimelineQuery`.
+  - `engines/` – deterministic calculation over domain values only:
+    training metrics, trends, insights, nutrition summaries, substitutions.
+  - `application/` – the use cases screens work through (`TrainingService`,
+    `NutritionService`, `CatalogService`, `JournalService`,
+    `InsightsService`).
+  - `import_export/` – canonical JSON archive, CSV views, Strong importer.
+  - `seed/` – the demo content and the first-launch seed.
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`
@@ -98,17 +107,23 @@ In particular, do not create a parallel version of:
 
 ## Backend rules
 
+- Keep to the layers: screens talk to `AppStore`, `AppStore` talks to the
+  services in `application/`, and only those (plus import/export and the
+  seed) talk to `storage/`. Engines take domain values and return values;
+  they never read the database.
 - The database is the source of truth. `AppStore` keeps what screens show
-  in memory and writes every change through a repository in the same call;
-  do not keep state that must survive a restart only in memory.
+  in memory and writes every change through a service in the same call; do
+  not keep state that must survive a restart only in memory.
 - Every write runs in `AppDatabase.transaction` and records an
   `audit_events` row in that transaction. Never hard delete a record:
   set `deleted_at` (tombstone) and bump `revision`.
 - Schema changes append a step to `schema.dart`; never edit a released
   step. Update the archive table list in `canonical_archive.dart` in the
   same change, and keep the export → restore → export round trip lossless.
-- Usage figures (last performance, record counts, e1RM, timeline, calendar)
-  are derived from stored workouts and meals, not stored or hard-coded.
+- Usage figures and insights (last performance, record counts, e1RM,
+  timeline, calendar, trends) are derived from the records on each read,
+  not stored or hard-coded. An engine that cannot support a statement
+  returns null so the screen can say there is not enough data.
 - Imports go through a dry run first and commit as one undoable batch.
 
 ## Layout rules
@@ -149,9 +164,10 @@ task requires it.
   errors and uses the shared app bar (the rest timer is the only listed
   exception).
 - Flow tests (`flows_test.dart`) cover multi-step user journeys.
-- Backend tests (`backend_test.dart`, `strong_import_test.dart`) run real
-  SQLite, in memory or in a temp file: persistence across restarts,
-  rollback, audit, derived history, archive round trip and imports.
+- Backend tests run real SQLite, in memory or in a temp file:
+  `backend_test.dart` (persistence across restarts, rollback, audit,
+  derived history, archive round trip), `strong_import_test.dart`
+  (importing) and `engines_test.dart` (engines and insights).
 - Geometry tests (`chrome_geometry_test.dart`, `edge_to_edge_test.dart`,
   `collapsing_header_test.dart`, `toast_test.dart`) pin layout contracts.
   When you change the dock, app bar, footers, toasts or insets, update or

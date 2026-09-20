@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../data/models.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 
 const _previewComponentCount = 2;

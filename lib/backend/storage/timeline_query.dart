@@ -1,13 +1,11 @@
-import '../data/models.dart';
-import '../shared/format.dart';
+import '../../domain/domain.dart';
+import '../../shared/format.dart';
+import '../engines/training_metrics.dart';
+import '../engines/nutrition_summary.dart';
 import 'database.dart';
 import 'journal_repository.dart';
 import 'meal_repository.dart';
-import 'training_metrics.dart';
 import 'workout_repository.dart';
-
-/// Fewer meals than this on a finished day marks its food log incomplete.
-const mealsForCompleteDay = 3;
 
 const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 
@@ -84,9 +82,7 @@ class TimelineQuery {
           '${workout.routineName} · $sets 組';
     }
 
-    final mealsByDay = <int, int>{};
-    final kcalByDay = <int, int>{};
-    final estimatedDays = <int>{};
+    final mealsByDay = <int, List<MealEvent>>{};
     for (final (eatenAt, meal) in _meals.between(start, end)) {
       final kcal = '${meal.isEstimated ? '~' : ''}${formatKcal(meal.kcal)}';
       add(
@@ -99,15 +95,13 @@ class TimelineQuery {
           tags: ['$kcal kcal', meal.qualityTag],
         ),
       );
-      final day = eatenAt.day;
-      mealsByDay[day] = (mealsByDay[day] ?? 0) + 1;
-      kcalByDay[day] = (kcalByDay[day] ?? 0) + meal.kcal;
-      if (meal.isEstimated) estimatedDays.add(day);
+      (mealsByDay[eatenAt.day] ??= []).add(meal);
     }
-    for (final MapEntry(key: day, value: count) in mealsByDay.entries) {
-      final approximate = estimatedDays.contains(day) ? '~' : '';
+    for (final MapEntry(key: day, value: meals) in mealsByDay.entries) {
+      final summary = summariseDay(meals);
+      final approximate = summary.hasEstimates ? '~' : '';
       (summaries[day] ??= {})[RecordCategory.nutrition] =
-          '$count 餐 · $approximate${formatKcal(kcalByDay[day]!)} kcal';
+          '${summary.mealCount} 餐 · $approximate${formatKcal(summary.kcal)} kcal';
     }
 
     for (final weight in _journal.weightsBetween(start, end)) {
@@ -147,7 +141,7 @@ class TimelineQuery {
             warning:
                 _isIncomplete(
                   DateTime(month.year, month.month, day),
-                  mealsByDay[day] ?? 0,
+                  mealsByDay[day] ?? const [],
                   today,
                 )
                 ? '飲食紀錄不完整'
@@ -209,12 +203,18 @@ class TimelineQuery {
     return null;
   }
 
-  /// A finished day with some, but too few, meals. Days without any meal
-  /// are not flagged: the user may simply not track food.
-  static bool _isIncomplete(DateTime day, int meals, DateTime today) =>
-      meals > 0 &&
-      meals < mealsForCompleteDay &&
-      day.isBefore(DateTime(today.year, today.month, today.day));
+  /// Whether a day's food log looks incomplete, by the nutrition engine's
+  /// rule.
+  static bool _isIncomplete(
+    DateTime day,
+    List<MealEvent> meals,
+    DateTime today,
+  ) => isFoodLogIncomplete(
+    summariseDay(
+      meals,
+      isOver: day.isBefore(DateTime(today.year, today.month, today.day)),
+    ),
+  );
 
   static String _dayLabel(DateTime day, DateTime today) {
     final label = '${day.month} 月 ${day.day} 日（週${_weekdays[day.weekday - 1]}）';

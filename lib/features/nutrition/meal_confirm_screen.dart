@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../data/mock_data.dart';
-import '../../data/models.dart';
+import '../../backend/seed/demo_content.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'daily_nutrition_screen.dart';
@@ -93,7 +93,7 @@ class _MealConfirmScreenState extends State<MealConfirmScreen> {
             message: '以下是推測結果，份量以區間表示。確認後才會存成你的紀錄。',
           ),
         ),
-        Gutter(child: const _InferredDishCard(dish: MockNutrition.sandwich)),
+        Gutter(child: const _InferredDishCard(dish: DemoNutrition.sandwich)),
         Gutter(
           child: AppCard(
             child: Column(
@@ -175,7 +175,7 @@ class _InferredDishCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           ComponentList(
-            components: MockNutrition.sandwichComponents,
+            components: DemoNutrition.sandwichComponents,
             showSource: true,
           ),
         ],
