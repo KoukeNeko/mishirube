@@ -33,19 +33,37 @@ const _equipmentChoices = <Equipment?>[
 
 /// Pops with the new (or an existing duplicate) [ExerciseDefinition].
 class CreateExerciseScreen extends StatefulWidget {
-  const CreateExerciseScreen({super.key, this.initialName = ''});
+  const CreateExerciseScreen({super.key, this.initialName = '', this.editing});
 
   final String initialName;
+
+  /// The exercise being edited; null when creating a new one.
+  final ExerciseDefinition? editing;
 
   @override
   State<CreateExerciseScreen> createState() => _CreateExerciseScreenState();
 }
 
 class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
-  late final _nameController = TextEditingController(text: widget.initialName);
-  TrackingType _trackingType = TrackingType.weightReps;
-  _BodyRegion _region = _BodyRegion.chest;
-  Equipment? _equipment = Equipment.dumbbell;
+  late final _nameController = TextEditingController(
+    text: widget.editing?.name ?? widget.initialName,
+  );
+  late TrackingType _trackingType =
+      widget.editing?.trackingType ?? TrackingType.weightReps;
+  late _BodyRegion _region = _regionOf(widget.editing) ?? _BodyRegion.chest;
+  late Equipment? _equipment = widget.editing?.equipment ?? Equipment.dumbbell;
+  String? _error;
+
+  ExerciseDefinition? get _editing => widget.editing;
+
+  static _BodyRegion? _regionOf(ExerciseDefinition? exercise) {
+    final muscle = exercise?.primaryMuscles.firstOrNull;
+    if (muscle == null) return null;
+    for (final region in _BodyRegion.values) {
+      if (region.muscle == muscle) return region;
+    }
+    return null;
+  }
 
   String get _name => _nameController.text.trim();
 
@@ -63,23 +81,45 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
 
   /// Shown before creating, so a second 「啞鈴臥推」 does not start its own
   /// history.
-  List<ExerciseDefinition> _possibleDuplicates() => _name.isEmpty
+  List<ExerciseDefinition> _possibleDuplicates() =>
+      _name.isEmpty || _editing != null
       ? const []
       : AppStoreScope.of(context)
             .duplicateCandidatesFor(_name)
             .take(_maxDuplicateCandidates)
             .toList();
 
-  void _create() {
+  void _submit() {
+    final editing = _editing;
     final exercise = ExerciseDefinition(
-      id: 'custom-${DateTime.now().microsecondsSinceEpoch}',
+      id: editing?.id ?? 'custom-${DateTime.now().microsecondsSinceEpoch}',
       name: _name,
+      aliases: editing?.aliases ?? const [],
+      personalAliases: editing?.personalAliases ?? const [],
       equipment: _equipment ?? Equipment.bodyweight,
       primaryMuscles: [_region.muscle],
-      pattern: MovementPattern.isolation,
+      secondaryMuscles: editing?.secondaryMuscles ?? const [],
+      pattern: editing?.pattern ?? MovementPattern.isolation,
       trackingType: _trackingType,
-      source: ExerciseSource.custom,
+      source: editing?.source ?? ExerciseSource.custom,
+      isFavorite: editing?.isFavorite ?? false,
+      isHidden: editing?.isHidden ?? false,
+      cues: editing?.cues ?? const [],
     );
+    if (editing == null) {
+      Navigator.of(context).pop(exercise);
+      return;
+    }
+    try {
+      AppStoreScope.read(context).updateExercise(exercise);
+    } on TrackingChangeRefused catch (refusal) {
+      setState(
+        () => _error =
+            '已經有 ${refusal.sessionCount} 次紀錄用這個追蹤方式，改了會讓舊紀錄變成另一種意思。'
+            '要換成別的追蹤方式，請建立一個新動作。',
+      );
+      return;
+    }
     Navigator.of(context).pop(exercise);
   }
 
@@ -88,16 +128,20 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
     final duplicates = _possibleDuplicates();
     return DetailPage(
       appBar: PageAppBar(
-        title: '建立自訂動作',
-        subtitle: '只需要四個欄位',
+        title: _editing == null ? '建立自訂動作' : '編輯動作',
+        subtitle: _editing == null ? '只需要四個欄位' : '${_editing!.source.label}動作',
         leading: AppBarLeading.none,
         onClose: () => Navigator.of(context).pop(),
       ),
       footer: PrimaryButton(
-        label: '建立並加入',
-        onPressed: _name.isEmpty ? null : _create,
+        label: _editing == null ? '建立並加入' : '儲存變更',
+        onPressed: _name.isEmpty ? null : _submit,
       ),
       children: [
+        if (_error case final error?)
+          Gutter(
+            child: InfoBanner(tone: CardTone.warning, message: error),
+          ),
         if (duplicates.isNotEmpty)
           Gutter(
             child: _DuplicateWarning(

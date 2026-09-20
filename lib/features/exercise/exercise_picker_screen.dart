@@ -119,73 +119,107 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
     });
   }
 
+  /// Leaving with exercises picked asks first: the selection is work the
+  /// user did, and closing is easy to hit by mistake.
+  Future<bool> _confirmDiscard() async {
+    if (_selected.isEmpty) return true;
+    final shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('放棄已選的 ${_selected.length} 個動作？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('繼續選擇'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('放棄'),
+          ),
+        ],
+      ),
+    );
+    return shouldDiscard ?? false;
+  }
+
+  Future<void> _close() async {
+    if (await _confirmDiscard() && mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final exercises = _visibleExercises();
     final action = widget.isTemplate ? '加入訓練模板' : '加入進行中的';
-    return PageScaffold(
-      appBar: PageAppBar(
-        title: '新增動作',
-        subtitle: '$action「${widget.targetName}」',
-        leading: AppBarLeading.none,
-        onClose: () => Navigator.of(context).pop(),
-      ),
-      // Searching is the main job here, so the search row stays pinned.
-      pinned: Gutter(
-        child: _SearchRow(
-          controller: _searchController,
-          filterCount: _filter.activeCount,
-          onFilter: _openFilter,
+    return PopScope(
+      canPop: _selected.isEmpty,
+      // A system back with exercises picked asks before dropping them.
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _close();
+      },
+      child: PageScaffold(
+        appBar: PageAppBar(
+          title: '新增動作',
+          subtitle: '$action「${widget.targetName}」',
+          leading: AppBarLeading.none,
+          onClose: _close,
         ),
-      ),
-      pinnedHeight: _searchRowHeight,
-      footer: _selected.isNotEmpty
-          ? _SelectionTray(
-              selected: _selected,
-              onRemove: _toggle,
-              onConfirm: () => Navigator.of(context).pop(_selected),
-            )
-          : null,
-      children: [
-        // Full-bleed like the Log chips: the tab row pads its own content.
-        if (_query.isEmpty) _TabRow(selected: _tab, onSelect: _selectTab),
-        if (!_filter.isEmpty)
-          Gutter(
-            child: _FilterSummary(
-              summary: _filter.summary,
-              onClear: () => setState(() => _filter = const ExerciseFilter()),
-            ),
+        // Searching is the main job here, so the search row stays pinned.
+        pinned: Gutter(
+          child: _SearchRow(
+            controller: _searchController,
+            filterCount: _filter.activeCount,
+            onFilter: _openFilter,
           ),
-        if (exercises.isEmpty)
-          Gutter(
-            child: _NoResults(
-              query: _query,
-              filter: _filter,
-              suggestions: _suggestionsIgnoringFilters(),
-              onClearEquipment: () =>
-                  setState(() => _filter = _filter.copyWith(equipment: {})),
-              onOpenSuggestion: _openDetail,
-              onCreate: () => _createExercise(initialName: _query),
-            ),
-          )
-        else ...[
-          for (final exercise in exercises)
+        ),
+        pinnedHeight: _searchRowHeight,
+        footer: _selected.isNotEmpty
+            ? _SelectionTray(
+                selected: _selected,
+                onRemove: _toggle,
+                onConfirm: () => Navigator.of(context).pop(_selected),
+              )
+            : null,
+        children: [
+          // Full-bleed like the Log chips: the tab row pads its own content.
+          if (_query.isEmpty) _TabRow(selected: _tab, onSelect: _selectTab),
+          if (!_filter.isEmpty)
             Gutter(
-              child: _ExerciseTile(
-                exercise: exercise,
-                order: _selected.indexOf(exercise) + 1,
-                onTap: () => _toggle(exercise),
-                onInfo: () => _openDetail(exercise),
+              child: _FilterSummary(
+                summary: _filter.summary,
+                onClear: () => setState(() => _filter = const ExerciseFilter()),
               ),
             ),
-          Gutter(
-            child: DashedActionCard(
-              label: '找不到？建立自訂動作',
-              onTap: _createExercise,
+          if (exercises.isEmpty)
+            Gutter(
+              child: _NoResults(
+                query: _query,
+                filter: _filter,
+                suggestions: _suggestionsIgnoringFilters(),
+                onClearEquipment: () =>
+                    setState(() => _filter = _filter.copyWith(equipment: {})),
+                onOpenSuggestion: _openDetail,
+                onCreate: () => _createExercise(initialName: _query),
+              ),
+            )
+          else ...[
+            for (final exercise in exercises)
+              Gutter(
+                child: _ExerciseTile(
+                  exercise: exercise,
+                  order: _selected.indexOf(exercise) + 1,
+                  onTap: () => _toggle(exercise),
+                  onInfo: () => _openDetail(exercise),
+                ),
+              ),
+            Gutter(
+              child: DashedActionCard(
+                label: '找不到？建立自訂動作',
+                onTap: _createExercise,
+              ),
             ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 

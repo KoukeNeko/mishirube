@@ -407,6 +407,91 @@ void main() {
       );
     });
 
+    test('editing an exercise keeps its history, tracking type aside', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      final sessions = store.exerciseHistory(squat).sessionCount;
+
+      store.updateExercise(
+        ExerciseDefinition(
+          id: squat.id,
+          name: '背蹲舉',
+          equipment: squat.equipment,
+          primaryMuscles: squat.primaryMuscles,
+          pattern: squat.pattern,
+          trackingType: squat.trackingType,
+        ),
+      );
+
+      final renamed = store.exercises.firstWhere((e) => e.id == squat.id);
+      expect(renamed.name, '背蹲舉');
+      expect(store.exerciseHistory(renamed).sessionCount, sessions);
+
+      // The tracking type says how the old sets are read, so it is fixed
+      // once there are any.
+      expect(
+        () => store.updateExercise(
+          ExerciseDefinition(
+            id: squat.id,
+            name: '背蹲舉',
+            equipment: squat.equipment,
+            primaryMuscles: squat.primaryMuscles,
+            pattern: squat.pattern,
+            trackingType: TrackingType.duration,
+          ),
+        ),
+        throwsA(isA<TrackingChangeRefused>()),
+      );
+      expect(
+        store.exercises.firstWhere((e) => e.id == squat.id).trackingType,
+        squat.trackingType,
+      );
+    });
+
+    test('an exercise with no history can change how it is tracked', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      expect(store.exerciseHistory(plank).sessionCount, 0);
+
+      store.updateExercise(
+        ExerciseDefinition(
+          id: plank.id,
+          name: plank.name,
+          equipment: plank.equipment,
+          primaryMuscles: plank.primaryMuscles,
+          pattern: plank.pattern,
+          trackingType: TrackingType.reps,
+        ),
+      );
+
+      expect(
+        store.exercises.firstWhere((e) => e.id == plank.id).trackingType,
+        TrackingType.reps,
+      );
+    });
+
+    test('a personal alias is searchable and leaves the catalog alone', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+
+      store.setPersonalAliases(squat, ['大腿日主項']);
+
+      expect(
+        store.searchExercises(query: '大腿日主項').map((e) => e.id),
+        contains('back-squat'),
+      );
+      final stored = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      expect(stored.personalAliases, ['大腿日主項']);
+      expect(
+        stored.aliases,
+        squat.aliases,
+        reason: 'the catalog keeps its own names',
+      );
+    });
+
     test('duplicate candidates warn before a second history starts', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);

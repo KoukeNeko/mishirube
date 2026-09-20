@@ -74,6 +74,7 @@ const _tables = [
     _Column('id', _Kind.text),
     _Column('name', _Kind.text),
     _Column('aliases', _Kind.json),
+    _Column('personal_aliases', _Kind.json),
     _Column('equipment', _Kind.text),
     _Column('primary_muscles', _Kind.json),
     _Column('secondary_muscles', _Kind.json),

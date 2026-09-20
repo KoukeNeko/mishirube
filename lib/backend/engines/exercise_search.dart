@@ -117,6 +117,7 @@ String normalizeTerm(String value) {
   var isOnName = false;
   final terms = [
     exercise.name,
+    ...exercise.personalAliases,
     ...exercise.aliases,
     exercise.equipment.label,
     ...exercise.primaryMuscles.map((muscle) => muscle.label),

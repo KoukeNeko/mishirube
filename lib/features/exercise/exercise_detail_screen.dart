@@ -3,8 +3,49 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
+import '../../app/navigation.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'create_exercise_screen.dart';
+
+/// Asks for the names this user wants to find [exercise] by.
+Future<void> _editAliases(
+  BuildContext context,
+  ExerciseDefinition exercise,
+) async {
+  final store = AppStoreScope.read(context);
+  final controller = TextEditingController(
+    text: exercise.personalAliases.join('、'),
+  );
+  final entered = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('我的別名'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        decoration: const InputDecoration(hintText: '用、分隔，例如：深蹲、squat'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+          child: const Text('儲存'),
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  if (entered == null || !context.mounted) return;
+  store.setPersonalAliases(exercise, [
+    for (final alias in entered.split(RegExp('[、,，]')))
+      if (alias.trim().isNotEmpty) alias.trim(),
+  ]);
+  showToast(context, '別名只影響你自己的搜尋');
+}
 
 class ExerciseDetailScreen extends StatelessWidget {
   const ExerciseDetailScreen({
@@ -74,10 +115,21 @@ class ExerciseDetailScreen extends StatelessWidget {
                   showToast(context, '已更新收藏', kind: ToastKind.success);
                 },
               ),
+              if (exercise.source != ExerciseSource.builtIn)
+                NavRow(
+                  title: '編輯動作',
+                  subtitle: '名稱、器材、部位',
+                  onTap: () => pushModalPage<void>(
+                    context,
+                    CreateExerciseScreen(editing: exercise),
+                  ),
+                ),
               NavRow(
                 title: '編輯我的別名',
-                subtitle: exercise.aliases.join('、'),
-                onTap: () => showToast(context, '別名只影響你自己的搜尋'),
+                subtitle: exercise.personalAliases.isEmpty
+                    ? '目前用內建名稱：${exercise.aliases.join('、')}'
+                    : exercise.personalAliases.join('、'),
+                onTap: () => _editAliases(context, exercise),
               ),
               NavRow(
                 title: exercise.isHidden ? '取消隱藏' : '隱藏這個動作',

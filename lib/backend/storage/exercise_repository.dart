@@ -126,6 +126,7 @@ class ExerciseRepository {
       final values = [
         exercise.name,
         jsonEncode(exercise.aliases),
+        jsonEncode(exercise.personalAliases),
         exercise.equipment.name,
         jsonEncode([for (final m in exercise.primaryMuscles) m.name]),
         jsonEncode([for (final m in exercise.secondaryMuscles) m.name]),
@@ -139,7 +140,8 @@ class ExerciseRepository {
       ];
       if (exists) {
         _db.execute(
-          'UPDATE exercises SET name = ?, aliases = ?, equipment = ?, '
+          'UPDATE exercises SET name = ?, aliases = ?, personal_aliases = ?, '
+          'equipment = ?, '
           'primary_muscles = ?, secondary_muscles = ?, pattern = ?, '
           'tracking_type = ?, ownership = ?, cues = ?, is_favorite = ?, '
           'is_hidden = ?, is_in_home_gym = ?, updated_at = ?, '
@@ -149,11 +151,12 @@ class ExerciseRepository {
         );
       } else {
         _db.execute(
-          'INSERT INTO exercises (name, aliases, equipment, primary_muscles, '
+          'INSERT INTO exercises (name, aliases, personal_aliases, '
+          'equipment, primary_muscles, '
           'secondary_muscles, pattern, tracking_type, ownership, cues, '
           'is_favorite, is_hidden, is_in_home_gym, id, created_at, '
           'updated_at, source, import_batch_id) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [...values, exercise.id, now, now, source.name, importBatchId],
         );
       }
@@ -163,6 +166,23 @@ class ExerciseRepository {
         action: exists ? 'update' : 'create',
         source: source,
         importBatchId: importBatchId,
+      );
+    });
+  }
+
+  /// Replaces the names this user gave an exercise.
+  void setPersonalAliases(String id, List<String> aliases) {
+    _db.transaction(() {
+      _db.execute(
+        'UPDATE exercises SET personal_aliases = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [jsonEncode(aliases), _db.now().millisecondsSinceEpoch, id],
+      );
+      _db.audit(
+        entityType: 'exercise',
+        entityId: id,
+        action: 'set_personal_aliases',
+        payload: aliases,
       );
     });
   }
@@ -233,6 +253,7 @@ class ExerciseRepository {
       id: row['id'],
       name: row['name'],
       aliases: _strings(row['aliases']),
+      personalAliases: _strings(row['personal_aliases']),
       equipment: Equipment.values.byName(row['equipment']),
       primaryMuscles: [
         for (final name in _strings(row['primary_muscles']))

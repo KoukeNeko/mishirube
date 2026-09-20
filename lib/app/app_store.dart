@@ -12,6 +12,7 @@ import '../backend/storage/database.dart';
 import '../backend/storage/timeline_query.dart';
 import '../domain/domain.dart';
 
+export '../backend/application/catalog_service.dart' show TrackingChangeRefused;
 export '../backend/application/nutrition_service.dart'
     show DishSplitSnapshot, RecentMeal;
 
@@ -294,6 +295,22 @@ class AppStore extends ChangeNotifier {
   /// Exercises that may already be what the user is about to create.
   List<ExerciseDefinition> duplicateCandidatesFor(String name) =>
       _backend.catalog.duplicateCandidatesFor(name);
+
+  /// Saves an edited exercise. Throws [TrackingChangeRefused] when the
+  /// change would make finished sets mean something else.
+  void updateExercise(ExerciseDefinition exercise) {
+    _backend.catalog.update(exercise);
+    _reloadExercises();
+    notifyListeners();
+  }
+
+  /// Replaces the names this user gave [exercise]; they only affect this
+  /// user's search, not the catalog.
+  void setPersonalAliases(ExerciseDefinition exercise, List<String> aliases) {
+    _backend.catalog.setPersonalAliases(exercise.id, aliases);
+    _reloadExercises();
+    notifyListeners();
+  }
 
   void toggleHidden(ExerciseDefinition exercise) {
     _backend.catalog.setHidden(exercise.id, isHidden: !exercise.isHidden);

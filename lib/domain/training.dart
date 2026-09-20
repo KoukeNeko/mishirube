@@ -73,6 +73,7 @@ class ExerciseDefinition {
     required this.primaryMuscles,
     required this.pattern,
     this.aliases = const [],
+    this.personalAliases = const [],
     this.secondaryMuscles = const [],
     this.trackingType = TrackingType.weightReps,
     this.source = ExerciseSource.builtIn,
@@ -88,6 +89,9 @@ class ExerciseDefinition {
   final String id;
   final String name;
   final List<String> aliases;
+
+  /// Names this user gave it; the catalog's own aliases stay untouched.
+  final List<String> personalAliases;
   final Equipment equipment;
   final List<MuscleGroup> primaryMuscles;
   final List<MuscleGroup> secondaryMuscles;

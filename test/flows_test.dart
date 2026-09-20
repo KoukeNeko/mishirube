@@ -357,4 +357,39 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets('closing the picker with exercises chosen asks first', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    final planned = store.routine.exercises.length;
+
+    await _tapText(tester, '下肢 A');
+    await _tapText(tester, '加入動作');
+    await tester.enterText(find.byType(TextField), '前蹲');
+    await tester.pump();
+    // The typed query matches find.text too, so tap the row's card.
+    await tester.tap(
+      find.ancestor(of: find.text('前蹲'), matching: find.byType(AppCard)).first,
+    );
+    await tester.pump();
+    expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'selection order');
+
+    await tester.tap(find.bySemanticsLabel('關閉'));
+    await tester.pump();
+    expect(find.text('放棄已選的 1 個動作？'), findsOneWidget);
+
+    await _tapText(tester, '繼續選擇');
+    expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'nothing lost');
+
+    await tester.tap(find.bySemanticsLabel('關閉'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, '放棄'));
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(store.routine.exercises, hasLength(planned));
+    await disposeTree(tester);
+  });
 }

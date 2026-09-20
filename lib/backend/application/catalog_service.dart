@@ -4,6 +4,18 @@ import '../engines/substitution_engine.dart' as engine;
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
 
+/// Refusing a change that would make old records mean something else.
+class TrackingChangeRefused implements Exception {
+  const TrackingChangeRefused(this.sessionCount);
+
+  /// How many finished sessions the exercise already has.
+  final int sessionCount;
+
+  @override
+  String toString() =>
+      'TrackingChangeRefused: $sessionCount sessions already recorded';
+}
+
 /// The exercise catalog as the pickers use it: search, favourites, custom
 /// exercises, personal history and fair swaps.
 class CatalogService {
@@ -52,8 +64,30 @@ class CatalogService {
     return _exercises.byId(exercise.id)!;
   }
 
+  /// Saves an edited exercise.
+  ///
+  /// The tracking type is part of how its history reads, so once sessions
+  /// exist it cannot change: the old sets would silently start meaning
+  /// something else. Everything else is free to change, and the id stays,
+  /// so the history follows the exercise.
+  ExerciseDefinition update(ExerciseDefinition exercise) {
+    final existing = _exercises.byId(exercise.id);
+    if (existing == null) return create(exercise);
+    if (existing.trackingType != exercise.trackingType) {
+      final sessions = _exercises.history(exercise.id).sessionCount;
+      if (sessions > 0) throw TrackingChangeRefused(sessions);
+    }
+    _exercises.save(exercise);
+    return _exercises.byId(exercise.id)!;
+  }
+
   void setFavorite(String id, {required bool isFavorite}) =>
       _exercises.setFavorite(id, isFavorite: isFavorite);
+
+  /// Replaces the names this user gave an exercise; the catalog's own
+  /// names stay as they are.
+  void setPersonalAliases(String id, List<String> aliases) =>
+      _exercises.setPersonalAliases(id, aliases);
 
   /// Hides an exercise from the pickers without touching its history.
   void setHidden(String id, {required bool isHidden}) =>

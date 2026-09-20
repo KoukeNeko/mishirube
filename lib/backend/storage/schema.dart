@@ -205,6 +205,12 @@ final List<String> _migrations = [
   );
   CREATE INDEX sleep_entries_slept ON sleep_entries(slept_at);
   ''',
+  '''
+  -- Names the user gave an exercise, kept apart from the catalog's own
+  -- aliases so a catalog update never overwrites them.
+  ALTER TABLE exercises
+    ADD COLUMN personal_aliases TEXT NOT NULL DEFAULT '[]';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
