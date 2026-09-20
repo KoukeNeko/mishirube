@@ -43,6 +43,7 @@ class MealEvent {
     this.isEstimated = false,
     this.isFavorite = false,
     this.nutrients = const {},
+    this.millilitres,
   });
 
   final String id;
@@ -74,6 +75,14 @@ class MealEvent {
   /// could not see.
   final Nutrients nutrients;
 
+  /// How much liquid this was, when it was logged by volume.
+  ///
+  /// It is what was drunk, not the water in it: 250 ml of milk is 250 ml
+  /// of drink. The app applies no hydration factor, because the numbers
+  /// other apps use for that are not something anyone can show the
+  /// working for.
+  final int? millilitres;
+
   MealEvent copyWith({
     String? id,
     String? name,
@@ -88,6 +97,7 @@ class MealEvent {
     bool? isEstimated,
     String? qualityTag,
     Nutrients? nutrients,
+    int? millilitres,
   }) => MealEvent(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -102,6 +112,7 @@ class MealEvent {
     isFavorite: isFavorite ?? this.isFavorite,
     isEstimated: isEstimated ?? this.isEstimated,
     nutrients: nutrients ?? this.nutrients,
+    millilitres: millilitres ?? this.millilitres,
   );
 }
 

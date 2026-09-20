@@ -71,9 +71,9 @@ class MealRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO meals (id, name, eaten_at, kcal, protein_g, carb_g, '
-        'fat_g, fibre_g, quality_tag, is_estimated, created_at, updated_at, '
-        'source, import_batch_id) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'fat_g, fibre_g, millilitres, quality_tag, is_estimated, created_at, '
+        'updated_at, source, import_batch_id) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -83,6 +83,7 @@ class MealRepository {
           meal.carbGrams,
           meal.fatGrams,
           meal.fibreGrams,
+          meal.millilitres,
           meal.qualityTag,
           meal.isEstimated ? 1 : 0,
           now,
@@ -230,6 +231,7 @@ class MealRepository {
       qualityTag: row['quality_tag']! as String,
       isEstimated: row['is_estimated'] == 1,
       isFavorite: row['is_favorite'] == 1,
+      millilitres: row['millilitres'] as int?,
       nutrients: readNutrients(_db, 'meal_nutrients', 'meal_id', id),
       dishes: [
         for (final dish in dishes)

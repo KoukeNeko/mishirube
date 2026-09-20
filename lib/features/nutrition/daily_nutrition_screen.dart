@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/caffeine.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
@@ -77,6 +78,12 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               onSplit: (dishIndex) => _split(meal, dishIndex),
             ),
           ),
+        if (summariseFluid(meals) case final fluid when fluid.hasRecords) ...[
+          Gutter(child: const SectionLabel('液體')),
+          Gutter(child: _FluidLogged(fluid: fluid)),
+        ],
+        if (store.estimatedCaffeineMg case final caffeine when caffeine >= 1)
+          Gutter(child: _CaffeineEstimate(milligrams: caffeine)),
         if (summariseNutrients(meals) case final nutrients
             when nutrients.isNotEmpty) ...[
           Gutter(child: const SectionLabel('其他營養素')),
@@ -295,6 +302,85 @@ class _NutrientTotals extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+
+/// What was drunk today, as recorded.
+///
+/// There is no goal bar and no percentage. Every reference value for
+/// daily water is either a population figure or, in the apps that show
+/// one, a number nobody publishes the working for — and a goal with a
+/// progress bar is exactly the design that pushes people to drink more
+/// than they should.
+class _FluidLogged extends StatelessWidget {
+  const _FluidLogged({required this.fluid});
+
+  final FluidLogged fluid;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          StatBlock(
+            value: '${fluid.millilitres}',
+            unit: 'mL',
+            label: '今日已記錄',
+            valueStyle: AppTextStyles.bigNumber,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              '${fluid.drinkCount} 筆以毫升記錄。只計入記錄到的，沒有記的不算 0。',
+              textAlign: TextAlign.right,
+              style: AppTextStyles.caption,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+/// Roughly how much caffeine is still in the body.
+///
+/// Written as an estimate with its method attached, because that is what
+/// it is: half-lives differ several-fold between people. There is
+/// deliberately no bedtime threshold and no "you can still have another
+/// X mg" — no such figure has been validated.
+class _CaffeineEstimate extends StatelessWidget {
+  const _CaffeineEstimate({required this.milligrams});
+
+  final double milligrams;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              StatBlock(
+                value: '≈${milligrams.round()}',
+                unit: 'mg',
+                label: '估計體內殘留咖啡因',
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '依半衰期 $caffeineHalfLifeHours 小時推算，不是量測值。'
+            '每個人的代謝速度差異很大。',
+            style: AppTextStyles.caption,
+          ),
+        ],
+      ),
     );
   }
 }

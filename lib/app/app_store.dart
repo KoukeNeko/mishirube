@@ -8,6 +8,7 @@ import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
+import '../backend/engines/caffeine.dart';
 import '../backend/engines/food_portion.dart';
 import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
@@ -633,6 +634,21 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
     return logged;
   }
+
+  /// How much caffeine is likely still in the body right now, in
+  /// milligrams, from what was logged over the last day.
+  ///
+  /// An estimate from a population half-life, not a reading. The screen
+  /// showing it has to say so.
+  double get estimatedCaffeineMg => estimatedCaffeineRemaining(
+    caffeineIntakes(
+      _backend.nutrition.between(
+        now().subtract(const Duration(days: 1)),
+        now(),
+      ),
+    ),
+    now: now(),
+  );
 
   /// Saved foods matching [query]; an empty query is all of them.
   List<FoodItem> searchFoods(String query) =>

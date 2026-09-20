@@ -146,3 +146,36 @@ List<NutrientTotal> summariseNutrients(Iterable<MealEvent> meals) {
         ),
   ];
 }
+
+/// What was drunk on a day, as logged.
+///
+/// This is liquid recorded, not hydration. Nothing here applies a factor
+/// to coffee, tea or alcohol: the research behind those percentages is
+/// not something anyone publishes the working for, and the evidence that
+/// does exist says caffeinated drinks still count as fluid.
+class FluidLogged {
+  const FluidLogged({required this.millilitres, required this.drinkCount});
+
+  /// The sum of what was logged by volume.
+  final int millilitres;
+
+  /// How many meals contributed a volume. Food eaten, and drinks logged
+  /// without a volume, are not counted — and are not counted as zero
+  /// either, because this figure only ever claims what was recorded.
+  final int drinkCount;
+
+  bool get hasRecords => drinkCount > 0;
+}
+
+/// Adds up what [meals] recorded by volume.
+FluidLogged summariseFluid(Iterable<MealEvent> meals) {
+  var millilitres = 0;
+  var drinks = 0;
+  for (final meal in meals) {
+    if (meal.millilitres case final volume?) {
+      millilitres += volume;
+      drinks++;
+    }
+  }
+  return FluidLogged(millilitres: millilitres, drinkCount: drinks);
+}

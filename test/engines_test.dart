@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
+import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -878,6 +879,91 @@ void main() {
       );
       expect(weeks.last.targetDays, 5);
       expect(weeks.last.isMet, isFalse);
+    });
+  });
+
+  group('caffeine', () {
+    final clock = FakeClock();
+
+    CaffeineIntake intake(double mg, Duration ago) =>
+        CaffeineIntake(at: clock.now().subtract(ago), milligrams: mg);
+
+    test('one dose halves over the assumed half-life', () {
+      final remaining = estimatedCaffeineRemaining([
+        intake(100, const Duration(hours: 5)),
+      ], now: clock.now());
+
+      expect(remaining, closeTo(50, 0.01));
+    });
+
+    test('doses add up and each decays from its own time', () {
+      final remaining = estimatedCaffeineRemaining([
+        intake(100, const Duration(hours: 10)),
+        intake(80, Duration.zero),
+      ], now: clock.now());
+
+      expect(remaining, closeTo(25 + 80, 0.01));
+    });
+
+    test('the half-life is the only assumption, and it changes a lot', () {
+      final doses = [intake(100, const Duration(hours: 8))];
+
+      expect(
+        estimatedCaffeineRemaining(doses, now: clock.now()),
+        closeTo(33, 1),
+        reason: 'the default 5 hours',
+      );
+      expect(
+        estimatedCaffeineRemaining(doses, now: clock.now(), halfLifeHours: 1.5),
+        closeTo(2.5, 0.5),
+        reason: 'a fast metaboliser',
+      );
+      expect(
+        estimatedCaffeineRemaining(doses, now: clock.now(), halfLifeHours: 9.5),
+        closeTo(56, 1),
+        reason: 'a slow one — the same cup, twenty times the estimate',
+      );
+    });
+
+    test('caffeine not yet drunk is not counted', () {
+      final remaining = estimatedCaffeineRemaining([
+        CaffeineIntake(
+          at: clock.now().add(const Duration(hours: 1)),
+          milligrams: 200,
+        ),
+      ], now: clock.now());
+
+      expect(remaining, 0);
+    });
+
+    test('intakes come from what the meals recorded', () {
+      final at = clock.now();
+      final intakes = caffeineIntakes([
+        (
+          at,
+          const MealEvent(
+            id: 'coffee',
+            name: '黑咖啡',
+            timeLabel: '09:00',
+            qualityTag: '自訂食物',
+            dishes: [],
+            nutrients: {Nutrient.caffeine: 95},
+          ),
+        ),
+        (
+          at,
+          const MealEvent(
+            id: 'rice',
+            name: '白飯',
+            timeLabel: '12:00',
+            qualityTag: '自訂食物',
+            dishes: [],
+          ),
+        ),
+      ]);
+
+      expect(intakes, hasLength(1));
+      expect(intakes.single.milligrams, 95);
     });
   });
 }

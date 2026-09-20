@@ -175,6 +175,7 @@ const _tables = [
     _Column('carb_g', _Kind.integer, isNullable: true),
     _Column('fat_g', _Kind.integer, isNullable: true),
     _Column('fibre_g', _Kind.integer, isNullable: true),
+    _Column('millilitres', _Kind.integer, isNullable: true),
     _Column('quality_tag', _Kind.text),
     _Column('is_estimated', _Kind.boolean),
     _Column('is_favorite', _Kind.boolean),

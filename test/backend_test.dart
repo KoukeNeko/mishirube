@@ -714,6 +714,58 @@ void main() {
       expect(summary.countsEveryMeal, isFalse);
     });
 
+    test('fluid is what was logged by volume, with no hydration factor', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      const water = FoodItem(
+        id: 'water',
+        name: '水',
+        servingAmount: 500,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 0,
+      );
+      const coffee = FoodItem(
+        id: 'coffee',
+        name: '黑咖啡',
+        servingAmount: 240,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 5,
+        nutrients: {Nutrient.caffeine: 95},
+      );
+      const rice = FoodItem(
+        id: 'rice',
+        name: '白飯',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 130,
+      );
+      final before = summariseFluid(store.todayMeals);
+      store
+        ..logPortion(const FoodPortion(water, 1))
+        ..logPortion(const FoodPortion(coffee, 1))
+        ..logPortion(const FoodPortion(rice, 1));
+
+      final fluid = summariseFluid(
+        AppStore(clock: clock.now, backend: backend).todayMeals,
+      );
+      expect(
+        fluid.millilitres,
+        before.millilitres + 740,
+        reason: '500 + 240; the coffee counts in full and the rice not at all',
+      );
+      expect(fluid.drinkCount, before.drinkCount + 2);
+      expect(
+        store.todayMeals.last.millilitres,
+        isNull,
+        reason: 'food measured in grams has no volume, and no guess is made',
+      );
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);

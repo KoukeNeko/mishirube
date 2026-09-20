@@ -214,6 +214,7 @@ class NutritionService {
         fatGrams: portion.fatGrams,
         fibreGrams: portion.fibreGrams,
         nutrients: portion.nutrients,
+        millilitres: portion.millilitres,
         qualityTag: '自訂食物',
         dishes: [
           DishEntry(

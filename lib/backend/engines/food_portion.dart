@@ -28,6 +28,12 @@ class FoodPortion {
   /// How much this portion is in the food's own unit.
   double get amount => food.servingAmount * servings;
 
+  /// The volume drunk, when the food is measured in millilitres. It is
+  /// the drink itself, not the water in it.
+  int? get millilitres => food.servingUnit == ServingUnit.millilitre
+      ? amount.round()
+      : null;
+
   /// Null stays null: scaling a figure nobody wrote down cannot produce
   /// one.
   int? get kcal => _scaled(food.kcal);

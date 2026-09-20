@@ -375,6 +375,11 @@ final List<String> _migrations = [
   ALTER TABLE meals_new RENAME TO meals;
   CREATE INDEX meals_eaten ON meals(eaten_at);
   ''',
+  '''
+  -- What was drunk, when a meal was logged by volume. It is the drink,
+  -- not the water in it: no hydration factor is applied anywhere.
+  ALTER TABLE meals ADD COLUMN millilitres INTEGER;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
