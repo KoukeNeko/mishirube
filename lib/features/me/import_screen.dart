@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+
+import '../../app/app_store.dart';
 
 import '../../app/theme.dart';
+import '../../backend/archive/export_files.dart';
+import '../../backend/backend.dart';
 import '../../shared/widgets/widgets.dart';
 
 const _issues = [
@@ -74,19 +81,45 @@ class ImportScreen extends StatelessWidget {
           child: NavCard(
             title: '完整封存（JSON）',
             subtitle: '帶 schema 版本，可完整還原',
-            onTap: () => showToast(context, '已建立完整封存', kind: ToastKind.success),
+            onTap: () => _export(
+              context,
+              (backend) async =>
+                  p.basename((await backend.writeArchive()).path),
+              done: '已建立完整封存',
+            ),
           ),
         ),
         Gutter(
           child: NavCard(
             title: 'CSV 檢視',
             subtitle: '方便閱讀，不保證無損',
-            onTap: () =>
-                showToast(context, '已建立 CSV 檢視', kind: ToastKind.success),
+            onTap: () => _export(
+              context,
+              (backend) async =>
+                  p.basename((await backend.writeCsvViews()).path),
+              done: '已建立 CSV 檢視',
+            ),
           ),
         ),
       ],
     );
+  }
+}
+
+/// Runs [write] and reports where the export went, or that it failed.
+Future<void> _export(
+  BuildContext context,
+  Future<String> Function(Backend backend) write, {
+  required String done,
+}) async {
+  final backend = AppStoreScope.read(context).backend;
+  try {
+    final name = await write(backend);
+    if (!context.mounted) return;
+    showToast(context, '$done：$name', kind: ToastKind.success);
+  } on FileSystemException catch (error) {
+    if (!context.mounted) return;
+    showToast(context, '匯出失敗：${error.message}', kind: ToastKind.warning);
   }
 }
 

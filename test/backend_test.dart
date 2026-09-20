@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/archive/canonical_archive.dart';
+import 'package:mishirube/backend/archive/csv.dart';
+import 'package:mishirube/backend/archive/csv_view.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/database.dart';
 import 'package:mishirube/backend/schema.dart';
@@ -300,6 +304,99 @@ void main() {
           .first;
       expect(entry.category, RecordCategory.training);
       expect(entry.detail, '4 組 · 58 分 · 槓鈴深蹲 100 kg × 5 為新紀錄');
+    });
+  });
+
+  group('canonical archive', () {
+    test('export → restore into an empty store → export is lossless', () {
+      final source = AppStore(clock: clock.now, isOnboarded: true)
+        ..startWorkout()
+        ..completeNextSet()
+        ..confirmLunch();
+      addTearDown(source.dispose);
+      source.splitDish(mealId: 'lunch', dishIndex: 0);
+      final archive = exportArchive(source.backend.db);
+
+      final target = Backend.inMemory(clock: clock.now);
+      addTearDown(target.close);
+      restoreArchive(target.db, jsonDecode(encodeArchive(archive)));
+      final roundTripped = exportArchive(target.db);
+
+      expect(roundTripped, archive);
+      final restoredStore = AppStore(clock: clock.now, backend: target);
+      expect(restoredStore.activeWorkout!.completedSets, 1);
+      expect(restoredStore.todayMeals, hasLength(2));
+    });
+
+    test('unknown archive sections are kept for the next export', () {
+      final source = Backend.inMemory(clock: clock.now);
+      addTearDown(source.close);
+      final archive = exportArchive(source.db)
+        ..['extensions'] = {
+          'com.example.sleep': {'nights': 3},
+        };
+
+      restoreArchive(source.db, archive);
+
+      expect(exportArchive(source.db)['extensions'], {
+        'com.example.sleep': {'nights': 3},
+      });
+    });
+
+    test('a broken or newer archive is refused and changes nothing', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final before = exportArchive(store.backend.db);
+
+      final broken = jsonDecode(encodeArchive(before)) as Map<String, Object?>;
+      ((broken['data']! as Map)['workoutSets'] as List).add({'reps': 'five'});
+      expect(
+        () => restoreArchive(store.backend.db, broken),
+        throwsA(isA<ArchiveFormatException>()),
+      );
+      expect(
+        () => restoreArchive(store.backend.db, {
+          ...before,
+          'formatVersion': archiveFormatVersion + 1,
+        }),
+        throwsA(isA<ArchiveFormatException>()),
+      );
+      expect(
+        () => restoreArchive(store.backend.db, 'not an archive'),
+        throwsA(isA<ArchiveFormatException>()),
+      );
+
+      expect(exportArchive(store.backend.db), before);
+    });
+  });
+
+  group('csv', () {
+    test('quotes only what needs it and parses back', () {
+      final rows = [
+        ['name', 'note'],
+        ['臥推', 'a "tight", arch\nnext'],
+      ];
+
+      final text = encodeCsv(rows);
+      expect(text, 'name,note\r\n臥推,"a ""tight"", arch\nnext"');
+      expect(parseCsv(text), rows);
+    });
+
+    test('views list finished sets, meals and weights', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final views = exportCsvViews(store.backend.db);
+
+      final sets = parseCsv(views['workouts.csv']!);
+      expect(sets.first.first, 'date');
+      expect(sets.where((row) => row[2] == '槓鈴深蹲').last.sublist(3, 7), [
+        '3',
+        'working',
+        '95.0',
+        '5',
+      ]);
+      expect(parseCsv(views['meals.csv']!).last[1], '早餐');
+      expect(parseCsv(views['body_weights.csv']!).last[1], '72.4');
     });
   });
 }

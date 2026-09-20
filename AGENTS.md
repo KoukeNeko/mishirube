@@ -41,8 +41,8 @@ flutter test test/<file>_test.dart
   template never rewrites a finished workout.
 - `lib/backend/` – the local-first backend: `AppDatabase` (SQLite via
   `package:sqlite3`, migrations in `schema.dart`), one repository per
-  domain, `TimelineQuery`, `training_metrics.dart` and the demo
-  `seed.dart`.
+  domain, `TimelineQuery`, `training_metrics.dart`, the demo `seed.dart`,
+  and `archive/` (canonical JSON archive, CSV views, Strong importer).
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`
@@ -105,9 +105,11 @@ In particular, do not create a parallel version of:
   `audit_events` row in that transaction. Never hard delete a record:
   set `deleted_at` (tombstone) and bump `revision`.
 - Schema changes append a step to `schema.dart`; never edit a released
-  step.
+  step. Update the archive table list in `canonical_archive.dart` in the
+  same change, and keep the export → restore → export round trip lossless.
 - Usage figures (last performance, record counts, e1RM, timeline, calendar)
   are derived from stored workouts and meals, not stored or hard-coded.
+- Imports go through a dry run first and commit as one undoable batch.
 
 ## Layout rules
 
@@ -147,9 +149,9 @@ task requires it.
   errors and uses the shared app bar (the rest timer is the only listed
   exception).
 - Flow tests (`flows_test.dart`) cover multi-step user journeys.
-- Backend tests (`backend_test.dart`) run real SQLite, in memory or in a
-  temp file: persistence across restarts, rollback, audit and derived
-  history.
+- Backend tests (`backend_test.dart`, `strong_import_test.dart`) run real
+  SQLite, in memory or in a temp file: persistence across restarts,
+  rollback, audit, derived history, archive round trip and imports.
 - Geometry tests (`chrome_geometry_test.dart`, `edge_to_edge_test.dart`,
   `collapsing_header_test.dart`, `toast_test.dart`) pin layout contracts.
   When you change the dock, app bar, footers, toasts or insets, update or
