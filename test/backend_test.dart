@@ -50,6 +50,27 @@ void main() {
       expect(second.db.schemaVersion, latestSchemaVersion);
     });
 
+    test('an unreadable file is set aside instead of taking the app down', () {
+      final path = '${directory.path}/broken.sqlite3';
+      File(path).writeAsStringSync('this is not a database');
+
+      final db = AppDatabase.open(path, clock: clock.now);
+      addTearDown(db.close);
+
+      expect(db.schemaVersion, latestSchemaVersion, reason: 'a fresh start');
+      expect(
+        db.recoveredFrom,
+        isNotNull,
+        reason: 'the app can say where the old file went',
+      );
+      expect(File(db.recoveredFrom!).existsSync(), isTrue);
+      expect(
+        File(db.recoveredFrom!).readAsStringSync(),
+        'this is not a database',
+        reason: 'nothing is destroyed on the way',
+      );
+    });
+
     test('a database from a newer app is refused, not rewritten', () {
       final path = '${directory.path}/newer.sqlite3';
       sqlite3.open(path)

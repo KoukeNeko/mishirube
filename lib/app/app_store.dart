@@ -245,6 +245,11 @@ class AppStore extends ChangeNotifier {
     Duration window = const Duration(days: 28),
   }) => _backend.insights.muscleLoad(window: window);
 
+  /// Where the previous database file was moved to when it could not be
+  /// read, or null on a normal start. The app says so rather than
+  /// looking as though the records were never there.
+  String? get recoveredDatabasePath => _backend.db.recoveredFrom;
+
   /// Starred meals, for logging again without going looking.
   List<RecentMeal> get favoriteMeals => _backend.nutrition.favorites();
 

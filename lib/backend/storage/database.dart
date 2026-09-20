@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:sqlite3/sqlite3.dart';
@@ -23,10 +24,47 @@ class AppDatabase {
   }
 
   /// Opens (creating or upgrading) the database file at [path].
+  ///
+  /// A file that cannot be opened or read is not thrown back at the
+  /// user: there is no server to restore from, so a corrupt file is set
+  /// aside under `<path>.corrupt-<timestamp>` and a fresh one is opened
+  /// in its place. [recoveredFrom] says whether that happened, so the
+  /// app can tell the user where their old file went rather than
+  /// pretending it started empty.
   factory AppDatabase.open(String path, {DateTime Function()? clock}) {
+    final now = clock ?? DateTime.now;
+    try {
+      return AppDatabase._(_openFile(path), now);
+    } on StateError {
+      // A newer schema is a different problem: opening a fresh file
+      // would throw away data this app simply cannot read yet.
+      rethrow;
+    } on SqliteException catch (_) {
+      final moved = _setAside(path, now());
+      final db = AppDatabase._(_openFile(path), now);
+      db._recoveredFrom = moved;
+      return db;
+    }
+  }
+
+  static Database _openFile(String path) {
     final db = sqlite3.open(path);
     db.execute('PRAGMA journal_mode = WAL');
-    return AppDatabase._(db, clock ?? DateTime.now);
+    // Reading the schema is what first touches the file's pages, so a
+    // corrupt file fails here rather than at the first user action.
+    db.select('SELECT count(*) FROM sqlite_schema');
+    return db;
+  }
+
+  /// Renames the unreadable file (and its journal) out of the way.
+  static String _setAside(String path, DateTime now) {
+    final stamp = now.toIso8601String().replaceAll(':', '-');
+    final target = '$path.corrupt-$stamp';
+    for (final suffix in ['', '-wal', '-shm']) {
+      final file = File('$path$suffix');
+      if (file.existsSync()) file.renameSync('$target$suffix');
+    }
+    return target;
   }
 
   /// A throwaway database, for tests and previews.
@@ -36,6 +74,12 @@ class AppDatabase {
   final Database _db;
   final DateTime Function() _clock;
   final _random = Random.secure();
+
+  /// Where the previous, unreadable file was moved to; null on a normal
+  /// open.
+  String? _recoveredFrom;
+
+  String? get recoveredFrom => _recoveredFrom;
 
   DateTime now() => _clock();
 

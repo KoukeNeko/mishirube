@@ -56,6 +56,15 @@ class MeScreen extends StatelessWidget {
           ),
         ),
         Gutter(child: const SectionLabel('資料')),
+        if (store.recoveredDatabasePath case final moved?)
+          Gutter(
+            child: InfoBanner(
+              tone: CardTone.warning,
+              message:
+                  '上次的資料檔無法讀取，已移到 $moved，並從空白重新開始。'
+                  '舊檔案沒有被刪除。',
+            ),
+          ),
         Gutter(
           child: GroupedCard(
             children: [
