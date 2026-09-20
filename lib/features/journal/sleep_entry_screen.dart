@@ -53,13 +53,15 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
                 const Text('睡了多久', style: AppTextStyles.caption),
                 const SizedBox(height: AppSpacing.xs),
                 Text(_label(_minutes), style: AppTextStyles.hugeNumber),
-                Slider(
+                const SizedBox(height: AppSpacing.xs),
+                StepSlider(
                   value: _minutes.toDouble(),
                   min: _minMinutes.toDouble(),
                   max: _maxMinutes.toDouble(),
-                  divisions: (_maxMinutes - _minMinutes) ~/ _stepMinutes,
-                  label: _label(_minutes),
-                  activeColor: AppColors.wellness,
+                  step: _stepMinutes.toDouble(),
+                  color: AppColors.wellness,
+                  semanticLabel: '睡了多久',
+                  labelOf: (minutes) => _label(minutes.round()),
                   onChanged: (value) =>
                       setState(() => _minutes = value.round()),
                 ),
