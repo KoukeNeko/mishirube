@@ -26,15 +26,13 @@ Future<void> _editAliases(
         autofocus: true,
         hint: '用、分隔，例如：深蹲、squat',
       ),
-      actions: (dialogContext) => [
-        PrimaryButton(
+      actions: [
+        DialogAction(
           label: '儲存',
-          onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(controller.text),
         ),
-        SecondaryButton(
-          label: '取消',
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
+        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
       ],
     ),
   );

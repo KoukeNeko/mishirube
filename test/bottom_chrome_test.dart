@@ -210,7 +210,7 @@ void main() {
     await _settleFor(tester);
     expect(find.text('結束這次訓練？'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(FilledButton, '結束'));
+    await tester.tap(find.text('結束並儲存'));
     await _settleFor(tester);
     expect(store.activeWorkout, isNull);
     expect(find.text('回到今天'), findsOneWidget);

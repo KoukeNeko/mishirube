@@ -103,8 +103,12 @@ In particular, do not create a parallel version of:
   bare `TextButton`, `IconButton` or `GestureDetector` as a button in a
   feature;
 - dialogs: `AppDialog` shown with `showAppDialog` – the app's own frosted
-  dialog, with stacked full-width actions built from the buttons above.
-  Do not use `AlertDialog`, `showDialog` or Material dialog buttons;
+  dialog. Choices are `DialogAction`s with a `DialogTone`, drawn as rows
+  separated by hairlines, not as buttons: the accent stays on one label
+  instead of a slab of colour. Two labels that fit sit side by side (the
+  way out leading), anything else stacks, and the dialog decides that by
+  measuring, never by counting characters. Do not use `AlertDialog` or
+  `showDialog`;
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 

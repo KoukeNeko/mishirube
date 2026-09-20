@@ -3,7 +3,6 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/activity_detail_screen.dart';
@@ -84,24 +83,24 @@ class _HomeShellState extends State<HomeShell> {
           ActiveWorkout() => '已完成的組數會存成紀錄；放棄則不會算成一次訓練。',
           ActiveActivity() => '結束會存成一筆運動紀錄；放棄則什麼都不留。',
         },
-        actions: (dialogContext) => [
-          PrimaryButton(
-            label: '結束',
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_FinishChoice.finish),
+        actions: [
+          DialogAction(
+            label: '結束並儲存',
+            tone: DialogTone.primary,
+            onTap: () => Navigator.of(context).pop(_FinishChoice.finish),
           ),
-          SecondaryButton(
+          DialogAction(
+            label: switch (session) {
+              ActiveWorkout() => '放棄這次訓練',
+              ActiveActivity() => '放棄這次運動',
+            },
+            tone: DialogTone.destructive,
+            onTap: () => Navigator.of(context).pop(_FinishChoice.discard),
+          ),
+          // The way out goes last, where a stacked Cancel belongs.
+          DialogAction(
             label: '繼續$label',
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(_FinishChoice.keepGoing),
-          ),
-          Center(
-            child: LinkText(
-              label: '放棄',
-              color: AppColors.warning,
-              onTap: () =>
-                  Navigator.of(dialogContext).pop(_FinishChoice.discard),
-            ),
+            onTap: () => Navigator.of(context).pop(_FinishChoice.keepGoing),
           ),
         ],
       ),

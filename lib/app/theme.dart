@@ -31,6 +31,10 @@ abstract final class AppColors {
   static const activitySurface = Color(0xFF0E2427);
   static const activityOutline = Color(0xFF1B4448);
 
+  /// Losing data for good. Amber is a caution; this is the one that says
+  /// something will not come back.
+  static const destructive = Color(0xFFFF453A);
+
   static const warning = Color(0xFFE8B94A);
   static const warningSurface = Color(0xFF2A2412);
   static const warningOutline = Color(0xFF5A4A1E);

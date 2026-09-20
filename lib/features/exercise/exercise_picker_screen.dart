@@ -127,17 +127,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
       context,
       AppDialog(
         title: '放棄已選的 ${_selected.length} 個動作？',
-        actions: (dialogContext) => [
-          SecondaryButton(
-            label: '繼續選擇',
-            onPressed: () => Navigator.of(dialogContext).pop(false),
+        // Not a task and its alternative, but something destructive and
+        // the refusal of it, so neither wears the accent.
+        actions: [
+          DialogAction(
+            label: '放棄已選的動作',
+            tone: DialogTone.destructive,
+            onTap: () => Navigator.of(context).pop(true),
           ),
-          Center(
-            child: LinkText(
-              label: '放棄',
-              color: AppColors.warning,
-              onTap: () => Navigator.of(dialogContext).pop(true),
-            ),
+          DialogAction(
+            label: '繼續選擇',
+            onTap: () => Navigator.of(context).pop(false),
           ),
         ],
       ),

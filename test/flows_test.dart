@@ -414,6 +414,11 @@ void main() {
       reason: 'dialogs wear the app chrome, not Material default',
     );
     expect(find.text('結束這次跑步？'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.text('放棄這次運動')).style?.color,
+      AppColors.destructive,
+      reason: 'losing the session for good is not an amber caution',
+    );
 
     await tester.tap(find.text('繼續跑步'));
     await tester.pumpAndSettle();
@@ -597,7 +602,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('關閉'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('放棄'));
+    await tester.tap(find.text('放棄已選的動作'));
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(store.routine.exercises, hasLength(planned));

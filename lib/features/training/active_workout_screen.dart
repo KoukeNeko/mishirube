@@ -375,15 +375,13 @@ Future<void> _editNotes(BuildContext context) async {
         maxLines: 3,
         hint: '例如：睡不好，握力先到極限',
       ),
-      actions: (dialogContext) => [
-        PrimaryButton(
+      actions: [
+        DialogAction(
           label: '儲存',
-          onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(controller.text),
         ),
-        SecondaryButton(
-          label: '取消',
-          onPressed: () => Navigator.of(dialogContext).pop(),
-        ),
+        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
       ],
     ),
   );

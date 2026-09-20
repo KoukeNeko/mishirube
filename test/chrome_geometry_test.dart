@@ -55,6 +55,7 @@ Future<void> _dragAndSettle(WidgetTester tester, double dy) async {
 }
 
 void main() {
+  _dialogActionLayoutTests();
   final iosOnly = TargetPlatformVariant.only(TargetPlatform.iOS);
 
   group('iOS dock follows Liquid Glass proportions', () {
@@ -455,4 +456,98 @@ void main() {
     expect(haptics, isEmpty, reason: 'back controls feel like the system\'s');
     await disposeTree(tester);
   }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+}
+
+/// The dialog decides its own action layout: two labels that fit sit side
+/// by side, anything else stacks. Counting characters would break on a
+/// longer translation or at a larger text size.
+void _dialogActionLayoutTests() {
+  Future<void> pumpDialog(
+    WidgetTester tester,
+    List<DialogAction> actions, {
+    double textScale = 1,
+  }) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: AppDialog(title: '訓練名稱', actions: actions),
+        ),
+      ),
+      store: store,
+    );
+  }
+
+  List<DialogAction> saveOrCancel() => [
+    DialogAction(label: '儲存', tone: DialogTone.primary, onTap: () {}),
+    DialogAction(label: '取消', onTap: () {}),
+  ];
+
+  testWidgets('two short choices sit side by side, cancel leading', (
+    tester,
+  ) async {
+    await pumpDialog(tester, saveOrCancel());
+
+    final save = tester.getCenter(find.text('儲存'));
+    final cancel = tester.getCenter(find.text('取消'));
+    expect(save.dy, cancel.dy, reason: 'one row, not two');
+    expect(
+      cancel.dx,
+      lessThan(save.dx),
+      reason: 'the way out is leading, what was asked for is trailing',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a pair that no longer fits stacks itself', (tester) async {
+    List<DialogAction> longPair() => [
+      DialogAction(
+        label: '放棄已選的動作',
+        tone: DialogTone.destructive,
+        onTap: () {},
+      ),
+      DialogAction(label: '繼續選擇', onTap: () {}),
+    ];
+
+    await pumpDialog(tester, longPair());
+    expect(
+      tester.getCenter(find.text('放棄已選的動作')).dy,
+      tester.getCenter(find.text('繼續選擇')).dy,
+      reason: 'at the normal text size the pair still fits',
+    );
+    await disposeTree(tester);
+
+    await pumpDialog(tester, longPair(), textScale: 1.6);
+    expect(
+      tester.getCenter(find.text('放棄已選的動作')).dy,
+      isNot(tester.getCenter(find.text('繼續選擇')).dy),
+      reason: 'larger text has to fall back to stacked',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('three choices always stack', (tester) async {
+    await pumpDialog(tester, [
+      DialogAction(label: '結束並儲存', tone: DialogTone.primary, onTap: () {}),
+      DialogAction(label: '放棄這次訓練', tone: DialogTone.destructive, onTap: () {}),
+      DialogAction(label: '繼續訓練', onTap: () {}),
+    ]);
+
+    final rows = [
+      for (final label in ['結束並儲存', '放棄這次訓練', '繼續訓練'])
+        tester.getRect(find.text(label)),
+    ];
+    expect(rows[0].center.dy, lessThan(rows[1].center.dy));
+    expect(rows[1].center.dy, lessThan(rows[2].center.dy));
+    expect(
+      {for (final row in rows) row.left.round()},
+      hasLength(1),
+      reason: 'stacked labels line up with each other',
+    );
+    await disposeTree(tester);
+  });
 }

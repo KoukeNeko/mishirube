@@ -49,16 +49,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       AppDialog(
         title: '訓練名稱',
         content: AppTextField(controller: controller, autofocus: true),
-        actions: (dialogContext) => [
-          PrimaryButton(
+        actions: [
+          DialogAction(
             label: '儲存',
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text.trim()),
+            tone: DialogTone.primary,
+            onTap: () => Navigator.of(context).pop(controller.text.trim()),
           ),
-          SecondaryButton(
-            label: '取消',
-            onPressed: () => Navigator.of(dialogContext).pop(),
-          ),
+          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
         ],
       ),
     );
