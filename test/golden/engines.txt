@@ -4,6 +4,7 @@ trend: 1
 insight: 1
 substitution: 1
 exercise search: 1
+progression: 1
 
 # trends over 28 days
 weight: 7 points, per week -0.35
@@ -34,6 +35,18 @@ back-squat → hack-squat: 同為深蹲模式 / 機械可用 / 換機械，重�
 rdl → kb-swing: 同為髖伸模式 / 壺鈴可用 / 換壺鈴，重量需重新設定
 rdl → hip-thrust: 同為髖伸模式 / 槓鈴可用
 rdl → back-squat: 同樣練臀 / 槓鈴可用
+
+# progression
+back-squat: hold → 95.00 x 5
+  上次只做了 3 組，先把 4 組做滿再加重。
+rdl: increase → 80.00 x 8
+  上次 3 × 8 做滿了 3 × 8，最後一組還留 2 下，可以加 2.5 公斤。
+bulgarian-split-squat: deload → 17.50 x 10
+  連續 2 次沒做到 10 下，先退一階把次數做滿。
+leg-curl: increase → 45.00 x 12
+  上次 3 × 12 做滿了 3 × 12，最後一組還留 2 下，可以加 2.5 公斤。
+standing-calf-raise: deload → 52.50 x 15
+  連續 2 次沒做到 15 下，先退一階把次數做滿。
 
 # search
 深蹲 → back-squat(122), goblet-squat(64), hack-squat(49)

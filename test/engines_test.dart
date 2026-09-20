@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
+import 'package:mishirube/backend/engines/progression_engine.dart';
+import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -590,6 +592,88 @@ void main() {
         SetType.warmup,
         reason: 'the set type survives a restart',
       );
+    });
+  });
+
+  group('progression engine', () {
+    final plan = PlannedExercise(
+      exercise: DemoExercises.backSquat,
+      sets: 3,
+      reps: 5,
+      targetWeightKg: 90,
+      progressionLabel: '維持',
+      rir: 2,
+    );
+    var day = DateTime(2026, 9, 18);
+    ExerciseAttempt attempt({
+      required int reps,
+      int sets = 3,
+      double weightKg = 90,
+      int? rir = 2,
+    }) {
+      day = day.subtract(const Duration(days: 3));
+      return ExerciseAttempt(
+        date: day,
+        weightKg: weightKg,
+        reps: reps,
+        workingSets: sets,
+        rir: rir,
+      );
+    }
+
+    test('nothing to go on means nothing is said', () {
+      expect(suggestProgression(planned: plan, recent: const []), isNull);
+    });
+
+    test('meeting the plan with something in reserve adds a step', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 5)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.increase);
+      expect(suggestion.targetWeightKg, 92.5);
+      expect(suggestion.reason, contains('可以加'));
+    });
+
+    test('meeting it at the limit repeats the weight', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 5, rir: 0)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.hold);
+      expect(suggestion.targetWeightKg, 90);
+    });
+
+    test('fewer sets is not a reason to take weight off', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 5, sets: 2), attempt(reps: 5, sets: 2)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.hold);
+      expect(suggestion.targetWeightKg, 90);
+      expect(suggestion.reason, contains('3 組'));
+    });
+
+    test('missing the reps twice running takes weight off', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 3), attempt(reps: 4)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.deload);
+      expect(suggestion.targetWeightKg, 80, reason: '90 × 0.9, to a plate');
+    });
+
+    test('one bad day is only a bad day', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 3), attempt(reps: 5)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.hold);
     });
   });
 

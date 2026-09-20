@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
+import 'progression_card.dart';
 import 'routine_list_screen.dart';
 import 'workout_summary_screen.dart';
 
@@ -155,6 +156,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               ),
             ),
           ),
+        if (!_isEditing) ProgressionSection(routine: routine),
         Gutter(child: const SectionLabel('最近實際完成')),
         Gutter(
           child: AccentRow(

@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../engines/training_metrics.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
+import '../engines/progression_engine.dart';
 import '../storage/routine_repository.dart';
 import '../storage/workout_repository.dart';
 
@@ -207,6 +208,60 @@ class TrainingService {
     exercises.insert(to, exercises.removeAt(from));
     final updated = routine.copyWith(exercises: exercises);
     _routines.save(updated, action: 'reorder_exercises');
+    return updated;
+  }
+
+  /// What to do with each planned exercise next time, in the plan's own
+  /// order. Exercises with nothing to go on are left out rather than
+  /// given a guess.
+  List<(PlannedExercise, ProgressionSuggestion)> suggestions(Routine routine) {
+    final out = <(PlannedExercise, ProgressionSuggestion)>[];
+    for (final planned in routine.exercises) {
+      final suggestion = suggestProgression(
+        planned: planned,
+        recent: _attempts(planned.exercise.id),
+      );
+      if (suggestion != null) out.add((planned, suggestion));
+    }
+    return out;
+  }
+
+  /// Finished sessions of an exercise, newest first: the best working set
+  /// of each, with how many working sets it took.
+  List<ExerciseAttempt> _attempts(String exerciseId) {
+    final setsByDay = {
+      for (final (date, sets) in _exercises.sessionSetCounts(exerciseId))
+        date: sets,
+    };
+    return [
+      for (final entry in _exercises.history(exerciseId).recent)
+        ExerciseAttempt(
+          date: entry.date,
+          weightKg: entry.weightKg,
+          reps: entry.reps,
+          rir: entry.rir,
+          workingSets: setsByDay[entry.date] ?? 0,
+        ),
+    ];
+  }
+
+  /// Writes a suggestion into the plan. It is the user's decision, so
+  /// nothing is applied until they say so.
+  Routine applySuggestion(
+    Routine routine,
+    PlannedExercise planned,
+    ProgressionSuggestion suggestion,
+  ) {
+    final updated = routine.copyWith(
+      exercises: [
+        for (final item in routine.exercises)
+          if (item.exercise.id == planned.exercise.id)
+            item.copyWith(targetWeightKg: suggestion.targetWeightKg)
+          else
+            item,
+      ],
+    );
+    _routines.save(updated, action: 'apply_progression');
     return updated;
   }
 

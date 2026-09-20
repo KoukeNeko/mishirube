@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
+import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
@@ -54,7 +55,8 @@ String _report(Backend backend) {
     ..writeln('trend: $trendEngineVersion')
     ..writeln('insight: $insightEngineVersion')
     ..writeln('substitution: $substitutionEngineVersion')
-    ..writeln('exercise search: $exerciseSearchVersion');
+    ..writeln('exercise search: $exerciseSearchVersion')
+    ..writeln('progression: $progressionEngineVersion');
 
   final overview = backend.insights.trends();
   buffer
@@ -111,6 +113,21 @@ String _report(Backend backend) {
         '$id → ${option.exercise.id}: ${option.reasons.join(' / ')}',
       );
     }
+  }
+
+  buffer
+    ..writeln()
+    ..writeln('# progression');
+  final routine = backend.training.routine('lower-a', {
+    for (final exercise in backend.catalog.all()) exercise.id: exercise,
+  })!;
+  for (final (planned, suggestion) in backend.training.suggestions(routine)) {
+    buffer
+      ..writeln(
+        '${planned.exercise.id}: ${suggestion.move.name} → '
+        '${_round(suggestion.targetWeightKg)} x ${suggestion.reps}',
+      )
+      ..writeln('  ${suggestion.reason}');
   }
 
   buffer

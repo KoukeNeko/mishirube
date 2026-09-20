@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../backend/application/activity_service.dart';
 import '../backend/application/goal_service.dart';
+import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
@@ -209,6 +210,20 @@ class AppStore extends ChangeNotifier {
   /// Turning the goal off hides it; the records and the trends stay.
   void setGoalEnabled(bool value) {
     _backend.goal.setEnabled(value);
+    notifyListeners();
+  }
+
+  /// What to do with each planned exercise next time, with the reason.
+  /// Nothing is applied until the user accepts it.
+  List<(PlannedExercise, ProgressionSuggestion)> get progressionSuggestions =>
+      _backend.training.suggestions(_routine);
+
+  /// Writes one suggestion into the template.
+  void applySuggestion(
+    PlannedExercise planned,
+    ProgressionSuggestion suggestion,
+  ) {
+    _routine = _backend.training.applySuggestion(_routine, planned, suggestion);
     notifyListeners();
   }
 

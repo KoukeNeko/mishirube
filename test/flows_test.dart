@@ -440,6 +440,43 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a suggestion says why, and only changes the plan if taken', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+
+    await _tapText(tester, '下次的建議');
+    final (planned, suggestion) = store.progressionSuggestions.firstWhere(
+      (entry) => entry.$2.changesWeight,
+    );
+    expect(find.text(suggestion.reason), findsOneWidget, reason: 'the why');
+
+    // Turning one down leaves the plan alone.
+    await _tapText(tester, '維持原本');
+    await tester.pumpAndSettle();
+    expect(
+      store.routine.exercises
+          .firstWhere((item) => item.exercise.id == planned.exercise.id)
+          .targetWeightKg,
+      planned.targetWeightKg,
+    );
+
+    final next = store.progressionSuggestions.firstWhere(
+      (entry) => entry.$2.changesWeight,
+    );
+    await _tapText(tester, '套用');
+    await tester.pumpAndSettle();
+    expect(
+      store.routine.exercises
+          .firstWhere((item) => item.exercise.id == next.$1.exercise.id)
+          .targetWeightKg,
+      next.$2.targetWeightKg,
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a new training template becomes the one to train next', (
     tester,
   ) async {
