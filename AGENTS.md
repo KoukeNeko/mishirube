@@ -107,8 +107,9 @@ In particular, do not create a parallel version of:
   separated by hairlines, not as buttons: the accent stays on one label
   instead of a slab of colour. Two labels that fit sit side by side (the
   way out leading), anything else stacks, and the dialog decides that by
-  measuring, never by counting characters. Do not use `AlertDialog` or
-  `showDialog`;
+  measuring, never by counting characters. A dialog that asks for one
+  line of text is `showTextDialog`, which owns the controller. Do not use
+  `AlertDialog` or `showDialog`;
 - state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
   `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
 

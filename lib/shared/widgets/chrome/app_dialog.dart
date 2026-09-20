@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../haptics.dart';
 import '../../motion.dart';
+import '../controls/inputs.dart';
 import 'chrome_surface.dart';
 
 /// How long the dialog takes to arrive; leaving is quicker, the way the
@@ -290,4 +291,77 @@ class _AppDialogRoute<T> extends RawDialogRoute<T> {
 
   @override
   Duration get reverseTransitionDuration => reverseDuration;
+}
+
+/// Asks for one line of text and returns it, or null when the user
+/// backed out. The field's controller lives as long as the dialog does,
+/// which matters while it animates away.
+Future<String?> showTextDialog(
+  BuildContext context, {
+  required String title,
+  String initial = '',
+  String hint = '',
+  String confirmLabel = '儲存',
+  int maxLines = 1,
+}) {
+  return showAppDialog<String>(
+    context,
+    _TextDialog(
+      title: title,
+      initial: initial,
+      hint: hint,
+      confirmLabel: confirmLabel,
+      maxLines: maxLines,
+    ),
+  );
+}
+
+class _TextDialog extends StatefulWidget {
+  const _TextDialog({
+    required this.title,
+    required this.initial,
+    required this.hint,
+    required this.confirmLabel,
+    required this.maxLines,
+  });
+
+  final String title;
+  final String initial;
+  final String hint;
+  final String confirmLabel;
+  final int maxLines;
+
+  @override
+  State<_TextDialog> createState() => _TextDialogState();
+}
+
+class _TextDialogState extends State<_TextDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppDialog(
+      title: widget.title,
+      content: AppTextField(
+        controller: _controller,
+        autofocus: true,
+        hint: widget.hint,
+        maxLines: widget.maxLines,
+      ),
+      actions: [
+        DialogAction(
+          label: widget.confirmLabel,
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(_controller.text),
+        ),
+        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+      ],
+    );
+  }
 }

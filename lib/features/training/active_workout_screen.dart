@@ -362,30 +362,13 @@ class _SetTypeHeader extends StatelessWidget {
 /// the template.
 Future<void> _editNotes(BuildContext context) async {
   final store = AppStoreScope.read(context);
-  final controller = TextEditingController(
-    text: store.activeWorkout?.notes ?? '',
-  );
-  final notes = await showAppDialog<String>(
+  final notes = await showTextDialog(
     context,
-    AppDialog(
-      title: '這次訓練的備註',
-      content: AppTextField(
-        controller: controller,
-        autofocus: true,
-        maxLines: 3,
-        hint: '例如：睡不好，握力先到極限',
-      ),
-      actions: [
-        DialogAction(
-          label: '儲存',
-          tone: DialogTone.primary,
-          onTap: () => Navigator.of(context).pop(controller.text),
-        ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
-      ],
-    ),
+    title: '這次訓練的備註',
+    initial: store.activeWorkout?.notes ?? '',
+    hint: '例如：睡不好，握力先到極限',
+    maxLines: 3,
   );
-  controller.dispose();
   if (notes == null || !context.mounted) return;
   store.setWorkoutNotes(notes.trim());
   showToast(context, notes.trim().isEmpty ? '已清除備註' : '已存入備註');

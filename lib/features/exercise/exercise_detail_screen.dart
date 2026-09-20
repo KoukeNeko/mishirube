@@ -14,29 +14,12 @@ Future<void> _editAliases(
   ExerciseDefinition exercise,
 ) async {
   final store = AppStoreScope.read(context);
-  final controller = TextEditingController(
-    text: exercise.personalAliases.join('、'),
-  );
-  final entered = await showAppDialog<String>(
+  final entered = await showTextDialog(
     context,
-    AppDialog(
-      title: '我的別名',
-      content: AppTextField(
-        controller: controller,
-        autofocus: true,
-        hint: '用、分隔，例如：深蹲、squat',
-      ),
-      actions: [
-        DialogAction(
-          label: '儲存',
-          tone: DialogTone.primary,
-          onTap: () => Navigator.of(context).pop(controller.text),
-        ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
-      ],
-    ),
+    title: '我的別名',
+    initial: exercise.personalAliases.join('、'),
+    hint: '用、分隔，例如：深蹲、squat',
   );
-  controller.dispose();
   if (entered == null || !context.mounted) return;
   store.setPersonalAliases(exercise, [
     for (final alias in entered.split(RegExp('[、,，]')))
