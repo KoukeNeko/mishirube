@@ -124,6 +124,19 @@ class InsightsService {
     );
   }
 
+  /// Working sets per muscle per week over [window], most trained first.
+  /// Empty until something has been trained; an empty chart says more
+  /// than a row of zeros.
+  List<(MuscleGroup, int)> muscleLoad({
+    Duration window = const Duration(days: 28),
+  }) {
+    final counts = _exercises.setCountsByExercise(_db.now().subtract(window));
+    return weeklySetsByMuscle([
+      for (final (id, sets) in counts)
+        if (_exercises.byId(id) case final exercise?) (exercise, sets),
+    ], weeks: (window.inDays / DateTime.daysPerWeek).ceil());
+  }
+
   /// Volume for one exercise, or for the most trained one when [exerciseId]
   /// is null.
   VolumeReport? volumeReport({

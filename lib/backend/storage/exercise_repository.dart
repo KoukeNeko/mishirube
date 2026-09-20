@@ -112,6 +112,26 @@ class ExerciseRepository {
       (DateTime.fromMillisecondsSinceEpoch(row['started']), row['sets'] as int),
   ];
 
+  /// Working sets done since [since], by exercise: what was trained and
+  /// how much of it, for adding up per muscle.
+  List<(String exerciseId, int sets)> setCountsByExercise(DateTime since) => [
+    for (final row in _db.select(
+      '''
+      SELECT we.exercise_id AS id, COUNT(*) AS sets
+      FROM workouts w
+      JOIN workout_exercises we ON we.workout_id = w.id
+      JOIN workout_sets s
+        ON s.workout_id = w.id AND s.exercise_position = we.position
+      WHERE w.status = 'completed' AND w.deleted_at IS NULL
+        AND s.is_done = 1 AND s.set_type != 'warmup'
+        AND w.started_at >= ?
+      GROUP BY we.exercise_id
+      ''',
+      [since.millisecondsSinceEpoch],
+    ))
+      (row['id'] as String, row['sets'] as int),
+  ];
+
   /// Creates or updates [exercise], bumping its revision on update.
   void save(
     ExerciseDefinition exercise, {

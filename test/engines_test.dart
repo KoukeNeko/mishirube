@@ -593,6 +593,46 @@ void main() {
     });
   });
 
+  group('muscle load', () {
+    ExerciseDefinition of(String id, List<MuscleGroup> primary) =>
+        ExerciseDefinition(
+          id: id,
+          name: id,
+          equipment: Equipment.barbell,
+          primaryMuscles: primary,
+          secondaryMuscles: const [MuscleGroup.core],
+          pattern: MovementPattern.squat,
+          trackingType: TrackingType.weightReps,
+        );
+
+    test('a set counts for each primary muscle, not the secondary ones', () {
+      final load = setsByMuscle([
+        (of('squat', [MuscleGroup.quads, MuscleGroup.glutes]), 6),
+        (of('curl', [MuscleGroup.arms]), 4),
+      ]);
+
+      expect(load, [
+        (MuscleGroup.quads, 6),
+        (MuscleGroup.glutes, 6),
+        (MuscleGroup.arms, 4),
+      ]);
+      expect(
+        load.map((entry) => entry.$1),
+        isNot(contains(MuscleGroup.core)),
+        reason: 'assisting is not the same as being trained',
+      );
+    });
+
+    test('the weekly rate drops muscles that round to nothing', () {
+      final weekly = weeklySetsByMuscle([
+        (of('squat', [MuscleGroup.quads]), 24),
+        (of('calf', [MuscleGroup.calves]), 1),
+      ], weeks: 4);
+
+      expect(weekly, [(MuscleGroup.quads, 6)]);
+    });
+  });
+
   group('streak engine', () {
     // A Sunday, so the week in progress is nearly over.
     final now = DateTime(2026, 9, 20, 10);

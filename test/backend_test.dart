@@ -847,6 +847,50 @@ void main() {
     });
   });
 
+  group('muscle load from records', () {
+    test('the demo history is led by what the routine trains', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      final load = store.muscleLoad();
+      expect(load, isNotEmpty);
+      expect(
+        load.first.$1,
+        isIn([MuscleGroup.quads, MuscleGroup.glutes, MuscleGroup.hamstrings]),
+        reason: 'the demo trains lower body most',
+      );
+      expect(
+        load.every((entry) => entry.$2 > 0),
+        isTrue,
+        reason: 'a muscle with nothing to show is left out, not shown as 0',
+      );
+    });
+
+    test('finishing a workout shows up in the counts', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true)
+        ..startWorkout();
+      addTearDown(store.dispose);
+      final before = {
+        for (final (muscle, sets) in store.muscleLoad()) muscle: sets,
+      };
+
+      for (var i = 0; i < 6; i++) {
+        store.completeNextSet();
+      }
+      clock.advance(const Duration(minutes: 40));
+      store.finishWorkout();
+
+      final after = {
+        for (final (muscle, sets) in store.muscleLoad()) muscle: sets,
+      };
+      expect(
+        after[MuscleGroup.quads],
+        greaterThanOrEqualTo(before[MuscleGroup.quads]!),
+      );
+      expect(after.keys, containsAll(before.keys));
+    });
+  });
+
   group('canonical archive', () {
     test('export → restore into an empty store → export is lossless', () {
       final source = AppStore(clock: clock.now, isOnboarded: true)

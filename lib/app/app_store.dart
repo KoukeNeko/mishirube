@@ -212,6 +212,12 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Working sets per muscle per week, for seeing what is being trained
+  /// and what is being left out.
+  List<(MuscleGroup, int)> muscleLoad({
+    Duration window = const Duration(days: 28),
+  }) => _backend.insights.muscleLoad(window: window);
+
   /// Records for the log; [month] is its first day.
   MonthRecords monthRecords(DateTime month) => _backend.timeline.month(month);
 

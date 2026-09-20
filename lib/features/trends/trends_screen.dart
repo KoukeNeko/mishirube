@@ -9,6 +9,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import 'insight_detail_screen.dart';
+import 'muscle_load_card.dart';
 import 'trends_empty_screen.dart';
 
 enum _TrendRange {
@@ -71,6 +72,16 @@ class _TrendsScreenState extends State<TrendsScreen> {
         Gutter(child: const SectionLabel('摘要')),
         Gutter(
           child: _SummaryGrid(overview: overview, activity: activity),
+        ),
+        Gutter(child: const SectionLabel('肌群訓練量')),
+        Gutter(
+          child: MuscleLoadCard(load: store.muscleLoad(window: _range.window)),
+        ),
+        Gutter(
+          child: const Text(
+            '每週的工作組數，只計動作的主要肌群；熱身組不算。',
+            style: AppTextStyles.caption,
+          ),
         ),
         Gutter(child: const SectionLabel('看得更細')),
         Gutter(

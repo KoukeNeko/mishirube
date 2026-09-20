@@ -59,3 +59,35 @@ WorkoutSet? heaviestSet(Iterable<WorkoutSet> sets) {
   }
   return best;
 }
+
+/// Working sets per muscle group, most trained first. A set counts for
+/// the exercise's primary muscles only: the secondary work is real, but
+/// counting a row as a full set of biceps would flatter the numbers.
+List<(MuscleGroup, int)> setsByMuscle(
+  Iterable<(ExerciseDefinition, int)> setsByExercise,
+) {
+  final totals = <MuscleGroup, int>{};
+  for (final (exercise, sets) in setsByExercise) {
+    for (final muscle in exercise.primaryMuscles) {
+      totals[muscle] = (totals[muscle] ?? 0) + sets;
+    }
+  }
+  return [for (final entry in totals.entries) (entry.key, entry.value)]
+    ..sort((a, b) {
+      final bySets = b.$2.compareTo(a.$2);
+      // A stable order when two muscles tie, so the list does not shuffle.
+      return bySets != 0 ? bySets : a.$1.index.compareTo(b.$1.index);
+    });
+}
+
+/// The same totals as a rate: sets per week over [weeks], which is how
+/// training volume is usually talked about.
+List<(MuscleGroup, int)> weeklySetsByMuscle(
+  Iterable<(ExerciseDefinition, int)> setsByExercise, {
+  required int weeks,
+}) => [
+  for (final (muscle, sets) in setsByMuscle(setsByExercise))
+    if ((sets / (weeks < 1 ? 1 : weeks)).round() case final perWeek
+        when perWeek > 0)
+      (muscle, perWeek),
+];
