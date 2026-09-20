@@ -47,6 +47,18 @@ enum AppModule {
 
 enum HomeTab { today, log, trends, me }
 
+/// Which body the muscle map is drawn on. It is a choice of drawing,
+/// not a statement about the user: the same records are shaded either
+/// way, and nothing else in the app reads it.
+enum MuscleFigure {
+  male('男性'),
+  female('女性');
+
+  const MuscleFigure(this.label);
+
+  final String label;
+}
+
 class AppStore extends ChangeNotifier {
   /// [backend] defaults to a seeded in-memory store (tests, previews); the
   /// app passes the on-device one. A given [isOnboarded] overrides and
@@ -88,6 +100,7 @@ class AppStore extends ChangeNotifier {
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
   static const _selectedRoutineKey = 'selected_routine';
+  static const _muscleFigureKey = 'muscle_figure';
 
   final DateTime Function() _clock;
   final Backend _backend;
@@ -236,6 +249,18 @@ class AppStore extends ChangeNotifier {
     ProgressionSuggestion suggestion,
   ) {
     _routine = _backend.training.applySuggestion(_routine, planned, suggestion);
+    notifyListeners();
+  }
+
+  /// Which body the muscle map draws. Defaults to the male figure only
+  /// because one of the two has to be first.
+  MuscleFigure get muscleFigure => MuscleFigure.values.firstWhere(
+    (figure) => figure.name == _backend.db.setting(_muscleFigureKey),
+    orElse: () => MuscleFigure.male,
+  );
+
+  void setMuscleFigure(MuscleFigure figure) {
+    _backend.db.setSetting(_muscleFigureKey, figure.name);
     notifyListeners();
   }
 

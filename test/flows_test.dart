@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -438,6 +439,35 @@ void main() {
       find.byType(GoalEntryButton).hitTestable(),
       findsOneWidget,
       reason: 'the toolbar shows the week once there is a goal',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the muscle map can be drawn on either body', (tester) async {
+    usePhoneViewport(tester);
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    addTearDown(backend.close);
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+    )..selectTab(HomeTab.trends);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+    expect(
+      store.muscleFigure,
+      MuscleFigure.male,
+      reason: 'one has to be first',
+    );
+
+    await _tapText(tester, MuscleFigure.female.label);
+    await tester.pumpAndSettle();
+
+    expect(store.muscleFigure, MuscleFigure.female);
+    expect(
+      AppStore(clock: FakeClock().now, backend: backend).muscleFigure,
+      MuscleFigure.female,
+      reason: 'the choice of drawing survives a restart',
     );
     await disposeTree(tester);
   });

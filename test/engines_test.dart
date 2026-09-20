@@ -3,7 +3,6 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
-import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';

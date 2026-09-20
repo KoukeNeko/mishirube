@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:path_parsing/path_parsing.dart';
 
+import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import 'muscle_map_paths.dart';
@@ -21,10 +22,17 @@ const muscleMapLegendStops = [0, 5, 10, muscleMapTopOfScale];
 /// take the same colour. The figure never implies a detail the data
 /// does not have.
 class MuscleMap extends StatelessWidget {
-  const MuscleMap({super.key, required this.setsByMuscle});
+  const MuscleMap({
+    super.key,
+    required this.setsByMuscle,
+    required this.figure,
+  });
 
   /// Weekly working sets per muscle; anything missing is nothing logged.
   final Map<MuscleGroup, int> setsByMuscle;
+
+  /// Which body to draw it on; the shading is the same either way.
+  final MuscleFigure figure;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +50,7 @@ class MuscleMap extends StatelessWidget {
                     size: Size.infinite,
                     painter: _FigurePainter(
                       setsByMuscle: setsByMuscle,
+                      figure: figure,
                       isBack: isBack,
                     ),
                   ),
@@ -71,19 +80,21 @@ const _restingMuscle = Color(0xFF2E3331);
 const _bodyFill = Color(0xFF232624);
 
 /// Parsing the same path data on every repaint would be wasted work, so
-/// each figure is built once and kept.
-final _figures = <bool, _Figure>{};
+/// each figure is built once and kept. Only the ones actually drawn are
+/// built, so choosing one body never costs the other.
+final _figures = <(MuscleFigure, bool), _Figure>{};
 
-_Figure _figureFor({required bool isBack}) => _figures.putIfAbsent(
-  isBack,
-  () => _Figure(
-    outline: _parse(isBack ? muscleBackOutline : muscleFrontOutline),
-    muscles: [
-      for (final shape in isBack ? muscleBackShapes : muscleFrontShapes)
-        (shape.group, _parse(shape.path)),
-    ],
-  ),
-);
+_Figure _figureFor(MuscleFigure figure, {required bool isBack}) =>
+    _figures.putIfAbsent(
+      (figure, isBack),
+      () => _Figure(
+        outline: _parse(muscleOutlines[(figure, isBack)]!),
+        muscles: [
+          for (final shape in muscleShapes[(figure, isBack)]!)
+            (shape.group, _parse(shape.path)),
+        ],
+      ),
+    );
 
 class _Figure {
   const _Figure({required this.outline, required this.muscles});
@@ -124,21 +135,26 @@ class _PathBuilder extends PathProxy {
 }
 
 class _FigurePainter extends CustomPainter {
-  const _FigurePainter({required this.setsByMuscle, required this.isBack});
+  const _FigurePainter({
+    required this.setsByMuscle,
+    required this.figure,
+    required this.isBack,
+  });
 
   final Map<MuscleGroup, int> setsByMuscle;
+  final MuscleFigure figure;
   final bool isBack;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final figure = _figureFor(isBack: isBack);
+    final drawing = _figureFor(figure, isBack: isBack);
     final scale = size.height / muscleFigureSize.height;
     canvas.save();
     canvas.translate((size.width - muscleFigureSize.width * scale) / 2, 0);
     canvas.scale(scale);
 
-    canvas.drawPath(figure.outline, Paint()..color = _bodyFill);
-    for (final (group, path) in figure.muscles) {
+    canvas.drawPath(drawing.outline, Paint()..color = _bodyFill);
+    for (final (group, path) in drawing.muscles) {
       canvas.drawPath(
         path,
         Paint()
@@ -154,7 +170,9 @@ class _FigurePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FigurePainter old) =>
-      old.isBack != isBack || !_sameLoad(old.setsByMuscle, setsByMuscle);
+      old.isBack != isBack ||
+      old.figure != figure ||
+      !_sameLoad(old.setsByMuscle, setsByMuscle);
 
   static bool _sameLoad(Map<MuscleGroup, int> a, Map<MuscleGroup, int> b) {
     if (a.length != b.length) return false;

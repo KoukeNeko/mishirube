@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
@@ -22,10 +23,16 @@ class MuscleLoadCard extends StatelessWidget {
       return const InfoBanner(message: '還沒有完成的訓練組數，練過之後這裡會列出各肌群的每週組數。');
     }
     final most = load.first.$2;
+    final store = AppStoreScope.of(context);
     return AppCard(
       child: Column(
         children: [
-          MuscleMap(setsByMuscle: {for (final (m, sets) in load) m: sets}),
+          MuscleMap(
+            setsByMuscle: {for (final (m, sets) in load) m: sets},
+            figure: store.muscleFigure,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          const _FigureChoice(),
           const SizedBox(height: AppSpacing.sm),
           const _Legend(),
           const Divider(height: AppSpacing.xl),
@@ -113,6 +120,32 @@ class _Legend extends StatelessWidget {
           const Text('組 / 週', style: AppTextStyles.caption),
         ],
       ),
+    );
+  }
+}
+
+/// Which body the figure is drawn on. It changes nothing about the
+/// numbers, so it sits with the drawing rather than in settings.
+class _FigureChoice extends StatelessWidget {
+  const _FigureChoice();
+
+  @override
+  Widget build(BuildContext context) {
+    final store = AppStoreScope.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (final figure in MuscleFigure.values) ...[
+          if (figure != MuscleFigure.values.first)
+            const SizedBox(width: AppSpacing.xs),
+          SelectChip(
+            label: figure.label,
+            isSelected: store.muscleFigure == figure,
+            showsSelectionAsOutline: true,
+            onTap: () => store.setMuscleFigure(figure),
+          ),
+        ],
+      ],
     );
   }
 }
