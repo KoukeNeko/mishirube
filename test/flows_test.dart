@@ -46,10 +46,9 @@ Future<void> _enterBeside(
   await tester.pump();
   await tester.enterText(
     find.descendant(
-      of: find.ancestor(
-        of: find.text(beside).first,
-        matching: find.byType(Row),
-      ).first,
+      of: find
+          .ancestor(of: find.text(beside).first, matching: find.byType(Row))
+          .first,
       matching: find.byType(AppTextField),
     ),
     value,
@@ -890,6 +889,30 @@ void main() {
     expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
     expect(store.todayMeals.last.proteinGrams, 47);
     expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the nutrients beyond the label are one tap away', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodEditScreen(), store: store);
+
+    expect(
+      find.text('鈣'),
+      findsNothing,
+      reason: 'a packet has four extra lines, not twenty-three',
+    );
+    await _tapText(tester, '顯示其他營養素');
+    await tester.pumpAndSettle();
+
+    expect(find.text('顯示其他營養素'), findsNothing);
+    await tester.dragUntilVisible(
+      find.text('鈣'),
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    expect(find.text('鈣'), findsOneWidget);
     await disposeTree(tester);
   });
 

@@ -86,9 +86,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late bool _showsEveryNutrient =
       widget.editing?.nutrients.keys.any(_isBeyondLabel) ?? false;
 
-  static bool _isBeyondLabel(Nutrient nutrient) => !_labelNutrients.contains(
-    nutrient,
-  );
+  static bool _isBeyondLabel(Nutrient nutrient) =>
+      !_labelNutrients.contains(nutrient);
 
   static TextEditingController _number(int? value) =>
       TextEditingController(text: value == null ? '' : '$value');
@@ -127,12 +126,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       ? const []
       : AppStoreScope.of(context).sizesOf(widget.editing!.id);
 
-  ConsumptionKind get _kindForUnit =>
-      switch (_servingUnit.dimension) {
-        ServingDimension.volume => ConsumptionKind.beverage,
-        ServingDimension.mass => ConsumptionKind.food,
-        ServingDimension.count => ConsumptionKind.unknown,
-      };
+  ConsumptionKind get _kindForUnit => switch (_servingUnit.dimension) {
+    ServingDimension.volume => ConsumptionKind.beverage,
+    ServingDimension.mass => ConsumptionKind.food,
+    ServingDimension.count => ConsumptionKind.unknown,
+  };
 
   double get _amount => double.tryParse(_servingAmount.text.trim()) ?? 0;
 
@@ -248,7 +246,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
       children: [
         Gutter(child: const SectionLabel('名稱')),
-        Gutter(child: AppTextField(controller: _name, hint: '例如：雞胸肉')),
+        Gutter(
+          child: AppTextField(controller: _name, hint: '例如：雞胸肉'),
+        ),
         if (_isSize) ...[
           Gutter(child: const SectionLabel('杯型')),
           Gutter(
@@ -265,7 +265,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
         ],
         Gutter(child: const SectionLabel('品牌（沒有就留空）')),
-        Gutter(child: AppTextField(controller: _brand, hint: '例如：大成')),
+        Gutter(
+          child: AppTextField(controller: _brand, hint: '例如：大成'),
+        ),
         Gutter(child: const SectionLabel('這是吃的還是喝的')),
         Gutter(
           child: ChipWrap(
@@ -320,7 +322,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ),
         Gutter(child: const SectionLabel('這一份叫什麼（可留空）')),
-        Gutter(child: AppTextField(controller: _serving, hint: '例如：一片')),
+        Gutter(
+          child: AppTextField(controller: _serving, hint: '例如：一片'),
+        ),
         if (!_isSize && widget.editing != null) ...[
           Gutter(child: const SectionLabel('杯型')),
           for (final size in _sizes)
@@ -348,17 +352,31 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ],
         Gutter(child: const SectionLabel('每份營養')),
-        Gutter(child: _NumberField(label: '熱量', unit: 'kcal', field: _kcal)),
-        Gutter(child: _NumberField(label: '蛋白質', unit: 'g', field: _protein)),
-        Gutter(child: _NumberField(label: '碳水', unit: 'g', field: _carb)),
-        Gutter(child: _NumberField(label: '脂肪', unit: 'g', field: _fat)),
-        Gutter(child: _NumberField(label: '膳食纖維', unit: 'g', field: _fibre)),
+        Gutter(
+          child: _NumberField(label: '熱量', unit: 'kcal', field: _kcal),
+        ),
+        Gutter(
+          child: _NumberField(label: '蛋白質', unit: 'g', field: _protein),
+        ),
+        Gutter(
+          child: _NumberField(label: '碳水', unit: 'g', field: _carb),
+        ),
+        Gutter(
+          child: _NumberField(label: '脂肪', unit: 'g', field: _fat),
+        ),
+        Gutter(
+          child: _NumberField(label: '膳食纖維', unit: 'g', field: _fibre),
+        ),
         for (final nutrient in _labelNutrients)
           Gutter(child: _nutrientField(nutrient)),
         if (_showsEveryNutrient)
           for (final nutrient in Nutrient.values)
-            if (_isBeyondLabel(nutrient)) Gutter(child: _nutrientField(nutrient))
-        else
+            if (_isBeyondLabel(nutrient))
+              Gutter(child: _nutrientField(nutrient)),
+        // Separate from the `if` above on purpose: an `else` in a
+        // collection-if binds to the nearest `if`, which put the button
+        // inside the loop and left the collapsed form with no way out.
+        if (!_showsEveryNutrient)
           Gutter(
             child: SecondaryButton(
               label: '顯示其他營養素',
@@ -382,17 +400,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ),
         Gutter(
-          child: Text(
-            switch (_valueType) {
-              NutrientValueType.declared => '包裝或品牌公布的數值，照原樣顯示。',
-              NutrientValueType.max =>
-                '上限，不是這一杯的實際量——台灣連鎖飲料依法標的就是最高值。'
-                    '畫面上會顯示成「≤」。',
-              NutrientValueType.estimate =>
-                '同類東西的大概值，不是這一份的量。畫面上會顯示成「≈」。',
-            },
-            style: AppTextStyles.caption,
-          ),
+          child: Text(switch (_valueType) {
+            NutrientValueType.declared => '包裝或品牌公布的數值，照原樣顯示。',
+            NutrientValueType.max =>
+              '上限，不是這一杯的實際量——台灣連鎖飲料依法標的就是最高值。'
+                  '畫面上會顯示成「≤」。',
+            NutrientValueType.estimate => '同類東西的大概值，不是這一份的量。畫面上會顯示成「≈」。',
+          }, style: AppTextStyles.caption),
         ),
       ],
     );
