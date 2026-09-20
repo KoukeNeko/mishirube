@@ -229,6 +229,15 @@ final List<String> _migrations = [
   ALTER TABLE exercises
     ADD COLUMN personal_aliases TEXT NOT NULL DEFAULT '[]';
   ''',
+  '''
+  -- A session can now be running: it has a start, and its end and length
+  -- are only filled in when it stops. One at a time, like a workout.
+  ALTER TABLE activities ADD COLUMN status TEXT NOT NULL DEFAULT 'finished';
+  ALTER TABLE activities ADD COLUMN paused_at INTEGER;
+  ALTER TABLE activities ADD COLUMN paused_ms INTEGER NOT NULL DEFAULT 0;
+  CREATE UNIQUE INDEX activities_single_active
+    ON activities(status) WHERE status = 'in_progress' AND deleted_at IS NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

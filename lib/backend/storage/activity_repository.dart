@@ -102,9 +102,104 @@ class ActivityRepository {
     });
   }
 
+  /// The session running right now, if any. The partial unique index
+  /// keeps there from being two.
+  LiveActivity? active() {
+    final rows = _db.select(
+      "SELECT * FROM activities WHERE status = 'in_progress' "
+      'AND deleted_at IS NULL LIMIT 1',
+    );
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return LiveActivity(
+      id: row['id']! as String,
+      type: ActivityTypes.byId(row['type']! as String),
+      startedAt: DateTime.fromMillisecondsSinceEpoch(row['started_at']! as int),
+      pausedAt: row['paused_at'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(row['paused_at']! as int),
+      pausedTotal: Duration(milliseconds: row['paused_ms']! as int),
+    );
+  }
+
+  /// Starts timing a session. The end and the length stay at the start
+  /// until it stops, so the row is always readable.
+  void start(LiveActivity live) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO activities (id, type, started_at, ended_at, elapsed_ms, '
+        "note, status, created_at, updated_at) VALUES (?, ?, ?, ?, 0, '', "
+        "'in_progress', ?, ?)",
+        [
+          live.id,
+          live.type.id,
+          live.startedAt.millisecondsSinceEpoch,
+          live.startedAt.millisecondsSinceEpoch,
+          now,
+          now,
+        ],
+      );
+      _db.audit(entityType: 'activity', entityId: live.id, action: 'start');
+    });
+  }
+
+  /// Writes a pause or a resume through, so the clock survives a restart.
+  void savePause(LiveActivity live) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE activities SET paused_at = ?, paused_ms = ?, updated_at = ? '
+        'WHERE id = ?',
+        [
+          live.pausedAt?.millisecondsSinceEpoch,
+          live.pausedTotal.inMilliseconds,
+          now,
+          live.id,
+        ],
+      );
+      _db.audit(
+        entityType: 'activity',
+        entityId: live.id,
+        action: live.isPaused ? 'pause' : 'resume',
+      );
+    });
+  }
+
+  /// Stops the running session and stores it as [finished], which is the
+  /// same row the user has been watching tick.
+  void finish(ActivitySession finished) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        "UPDATE activities SET status = 'finished', type = ?, ended_at = ?, "
+        'elapsed_ms = ?, distance_m = ?, elevation_gain_m = ?, effort = ?, '
+        'note = ?, paused_at = NULL, updated_at = ?, revision = revision + 1 '
+        'WHERE id = ?',
+        [
+          finished.type.id,
+          finished.endedAt.millisecondsSinceEpoch,
+          finished.duration.inMilliseconds,
+          finished.distanceMeters,
+          finished.elevationGainMeters,
+          finished.effort,
+          finished.note,
+          now,
+          finished.id,
+        ],
+      );
+      _db.audit(
+        entityType: 'activity',
+        entityId: finished.id,
+        action: 'finish',
+      );
+    });
+  }
+
   ActivitySession? byId(String id) {
     final rows = _db.select(
-      'SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL',
+      'SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL '
+      "AND status = 'finished'",
       [id],
     );
     return rows.isEmpty ? null : _fromRow(rows.first);
@@ -114,6 +209,7 @@ class ActivityRepository {
   List<ActivitySession> between(DateTime start, DateTime end) => [
     for (final row in _db.select(
       'SELECT * FROM activities WHERE deleted_at IS NULL '
+      "AND status = 'finished' "
       'AND started_at >= ? AND started_at < ? ORDER BY started_at',
       [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
     ))
@@ -124,7 +220,8 @@ class ActivityRepository {
   List<ActivityType> recentTypes({int limit = 3}) => [
     for (final row in _db.select(
       'SELECT type, MAX(started_at) AS last FROM activities '
-      'WHERE deleted_at IS NULL GROUP BY type ORDER BY last DESC LIMIT ?',
+      "WHERE deleted_at IS NULL AND status = 'finished' "
+      'GROUP BY type ORDER BY last DESC LIMIT ?',
       [limit],
     ))
       ActivityTypes.byId(row['type']),
@@ -134,7 +231,8 @@ class ActivityRepository {
   Duration? lastDurationOf(ActivityType type) {
     final rows = _db.select(
       'SELECT elapsed_ms FROM activities WHERE type = ? '
-      'AND deleted_at IS NULL ORDER BY started_at DESC LIMIT 1',
+      "AND deleted_at IS NULL AND status = 'finished' "
+      'ORDER BY started_at DESC LIMIT 1',
       [type.id],
     );
     return rows.isEmpty
@@ -146,7 +244,7 @@ class ActivityRepository {
     final first = _db
         .select(
           'SELECT MIN(started_at) AS first FROM activities '
-          'WHERE deleted_at IS NULL',
+          "WHERE deleted_at IS NULL AND status = 'finished'",
         )
         .first['first'];
     return first == null

@@ -10,5 +10,6 @@ export 'exercise_filter.dart';
 export 'history.dart';
 export 'nutrition.dart';
 export 'records.dart';
+export 'session.dart';
 export 'training.dart';
 export 'wellness.dart';

@@ -192,6 +192,9 @@ const _tables = [
     _Column('elevation_gain_m', _Kind.real, isNullable: true),
     _Column('effort', _Kind.integer, isNullable: true),
     _Column('note', _Kind.text),
+    _Column('status', _Kind.text),
+    _Column('paused_at', _Kind.time, isNullable: true),
+    _Column('paused_ms', _Kind.integer),
     ..._entity,
   ], orderBy: 'id'),
   _Table('sleepEntries', 'sleep_entries', [

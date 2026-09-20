@@ -3,7 +3,10 @@ import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/activity_detail_screen.dart';
+import '../activity/live_activity_screen.dart';
 import '../log/log_screen.dart';
 import '../me/me_screen.dart';
 import '../today/today_screen.dart';
@@ -13,7 +16,7 @@ import '../trends/trends_screen.dart';
 import 'bottom_chrome/app_bottom_chrome.dart';
 import 'bottom_chrome/quick_log_menu.dart';
 
-/// What the user chose in the "finish this workout?" dialog.
+/// What the user chose in the "finish this session?" dialog.
 enum _FinishChoice { keepGoing, discard, finish }
 
 class HomeShell extends StatefulWidget {
@@ -64,17 +67,27 @@ class _HomeShellState extends State<HomeShell> {
     showQuickLogMenu(context, recess: _quickLogProgress);
   }
 
-  Future<void> _confirmFinish(AppStore store) async {
+  void _openSession(ActiveSession session) =>
+      pushPage(context, switch (session) {
+        ActiveWorkout() => const ActiveWorkoutScreen(),
+        ActiveActivity() => const LiveActivityScreen(),
+      });
+
+  Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
+    final label = session.label;
     final choice = await showDialog<_FinishChoice>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('結束這次訓練？'),
-        content: const Text('已完成的組數會存成紀錄；放棄則不會算成一次訓練。'),
+        title: Text('結束這次$label？'),
+        content: Text(switch (session) {
+          ActiveWorkout() => '已完成的組數會存成紀錄；放棄則不會算成一次訓練。',
+          ActiveActivity() => '結束會存成一筆運動紀錄；放棄則什麼都不留。',
+        }),
         actions: [
           TextButton(
             onPressed: () =>
                 Navigator.of(dialogContext).pop(_FinishChoice.keepGoing),
-            child: const Text('繼續訓練'),
+            child: Text('繼續$label'),
           ),
           TextButton(
             onPressed: () =>
@@ -94,11 +107,23 @@ class _HomeShellState extends State<HomeShell> {
       case null || _FinishChoice.keepGoing:
         return;
       case _FinishChoice.discard:
-        store.discardWorkout();
-        showToast(context, '已放棄這次訓練，沒有存成紀錄');
+        switch (session) {
+          case ActiveWorkout():
+            store.discardWorkout();
+          case ActiveActivity():
+            store.discardActivity();
+        }
+        showToast(context, '已放棄這次$label，沒有存成紀錄');
       case _FinishChoice.finish:
-        store.finishWorkout();
-        pushPage(context, const WorkoutSummaryScreen());
+        switch (session) {
+          case ActiveWorkout():
+            store.finishWorkout();
+            pushPage(context, const WorkoutSummaryScreen());
+          case ActiveActivity():
+            final finished = store.finishActivity();
+            if (finished == null) return;
+            pushPage(context, ActivityDetailScreen(activityId: finished.id));
+        }
     }
   }
 
@@ -133,11 +158,17 @@ class _HomeShellState extends State<HomeShell> {
           selected: store.selectedTab,
           onSelect: (tab) => _selectTab(store, tab),
           isMinimized: _isChromeMinimized,
-          workout: store.activeWorkout,
+          session: store.activeSession,
           onQuickLog: _openQuickLog,
-          onOpenWorkout: () => pushPage(context, const ActiveWorkoutScreen()),
+          onOpenSession: () {
+            if (store.activeSession case final session?) _openSession(session);
+          },
           onTogglePause: store.togglePause,
-          onFinishWorkout: () => _confirmFinish(store),
+          onFinish: () {
+            if (store.activeSession case final session?) {
+              _confirmFinish(store, session);
+            }
+          },
           quickLogProgress: _quickLogProgress,
         ),
       ),

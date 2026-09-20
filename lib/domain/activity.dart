@@ -239,3 +239,26 @@ class ActivitySession {
     );
   }
 }
+
+/// Exercise that has started but not finished: it has a clock instead of
+/// a duration, and becomes an [ActivitySession] when it stops.
+class LiveActivity {
+  LiveActivity({
+    required this.id,
+    required this.type,
+    required this.startedAt,
+    this.pausedAt,
+    this.pausedTotal = Duration.zero,
+  });
+
+  final String id;
+  final ActivityType type;
+  final DateTime startedAt;
+  DateTime? pausedAt;
+  Duration pausedTotal;
+
+  bool get isPaused => pausedAt != null;
+
+  Duration elapsedAt(DateTime now) =>
+      (pausedAt ?? now).difference(startedAt) - pausedTotal;
+}

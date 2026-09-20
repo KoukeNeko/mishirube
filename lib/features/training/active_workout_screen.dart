@@ -14,8 +14,13 @@ import 'substitute_exercise_screen.dart';
 import 'workout_summary_screen.dart';
 
 /// Starts (or resumes) today's workout and opens the logging screen.
+/// Says so and stops when exercise is already being timed: the running
+/// session is the user's to end.
 void startWorkoutFlow(BuildContext context) {
-  AppStoreScope.read(context).startWorkout();
+  if (!AppStoreScope.read(context).startWorkout()) {
+    showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
+    return;
+  }
   pushPage(context, const ActiveWorkoutScreen());
 }
 
@@ -217,7 +222,7 @@ class _WorkoutHero extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ElapsedClock(
-            workout: workout,
+            session: ActiveWorkout(workout),
             // One line that shrinks to fit, even at large text sizes.
             builder: (_, elapsed) => FittedBox(
               fit: BoxFit.scaleDown,
@@ -269,7 +274,7 @@ class _LiveTitle extends StatelessWidget {
     final position =
         '${workout.currentExerciseIndex + 1}/${workout.exercises.length}';
     return ElapsedClock(
-      workout: workout,
+      session: ActiveWorkout(workout),
       builder: (_, elapsed) => Text(
         '$elapsed · ${workout.currentExercise.exercise.name} $position',
         maxLines: 1,

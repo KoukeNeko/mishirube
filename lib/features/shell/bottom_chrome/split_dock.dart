@@ -45,18 +45,18 @@ class SplitDock extends StatelessWidget {
     required this.selected,
     required this.onSelect,
     required this.isMinimized,
-    required this.workout,
+    required this.session,
     required this.onQuickLog,
-    required this.onOpenWorkout,
+    required this.onOpenSession,
     required this.quickLogProgress,
   });
 
   final HomeTab selected;
   final ValueChanged<HomeTab> onSelect;
   final bool isMinimized;
-  final WorkoutSession? workout;
+  final ActiveSession? session;
   final VoidCallback onQuickLog;
-  final VoidCallback onOpenWorkout;
+  final VoidCallback onOpenSession;
 
   /// Open progress of the quick-log menu, whose × stands in for「+」.
   final Animation<double> quickLogProgress;
@@ -66,7 +66,7 @@ class SplitDock extends StatelessWidget {
     final duration = chromeDuration(context, ChromeMetrics.morphDuration);
     final metrics = DockMetrics.of(context);
     final height = metrics.heightFor(isMinimized: isMinimized);
-    final showTimer = isMinimized && workout != null;
+    final showTimer = isMinimized && session != null;
     return AnimatedContainer(
       duration: duration,
       curve: ChromeMetrics.morphCurve,
@@ -102,9 +102,9 @@ class SplitDock extends StatelessWidget {
             child: _CenterAction(
               size: height,
               metrics: metrics,
-              workout: showTimer ? workout : null,
+              session: showTimer ? session : null,
               onQuickLog: onQuickLog,
-              onOpenWorkout: onOpenWorkout,
+              onOpenSession: onOpenSession,
             ),
           ),
         ],
@@ -545,32 +545,34 @@ class _CenterAction extends StatelessWidget {
   const _CenterAction({
     required this.size,
     required this.metrics,
-    required this.workout,
+    required this.session,
     required this.onQuickLog,
-    required this.onOpenWorkout,
+    required this.onOpenSession,
   });
 
   final double size;
   final DockMetrics metrics;
 
   /// Non-null only when the centre should show the running workout timer.
-  final WorkoutSession? workout;
+  final ActiveSession? session;
   final VoidCallback onQuickLog;
-  final VoidCallback onOpenWorkout;
+  final VoidCallback onOpenSession;
 
   @override
   Widget build(BuildContext context) {
     final duration = chromeDuration(context, ChromeMetrics.morphDuration);
-    final session = workout;
+    final running = session;
     void activate() {
       // The primary action gets a firmer tap than tab selection.
       AppHaptics.tap();
-      session == null ? onQuickLog() : onOpenWorkout();
+      running == null ? onQuickLog() : onOpenSession();
     }
 
     return Semantics(
       button: true,
-      label: session == null ? '新增紀錄' : '訓練進行中，回到訓練',
+      label: running == null
+          ? '新增紀錄'
+          : '${running.label}進行中，回到${running.label}',
       onTap: activate,
       excludeSemantics: true,
       child: PressScale(
@@ -578,7 +580,7 @@ class _CenterAction extends StatelessWidget {
         child: AnimatedContainer(
           duration: duration,
           curve: ChromeMetrics.morphCurve,
-          width: session == null ? size : ChromeMetrics.timerCapsuleWidth,
+          width: running == null ? size : ChromeMetrics.timerCapsuleWidth,
           height: size,
           child: CenterActionSurface(
             child: GestureDetector(
@@ -587,7 +589,7 @@ class _CenterAction extends StatelessWidget {
               onTap: activate,
               child: AnimatedSwitcher(
                 duration: duration,
-                child: session == null
+                child: running == null
                     ? Icon(
                         Icons.add,
                         key: const ValueKey('plus'),
@@ -596,7 +598,7 @@ class _CenterAction extends StatelessWidget {
                       )
                     : _TimerLabel(
                         key: const ValueKey('timer'),
-                        workout: session,
+                        session: running,
                       ),
               ),
             ),
@@ -632,9 +634,9 @@ class CenterActionSurface extends StatelessWidget {
 }
 
 class _TimerLabel extends StatelessWidget {
-  const _TimerLabel({super.key, required this.workout});
+  const _TimerLabel({super.key, required this.session});
 
-  final WorkoutSession workout;
+  final ActiveSession session;
 
   @override
   Widget build(BuildContext context) {
@@ -645,13 +647,13 @@ class _TimerLabel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              workout.isPaused ? Icons.pause : Icons.circle,
-              size: workout.isPaused ? 16 : 10,
+              session.isPaused ? Icons.pause : Icons.circle,
+              size: session.isPaused ? 16 : 10,
               color: CenterActionSurface.foreground,
             ),
             const SizedBox(width: AppSpacing.xs),
             ElapsedClock(
-              workout: workout,
+              session: session,
               builder: (_, elapsed) => Text(
                 elapsed,
                 style: AppTextStyles.buttonLabel.copyWith(

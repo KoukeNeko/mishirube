@@ -142,7 +142,7 @@ class _RestHeader extends StatelessWidget {
             child: session == null
                 ? const SizedBox.shrink()
                 : ElapsedClock(
-                    workout: session,
+                    session: ActiveWorkout(session),
                     builder: (_, elapsed) => Text(
                       '${session.routineName} · $elapsed',
                       style: AppTextStyles.caption.copyWith(

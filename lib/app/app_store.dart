@@ -68,7 +68,14 @@ class AppStore extends ChangeNotifier {
     }
     _reloadExercises();
     _routine = _backend.training.routine(_mainRoutineId, _exercisesById)!;
-    _activeWorkout = _backend.training.active();
+    _session = switch ((
+      _backend.training.active(),
+      _backend.activity.active(),
+    )) {
+      (final WorkoutSession workout, _) => ActiveWorkout(workout),
+      (_, final LiveActivity live) => ActiveActivity(live),
+      _ => null,
+    };
     _lastFinishedWorkout = _backend.training.lastFinished();
     _todayMeals.addAll(_backend.nutrition.mealsOn(now()));
   }
@@ -97,7 +104,7 @@ class AppStore extends ChangeNotifier {
   };
   DayPhase _phase = DayPhase.morning;
   late Routine _routine;
-  WorkoutSession? _activeWorkout;
+  ActiveSession? _session;
   WorkoutSession? _lastFinishedWorkout;
   final List<MealEvent> _todayMeals = [];
   List<ExerciseDefinition> _exercises = const [];
@@ -121,7 +128,19 @@ class AppStore extends ChangeNotifier {
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
   DayPhase get phase => _phase;
   Routine get routine => _routine;
-  WorkoutSession? get activeWorkout => _activeWorkout;
+
+  /// Whatever is running, of whatever kind; null when nothing is.
+  ActiveSession? get activeSession => _session;
+
+  WorkoutSession? get activeWorkout => switch (_session) {
+    ActiveWorkout(:final workout) => workout,
+    _ => null,
+  };
+
+  LiveActivity? get activeActivity => switch (_session) {
+    ActiveActivity(:final activity) => activity,
+    _ => null,
+  };
   WorkoutSession? get lastFinishedWorkout => _lastFinishedWorkout;
   List<MealEvent> get todayMeals => List.unmodifiable(_todayMeals);
   bool get hasSyncConflict => _hasSyncConflict;
@@ -204,14 +223,20 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void startWorkout() {
-    _activeWorkout ??= _backend.training.start(_routine);
+  /// Starts (or picks up) today's workout. Refuses while exercise is
+  /// being timed: ending someone's run for them is not ours to do.
+  bool startWorkout() {
+    if (_session case ActiveActivity()) return false;
+    _session = ActiveWorkout(
+      activeWorkout ?? _backend.training.start(_routine),
+    );
     notifyListeners();
+    return true;
   }
 
   /// Marks the next pending set of the current exercise as done.
   WorkoutSet? completeNextSet() {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return null;
     final completed = _backend.training.completeNextSet(workout);
     if (completed != null) notifyListeners();
@@ -220,7 +245,7 @@ class AppStore extends ChangeNotifier {
 
   /// Saves a note on the running workout.
   void setWorkoutNotes(String notes) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.setNotes(workout, notes);
     notifyListeners();
@@ -228,7 +253,7 @@ class AppStore extends ChangeNotifier {
 
   /// Adds one more set of [type] to the exercise being done.
   WorkoutSet? addSet(SetType type) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return null;
     final set = _backend.training.addSet(workout, type);
     notifyListeners();
@@ -236,14 +261,14 @@ class AppStore extends ChangeNotifier {
   }
 
   void toggleSet(int setIndex) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.toggleSet(workout, setIndex);
     notifyListeners();
   }
 
   void selectExercise(int index) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.selectExercise(workout, index);
     notifyListeners();
@@ -252,7 +277,7 @@ class AppStore extends ChangeNotifier {
   /// Adds [exercises] to the running workout, or to the template when no
   /// workout is running.
   void addExercises(List<ExerciseDefinition> exercises) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout != null) {
       _backend.training.addExercises(workout, exercises);
     } else {
@@ -332,35 +357,41 @@ class AppStore extends ChangeNotifier {
   }
 
   void replaceCurrentExercise(ExerciseDefinition replacement) {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.replaceCurrentExercise(workout, replacement);
     notifyListeners();
   }
 
+  /// Pauses whatever is running, or picks it up again.
   void togglePause() {
-    final workout = _activeWorkout;
-    if (workout == null) return;
-    _backend.training.togglePause(workout);
+    switch (_session) {
+      case ActiveWorkout(:final workout):
+        _backend.training.togglePause(workout);
+      case ActiveActivity(:final activity):
+        _backend.activity.togglePause(activity);
+      case null:
+        return;
+    }
     notifyListeners();
   }
 
   /// Abandons the running workout. Logged sets stay in the audit trail
   /// but the workout does not count as training done.
   void discardWorkout() {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.discard(workout);
-    _activeWorkout = null;
+    _session = null;
     notifyListeners();
   }
 
   void finishWorkout() {
-    final workout = _activeWorkout;
+    final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.finish(workout);
     _lastFinishedWorkout = workout;
-    _activeWorkout = null;
+    _session = null;
     _phase = DayPhase.evening;
     _ensureLunchLogged();
     _routine = _backend.training.routine(_routine.id, _exercisesById)!;
@@ -496,6 +527,45 @@ class AppStore extends ChangeNotifier {
     );
     notifyListeners();
     return activity;
+  }
+
+  /// Starts timing [type] from now. Refuses while a workout is running,
+  /// rather than quietly ending it.
+  bool startActivity(ActivityType type) {
+    if (_session != null) return false;
+    _session = ActiveActivity(_backend.activity.start(type));
+    notifyListeners();
+    return true;
+  }
+
+  /// Stops the running session and keeps it as a record.
+  ActivitySession? finishActivity({
+    double? distanceMeters,
+    double? elevationGainMeters,
+    int? effort,
+    String note = '',
+  }) {
+    final live = activeActivity;
+    if (live == null) return null;
+    final finished = _backend.activity.finish(
+      live,
+      distanceMeters: distanceMeters,
+      elevationGainMeters: elevationGainMeters,
+      effort: effort,
+      note: note,
+    );
+    _session = null;
+    notifyListeners();
+    return finished;
+  }
+
+  /// Throws the running session away without counting it.
+  void discardActivity() {
+    final live = activeActivity;
+    if (live == null) return;
+    _backend.activity.discard(live);
+    _session = null;
+    notifyListeners();
   }
 
   /// A logged session, or null once it has been removed.

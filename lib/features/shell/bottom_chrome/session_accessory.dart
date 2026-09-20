@@ -7,58 +7,65 @@ import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
 import '../../../shared/haptics.dart';
 
-/// Persistent bar above the dock while a workout runs, so the other tabs
-/// stay reachable mid-session.
-class WorkoutAccessory extends StatelessWidget {
-  const WorkoutAccessory({
+/// Persistent bar above the dock while a session runs, whichever kind it
+/// is, so the other tabs stay reachable meanwhile.
+class SessionAccessory extends StatelessWidget {
+  const SessionAccessory({
     super.key,
-    required this.workout,
+    required this.session,
     required this.onTogglePause,
     required this.onOpen,
     required this.onFinish,
   });
 
-  final WorkoutSession workout;
+  final ActiveSession session;
   final VoidCallback onTogglePause;
   final VoidCallback onOpen;
   final VoidCallback onFinish;
 
   @override
   Widget build(BuildContext context) {
-    final isPaused = workout.isPaused;
+    final isPaused = session.isPaused;
+    final label = session.label;
     return SizedBox(
       height: ChromeMetrics.accessoryHeight,
       child: ChromeSurface(
-        tint: AppColors.trainingSurface,
-        borderColor: AppColors.trainingOutline,
+        tint: switch (session.category) {
+          RecordCategory.activity => AppColors.activitySurface,
+          _ => AppColors.trainingSurface,
+        },
+        borderColor: switch (session.category) {
+          RecordCategory.activity => AppColors.activityOutline,
+          _ => AppColors.trainingOutline,
+        },
         child: Row(
           children: [
             _AccessoryIcon(
               icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-              tooltip: isPaused ? '繼續訓練' : '暫停訓練',
+              tooltip: isPaused ? '繼續$label' : '暫停$label',
               onTap: onTogglePause,
             ),
             Expanded(
               child: Semantics(
                 button: true,
-                label: isPaused ? '訓練已暫停，回到訓練' : '訓練進行中，回到訓練',
+                label: isPaused ? '$label已暫停，回到$label' : '$label進行中，回到$label',
                 // Excluding the child's semantics drops its tap too.
                 onTap: onOpen,
                 excludeSemantics: true,
                 child: InkWell(
-                  key: const ValueKey('workout-accessory-open'),
+                  key: const ValueKey('session-accessory-open'),
                   onTap: () {
                     AppHaptics.tap();
                     onOpen();
                   },
                   customBorder: const StadiumBorder(),
-                  child: SizedBox.expand(child: _Status(workout: workout)),
+                  child: SizedBox.expand(child: _Status(session: session)),
                 ),
               ),
             ),
             _AccessoryIcon(
               icon: Icons.stop_rounded,
-              tooltip: '結束訓練',
+              tooltip: '結束$label',
               onTap: onFinish,
             ),
           ],
@@ -69,13 +76,17 @@ class WorkoutAccessory extends StatelessWidget {
 }
 
 class _Status extends StatelessWidget {
-  const _Status({required this.workout});
+  const _Status({required this.session});
 
-  final WorkoutSession workout;
+  final ActiveSession session;
 
   @override
   Widget build(BuildContext context) {
-    final color = workout.isPaused ? AppColors.warning : AppColors.training;
+    final color = switch (session) {
+      _ when session.isPaused => AppColors.warning,
+      ActiveActivity() => AppColors.activity,
+      ActiveWorkout() => AppColors.training,
+    };
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -87,9 +98,9 @@ class _Status extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Flexible(
           child: ElapsedClock(
-            workout: workout,
+            session: session,
             builder: (_, elapsed) => Text(
-              '${workout.isPaused ? '已暫停' : '訓練進行中'} · $elapsed',
+              '${session.isPaused ? '已暫停' : '${session.label}進行中'} · $elapsed',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.itemTitle.copyWith(

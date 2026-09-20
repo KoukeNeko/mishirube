@@ -8,11 +8,11 @@ import '../../format.dart';
 
 const _tickInterval = Duration(seconds: 1);
 
-/// Rebuilds every second with the active time of [workout].
+/// Rebuilds every second with the active time of [session].
 class ElapsedClock extends StatefulWidget {
-  const ElapsedClock({super.key, required this.workout, required this.builder});
+  const ElapsedClock({super.key, required this.session, required this.builder});
 
-  final WorkoutSession workout;
+  final ActiveSession session;
   final Widget Function(BuildContext context, String label) builder;
 
   @override
@@ -37,6 +37,6 @@ class _ElapsedClockState extends State<ElapsedClock> {
   @override
   Widget build(BuildContext context) {
     final now = AppStoreScope.read(context).now();
-    return widget.builder(context, formatClock(widget.workout.elapsedAt(now)));
+    return widget.builder(context, formatClock(widget.session.elapsedAt(now)));
   }
 }

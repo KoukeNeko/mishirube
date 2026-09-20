@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
@@ -34,7 +35,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
                   ),
                 ),
                 ElapsedClock(
-                  workout: workout,
+                  session: ActiveWorkout(workout),
                   builder: (_, elapsed) => Text(
                     elapsed,
                     style: AppTextStyles.hugeNumber.copyWith(

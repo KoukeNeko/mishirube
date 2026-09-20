@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'activity_type_picker.dart';
+import 'live_activity_screen.dart';
 
 /// Round numbers cover most of what people log after the fact.
 const _durationShortcuts = [15, 30, 45, 60];
@@ -99,6 +100,15 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       if (!type.tracksDistance) _distance.clear();
       if (!type.tracksElevation) _elevation.clear();
     });
+  }
+
+  void _startNow() {
+    final store = AppStoreScope.read(context);
+    if (!store.startActivity(_type)) {
+      showToast(context, '訓練進行中，先結束訓練才能開始運動', kind: ToastKind.warning);
+      return;
+    }
+    replaceWithPage(context, const LiveActivityScreen());
   }
 
   Future<void> _pickStart() async {
@@ -216,6 +226,16 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                 leading: Icon(_type.icon, color: AppColors.activity),
                 onTap: _pickType,
               ),
+              if (widget.activity == null)
+                NavRow(
+                  title: '現在開始計時',
+                  subtitle: '邊做邊計時，距離與強度結束後再補',
+                  leading: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: AppColors.activity,
+                  ),
+                  onTap: _startNow,
+                ),
               NavRow(
                 title: '開始時間',
                 subtitle:

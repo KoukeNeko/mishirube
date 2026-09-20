@@ -28,6 +28,8 @@ abstract final class AppColors {
   /// General exercise: far enough from the training green to tell a run
   /// from a workout at a glance.
   static const activity = Color(0xFF3FD0D6);
+  static const activitySurface = Color(0xFF0E2427);
+  static const activityOutline = Color(0xFF1B4448);
 
   static const warning = Color(0xFFE8B94A);
   static const warningSurface = Color(0xFF2A2412);

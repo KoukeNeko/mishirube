@@ -4,6 +4,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/activity/activity_detail_screen.dart';
 import 'package:mishirube/features/activity/activity_type_picker.dart';
+import 'package:mishirube/features/activity/live_activity_screen.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
@@ -98,6 +99,10 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     (store) =>
         RecordActivityScreen(activity: store.activitiesOn(store.now()).last),
     _withActivity,
+  ),
+  'live activity': (
+    (_) => const LiveActivityScreen(),
+    (store) => store.startActivity(ActivityTypes.running),
   ),
   'activity detail': (
     (store) => ActivityDetailScreen(

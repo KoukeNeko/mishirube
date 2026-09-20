@@ -427,6 +427,77 @@ void main() {
       );
     });
 
+    test('a timed session survives a restart and stops into a record', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      expect(store.startActivity(ActivityTypes.running), isTrue);
+      clock.advance(const Duration(minutes: 10));
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.activeSession, isA<ActiveActivity>());
+      expect(reopened.activeActivity!.type, ActivityTypes.running);
+      expect(
+        reopened.activeActivity!.elapsedAt(clock.now()),
+        const Duration(minutes: 10),
+        reason: 'the clock runs from the start that was stored',
+      );
+
+      reopened.togglePause();
+      clock.advance(const Duration(minutes: 5));
+      reopened.togglePause();
+      clock.advance(const Duration(minutes: 2));
+      final finished = reopened.finishActivity()!;
+
+      expect(finished.duration, const Duration(minutes: 12));
+      expect(reopened.activeSession, isNull);
+      expect(
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).activityById(finished.id)?.duration,
+        const Duration(minutes: 12),
+        reason: 'the paused five minutes are not exercise',
+      );
+    });
+
+    test('a discarded session leaves no record behind', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final before = store.activitySummary().sessions;
+
+      store.startActivity(ActivityTypes.swimming);
+      clock.advance(const Duration(minutes: 20));
+      store.discardActivity();
+
+      expect(store.activeSession, isNull);
+      expect(store.activitySummary().sessions, before);
+      expect(store.startActivity(ActivityTypes.swimming), isTrue);
+    });
+
+    test('one session at a time, and neither ends the other', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      store.startActivity(ActivityTypes.running);
+      expect(store.startWorkout(), isFalse);
+      expect(
+        store.activeSession,
+        isA<ActiveActivity>(),
+        reason: 'the refused start left the run alone',
+      );
+      expect(store.activeWorkout, isNull);
+
+      store.finishActivity();
+      expect(store.startWorkout(), isTrue);
+      expect(store.startActivity(ActivityTypes.cycling), isFalse);
+      expect(store.activeSession, isA<ActiveWorkout>());
+    });
+
     test('exercise is counted apart from training', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

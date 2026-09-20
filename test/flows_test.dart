@@ -355,6 +355,48 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('timing a session keeps the rest of the app reachable', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.bySemanticsLabel('新增紀錄'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('運動'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('現在開始計時'));
+    await tester.pumpAndSettle();
+
+    clock.advance(const Duration(minutes: 3));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('3:00'), findsWidgets, reason: 'the clock is running');
+
+    // Back on the shell, the accessory says what is running.
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pumpAndSettle();
+    // The form opened on the type used last, so that is what is running.
+    expect(find.textContaining('騎自行車進行中'), findsOneWidget);
+
+    // Training must not quietly take over the running session.
+    store.selectTab(HomeTab.today);
+    await tester.pumpAndSettle();
+    await _tapText(tester, '開始訓練');
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(store.activeSession, isA<ActiveActivity>());
+    expect(find.textContaining('先結束運動'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('the form asks only what the type can measure', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

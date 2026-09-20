@@ -75,6 +75,58 @@ class ActivityService {
     return activity;
   }
 
+  /// The session being timed right now, if any.
+  LiveActivity? active() => _activities.active();
+
+  /// Starts timing [type] from now.
+  LiveActivity start(ActivityType type) {
+    final live = LiveActivity(
+      id: _db.newId(),
+      type: type,
+      startedAt: _db.now(),
+    );
+    _activities.start(live);
+    return live;
+  }
+
+  /// Pauses a running session, or picks it up again.
+  void togglePause(LiveActivity live) {
+    if (live.pausedAt case final pausedAt?) {
+      live.pausedTotal += _db.now().difference(pausedAt);
+      live.pausedAt = null;
+    } else {
+      live.pausedAt = _db.now();
+    }
+    _activities.savePause(live);
+  }
+
+  /// Stops [live] and keeps it as a record of what was done. The length
+  /// is the time it actually ran, so a pause does not count.
+  ActivitySession finish(
+    LiveActivity live, {
+    double? distanceMeters,
+    double? elevationGainMeters,
+    int? effort,
+    String note = '',
+  }) {
+    final finished = ActivitySession(
+      id: live.id,
+      type: live.type,
+      startedAt: live.startedAt,
+      duration: live.elapsedAt(_db.now()),
+      distanceMeters: distanceMeters,
+      elevationGainMeters: elevationGainMeters,
+      effort: effort,
+      note: note,
+    );
+    _activities.finish(finished);
+    return finished;
+  }
+
+  /// Throws the running session away; nothing is counted, and the row is
+  /// tombstoned rather than removed.
+  void discard(LiveActivity live) => _activities.remove(live.id);
+
   ActivitySession? byId(String id) => _activities.byId(id);
 
   /// Saves a correction to a session that was already logged.
