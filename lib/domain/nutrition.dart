@@ -33,13 +33,13 @@ class MealEvent {
     required this.id,
     required this.name,
     required this.timeLabel,
-    required this.kcal,
     required this.qualityTag,
     required this.dishes,
-    required this.proteinGrams,
-    required this.carbGrams,
-    required this.fatGrams,
-    this.fibreGrams = 0,
+    this.kcal,
+    this.proteinGrams,
+    this.carbGrams,
+    this.fatGrams,
+    this.fibreGrams,
     this.isEstimated = false,
     this.isFavorite = false,
     this.nutrients = const {},
@@ -51,16 +51,20 @@ class MealEvent {
 
   /// Some amount in the meal is a guess, so its totals read as `~`.
   final bool isEstimated;
-  final int kcal;
+
+  /// What was eaten, where it is known. Null is not zero: a meal logged
+  /// from a food whose label was never read has no calorie figure, and
+  /// the day's total has to say so rather than quietly add nothing.
+  final int? kcal;
   final String qualityTag;
   final List<DishEntry> dishes;
-  final int proteinGrams;
-  final int carbGrams;
-  final int fatGrams;
+  final int? proteinGrams;
+  final int? carbGrams;
+  final int? fatGrams;
 
   /// Fibre, which is part of the carbohydrate already counted above and
   /// is tracked separately because it is what people actually watch.
-  final int fibreGrams;
+  final int? fibreGrams;
 
   /// Starred to log again without going looking for it.
   final bool isFavorite;
@@ -127,12 +131,12 @@ class FoodItem {
   const FoodItem({
     required this.id,
     required this.name,
-    required this.kcal,
-    required this.proteinGrams,
-    required this.carbGrams,
-    required this.fatGrams,
+    this.kcal,
+    this.proteinGrams,
+    this.carbGrams,
+    this.fatGrams,
+    this.fibreGrams,
     this.brand = '',
-    this.fibreGrams = 0,
     this.servingLabel = '',
     this.servingAmount = 1,
     this.servingUnit = ServingUnit.serving,
@@ -163,14 +167,16 @@ class FoodItem {
     return servingUnit.isMeasured ? '$servingLabel · $measured' : servingLabel;
   }
 
-  /// Per serving, as the user entered them.
-  final int kcal;
-  final int proteinGrams;
-  final int carbGrams;
-  final int fatGrams;
+  /// Per serving, as the user entered them. Null is a figure nobody
+  /// wrote down — a food whose label was never read is not a food with
+  /// no calories in it.
+  final int? kcal;
+  final int? proteinGrams;
+  final int? carbGrams;
+  final int? fatGrams;
 
   /// Fibre, part of the carbohydrate above; see [MealEvent.fibreGrams].
-  final int fibreGrams;
+  final int? fibreGrams;
 
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;

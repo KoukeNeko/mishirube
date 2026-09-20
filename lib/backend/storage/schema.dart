@@ -326,6 +326,55 @@ final List<String> _migrations = [
     PRIMARY KEY (meal_id, nutrient)
   );
   ''',
+  '''
+  -- The five figures every record carries become optional. A food whose
+  -- label was never read has no calorie figure, and storing that as 0
+  -- was the app inventing a number nobody wrote down. SQLite cannot drop
+  -- NOT NULL in place, so both tables are rebuilt.
+  CREATE TABLE foods_new (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    brand TEXT NOT NULL DEFAULT '',
+    serving_label TEXT NOT NULL,
+    serving_amount REAL NOT NULL DEFAULT 1,
+    serving_unit TEXT NOT NULL DEFAULT 'serving',
+    kcal INTEGER,
+    protein_g INTEGER,
+    carb_g INTEGER,
+    fat_g INTEGER,
+    fibre_g INTEGER,
+    $_entityColumns
+  );
+  INSERT INTO foods_new SELECT id, name, brand, serving_label,
+    serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, fibre_g,
+    created_at, updated_at, deleted_at, revision, source, import_batch_id
+    FROM foods;
+  DROP TABLE foods;
+  ALTER TABLE foods_new RENAME TO foods;
+  CREATE INDEX foods_name ON foods(name);
+
+  CREATE TABLE meals_new (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    eaten_at INTEGER NOT NULL,
+    kcal INTEGER,
+    protein_g INTEGER,
+    carb_g INTEGER,
+    fat_g INTEGER,
+    fibre_g INTEGER,
+    quality_tag TEXT NOT NULL,
+    is_estimated INTEGER NOT NULL DEFAULT 0,
+    is_favorite INTEGER NOT NULL DEFAULT 0,
+    $_entityColumns
+  );
+  INSERT INTO meals_new SELECT id, name, eaten_at, kcal, protein_g, carb_g,
+    fat_g, fibre_g, quality_tag, is_estimated, is_favorite,
+    created_at, updated_at, deleted_at, revision, source, import_batch_id
+    FROM meals;
+  DROP TABLE meals;
+  ALTER TABLE meals_new RENAME TO meals;
+  CREATE INDEX meals_eaten ON meals(eaten_at);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

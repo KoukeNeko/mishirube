@@ -127,10 +127,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     return nutrients;
   }
 
-  /// An empty field is zero: the user left it out, which is not the same
-  /// as the app guessing a number for them.
-  static int _valueOf(TextEditingController controller) =>
-      int.tryParse(controller.text.trim()) ?? 0;
+  /// An empty field stays empty. The app does not put a number where the
+  /// user did not.
+  static int? _valueOf(TextEditingController controller) =>
+      int.tryParse(controller.text.trim());
+
+  Widget _nutrientField(Nutrient nutrient) => _NumberField(
+    label: nutrient.label,
+    unit: nutrient.unit.label,
+    field: _extra[nutrient]!,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -188,31 +194,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(child: const SectionLabel('這一份叫什麼（可留空）')),
         Gutter(child: AppTextField(controller: _serving, hint: '例如：一片')),
         Gutter(child: const SectionLabel('每份營養')),
-        Gutter(
-          child: _NumberField(label: '熱量 (kcal)', controller: _kcal),
-        ),
-        Gutter(child: _NumberField(label: '蛋白質 (g)', controller: _protein)),
-        Gutter(child: _NumberField(label: '碳水 (g)', controller: _carb)),
-        Gutter(child: _NumberField(label: '脂肪 (g)', controller: _fat)),
-        Gutter(child: _NumberField(label: '膳食纖維 (g)', controller: _fibre)),
-        Gutter(
-          child: const Text(
-            '熱量與三大營養素沒填會記成 0。這代表你沒有填，而不是這份食物真的是 0。',
-            style: AppTextStyles.caption,
-          ),
-        ),
-        Gutter(child: const SectionLabel('包裝上還有什麼')),
+        Gutter(child: _NumberField(label: '熱量', unit: 'kcal', field: _kcal)),
+        Gutter(child: _NumberField(label: '蛋白質', unit: 'g', field: _protein)),
+        Gutter(child: _NumberField(label: '碳水', unit: 'g', field: _carb)),
+        Gutter(child: _NumberField(label: '脂肪', unit: 'g', field: _fat)),
+        Gutter(child: _NumberField(label: '膳食纖維', unit: 'g', field: _fibre)),
         for (final nutrient in _labelNutrients)
-          Gutter(child: _NutrientField(nutrient: nutrient, field: _extra[nutrient]!)),
+          Gutter(child: _nutrientField(nutrient)),
         if (_showsEveryNutrient)
           for (final nutrient in Nutrient.values)
-            if (_isBeyondLabel(nutrient))
-              Gutter(
-                child: _NutrientField(
-                  nutrient: nutrient,
-                  field: _extra[nutrient]!,
-                ),
-              )
+            if (_isBeyondLabel(nutrient)) Gutter(child: _nutrientField(nutrient))
         else
           Gutter(
             child: SecondaryButton(
@@ -222,7 +213,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         Gutter(
           child: const Text(
-            '這裡留空的欄位不會被當成 0，而是沒有資料——包裝上印 0 g 也只代表低於'
+            '留空的欄位不會被當成 0，而是沒有資料——包裝上印 0 g 也只代表低於'
             '標示門檻，不是真的沒有。',
             style: AppTextStyles.caption,
           ),
@@ -232,11 +223,28 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   }
 }
 
+/// What Taiwan's packaging law makes every label print, beyond the five
+/// the form asks for first. These are the ones a user can actually copy
+/// off the back of a packet, so they are the ones shown without asking.
+const _labelNutrients = [
+  Nutrient.saturatedFat,
+  Nutrient.transFat,
+  Nutrient.sugar,
+  Nutrient.sodium,
+];
+
+/// One nutrient's row: what it is, the number, and its unit. Every row
+/// is the same shape, because on a label they are all just nutrients.
 class _NumberField extends StatelessWidget {
-  const _NumberField({required this.label, required this.controller});
+  const _NumberField({
+    required this.label,
+    required this.unit,
+    required this.field,
+  });
 
   final String label;
-  final TextEditingController controller;
+  final String unit;
+  final TextEditingController field;
 
   @override
   Widget build(BuildContext context) {
@@ -246,51 +254,14 @@ class _NumberField extends StatelessWidget {
         SizedBox(
           width: 120,
           child: AppTextField(
-            controller: controller,
-            hint: '0',
-            keyboardType: TextInputType.number,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-
-/// What Taiwan's packaging law makes every label print, beyond the four
-/// the form already asks for. These are the ones a user can actually copy
-/// off the back of a packet, so they are the ones shown by default.
-const _labelNutrients = [
-  Nutrient.saturatedFat,
-  Nutrient.transFat,
-  Nutrient.sugar,
-  Nutrient.sodium,
-];
-
-class _NutrientField extends StatelessWidget {
-  const _NutrientField({required this.nutrient, required this.field});
-
-  final Nutrient nutrient;
-  final TextEditingController field;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(nutrient.label, style: AppTextStyles.body)),
-        SizedBox(
-          width: 120,
-          child: AppTextField(
             controller: field,
+            // Not `0`: an empty field is a figure nobody wrote down.
             hint: '—',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
         ),
         const SizedBox(width: AppSpacing.xs),
-        SizedBox(
-          width: 28,
-          child: Text(nutrient.unit.label, style: AppTextStyles.caption),
-        ),
+        SizedBox(width: 36, child: Text(unit, style: AppTextStyles.caption)),
       ],
     );
   }

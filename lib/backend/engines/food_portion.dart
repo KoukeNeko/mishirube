@@ -28,11 +28,13 @@ class FoodPortion {
   /// How much this portion is in the food's own unit.
   double get amount => food.servingAmount * servings;
 
-  int get kcal => _scaled(food.kcal);
-  int get proteinGrams => _scaled(food.proteinGrams);
-  int get carbGrams => _scaled(food.carbGrams);
-  int get fatGrams => _scaled(food.fatGrams);
-  int get fibreGrams => _scaled(food.fibreGrams);
+  /// Null stays null: scaling a figure nobody wrote down cannot produce
+  /// one.
+  int? get kcal => _scaled(food.kcal);
+  int? get proteinGrams => _scaled(food.proteinGrams);
+  int? get carbGrams => _scaled(food.carbGrams);
+  int? get fatGrams => _scaled(food.fatGrams);
+  int? get fibreGrams => _scaled(food.fibreGrams);
 
   /// The rest of what is known, scaled the same way. Nutrients the food
   /// does not hold stay absent — scaling cannot invent one.
@@ -48,5 +50,6 @@ class FoodPortion {
       ? '${formatAmount(amount)} ${food.servingUnit.label}'
       : '${formatAmount(servings)} ${ServingUnit.serving.label}';
 
-  int _scaled(int perServing) => (perServing * servings).round();
+  int? _scaled(int? perServing) =>
+      perServing == null ? null : (perServing * servings).round();
 }

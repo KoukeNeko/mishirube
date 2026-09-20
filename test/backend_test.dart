@@ -666,6 +666,54 @@ void main() {
       );
     });
 
+    test('a food logged without figures never reads as no calories', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final unknown = FoodItem(
+        id: store.newFoodId(),
+        name: '路邊攤炒麵',
+        servingAmount: 1,
+        servingUnit: ServingUnit.serving,
+      );
+      const known = FoodItem(
+        id: 'rice',
+        name: '白飯',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 130,
+        proteinGrams: 3,
+        carbGrams: 28,
+        fatGrams: 0,
+      );
+      final before = summariseDay(store.todayMeals, isOver: false);
+      store
+        ..saveFood(unknown)
+        ..logPortion(FoodPortion(unknown, 1))
+        ..logPortion(const FoodPortion(known, 1));
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.searchFoods('炒麵').single.kcal, isNull);
+      expect(
+        reopened.todayMeals.map((meal) => meal.kcal),
+        contains(isNull),
+        reason: 'the meal has no figure either, rather than a made-up zero',
+      );
+
+      final summary = summariseDay(reopened.todayMeals, isOver: false);
+      expect(
+        summary.kcal,
+        before.kcal + 130,
+        reason: 'the meal with no figure adds nothing, not a zero',
+      );
+      expect(summary.mealsWithoutFigures, 1);
+      expect(summary.countsEveryMeal, isFalse);
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);
@@ -769,7 +817,7 @@ void main() {
       final again = store.copyMeal(recent.first.meal);
 
       expect(store.todayMeals.last.id, again.id);
-      expect(store.todayKcal, before + recent.first.meal.kcal);
+      expect(store.todayKcal, before + recent.first.meal.kcal!);
       expect(
         again.id,
         isNot(recent.first.meal.id),

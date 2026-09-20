@@ -134,11 +134,11 @@ class FoodRepository {
       servingLabel: row['serving_label']! as String,
       servingAmount: (row['serving_amount']! as num).toDouble(),
       servingUnit: ServingUnit.values.byName(row['serving_unit']! as String),
-      kcal: row['kcal']! as int,
-      proteinGrams: row['protein_g']! as int,
-      carbGrams: row['carb_g']! as int,
-      fatGrams: row['fat_g']! as int,
-      fibreGrams: row['fibre_g']! as int,
+      kcal: row['kcal'] as int?,
+      proteinGrams: row['protein_g'] as int?,
+      carbGrams: row['carb_g'] as int?,
+      fatGrams: row['fat_g'] as int?,
+      fibreGrams: row['fibre_g'] as int?,
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
     );
   }

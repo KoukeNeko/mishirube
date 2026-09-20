@@ -17,6 +17,7 @@ class DaySummary {
     required this.mealCount,
     required this.hasEstimates,
     required this.isComplete,
+    this.mealsWithoutFigures = 0,
   });
 
   static const empty = DaySummary(
@@ -40,10 +41,18 @@ class DaySummary {
   /// Some portion in the day was estimated, so totals read as `~`.
   final bool hasEstimates;
 
+  /// Meals with no calorie figure at all. Their food was logged without
+  /// one, so the totals above are a floor, not the day.
+  final int mealsWithoutFigures;
+
   /// Enough meals for the day's totals to be worth comparing.
   final bool isComplete;
 
   bool get hasRecords => mealCount > 0;
+
+  /// Every meal in the day carried its own figures, so the totals are
+  /// the day rather than the part of it the app could see.
+  bool get countsEveryMeal => mealsWithoutFigures == 0;
 }
 
 /// Adds up [meals]. A day is complete once it holds [mealsForCompleteDay]
@@ -52,14 +61,18 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
   var summary = DaySummary.empty;
   for (final meal in meals) {
     summary = DaySummary(
-      kcal: summary.kcal + meal.kcal,
-      proteinGrams: summary.proteinGrams + meal.proteinGrams,
-      carbGrams: summary.carbGrams + meal.carbGrams,
-      fatGrams: summary.fatGrams + meal.fatGrams,
-      fibreGrams: summary.fibreGrams + meal.fibreGrams,
+      kcal: summary.kcal + (meal.kcal ?? 0),
+      proteinGrams: summary.proteinGrams + (meal.proteinGrams ?? 0),
+      carbGrams: summary.carbGrams + (meal.carbGrams ?? 0),
+      fatGrams: summary.fatGrams + (meal.fatGrams ?? 0),
+      fibreGrams: summary.fibreGrams + (meal.fibreGrams ?? 0),
       mealCount: summary.mealCount + 1,
       hasEstimates: summary.hasEstimates || meal.isEstimated,
       isComplete: false,
+      // A meal with no figures is counted, not skipped: the day has to
+      // be able to say how much of itself it could not see.
+      mealsWithoutFigures:
+          summary.mealsWithoutFigures + (meal.kcal == null ? 1 : 0),
     );
   }
   return DaySummary(
@@ -68,6 +81,7 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
     carbGrams: summary.carbGrams,
     fatGrams: summary.fatGrams,
     fibreGrams: summary.fibreGrams,
+    mealsWithoutFigures: summary.mealsWithoutFigures,
     mealCount: summary.mealCount,
     hasEstimates: summary.hasEstimates,
     isComplete: !isOver || summary.mealCount >= mealsForCompleteDay,

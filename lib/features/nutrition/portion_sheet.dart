@@ -134,11 +134,11 @@ class _PortionSheetState extends State<_PortionSheet> {
               children: [
                 KeyValueRow(
                   label: '熱量',
-                  value: '${formatKcal(portion.kcal)} kcal',
+                  value: '${formatKcalOrDash(portion.kcal)} kcal',
                 ),
-                KeyValueRow(label: '蛋白質', value: '${portion.proteinGrams} g'),
-                KeyValueRow(label: '碳水', value: '${portion.carbGrams} g'),
-                KeyValueRow(label: '脂肪', value: '${portion.fatGrams} g'),
+                KeyValueRow(label: '蛋白質', value: _grams(portion.proteinGrams)),
+                KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),
+                KeyValueRow(label: '脂肪', value: _grams(portion.fatGrams)),
               ],
             ),
           ),
@@ -154,6 +154,9 @@ class _PortionSheetState extends State<_PortionSheet> {
     );
   }
 }
+
+/// `31 g`, or a dash when the food has no figure for it.
+String _grams(int? amount) => amount == null ? '—' : '$amount g';
 
 class _PortionField extends StatelessWidget {
   const _PortionField({

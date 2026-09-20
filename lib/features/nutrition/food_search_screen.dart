@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
 import 'portion_sheet.dart';
@@ -111,6 +112,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 }
 
+/// A figure, or a dash where the food has none.
+String _orDash(int? amount) => amount == null ? '—' : '$amount';
+
 class _FoodRow extends StatelessWidget {
   const _FoodRow({
     required this.food,
@@ -134,8 +138,10 @@ class _FoodRow extends StatelessWidget {
             child: NavRow(
               title: food.displayName,
               subtitle:
-                  '${food.servingLabel} · ${food.kcal} kcal · '
-                  'P${food.proteinGrams} C${food.carbGrams} F${food.fatGrams}',
+                  '${food.servingDescription} · '
+                  '${formatKcalOrDash(food.kcal)} kcal · '
+                  'P${_orDash(food.proteinGrams)} '
+                  'C${_orDash(food.carbGrams)} F${_orDash(food.fatGrams)}',
               onTap: onTap,
             ),
           ),

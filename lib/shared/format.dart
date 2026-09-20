@@ -39,6 +39,11 @@ String formatTimeOfDay(DateTime time) {
 }
 
 /// Adds thousands separators: 1180 → `1,180`.
+/// A calorie figure, or a dash when nobody wrote one down. The dash is
+/// not a zero: it says the record has no number, not that the food had
+/// none in it.
+String formatKcalOrDash(int? kcal) => kcal == null ? '—' : formatKcal(kcal);
+
 String formatKcal(int kcal) {
   final digits = kcal.toString();
   final buffer = StringBuffer();

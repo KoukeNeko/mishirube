@@ -204,7 +204,8 @@ class _RecentFoodRow extends StatelessWidget {
             ),
           ),
           Text(
-            '${meal.meal.isEstimated ? '~' : ''}${formatKcal(meal.meal.kcal)}',
+            '${meal.meal.isEstimated ? '~' : ''}'
+            '${formatKcalOrDash(meal.meal.kcal)}',
             style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
           ),
           const SizedBox(width: AppSpacing.xs),

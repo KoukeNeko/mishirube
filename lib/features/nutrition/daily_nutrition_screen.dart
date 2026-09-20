@@ -63,6 +63,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       footer: _DailyTotalBar(
         kcal: summary.kcal,
         mealCount: summary.mealCount,
+        mealsWithoutFigures: summary.mealsWithoutFigures,
         isLunchLogged: store.isLunchLogged,
       ),
       children: [
@@ -117,7 +118,7 @@ class _MealCard extends StatelessWidget {
               Text(meal.timeLabel, style: AppTextStyles.caption),
               const Spacer(),
               Text(
-                '${meal.isEstimated ? '~' : ''}${meal.kcal}',
+                '${meal.isEstimated ? '~' : ''}${formatKcalOrDash(meal.kcal)}',
                 style: AppTextStyles.bigNumber.copyWith(fontSize: 26),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -220,30 +221,38 @@ class _DishRow extends StatelessWidget {
 class _DailyTotalBar extends StatelessWidget {
   const _DailyTotalBar({
     required this.kcal,
+    required this.mealsWithoutFigures,
     required this.mealCount,
     required this.isLunchLogged,
   });
 
   final int kcal;
+
+  /// Meals logged without a calorie figure. The total is a floor while
+  /// any of them is in the day.
+  final int mealsWithoutFigures;
   final int mealCount;
   final bool isLunchLogged;
 
   @override
   Widget build(BuildContext context) {
     final pending = isLunchLogged ? '晚餐未記錄' : '午餐、晚餐未記錄';
+    final unknown = mealsWithoutFigures == 0
+        ? ''
+        : ' · $mealsWithoutFigures 餐沒有熱量';
     return BottomActionBar(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           StatBlock(
             value: '~${formatKcal(kcal)}',
-            label: '今日合計',
+            label: mealsWithoutFigures == 0 ? '今日合計' : '今日合計（至少）',
             valueStyle: AppTextStyles.hugeNumber,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              '$mealCount 餐 · $pending',
+              '$mealCount 餐 · $pending$unknown',
               textAlign: TextAlign.right,
               style: AppTextStyles.caption,
             ),
