@@ -4,7 +4,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
-import 'package:mishirube/features/exercise/exercise_filter.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_permissions_screen.dart';

@@ -5,6 +5,7 @@
 library;
 
 export 'body.dart';
+export 'exercise_filter.dart';
 export 'history.dart';
 export 'nutrition.dart';
 export 'records.dart';

@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../engines/exercise_search.dart' as finder;
 import '../engines/substitution_engine.dart' as engine;
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
@@ -12,6 +13,27 @@ class CatalogService {
   final ExerciseRepository _exercises;
 
   List<ExerciseDefinition> all() => _exercises.all();
+
+  /// Catalog entries matching [query] and [filter], best first. With no
+  /// query it is the whole catalog in familiarity order.
+  List<ExerciseDefinition> search({
+    String query = '',
+    ExerciseFilter filter = const ExerciseFilter(),
+    bool includeHidden = false,
+  }) => [
+    for (final result in finder.searchExercises(
+      all(),
+      query: query,
+      filter: filter,
+      includeHidden: includeHidden,
+    ))
+      result.exercise,
+  ];
+
+  /// Exercises that may already be what [name] describes, so the user can
+  /// reuse one instead of starting a second history for it.
+  List<ExerciseDefinition> duplicateCandidatesFor(String name) =>
+      finder.duplicateCandidates(name, all());
 
   ExerciseDefinition? byId(String id) => _exercises.byId(id);
 

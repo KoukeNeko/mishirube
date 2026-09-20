@@ -4,7 +4,6 @@ import '../../app/theme.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
-import 'exercise_filter.dart';
 
 const _muscleShortcuts = [
   MuscleGroup.chest,

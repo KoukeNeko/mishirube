@@ -106,16 +106,6 @@ class ExerciseDefinition {
 
   String get muscleSummary => primaryMuscles.map((m) => m.label).join('、');
 
-  bool matchesQuery(String query) {
-    final normalizedQuery = query.trim().toLowerCase();
-    if (normalizedQuery.isEmpty) return true;
-    return [
-      name,
-      ...aliases,
-      equipment.label,
-    ].any((term) => term.toLowerCase().contains(normalizedQuery));
-  }
-
   /// The same exercise whatever its usage figures: identity is the stable
   /// id, so a definition reloaded from storage equals the one on screen.
   @override

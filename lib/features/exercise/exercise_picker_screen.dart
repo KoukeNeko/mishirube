@@ -7,11 +7,9 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_detail_screen.dart';
-import 'exercise_filter.dart';
 import 'exercise_filter_screen.dart';
 
 const _maxSuggestions = 3;
-const _fuzzyTermLength = 2;
 
 /// Search field (56) plus the pinned row's vertical padding.
 const _searchRowHeight = 72.0;
@@ -57,8 +55,6 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
 
   String get _query => _searchController.text.trim();
 
-  List<ExerciseDefinition> get _catalog => AppStoreScope.of(context).exercises;
-
   @override
   void initState() {
     super.initState();
@@ -71,34 +67,24 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
     super.dispose();
   }
 
+  /// Ranked by the search engine; a query looks through everything, not
+  /// only the current tab.
   List<ExerciseDefinition> _visibleExercises() {
-    // A search looks through everything, not only the current tab.
     final tab = _query.isEmpty ? _tab : _PickerTab.all;
-    final results = _catalog
-        .where(
-          (exercise) =>
-              tab.includes(exercise) &&
-              _filter.matches(exercise) &&
-              exercise.matchesQuery(_query),
-        )
-        .toList();
-    if (tab == _PickerTab.recent) {
-      results.sort((a, b) => a.lastUsedDaysAgo!.compareTo(b.lastUsedDaysAgo!));
-    }
-    return results;
+    return [
+      for (final exercise in AppStoreScope.of(
+        context,
+      ).searchExercises(query: _query, filter: _filter))
+        if (tab.includes(exercise)) exercise,
+    ];
   }
 
-  List<ExerciseDefinition> _suggestionsIgnoringFilters() {
-    final direct = _catalog.where((e) => e.matchesQuery(_query)).toList();
-    final fuzzyTerms = [
-      for (var i = 0; i + _fuzzyTermLength <= _query.length; i++)
-        _query.substring(i, i + _fuzzyTermLength),
-    ];
-    final fuzzy = _catalog.where(
-      (e) => !direct.contains(e) && fuzzyTerms.any(e.matchesQuery),
-    );
-    return [...direct, ...fuzzy].take(_maxSuggestions).toList();
-  }
+  /// What the user may have meant, ignoring the filters that hid it.
+  List<ExerciseDefinition> _suggestionsIgnoringFilters() =>
+      AppStoreScope.of(context)
+          .searchExercises(query: _query)
+          .take(_maxSuggestions)
+          .toList();
 
   void _toggle(ExerciseDefinition exercise) => setState(() {
     if (!_selected.remove(exercise)) _selected.add(exercise);

@@ -295,6 +295,112 @@ void main() {
     });
   });
 
+  group('exercise search', () {
+    List<String> idsFor(String query, {ExerciseFilter? filter}) {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      return [
+        for (final exercise in store.searchExercises(
+          query: query,
+          filter: filter ?? const ExerciseFilter(),
+        ))
+          exercise.id,
+      ];
+    }
+
+    test('normalises case, width, spacing and punctuation', () {
+      for (final query in [
+        'Bench Press',
+        'bench press',
+        'bench-press',
+        'ＢＥＮＣＨ　ＰＲＥＳＳ',
+      ]) {
+        expect(
+          idsFor(query).first,
+          'bench-press',
+          reason: '「$query」should find the same exercise',
+        );
+      }
+    });
+
+    test('finds an exercise by its Chinese name and by an alias', () {
+      expect(idsFor('臥推'), contains('bench-press'));
+      expect(idsFor('RDL').first, 'rdl');
+    });
+
+    test('an exact name outranks a longer name containing it', () {
+      expect(idsFor('前蹲').first, 'front-squat');
+      expect(idsFor('深蹲').first, 'back-squat');
+    });
+
+    test('a typo still finds the exercise', () {
+      expect(idsFor('bnech press'), contains('bench-press'));
+    });
+
+    test('an unrelated word finds nothing rather than guessing', () {
+      expect(idsFor('鋼琴'), isEmpty);
+    });
+
+    test('searching by equipment or muscle works too', () {
+      expect(idsFor('壺鈴'), contains('kb-swing'));
+      expect(idsFor('小腿'), contains('standing-calf-raise'));
+    });
+
+    test('filters narrow the results without changing the ranking', () {
+      final barbellLegs = idsFor(
+        '',
+        filter: const ExerciseFilter(
+          muscles: {MuscleGroup.quads},
+          equipment: {Equipment.barbell},
+        ),
+      );
+
+      expect(barbellLegs, contains('back-squat'));
+      expect(barbellLegs, isNot(contains('goblet-squat')));
+    });
+
+    test('with no query the familiar exercises come first', () {
+      final all = idsFor('');
+
+      expect(all.first, 'back-squat', reason: 'recent, favourite and frequent');
+      expect(all, hasLength(greaterThan(10)));
+    });
+
+    test('a hidden exercise leaves the pickers but keeps its history', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+
+      store.toggleHidden(squat);
+
+      expect(
+        store.searchExercises().map((e) => e.id),
+        isNot(contains('back-squat')),
+      );
+      expect(store.exerciseHistory(squat).sessionCount, greaterThan(0));
+      expect(
+        store.backend.storage.exercises.byId('back-squat')!.isHidden,
+        isTrue,
+      );
+    });
+
+    test('duplicate candidates warn before a second history starts', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      expect(
+        store.duplicateCandidatesFor('DB Bench Press').map((e) => e.id),
+        contains('db-bench'),
+      );
+      // Two catalog entries carry this alias; both are offered before a
+      // third one is created.
+      expect(
+        store.duplicateCandidatesFor('啞鈴臥推').map((e) => e.id),
+        containsAll(['db-bench', 'db-bench-custom']),
+      );
+    });
+  });
+
   group('discarding a workout', () {
     test('it stops counting as training but stays in the audit trail', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true)

@@ -243,6 +243,16 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// The catalog matching [query] and [filter], best match first.
+  List<ExerciseDefinition> searchExercises({
+    String query = '',
+    ExerciseFilter filter = const ExerciseFilter(),
+  }) => _backend.catalog.search(query: query, filter: filter);
+
+  /// Exercises that may already be what the user is about to create.
+  List<ExerciseDefinition> duplicateCandidatesFor(String name) =>
+      _backend.catalog.duplicateCandidatesFor(name);
+
   void toggleHidden(ExerciseDefinition exercise) {
     _backend.catalog.setHidden(exercise.id, isHidden: !exercise.isHidden);
     _reloadExercises();

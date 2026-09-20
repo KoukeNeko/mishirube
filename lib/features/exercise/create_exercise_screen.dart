@@ -61,13 +61,14 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
     super.dispose();
   }
 
-  List<ExerciseDefinition> _possibleDuplicates() {
-    if (_name.isEmpty) return const [];
-    return AppStoreScope.of(context).exercises
-        .where((exercise) => exercise.matchesQuery(_name))
-        .take(_maxDuplicateCandidates)
-        .toList();
-  }
+  /// Shown before creating, so a second 「啞鈴臥推」 does not start its own
+  /// history.
+  List<ExerciseDefinition> _possibleDuplicates() => _name.isEmpty
+      ? const []
+      : AppStoreScope.of(context)
+            .duplicateCandidatesFor(_name)
+            .take(_maxDuplicateCandidates)
+            .toList();
 
   void _create() {
     final exercise = ExerciseDefinition(
