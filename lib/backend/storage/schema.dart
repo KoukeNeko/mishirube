@@ -380,6 +380,18 @@ final List<String> _migrations = [
   -- not the water in it: no hydration factor is applied anywhere.
   ALTER TABLE meals ADD COLUMN millilitres INTEGER;
   ''',
+  '''
+  -- Named portions: `一匙`, `一碗`. What one is worth belongs to the food,
+  -- because no app can say what a spoonful of any given thing weighs.
+  CREATE TABLE food_portions (
+    food_id TEXT NOT NULL REFERENCES foods(id),
+    position INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    amount REAL NOT NULL,
+    unit TEXT NOT NULL,
+    PRIMARY KEY (food_id, position)
+  );
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

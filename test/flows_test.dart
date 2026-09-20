@@ -22,6 +22,39 @@ const _pageTransition = Duration(milliseconds: 600);
 
 const _scrollStep = Offset(0, -200);
 
+/// Types [value] into the field on the same row as the label [beside],
+/// scrolling it into view first. Finding fields by position breaks every
+/// time the form grows a row.
+Future<void> _enterBeside(
+  WidgetTester tester,
+  String beside,
+  String value,
+) async {
+  if (find.text(beside).evaluate().isEmpty) {
+    await tester.dragUntilVisible(
+      find.text(beside),
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+  }
+  await Scrollable.ensureVisible(
+    tester.element(find.text(beside).first),
+    alignment: 0.5,
+  );
+  await tester.pump();
+  await tester.enterText(
+    find.descendant(
+      of: find.ancestor(
+        of: find.text(beside).first,
+        matching: find.byType(Row),
+      ).first,
+      matching: find.byType(AppTextField),
+    ),
+    value,
+  );
+  await tester.pump();
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   // Lazy lists only build what is on screen, so scroll until it exists.
   if (find.text(text).evaluate().isEmpty) {
@@ -836,12 +869,11 @@ void main() {
     expect(find.text('還沒有存過食物'), findsOneWidget);
 
     await _tapText(tester, '新增食物');
-    await tester.enterText(find.byType(AppTextField).at(0), '雞胸肉');
-    // Name, brand, serving amount, then the per-serving nutrients.
+    await tester.enterText(find.byType(AppTextField).first, '雞胸肉');
+    // The serving amount sits beside the unit chips.
     await tester.enterText(find.byType(AppTextField).at(2), '100');
-    await tester.enterText(find.byType(AppTextField).at(4), '165');
-    await tester.enterText(find.byType(AppTextField).at(5), '31');
-    await tester.pump();
+    await _enterBeside(tester, '熱量', '165');
+    await _enterBeside(tester, '蛋白質', '31');
     await _tapText(tester, '儲存');
     await tester.pumpAndSettle();
 

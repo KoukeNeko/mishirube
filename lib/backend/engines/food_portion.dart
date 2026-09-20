@@ -15,11 +15,23 @@ class FoodPortion {
   /// The portion as a raw amount — 150 g of a food whose serving is
   /// 100 g is 1.5 servings. An unmeasured serving has no amount to scale
   /// from, so it stays whole servings.
-  factory FoodPortion.ofAmount(FoodItem food, double amount) {
-    if (!food.servingUnit.isMeasured || food.servingAmount <= 0) {
+  ///
+  /// [unit] may be any unit measuring the same kind of quantity as the
+  /// food's own: 0.5 lb of something sold in grams is fine, 500 ml of
+  /// something sold in grams is not, because that needs a density.
+  factory FoodPortion.ofAmount(
+    FoodItem food,
+    double amount, {
+    ServingUnit? unit,
+  }) {
+    final serving = food.servingUnit;
+    if (!serving.isMeasured || food.servingAmount <= 0) {
       return FoodPortion(food, amount);
     }
-    return FoodPortion(food, amount / food.servingAmount);
+    final inServingUnit = unit == null || unit == serving
+        ? amount
+        : unit.convert(amount, serving);
+    return FoodPortion(food, inServingUnit / food.servingAmount);
   }
 
   final FoodItem food;
@@ -28,10 +40,11 @@ class FoodPortion {
   /// How much this portion is in the food's own unit.
   double get amount => food.servingAmount * servings;
 
-  /// The volume drunk, when the food is measured in millilitres. It is
+  /// The volume drunk, when the food is measured by volume at all. It is
   /// the drink itself, not the water in it.
-  int? get millilitres => food.servingUnit == ServingUnit.millilitre
-      ? amount.round()
+  int? get millilitres =>
+      food.servingUnit.dimension == ServingDimension.volume
+      ? food.servingUnit.convert(amount, ServingUnit.millilitre).round()
       : null;
 
   /// Null stays null: scaling a figure nobody wrote down cannot produce

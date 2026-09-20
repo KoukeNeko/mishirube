@@ -116,21 +116,90 @@ class MealEvent {
   );
 }
 
+/// What kind of quantity a unit measures.
+///
+/// Mass and volume never convert into each other: that needs the food's
+/// density, which the app does not know. A teaspoon of oil is 5 g and a
+/// teaspoon of mayonnaise is 8 g, so treating 100 ml as 100 g is not a
+/// rounding error, it is a wrong answer.
+enum ServingDimension { mass, volume, count }
+
 /// How much one serving of a food is.
 ///
-/// [serving] means the size is not a measurement: one 便當 is one 便當,
-/// and the app must not pretend it knows how many grams that is.
+/// Only units with an exact, official conversion are here. Household
+/// measures are deliberately absent: a cup is 240 ml to Taiwan's health
+/// authority, 236.6 ml in the US and 250 ml metric, and an Australian
+/// tablespoon is 20 ml against everyone else's 15. A unit that means
+/// three different things is not a unit.
+///
+/// [ServingDimension.count] means the size is not a measurement at all:
+/// one 便當 is one 便當, and the app must not pretend it knows the grams.
 enum ServingUnit {
-  gram('g'),
-  millilitre('ml'),
-  serving('份');
+  gram('g', ServingDimension.mass, 1),
+  kilogram('kg', ServingDimension.mass, 1000),
+  ounce('oz', ServingDimension.mass, 28.349523125),
+  pound('lb', ServingDimension.mass, 453.59237),
 
-  const ServingUnit(this.label);
+  /// Taiwan's tael and catty, fixed by the Bureau of Standards at
+  /// 37.5 g and 600 g.
+  tael('台兩', ServingDimension.mass, 37.5),
+  catty('台斤', ServingDimension.mass, 600),
+
+  millilitre('ml', ServingDimension.volume, 1),
+  litre('L', ServingDimension.volume, 1000),
+
+  serving('份', ServingDimension.count, 1);
+
+  const ServingUnit(this.label, this.dimension, this.inBaseUnit);
 
   final String label;
+  final ServingDimension dimension;
+
+  /// How many of the dimension's base unit — grams or millilitres — one
+  /// of these is.
+  final double inBaseUnit;
 
   /// Whether a portion can be entered as a raw amount in this unit.
-  bool get isMeasured => this != ServingUnit.serving;
+  bool get isMeasured => dimension != ServingDimension.count;
+
+  /// The units a portion of this one can also be written in. Converting
+  /// outside this list would need a density the app does not have.
+  Iterable<ServingUnit> get comparable =>
+      values.where((unit) => unit.dimension == dimension);
+
+  /// [amount] of this unit, written in [target]. Both must measure the
+  /// same kind of quantity.
+  double convert(double amount, ServingUnit target) {
+    assert(target.dimension == dimension, 'no density to convert with');
+    return amount * inBaseUnit / target.inBaseUnit;
+  }
+}
+
+/// A way of saying "one of these" for a particular food.
+///
+/// `一匙`, `一碗`, `一片`, `一顆` — what it is worth is defined by the
+/// food it belongs to, not by the app. That is the whole point: a
+/// tablespoon is 15 ml in most places and 20 ml in Australia, and a
+/// spoonful of oil and a spoonful of mayonnaise do not weigh the same.
+/// Nobody can write those constants down for every food, but the person
+/// holding the packet can write down this one.
+class NamedPortion {
+  const NamedPortion({
+    required this.name,
+    required this.amount,
+    required this.unit,
+  });
+
+  /// What the user calls it: `一匙`.
+  final String name;
+
+  /// How much one of them is, in [unit].
+  final double amount;
+
+  final ServingUnit unit;
+
+  /// `一匙 · 15 g`
+  String get description => '$name · ${formatAmount(amount)} ${unit.label}';
 }
 
 /// A food the user saved so they do not have to type it in again.
@@ -152,6 +221,7 @@ class FoodItem {
     this.servingAmount = 1,
     this.servingUnit = ServingUnit.serving,
     this.nutrients = const {},
+    this.portions = const [],
   });
 
   final String id;
@@ -192,6 +262,10 @@ class FoodItem {
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;
 
+  /// Shortcuts for saying how much: `一匙`, `一碗`. They only fill in a
+  /// quantity — the arithmetic still runs on the amount behind them.
+  final List<NamedPortion> portions;
+
   /// `統一 雞胸肉` when it has a maker, otherwise just the name.
   String get displayName => brand.isEmpty ? name : '$brand $name';
 
@@ -208,6 +282,7 @@ class FoodItem {
     int? fatGrams,
     int? fibreGrams,
     Nutrients? nutrients,
+    List<NamedPortion>? portions,
   }) => FoodItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -221,6 +296,7 @@ class FoodItem {
     fatGrams: fatGrams ?? this.fatGrams,
     fibreGrams: fibreGrams ?? this.fibreGrams,
     nutrients: nutrients ?? this.nutrients,
+    portions: portions ?? this.portions,
   );
 }
 

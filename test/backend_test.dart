@@ -766,6 +766,106 @@ void main() {
       );
     });
 
+    test('a portion can be written in any unit of the same kind', () {
+      const chicken = FoodItem(
+        id: 'chicken',
+        name: '雞胸肉',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 165,
+        proteinGrams: 31,
+      );
+
+      // Half a pound of something sold by the 100 g.
+      final byPound = FoodPortion.ofAmount(
+        chicken,
+        0.5,
+        unit: ServingUnit.pound,
+      );
+      expect(byPound.servings, closeTo(2.268, 0.001));
+      expect(byPound.kcal, 374);
+
+      // A Taiwanese catty is 600 g, so six servings exactly.
+      final byCatty = FoodPortion.ofAmount(
+        chicken,
+        1,
+        unit: ServingUnit.catty,
+      );
+      expect(byCatty.servings, 6);
+      expect(byCatty.kcal, 165 * 6);
+
+      const milk = FoodItem(
+        id: 'milk',
+        name: '鮮奶',
+        servingAmount: 250,
+        servingUnit: ServingUnit.millilitre,
+        kcal: 160,
+      );
+      final byLitre = FoodPortion.ofAmount(milk, 1, unit: ServingUnit.litre);
+      expect(byLitre.servings, 4);
+      expect(
+        byLitre.millilitres,
+        1000,
+        reason: 'a litre of milk is a litre of drink',
+      );
+    });
+
+    test('a named portion is the food own definition, not the app', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      // A spoon of oil and a spoon of mayonnaise do not weigh the same,
+      // so each food says what its own spoon is.
+      final oil = FoodItem(
+        id: store.newFoodId(),
+        name: '橄欖油',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 884,
+        portions: const [
+          NamedPortion(name: '一匙', amount: 5, unit: ServingUnit.gram),
+        ],
+      );
+      final mayo = FoodItem(
+        id: store.newFoodId(),
+        name: '美乃滋',
+        servingAmount: 100,
+        servingUnit: ServingUnit.gram,
+        kcal: 680,
+        portions: const [
+          NamedPortion(name: '一匙', amount: 8, unit: ServingUnit.gram),
+        ],
+      );
+      store
+        ..saveFood(oil)
+        ..saveFood(mayo);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final storedOil = reopened.searchFoods('橄欖油').single;
+      final storedMayo = reopened.searchFoods('美乃滋').single;
+
+      expect(storedOil.portions.single.description, '一匙 · 5 g');
+      expect(storedMayo.portions.single.description, '一匙 · 8 g');
+
+      final spoonOfOil = FoodPortion.ofAmount(
+        storedOil,
+        storedOil.portions.single.amount,
+        unit: storedOil.portions.single.unit,
+      );
+      final spoonOfMayo = FoodPortion.ofAmount(
+        storedMayo,
+        storedMayo.portions.single.amount,
+        unit: storedMayo.portions.single.unit,
+      );
+
+      expect(spoonOfOil.kcal, 44, reason: '884 × 0.05');
+      expect(spoonOfMayo.kcal, 54, reason: '680 × 0.08');
+    });
+
     test('correcting a food does not rewrite the meals logged from it', () {
       final backend = openFile();
       addTearDown(backend.close);

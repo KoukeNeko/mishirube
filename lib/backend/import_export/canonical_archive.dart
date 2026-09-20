@@ -161,6 +161,13 @@ const _tables = [
     _Column('fibre_g', _Kind.integer, isNullable: true),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('foodPortions', 'food_portions', [
+    _Column('food_id', _Kind.text),
+    _Column('position', _Kind.integer),
+    _Column('name', _Kind.text),
+    _Column('amount', _Kind.real),
+    _Column('unit', _Kind.text),
+  ], orderBy: 'food_id, position'),
   _Table('foodNutrients', 'food_nutrients', [
     _Column('food_id', _Kind.text),
     _Column('nutrient', _Kind.text),

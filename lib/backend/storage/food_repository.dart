@@ -78,6 +78,14 @@ class FoodRepository {
           ],
         );
       }
+      _db.execute('DELETE FROM food_portions WHERE food_id = ?', [food.id]);
+      for (final (position, portion) in food.portions.indexed) {
+        _db.execute(
+          'INSERT INTO food_portions (food_id, position, name, amount, unit) '
+          'VALUES (?, ?, ?, ?, ?)',
+          [food.id, position, portion.name, portion.amount, portion.unit.name],
+        );
+      }
       _db.execute('DELETE FROM food_nutrients WHERE food_id = ?', [food.id]);
       for (final MapEntry(key: nutrient, value: amount)
           in food.nutrients.entries) {
@@ -140,6 +148,17 @@ class FoodRepository {
       fatGrams: row['fat_g'] as int?,
       fibreGrams: row['fibre_g'] as int?,
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
+      portions: [
+        for (final portion in _db.select(
+          'SELECT * FROM food_portions WHERE food_id = ? ORDER BY position',
+          [id],
+        ))
+          NamedPortion(
+            name: portion['name']! as String,
+            amount: (portion['amount']! as num).toDouble(),
+            unit: ServingUnit.values.byName(portion['unit']! as String),
+          ),
+      ],
     );
   }
 }
