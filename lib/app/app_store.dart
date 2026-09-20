@@ -388,9 +388,23 @@ class AppStore extends ChangeNotifier {
         day.day == today.day;
   }
 
+  /// Body weights measured in the last few weeks, oldest first.
+  List<BodyWeight> get recentWeights =>
+      _backend.journal.recentWeights(const Duration(days: 28));
+
+  /// Nights logged in the last few weeks, oldest first.
+  List<SleepEntry> get recentSleep =>
+      _backend.journal.recentSleep(const Duration(days: 28));
+
   /// Records a body weight measured now.
   void recordWeight(double kilograms, {String note = ''}) {
     _backend.journal.recordWeight(kilograms, note: note);
+    notifyListeners();
+  }
+
+  /// Records a night's sleep.
+  void recordSleep(Duration slept, {int? score, String note = ''}) {
+    _backend.journal.recordSleep(slept, score: score, note: note);
     notifyListeners();
   }
 

@@ -122,6 +122,25 @@ class TimelineQuery {
       (summaries[weight.measuredAt.day] ??= {})[RecordCategory.body] = label;
     }
 
+    for (final night in _journal.sleepBetween(start, end)) {
+      final label = '睡眠 ${formatHoursMinutes(night.duration)}';
+      add(
+        night.sleptAt,
+        TimelineEntry(
+          timeLabel: formatTimeOfDay(night.sleptAt),
+          at: night.sleptAt,
+          recordId: night.id,
+          category: RecordCategory.wellness,
+          title: label,
+          detail: [
+            if (night.score != null) '品質 ${night.score} / 5',
+            if (night.note.isNotEmpty) '備註：${night.note}',
+          ].join(' · '),
+        ),
+      );
+      (summaries[night.sleptAt.day] ??= {})[RecordCategory.wellness] = label;
+    }
+
     for (final entry in _journal.wellnessBetween(start, end)) {
       final title = '${entry.kind.label} ${entry.score} / 5';
       add(

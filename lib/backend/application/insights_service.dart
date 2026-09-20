@@ -94,9 +94,10 @@ class InsightsService {
   TrendsOverview trends({Duration window = const Duration(days: 28)}) {
     final now = _db.now();
     final from = now.subtract(window);
+    final until = _db.nowInclusive;
     final weeks = (window.inDays / DateTime.daysPerWeek).ceil();
     final weight = weightTrend(
-      _journal.weightsBetween(from, now),
+      _journal.weightsBetween(from, until),
       now: now,
       window: window,
     );
@@ -105,7 +106,7 @@ class InsightsService {
       now: now,
       weeks: weeks,
     );
-    final (complete, tracked) = _foodDays(from, now);
+    final (complete, tracked) = _foodDays(from, until);
     final volume = _volumeReport(window);
     return TrendsOverview(
       from: from,
@@ -114,8 +115,7 @@ class InsightsService {
       weeklyWorkouts: weeklyWorkouts,
       foodDaysComplete: complete,
       foodDaysTracked: tracked,
-      // No sleep source yet: neither a logger nor a health adapter.
-      averageSleep: null,
+      averageSleep: _averageSleep(from, until),
       insights: [
         ?volume?.insight,
         ?weightTrendInsight(weight, dayCount: window.inDays),
@@ -194,6 +194,18 @@ class InsightsService {
     final later = best((date) => !date.isBefore(middle));
     if (earlier == null || later == null) return true;
     return later >= earlier;
+  }
+
+  /// The mean night in the window, or null while nothing is logged: an
+  /// average of no nights is not zero sleep.
+  Duration? _averageSleep(DateTime from, DateTime to) {
+    final nights = _journal.sleepBetween(from, to);
+    if (nights.isEmpty) return null;
+    final total = nights.fold(
+      Duration.zero,
+      (sum, night) => sum + night.duration,
+    );
+    return total ~/ nights.length;
   }
 
   /// Days with a food record in the window, and how many of them look

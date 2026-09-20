@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
+import '../journal/sleep_entry_screen.dart';
+import '../journal/weight_entry_screen.dart';
+import '../journal/wellness_entry_screen.dart';
 import '../nutrition/meal_entry_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../training/routine_detail_screen.dart';
@@ -50,23 +53,26 @@ final recordOptions = [
     subtitle: '拍照、說出來或搜尋',
     destination: () => const MealEntryScreen(),
   ),
-  const RecordOption(
+  RecordOption(
     icon: Icons.straighten,
     color: AppColors.body,
     title: '體重與量測',
     subtitle: '體重、腰圍、體組成',
+    destination: () => const WeightEntryScreen(),
   ),
-  const RecordOption(
+  RecordOption(
     icon: Icons.bedtime_outlined,
     color: AppColors.wellness,
     title: '睡眠',
     subtitle: '手動補記或由 Apple Health 帶入',
+    destination: () => const SleepEntryScreen(),
   ),
-  const RecordOption(
+  RecordOption(
     icon: Icons.sentiment_satisfied_outlined,
     color: AppColors.textSecondary,
     title: '心情、精力、症狀',
     subtitle: '簡短的一天狀態日誌',
+    destination: () => const WellnessEntryScreen(),
   ),
   const RecordOption(
     icon: Icons.description_outlined,

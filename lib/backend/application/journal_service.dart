@@ -37,10 +37,30 @@ class JournalService {
     return entry;
   }
 
+  SleepEntry recordSleep(
+    Duration slept, {
+    int? score,
+    String note = '',
+    DateTime? at,
+  }) {
+    final entry = SleepEntry(
+      id: _db.newId(),
+      sleptAt: at ?? _db.now(),
+      duration: slept,
+      score: score,
+      note: note,
+    );
+    _journal.addSleep(entry);
+    return entry;
+  }
+
   /// Weights measured in the [window] ending now, oldest first.
   List<BodyWeight> recentWeights(Duration window) =>
-      _journal.weightsBetween(_db.now().subtract(window), _db.now());
+      _journal.weightsBetween(_db.now().subtract(window), _db.nowInclusive);
 
   List<WellnessEntry> recentWellness(Duration window) =>
-      _journal.wellnessBetween(_db.now().subtract(window), _db.now());
+      _journal.wellnessBetween(_db.now().subtract(window), _db.nowInclusive);
+
+  List<SleepEntry> recentSleep(Duration window) =>
+      _journal.sleepBetween(_db.now().subtract(window), _db.nowInclusive);
 }

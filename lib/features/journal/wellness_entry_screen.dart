@@ -1,0 +1,85 @@
+import 'package:flutter/material.dart';
+
+import '../../app/app_store.dart';
+import '../../app/theme.dart';
+import '../../domain/domain.dart';
+import '../../shared/widgets/widgets.dart';
+
+/// Logging how the day felt: one of the kinds, a 1–5 rating and a note.
+/// It is a log, not a score to improve: nothing here is graded.
+class WellnessEntryScreen extends StatefulWidget {
+  const WellnessEntryScreen({super.key});
+
+  @override
+  State<WellnessEntryScreen> createState() => _WellnessEntryScreenState();
+}
+
+class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
+  WellnessKind _kind = WellnessKind.energy;
+  int _score = 3;
+  final _note = TextEditingController();
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    AppStoreScope.read(context)
+        .recordWellness(_kind, _score, note: _note.text.trim());
+    Navigator.of(context).pop();
+    showToast(
+      context,
+      '已記錄${_kind.label} $_score / 5',
+      kind: ToastKind.success,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DetailPage(
+      appBar: const PageAppBar(title: '今天的狀態', subtitle: '心情、精力與症狀'),
+      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      children: [
+        Gutter(
+          child: SegmentedChoice(
+            options: const [
+              WellnessKind.energy,
+              WellnessKind.mood,
+              WellnessKind.symptom,
+            ],
+            selected: _kind,
+            labelOf: (kind) => kind.label,
+            selectedColor: AppColors.wellness,
+            onChanged: (kind) => setState(() => _kind = kind),
+          ),
+        ),
+        Gutter(
+          child: SectionLabel(
+            _kind == WellnessKind.symptom ? '不適程度' : '${_kind.label}如何？',
+          ),
+        ),
+        Gutter(
+          child: ChipWrap(
+            options: const [1, 2, 3, 4, 5],
+            labelOf: (score) => '$score',
+            isSelected: (score) => _score == score,
+            selectedColor: AppColors.wellness,
+            onTap: (score) => setState(() => _score = score),
+          ),
+        ),
+        Gutter(child: const SectionLabel('備註（可略過）')),
+        Gutter(
+          child: AppTextField(controller: _note, hint: '例如：久坐一整天，下背有點緊'),
+        ),
+        Gutter(
+          child: const Text(
+            '狀態紀錄用來對照訓練與飲食，不會被評價成好壞。',
+            style: AppTextStyles.caption,
+          ),
+        ),
+      ],
+    );
+  }
+}

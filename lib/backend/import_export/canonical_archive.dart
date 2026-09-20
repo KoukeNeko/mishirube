@@ -180,6 +180,14 @@ const _tables = [
     _Column('note', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('sleepEntries', 'sleep_entries', [
+    _Column('id', _Kind.text),
+    _Column('slept_at', _Kind.time),
+    _Column('duration_minutes', _Kind.integer),
+    _Column('score', _Kind.integer, isNullable: true),
+    _Column('note', _Kind.text),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('wellnessEntries', 'wellness_entries', [
     _Column('id', _Kind.text),
     _Column('recorded_at', _Kind.time),

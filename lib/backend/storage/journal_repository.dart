@@ -64,6 +64,49 @@ class JournalRepository {
     });
   }
 
+  void addSleep(SleepEntry entry, {ChangeSource source = ChangeSource.local}) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO sleep_entries (id, slept_at, duration_minutes, score, '
+        'note, created_at, updated_at, source) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          entry.id,
+          entry.sleptAt.millisecondsSinceEpoch,
+          entry.duration.inMinutes,
+          entry.score,
+          entry.note,
+          now,
+          now,
+          source.name,
+        ],
+      );
+      _db.audit(
+        entityType: 'sleep_entry',
+        entityId: entry.id,
+        action: 'create',
+        source: source,
+      );
+    });
+  }
+
+  /// Nights logged in `[start, end)`, oldest first.
+  List<SleepEntry> sleepBetween(DateTime start, DateTime end) => [
+    for (final row in _db.select(
+      'SELECT * FROM sleep_entries WHERE deleted_at IS NULL '
+      'AND slept_at >= ? AND slept_at < ? ORDER BY slept_at',
+      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      SleepEntry(
+        id: row['id'],
+        sleptAt: DateTime.fromMillisecondsSinceEpoch(row['slept_at']),
+        duration: Duration(minutes: row['duration_minutes']),
+        score: row['score'] as int?,
+        note: row['note'],
+      ),
+  ];
+
   /// Weights measured in `[start, end)`, oldest first.
   List<BodyWeight> weightsBetween(DateTime start, DateTime end) => [
     for (final row in _db.select(

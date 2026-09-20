@@ -274,6 +274,28 @@ void main() {
   });
 
   group('journal', () {
+    test('a night of sleep reaches the trends and the log', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      expect(
+        store.trends().averageSleep,
+        isNull,
+        reason: 'no nights logged yet, which is not zero sleep',
+      );
+
+      store
+        ..recordSleep(const Duration(hours: 7, minutes: 30), score: 4)
+        ..recordSleep(const Duration(hours: 6, minutes: 30));
+
+      expect(store.trends().averageSleep, const Duration(hours: 7));
+      final today = store.monthRecords(DateTime(2026, 9)).days.first;
+      expect(today.entries.map((entry) => entry.title), contains('睡眠 7:30'));
+      expect(
+        today.entries.firstWhere((entry) => entry.title == '睡眠 7:30').detail,
+        '品質 4 / 5',
+      );
+    });
+
     test('a weight and a check-in are stored and read back', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true)
         ..recordWeight(71.8, note: '早晨空腹')

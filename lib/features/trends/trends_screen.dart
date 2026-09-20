@@ -161,7 +161,7 @@ class _SummaryGrid extends StatelessWidget {
                 category: '平均睡眠',
                 value: overview.averageSleep == null
                     ? '—'
-                    : formatClock(overview.averageSleep!),
+                    : formatHoursMinutes(overview.averageSleep!),
                 caption: overview.averageSleep == null ? '尚未記錄睡眠' : null,
               ),
             ),

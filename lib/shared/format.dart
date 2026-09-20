@@ -20,6 +20,12 @@ String formatWeight(double kilograms) {
       : kilograms.toStringAsFixed(1);
 }
 
+/// A length of sleep or rest as `h:mm`, where seconds would be noise.
+String formatHoursMinutes(Duration duration) {
+  final minutes = duration.inMinutes % _minutesPerHour;
+  return '${duration.inHours}:${minutes.toString().padLeft(2, '0')}';
+}
+
 const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 
 /// The weekday of [day] as one character, Monday first.

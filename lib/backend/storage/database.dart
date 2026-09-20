@@ -39,6 +39,10 @@ class AppDatabase {
 
   DateTime now() => _clock();
 
+  /// End bound for the range queries, whose end is exclusive, when the
+  /// range should include what was recorded this very instant.
+  DateTime get nowInclusive => now().add(const Duration(milliseconds: 1));
+
   int get schemaVersion => _db.userVersion;
 
   /// A random, stable identifier for a new row.

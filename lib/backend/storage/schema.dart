@@ -193,6 +193,18 @@ final List<String> _migrations = [
   -- kept out of pickers and suggestions.
   ALTER TABLE exercises ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0;
   ''',
+  '''
+  -- Sleep is its own record: a length, and how it felt when the user says.
+  CREATE TABLE sleep_entries (
+    id TEXT PRIMARY KEY,
+    slept_at INTEGER NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    score INTEGER,
+    note TEXT NOT NULL,
+    $_entityColumns
+  );
+  CREATE INDEX sleep_entries_slept ON sleep_entries(slept_at);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
