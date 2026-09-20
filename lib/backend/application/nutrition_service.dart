@@ -1,6 +1,11 @@
 import '../../domain/domain.dart';
+// The one place that decides how a typed search term is normalised; a
+// food is searched the same way an exercise is.
+import '../engines/exercise_search.dart' show normalizeTerm;
+import '../../shared/format.dart';
 import '../engines/nutrition_summary.dart';
 import '../storage/database.dart';
+import '../storage/food_repository.dart';
 import '../storage/meal_repository.dart';
 
 /// An exploded dish, kept so the change can be undone.
@@ -34,10 +39,11 @@ class RecentMeal {
 
 /// Logging food and changing how a meal is structured.
 class NutritionService {
-  NutritionService(this._db, this._meals);
+  NutritionService(this._db, this._meals, this._foods);
 
   final AppDatabase _db;
   final MealRepository _meals;
+  final FoodRepository _foods;
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
 
@@ -151,6 +157,72 @@ class NutritionService {
       snapshot.meal,
       action: 'undo_explode_dish',
       previous: current,
+    );
+  }
+
+  /// Every food the user saved, by name.
+  List<FoodItem> foods() => _foods.all();
+
+  /// Saved foods whose name or maker contains [query]. An empty query is
+  /// the whole list: there is nothing clever to rank by here, because
+  /// every one of these was typed in by the person searching.
+  List<FoodItem> searchFoods(String query) {
+    final wanted = normalizeTerm(query);
+    if (wanted.isEmpty) return foods();
+    return [
+      for (final food in foods())
+        if (normalizeTerm(food.name).contains(wanted) ||
+            normalizeTerm(food.brand).contains(wanted))
+          food,
+    ];
+  }
+
+  /// Stores a food, new or edited. Editing one never touches the meals
+  /// already logged from it: those copied the numbers when they were
+  /// logged.
+  FoodItem saveFood(FoodItem food) {
+    _foods.save(food);
+    return food;
+  }
+
+  /// Removes a saved food from the list. It is a tombstone, so
+  /// [undeleteFood] can put it back.
+  void deleteFood(String id) => _foods.delete(id);
+
+  void undeleteFood(String id) => _foods.undelete(id);
+
+  /// A fresh id for a food the user is about to save.
+  String newFoodId() => _db.newId();
+
+  /// Logs [servings] of [food] as a meal eaten now.
+  ///
+  /// The numbers are copied, not linked: correcting the food later is not
+  /// a claim about what was eaten last Tuesday. They are also not marked
+  /// as estimated — the user typed them and chose them.
+  MealEvent logFood(FoodItem food, {int servings = 1}) {
+    final eatenAt = _db.now();
+    return logMeal(
+      MealEvent(
+        id: _db.newId(),
+        name: food.displayName,
+        timeLabel: formatTimeOfDay(eatenAt),
+        kcal: food.kcal * servings,
+        proteinGrams: food.proteinGrams * servings,
+        carbGrams: food.carbGrams * servings,
+        fatGrams: food.fatGrams * servings,
+        fibreGrams: food.fibreGrams * servings,
+        qualityTag: '自訂食物',
+        dishes: [
+          DishEntry(
+            name: food.displayName,
+            quantityLabel: servings == 1
+                ? food.servingLabel
+                : '$servings × ${food.servingLabel}',
+            subtitle: '自訂食物',
+          ),
+        ],
+      ),
+      eatenAt: eatenAt,
     );
   }
 

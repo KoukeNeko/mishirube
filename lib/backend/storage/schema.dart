@@ -281,6 +281,23 @@ final List<String> _migrations = [
   );
   CREATE INDEX body_measurements_at ON body_measurements(measured_at);
   ''',
+  '''
+  -- Foods the user saved to log again. The private layer of the food
+  -- catalogue: on this device only, every value entered by hand.
+  CREATE TABLE foods (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    brand TEXT NOT NULL DEFAULT '',
+    serving_label TEXT NOT NULL,
+    kcal INTEGER NOT NULL,
+    protein_g INTEGER NOT NULL,
+    carb_g INTEGER NOT NULL,
+    fat_g INTEGER NOT NULL,
+    fibre_g INTEGER NOT NULL DEFAULT 0,
+    $_entityColumns
+  );
+  CREATE INDEX foods_name ON foods(name);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

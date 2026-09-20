@@ -18,6 +18,8 @@ import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/me/sync_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_confirm_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/nutrition/meal_entry_screen.dart';
@@ -47,6 +49,19 @@ void _noSetup(AppStore store) {}
 void _withWorkout(AppStore store) => store.startWorkout();
 
 void _withLunch(AppStore store) => store.confirmLunch();
+
+void _withFood(AppStore store) => store.saveFood(
+  FoodItem(
+    id: store.newFoodId(),
+    name: '雞胸肉',
+    brand: '大成',
+    servingLabel: '一片（約 100 g）',
+    kcal: 165,
+    proteinGrams: 31,
+    carbGrams: 0,
+    fatGrams: 4,
+  ),
+);
 
 void _withGoal(AppStore store) => store.setWeeklyGoal(3, applyThisWeek: true);
 
@@ -139,6 +154,13 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'meal edit': (
     (store) => MealEditScreen(meal: store.todayMeals.last),
     _withLunch,
+  ),
+  'food search (empty)': ((_) => const FoodSearchScreen(), _noSetup),
+  'food search': ((_) => const FoodSearchScreen(), _withFood),
+  'food edit (new)': ((_) => const FoodEditScreen(), _noSetup),
+  'food edit': (
+    (store) => FoodEditScreen(editing: store.searchFoods('').single),
+    _withFood,
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
   'trends empty': ((_) => const TrendsEmptyScreen(), _noSetup),

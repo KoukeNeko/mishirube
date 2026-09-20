@@ -633,6 +633,39 @@ class AppStore extends ChangeNotifier {
     return logged;
   }
 
+  /// Saved foods matching [query]; an empty query is all of them.
+  List<FoodItem> searchFoods(String query) =>
+      _backend.nutrition.searchFoods(query);
+
+  /// A fresh id for a food about to be saved.
+  String newFoodId() => _backend.nutrition.newFoodId();
+
+  /// Stores a food, new or edited.
+  void saveFood(FoodItem food) {
+    _backend.nutrition.saveFood(food);
+    notifyListeners();
+  }
+
+  /// Removes a saved food. The meals already logged from it keep their
+  /// numbers, so this is not a change to any record.
+  void deleteFood(String id) {
+    _backend.nutrition.deleteFood(id);
+    notifyListeners();
+  }
+
+  void undeleteFood(String id) {
+    _backend.nutrition.undeleteFood(id);
+    notifyListeners();
+  }
+
+  /// Logs [servings] of a saved food as a meal eaten now.
+  MealEvent logFood(FoodItem food, {int servings = 1}) {
+    final logged = _backend.nutrition.logFood(food, servings: servings);
+    _todayMeals.add(logged);
+    notifyListeners();
+    return logged;
+  }
+
   DishSplitSnapshot? splitDish({
     required String mealId,
     required int dishIndex,

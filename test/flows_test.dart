@@ -8,6 +8,7 @@ import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
+import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -821,6 +822,34 @@ void main() {
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(store.routine.exercises, hasLength(planned));
+    await disposeTree(tester);
+  });
+
+  testWidgets('a food is saved once and then logged with one tap', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = store.todayKcal;
+
+    expect(find.text('還沒有存過食物'), findsOneWidget);
+
+    await _tapText(tester, '新增食物');
+    await tester.enterText(find.byType(AppTextField).at(0), '雞胸肉');
+    await tester.enterText(find.byType(AppTextField).at(2), '一片（約 100 g）');
+    await tester.enterText(find.byType(AppTextField).at(3), '165');
+    await tester.enterText(find.byType(AppTextField).at(4), '31');
+    await tester.pump();
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    expect(find.text('雞胸肉'), findsOneWidget, reason: 'the saved food is listed');
+
+    await _tapText(tester, '雞胸肉');
+    await tester.pumpAndSettle();
+
+    expect(store.todayKcal, before + 165);
+    expect(store.todayMeals.last.proteinGrams, 31);
     await disposeTree(tester);
   });
 }

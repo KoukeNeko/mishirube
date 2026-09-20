@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'food_search_screen.dart';
 import 'meal_confirm_screen.dart';
 
 /// `昨天 12:40` for the last two days, `9/17 19:20` before that.
@@ -68,8 +69,8 @@ class MealEntryScreen extends StatelessWidget {
           child: _MethodCard(
             icon: Icons.search,
             title: '搜尋或輸入',
-            subtitle: '食物資料庫、自訂食物',
-            onTap: () => showToast(context, '食物搜尋尚未設計'),
+            subtitle: '你自己存的食物',
+            onTap: () => pushPage(context, const FoodSearchScreen()),
           ),
         ),
         if (AppStoreScope.of(context).favoriteMeals case final favorites

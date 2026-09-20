@@ -147,6 +147,18 @@ const _tables = [
     _Column('previous_reps', _Kind.integer, isNullable: true),
     _Column('is_done', _Kind.boolean),
   ], orderBy: 'workout_id, exercise_position, position'),
+  _Table('foods', 'foods', [
+    _Column('id', _Kind.text),
+    _Column('name', _Kind.text),
+    _Column('brand', _Kind.text),
+    _Column('serving_label', _Kind.text),
+    _Column('kcal', _Kind.integer),
+    _Column('protein_g', _Kind.integer),
+    _Column('carb_g', _Kind.integer),
+    _Column('fat_g', _Kind.integer),
+    _Column('fibre_g', _Kind.integer),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('meals', 'meals', [
     _Column('id', _Kind.text),
     _Column('name', _Kind.text),

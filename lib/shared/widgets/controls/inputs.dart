@@ -58,12 +58,16 @@ class AppTextField extends StatelessWidget {
     this.hint = '',
     this.autofocus = false,
     this.maxLines = 1,
+    this.keyboardType,
   });
 
   final TextEditingController controller;
   final String hint;
   final bool autofocus;
   final int maxLines;
+
+  /// The keyboard to raise; a field that takes a number asks for one.
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +78,7 @@ class AppTextField extends StatelessWidget {
         controller: controller,
         autofocus: autofocus,
         maxLines: maxLines,
+        keyboardType: keyboardType,
         style: AppTextStyles.body.copyWith(fontSize: 17),
         decoration: _decoration(hint: hint),
       ),

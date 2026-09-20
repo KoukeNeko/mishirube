@@ -13,6 +13,7 @@ import 'storage/activity_repository.dart';
 import 'storage/goal_repository.dart';
 import 'storage/database.dart';
 import 'storage/exercise_repository.dart';
+import 'storage/food_repository.dart';
 import 'storage/journal_repository.dart';
 import 'storage/meal_repository.dart';
 import 'storage/routine_repository.dart';
@@ -32,6 +33,7 @@ class Storage {
       routines = RoutineRepository(db),
       workouts = WorkoutRepository(db),
       meals = MealRepository(db),
+      foods = FoodRepository(db),
       journal = JournalRepository(db) {
     timeline = TimelineQuery(db, [
       WorkoutTimelineSource(workouts, exercises),
@@ -52,6 +54,7 @@ class Storage {
   final RoutineRepository routines;
   final WorkoutRepository workouts;
   final MealRepository meals;
+  final FoodRepository foods;
   final JournalRepository journal;
   late final TimelineQuery timeline;
 }
@@ -68,7 +71,7 @@ class Backend {
       storage.exercises,
       storage.routines,
     );
-    nutrition = NutritionService(db, storage.meals);
+    nutrition = NutritionService(db, storage.meals, storage.foods);
     activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);

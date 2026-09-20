@@ -484,6 +484,107 @@ void main() {
   });
 
   group('nutrition persistence', () {
+    test('a saved food survives a restart and can be logged', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final food = FoodItem(
+        id: store.newFoodId(),
+        name: '雞胸肉',
+        brand: '大成',
+        servingLabel: '一片（約 100 g）',
+        kcal: 165,
+        proteinGrams: 31,
+        carbGrams: 0,
+        fatGrams: 4,
+      );
+      store.saveFood(food);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final stored = reopened.searchFoods('雞胸').single;
+      expect(stored.displayName, '大成 雞胸肉');
+      expect(stored.kcal, 165);
+
+      final before = reopened.todayKcal;
+      final logged = reopened.logFood(stored, servings: 2);
+      expect(logged.kcal, 330);
+      expect(logged.proteinGrams, 62);
+      expect(reopened.todayKcal, before + 330);
+      expect(
+        AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
+        330,
+      );
+    });
+
+    test('correcting a food does not rewrite the meals logged from it', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final food = FoodItem(
+        id: store.newFoodId(),
+        name: '豆漿',
+        servingLabel: '一杯',
+        kcal: 130,
+        proteinGrams: 10,
+        carbGrams: 12,
+        fatGrams: 5,
+      );
+      store
+        ..saveFood(food)
+        ..logFood(food);
+
+      store.saveFood(food.copyWith(kcal: 90));
+
+      expect(store.searchFoods('豆漿').single.kcal, 90);
+      expect(
+        AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
+        130,
+        reason: 'the meal copied the numbers; the correction is not a claim '
+            'about what was drunk',
+      );
+    });
+
+    test('deleting a food hides it and can be undone', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final food = FoodItem(
+        id: store.newFoodId(),
+        name: '地瓜',
+        servingLabel: '一條',
+        kcal: 130,
+        proteinGrams: 2,
+        carbGrams: 30,
+        fatGrams: 0,
+      );
+      store
+        ..saveFood(food)
+        ..logFood(food)
+        ..deleteFood(food.id);
+
+      expect(store.searchFoods(''), isEmpty);
+      expect(
+        AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
+        130,
+        reason: 'removing a food is not a change to what was eaten',
+      );
+
+      store.undeleteFood(food.id);
+      expect(store.searchFoods('').single.name, '地瓜');
+    });
+
     test('an exploded dish and its undo are both stored', () {
       final backend = openFile();
       addTearDown(backend.close);
@@ -1061,7 +1162,20 @@ void main() {
         ..completeNextSet()
         ..confirmLunch();
       addTearDown(source.dispose);
-      source.splitDish(mealId: 'lunch', dishIndex: 0);
+      source
+        ..splitDish(mealId: 'lunch', dishIndex: 0)
+        ..saveFood(
+          FoodItem(
+            id: source.newFoodId(),
+            name: '雞胸肉',
+            brand: '大成',
+            servingLabel: '一片（約 100 g）',
+            kcal: 165,
+            proteinGrams: 31,
+            carbGrams: 0,
+            fatGrams: 4,
+          ),
+        );
       final archive = exportArchive(source.backend.db);
 
       final target = Backend.inMemory(clock: clock.now);
@@ -1073,6 +1187,7 @@ void main() {
       final restoredStore = AppStore(clock: clock.now, backend: target);
       expect(restoredStore.activeWorkout!.completedSets, 1);
       expect(restoredStore.todayMeals, hasLength(2));
+      expect(restoredStore.searchFoods('雞胸').single.kcal, 165);
     });
 
     test('unknown archive sections are kept for the next export', () {
