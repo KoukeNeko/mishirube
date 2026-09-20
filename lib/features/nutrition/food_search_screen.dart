@@ -8,7 +8,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
 import 'meal_entry_screen.dart';
-import 'portion_sheet.dart';
+import 'portion_screen.dart';
 import 'quick_add_sheet.dart';
 import 'recent_meal_row.dart';
 
@@ -68,7 +68,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     // logged — not the food scaled up to it.
     final chosen = sizes.isEmpty ? food : await _pickSize(food, sizes);
     if (chosen == null || !mounted) return;
-    final logged = await showPortionSheet(context, chosen);
+    final logged = await showPortionScreen(context, chosen);
     if (logged == null || !mounted) return;
     AppStoreScope.read(
       context,

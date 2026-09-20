@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
@@ -19,28 +20,24 @@ class LoggedPortion {
 /// Asks how much of [food] is being logged, and resolves to that portion.
 ///
 /// It opens at one serving, so logging the usual amount is one more tap.
-Future<LoggedPortion?> showPortionSheet(BuildContext context, FoodItem food) {
-  return showModalBottomSheet<LoggedPortion>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
-    ),
-    builder: (_) => _PortionSheet(food: food),
-  );
-}
+Future<LoggedPortion?> showPortionScreen(BuildContext context, FoodItem food) =>
+    pushPage<LoggedPortion>(context, PortionScreen(food: food));
 
-class _PortionSheet extends StatefulWidget {
-  const _PortionSheet({required this.food});
+/// How much of a food is being logged, and everything that comes to.
+///
+/// A whole page rather than a sheet: a drink can carry a dozen figures
+/// once brand data is involved, and a half-height sheet either hides
+/// them or makes the page scroll behind the keyboard.
+class PortionScreen extends StatefulWidget {
+  const PortionScreen({super.key, required this.food});
 
   final FoodItem food;
 
   @override
-  State<_PortionSheet> createState() => _PortionSheetState();
+  State<PortionScreen> createState() => _PortionScreenState();
 }
 
-class _PortionSheetState extends State<_PortionSheet> {
+class _PortionScreenState extends State<PortionScreen> {
   late final _servings = TextEditingController(text: '1');
   late final _amount = TextEditingController(
     text: formatAmount(widget.food.servingAmount),
@@ -110,10 +107,9 @@ class _PortionSheetState extends State<_PortionSheet> {
 
   void _onAmountTyped() {
     if (!_isEditingAmount) return;
-    _servings.text = formatAmount(FoodPortion.ofAmount(
-      widget.food,
-      _read(_amount),
-    ).servings);
+    _servings.text = formatAmount(
+      FoodPortion.ofAmount(widget.food, _read(_amount), unit: _unit).servings,
+    );
     setState(() {});
   }
 
@@ -121,26 +117,22 @@ class _PortionSheetState extends State<_PortionSheet> {
   Widget build(BuildContext context) {
     final food = widget.food;
     final portion = _portion;
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenGutter,
-        AppSpacing.screenGutter,
-        AppSpacing.screenGutter,
-        AppSpacing.screenGutter + MediaQuery.viewInsetsOf(context).bottom,
+    final type = food.valueType;
+    return DetailPage(
+      appBar: PageAppBar(
+        title: food.displayName,
+        subtitle: '一份 = ${food.servingDescription}',
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(food.displayName, style: AppTextStyles.pageTitle),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            '一份 = ${food.servingDescription}'
-            '${food.valueType == NutrientValueType.declared ? '' : ' · ${food.valueType.label}'}',
-            style: AppTextStyles.caption,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
+      footer: PrimaryButton(
+        label: '記錄 ${portion.label}',
+        onPressed: portion.servings > 0
+            ? () =>
+                  Navigator.of(context).pop(LoggedPortion(portion, _mealType))
+            : null,
+      ),
+      children: [
+        Gutter(
+          child: Row(
             children: [
               Expanded(
                 child: _PortionField(
@@ -163,56 +155,97 @@ class _PortionSheetState extends State<_PortionSheet> {
               ],
             ],
           ),
-          if (_isMeasured &&
-              food.servingUnit.comparable.length > 1) ...[
-            const SizedBox(height: AppSpacing.sm),
-            ChipWrap(
+        ),
+        if (_isMeasured && food.servingUnit.comparable.length > 1)
+          Gutter(
+            child: ChipWrap(
               options: food.servingUnit.comparable.toList(),
               labelOf: (unit) => unit.label,
               isSelected: (unit) => unit == _unit,
               onTap: _pickUnit,
             ),
-          ],
-          const SizedBox(height: AppSpacing.lg),
-          AppCard(
+          ),
+        Gutter(child: const SectionLabel('這一份是')),
+        Gutter(
+          child: AppCard(
             padding: EdgeInsets.zero,
             child: Column(
               children: [
                 KeyValueRow(
                   label: '熱量',
-                  value: food.valueType.write(
-                    '${formatKcalOrDash(portion.kcal)} kcal',
-                  ),
+                  value: type.write('${formatKcalOrDash(portion.kcal)} kcal'),
                 ),
-                KeyValueRow(label: '蛋白質', value: _grams(portion.proteinGrams)),
-                KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),
-                KeyValueRow(label: '脂肪', value: _grams(portion.fatGrams)),
+                KeyValueRow(
+                  label: '蛋白質',
+                  value: type.write(_grams(portion.proteinGrams)),
+                ),
+                KeyValueRow(
+                  label: '碳水',
+                  value: type.write(_grams(portion.carbGrams)),
+                ),
+                KeyValueRow(
+                  label: '脂肪',
+                  value: type.write(_grams(portion.fatGrams)),
+                ),
+                if (portion.fibreGrams != null)
+                  KeyValueRow(
+                    label: '膳食纖維',
+                    value: type.write(_grams(portion.fibreGrams)),
+                  ),
+                // Everything else the food holds. A brand drink often
+                // knows its caffeine and nothing else, and a screen that
+                // showed only the five would show it as four dashes.
+                for (final MapEntry(key: nutrient, value: amount)
+                    in portion.nutrients.entries)
+                  KeyValueRow(
+                    label: nutrient.label,
+                    value: type.write(nutrient.format(amount)),
+                  ),
+                if (portion.millilitres case final volume?)
+                  KeyValueRow(label: '液體', value: '$volume mL'),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Text('這是哪一餐（可不選）', style: AppTextStyles.caption),
-          const SizedBox(height: AppSpacing.xs),
-          ChipWrap(
+        ),
+        if (type != NutrientValueType.declared)
+          Gutter(
+            child: Text(
+              switch (type) {
+                NutrientValueType.max =>
+                  '這些是上限，不是這一份的實際量——台灣連鎖飲料依法標示的就是最高值。',
+                NutrientValueType.estimate => '這些是同類東西的大概值，不是這一份的量。',
+                NutrientValueType.declared => '',
+              },
+              style: AppTextStyles.caption,
+            ),
+          ),
+        if (food.sourceUrl.isNotEmpty)
+          Gutter(
+            child: Text(
+              '資料來源：${food.sourceUrl}${_checked(food.checkedAt)}',
+              style: AppTextStyles.caption,
+            ),
+          ),
+        Gutter(child: const SectionLabel('這是哪一餐（可不選）')),
+        Gutter(
+          child: ChipWrap(
             options: MealType.values,
-            labelOf: (type) => type.label,
-            isSelected: (type) => type == _mealType,
-            onTap: (type) =>
-                setState(() => _mealType = _mealType == type ? null : type),
+            labelOf: (mealType) => mealType.label,
+            isSelected: (mealType) => mealType == _mealType,
+            onTap: (mealType) => setState(
+              () => _mealType = _mealType == mealType ? null : mealType,
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          PrimaryButton(
-            label: '記錄 ${portion.label}',
-            onPressed: portion.servings > 0
-                ? () =>
-                      Navigator.of(context).pop(LoggedPortion(portion, _mealType))
-                : null,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
+
+/// ` · 查核 2026/9/21`, or nothing when the figure has no date. A figure
+/// nobody can date is a figure nobody can check.
+String _checked(DateTime? at) =>
+    at == null ? '' : ' · 查核 ${at.year}/${at.month}/${at.day}';
 
 /// `31 g`, or a dash when the food has no figure for it.
 String _grams(int? amount) => amount == null ? '—' : '$amount g';
