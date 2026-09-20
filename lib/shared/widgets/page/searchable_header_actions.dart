@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
@@ -95,10 +96,13 @@ class _SearchableHeaderActionsState extends State<SearchableHeaderActions>
     final metrics = ToolbarMetrics.of(context);
     // Everything between the title slot's gutter and this slot's own: the
     // gap before an action and the gutter after the last one.
-    final fullWidth =
-        MediaQuery.sizeOf(context).width -
-        AppSpacing.screenGutter * 2 -
-        AppSpacing.xs;
+    // Never negative, even on a zero-width first frame.
+    final fullWidth = math.max(
+      0.0,
+      MediaQuery.sizeOf(context).width -
+          AppSpacing.screenGutter * 2 -
+          AppSpacing.xs,
+    );
     final collapsedWidth = metrics.actionHitSize;
     // Open, the field also covers the gap before this slot, so its left edge
     // lands on the page gutter.

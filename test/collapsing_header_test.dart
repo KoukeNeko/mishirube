@@ -227,4 +227,22 @@ void main() {
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });
+
+  for (final tab in HomeTab.values) {
+    testWidgets('a zero-width first frame does not break ${tab.name}', (
+      tester,
+    ) async {
+      // Launching with the screen off lays the first frame out at zero size.
+      tester.view
+        ..physicalSize = Size.zero
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+        ..selectTab(tab);
+      await tester.pumpWidget(MishirubeApp(store: store));
+
+      expect(tester.takeException(), isNull);
+      await disposeTree(tester);
+    });
+  }
 }

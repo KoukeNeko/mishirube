@@ -92,7 +92,9 @@ double measureTextHeight(
     textDirection: Directionality.of(context),
     textScaler: MediaQuery.textScalerOf(context),
     maxLines: maxLines,
-  )..layout(maxWidth: maxWidth);
+    // The first frame can be laid out at zero width (e.g. launched with
+    // the screen off), leaving a negative width once gutters are taken.
+  )..layout(maxWidth: math.max(0, maxWidth));
   final height = painter.height;
   painter.dispose();
   return height;
