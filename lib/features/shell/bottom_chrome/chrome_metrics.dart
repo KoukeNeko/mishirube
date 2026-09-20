@@ -12,6 +12,20 @@ abstract final class ChromeMetrics {
   static const timerCapsuleWidth = 136.0;
 
   static const morphDuration = Duration(milliseconds: 320);
+
+  /// The chrome changing shape: near-critical, so a scroll that reverses
+  /// mid-way carries its speed into the other direction instead of
+  /// stopping dead. Liquid glass flows; it does not wobble.
+  static final morphSpring = SpringDescription.withDurationAndBounce(
+    duration: Duration(milliseconds: 300),
+    bounce: 0.05,
+  );
+
+  /// When the accessory fades on its way in: it stays solid for the
+  /// first half of the move and is gone only once it has narrowed to
+  /// about the capsule's width, so it hands over as the same shape.
+  static const accessoryFadeStart = 0.5;
+  static const accessoryFadeEnd = 0.95;
   static const morphCurve = Curves.easeOutBack;
   static const fadeCurve = Curves.easeOut;
 

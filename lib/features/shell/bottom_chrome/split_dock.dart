@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class SplitDock extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onSelect,
-    required this.isMinimized,
+    required this.morph,
     required this.session,
     required this.onQuickLog,
     required this.onOpenSession,
@@ -53,7 +54,10 @@ class SplitDock extends StatelessWidget {
 
   final HomeTab selected;
   final ValueChanged<HomeTab> onSelect;
-  final bool isMinimized;
+
+  /// 0 while the chrome is expanded, 1 once it is minimised. The dock
+  /// and the accessory above it share it, so they change shape together.
+  final Animation<double> morph;
   final ActiveSession? session;
   final VoidCallback onQuickLog;
   final VoidCallback onOpenSession;
@@ -63,61 +67,66 @@ class SplitDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = chromeDuration(context, ChromeMetrics.morphDuration);
     final metrics = DockMetrics.of(context);
-    final height = metrics.heightFor(isMinimized: isMinimized);
-    final showTimer = isMinimized && session != null;
-    return AnimatedContainer(
-      duration: duration,
-      curve: ChromeMetrics.morphCurve,
-      height: height,
-      // The centre action is painted after both capsules: their glass blurs
-      // whatever is painted before it, and would pick up its green.
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Row(
+    return AnimatedBuilder(
+      animation: morph,
+      builder: (context, _) {
+        final t = morph.value.clamp(0.0, 1.0);
+        final height = lerpDouble(metrics.height, metrics.minimizedHeight, t)!;
+        // The centre only becomes the timer once the chrome is minimised
+        // and something is running; until then it stays the「+」.
+        final centreWidth = session == null
+            ? height
+            : lerpDouble(height, ChromeMetrics.timerCapsuleWidth, t)!;
+        return SizedBox(
+          height: height,
+          // The centre action is painted after both capsules: their glass
+          // blurs whatever is painted before it, and would pick up its green.
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              Expanded(child: _capsule(_leadingTabs, metrics)),
-              const SizedBox(width: ChromeMetrics.gap),
-              // Holds the centre action's place, sized and animated with it.
-              AnimatedContainer(
-                duration: duration,
-                curve: ChromeMetrics.morphCurve,
-                width: showTimer ? ChromeMetrics.timerCapsuleWidth : height,
+              Row(
+                children: [
+                  Expanded(child: _capsule(_leadingTabs, metrics, t)),
+                  const SizedBox(width: ChromeMetrics.gap),
+                  // Holds the centre action's place, sized with it.
+                  SizedBox(width: centreWidth),
+                  const SizedBox(width: ChromeMetrics.gap),
+                  Expanded(child: _capsule(_trailingTabs, metrics, t)),
+                ],
               ),
-              const SizedBox(width: ChromeMetrics.gap),
-              Expanded(child: _capsule(_trailingTabs, metrics)),
+              // Hidden while the quick-log menu is open: its × replaces「+」
+              // in the same spot, sharp above the blurred app.
+              AnimatedBuilder(
+                animation: quickLogProgress,
+                builder: (context, child) => Opacity(
+                  key: const ValueKey('dock-center-visibility'),
+                  opacity: quickLogProgress.value > 0 ? 0 : 1,
+                  child: child,
+                ),
+                child: _CenterAction(
+                  size: height,
+                  width: centreWidth,
+                  metrics: metrics,
+                  session: session,
+                  timerProgress: t,
+                  onQuickLog: onQuickLog,
+                  onOpenSession: onOpenSession,
+                ),
+              ),
             ],
           ),
-          // Hidden while the quick-log menu is open: its × replaces「+」
-          // in the same spot, sharp above the blurred app.
-          AnimatedBuilder(
-            animation: quickLogProgress,
-            builder: (context, child) => Opacity(
-              key: const ValueKey('dock-center-visibility'),
-              opacity: quickLogProgress.value > 0 ? 0 : 1,
-              child: child,
-            ),
-            child: _CenterAction(
-              size: height,
-              metrics: metrics,
-              session: showTimer ? session : null,
-              onQuickLog: onQuickLog,
-              onOpenSession: onOpenSession,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _capsule(List<_TabSpec> tabs, DockMetrics metrics) {
+  Widget _capsule(List<_TabSpec> tabs, DockMetrics metrics, double t) {
     return _Capsule(
       tabs: tabs,
       metrics: metrics,
       selected: selected,
-      showLabels: !isMinimized,
+      showLabels: t < 0.5,
       onSelect: onSelect,
     );
   }
@@ -544,62 +553,71 @@ class _TabButton extends StatelessWidget {
 class _CenterAction extends StatelessWidget {
   const _CenterAction({
     required this.size,
+    required this.width,
     required this.metrics,
     required this.session,
+    required this.timerProgress,
     required this.onQuickLog,
     required this.onOpenSession,
   });
 
   final double size;
+  final double width;
   final DockMetrics metrics;
 
-  /// Non-null only when the centre should show the running workout timer.
+  /// What is running, if anything; the timer only shows once [timerProgress]
+  /// has the capsule wide enough to hold it.
   final ActiveSession? session;
+
+  /// 0 while the dock is expanded, 1 once it is minimised.
+  final double timerProgress;
   final VoidCallback onQuickLog;
   final VoidCallback onOpenSession;
 
   @override
   Widget build(BuildContext context) {
-    final duration = chromeDuration(context, ChromeMetrics.morphDuration);
     final running = session;
+    final showsTimer = running != null && timerProgress > 0;
     void activate() {
       // The primary action gets a firmer tap than tab selection.
       AppHaptics.tap();
-      running == null ? onQuickLog() : onOpenSession();
+      showsTimer ? onOpenSession() : onQuickLog();
     }
 
     return Semantics(
       button: true,
-      label: running == null
-          ? '新增紀錄'
-          : '${running.label}進行中，回到${running.label}',
+      label: showsTimer ? '${running.label}進行中，回到${running.label}' : '新增紀錄',
       onTap: activate,
       excludeSemantics: true,
       child: PressScale(
         pressedScale: ChromeMetrics.actionPressedScale,
-        child: AnimatedContainer(
-          duration: duration,
-          curve: ChromeMetrics.morphCurve,
-          width: running == null ? size : ChromeMetrics.timerCapsuleWidth,
+        child: SizedBox(
+          width: width,
           height: size,
           child: CenterActionSurface(
             child: GestureDetector(
               key: const ValueKey('dock-center-action'),
               behavior: HitTestBehavior.opaque,
               onTap: activate,
-              child: AnimatedSwitcher(
-                duration: duration,
-                child: running == null
-                    ? Icon(
-                        Icons.add,
-                        key: const ValueKey('plus'),
-                        size: metrics.actionIconSize,
-                        color: CenterActionSurface.foreground,
-                      )
-                    : _TimerLabel(
-                        key: const ValueKey('timer'),
-                        session: running,
-                      ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // The「+」and the timer cross over as the capsule grows,
+                  // so neither pops in.
+                  Opacity(
+                    opacity: (1 - timerProgress * 2).clamp(0.0, 1.0),
+                    child: Icon(
+                      Icons.add,
+                      size: metrics.actionIconSize,
+                      color: CenterActionSurface.foreground,
+                    ),
+                  ),
+                  if (running != null)
+                    Opacity(
+                      opacity: ((timerProgress - 0.5) * 2).clamp(0.0, 1.0),
+                      child: _TimerLabel(session: running),
+                    ),
+                ],
               ),
             ),
           ),
@@ -634,7 +652,7 @@ class CenterActionSurface extends StatelessWidget {
 }
 
 class _TimerLabel extends StatelessWidget {
-  const _TimerLabel({super.key, required this.session});
+  const _TimerLabel({required this.session});
 
   final ActiveSession session;
 

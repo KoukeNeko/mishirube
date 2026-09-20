@@ -8,6 +8,7 @@ import 'package:mishirube/features/me/import_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
+import 'package:mishirube/features/shell/bottom_chrome/session_accessory.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -196,6 +197,41 @@ void main() {
     await _settleFor(tester);
     expect(find.textContaining('訓練進行中 ·'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the accessory is squeezed into the timer, not cut away', (
+    tester,
+  ) async {
+    final store = await _pumpApp(tester, FakeClock());
+    store
+      ..startWorkout()
+      ..selectTab(HomeTab.log);
+    await _settleFor(tester);
+
+    final accessory = find.byType(SessionAccessory);
+    final centre = find.byKey(const ValueKey('dock-center-action'));
+    final wide = tester.getSize(accessory).width;
+    final plus = tester.getSize(centre).width;
+
+    await tester.drag(_visibleScrollView, const Offset(0, -300));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final narrowing = tester.getSize(accessory).width;
+    final growing = tester.getSize(centre).width;
+    expect(
+      narrowing,
+      lessThan(wide),
+      reason: 'the bar is on its way into the capsule, not switched off',
+    );
+    expect(narrowing, greaterThan(ChromeMetrics.timerCapsuleWidth));
+    expect(growing, greaterThan(plus), reason: 'the capsule grows to meet it');
+    expect(growing, lessThan(ChromeMetrics.timerCapsuleWidth));
+
+    await _settleFor(tester);
+    expect(accessory, findsNothing);
+    expect(tester.getSize(centre).width, ChromeMetrics.timerCapsuleWidth);
     await disposeTree(tester);
   });
 
