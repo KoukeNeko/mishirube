@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/record_activity_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
@@ -54,6 +55,14 @@ final recordOptions = [
     module: AppModule.training,
     subtitle: '從訓練模板開始，或空白紀錄',
     destination: () => const RoutineDetailScreen(),
+  ),
+  RecordOption(
+    icon: Icons.directions_run,
+    color: AppColors.activity,
+    title: '運動',
+    subtitle: '跑步、健走、騎車、球類、瑜伽',
+    module: AppModule.activity,
+    destination: () => const RecordActivityScreen(),
   ),
   RecordOption(
     icon: Icons.restaurant,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
@@ -36,6 +37,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     final store = AppStoreScope.of(context);
     final overview = store.trends(window: _range.window);
     final volume = store.volumeReport(window: _range.window);
+    final activity = store.activitySummary(window: _range.window);
     return CollapsingPage(
       title: '趨勢',
       subtitle: '${_date(overview.from)} – ${_date(overview.to)}・你的訓練與身體變化',
@@ -67,7 +69,9 @@ class _TrendsScreenState extends State<TrendsScreen> {
               ),
             ),
         Gutter(child: const SectionLabel('摘要')),
-        Gutter(child: _SummaryGrid(overview: overview)),
+        Gutter(
+          child: _SummaryGrid(overview: overview, activity: activity),
+        ),
         Gutter(child: const SectionLabel('看得更細')),
         Gutter(
           child: AccentRow(
@@ -104,9 +108,10 @@ class _TrendsScreenState extends State<TrendsScreen> {
 }
 
 class _SummaryGrid extends StatelessWidget {
-  const _SummaryGrid({required this.overview});
+  const _SummaryGrid({required this.overview, required this.activity});
 
   final TrendsOverview overview;
+  final ActivitySummary activity;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +157,21 @@ class _SummaryGrid extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        // Exercise stands beside training rather than inside it: a run is
+        // not a workout, and folding them together hides both.
+        _SummaryTile(
+          category: '每週運動',
+          color: AppColors.activity,
+          value: '${activity.thisWeek}',
+          unit: '次 · 本週',
+          caption: activity.hasRecords
+              ? '${activity.time.inMinutes} 分鐘'
+              : '尚未記錄運動',
+          chart: activity.hasRecords
+              ? MiniBarChart(bars: activity.weekly, height: 40)
+              : null,
         ),
         const SizedBox(height: AppSpacing.sm),
         Row(

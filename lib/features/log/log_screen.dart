@@ -116,7 +116,10 @@ class _LogScreenState extends State<LogScreen> {
         workoutId: entry.recordId,
       ),
       RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
-      RecordCategory.body || RecordCategory.wellness => null,
+      // Exercise, weights and check-ins say all they have in the row.
+      RecordCategory.activity ||
+      RecordCategory.body ||
+      RecordCategory.wellness => null,
     };
     if (destination == null) {
       showToast(context, '「${entry.title}」的詳細畫面尚未設計');

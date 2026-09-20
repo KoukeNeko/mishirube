@@ -4,6 +4,7 @@
 /// SQLite or the screens.
 library;
 
+export 'activity.dart';
 export 'body.dart';
 export 'exercise_filter.dart';
 export 'history.dart';

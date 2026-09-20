@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/activity/activity_type_picker.dart';
+import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/features/exercise/create_exercise_screen.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -81,6 +83,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     (_) => const CreateExerciseScreen(initialName: '啞鈴臥推'),
     _noSetup,
   ),
+  'record activity': ((_) => const RecordActivityScreen(), _noSetup),
+  'activity type picker': ((_) => const ActivityTypePicker(), _noSetup),
   'meal entry': ((_) => const MealEntryScreen(), _noSetup),
   'meal confirm': ((_) => const MealConfirmScreen(), _noSetup),
   'daily nutrition': ((_) => const DailyNutritionScreen(), _withLunch),

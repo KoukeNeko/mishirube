@@ -69,6 +69,16 @@ const _weights = {
   0: 72.4,
 };
 
+/// Exercise outside the gym, on the days without a workout: days before
+/// the demo day, the type, how long, and how far where that applies.
+final _activities = [
+  (1, 18, 40, ActivityTypes.cycling, 50, 18400.0),
+  (2, 7, 10, ActivityTypes.running, 32, 5200.0),
+  (6, 9, 0, ActivityTypes.walking, 40, 3400.0),
+  (9, 7, 15, ActivityTypes.running, 28, 4600.0),
+  (13, 21, 0, ActivityTypes.yoga, 30, null),
+];
+
 /// Fills an empty store with the design's demo data, dated relative to
 /// [today] so the demo reads the same whenever the app is first opened.
 /// Does nothing once the store has been seeded.
@@ -136,6 +146,19 @@ void seedDemoData(Backend backend, DateTime today) {
         source: ChangeSource.seed,
       );
     }
+    for (final (daysAgo, hour, minute, type, minutes, metres) in _activities) {
+      backend.storage.activities.add(
+        ActivitySession(
+          id: 'seed-activity-$daysAgo',
+          type: type,
+          startedAt: at(daysAgo, hour, minute),
+          duration: Duration(minutes: minutes),
+          distanceMeters: metres,
+        ),
+        source: ChangeSource.seed,
+      );
+    }
+
     backend.storage.journal.addWellness(
       WellnessEntry(
         id: 'seed-energy-1',

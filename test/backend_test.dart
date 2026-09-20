@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/application/activity_service.dart';
 import 'package:mishirube/backend/import_export/canonical_archive.dart';
 import 'package:mishirube/backend/import_export/csv.dart';
 import 'package:mishirube/backend/import_export/csv_view.dart';
@@ -339,6 +340,82 @@ void main() {
       expect(nextDay.isLunchLogged, isFalse);
       nextDay.confirmLunch();
       expect(nextDay.todayMeals.single.id, isNot('lunch'));
+    });
+  });
+
+  group('activity persistence', () {
+    test('a logged session survives a restart and lands on the log', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final startedAt = clock.now().subtract(const Duration(minutes: 40));
+      store.logActivity(
+        type: ActivityTypes.running,
+        startedAt: startedAt,
+        duration: const Duration(minutes: 40),
+        distanceMeters: 6400,
+        effort: 6,
+        note: '河濱',
+      );
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final today = reopened.activitiesOn(clock.now());
+      expect(today.map((session) => session.type), [ActivityTypes.running]);
+      expect(today.single.distanceMeters, 6400);
+      expect(today.single.effort, 6);
+      expect(today.single.pace, const Duration(minutes: 6, seconds: 15));
+
+      final entries = reopened
+          .monthRecords(DateTime(2026, 9))
+          .days
+          .first
+          .entries;
+      expect(
+        entries.where((entry) => entry.category == RecordCategory.activity),
+        hasLength(1),
+      );
+    });
+
+    test('exercise is counted apart from training', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      final summary = store.activitySummary();
+      expect(summary.hasRecords, isTrue);
+      expect(summary.thisWeek, 2, reason: 'the two sessions since Monday');
+      expect(summary.weekly, hasLength(4));
+      final workouts = store.trends().workoutsThisWeek;
+      store.logActivity(
+        type: ActivityTypes.swimming,
+        startedAt: clock.now().subtract(const Duration(minutes: 45)),
+        duration: const Duration(minutes: 45),
+      );
+      expect(store.activitySummary().thisWeek, summary.thisWeek + 1);
+      expect(
+        store.trends().workoutsThisWeek,
+        workouts,
+        reason: 'a swim is not a workout',
+      );
+    });
+
+    test('the form starts from what was done last', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      expect(store.recentActivityTypes.first, ActivityTypes.cycling);
+      expect(
+        store.startingActivityDuration(ActivityTypes.running),
+        const Duration(minutes: 32),
+      );
+      expect(
+        store.startingActivityDuration(ActivityTypes.badminton),
+        defaultActivityDuration,
+        reason: 'nothing logged before, so a round half hour',
+      );
     });
   });
 

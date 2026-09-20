@@ -320,6 +320,40 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('logging exercise from the add menu reaches the log', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.bySemanticsLabel('新增紀錄'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('運動'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('運動類型'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('健走').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('45 分'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+
+    store.selectTab(HomeTab.log);
+    await tester.pumpAndSettle();
+    expect(find.text('健走'), findsWidgets);
+    expect(find.text('45 分'), findsWidgets);
+    await disposeTree(tester);
+  });
+
   testWidgets('the log filters follow the record categories', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)

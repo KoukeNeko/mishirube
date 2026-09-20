@@ -85,6 +85,7 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
       ),
+      ..._activities(store),
       for (final insight in store.todayInsights)
         Gutter(
           child: InsightCard(
@@ -161,10 +162,25 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
       ),
+      ..._activities(store),
       for (final insight in store.todayInsights)
         Gutter(child: InsightCard(insight: insight)),
     ];
   }
+
+  /// Exercise logged today sits with the training it belongs beside, and
+  /// disappears entirely on a day without any: it is a record, not a card
+  /// the screen owes the user.
+  List<Widget> _activities(AppStore store) => [
+    for (final activity in store.activitiesOn(store.now()))
+      Gutter(
+        child: AccentRow(
+          color: AppColors.activity,
+          title: activity.type.label,
+          subtitle: activity.description,
+        ),
+      ),
+  ];
 }
 
 class _WeightTile extends StatelessWidget {

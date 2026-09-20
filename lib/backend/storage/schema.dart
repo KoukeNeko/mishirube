@@ -206,6 +206,24 @@ final List<String> _migrations = [
   CREATE INDEX sleep_entries_slept ON sleep_entries(slept_at);
   ''',
   '''
+  -- General exercise: one stretch of time doing something, as opposed to
+  -- the sets of a strength workout.
+  CREATE TABLE activities (
+    id TEXT PRIMARY KEY,
+    type TEXT NOT NULL,
+    native_type TEXT,
+    started_at INTEGER NOT NULL,
+    ended_at INTEGER NOT NULL,
+    elapsed_ms INTEGER NOT NULL,
+    distance_m REAL,
+    elevation_gain_m REAL,
+    effort INTEGER,
+    note TEXT NOT NULL DEFAULT '',
+    $_entityColumns
+  );
+  CREATE INDEX activities_started ON activities(started_at);
+  ''',
+  '''
   -- Names the user gave an exercise, kept apart from the catalog's own
   -- aliases so a catalog update never overwrites them.
   ALTER TABLE exercises

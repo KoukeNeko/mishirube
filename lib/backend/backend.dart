@@ -2,11 +2,13 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart' show sqlite3;
 
+import 'application/activity_service.dart';
 import 'application/catalog_service.dart';
 import 'application/insights_service.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
 import 'application/training_service.dart';
+import 'storage/activity_repository.dart';
 import 'storage/database.dart';
 import 'storage/exercise_repository.dart';
 import 'storage/journal_repository.dart';
@@ -22,13 +24,15 @@ const _databaseFileName = 'mishirube.sqlite3';
 /// its tests, and import and export.
 class Storage {
   Storage(this.db)
-    : exercises = ExerciseRepository(db),
+    : activities = ActivityRepository(db),
+      exercises = ExerciseRepository(db),
       routines = RoutineRepository(db),
       workouts = WorkoutRepository(db),
       meals = MealRepository(db),
       journal = JournalRepository(db) {
     timeline = TimelineQuery(db, [
       WorkoutTimelineSource(workouts, exercises),
+      ActivityTimelineSource(activities),
       MealTimelineSource(meals),
       BodyWeightTimelineSource(journal),
       SleepTimelineSource(journal),
@@ -39,6 +43,7 @@ class Storage {
   }
 
   final AppDatabase db;
+  final ActivityRepository activities;
   final ExerciseRepository exercises;
   final RoutineRepository routines;
   final WorkoutRepository workouts;
@@ -60,6 +65,7 @@ class Backend {
       storage.routines,
     );
     nutrition = NutritionService(db, storage.meals);
+    activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
     insights = InsightsService(
       db,
@@ -87,6 +93,7 @@ class Backend {
   late final CatalogService catalog;
   late final TrainingService training;
   late final NutritionService nutrition;
+  late final ActivityService activity;
   late final JournalService journal;
   late final InsightsService insights;
 

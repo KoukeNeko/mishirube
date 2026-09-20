@@ -4,6 +4,7 @@ import '../app/theme.dart';
 
 enum RecordCategory {
   training('訓練', AppColors.training, Icons.fitness_center),
+  activity('運動', AppColors.activity, Icons.directions_run),
   nutrition('飲食', AppColors.nutrition, Icons.restaurant),
   body('身體', AppColors.body, Icons.monitor_weight_outlined),
   wellness('睡眠與狀態', AppColors.wellness, Icons.bedtime_outlined);

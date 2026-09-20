@@ -14,7 +14,10 @@ const _menuDuration = Duration(milliseconds: 280);
 
 /// Leaving is quicker than arriving: the user has already decided.
 const _menuCloseDuration = Duration(milliseconds: 180);
-const _quickOptionCount = 4;
+
+/// How many record types the menu offers before "更多": enough for the
+/// everyday ones, short enough to read at a glance.
+const _quickOptionCount = 5;
 const _staggerStep = 0.12;
 const _itemSpacing = 10.0;
 const _itemHeight = 52.0;

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
+import '../backend/application/activity_service.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/backend.dart';
@@ -31,7 +32,7 @@ enum AppModule {
   nutrition('記錄飲食', '一餐、料理、成分與營養'),
   weight('管理體重', '體重趨勢與攝取的關係'),
   training('重量訓練', '動作、訓練、計畫與訓練紀錄'),
-  activity('增加日常活動', '步數與活動量'),
+  activity('運動', '跑步、健走、騎車、球類、瑜伽'),
   sleep('改善睡眠', '睡眠時間與品質'),
   wellness('觀察身體狀況', '心情、精力與症狀日誌'),
   notes('筆記', '和任何一天或一筆紀錄關聯');
@@ -90,6 +91,7 @@ class AppStore extends ChangeNotifier {
     AppModule.nutrition,
     AppModule.weight,
     AppModule.training,
+    AppModule.activity,
     AppModule.sleep,
     AppModule.wellness,
   };
@@ -457,6 +459,42 @@ class AppStore extends ChangeNotifier {
   /// Nights logged in the last few weeks, oldest first.
   List<SleepEntry> get recentSleep =>
       _backend.journal.recentSleep(const Duration(days: 28));
+
+  /// Exercise logged on [day].
+  List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);
+
+  /// The kinds of exercise used recently, newest first.
+  List<ActivityType> get recentActivityTypes => _backend.activity.recentTypes();
+
+  /// Where the duration field starts for [type].
+  Duration startingActivityDuration(ActivityType type) =>
+      _backend.activity.startingDuration(type);
+
+  /// Exercise over the last few weeks, for the trends card.
+  ActivitySummary activitySummary({
+    Duration window = const Duration(days: 28),
+  }) => _backend.activity.summary(window: window);
+
+  /// Records a session of general exercise.
+  ActivitySession logActivity({
+    required ActivityType type,
+    required DateTime startedAt,
+    required Duration duration,
+    double? distanceMeters,
+    int? effort,
+    String note = '',
+  }) {
+    final activity = _backend.activity.log(
+      type: type,
+      startedAt: startedAt,
+      duration: duration,
+      distanceMeters: distanceMeters,
+      effort: effort,
+      note: note,
+    );
+    notifyListeners();
+    return activity;
+  }
 
   /// Records a body weight measured now.
   void recordWeight(double kilograms, {String note = ''}) {

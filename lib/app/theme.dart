@@ -25,6 +25,10 @@ abstract final class AppColors {
   static const body = Color(0xFF5B8DEF);
   static const wellness = Color(0xFF8C7CF4);
 
+  /// General exercise: far enough from the training green to tell a run
+  /// from a workout at a glance.
+  static const activity = Color(0xFF3FD0D6);
+
   static const warning = Color(0xFFE8B94A);
   static const warningSurface = Color(0xFF2A2412);
   static const warningOutline = Color(0xFF5A4A1E);
