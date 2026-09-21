@@ -20,8 +20,9 @@ class ActivityRepository {
       _db.execute(
         'INSERT INTO activities (id, type, native_type, started_at, '
         'ended_at, elapsed_ms, distance_m, elevation_gain_m, effort, note, '
-        'created_at, updated_at, source, import_batch_id) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'created_at, updated_at, source, import_batch_id, local_day, '
+        'utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           activity.id,
           activity.type.id,
@@ -37,6 +38,8 @@ class ActivityRepository {
           now,
           source.name,
           importBatchId,
+          localDayOf(activity.startedAt),
+          activity.startedAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(
@@ -129,8 +132,9 @@ class ActivityRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO activities (id, type, started_at, ended_at, elapsed_ms, '
-        "note, status, created_at, updated_at) VALUES (?, ?, ?, ?, 0, '', "
-        "'in_progress', ?, ?)",
+        "note, status, created_at, updated_at, local_day, "
+        "utc_offset_minutes) VALUES (?, ?, ?, ?, 0, '', "
+        "'in_progress', ?, ?, ?, ?)",
         [
           live.id,
           live.type.id,
@@ -138,6 +142,8 @@ class ActivityRepository {
           live.startedAt.millisecondsSinceEpoch,
           now,
           now,
+          localDayOf(live.startedAt),
+          live.startedAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(entityType: 'activity', entityId: live.id, action: 'start');

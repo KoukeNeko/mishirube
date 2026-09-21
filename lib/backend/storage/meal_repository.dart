@@ -13,12 +13,17 @@ class MealRepository {
   final AppDatabase _db;
 
   /// Meals eaten on the calendar day of [day], in time order.
+  ///
+  /// By the day the meal was eaten on, not by an instant range in
+  /// whatever zone the phone is in now: breakfast in Taipei stays on
+  /// that day after the flight to Los Angeles.
   List<MealEvent> onDay(DateTime day) => [
-    for (final (_, meal) in between(
-      DateTime(day.year, day.month, day.day),
-      DateTime(day.year, day.month, day.day + 1),
+    for (final row in _db.select(
+      'SELECT * FROM meals WHERE deleted_at IS NULL '
+      'AND ${AppDatabase.localDaySql('eaten_at')} = ? ORDER BY eaten_at',
+      [localDayOf(day)],
     ))
-      meal,
+      _fromRow(row),
   ];
 
   /// Meals eaten in `[start, end)` with their time, oldest first.
@@ -57,6 +62,24 @@ class MealRepository {
       (DateTime.fromMillisecondsSinceEpoch(row['eaten_at']), _fromRow(row)),
   ];
 
+  /// Meals whose local day falls in `[fromDay, toDay]`, each with that
+  /// day and the time it was eaten as lived.
+  List<(int, DateTime, MealEvent)> inDays(int fromDay, int toDay) => [
+    for (final row in _db.select(
+      'SELECT *, ${AppDatabase.localDaySql('eaten_at')} AS day FROM meals '
+      'WHERE deleted_at IS NULL AND day BETWEEN ? AND ? ORDER BY eaten_at',
+      [fromDay, toDay],
+    ))
+      (
+        row['day']! as int,
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row['eaten_at']! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
+        _fromRow(row),
+      ),
+  ];
+
   bool exists(String id) =>
       _db.select('SELECT 1 FROM meals WHERE id = ?', [id]).isNotEmpty;
 
@@ -73,8 +96,8 @@ class MealRepository {
         'INSERT INTO meals (id, name, eaten_at, kcal, protein_g, carb_g, '
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
-        'source, import_batch_id) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'source, import_batch_id, local_day, utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -94,6 +117,8 @@ class MealRepository {
           now,
           source.name,
           importBatchId,
+          localDayOf(eatenAt),
+          eatenAt.timeZoneOffset.inMinutes,
         ],
       );
       _writeDishes(meal);
@@ -224,8 +249,13 @@ class MealRepository {
     return MealEvent(
       id: id,
       name: row['name']! as String,
+      // The clock the person read when they ate, not the one the phone
+      // shows now: 08:10 in Taipei does not become 17:10 by flying.
       timeLabel: formatTimeOfDay(
-        DateTime.fromMillisecondsSinceEpoch(row['eaten_at']! as int),
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row['eaten_at']! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
       ),
       kcal: row['kcal'] as int?,
       proteinGrams: row['protein_g'] as int?,
@@ -289,7 +319,10 @@ class MealTimelineSource extends TimelineSource {
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final (eatenAt, meal) in _meals.between(start, end))
+    for (final (_, eatenAt, meal) in _meals.inDays(
+      localDayOf(start),
+      localDayOf(end.subtract(const Duration(days: 1))),
+    ))
       (
         eatenAt,
         TimelineEntry(
@@ -337,10 +370,15 @@ class MealTimelineSource extends TimelineSource {
       '${summary.mealCount} 餐 · ${summary.hasEstimates ? '~' : ''}'
       '${formatKcal(summary.kcal)} kcal';
 
+  /// The month's meals by day of the month, grouped by the day each was
+  /// eaten on rather than by where the reader is standing now.
   Map<int, List<MealEvent>> _byDay(DateTime start, DateTime end) {
     final byDay = <int, List<MealEvent>>{};
-    for (final (eatenAt, meal) in _meals.between(start, end)) {
-      (byDay[eatenAt.day] ??= []).add(meal);
+    for (final (day, _, meal) in _meals.inDays(
+      localDayOf(start),
+      localDayOf(end.subtract(const Duration(days: 1))),
+    )) {
+      (byDay[day % 100] ??= []).add(meal);
     }
     return byDay;
   }

@@ -164,6 +164,17 @@ class AppDatabase {
   /// Whether [key] names something that must not leave the device.
   static bool isSecret(String key) => key.startsWith(secretKeyPrefix);
 
+  /// SQL for a row's local day, falling back to the reader's own zone
+  /// for rows recorded before the app kept one.
+  ///
+  /// [instantColumn] holds epoch milliseconds. The fallback is what the
+  /// app did for every row until the column existed, so an old row keeps
+  /// the day it has always been shown on.
+  static String localDaySql(String instantColumn) =>
+      'COALESCE(local_day, CAST(strftime('
+      "'%Y%m%d', $instantColumn / 1000, 'unixepoch', 'localtime'"
+      ') AS INTEGER))';
+
   String? setting(String key) {
     final rows = _db.select('SELECT value FROM settings WHERE key = ?', [key]);
     return rows.isEmpty ? null : rows.first['value'] as String;

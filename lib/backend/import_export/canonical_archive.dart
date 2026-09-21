@@ -54,6 +54,14 @@ const _entity = [
   _Column('import_batch_id', _Kind.text, isNullable: true),
 ];
 
+/// What a record's own day was, for the tables that hold an event
+/// somebody lived through. Nullable: rows recorded before the app kept
+/// this have no honest value to give them.
+const _lived = [
+  _Column('local_day', _Kind.integer, isNullable: true),
+  _Column('utc_offset_minutes', _Kind.integer, isNullable: true),
+];
+
 /// Every table in the archive, parents before children so a restore can
 /// insert in this order and delete in reverse.
 const _tables = [
@@ -123,6 +131,7 @@ const _tables = [
     _Column('current_exercise', _Kind.integer),
     _Column('notes', _Kind.text, isNullable: true),
     _Column('fingerprint', _Kind.text, isNullable: true),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('workoutExercises', 'workout_exercises', [
@@ -188,6 +197,7 @@ const _tables = [
     _Column('quality_tag', _Kind.text),
     _Column('is_estimated', _Kind.boolean),
     _Column('is_favorite', _Kind.boolean),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('mealDishes', 'meal_dishes', [
@@ -215,6 +225,7 @@ const _tables = [
     _Column('measured_at', _Kind.time),
     _Column('weight_kg', _Kind.real),
     _Column('note', _Kind.text),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('activities', 'activities', [
@@ -231,6 +242,7 @@ const _tables = [
     _Column('status', _Kind.text),
     _Column('paused_at', _Kind.time, isNullable: true),
     _Column('paused_ms', _Kind.integer),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('weeklyGoals', 'weekly_goals', [
@@ -252,6 +264,7 @@ const _tables = [
     _Column('site', _Kind.text),
     _Column('centimetres', _Kind.real),
     _Column('note', _Kind.text),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('sleepEntries', 'sleep_entries', [
@@ -260,6 +273,7 @@ const _tables = [
     _Column('duration_minutes', _Kind.integer),
     _Column('score', _Kind.integer, isNullable: true),
     _Column('note', _Kind.text),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('wellnessEntries', 'wellness_entries', [
@@ -268,6 +282,7 @@ const _tables = [
     _Column('kind', _Kind.text),
     _Column('score', _Kind.integer),
     _Column('note', _Kind.text),
+    ..._lived,
     ..._entity,
   ], orderBy: 'id'),
   _Table('auditEvents', 'audit_events', [

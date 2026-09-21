@@ -440,6 +440,93 @@ final List<String> _migrations = [
   ALTER TABLE foods ADD COLUMN checked_at INTEGER;
   ALTER TABLE meals ADD COLUMN value_type TEXT NOT NULL DEFAULT 'declared';
   ''',
+  '''
+  -- Which day a record belonged to for the person who lived it, as
+  -- yyyymmdd, plus the UTC offset in force when they recorded it. An
+  -- instant alone cannot answer "which day was that": the same moment
+  -- is Monday night in Taipei and Monday morning in Los Angeles, so
+  -- grouping by the device's current zone silently moves breakfast to
+  -- yesterday the moment somebody flies.
+  --
+  -- Existing rows are backfilled through the device's own zone, which
+  -- is the day they have been shown on until now.
+  ALTER TABLE meals ADD COLUMN local_day INTEGER;
+  ALTER TABLE meals ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE meals SET
+    local_day = CAST(
+      strftime('%Y%m%d', eaten_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(eaten_at / 1000, 'unixepoch', 'localtime')
+      - julianday(eaten_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE workouts ADD COLUMN local_day INTEGER;
+  ALTER TABLE workouts ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE workouts SET
+    local_day = CAST(
+      strftime('%Y%m%d', started_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(started_at / 1000, 'unixepoch', 'localtime')
+      - julianday(started_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE activities ADD COLUMN local_day INTEGER;
+  ALTER TABLE activities ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE activities SET
+    local_day = CAST(
+      strftime('%Y%m%d', started_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(started_at / 1000, 'unixepoch', 'localtime')
+      - julianday(started_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE body_weights ADD COLUMN local_day INTEGER;
+  ALTER TABLE body_weights ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE body_weights SET
+    local_day = CAST(
+      strftime('%Y%m%d', measured_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(measured_at / 1000, 'unixepoch', 'localtime')
+      - julianday(measured_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE body_measurements ADD COLUMN local_day INTEGER;
+  ALTER TABLE body_measurements ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE body_measurements SET
+    local_day = CAST(
+      strftime('%Y%m%d', measured_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(measured_at / 1000, 'unixepoch', 'localtime')
+      - julianday(measured_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE wellness_entries ADD COLUMN local_day INTEGER;
+  ALTER TABLE wellness_entries ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE wellness_entries SET
+    local_day = CAST(
+      strftime('%Y%m%d', recorded_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(recorded_at / 1000, 'unixepoch', 'localtime')
+      - julianday(recorded_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+
+  ALTER TABLE sleep_entries ADD COLUMN local_day INTEGER;
+  ALTER TABLE sleep_entries ADD COLUMN utc_offset_minutes INTEGER;
+  UPDATE sleep_entries SET
+    local_day = CAST(
+      strftime('%Y%m%d', slept_at / 1000, 'unixepoch', 'localtime') AS INTEGER
+    ),
+    utc_offset_minutes = CAST(round((
+      julianday(slept_at / 1000, 'unixepoch', 'localtime')
+      - julianday(slept_at / 1000, 'unixepoch')
+    ) * 1440) AS INTEGER);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

@@ -12,5 +12,6 @@ export 'history.dart';
 export 'nutrition.dart';
 export 'records.dart';
 export 'session.dart';
+export 'time.dart';
 export 'training.dart';
 export 'wellness.dart';

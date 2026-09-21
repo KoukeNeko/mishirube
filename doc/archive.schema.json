@@ -402,6 +402,18 @@
                   "null"
                 ]
               },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -773,6 +785,18 @@
               "isFavorite": {
                 "type": "boolean"
               },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -921,6 +945,18 @@
               "note": {
                 "type": "string"
               },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -1027,6 +1063,18 @@
               },
               "pausedMs": {
                 "type": "integer"
+              },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "createdAt": {
                 "type": "string",
@@ -1208,6 +1256,18 @@
               "note": {
                 "type": "string"
               },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -1273,6 +1333,18 @@
               "note": {
                 "type": "string"
               },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -1335,6 +1407,18 @@
               },
               "note": {
                 "type": "string"
+              },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "createdAt": {
                 "type": "string",

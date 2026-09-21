@@ -147,8 +147,9 @@ class WorkoutRepository {
         _db.execute(
           'INSERT INTO workouts (routine_id, name, status, started_at, '
           'finished_at, paused_at, paused_total_ms, current_exercise, notes, '
-          'id, created_at, updated_at, source, import_batch_id, fingerprint) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'id, created_at, updated_at, source, import_batch_id, fingerprint, '
+          'local_day, utc_offset_minutes) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             ...values,
             workout.id,
@@ -157,6 +158,8 @@ class WorkoutRepository {
             source.name,
             importBatchId,
             fingerprint,
+            localDayOf(workout.startedAt),
+            workout.startedAt.timeZoneOffset.inMinutes,
           ],
         );
       }

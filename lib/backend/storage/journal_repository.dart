@@ -17,7 +17,8 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO body_weights (id, measured_at, weight_kg, note, '
-        'created_at, updated_at, source) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'created_at, updated_at, source, local_day, utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           weight.id,
           weight.measuredAt.millisecondsSinceEpoch,
@@ -26,6 +27,8 @@ class JournalRepository {
           now,
           now,
           source.name,
+          localDayOf(weight.measuredAt),
+          weight.measuredAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(
@@ -45,7 +48,8 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO wellness_entries (id, recorded_at, kind, score, note, '
-        'created_at, updated_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'created_at, updated_at, source, local_day, utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           entry.id,
           entry.recordedAt.millisecondsSinceEpoch,
@@ -55,6 +59,8 @@ class JournalRepository {
           now,
           now,
           source.name,
+          localDayOf(entry.recordedAt),
+          entry.recordedAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(
@@ -71,8 +77,9 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO sleep_entries (id, slept_at, duration_minutes, score, '
-        'note, created_at, updated_at, source) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'note, created_at, updated_at, source, local_day, '
+        'utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           entry.id,
           entry.sleptAt.millisecondsSinceEpoch,
@@ -82,6 +89,8 @@ class JournalRepository {
           now,
           now,
           source.name,
+          localDayOf(entry.sleptAt),
+          entry.sleptAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(
@@ -131,7 +140,8 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO body_measurements (id, measured_at, site, centimetres, '
-        'note, created_at, updated_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'note, created_at, updated_at, source, local_day, '
+        'utc_offset_minutes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           measurement.id,
           measurement.measuredAt.millisecondsSinceEpoch,
@@ -141,6 +151,8 @@ class JournalRepository {
           now,
           now,
           source.name,
+          localDayOf(measurement.measuredAt),
+          measurement.measuredAt.timeZoneOffset.inMinutes,
         ],
       );
       _db.audit(
