@@ -262,12 +262,12 @@ class WorkoutTimelineSource extends TimelineSource {
     final known = <String, ExerciseDefinition>{};
     ExerciseDefinition resolve(String id) => known[id] ??= _exercises.byId(id)!;
     return [
-      for (final workout in _completed(start, end, resolve))
+      for (final (_, offset, workout) in _completed(start, end, resolve))
         (
-          workout.finishedAt!,
+          asLived(workout.finishedAt!, offset),
           TimelineEntry(
-            timeLabel: formatTimeOfDay(workout.finishedAt!),
-            at: workout.finishedAt!,
+            timeLabel: formatTimeOfDay(asLived(workout.finishedAt!, offset)),
+            at: asLived(workout.finishedAt!, offset),
             recordId: workout.id,
             category: RecordCategory.training,
             title: workout.routineName,
@@ -283,23 +283,33 @@ class WorkoutTimelineSource extends TimelineSource {
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
-    for (final workout in _completed(start, end, (id) => _exercises.byId(id)!))
-      workout.startedAt.day:
-          '${workout.routineName} · ${workout.completedSets} 組',
+    for (final (day, _, workout) in _completed(
+      start,
+      end,
+      (id) => _exercises.byId(id)!,
+    ))
+      day % 100: '${workout.routineName} · ${workout.completedSets} 組',
   };
 
-  List<WorkoutSession> _completed(
+  /// Finished workouts of the month, each with the day it was trained on
+  /// and the offset it was trained in.
+  List<(int, int?, WorkoutSession)> _completed(
     DateTime start,
     DateTime end,
     ExerciseResolver exercises,
   ) => [
     for (final row in _db.select(
-      "SELECT id FROM workouts WHERE status = 'completed' "
-      'AND deleted_at IS NULL AND started_at >= ? AND started_at < ? '
-      'ORDER BY started_at',
-      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+      'SELECT id, utc_offset_minutes, '
+      '${AppDatabase.localDaySql('started_at')} AS day FROM workouts '
+      "WHERE status = 'completed' AND deleted_at IS NULL "
+      'AND day BETWEEN ? AND ? ORDER BY started_at',
+      [localDayOf(start), localDayOf(end.subtract(const Duration(days: 1)))],
     ))
-      _workouts.byId(row['id'], exercises)!,
+      (
+        row['day']! as int,
+        row['utc_offset_minutes'] as int?,
+        _workouts.byId(row['id'], exercises)!,
+      ),
   ];
 
   /// A heavier set than any earlier finished session of the same exercise.

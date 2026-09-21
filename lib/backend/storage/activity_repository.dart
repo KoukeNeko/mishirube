@@ -222,6 +222,25 @@ class ActivityRepository {
       _fromRow(row),
   ];
 
+  /// Sessions whose local day falls in `[fromDay, toDay]`, each with
+  /// that day and the time it started as lived.
+  List<(int, DateTime, ActivitySession)> inDays(int fromDay, int toDay) => [
+    for (final row in _db.select(
+      'SELECT *, ${AppDatabase.localDaySql('started_at')} AS day '
+      "FROM activities WHERE deleted_at IS NULL AND status = 'finished' "
+      'AND day BETWEEN ? AND ? ORDER BY started_at',
+      [fromDay, toDay],
+    ))
+      (
+        row['day']! as int,
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row['started_at']! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
+        _fromRow(row),
+      ),
+  ];
+
   /// The types used most recently, newest first, for offering them again.
   List<ActivityType> recentTypes({int limit = 3}) => [
     for (final row in _db.select(
@@ -285,12 +304,15 @@ class ActivityTimelineSource extends TimelineSource {
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final activity in _activities.between(start, end))
+    for (final (_, startedAt, activity) in _activities.inDays(
+      localDayOf(start),
+      localDayOf(end.subtract(const Duration(days: 1))),
+    ))
       (
-        activity.startedAt,
+        startedAt,
         TimelineEntry(
-          timeLabel: formatTimeOfDay(activity.startedAt),
-          at: activity.startedAt,
+          timeLabel: formatTimeOfDay(startedAt),
+          at: startedAt,
           recordId: activity.id,
           category: RecordCategory.activity,
           title: activity.type.label,
@@ -306,8 +328,11 @@ class ActivityTimelineSource extends TimelineSource {
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) {
     final byDay = <int, List<ActivitySession>>{};
-    for (final activity in _activities.between(start, end)) {
-      (byDay[activity.startedAt.day] ??= []).add(activity);
+    for (final (day, _, activity) in _activities.inDays(
+      localDayOf(start),
+      localDayOf(end.subtract(const Duration(days: 1))),
+    )) {
+      (byDay[day % 100] ??= []).add(activity);
     }
     return {
       for (final MapEntry(key: day, value: activities) in byDay.entries)
