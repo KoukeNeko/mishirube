@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -1201,6 +1202,57 @@ void main() {
     expect(find.text('摩卡'), findsOneWidget, reason: 'back on the menu');
     expect(find.text('記錄 1 項'), findsNothing);
     expect(find.byIcon(Icons.receipt_long_outlined), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the food library keeps own foods and browses brands', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.saveFood(FoodItem(id: store.newFoodId(), name: '自煮雞胸', kcal: 165));
+    for (final food in parseCatalogue({
+      'brand': '星巴克',
+      'sourceUrl': 'https://example.com',
+      'checkedAt': '2026-09-21',
+      'valueType': 'declared',
+      'drinks': [
+        {
+          'id': 'latte',
+          'name': '那堤',
+          'sizes': [
+            {'name': 'Tall', 'millilitres': 350, 'caffeineMg': 150},
+          ],
+        },
+      ],
+    })) {
+      store.backend.storage.foods.save(food, source: ChangeSource.catalogue);
+    }
+    await pumpScreen(tester, const MeScreen(), store: store);
+
+    await _tapText(tester, '食物庫');
+    await tester.pumpAndSettle();
+    expect(find.text('自煮雞胸'), findsOneWidget, reason: 'own foods listed');
+    expect(find.text('星巴克'), findsOneWidget, reason: 'brands listed');
+
+    // Searching narrows both.
+    await tester.enterText(find.byType(TextField), '雞胸');
+    await tester.pump();
+    expect(find.text('自煮雞胸'), findsOneWidget);
+    expect(find.text('星巴克'), findsNothing);
+
+    // An own food opens to be corrected.
+    await tester.tap(find.text('自煮雞胸'));
+    await tester.pumpAndSettle();
+    expect(find.byType(FoodEditScreen), findsOneWidget);
+    await tester.tap(find.byTooltip('返回').last);
+    await tester.pumpAndSettle();
+
+    // A brand opens its menu, to browse.
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pump();
+    await tester.tap(find.text('星巴克'));
+    await tester.pumpAndSettle();
+    expect(find.text('那堤'), findsOneWidget);
     await disposeTree(tester);
   });
 

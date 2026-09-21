@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../goal/goal_screen.dart';
+import '../nutrition/food_library_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import 'ai_settings_screen.dart';
 import 'data_sources_screen.dart';
@@ -43,6 +44,11 @@ class MeScreen extends StatelessWidget {
                   context,
                   const ExercisePickerScreen(purpose: PickerPurpose.browse),
                 ),
+              ),
+              NavRow(
+                title: '食物庫',
+                subtitle: _foodLibrarySummary(store),
+                onTap: () => pushPage(context, const FoodLibraryScreen()),
               ),
               NavRow(
                 title: '模組',
@@ -101,6 +107,15 @@ String _goalSummary(AppStore store) {
   if (overview.isPaused) return '已暫停';
   final week = overview.thisWeek;
   return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';
+}
+
+/// `自己的 3 種 · 品牌 2 家`: what is in the library without opening it.
+String _foodLibrarySummary(AppStore store) {
+  final own = store
+      .searchFoods('')
+      .where((food) => !food.isBuiltIn && !food.isSize)
+      .length;
+  return '自己的 $own 種 · 品牌 ${store.catalogues.length} 家';
 }
 
 /// `1.3 MB`, to one decimal: the store's size is a rough figure, and a

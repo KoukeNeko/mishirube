@@ -23,6 +23,7 @@ import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
+import 'package:mishirube/features/nutrition/food_library_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
@@ -93,6 +94,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
   'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
+  'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'describe a meal': ((_) => const DescribeMealScreen(), _noSetup),
   'brand menu': (
     (_) => BrandMenuScreen(
