@@ -191,8 +191,6 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
           subtitle: widget.targetName == null
               ? widget.purpose.label
               : '${widget.purpose.label}「${widget.targetName}」',
-          leading: AppBarLeading.none,
-          onClose: _close,
         ),
         // Searching is the main job here, so the search row stays pinned.
         pinned: Gutter(

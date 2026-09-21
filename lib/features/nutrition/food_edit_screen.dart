@@ -222,12 +222,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   Widget build(BuildContext context) {
     final isNew = widget.editing == null;
     return DetailPage(
-      appBar: PageAppBar(
-        title: isNew ? '新增食物' : '編輯食物',
-        subtitle: '只存在這台裝置',
-        leading: AppBarLeading.none,
-        onClose: () => Navigator.of(context).pop(),
-      ),
+      appBar: PageAppBar(title: isNew ? '新增食物' : '編輯食物', subtitle: '只存在這台裝置'),
       footer: isNew && !_isSize
           ? ButtonPair(
               secondary: SecondaryButton(

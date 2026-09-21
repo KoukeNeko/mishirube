@@ -17,11 +17,7 @@ class ActivityTypePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final recent = AppStoreScope.of(context).recentActivityTypes;
     return DetailPage(
-      appBar: PageAppBar(
-        title: '選擇運動',
-        leading: AppBarLeading.none,
-        onClose: () => Navigator.of(context).pop(),
-      ),
+      appBar: PageAppBar(title: '選擇運動'),
       children: [
         if (recent.isNotEmpty) ...[
           Gutter(child: const SectionLabel('最近使用')),

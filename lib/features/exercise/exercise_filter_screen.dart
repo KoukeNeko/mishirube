@@ -49,8 +49,6 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
       appBar: PageAppBar(
         title: '篩選',
         subtitle: '已套用 ${_filter.activeCount} 個條件',
-        leading: AppBarLeading.none,
-        onClose: () => Navigator.of(context).pop(),
       ),
       footer: PrimaryButton(
         label: '顯示 $_matchCount 個動作',

@@ -843,7 +843,7 @@ void main() {
     await tester.pump();
     expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'selection order');
 
-    await tester.tap(find.bySemanticsLabel('關閉'));
+    await tester.tap(find.bySemanticsLabel('返回'));
     await tester.pumpAndSettle();
     expect(find.text('放棄已選的 1 個動作？'), findsOneWidget);
 
@@ -851,7 +851,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('加入 1 個動作'), findsOneWidget, reason: 'nothing lost');
 
-    await tester.tap(find.bySemanticsLabel('關閉'));
+    await tester.tap(find.bySemanticsLabel('返回'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('放棄已選的動作'));
     await tester.pump();

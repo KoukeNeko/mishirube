@@ -101,7 +101,6 @@ class PageAppBar {
     this.subtitle,
     this.leading = AppBarLeading.back,
     this.onBack,
-    this.onClose,
     this.actions = const [],
     this.compactBar = CompactBarBehavior.pinned,
   });
@@ -110,9 +109,6 @@ class PageAppBar {
   final String? subtitle;
   final AppBarLeading leading;
   final VoidCallback? onBack;
-
-  /// Modal pages get a close button at the trailing edge.
-  final VoidCallback? onClose;
   final List<Widget> actions;
   final CompactBarBehavior compactBar;
 }
@@ -152,7 +148,6 @@ class PageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onClose = appBar.onClose;
     return EdgeToEdgeScaffold(
       footer: footer,
       body: CollapsingPage(
@@ -161,15 +156,7 @@ class PageScaffold extends StatelessWidget {
         leading: appBar.leading == AppBarLeading.back
             ? AppBarBackButton(onPressed: appBar.onBack)
             : null,
-        actions: [
-          ...appBar.actions,
-          if (onClose != null)
-            HeaderAction(
-              icon: Icons.close,
-              semanticLabel: '關閉',
-              onTap: onClose,
-            ),
-        ],
+        actions: appBar.actions,
         pinned: pinned,
         pinnedHeight: pinnedHeight,
         compactBar: appBar.compactBar,

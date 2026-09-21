@@ -130,8 +130,6 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       appBar: PageAppBar(
         title: _editing == null ? '建立自訂動作' : '編輯動作',
         subtitle: _editing == null ? '只需要四個欄位' : '${_editing!.source.label}動作',
-        leading: AppBarLeading.none,
-        onClose: () => Navigator.of(context).pop(),
       ),
       footer: PrimaryButton(
         label: _editing == null ? '建立並加入' : '儲存變更',
