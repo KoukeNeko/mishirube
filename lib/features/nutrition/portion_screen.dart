@@ -238,8 +238,7 @@ class _PortionScreenState extends State<PortionScreen> {
 
 /// ` · 查核 2026/9/21`, or nothing when the figure has no date. A figure
 /// nobody can date is a figure nobody can check.
-String _checked(DateTime? at) =>
-    at == null ? '' : ' · 查核 ${at.year}/${at.month}/${at.day}';
+String _checked(DateTime? at) => at == null ? '' : ' · 查核 ${formatDate(at)}';
 
 /// `31 g`, or a dash when the food has no figure for it.
 String _grams(int? amount) => amount == null ? '—' : '$amount g';

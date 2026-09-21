@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
+import '../journal/weight_entry_screen.dart';
 
 /// What trends look like before there is enough data to judge anything.
 class TrendsEmptyScreen extends StatelessWidget {
@@ -22,7 +24,7 @@ class TrendsEmptyScreen extends StatelessWidget {
               child: PrimaryButton(
                 label: '記錄今天的體重',
                 isCompact: true,
-                onPressed: () => showToast(context, '體重輸入畫面尚未設計'),
+                onPressed: () => pushPage(context, const WeightEntryScreen()),
               ),
             ),
           ),

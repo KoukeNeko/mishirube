@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
@@ -12,9 +13,12 @@ const _minKg = 20.0;
 const _maxKg = 400.0;
 
 /// Logging a body weight, prefilled with the last one so the usual case
-/// is a small correction rather than typing from scratch.
+/// is a small correction rather than typing from scratch. Given
+/// [editing], it corrects that reading instead; its time stays put.
 class WeightEntryScreen extends StatefulWidget {
-  const WeightEntryScreen({super.key});
+  const WeightEntryScreen({super.key, this.editing});
+
+  final BodyWeight? editing;
 
   @override
   State<WeightEntryScreen> createState() => _WeightEntryScreenState();
@@ -29,11 +33,15 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   void initState() {
     super.initState();
     final store = AppStoreScope.read(context);
+    final editing = widget.editing;
     final previous = store.recentWeights.lastOrNull;
     _weight = TextEditingController(
-      text: previous == null ? '' : formatWeight(previous.weightKg),
+      text: switch (editing ?? previous) {
+        final weight? => formatWeight(weight.weightKg),
+        null => '',
+      },
     );
-    _lastLabel = previous == null
+    _lastLabel = previous == null || editing != null
         ? null
         : '上次 ${formatWeight(previous.weightKg)} kg · '
               '${previous.measuredAt.month}/${previous.measuredAt.day}';
@@ -51,11 +59,24 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
       setState(() => _error = '請輸入 $_minKg – $_maxKg 之間的公斤數。');
       return;
     }
-    AppStoreScope.read(context).recordWeight(kilograms, note: _note);
+    final store = AppStoreScope.read(context);
+    final editing = widget.editing;
+    if (editing == null) {
+      store.recordWeight(kilograms, note: _note);
+    } else {
+      store.updateWeight(
+        BodyWeight(
+          id: editing.id,
+          measuredAt: editing.measuredAt,
+          weightKg: kilograms,
+          note: editing.note,
+        ),
+      );
+    }
     Navigator.of(context).pop();
     showToast(
       context,
-      '已記錄 ${formatWeight(kilograms)} kg',
+      '${editing == null ? '已記錄' : '已更新為'} ${formatWeight(kilograms)} kg',
       kind: ToastKind.success,
     );
   }
@@ -67,7 +88,10 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '體重', subtitle: '手動輸入'),
+      appBar: PageAppBar(
+        title: '體重',
+        subtitle: widget.editing == null ? '手動輸入' : '修改這筆紀錄',
+      ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(

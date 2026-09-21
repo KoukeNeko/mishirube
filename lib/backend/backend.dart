@@ -8,6 +8,7 @@ import 'application/goal_service.dart';
 import 'application/insights_service.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
+import 'application/provenance_service.dart';
 import 'application/training_service.dart';
 import 'storage/activity_repository.dart';
 import 'storage/goal_repository.dart';
@@ -44,6 +45,7 @@ class Storage {
       // After sleep: a check-in is the more specific thing to say about a
       // day that has both.
       WellnessTimelineSource(journal),
+      NoteTimelineSource(journal),
     ]);
   }
 
@@ -75,6 +77,7 @@ class Backend {
     activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
+    provenance = ProvenanceService(db);
     insights = InsightsService(
       db,
       storage.workouts,
@@ -105,6 +108,7 @@ class Backend {
   late final JournalService journal;
   late final GoalService goal;
   late final InsightsService insights;
+  late final ProvenanceService provenance;
 
   AppDatabase get db => storage.db;
 

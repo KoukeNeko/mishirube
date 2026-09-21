@@ -1450,6 +1450,85 @@
             }
           }
         },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "text",
+              "notedAt",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "notedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "parentType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "parentId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
         "auditEvents": {
           "type": "array",
           "items": {

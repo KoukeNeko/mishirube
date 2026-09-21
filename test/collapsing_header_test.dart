@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -120,11 +120,11 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const ImportScreen(), store: store);
+    await pumpScreen(tester, const WeightEntryScreen(), store: store);
     final title = find.byWidgetPredicate(
       (widget) =>
           widget is Text &&
-          widget.data == '匯入 Strong 資料' &&
+          widget.data == '體重' &&
           widget.style == compactTitleStyle,
     );
 

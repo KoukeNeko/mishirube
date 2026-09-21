@@ -527,6 +527,24 @@ final List<String> _migrations = [
       - julianday(slept_at / 1000, 'unixepoch')
     ) * 1440) AS INTEGER);
   ''',
+  '''
+  -- Free-text notes. One about a day stands on its own in the log
+  -- ("dinner out", "slept badly, starving all day"); one about a record
+  -- belongs to that record and is shown with it, which is what
+  -- parent_type and parent_id are for. Only day notes are written so
+  -- far; the columns are here so the other kind needs no migration.
+  CREATE TABLE notes (
+    id TEXT PRIMARY KEY,
+    text TEXT NOT NULL,
+    noted_at INTEGER NOT NULL,
+    local_day INTEGER,
+    utc_offset_minutes INTEGER,
+    parent_type TEXT,
+    parent_id TEXT,
+    $_entityColumns
+  );
+  CREATE INDEX notes_day ON notes(local_day) WHERE deleted_at IS NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

@@ -6,7 +6,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/goal/goal_screen.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -224,7 +224,7 @@ void main() {
       );
       await disposeTree(tester);
 
-      await pumpScreen(tester, const ImportScreen(), store: store);
+      await pumpScreen(tester, const WeightEntryScreen(), store: store);
       expect(await shrunkHeight(), phoneTopInset + toolbar.height);
       await disposeTree(tester);
     },
@@ -440,7 +440,7 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const ImportScreen(), store: store);
+    await pumpScreen(tester, const WeightEntryScreen(), store: store);
     final back = find.bySemanticsLabel('返回');
 
     final surface = find.descendant(
@@ -474,7 +474,7 @@ void main() {
       ),
     );
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const ImportScreen(), store: store);
+    await pumpScreen(tester, const WeightEntryScreen(), store: store);
 
     await tester.tap(find.bySemanticsLabel('返回'));
     await tester.pump();

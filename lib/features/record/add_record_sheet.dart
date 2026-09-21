@@ -6,6 +6,7 @@ import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
+import '../journal/note_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
 import '../nutrition/food_search_screen.dart';
@@ -32,7 +33,7 @@ class RecordOption {
     required this.title,
     required this.subtitle,
     required this.module,
-    this.destination,
+    required this.destination,
   });
 
   final IconData icon;
@@ -43,7 +44,10 @@ class RecordOption {
   /// The module this record belongs to; turning the module off takes the
   /// option out of the menu.
   final AppModule module;
-  final Widget Function()? destination;
+
+  /// The screen that records it. Every option has one: an entry that led
+  /// nowhere would be a button that only says it is not done yet.
+  final Widget Function() destination;
 }
 
 /// What the user can add, most used first. The menu shows the ones whose
@@ -105,12 +109,13 @@ final recordOptions = [
     subtitle: '腰圍、臀圍、上臂等，量到的才記',
     destination: () => const MeasurementEntryScreen(),
   ),
-  const RecordOption(
+  RecordOption(
     icon: Icons.description_outlined,
     color: AppColors.textSecondary,
     title: '筆記',
     module: AppModule.notes,
-    subtitle: '和任何一天或一筆紀錄關聯',
+    subtitle: '關於今天的一段話，放在當天的紀錄裡',
+    destination: () => const NoteEntryScreen(),
   ),
 ];
 
@@ -125,15 +130,9 @@ List<RecordOption> enabledRecordOptions(BuildContext context) {
 
 /// Closes the current popup (sheet or menu) and opens [option]'s screen.
 void openRecordOption(BuildContext context, RecordOption option) {
-  final destination = option.destination;
   final navigator = Navigator.of(context);
-  final toast = ToastScope.read(context);
   navigator.pop();
-  if (destination == null) {
-    toast.show('「${option.title}」的輸入畫面尚未設計');
-    return;
-  }
-  navigator.push(MaterialPageRoute<void>(builder: (_) => destination()));
+  navigator.push(MaterialPageRoute<void>(builder: (_) => option.destination()));
 }
 
 class AddRecordSheet extends StatelessWidget {

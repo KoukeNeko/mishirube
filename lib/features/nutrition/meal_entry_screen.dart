@@ -36,19 +36,6 @@ class MealEntryScreen extends StatelessWidget {
             onTap: () => pushPage(context, const MealConfirmScreen()),
           ),
         ),
-        Gutter(
-          child: Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final label in const ['掃條碼', '餐點模板', '從網址匯入食譜'])
-                ChipButton(
-                  label: label,
-                  onTap: () => showToast(context, '「$label」尚未設計'),
-                ),
-            ],
-          ),
-        ),
       ],
     );
   }

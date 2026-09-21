@@ -77,6 +77,32 @@ class JournalService {
     return entry;
   }
 
+  Note recordNote(String text, {DateTime? at}) {
+    final note = Note(id: _db.newId(), notedAt: at ?? _db.now(), text: text);
+    _journal.addNote(note);
+    return note;
+  }
+
+  void updateNote(Note note) => _journal.updateNote(note);
+
+  /// A live journal record by id, or null when there is none.
+  Object? entry(String id) => _journal.byId(id);
+
+  ChangeSource? sourceOf(String id) => _journal.sourceOf(id);
+
+  void updateWeight(BodyWeight weight) => _journal.updateWeight(weight);
+
+  void updateMeasurement(BodyMeasurement measurement) =>
+      _journal.updateMeasurement(measurement);
+
+  void updateSleep(SleepEntry entry) => _journal.updateSleep(entry);
+
+  void updateWellness(WellnessEntry entry) => _journal.updateWellness(entry);
+
+  void delete(String id) => _journal.delete(id);
+
+  void restore(String id) => _journal.restore(id);
+
   /// Weights measured in the [window] ending now, oldest first.
   List<BodyWeight> recentWeights(Duration window) =>
       _journal.weightsBetween(_db.now().subtract(window), _db.nowInclusive);

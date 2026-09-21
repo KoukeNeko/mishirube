@@ -101,6 +101,18 @@ class AppDatabase {
 
   int get schemaVersion => _db.userVersion;
 
+  /// How much the store takes on disk, from SQLite's own page count, so
+  /// it is the same number whether the file is on a phone or in memory.
+  int get sizeInBytes {
+    final row = _db
+        .select(
+          'SELECT page_count * page_size AS bytes '
+          'FROM pragma_page_count(), pragma_page_size()',
+        )
+        .single;
+    return row['bytes'] as int;
+  }
+
   /// A random, stable identifier for a new row.
   String newId() {
     final bytes = List<int>.generate(16, (_) => _random.nextInt(256));

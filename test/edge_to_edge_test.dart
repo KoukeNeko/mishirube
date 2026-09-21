@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -55,11 +56,11 @@ void main() {
   });
 
   testWidgets('detail page footer runs to the bottom edge', (tester) async {
-    await pumpScreen(tester, const ImportScreen(), store: _store());
+    await pumpScreen(tester, const WeightEntryScreen(), store: _store());
 
-    _expectFooterReachesBottomEdge(tester, '確認匯入');
+    _expectFooterReachesBottomEdge(tester, '儲存');
     expect(
-      tester.getRect(find.text('匯入 Strong 資料').first).top,
+      tester.getRect(find.text('體重').first).top,
       greaterThanOrEqualTo(phoneTopInset),
     );
     await disposeTree(tester);
@@ -87,10 +88,12 @@ void main() {
   testWidgets('last list item can scroll above the home indicator', (
     tester,
   ) async {
-    await pumpScreen(tester, const ImportScreen(), store: _store());
+    // A form long enough to scroll, with a footer over its end.
+    await pumpScreen(tester, const FoodEditScreen(), store: _store());
+    const last = '包裝或品牌公布的數值，照原樣顯示。';
 
     await tester.dragUntilVisible(
-      find.text('CSV 檢視'),
+      find.text(last),
       find.byType(CustomScrollView),
       const Offset(0, -300),
     );
@@ -98,7 +101,7 @@ void main() {
     await tester.pump();
 
     final footerTop = tester.getRect(find.byType(BottomActionBar)).top;
-    expect(tester.getRect(find.text('CSV 檢視')).bottom, lessThan(footerTop));
+    expect(tester.getRect(find.text(last)).bottom, lessThan(footerTop));
     await disposeTree(tester);
   });
 
@@ -156,7 +159,7 @@ void main() {
     'iOS footer sits as low as the dock',
     variant: TargetPlatformVariant.only(TargetPlatform.iOS),
     (tester) async {
-      await pumpScreen(tester, const ImportScreen(), store: _store());
+      await pumpScreen(tester, const WeightEntryScreen(), store: _store());
 
       final controls = tester.getRect(
         find

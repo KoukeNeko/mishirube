@@ -109,14 +109,16 @@ class JournalRepository {
       'AND slept_at >= ? AND slept_at < ? ORDER BY slept_at',
       [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
     ))
-      SleepEntry(
-        id: row['id'],
-        sleptAt: DateTime.fromMillisecondsSinceEpoch(row['slept_at']),
-        duration: Duration(minutes: row['duration_minutes']),
-        score: row['score'] as int?,
-        note: row['note'],
-      ),
+      _sleepFrom(row),
   ];
+
+  SleepEntry _sleepFrom(Map<String, Object?> row) => SleepEntry(
+    id: row['id']! as String,
+    sleptAt: DateTime.fromMillisecondsSinceEpoch(row['slept_at']! as int),
+    duration: Duration(minutes: row['duration_minutes']! as int),
+    score: row['score'] as int?,
+    note: row['note']! as String,
+  );
 
   /// The oldest live row of [table], by its [timeColumn].
   DateTime? _earliest(String table, String timeColumn) {
@@ -199,13 +201,15 @@ class JournalRepository {
       'AND measured_at >= ? AND measured_at < ? ORDER BY measured_at',
       [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
     ))
-      BodyWeight(
-        id: row['id'],
-        measuredAt: DateTime.fromMillisecondsSinceEpoch(row['measured_at']),
-        weightKg: (row['weight_kg'] as num).toDouble(),
-        note: row['note'],
-      ),
+      _weightFrom(row),
   ];
+
+  BodyWeight _weightFrom(Map<String, Object?> row) => BodyWeight(
+    id: row['id']! as String,
+    measuredAt: DateTime.fromMillisecondsSinceEpoch(row['measured_at']! as int),
+    weightKg: (row['weight_kg']! as num).toDouble(),
+    note: row['note']! as String,
+  );
 
   /// Check-ins recorded in `[start, end)`, oldest first.
   List<WellnessEntry> wellnessBetween(DateTime start, DateTime end) => [
@@ -214,14 +218,190 @@ class JournalRepository {
       'AND recorded_at >= ? AND recorded_at < ? ORDER BY recorded_at',
       [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
     ))
-      WellnessEntry(
-        id: row['id'],
-        recordedAt: DateTime.fromMillisecondsSinceEpoch(row['recorded_at']),
-        kind: WellnessKind.values.byName(row['kind']),
-        score: row['score'],
-        note: row['note'],
+      _wellnessFrom(row),
+  ];
+
+  WellnessEntry _wellnessFrom(Map<String, Object?> row) => WellnessEntry(
+    id: row['id']! as String,
+    recordedAt: DateTime.fromMillisecondsSinceEpoch(row['recorded_at']! as int),
+    kind: WellnessKind.values.byName(row['kind']! as String),
+    score: row['score']! as int,
+    note: row['note']! as String,
+  );
+
+  /// Stores a note about the day it was written on.
+  void addNote(Note note) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO notes (id, text, noted_at, local_day, '
+        'utc_offset_minutes, created_at, updated_at, source) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          note.id,
+          note.text,
+          note.notedAt.millisecondsSinceEpoch,
+          localDayOf(note.notedAt),
+          note.notedAt.timeZoneOffset.inMinutes,
+          now,
+          now,
+          ChangeSource.local.name,
+        ],
+      );
+      _db.audit(entityType: 'note', entityId: note.id, action: 'create');
+    });
+  }
+
+  void updateNote(Note note) => _update('notes', note.id, {'text': note.text});
+
+  Note _noteFrom(Map<String, Object?> row) => Note(
+    id: row['id']! as String,
+    notedAt: DateTime.fromMillisecondsSinceEpoch(row['noted_at']! as int),
+    text: row['text']! as String,
+  );
+
+  /// The month's records of [table] by the day each was taken on, with
+  /// the time it was taken as lived, for the timeline.
+  List<(int, DateTime, T)> _inDays<T>(
+    String table,
+    String instantColumn,
+    DateTime start,
+    DateTime end,
+    T Function(Map<String, Object?> row) read,
+  ) => [
+    for (final row in _db.select(
+      'SELECT *, ${AppDatabase.localDaySql(instantColumn)} AS day '
+      'FROM $table WHERE deleted_at IS NULL AND day BETWEEN ? AND ? '
+      'ORDER BY $instantColumn',
+      [localDayOf(start), localDayOf(end.subtract(const Duration(days: 1)))],
+    ))
+      (
+        row['day']! as int,
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row[instantColumn]! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
+        read(row),
       ),
   ];
+
+  /// The four journal tables, with the name each is audited under.
+  static const _tables = {
+    'body_weights': 'body_weight',
+    'body_measurements': 'body_measurement',
+    'sleep_entries': 'sleep_entry',
+    'wellness_entries': 'wellness_entry',
+    'notes': 'note',
+  };
+
+  /// Which journal table holds [id], deleted or not.
+  String? _tableOf(String id) {
+    for (final table in _tables.keys) {
+      if (_db.select('SELECT 1 FROM $table WHERE id = ?', [id]).isNotEmpty) {
+        return table;
+      }
+    }
+    return null;
+  }
+
+  /// A live journal record — a [BodyWeight], [BodyMeasurement],
+  /// [SleepEntry] or [WellnessEntry] — or null when there is none.
+  Object? byId(String id) {
+    final table = _tableOf(id);
+    if (table == null) return null;
+    final rows = _db.select(
+      'SELECT * FROM $table WHERE id = ? AND deleted_at IS NULL',
+      [id],
+    );
+    if (rows.isEmpty) return null;
+    final row = rows.single;
+    return switch (table) {
+      'body_weights' => _weightFrom(row),
+      'body_measurements' => _measurementFrom(row),
+      'sleep_entries' => _sleepFrom(row),
+      'notes' => _noteFrom(row),
+      _ => _wellnessFrom(row),
+    };
+  }
+
+  /// Where [id] came from.
+  ChangeSource? sourceOf(String id) {
+    final table = _tableOf(id);
+    if (table == null) return null;
+    final row = _db.select('SELECT source FROM $table WHERE id = ?', [id]);
+    return ChangeSource.values.byName(row.single['source']! as String);
+  }
+
+  void updateWeight(BodyWeight weight) => _update('body_weights', weight.id, {
+    'weight_kg': weight.weightKg,
+    'note': weight.note,
+  });
+
+  void updateMeasurement(BodyMeasurement measurement) => _update(
+    'body_measurements',
+    measurement.id,
+    {'centimetres': measurement.centimetres, 'note': measurement.note},
+  );
+
+  void updateSleep(SleepEntry entry) => _update('sleep_entries', entry.id, {
+    'duration_minutes': entry.duration.inMinutes,
+    'score': entry.score,
+    'note': entry.note,
+  });
+
+  void updateWellness(WellnessEntry entry) => _update(
+    'wellness_entries',
+    entry.id,
+    {'score': entry.score, 'note': entry.note},
+  );
+
+  /// Writes [values] over a record, recording what they replaced. The
+  /// time it was taken is not among them: correcting a weight does not
+  /// move it to another day.
+  void _update(String table, String id, Map<String, Object?> values) {
+    _db.transaction(() {
+      final previous = _db.select(
+        'SELECT ${values.keys.join(', ')} FROM $table WHERE id = ?',
+        [id],
+      ).single;
+      final assignments = values.keys.map((column) => '$column = ?');
+      _db.execute(
+        'UPDATE $table SET ${assignments.join(', ')}, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [...values.values, _db.now().millisecondsSinceEpoch, id],
+      );
+      _db.audit(
+        entityType: _tables[table]!,
+        entityId: id,
+        action: 'edit',
+        payload: {
+          'previous': {...previous},
+        },
+      );
+    });
+  }
+
+  /// Tombstones [id]; [restore] takes it back.
+  void delete(String id) => _setDeleted(id, deleted: true);
+
+  void restore(String id) => _setDeleted(id, deleted: false);
+
+  void _setDeleted(String id, {required bool deleted}) {
+    final table = _tableOf(id)!;
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE $table SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [deleted ? now : null, now, id],
+      );
+      _db.audit(
+        entityType: _tables[table]!,
+        entityId: id,
+        action: deleted ? 'delete' : 'restore',
+      );
+    });
+  }
 }
 
 /// Body weights as log rows.
@@ -244,24 +424,24 @@ class BodyWeightTimelineSource extends TimelineSource {
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final weight in _journal.weightsBetween(start, end))
+    for (final (_, at, weight) in _weights(start, end))
       (
-        weight.measuredAt,
+        at,
         TimelineEntry(
-          timeLabel: formatTimeOfDay(weight.measuredAt),
-          at: weight.measuredAt,
+          timeLabel: formatTimeOfDay(at),
+          at: at,
           recordId: weight.id,
           category: RecordCategory.body,
           title: '體重 ${_label(weight)}',
           detail: weight.note,
         ),
       ),
-    for (final measurement in _journal.measurementsBetween(start, end))
+    for (final (_, at, measurement) in _measurements(start, end))
       (
-        measurement.measuredAt,
+        at,
         TimelineEntry(
-          timeLabel: formatTimeOfDay(measurement.measuredAt),
-          at: measurement.measuredAt,
+          timeLabel: formatTimeOfDay(at),
+          at: at,
           recordId: measurement.id,
           category: RecordCategory.body,
           title: '${measurement.site.label} ${_size(measurement)}',
@@ -273,12 +453,31 @@ class BodyWeightTimelineSource extends TimelineSource {
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
     // A weight is the headline of a day that has both.
-    for (final measurement in _journal.measurementsBetween(start, end))
-      measurement.measuredAt.day:
-          '${measurement.site.label} ${_size(measurement)}',
-    for (final weight in _journal.weightsBetween(start, end))
-      weight.measuredAt.day: _label(weight),
+    for (final (day, _, measurement) in _measurements(start, end))
+      day % 100: '${measurement.site.label} ${_size(measurement)}',
+    for (final (day, _, weight) in _weights(start, end))
+      day % 100: _label(weight),
   };
+
+  List<(int, DateTime, BodyWeight)> _weights(DateTime start, DateTime end) =>
+      _journal._inDays(
+        'body_weights',
+        'measured_at',
+        start,
+        end,
+        _journal._weightFrom,
+      );
+
+  List<(int, DateTime, BodyMeasurement)> _measurements(
+    DateTime start,
+    DateTime end,
+  ) => _journal._inDays(
+    'body_measurements',
+    'measured_at',
+    start,
+    end,
+    _journal._measurementFrom,
+  );
 
   static String _label(BodyWeight weight) =>
       '${formatWeight(weight.weightKg)} kg';
@@ -301,12 +500,12 @@ class SleepTimelineSource extends TimelineSource {
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final night in _journal.sleepBetween(start, end))
+    for (final (_, at, night) in _nights(start, end))
       (
-        night.sleptAt,
+        at,
         TimelineEntry(
-          timeLabel: formatTimeOfDay(night.sleptAt),
-          at: night.sleptAt,
+          timeLabel: formatTimeOfDay(at),
+          at: at,
           recordId: night.id,
           category: RecordCategory.wellness,
           title: _label(night),
@@ -320,9 +519,17 @@ class SleepTimelineSource extends TimelineSource {
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
-    for (final night in _journal.sleepBetween(start, end))
-      night.sleptAt.day: _label(night),
+    for (final (day, _, night) in _nights(start, end)) day % 100: _label(night),
   };
+
+  List<(int, DateTime, SleepEntry)> _nights(DateTime start, DateTime end) =>
+      _journal._inDays(
+        'sleep_entries',
+        'slept_at',
+        start,
+        end,
+        _journal._sleepFrom,
+      );
 
   static String _label(SleepEntry night) =>
       '睡眠 ${formatHoursMinutes(night.duration)}';
@@ -342,12 +549,12 @@ class WellnessTimelineSource extends TimelineSource {
 
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final entry in _journal.wellnessBetween(start, end))
+    for (final (_, at, entry) in _entries(start, end))
       (
-        entry.recordedAt,
+        at,
         TimelineEntry(
-          timeLabel: formatTimeOfDay(entry.recordedAt),
-          at: entry.recordedAt,
+          timeLabel: formatTimeOfDay(at),
+          at: at,
           recordId: entry.id,
           category: RecordCategory.wellness,
           title: _label(entry),
@@ -358,10 +565,56 @@ class WellnessTimelineSource extends TimelineSource {
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
-    for (final entry in _journal.wellnessBetween(start, end))
-      entry.recordedAt.day: _label(entry),
+    for (final (day, _, entry) in _entries(start, end))
+      day % 100: _label(entry),
   };
+
+  List<(int, DateTime, WellnessEntry)> _entries(DateTime start, DateTime end) =>
+      _journal._inDays(
+        'wellness_entries',
+        'recorded_at',
+        start,
+        end,
+        _journal._wellnessFrom,
+      );
 
   static String _label(WellnessEntry entry) =>
       '${entry.kind.label} ${entry.score} / 5';
+}
+
+/// Notes about a day, as rows of their own under the day's state.
+class NoteTimelineSource extends TimelineSource {
+  NoteTimelineSource(this._journal);
+
+  final JournalRepository _journal;
+
+  @override
+  RecordCategory get category => RecordCategory.wellness;
+
+  @override
+  DateTime? earliest() => _journal._earliest('notes', 'noted_at');
+
+  @override
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
+    for (final (_, at, note) in _notes(start, end))
+      (
+        at,
+        TimelineEntry(
+          timeLabel: formatTimeOfDay(at),
+          at: at,
+          recordId: note.id,
+          category: RecordCategory.wellness,
+          title: '筆記',
+          detail: note.text,
+        ),
+      ),
+  ];
+
+  /// A note is not a summary of a day; the day's line stays about sleep
+  /// and check-ins.
+  @override
+  Map<int, String> summariesIn(DateTime start, DateTime end) => const {};
+
+  List<(int, DateTime, Note)> _notes(DateTime start, DateTime end) =>
+      _journal._inDays('notes', 'noted_at', start, end, _journal._noteFrom);
 }

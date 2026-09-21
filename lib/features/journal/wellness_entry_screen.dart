@@ -8,16 +8,20 @@ import '../../shared/widgets/widgets.dart';
 /// Logging how the day felt: one of the kinds, a 1–5 rating and a note.
 /// It is a log, not a score to improve: nothing here is graded.
 class WellnessEntryScreen extends StatefulWidget {
-  const WellnessEntryScreen({super.key});
+  const WellnessEntryScreen({super.key, this.editing});
+
+  /// A check-in to correct. Its kind stays what it was: changing an
+  /// energy rating into a mood would be a different record.
+  final WellnessEntry? editing;
 
   @override
   State<WellnessEntryScreen> createState() => _WellnessEntryScreenState();
 }
 
 class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
-  WellnessKind _kind = WellnessKind.energy;
-  int _score = 3;
-  final _note = TextEditingController();
+  late WellnessKind _kind = widget.editing?.kind ?? WellnessKind.energy;
+  late int _score = widget.editing?.score ?? 3;
+  late final _note = TextEditingController(text: widget.editing?.note ?? '');
 
   @override
   void dispose() {
@@ -26,12 +30,25 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
   }
 
   void _save() {
-    AppStoreScope.read(context)
-        .recordWellness(_kind, _score, note: _note.text.trim());
+    final store = AppStoreScope.read(context);
+    final editing = widget.editing;
+    if (editing == null) {
+      store.recordWellness(_kind, _score, note: _note.text.trim());
+    } else {
+      store.updateWellness(
+        WellnessEntry(
+          id: editing.id,
+          recordedAt: editing.recordedAt,
+          kind: editing.kind,
+          score: _score,
+          note: _note.text.trim(),
+        ),
+      );
+    }
     Navigator.of(context).pop();
     showToast(
       context,
-      '已記錄${_kind.label} $_score / 5',
+      '${editing == null ? '已記錄' : '已更新'}${_kind.label} $_score / 5',
       kind: ToastKind.success,
     );
   }
@@ -39,22 +56,25 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '今天的狀態', subtitle: '心情、精力與症狀'),
+      appBar: widget.editing == null
+          ? const PageAppBar(title: '今天的狀態', subtitle: '心情、精力與症狀')
+          : PageAppBar(title: _kind.label, subtitle: '修改這筆紀錄'),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
-        Gutter(
-          child: SegmentedChoice(
-            options: const [
-              WellnessKind.energy,
-              WellnessKind.mood,
-              WellnessKind.symptom,
-            ],
-            selected: _kind,
-            labelOf: (kind) => kind.label,
-            selectedColor: AppColors.wellness,
-            onChanged: (kind) => setState(() => _kind = kind),
+        if (widget.editing == null)
+          Gutter(
+            child: SegmentedChoice(
+              options: const [
+                WellnessKind.energy,
+                WellnessKind.mood,
+                WellnessKind.symptom,
+              ],
+              selected: _kind,
+              labelOf: (kind) => kind.label,
+              selectedColor: AppColors.wellness,
+              onChanged: (kind) => setState(() => _kind = kind),
+            ),
           ),
-        ),
         Gutter(
           child: SectionLabel(
             _kind == WellnessKind.symptom ? '不適程度' : '${_kind.label}如何？',

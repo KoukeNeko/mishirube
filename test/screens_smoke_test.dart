@@ -15,7 +15,10 @@ import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_permissions_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/journal/journal_detail_screen.dart';
+import 'package:mishirube/features/me/data_sources_screen.dart';
+import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/me/sync_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
@@ -29,7 +32,6 @@ import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/journal/measurement_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
-import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
 import 'package:mishirube/features/training/rest_timer_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
@@ -88,6 +90,14 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'weight entry': ((_) => const WeightEntryScreen(), _noSetup),
   'sleep entry': ((_) => const SleepEntryScreen(), _noSetup),
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
+  'data sources': ((_) => const DataSourcesScreen(), _noSetup),
+  'weight detail': (
+    (store) {
+      final weight = store.recentWeights.last;
+      return JournalDetailScreen(id: weight.id, at: weight.measuredAt);
+    },
+    _noSetup,
+  ),
   'wellness entry': ((_) => const WellnessEntryScreen(), _noSetup),
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
@@ -186,7 +196,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'trends empty': ((_) => const TrendsEmptyScreen(), _noSetup),
   'ai permissions': ((_) => const AiPermissionsScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
-  'import': ((_) => const ImportScreen(), _noSetup),
+  'export': ((_) => const ExportScreen(), _noSetup),
   'sync': ((_) => const SyncScreen(), _noSetup),
 };
 

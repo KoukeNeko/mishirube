@@ -285,6 +285,15 @@ const _tables = [
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),
+  _Table('notes', 'notes', [
+    _Column('id', _Kind.text),
+    _Column('text', _Kind.text),
+    _Column('noted_at', _Kind.time),
+    ..._lived,
+    _Column('parent_type', _Kind.text, isNullable: true),
+    _Column('parent_id', _Kind.text, isNullable: true),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('auditEvents', 'audit_events', [
     _Column('id', _Kind.integer),
     _Column('occurred_at', _Kind.time),

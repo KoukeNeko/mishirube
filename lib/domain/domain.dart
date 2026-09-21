@@ -9,6 +9,7 @@ export 'body.dart';
 export 'exercise_filter.dart';
 export 'goal.dart';
 export 'history.dart';
+export 'note.dart';
 export 'nutrition.dart';
 export 'records.dart';
 export 'session.dart';

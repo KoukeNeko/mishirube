@@ -7,6 +7,7 @@ import '../backend/application/goal_service.dart';
 import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
+import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
 import '../backend/engines/caffeine.dart';
 import '../backend/engines/food_portion.dart';
@@ -17,6 +18,8 @@ import '../backend/storage/database.dart';
 import '../domain/domain.dart';
 
 export '../backend/application/catalog_service.dart' show TrackingChangeRefused;
+export '../backend/application/provenance_service.dart'
+    show CatalogueRecord, ImportRecord;
 export '../backend/application/nutrition_service.dart'
     show DishSplitSnapshot, RecentMeal;
 
@@ -279,6 +282,21 @@ class AppStore extends ChangeNotifier {
   /// read, or null on a normal start. The app says so rather than
   /// looking as though the records were never there.
   String? get recoveredDatabasePath => _backend.db.recoveredFrom;
+
+  /// How much the store takes on disk.
+  int get databaseBytes => _backend.db.sizeInBytes;
+
+  /// Records the user entered themselves, per category.
+  Map<RecordCategory, int> get typedRecordCounts =>
+      _backend.provenance.recordCounts(ChangeSource.local);
+
+  /// Demo records put in on first launch, per category. Not the user's.
+  Map<RecordCategory, int> get demoRecordCounts =>
+      _backend.provenance.recordCounts(ChangeSource.seed);
+
+  List<ImportRecord> get imports => _backend.provenance.imports();
+
+  List<CatalogueRecord> get catalogues => _backend.provenance.catalogues();
 
   /// Saves a correction to a meal.
   void updateMeal(MealEvent previous, MealEvent corrected) {
@@ -855,6 +873,63 @@ class AppStore extends ChangeNotifier {
 
   void restoreActivity(String id) {
     _backend.activity.restore(id);
+    notifyListeners();
+  }
+
+  /// A journal record — a weight, a tape measurement, a night or a
+  /// check-in — or null once it is deleted.
+  Object? journalEntry(String id) => _backend.journal.entry(id);
+
+  /// Where a journal record came from, in the words the screen shows.
+  String journalSourceLabel(String id) =>
+      switch (_backend.journal.sourceOf(id)) {
+        ChangeSource.local => '手動輸入',
+        ChangeSource.seed => '示範資料',
+        ChangeSource.strongImport || ChangeSource.archiveImport => '匯入',
+        ChangeSource.aiDraft => 'AI 草稿，經你確認',
+        ChangeSource.catalogue => '內建目錄',
+        null => '不明',
+      };
+
+  void updateWeight(BodyWeight weight) {
+    _backend.journal.updateWeight(weight);
+    notifyListeners();
+  }
+
+  void updateMeasurement(BodyMeasurement measurement) {
+    _backend.journal.updateMeasurement(measurement);
+    notifyListeners();
+  }
+
+  void updateSleep(SleepEntry entry) {
+    _backend.journal.updateSleep(entry);
+    notifyListeners();
+  }
+
+  void updateWellness(WellnessEntry entry) {
+    _backend.journal.updateWellness(entry);
+    notifyListeners();
+  }
+
+  /// Writes a note about today.
+  void recordNote(String text) {
+    _backend.journal.recordNote(text);
+    notifyListeners();
+  }
+
+  void updateNote(Note note) {
+    _backend.journal.updateNote(note);
+    notifyListeners();
+  }
+
+  /// Removes a journal record; [restoreJournalEntry] takes it back.
+  void deleteJournalEntry(String id) {
+    _backend.journal.delete(id);
+    notifyListeners();
+  }
+
+  void restoreJournalEntry(String id) {
+    _backend.journal.restore(id);
     notifyListeners();
   }
 

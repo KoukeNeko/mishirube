@@ -16,15 +16,28 @@ const _maxCm = 250.0;
 /// only the ones filled in are saved: a session where the waist was
 /// measured says that, not that everything else is unchanged.
 class MeasurementEntryScreen extends StatefulWidget {
-  const MeasurementEntryScreen({super.key});
+  const MeasurementEntryScreen({super.key, this.editing});
+
+  /// One reading to correct; only its site is shown.
+  final BodyMeasurement? editing;
 
   @override
   State<MeasurementEntryScreen> createState() => _MeasurementEntryScreenState();
 }
 
 class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
-  final _fields = {
-    for (final site in MeasurementSite.values) site: TextEditingController(),
+  late final _fields = {
+    for (final site in _sites)
+      site: TextEditingController(
+        text: widget.editing == null
+            ? ''
+            : formatWeight(widget.editing!.centimetres),
+      ),
+  };
+
+  List<MeasurementSite> get _sites => switch (widget.editing) {
+    final editing? => [editing.site],
+    null => MeasurementSite.values,
   };
   late final Map<MeasurementSite, BodyMeasurement> _previous;
   String? _error;
@@ -63,6 +76,26 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       return;
     }
     final store = AppStoreScope.read(context);
+    final editing = widget.editing;
+    if (editing != null) {
+      final value = entered[editing.site]!;
+      store.updateMeasurement(
+        BodyMeasurement(
+          id: editing.id,
+          measuredAt: editing.measuredAt,
+          site: editing.site,
+          centimetres: value,
+          note: editing.note,
+        ),
+      );
+      Navigator.of(context).pop();
+      showToast(
+        context,
+        '已更新${editing.site.label} ${formatWeight(value)} cm',
+        kind: ToastKind.success,
+      );
+      return;
+    }
     for (final MapEntry(key: site, value: value) in entered.entries) {
       store.recordMeasurement(site, value);
     }
@@ -79,13 +112,16 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '圍度', subtitle: '填你有量的部位就好'),
+      appBar: PageAppBar(
+        title: widget.editing?.site.label ?? '圍度',
+        subtitle: widget.editing == null ? '填你有量的部位就好' : '修改這筆紀錄',
+      ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(
           child: GroupedCard(
             children: [
-              for (final site in MeasurementSite.values)
+              for (final site in _sites)
                 _SiteRow(
                   site: site,
                   controller: _fields[site]!,
@@ -94,12 +130,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             ],
           ),
         ),
-        Gutter(
-          child: const Text(
-            '空白的部位不會被記錄，也不會被當成沒有變化。',
-            style: AppTextStyles.caption,
+        if (widget.editing == null)
+          Gutter(
+            child: const Text(
+              '空白的部位不會被記錄，也不會被當成沒有變化。',
+              style: AppTextStyles.caption,
+            ),
           ),
-        ),
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

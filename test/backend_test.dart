@@ -1793,6 +1793,116 @@ void main() {
     });
   });
 
+  group('notes', () {
+    test('a day note sits in the log on its day and round-trips', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      store.recordNote('晚上聚餐，吃得比平常多');
+
+      final today = store.monthRecords(store.now()).days.first;
+      final row = today.entries.firstWhere((entry) => entry.title == '筆記');
+      expect(row.detail, '晚上聚餐，吃得比平常多');
+      expect(row.category, RecordCategory.wellness);
+
+      final archive = jsonDecode(
+        encodeArchive(exportArchive(store.backend.db)),
+      );
+      final restored = Backend.inMemory(clock: FakeClock().now);
+      addTearDown(restored.close);
+      restoreArchive(restored.db, archive);
+      expect(
+        restored.journal.entry(row.recordId!),
+        isA<Note>().having((note) => note.text, 'text', '晚上聚餐，吃得比平常多'),
+      );
+    });
+
+    test('a note is not a summary of the day', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      store.recordNote('頭痛');
+      final summaries =
+          store.monthRecords(store.now()).summaries[store.now().day] ?? {};
+      expect(
+        summaries[RecordCategory.wellness] ?? '',
+        isNot(contains('頭痛')),
+        reason: 'the calendar line stays about sleep and check-ins',
+      );
+    });
+  });
+
+  group('data sources', () {
+    test('tell demo records, typed records and the catalogue apart', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      final demoWeights = store.demoRecordCounts[RecordCategory.body] ?? 0;
+      expect(demoWeights, greaterThan(0), reason: 'the seed is demo data');
+      expect(store.typedRecordCounts, isEmpty, reason: 'nothing typed yet');
+
+      store.recordWeight(80.1);
+      expect(store.typedRecordCounts[RecordCategory.body], 1);
+      expect(
+        store.demoRecordCounts[RecordCategory.body],
+        demoWeights,
+        reason: 'what the user typed is never counted as demo',
+      );
+      expect(store.imports, isEmpty);
+    });
+  });
+
+  group('journal corrections', () {
+    test('a weight is corrected in place, audited, and keeps its day', () {
+      final clock = FakeClock();
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final weight = backend.journal.recordWeight(81.2);
+      clock.advance(const Duration(days: 2));
+
+      backend.journal.updateWeight(
+        BodyWeight(
+          id: weight.id,
+          measuredAt: weight.measuredAt,
+          weightKg: 80.2,
+          note: weight.note,
+        ),
+      );
+
+      final stored = backend.journal.entry(weight.id)! as BodyWeight;
+      expect(stored.weightKg, 80.2);
+      expect(
+        stored.measuredAt,
+        weight.measuredAt,
+        reason: 'correcting the number does not move the reading',
+      );
+      final audit = backend.db.select(
+        "SELECT payload FROM audit_events WHERE entity_id = ? "
+        "AND action = 'edit'",
+        [weight.id],
+      );
+      expect(
+        audit.single['payload'],
+        contains('81.2'),
+        reason: 'what it replaced is kept',
+      );
+    });
+
+    test('deleting is a tombstone, and restoring brings it back', () {
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      addTearDown(backend.close);
+      final night = backend.journal.recordSleep(const Duration(hours: 7));
+
+      backend.journal.delete(night.id);
+      expect(backend.journal.entry(night.id), isNull);
+      expect(
+        backend.db.select('SELECT 1 FROM sleep_entries WHERE id = ?', [
+          night.id,
+        ]),
+        hasLength(1),
+        reason: 'nothing is hard deleted',
+      );
+
+      backend.journal.restore(night.id);
+      expect(backend.journal.entry(night.id), isA<SleepEntry>());
+      expect(backend.journal.sourceOf(night.id), ChangeSource.local);
+    });
+  });
+
   group('canonical archive', () {
     test('export → restore into an empty store → export is lossless', () {
       final source = AppStore(clock: clock.now, isOnboarded: true)

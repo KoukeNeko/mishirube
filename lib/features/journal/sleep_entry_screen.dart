@@ -16,24 +16,45 @@ const _defaultMinutes = 450;
 
 /// Logging one night: how long, and how it felt if the user says.
 class SleepEntryScreen extends StatefulWidget {
-  const SleepEntryScreen({super.key});
+  const SleepEntryScreen({super.key, this.editing});
+
+  /// A night to correct instead of logging a new one.
+  final SleepEntry? editing;
 
   @override
   State<SleepEntryScreen> createState() => _SleepEntryScreenState();
 }
 
 class _SleepEntryScreenState extends State<SleepEntryScreen> {
-  late int _minutes = _lastNight?.duration.inMinutes ?? _defaultMinutes;
-  int? _score;
+  late int _minutes =
+      (widget.editing ?? _lastNight)?.duration.inMinutes ?? _defaultMinutes;
+  late int? _score = widget.editing?.score;
 
   SleepEntry? get _lastNight =>
       AppStoreScope.read(context).recentSleep.lastOrNull;
 
   void _save() {
     final store = AppStoreScope.read(context);
-    store.recordSleep(Duration(minutes: _minutes), score: _score);
+    final editing = widget.editing;
+    if (editing == null) {
+      store.recordSleep(Duration(minutes: _minutes), score: _score);
+    } else {
+      store.updateSleep(
+        SleepEntry(
+          id: editing.id,
+          sleptAt: editing.sleptAt,
+          duration: Duration(minutes: _minutes),
+          score: _score,
+          note: editing.note,
+        ),
+      );
+    }
     Navigator.of(context).pop();
-    showToast(context, '已記錄睡眠 ${_label(_minutes)}', kind: ToastKind.success);
+    showToast(
+      context,
+      '${editing == null ? '已記錄' : '已更新'}睡眠 ${_label(_minutes)}',
+      kind: ToastKind.success,
+    );
   }
 
   static String _label(int minutes) =>
@@ -42,7 +63,10 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '睡眠', subtitle: '手動補記'),
+      appBar: PageAppBar(
+        title: '睡眠',
+        subtitle: widget.editing == null ? '手動補記' : '修改這筆紀錄',
+      ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(

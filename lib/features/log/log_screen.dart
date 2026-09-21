@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/activity_detail_screen.dart';
+import '../journal/journal_detail_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
@@ -111,22 +112,20 @@ class _LogScreenState extends State<LogScreen> {
   void _openEntry(TimelineEntry entry) {
     // Exhaustive on purpose: a new kind of record must decide what
     // opening its row does, rather than silently doing nothing.
+    final id = entry.recordId;
     final destination = switch (entry.category) {
-      RecordCategory.training => WorkoutSummaryScreen(
-        workoutId: entry.recordId,
-      ),
+      RecordCategory.training => WorkoutSummaryScreen(workoutId: id),
       RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
-      RecordCategory.activity when entry.recordId != null =>
-        ActivityDetailScreen(activityId: entry.recordId!),
-      RecordCategory.activity => null,
-      // Weights and check-ins say all they have in the row.
-      RecordCategory.body || RecordCategory.wellness => null,
+      RecordCategory.activity when id != null => ActivityDetailScreen(
+        activityId: id,
+      ),
+      RecordCategory.body || RecordCategory.wellness when id != null =>
+        JournalDetailScreen(id: id, at: entry.at),
+      // Every source gives its rows an id; a row without one has nothing
+      // behind it to open.
+      _ => null,
     };
-    if (destination == null) {
-      showToast(context, '「${entry.title}」的詳細畫面尚未設計');
-      return;
-    }
-    pushPage(context, destination);
+    if (destination != null) pushPage(context, destination);
   }
 
   @override

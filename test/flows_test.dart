@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/features/journal/note_entry_screen.dart';
+import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
@@ -956,6 +959,61 @@ void main() {
       findsNothing,
       reason: 'taken, so no longer offered',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a weight in the log opens, corrects and deletes with undo', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.recordWeight(81.2);
+    await pumpScreen(tester, const LogScreen(), store: store);
+
+    await _tapText(tester, '體重 81.2 kg');
+    await tester.pumpAndSettle();
+    expect(find.text('手動輸入'), findsOneWidget, reason: 'where it came from');
+
+    await _tapText(tester, '修改');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), '80.4');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('80.4', findRichText: true),
+      findsWidgets,
+      reason: 'the detail shows the corrected value',
+    );
+
+    await _tapText(tester, '刪除這筆紀錄');
+    // Not pumpAndSettle: that would sit out the toast and its undo.
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(find.text('體重 80.4 kg'), findsNothing, reason: 'gone from the log');
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('體重 80.4 kg'), findsOneWidget, reason: 'and back');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a note written today shows up in the log', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const LogScreen(), store: store);
+    pushPage(tester.element(find.byType(LogScreen)), const NoteEntryScreen());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '晚上聚餐，吃得比平常多');
+    await tester.pump();
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    await tester.dragUntilVisible(
+      find.text('晚上聚餐，吃得比平常多'),
+      find.byType(CustomScrollView).first,
+      _scrollStep,
+    );
+    expect(find.text('晚上聚餐，吃得比平常多'), findsOneWidget);
     await disposeTree(tester);
   });
 

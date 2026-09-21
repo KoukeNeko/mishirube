@@ -6,9 +6,8 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../goal/goal_screen.dart';
 import '../onboarding/onboarding_screen.dart';
-import 'ai_permissions_screen.dart';
-import 'import_screen.dart';
-import 'sync_screen.dart';
+import 'data_sources_screen.dart';
+import 'export_screen.dart';
 
 class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
@@ -17,8 +16,6 @@ class MeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final moduleNames = store.enabledModules.map((m) => m.title).join('、');
-    void notDesigned(String name) => showToast(context, '「$name」尚未設計');
-
     return CollapsingPage(
       title: '我的',
       children: [
@@ -68,55 +65,19 @@ class MeScreen extends StatelessWidget {
         Gutter(
           child: GroupedCard(
             children: [
-              const KeyValueRow(label: '本機資料', value: '72.4 MB'),
+              KeyValueRow(
+                label: '本機資料',
+                value: _megabytes(store.databaseBytes),
+              ),
               NavRow(
                 title: '資料來源',
-                subtitle: 'Apple Health、TFDA、USDA',
-                onTap: () => notDesigned('資料來源'),
+                subtitle: '手動輸入、匯入與內建目錄',
+                onTap: () => pushPage(context, const DataSourcesScreen()),
               ),
               NavRow(
-                title: '匯入與匯出',
+                title: '匯出',
                 subtitle: '完整封存 JSON · CSV 檢視',
-                onTap: () => pushPage(context, const ImportScreen()),
-              ),
-              NavRow(
-                title: '備份與同步',
-                subtitle: '本機備份 09:12 · 雲端未啟用',
-                onTap: () => pushPage(context, const SyncScreen()),
-              ),
-            ],
-          ),
-        ),
-        Gutter(child: const SectionLabel('AI')),
-        Gutter(
-          child: GroupedCard(
-            children: [
-              NavRow(
-                title: '提供者與模型',
-                subtitle: '自備金鑰 · OpenAI-compatible',
-                onTap: () => pushPage(context, const AiPermissionsScreen()),
-              ),
-              NavRow(
-                title: '權限',
-                subtitle: '可讀 3 個模組 · 可寫 僅草稿',
-                onTap: () => pushPage(context, const AiPermissionsScreen()),
-              ),
-            ],
-          ),
-        ),
-        Gutter(child: const SectionLabel('這台裝置')),
-        Gutter(
-          child: GroupedCard(
-            children: [
-              NavRow(
-                title: '單位與外觀',
-                subtitle: '公斤、公分 · 跟隨系統',
-                onTap: () => notDesigned('單位與外觀'),
-              ),
-              NavRow(
-                title: '通知',
-                subtitle: '依目標提醒',
-                onTap: () => notDesigned('通知'),
+                onTap: () => pushPage(context, const ExportScreen()),
               ),
             ],
           ),
@@ -135,3 +96,8 @@ String _goalSummary(AppStore store) {
   final week = overview.thisWeek;
   return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';
 }
+
+/// `1.3 MB`, to one decimal: the store's size is a rough figure, and a
+/// byte count would read as more precise than it is useful.
+String _megabytes(int bytes) =>
+    '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';

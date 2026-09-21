@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -767,7 +767,7 @@ void main() {
       await disposeTree(tester);
       await pumpScreen(
         tester,
-        const ImportScreen(),
+        const WeightEntryScreen(),
         store: AppStore(clock: FakeClock().now, isOnboarded: true),
       );
       await tester.tap(find.byType(AppBarBackButton));

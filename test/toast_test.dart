@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
-import 'package:mishirube/features/me/import_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -84,11 +84,11 @@ void main() {
     testWidgets('floats above a page footer', (tester) async {
       await pumpScreen(
         tester,
-        const ImportScreen(),
+        const WeightEntryScreen(),
         store: AppStore(clock: FakeClock().now, isOnboarded: true),
       );
 
-      showToast(tester.element(find.byType(ImportScreen)), '已加入午餐');
+      showToast(tester.element(find.byType(WeightEntryScreen)), '已加入午餐');
       await _settleToast(tester);
 
       final footerControls = tester.getRect(
@@ -111,12 +111,12 @@ void main() {
     ) async {
       await pumpScreen(
         tester,
-        const ImportScreen(),
+        const WeightEntryScreen(),
         store: AppStore(clock: FakeClock().now, isOnboarded: true),
       );
       tester.view.viewInsets = const FakeViewPadding(bottom: 300);
 
-      showToast(tester.element(find.byType(ImportScreen)), '已加入午餐');
+      showToast(tester.element(find.byType(WeightEntryScreen)), '已加入午餐');
       await _settleToast(tester);
 
       expect(
@@ -132,12 +132,12 @@ void main() {
   ) async {
     await pumpScreen(
       tester,
-      const ImportScreen(),
+      const WeightEntryScreen(),
       store: AppStore(clock: FakeClock().now, isOnboarded: true),
     );
     var undone = false;
 
-    ToastScope.read(tester.element(find.byType(ImportScreen)))
+    ToastScope.read(tester.element(find.byType(WeightEntryScreen)))
         .showUndo('已拆成獨立紀錄', onUndo: () => undone = true);
     await _settleToast(tester);
     expect(find.text('30s'), findsOneWidget);
