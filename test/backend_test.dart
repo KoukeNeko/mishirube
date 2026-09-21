@@ -1846,7 +1846,7 @@ void main() {
       backend.db.setSetting('glass_millilitres', '350');
       backend.db.setSetting(
         '${AppDatabase.secretKeyPrefix}openai_api_key',
-        'sk-should-never-leave-the-device',
+        'a-key-that-must-stay-on-the-device',
       );
 
       final archive = encodeArchive(exportArchive(backend.db));
@@ -1858,7 +1858,7 @@ void main() {
       );
       expect(
         archive,
-        isNot(contains('sk-should-never-leave-the-device')),
+        isNot(contains('a-key-that-must-stay-on-the-device')),
         reason:
             'the settings table is written into the archive whole, so '
             'a key pasted in by the user would otherwise travel in every '
@@ -1873,7 +1873,7 @@ void main() {
       );
       expect(
         backend.db.setting('${AppDatabase.secretKeyPrefix}openai_api_key'),
-        'sk-should-never-leave-the-device',
+        'a-key-that-must-stay-on-the-device',
         reason: 'it is kept, just never exported',
       );
 
@@ -1882,7 +1882,7 @@ void main() {
       restoreArchive(backend.db, jsonDecode(archive));
       expect(
         backend.db.setting('${AppDatabase.secretKeyPrefix}openai_api_key'),
-        'sk-should-never-leave-the-device',
+        'a-key-that-must-stay-on-the-device',
         reason:
             'restoring your own backup must not sign you out of your '
             'AI provider',
