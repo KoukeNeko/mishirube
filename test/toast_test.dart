@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -106,22 +107,54 @@ void main() {
       await disposeTree(tester);
     });
 
-    testWidgets('drops in under the top bar while the keyboard is up', (
+    // The food page has no footer, so nothing rides up with the keyboard
+    // and the toast's own rule is what is under test.
+    testWidgets('a showing toast stays put when the keyboard comes up', (
       tester,
     ) async {
       await pumpScreen(
         tester,
-        const WeightEntryScreen(),
+        const FoodSearchScreen(),
         store: AppStore(clock: FakeClock().now, isOnboarded: true),
       );
-      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      showToast(tester.element(find.byType(FoodSearchScreen)), '已加入午餐');
+      await _settleToast(tester);
+      final before = tester.getRect(_toastCard);
 
-      showToast(tester.element(find.byType(WeightEntryScreen)), '已加入午餐');
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
       await _settleToast(tester);
 
       expect(
         tester.getRect(_toastCard).top,
-        greaterThanOrEqualTo(phoneTopInset + ToolbarMetrics.android.height),
+        before.top,
+        reason:
+            'it does not jump over the page title; the keyboard covers '
+            'it while the user types, and it is still there afterwards',
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('one that appears with the keyboard up sits above it', (
+      tester,
+    ) async {
+      await pumpScreen(
+        tester,
+        const FoodSearchScreen(),
+        store: AppStore(clock: FakeClock().now, isOnboarded: true),
+      );
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await tester.pump();
+
+      showToast(tester.element(find.byType(FoodSearchScreen)), '已加入午餐');
+      await _settleToast(tester);
+
+      final card = tester.getRect(_toastCard);
+      final keyboardTop = phoneSize.height - 300;
+      expect(card.bottom, lessThanOrEqualTo(keyboardTop));
+      expect(
+        card.bottom,
+        greaterThan(keyboardTop - 40),
+        reason: 'right above the keyboard, not over the top of the page',
       );
       await disposeTree(tester);
     });
@@ -137,8 +170,9 @@ void main() {
     );
     var undone = false;
 
-    ToastScope.read(tester.element(find.byType(WeightEntryScreen)))
-        .showUndo('已拆成獨立紀錄', onUndo: () => undone = true);
+    ToastScope.read(
+      tester.element(find.byType(WeightEntryScreen)),
+    ).showUndo('已拆成獨立紀錄', onUndo: () => undone = true);
     await _settleToast(tester);
     expect(find.text('30s'), findsOneWidget);
 

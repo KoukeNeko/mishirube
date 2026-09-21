@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -5,7 +7,6 @@ import 'package:flutter/scheduler.dart';
 import '../../app/theme.dart';
 import '../motion.dart';
 import '../widgets/chrome/chrome_surface.dart';
-import '../widgets/page/collapsing_header.dart';
 import '../widgets/content/stats.dart';
 import 'toast_controller.dart';
 
@@ -57,10 +58,21 @@ class _ToastHostState extends State<ToastHost> {
   }
 }
 
-class _ToastLayer extends StatelessWidget {
+class _ToastLayer extends StatefulWidget {
   const _ToastLayer({required this.controller});
 
   final ToastController controller;
+
+  @override
+  State<_ToastLayer> createState() => _ToastLayerState();
+}
+
+class _ToastLayerState extends State<_ToastLayer> {
+  /// The toast on screen, and whether the keyboard was up when it came.
+  int? _toastId;
+  bool _cameWithKeyboard = false;
+
+  ToastController get controller => widget.controller;
 
   @override
   Widget build(BuildContext context) {
@@ -70,25 +82,31 @@ class _ToastLayer extends StatelessWidget {
         final media = MediaQuery.of(context);
         final reduceMotion = prefersReducedMotion(context);
         final toast = controller.current;
-        // With the keyboard up the bottom is crowded, so drop in under the
-        // top bar instead.
-        final isAtTop = media.viewInsets.bottom > 0;
+        final keyboard = media.viewInsets.bottom;
+        // Where a toast sits is settled when it appears, and it never jumps
+        // to the other end of the screen: under the top bar it covered the
+        // page's title and search field. One that was already showing
+        // stays put when the keyboard comes up and is simply covered while
+        // the user types — its undo is still there afterwards. One that
+        // appears with the keyboard up sits just above it, and follows it
+        // back down when it goes.
+        if (toast?.id != _toastId) {
+          _toastId = toast?.id;
+          _cameWithKeyboard = keyboard > 0;
+        }
         final obstructionTop = controller.obstructionTop;
+        final chromeBottom = obstructionTop == null
+            ? floatingChromeBottomOffset(context)
+            : media.size.height - obstructionTop + _chromeGap;
+        final bottom = _cameWithKeyboard
+            ? math.max(chromeBottom, keyboard + _chromeGap)
+            : chromeBottom;
         return AnimatedPositioned(
           duration: reduceMotion ? Duration.zero : _moveDuration,
           curve: Curves.easeOut,
           left: _gutter,
           right: _gutter,
-          top: isAtTop
-              ? media.padding.top +
-                    ToolbarMetrics.of(context).height +
-                    _chromeGap
-              : null,
-          bottom: isAtTop
-              ? null
-              : obstructionTop == null
-              ? floatingChromeBottomOffset(context)
-              : media.size.height - obstructionTop + _chromeGap,
+          bottom: bottom,
           child: Align(
             heightFactor: 1,
             child: ConstrainedBox(
@@ -100,7 +118,6 @@ class _ToastLayer extends StatelessWidget {
                   reverseDuration: reduceMotion ? Duration.zero : _exitDuration,
                   transitionBuilder: (child, animation) => _ToastTransition(
                     animation: animation,
-                    fromTop: isAtTop,
                     fadeOnly: reduceMotion,
                     child: child,
                   ),
@@ -124,13 +141,11 @@ class _ToastLayer extends StatelessWidget {
 class _ToastTransition extends StatelessWidget {
   const _ToastTransition({
     required this.animation,
-    required this.fromTop,
     required this.fadeOnly,
     required this.child,
   });
 
   final Animation<double> animation;
-  final bool fromTop;
   final bool fadeOnly;
   final Widget child;
 
@@ -141,7 +156,7 @@ class _ToastTransition extends StatelessWidget {
     final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
     return SlideTransition(
       position: Tween(
-        begin: Offset(0, fromTop ? -0.3 : 0.3),
+        begin: const Offset(0, 0.3),
         end: Offset.zero,
       ).animate(curved),
       child: ScaleTransition(
