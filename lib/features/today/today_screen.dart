@@ -149,9 +149,12 @@ class TodayScreen extends StatelessWidget {
                 child: QuickStatTile(
                   category: '飲食',
                   color: AppColors.nutrition,
-                  value: '~${formatKcal(store.todayKcal)}',
+                  value: formatKcal(store.todayKcal),
                   unit: 'kcal',
-                  caption: '${store.todaySummary.mealCount} 餐 · 含估計值',
+                  caption: [
+                    '${store.todaySummary.mealCount} 餐',
+                    if (store.todaySummary.hasEstimates) '含估計值',
+                  ].join(' · '),
                   onTap: () => pushPage(context, const DailyNutritionScreen()),
                 ),
               ),

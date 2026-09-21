@@ -4,10 +4,12 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
+import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
+import 'daily_nutrition_screen.dart';
 import 'food_edit_screen.dart';
 import 'food_row.dart';
 import 'meal_type_picker.dart';
@@ -15,19 +17,21 @@ import 'plate_screen.dart';
 import 'portion_screen.dart';
 import 'quick_add_sheet.dart';
 import 'recent_meal_row.dart';
+import 'water_card.dart';
 
 /// Which part of the list is showing. A scope narrows what is listed; it
 /// is not a separate search, and typing searches within it.
 enum _Scope {
-  all('全部'),
-  recent('最近'),
-  starred('收藏'),
-  own('自己的'),
-  brands('品牌');
+  all('全部', Icons.apps),
+  recent('最近', Icons.history),
+  starred('收藏', Icons.star_outline),
+  own('自己的', Icons.person_outline),
+  brands('品牌', Icons.storefront_outlined);
 
-  const _Scope(this.label);
+  const _Scope(this.label, this.icon);
 
   final String label;
+  final IconData icon;
 }
 
 /// Where a meal or a drink gets logged: pick what was eaten onto a
@@ -36,7 +40,7 @@ enum _Scope {
 /// Search is the whole screen rather than one tab among several: someone
 /// opening this already knows what they had. A row of scopes narrows the
 /// list without starting a second search; with nothing typed, 「全部」
-/// shows a few recent and starred foods, the chains, then the user's own.
+/// shows a few recent and starred foods, then the user's own.
 /// Once something is typed there is one ranked list, so a food never
 /// appears twice. Chains are found by searching like anything else, and
 /// naming one on its own offers its whole menu first.
@@ -64,6 +68,20 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// What has been picked so far, in the order it was picked.
   final _plate = <FoodPortion>[];
 
+  /// Ticks whenever the plate changes, so a brand's menu opened over this
+  /// page — which this page's rebuilds never reach — shows it too.
+  final _plateChanges = ValueNotifier(0);
+
+  void _changePlate(VoidCallback change) {
+    // An undo on the plate page can come after this page logged and
+    // closed; there is nothing left to show it on then.
+    if (!mounted) return;
+    setState(change);
+    _plateChanges.value++;
+  }
+
+  void _plateChanged() => _changePlate(() {});
+
   /// Which meal the plate is, for everything on it. Optional.
   MealType? _mealType;
 
@@ -78,6 +96,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   @override
   void dispose() {
     _query.dispose();
+    _plateChanges.dispose();
     super.dispose();
   }
 
@@ -105,7 +124,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// more of it: two taps on the egg are two eggs, not two records of
   /// one egg each that only look alike.
   void _add(FoodPortion portion) {
-    setState(() {
+    _changePlate(() {
       final index = _plate.indexWhere((p) => p.food.id == portion.food.id);
       if (index < 0) {
         _plate.add(portion);
@@ -116,31 +135,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         );
       }
     });
-  }
-
-  void _remove(FoodItem food) => setState(
-    () => _plate.removeWhere(
-      (p) => p.food.id == food.id || p.food.parentId == food.id,
-    ),
-  );
-
-  /// ＋ on a row: onto the plate at [last] — the portion last eaten, which
-  /// for a drink with cups is also the cup — or at one serving. A drink
-  /// never had from before has to have its cup chosen first.
-  Future<void> _quickAddFood(FoodItem food, RecentFood? last) async {
-    if (_isOnPlate(food)) {
-      _remove(food);
-      return;
-    }
-    if (last != null) {
-      _add(last.portion);
-      return;
-    }
-    if (AppStoreScope.read(context).sizesOf(food.id).isNotEmpty) {
-      await _choose(food);
-      return;
-    }
-    _add(FoodPortion(food, 1));
   }
 
   /// Tapping a row: choose the size and portion, then onto the plate.
@@ -184,11 +178,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   Future<void> _reviewPlate() => pushPage<void>(
     context,
-    PlateScreen(
-      plate: _plate,
-      onChanged: () => setState(() {}),
-      onLog: _logPlate,
-    ),
+    PlateScreen(plate: _plate, onChanged: _plateChanged, onLog: _logPlate),
   );
 
   Widget? _plateBar() => _plate.isEmpty
@@ -204,18 +194,16 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     context,
     BrandMenuScreen(
       brand: brand,
-      // Every drink on a menu needs its cup chosen, so ＋ would only
-      // repeat what tapping the row does.
-      rowFor: (food, refresh) =>
-          _row(food, onChanged: refresh, showsAdd: false),
+      rowFor: (food, refresh) => _row(food, onChanged: refresh),
       footer: _plateBar,
+      plateChanges: _plateChanges,
     ),
   );
 
-  /// The row for [food], with what ＋ would add worked out from when it
+  /// The row for [food], with the portion it opens at worked out from when it
   /// was last eaten. [onChanged] also rebuilds a page opened over this
   /// one, which a change to the plate would otherwise not reach.
-  Widget _row(FoodItem food, {VoidCallback? onChanged, bool showsAdd = true}) {
+  Widget _row(FoodItem food, {VoidCallback? onChanged}) {
     final store = AppStoreScope.read(context);
     final last = store.recentFoods
         .where((r) => r.food.id == food.id || r.food.parentId == food.id)
@@ -226,13 +214,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           ? addsLastPortion(last.portion)
           : addsFirstPortion(food, sizeCount: store.sizesOf(food.id).length),
       isOnPlate: _isOnPlate(food),
-      showsAdd: showsAdd,
       onTap: () async {
         await _choose(food, last: last);
-        onChanged?.call();
-      },
-      onAdd: () async {
-        await _quickAddFood(food, last);
         onChanged?.call();
       },
     );
@@ -260,29 +243,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         ),
       );
 
-  void _logWater() {
-    final store = AppStoreScope.read(context);
-    final logged = store.logWater();
-    showToast(
-      context,
-      '已記錄 ${logged.millilitres} mL 水',
-      kind: ToastKind.success,
-    );
-  }
-
-  Future<void> _setGlass() async {
-    final store = AppStoreScope.read(context);
-    final typed = await showTextDialog(
-      context,
-      title: '一杯是多少毫升',
-      initial: '${store.glassMillilitres}',
-      confirmLabel: '好',
-    );
-    final millilitres = int.tryParse(typed?.trim() ?? '');
-    if (millilitres == null || millilitres <= 0 || !mounted) return;
-    store.setGlassMillilitres(millilitres);
-  }
-
   Future<void> _quickAdd() async {
     final logged = await showQuickAddSheet(context);
     if (logged != true || !mounted) return;
@@ -296,8 +256,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
-    AppStoreScope.read(context)
-        .setMealFavorite(recent.meal, isFavorite: isFavorite);
+    AppStoreScope.read(
+      context,
+    ).setMealFavorite(recent.meal, isFavorite: isFavorite);
     showToast(context, isFavorite ? '已加入常用' : '已從常用移除');
   }
 
@@ -337,26 +298,12 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                 onTake: () => setState(() => _mealType = offer),
               ),
             ),
-        // Full-bleed: the chips scroll to the screen edge, so the row
-        // pads its own content instead of taking a Gutter.
-        SizedBox(
-          height: pillHeight(context),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenGutter,
-            ),
-            itemCount: _Scope.values.length,
-            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
-            itemBuilder: (_, index) {
-              final scope = _Scope.values[index];
-              return SelectChip(
-                label: scope.label,
-                isSelected: scope == _scope,
-                onTap: () => setState(() => _scope = scope),
-              );
-            },
-          ),
+        FilterChipBar<_Scope>(
+          options: _Scope.values,
+          selected: _scope,
+          labelOf: (scope) => scope.label,
+          iconOf: (scope) => scope.icon,
+          onSelected: (scope) => setState(() => _scope = scope),
         ),
         ...query.isEmpty ? _browse(store) : _results(store, query),
       ],
@@ -370,35 +317,40 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final own = store.searchFoods('').where((food) => !food.isBuiltIn);
     return switch (_scope) {
       _Scope.all => [
-        // The ways in that exist today. Photo, barcode and describing a
-        // meal join this row when they are real, not before.
+        // What is already logged today, one tap away: this page is
+        // opened from ＋, not from the day, and the question before
+        // logging is often whether breakfast is in yet.
         Gutter(
-          child: Row(
-            children: [
-              // Water is the most repeated record there is, so it gets
-              // one tap and skips the plate.
-              Expanded(
-                child: SecondaryButton(
-                  label: '水 ${store.glassMillilitres} mL',
-                  onPressed: _logWater,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              SquareIconButton(
-                icon: Icons.tune,
-                tooltip: '改一杯的量',
-                onPressed: _setGlass,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: SecondaryButton(label: '快速記錄', onPressed: _quickAdd),
-              ),
-            ],
+          child: AppCard(
+            padding: EdgeInsets.zero,
+            child: NavRow(
+              title: '今天',
+              subtitle: switch (store.todaySummary) {
+                DaySummary(recordCount: 0) => '還沒有記錄',
+                final day =>
+                  '${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal',
+              },
+              onTap: () => pushPage(context, const DailyNutritionScreen()),
+            ),
           ),
+        ),
+        // Water gets a card of its own: it is the most repeated record
+        // there is, logged in one tap and never through the plate.
+        Gutter(
+          child: WaterCard(
+            onOpenDay: () => pushPage(context, const DailyNutritionScreen()),
+          ),
+        ),
+        // The other way in that exists today. Photo, barcode and
+        // describing a meal join it when they are real, not before.
+        Gutter(
+          child: SecondaryButton(label: '快速記錄一次', onPressed: _quickAdd),
         ),
         ..._section('最近', [for (final r in recent.take(_preview)) r.food]),
         ..._section('收藏', starred.take(_preview).toList()),
-        ..._brands(store),
+        // Chains are found by typing their name or under 「品牌」, not
+        // listed here: they are browsed rarely, and 「全部」 is for what the
+        // user eats.
         ..._section('自己的', own.toList()),
         if (recent.isEmpty && starred.isEmpty && own.isEmpty)
           Gutter(
@@ -554,8 +506,8 @@ String _sizeDetail(FoodItem size) {
   return [
     size.servingDescription,
     if (size.kcal != null)
-      '${size.valueType.write(formatKcal(size.kcal!))} kcal'
+      '${formatKcal(size.kcal!)} kcal'
     else if (caffeine != null)
-      '咖啡因 ${size.valueType.write(formatAmount(caffeine))} mg',
+      '咖啡因 ${formatAmount(caffeine)} mg',
   ].join(' · ');
 }

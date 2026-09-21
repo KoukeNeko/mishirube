@@ -1,0 +1,320 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "CITY TEA",
+  "sourceUrl": "https://www.citytea.com.tw/file/ingredient.pdf",
+  "note": "官方表頭三欄皆為最高值；容量為杯子容量，冰飲含冰。",
+  "drinks": [
+    {
+      "id": "7eleven-citytea-eb949219",
+      "name": "紫桑果粒紅茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 284.9,
+          "sugarG": 68.7,
+          "caffeineMg": 163.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-8f4be388",
+      "name": "紫桑果粒青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 277.3,
+          "sugarG": 69.2,
+          "caffeineMg": 129.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-73f01cdc",
+      "name": "愛文芒果冰青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 261.1,
+          "sugarG": 57.6,
+          "caffeineMg": 77.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-bfddc26d",
+      "name": "這不是豬血糕 芝麻風味奶茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 301.2,
+          "sugarG": 36.7,
+          "caffeineMg": 171.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 323.7,
+          "sugarG": 38.2,
+          "caffeineMg": 224.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-dce650a0",
+      "name": "喵財進寶提拉米蘇風味奶茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 316.7,
+          "sugarG": 39.0,
+          "caffeineMg": 118.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-07cb8b14",
+      "name": "文旦肉肉青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 353.7,
+          "sugarG": 76.6,
+          "caffeineMg": 111.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-c6a37b6e",
+      "name": "梔子花青茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 182.6,
+          "sugarG": 41.5,
+          "caffeineMg": 105.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 184.1,
+          "sugarG": 42.8,
+          "caffeineMg": 129.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-7f9d6b24",
+      "name": "琥珀小葉紅茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 180.2,
+          "sugarG": 42.6,
+          "caffeineMg": 199.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 191.6,
+          "sugarG": 35.0,
+          "caffeineMg": 221.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-ccaecd2d",
+      "name": "梔子花奶青",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 330.1,
+          "sugarG": 53.6,
+          "caffeineMg": 137.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 307.9,
+          "sugarG": 50.8,
+          "caffeineMg": 153.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-e2817911",
+      "name": "琥珀小葉奶茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 327.8,
+          "sugarG": 50.9,
+          "caffeineMg": 184.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 322.4,
+          "sugarG": 53.4,
+          "caffeineMg": 214.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-aaacf34c",
+      "name": "莓好果粒冰茶",
+      "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 338.3,
+          "sugarG": 73.9,
+          "caffeineMg": 142.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-0b1dcdba",
+      "name": "香鑽水果茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 352.3,
+          "sugarG": 72.8,
+          "caffeineMg": 164.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 375.4,
+          "sugarG": 79.1,
+          "caffeineMg": 164.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-9190c2a8",
+      "name": "冰淇淋紅茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 439.5,
+          "sugarG": 68.1,
+          "caffeineMg": 211.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-49f7695d",
+      "name": "青梅冰茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 428.2,
+          "sugarG": 86.0,
+          "caffeineMg": 161.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-5f9b0ace",
+      "name": "一顆檸檬青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 361.9,
+          "sugarG": 65.6,
+          "caffeineMg": 184.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-6485d708",
+      "name": "一顆檸檬紅茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 357.9,
+          "sugarG": 70.8,
+          "caffeineMg": 153.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-ca66438d",
+      "name": "香草奶蓋",
+      "kind": "food",
+      "kcal": 163.3,
+      "sugarG": 10.1,
+      "caffeineMg": 0.0
+    },
+    {
+      "id": "7eleven-citytea-99251ad1",
+      "name": "原味黑珍珠",
+      "kind": "food",
+      "kcal": 285.6,
+      "sugarG": 30.0,
+      "caffeineMg": 0.0
+    },
+    {
+      "id": "7eleven-citytea-dd095127",
+      "name": "黑糖粉粿",
+      "kind": "food",
+      "kcal": 75.1,
+      "sugarG": 15.4,
+      "caffeineMg": 0.0
+    },
+    {
+      "id": "7eleven-citytea-ce535b6a",
+      "name": "芒果青氣泡飲",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 399.6,
+          "sugarG": 92.2,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-310e5ce8",
+      "name": "荔枝氣泡飲",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 360.8,
+          "sugarG": 83.1,
+          "caffeineMg": 0.0
+        }
+      ]
+    }
+  ]
+}

@@ -315,7 +315,7 @@ class NutritionService {
         id: _db.newId(),
         name: '水',
         timeLabel: formatTimeOfDay(eatenAt),
-        qualityTag: '水',
+        qualityTag: waterQualityTag,
         dishes: const [],
         kind: ConsumptionKind.beverage,
         millilitres: millilitres,

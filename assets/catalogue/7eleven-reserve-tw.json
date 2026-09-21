@@ -1,0 +1,597 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "不可思議咖啡",
+  "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+  "note": "限定門市。官方表頭三欄皆為最高值；中杯、大杯為杯子容量，專用杯未公布容量。",
+  "drinks": [
+    {
+      "id": "7eleven-reserve-a234a3a4",
+      "name": "巴萊山 厭氧日曬高原選批",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 16.0,
+          "sugarG": 0.2,
+          "caffeineMg": 248.6
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 16.0,
+          "sugarG": 0.2,
+          "caffeineMg": 248.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-f5378ba9",
+      "name": "阿里山 豆御香藝伎",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 10.8,
+          "sugarG": 0.2,
+          "caffeineMg": 167.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-f233b040",
+      "name": "聯合成青葉咖啡莊園",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 16.0,
+          "sugarG": 0.2,
+          "caffeineMg": 248.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-466b73e1",
+      "name": "阿朵拉 盛夏果實",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 18.7,
+          "sugarG": 0.2,
+          "caffeineMg": 261.8
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 17.6,
+          "sugarG": 0.2,
+          "caffeineMg": 273.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-25946213",
+      "name": "薇拉 粉紅波旁",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 18.7,
+          "sugarG": 0.2,
+          "caffeineMg": 261.8
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 17.3,
+          "sugarG": 0.2,
+          "caffeineMg": 262.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-66cf9917",
+      "name": "玫瑰卡門",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 16.4,
+          "sugarG": 0.2,
+          "caffeineMg": 262.5
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 13.9,
+          "sugarG": 0.2,
+          "caffeineMg": 211.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-57c55771",
+      "name": "不可思議冠軍美式",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 15.4,
+          "sugarG": 0.2,
+          "caffeineMg": 172.5
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 17.8,
+          "sugarG": 0.2,
+          "caffeineMg": 209.3
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 20.1,
+          "sugarG": 0.2,
+          "caffeineMg": 243.7
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 23.1,
+          "sugarG": 0.2,
+          "caffeineMg": 268.8
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 11.1,
+          "sugarG": 0.2,
+          "caffeineMg": 139.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-b51d6747",
+      "name": "不可思議冠軍拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 155.6,
+          "sugarG": 9.6,
+          "caffeineMg": 161.1
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 201.7,
+          "sugarG": 13.1,
+          "caffeineMg": 190.2
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 192.2,
+          "sugarG": 12.4,
+          "caffeineMg": 210.6
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 253.8,
+          "sugarG": 16.3,
+          "caffeineMg": 249.4
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 129.0,
+          "sugarG": 8.2,
+          "caffeineMg": 111.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-561bc001",
+      "name": "本日精選咖啡",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 19.7,
+          "sugarG": 0.2,
+          "caffeineMg": 230.9
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 19.7,
+          "sugarG": 0.2,
+          "caffeineMg": 242.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-ac66c100",
+      "name": "精品莊園美式",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 19.7,
+          "sugarG": 0.2,
+          "caffeineMg": 230.9
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 19.7,
+          "sugarG": 0.2,
+          "caffeineMg": 242.5
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 25.5,
+          "sugarG": 0.2,
+          "caffeineMg": 303.2
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 22.3,
+          "sugarG": 0.2,
+          "caffeineMg": 305.1
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 12.7,
+          "sugarG": 0.2,
+          "caffeineMg": 242.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-c0bcfed7",
+      "name": "精品莊園拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 181.4,
+          "sugarG": 11.3,
+          "caffeineMg": 237.1
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 210.0,
+          "sugarG": 14.7,
+          "caffeineMg": 234.5
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 249.4,
+          "sugarG": 16.4,
+          "caffeineMg": 303.2
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 217.2,
+          "sugarG": 14.1,
+          "caffeineMg": 289.0
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 173.8,
+          "sugarG": 11.6,
+          "caffeineMg": 215.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-9e56ce45",
+      "name": "卡布奇諾",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 170.7,
+          "sugarG": 12.1,
+          "caffeineMg": 159.9
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 112.8,
+          "sugarG": 7.9,
+          "caffeineMg": 113.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-82c42fed",
+      "name": "義式濃縮",
+      "sizes": [
+        {
+          "name": "專用杯・熱",
+          "kcal": 8.1,
+          "sugarG": 0.2,
+          "caffeineMg": 85.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-17f64164",
+      "name": "精品義式濃縮",
+      "sizes": [
+        {
+          "name": "專用杯・熱",
+          "kcal": 9.4,
+          "sugarG": 0.2,
+          "caffeineMg": 125.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-1c40c318",
+      "name": "燕麥拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 184.1,
+          "sugarG": 6.5,
+          "caffeineMg": 182.2
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 240.0,
+          "sugarG": 7.8,
+          "caffeineMg": 242.6
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 211.1,
+          "sugarG": 7.3,
+          "caffeineMg": 185.5
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 258.3,
+          "sugarG": 9.2,
+          "caffeineMg": 321.7
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 166.4,
+          "sugarG": 6.1,
+          "caffeineMg": 162.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-0644199f",
+      "name": "絲絨奶蓋提拉米蘇",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 525.0,
+          "sugarG": 36.0,
+          "caffeineMg": 103.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-a7e0e5a2",
+      "name": "絲絨奶蓋冠軍美式",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 293.0,
+          "sugarG": 8.0,
+          "caffeineMg": 146.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-d859fbd0",
+      "name": "絲絨奶蓋抹茶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 508.0,
+          "sugarG": 47.0,
+          "caffeineMg": 147.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-a5f833fb",
+      "name": "椰香冠軍拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 240.0,
+          "sugarG": 17.0,
+          "caffeineMg": 111.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-068625e9",
+      "name": "不可思議茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 397.0,
+          "sugarG": 3.3,
+          "caffeineMg": 384.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 518.0,
+          "sugarG": 16.5,
+          "caffeineMg": 311.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-1581e6f2",
+      "name": "抹茶咖啡奶霜",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 321.0,
+          "sugarG": 49.7,
+          "caffeineMg": 317.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-6a501128",
+      "name": "抹茶歐蕾",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 368.9,
+          "sugarG": 49.2,
+          "caffeineMg": 104.4
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 381.3,
+          "sugarG": 52.6,
+          "caffeineMg": 101.9
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 349.3,
+          "sugarG": 48.1,
+          "caffeineMg": 106.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-3b10578f",
+      "name": "焦糖瑪奇朵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 287.8,
+          "sugarG": 37.8,
+          "caffeineMg": 136.7
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 293.7,
+          "sugarG": 37.0,
+          "caffeineMg": 157.2
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 259.1,
+          "sugarG": 37.9,
+          "caffeineMg": 107.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-078b250e",
+      "name": "西西里風檸檬咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 266.2,
+          "sugarG": 57.1,
+          "caffeineMg": 199.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-6f3ecebd",
+      "name": "鮮奶可可",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 521.8,
+          "sugarG": 36.7,
+          "caffeineMg": 29.3
+        },
+        {
+          "name": "專用杯・熱",
+          "kcal": 469.8,
+          "sugarG": 41.3,
+          "caffeineMg": 30.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-e3424c92",
+      "name": "晴之國白桃風味咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 168.0,
+          "sugarG": 37.0,
+          "caffeineMg": 151.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-4623c3b0",
+      "name": "金盞花膠原蜜香拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 295.2,
+          "sugarG": 35.3,
+          "caffeineMg": 223.7
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 330.3,
+          "sugarG": 36.5,
+          "caffeineMg": 244.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-reserve-c8c1485e",
+      "name": "冰淇淋",
+      "kind": "food",
+      "kcal": 194.0,
+      "sugarG": 23.5
+    }
+  ]
+}

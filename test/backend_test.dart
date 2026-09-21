@@ -654,15 +654,17 @@ void main() {
         ..logPortion(const FoodPortion(milk, 1))
         ..logPortion(const FoodPortion(rice, 1));
 
-      final calcium = summariseNutrients(store.todayMeals)
-          .singleWhere((total) => total.nutrient == Nutrient.calcium);
+      final calcium = summariseNutrients(
+        store.todayMeals,
+      ).singleWhere((total) => total.nutrient == Nutrient.calcium);
 
       expect(calcium.amount, 250);
       expect(calcium.isComplete, isFalse, reason: 'the rice said nothing');
       expect(calcium.label, '至少 250 mg');
       expect(
-        summariseNutrients(store.todayMeals)
-            .any((total) => total.nutrient == Nutrient.iron),
+        summariseNutrients(
+          store.todayMeals,
+        ).any((total) => total.nutrient == Nutrient.iron),
         isFalse,
         reason: 'a nutrient nobody recorded is left out, not listed as 0',
       );
@@ -862,10 +864,11 @@ void main() {
       expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
       expect(sizes.last.displayName, '星巴克 美式咖啡 Tall');
       expect(sizes.last.nutrients[Nutrient.caffeine], 195);
-      expect(reopened.sizeNamesFor('星巴克'), [
-        'Short',
-        'Tall',
-      ], reason: 'the next drink from the same shop offers the same cups');
+      expect(
+        reopened.sizeNamesFor('星巴克'),
+        ['Short', 'Tall'],
+        reason: 'the next drink from the same shop offers the same cups',
+      );
 
       final tall = reopened.logPortion(FoodPortion(sizes.last, 1));
       expect(tall.nutrients[Nutrient.caffeine], 195);
@@ -989,13 +992,6 @@ void main() {
       expect(stored.valueType, NutrientValueType.max);
       expect(stored.sourceUrl, 'https://example.invalid/citycafe.pdf');
       expect(stored.checkedAt, isNotNull);
-      expect(
-        stored.valueType.write('180 mg'),
-        '≤180 mg',
-        reason:
-            'a ceiling printed as a bare number claims a precision '
-            'the figure does not have',
-      );
 
       final logged = store.logPortion(FoodPortion(stored, 1));
       expect(
@@ -1075,13 +1071,29 @@ void main() {
       );
     });
 
-    test('the bundled catalogue file parses into drinks and cups', () {
-      final file = jsonDecode(
-        File('assets/catalogue/starbucks-tw.json').readAsStringSync(),
-      );
-      final parsed = parseCatalogue(file as Map<String, dynamic>);
+    test('the bundled catalogue files parse into drinks and cups', () {
+      Map<String, dynamic> read(String path) =>
+          jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
+      for (final path in catalogueFiles) {
+        final parsed = parseCatalogue(read(path));
+        expect(parsed, isNotEmpty, reason: path);
+        expect(
+          parsed.map((food) => food.id).toSet(),
+          hasLength(parsed.length),
+          reason: 'two cups sharing an id would overwrite each other',
+        );
+        for (final food in parsed) {
+          expect(food.brand, isNotEmpty);
+          expect(food.sourceUrl, startsWith('https://'));
+          expect(
+            food.isCupCapacity,
+            food.servingUnit == ServingUnit.millilitre,
+            reason: 'the chains publish cup sizes, not what is drunk',
+          );
+        }
+      }
 
-      expect(parsed, isNotEmpty);
+      final parsed = parseCatalogue(read('assets/catalogue/starbucks-tw.json'));
       for (final food in parsed) {
         expect(food.brand, '星巴克');
         expect(food.kind, ConsumptionKind.beverage);
@@ -1104,12 +1116,151 @@ void main() {
         (food) => food.name == '美式咖啡' && food.sizeName.isNotEmpty,
       );
       expect(americano.map((size) => size.sizeName), ['小杯', '中杯', '大杯', '特大杯']);
-      expect(americano.map((size) => size.nutrients[Nutrient.caffeine]), [
-        98,
-        195,
-        293,
-        390,
-      ], reason: 'the cups are not proportional, so each carries its own');
+      expect(
+        americano.map((size) => size.nutrients[Nutrient.caffeine]),
+        [98, 195, 293, 390],
+        reason: 'the cups are not proportional, so each carries its own',
+      );
+    });
+
+    test('a cup size is named, never counted as fluid drunk', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final parsed = parseCatalogue({
+        'brand': '7-ELEVEN',
+        'sourceUrl': 'https://example.invalid/ingredient.pdf',
+        'checkedAt': '2026-09-21',
+        'valueType': 'max',
+        'volumeIs': 'cup',
+        'drinks': [
+          {
+            'id': '7eleven-americano',
+            'name': '美式咖啡',
+            'sizes': [
+              {
+                'name': '大杯・冰',
+                'millilitres': 480,
+                'kcal': 21.6,
+                'sugarG': 0.0,
+                'caffeineMg': 302.0,
+              },
+            ],
+          },
+        ],
+      });
+      for (final food in parsed) {
+        backend.storage.foods.save(food, source: ChangeSource.catalogue);
+      }
+
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final cup = store.sizesOf('7eleven-americano').single;
+      expect(cup.isCupCapacity, isTrue, reason: 'it survives the database');
+      expect(cup.servingDescription, '杯容量 480 ml');
+      expect(
+        cup.kcal,
+        22,
+        reason: 'a ceiling of 21.6 rounds up, so "at most" stays true',
+      );
+      expect(cup.nutrients[Nutrient.sugar], 0);
+      expect(cup.nutrients[Nutrient.caffeine], 302);
+
+      final fluidBefore = store.todayFluid.millilitres;
+      final logged = store.logPortion(FoodPortion(cup, 1));
+      expect(
+        logged.millilitres,
+        isNull,
+        reason: 'an iced 480 ml cup is partly ice',
+      );
+      expect(store.todayFluid.millilitres, fluidBefore);
+    });
+
+    test('a chain lists its lines apart and drops what it stopped selling', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final foods = backend.storage.foods;
+      List<FoodItem> line(String series, List<Map<String, dynamic>> drinks) =>
+          parseCatalogue({
+            'brand': '7-ELEVEN',
+            'series': series,
+            'sourceUrl': 'https://example.invalid/ingredient.pdf',
+            'checkedAt': '2026-09-21',
+            'valueType': 'max',
+            'volumeIs': 'cup',
+            'drinks': drinks,
+          });
+      final shipped = [
+        ...line('CITY CAFE', [
+          {
+            'id': 'cafe-latte',
+            'name': '燕麥拿鐵',
+            'sizes': [
+              {'name': '中杯・冰', 'millilitres': 360, 'kcal': 174.6},
+            ],
+          },
+        ]),
+        ...line('不可思議咖啡', [
+          {
+            'id': 'reserve-latte',
+            'name': '燕麥拿鐵',
+            'sizes': [
+              {'name': '專用杯・熱', 'kcal': 166.4, 'caffeineMg': 162.7},
+            ],
+          },
+          {
+            'id': 'reserve-pearls',
+            'name': '原味黑珠',
+            'kind': 'food',
+            'kcal': 285.6,
+            'sugarG': 30.0,
+          },
+        ]),
+      ];
+      for (final food in shipped) {
+        foods.save(food, source: ChangeSource.catalogue);
+      }
+
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      expect(
+        store.menuOf('7-ELEVEN').map((food) => food.displayName),
+        [
+          '7-ELEVEN CITY CAFE 燕麥拿鐵',
+          '7-ELEVEN 不可思議咖啡 原味黑珠',
+          '7-ELEVEN 不可思議咖啡 燕麥拿鐵',
+        ],
+        reason: 'the same name in two lines is two drinks',
+      );
+      expect(store.searchFoods('city cafe'), isNotEmpty);
+
+      final mug = store.sizesOf('reserve-latte').single;
+      expect(
+        mug.servingUnit,
+        ServingUnit.serving,
+        reason: 'a cup whose capacity was not published has no volume',
+      );
+      expect(mug.isCupCapacity, isFalse);
+      expect(mug.servingDescription, '一杯');
+      final pearls = store.menuOf('7-ELEVEN')[1];
+      expect(pearls.kind, ConsumptionKind.food);
+      expect(store.sizesOf(pearls.id), isEmpty);
+      expect(pearls.kcal, 286);
+
+      // The next release no longer ships the pearls.
+      foods.retireCatalogue({
+        for (final food in shipped)
+          if (food.id != 'reserve-pearls') food.id,
+      });
+      expect(store.menuOf('7-ELEVEN').map((food) => food.name), [
+        '燕麥拿鐵',
+        '燕麥拿鐵',
+      ]);
     });
 
     test('correcting a food does not rewrite the meals logged from it', () {
@@ -1920,10 +2071,11 @@ void main() {
       final backend = withMenu();
       addTearDown(backend.close);
 
-      expect(backend.nutrition.searchFoods('那堤').map((f) => f.id).toList(), [
-        'latte',
-        'own',
-      ], reason: '那堤 starts one name and is only inside the other');
+      expect(
+        backend.nutrition.searchFoods('那堤').map((f) => f.id).toList(),
+        ['latte', 'own'],
+        reason: '那堤 starts one name and is only inside the other',
+      );
     });
 
     test('naming a chain on its own offers its menu', () {
@@ -1933,10 +2085,11 @@ void main() {
       expect(backend.nutrition.brandsNamedBy('星巴克'), ['星巴克']);
       expect(backend.nutrition.brandsNamedBy('star'), ['星巴克']);
       expect(backend.nutrition.brandsNamedBy('那堤'), isEmpty);
-      expect(backend.nutrition.menuOf('星巴克').map((f) => f.id).toList(), [
-        'mocha',
-        'latte',
-      ], reason: 'the drinks, not their cup sizes');
+      expect(
+        backend.nutrition.menuOf('星巴克').map((f) => f.id).toList(),
+        ['mocha', 'latte'],
+        reason: 'the drinks, not their cup sizes',
+      );
     });
 
     test('a starred cup survives the menu being shipped again', () {
@@ -2092,6 +2245,18 @@ void main() {
             fatGrams: 4,
             nutrients: const {Nutrient.sodium: 74},
           ),
+        )
+        // A bottle whose caffeine was typed per 100 ml.
+        ..saveFood(
+          FoodItem(
+            id: source.newFoodId(),
+            name: '無糖紅茶',
+            servingAmount: 600,
+            servingUnit: ServingUnit.millilitre,
+            kind: ConsumptionKind.beverage,
+            caffeineBasis: CaffeineBasis.per100,
+            nutrients: const {Nutrient.caffeine: 120},
+          ),
         );
       final archive = exportArchive(source.backend.db);
 
@@ -2105,6 +2270,10 @@ void main() {
       expect(restoredStore.activeWorkout!.completedSets, 1);
       expect(restoredStore.todayMeals, hasLength(2));
       expect(restoredStore.searchFoods('雞胸').single.kcal, 165);
+      expect(
+        restoredStore.searchFoods('無糖紅茶').single.caffeineBasis,
+        CaffeineBasis.per100,
+      );
       expect(
         restoredStore.searchFoods('雞胸').single.nutrients[Nutrient.sodium],
         74,

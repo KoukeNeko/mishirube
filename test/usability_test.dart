@@ -62,7 +62,7 @@ void main() {
       meals,
       reason: 'the engine already knows two drinks are not two meals',
     );
-    await reveal(tester, find.textContaining('餐 ·'));
+    await reveal(tester, find.textContaining('$meals 餐'));
     expect(
       find.textContaining('$meals 餐'),
       findsOneWidget,
@@ -97,7 +97,9 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a macro some meals lacked reads as a floor', (tester) async {
+  testWidgets('a macro some meals lacked says what it left out', (
+    tester,
+  ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     // The card with the macro tiles is the midday one.
     while (store.phase != DayPhase.noon) {
@@ -111,20 +113,17 @@ void main() {
 
     await reveal(tester, find.text('蛋白質'));
     expect(
-      find.textContaining(
-        '≥${store.todaySummary.proteinGrams}',
-        findRichText: true,
-      ),
+      find.textContaining('蛋白質、碳水、脂肪、纖維有紀錄沒有數字，未計入'),
       findsOneWidget,
       reason:
           'a bar with only its energy printed adds nothing to the '
-          'protein total, so the tile says the total is at least this '
-          'much — not that this is how much there was',
+          'protein total, so the card says the total leaves it out — '
+          'in words, not a symbol people have to decode',
     );
     await disposeTree(tester);
   });
 
-  testWidgets('an estimate carries its method, not just its symbol', (
+  testWidgets('an estimate says it is one and what it was worked from', (
     tester,
   ) async {
     final clock = FakeClock();
@@ -141,14 +140,12 @@ void main() {
     await tester.pumpAndSettle();
 
     await reveal(tester, find.textContaining('估計體內殘留咖啡因'));
-    expect(find.textContaining('≈'), findsWidgets);
     expect(
       find.textContaining('半衰期'),
       findsOneWidget,
       reason:
-          'protocol B asks whether people read ≈ as an estimate at '
-          'all; the least the screen can do is say what the number was '
-          'worked out from',
+          'the number is labelled an estimate in words, and the screen '
+          'says what it was worked out from',
     );
     await disposeTree(tester);
   });

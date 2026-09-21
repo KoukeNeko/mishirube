@@ -19,6 +19,7 @@ class BrandMenuScreen extends StatefulWidget {
     required this.brand,
     required this.rowFor,
     required this.footer,
+    required this.plateChanges,
   });
 
   final String brand;
@@ -30,12 +31,27 @@ class BrandMenuScreen extends StatefulWidget {
   /// The opening page's plate bar, or null while the plate is empty.
   final Widget? Function() footer;
 
+  /// Fires when the plate changes on a page opened over this one.
+  final Listenable plateChanges;
+
   @override
   State<BrandMenuScreen> createState() => _BrandMenuScreenState();
 }
 
 class _BrandMenuScreenState extends State<BrandMenuScreen> {
   void _refresh() => setState(() {});
+
+  @override
+  void initState() {
+    super.initState();
+    widget.plateChanges.addListener(_refresh);
+  }
+
+  @override
+  void dispose() {
+    widget.plateChanges.removeListener(_refresh);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +71,21 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
           child: InfoBanner(
             message: [
               '依品牌官網逐筆轉錄，唯讀，不能修改。',
+              if (menu.any((food) => food.valueType == NutrientValueType.max))
+                '數字是品牌依規定公布的最高值，實際可能較低。',
               if (record?.checkedAt case final at?) '查證於 ${formatDate(at)}。',
               '杯型各自有官方數值，不是按比例換算。',
             ].join(''),
           ),
         ),
-        for (final food in menu) Gutter(child: widget.rowFor(food, _refresh)),
+        // A chain that sells several lines lists them apart: CITY CAFE's
+        // 拿鐵 and 不可思議咖啡's are different drinks.
+        for (final (index, food) in menu.indexed) ...[
+          if (food.series.isNotEmpty &&
+              (index == 0 || menu[index - 1].series != food.series))
+            Gutter(child: SectionLabel(food.series)),
+          Gutter(child: widget.rowFor(food, _refresh)),
+        ],
         Gutter(
           child: const Text(
             '收藏某個杯型：進到那一杯的份量頁，按右上的星號。',

@@ -95,6 +95,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
       brand: '星巴克',
       rowFor: (food, _) => Text(food.name),
       footer: () => null,
+      plateChanges: ValueNotifier(0),
     ),
     _noSetup,
   ),

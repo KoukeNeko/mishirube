@@ -90,7 +90,7 @@ void main() {
   ) async {
     // A form long enough to scroll, with a footer over its end.
     await pumpScreen(tester, const FoodEditScreen(), store: _store());
-    const last = '包裝或品牌公布的數值，照原樣顯示。';
+    const last = '一份總共';
 
     await tester.dragUntilVisible(
       find.text(last),

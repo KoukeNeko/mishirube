@@ -703,6 +703,12 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// What today's drinks came to, counting only those logged by volume.
+  FluidLogged get todayFluid => summariseFluid(_todayMeals);
+
+  /// Today's plain water, apart from every other drink.
+  WaterLogged get todayWater => summariseWater(_todayMeals);
+
   /// Logs a glass of water. It writes the same record every drink
   /// writes, so the day's fluid stays one total.
   MealEvent logWater([int? millilitres]) {

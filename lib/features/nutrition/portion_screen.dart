@@ -215,25 +215,13 @@ class _PortionScreenState extends State<PortionScreen> {
               children: [
                 KeyValueRow(
                   label: '熱量',
-                  value: type.write('${formatKcalOrDash(portion.kcal)} kcal'),
+                  value: '${formatKcalOrDash(portion.kcal)} kcal',
                 ),
-                KeyValueRow(
-                  label: '蛋白質',
-                  value: type.write(_grams(portion.proteinGrams)),
-                ),
-                KeyValueRow(
-                  label: '碳水',
-                  value: type.write(_grams(portion.carbGrams)),
-                ),
-                KeyValueRow(
-                  label: '脂肪',
-                  value: type.write(_grams(portion.fatGrams)),
-                ),
+                KeyValueRow(label: '蛋白質', value: _grams(portion.proteinGrams)),
+                KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),
+                KeyValueRow(label: '脂肪', value: _grams(portion.fatGrams)),
                 if (portion.fibreGrams != null)
-                  KeyValueRow(
-                    label: '膳食纖維',
-                    value: type.write(_grams(portion.fibreGrams)),
-                  ),
+                  KeyValueRow(label: '膳食纖維', value: _grams(portion.fibreGrams)),
                 // Everything else the food holds. A brand drink often
                 // knows its caffeine and nothing else, and a screen that
                 // showed only the five would show it as four dashes.
@@ -241,7 +229,7 @@ class _PortionScreenState extends State<PortionScreen> {
                     in portion.nutrients.entries)
                   KeyValueRow(
                     label: nutrient.label,
-                    value: type.write(nutrient.format(amount)),
+                    value: nutrient.format(amount),
                   ),
                 if (portion.millilitres case final volume?)
                   KeyValueRow(label: '液體', value: '$volume mL'),

@@ -404,10 +404,7 @@ class MealTimelineSource extends TimelineSource {
           category: RecordCategory.nutrition,
           title: meal.name,
           detail: meal.dishes.map((dish) => dish.name).join('、'),
-          tags: [
-            '${meal.isEstimated ? '~' : ''}${formatKcalOrDash(meal.kcal)} kcal',
-            meal.qualityTag,
-          ],
+          tags: ['${formatKcalOrDash(meal.kcal)} kcal', meal.qualityTag],
         ),
       ),
   ];
@@ -439,8 +436,7 @@ class MealTimelineSource extends TimelineSource {
   }
 
   static String _summaryOf(DaySummary summary) =>
-      '${summary.mealCount} 餐 · ${summary.hasEstimates ? '~' : ''}'
-      '${formatKcal(summary.kcal)} kcal';
+      '${summary.mealCount} 餐 · ${formatKcal(summary.kcal)} kcal';
 
   /// The month's meals by day of the month, grouped by the day each was
   /// eaten on rather than by where the reader is standing now.

@@ -1,0 +1,325 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "CITY PEARL",
+  "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+  "note": "官方表頭三欄皆為最高值；容量為杯子容量。統一布丁冰沙官方分列冰沙與統一小布丁兩項。",
+  "drinks": [
+    {
+      "id": "7eleven-citypearl-2ce7bca1",
+      "name": "統一布丁焦糖出走咘布冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 287.7,
+          "sugarG": 45.8,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-dd4f1c2f",
+      "name": "愛文芒果雪酪冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 414.5,
+          "sugarG": 71.8,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-4464051e",
+      "name": "蜜梅心動冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 341.6,
+          "sugarG": 60.7,
+          "caffeineMg": 11.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-073c9b67",
+      "name": "珍珠黃金蕎麥茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 217.4,
+          "sugarG": 30.7,
+          "caffeineMg": 0.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 217.4,
+          "sugarG": 30.7,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-6d2d0490",
+      "name": "黑糖粉粿蕎麥茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 79.2,
+          "sugarG": 14.3,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-7c8b1cf3",
+      "name": "黃金蕎麥茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 162.6,
+          "sugarG": 38.4,
+          "caffeineMg": 0.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 163.3,
+          "sugarG": 38.4,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-ddd3bb3e",
+      "name": "黃金蕎麥奶茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 288.2,
+          "sugarG": 41.6,
+          "caffeineMg": 0.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 280.5,
+          "sugarG": 40.0,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-2f4a1159",
+      "name": "椰香芋見西米露",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 367.4,
+          "sugarG": 38.7,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-137639f0",
+      "name": "黑金燒仙草",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 306.2,
+          "sugarG": 29.9,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-15eb768f",
+      "name": "杏仁豆腐冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 436.9,
+          "sugarG": 37.2,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-34f7815a",
+      "name": "黑糖粉粿剉冰",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 332.6,
+          "sugarG": 70.9,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-18473b58",
+      "name": "統一布丁冰沙（冰沙）",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 170.7,
+          "sugarG": 27.0,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-5cf111ea",
+      "name": "統一小布丁",
+      "kind": "food",
+      "kcal": 110.0,
+      "sugarG": 16.0,
+      "caffeineMg": 0.0
+    },
+    {
+      "id": "7eleven-citypearl-26e76f6a",
+      "name": "懷舊鳳梨冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 262.3,
+          "sugarG": 60.6,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-7276d6b6",
+      "name": "蜜香伯爵拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 275.1,
+          "sugarG": 33.5,
+          "caffeineMg": 61.3
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 370.7,
+          "sugarG": 37.9,
+          "caffeineMg": 96.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-95b94c8c",
+      "name": "珍珠奶茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 565.2,
+          "sugarG": 38.8,
+          "caffeineMg": 194.6
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 568.7,
+          "sugarG": 40.5,
+          "caffeineMg": 195.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-6c31b804",
+      "name": "咖啡珍珠歐蕾",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 388.2,
+          "sugarG": 35.5,
+          "caffeineMg": 135.6
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 385.2,
+          "sugarG": 35.5,
+          "caffeineMg": 135.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-0f1541d9",
+      "name": "黑糖珍珠撞奶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 371.2,
+          "sugarG": 32.5,
+          "caffeineMg": 0.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 357.5,
+          "sugarG": 35.2,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-0b072287",
+      "name": "關西嫩仙草冰",
+      "sourceUrl": "https://www.citytea.com.tw/file/ingredient.pdf",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 221.4,
+          "sugarG": 46.8,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citypearl-916c633e",
+      "name": "關西嫩仙草牛奶冰",
+      "sourceUrl": "https://www.citytea.com.tw/file/ingredient.pdf",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 341.3,
+          "sugarG": 52.7,
+          "caffeineMg": 0.0
+        }
+      ]
+    }
+  ]
+}

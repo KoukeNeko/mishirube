@@ -202,3 +202,35 @@ FluidLogged summariseFluid(Iterable<MealEvent> meals) {
   }
   return FluidLogged(millilitres: millilitres, drinkCount: drinks);
 }
+
+/// Plain water logged in a day: how much, how many times, and the last.
+///
+/// Water only. Other drinks count towards [FluidLogged], which says so;
+/// folding coffee into a number labelled 「水」 would be the screen
+/// claiming a hydration value nobody has measured.
+class WaterLogged {
+  const WaterLogged({
+    required this.millilitres,
+    required this.times,
+    this.lastTimeLabel,
+  });
+
+  final int millilitres;
+  final int times;
+
+  /// When the last glass was logged, as the day shows it.
+  final String? lastTimeLabel;
+}
+
+/// Adds up the plain water in [meals], which are in the order eaten.
+WaterLogged summariseWater(Iterable<MealEvent> meals) {
+  final water = [
+    for (final meal in meals)
+      if (meal.isWater && meal.millilitres != null) meal,
+  ];
+  return WaterLogged(
+    millilitres: water.fold(0, (sum, meal) => sum + meal.millilitres!),
+    times: water.length,
+    lastTimeLabel: water.lastOrNull?.timeLabel,
+  );
+}

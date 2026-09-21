@@ -175,6 +175,9 @@ const _tables = [
     _Column('source_url', _Kind.text),
     _Column('checked_at', _Kind.time, isNullable: true),
     _Column('search_terms', _Kind.text),
+    _Column('is_cup_capacity', _Kind.boolean),
+    _Column('series', _Kind.text),
+    _Column('caffeine_basis', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
   _Table('foodFavorites', 'food_favorites', [

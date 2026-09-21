@@ -1,0 +1,1058 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "不可思議茶BAR",
+  "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+  "note": "限定門市。官方表頭三欄皆為最高值，為正常甜正常冰；容量為杯子容量。雙機版、單機版、智能機版共有的品項數值相同。",
+  "drinks": [
+    {
+      "id": "7eleven-teabar-8c796532",
+      "name": "蜜露紅茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 317.5,
+          "sugarG": 71.1,
+          "caffeineMg": 125.1
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 297.8,
+          "sugarG": 67.1,
+          "caffeineMg": 162.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-031f4372",
+      "name": "四季青萱",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 308.6,
+          "sugarG": 73.2,
+          "caffeineMg": 94.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 341.7,
+          "sugarG": 79.4,
+          "caffeineMg": 142.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-9d0caab0",
+      "name": "輕焙烏龍",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 325.5,
+          "sugarG": 76.5,
+          "caffeineMg": 91.8
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 324.5,
+          "sugarG": 75.3,
+          "caffeineMg": 93.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-b27b7dc8",
+      "name": "茶王烏龍",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 348.2,
+          "sugarG": 77.9,
+          "caffeineMg": 115.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 342.6,
+          "sugarG": 78.6,
+          "caffeineMg": 117.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-e7325b63",
+      "name": "蜜露紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 379.2,
+          "sugarG": 73.6,
+          "caffeineMg": 203.1
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 438.4,
+          "sugarG": 84.4,
+          "caffeineMg": 213.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-6e242474",
+      "name": "四季青萱茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 435.5,
+          "sugarG": 75.3,
+          "caffeineMg": 138.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 489.5,
+          "sugarG": 84.5,
+          "caffeineMg": 118.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-a73fd61c",
+      "name": "輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 374.9,
+          "sugarG": 68.2,
+          "caffeineMg": 103.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 424.8,
+          "sugarG": 78.7,
+          "caffeineMg": 113.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-76b93687",
+      "name": "茶王烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 417.7,
+          "sugarG": 78.9,
+          "caffeineMg": 137.9
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 423.1,
+          "sugarG": 76.6,
+          "caffeineMg": 148.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-6bf1e42c",
+      "name": "蹦米香蜜露紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 394.4,
+          "sugarG": 47.6,
+          "caffeineMg": 123.6
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 435.0,
+          "sugarG": 48.7,
+          "caffeineMg": 97.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-10ae138c",
+      "name": "蹦米香四季青萱茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 397.0,
+          "sugarG": 46.1,
+          "caffeineMg": 88.1
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 432.0,
+          "sugarG": 48.9,
+          "caffeineMg": 62.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-ff870b27",
+      "name": "蹦米香輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 401.5,
+          "sugarG": 45.8,
+          "caffeineMg": 86.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 432.0,
+          "sugarG": 49.2,
+          "caffeineMg": 78.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-fa5561d3",
+      "name": "蜂蜜紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 475.4,
+          "sugarG": 87.1,
+          "caffeineMg": 193.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 489.7,
+          "sugarG": 89.1,
+          "caffeineMg": 213.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-4b19587c",
+      "name": "冰四季蘋安青",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 351.9,
+          "sugarG": 79.0,
+          "caffeineMg": 118.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-fb8440a1",
+      "name": "冰蘋安蜜露紅",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 346.8,
+          "sugarG": 78.3,
+          "caffeineMg": 129.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-458d3e0b",
+      "name": "冰真心橙意青",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 249.6,
+          "sugarG": 58.9,
+          "caffeineMg": 39.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-c930f6d9",
+      "name": "冰真心橙意烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 259.8,
+          "sugarG": 61.4,
+          "caffeineMg": 35.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-bcf62b91",
+      "name": "冰果真桃氣蜜露紅",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 288.0,
+          "sugarG": 68.5,
+          "caffeineMg": 77.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-9f86164f",
+      "name": "冰珍芭雷夢青",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 229.7,
+          "sugarG": 49.9,
+          "caffeineMg": 95.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-c427a854",
+      "name": "冰珍芭雷夢烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 229.7,
+          "sugarG": 49.5,
+          "caffeineMg": 84.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-522cfaea",
+      "name": "冰波荔青萱",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 368.8,
+          "sugarG": 81.5,
+          "caffeineMg": 137.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-015a0bee",
+      "name": "冰波荔紅茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 364.0,
+          "sugarG": 81.3,
+          "caffeineMg": 159.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-6a4fd6d8",
+      "name": "真酪四季青萱茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 361.3,
+          "sugarG": 48.6,
+          "caffeineMg": 79.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 388.4,
+          "sugarG": 50.5,
+          "caffeineMg": 71.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-8144d24a",
+      "name": "真酪輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 360.0,
+          "sugarG": 48.7,
+          "caffeineMg": 71.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 401.5,
+          "sugarG": 52.5,
+          "caffeineMg": 98.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-72d1902e",
+      "name": "真酪布丁四季青萱茶拿鐵",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 466.1,
+          "sugarG": 61.9,
+          "caffeineMg": 61.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-012689f8",
+      "name": "真酪布丁輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 476.8,
+          "sugarG": 63.8,
+          "caffeineMg": 47.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-c590a991",
+      "name": "冰開心果奶蓋蜜露紅",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 332.2,
+          "sugarG": 44.1,
+          "caffeineMg": 123.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-01903d37",
+      "name": "開心果奶蓋蜜露紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 421.8,
+          "sugarG": 51.0,
+          "caffeineMg": 102.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 451.2,
+          "sugarG": 55.2,
+          "caffeineMg": 135.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-dd5e8a00",
+      "name": "冰開心果奶蓋四季青萱",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 340.1,
+          "sugarG": 44.7,
+          "caffeineMg": 98.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-ed72d7e7",
+      "name": "開心果奶蓋四季青萱茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 420.8,
+          "sugarG": 53.1,
+          "caffeineMg": 87.8
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 448.8,
+          "sugarG": 54.6,
+          "caffeineMg": 82.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-5d3fbd0b",
+      "name": "冰開心果奶蓋輕焙烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 327.8,
+          "sugarG": 44.5,
+          "caffeineMg": 94.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-48b033ff",
+      "name": "開心果奶蓋輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 416.1,
+          "sugarG": 52.9,
+          "caffeineMg": 67.6
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 446.9,
+          "sugarG": 54.4,
+          "caffeineMg": 88.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-c278f7ae",
+      "name": "冰香草奶蓋蜜露紅",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 540.6,
+          "sugarG": 88.7,
+          "caffeineMg": 158.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-b6d042e1",
+      "name": "冰香草奶蓋四季青萱",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 542.6,
+          "sugarG": 77.1,
+          "caffeineMg": 102.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-d3822b0f",
+      "name": "冰香草奶蓋輕焙烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 509.7,
+          "sugarG": 74.2,
+          "caffeineMg": 94.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-3fe37cb3",
+      "name": "蜂蜜紅茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 377.1,
+          "sugarG": 83.1,
+          "caffeineMg": 138.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 371.6,
+          "sugarG": 77.3,
+          "caffeineMg": 164.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-47171d47",
+      "name": "富桂黃金粉角紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 425.4,
+          "sugarG": 67.4,
+          "caffeineMg": 177.1
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 388.9,
+          "sugarG": 57.2,
+          "caffeineMg": 179.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-2f4b726e",
+      "name": "富桂黃金粉角烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 460.7,
+          "sugarG": 65.4,
+          "caffeineMg": 94.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 366.7,
+          "sugarG": 52.3,
+          "caffeineMg": 86.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-4aaeb0d7",
+      "name": "冰胭脂蜜莓紅",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 333.4,
+          "sugarG": 74.2,
+          "caffeineMg": 142.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-df3335ce",
+      "name": "冰情人果椰果青萱",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 307.2,
+          "sugarG": 67.5,
+          "caffeineMg": 113.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-4b76476f",
+      "name": "冰情人果椰果輕焙烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 299.1,
+          "sugarG": 66.0,
+          "caffeineMg": 86.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-e9cf1a4e",
+      "name": "珍珠拿鐵蜜露紅",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 653.8,
+          "sugarG": 88.0,
+          "caffeineMg": 169.8
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 661.5,
+          "sugarG": 88.6,
+          "caffeineMg": 150.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-afe874e7",
+      "name": "珍珠拿鐵四季青萱",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 610.2,
+          "sugarG": 89.8,
+          "caffeineMg": 100.9
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 640.5,
+          "sugarG": 86.4,
+          "caffeineMg": 93.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-8698ec88",
+      "name": "珍珠拿鐵輕焙烏龍",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 635.5,
+          "sugarG": 89.1,
+          "caffeineMg": 90.8
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 626.2,
+          "sugarG": 88.5,
+          "caffeineMg": 98.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-9667164b",
+      "name": "珍珠拿鐵茶王烏龍",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 599.5,
+          "sugarG": 95.6,
+          "caffeineMg": 133.9
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 596.0,
+          "sugarG": 89.7,
+          "caffeineMg": 122.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-1af3612c",
+      "name": "原味黑珠",
+      "kind": "food",
+      "kcal": 285.6,
+      "sugarG": 30.0
+    },
+    {
+      "id": "7eleven-teabar-8f6cf18c",
+      "name": "椰果",
+      "kind": "food",
+      "kcal": 118.2,
+      "sugarG": 29.8
+    },
+    {
+      "id": "7eleven-teabar-c08be580",
+      "name": "粉角",
+      "kind": "food",
+      "kcal": 193.0,
+      "sugarG": 24.9
+    },
+    {
+      "id": "7eleven-teabar-3052a03e",
+      "name": "蜂蜜伯爵紅茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 280.4,
+          "sugarG": 68.6,
+          "caffeineMg": 92.5
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 358.6,
+          "sugarG": 88.2,
+          "caffeineMg": 131.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-6116a029",
+      "name": "蕎麥茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 96.3,
+          "sugarG": 22.9,
+          "caffeineMg": 0.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 128.9,
+          "sugarG": 31.1,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-bfd13d43",
+      "name": "蜂蜜輕焙烏龍茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 370.5,
+          "sugarG": 58.3,
+          "caffeineMg": 211.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 240.6,
+          "sugarG": 43.0,
+          "caffeineMg": 115.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-4437574f",
+      "name": "珍珠伯爵紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 509.7,
+          "sugarG": 61.9,
+          "caffeineMg": 345.6
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 303.3,
+          "sugarG": 39.6,
+          "caffeineMg": 142.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-fe52bb53",
+      "name": "蕎麥拿鐵",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 253.5,
+          "sugarG": 40.8,
+          "caffeineMg": 0.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-8c9dd2c3",
+      "name": "珍珠茉莉拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 566.8,
+          "sugarG": 65.7,
+          "caffeineMg": 175.8
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 571.0,
+          "sugarG": 72.3,
+          "caffeineMg": 136.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-edad78c2",
+      "name": "荔枝輕烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 276.6,
+          "sugarG": 58.8,
+          "caffeineMg": 109.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-49020e9a",
+      "name": "荔枝青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 485.9,
+          "sugarG": 117.8,
+          "caffeineMg": 139.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-be804c45",
+      "name": "青梅茉香綠",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 278.4,
+          "sugarG": 66.0,
+          "caffeineMg": 46.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-8dbfe5cd",
+      "name": "水果青茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 485.6,
+          "sugarG": 122.9,
+          "caffeineMg": 193.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-7543a4b7",
+      "name": "蜂蜜柚香綠",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 284.5,
+          "sugarG": 60.8,
+          "caffeineMg": 38.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-d977ea39",
+      "name": "茉萱輕乳茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 463.6,
+          "sugarG": 66.3,
+          "caffeineMg": 311.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 391.1,
+          "sugarG": 54.8,
+          "caffeineMg": 373.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-287832bb",
+      "name": "蕎麥烏龍輕乳茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 368.5,
+          "sugarG": 46.7,
+          "caffeineMg": 110.6
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 271.0,
+          "sugarG": 35.9,
+          "caffeineMg": 55.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-a7f6fe22",
+      "name": "蜂蜜伯爵輕乳茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 504.2,
+          "sugarG": 82.3,
+          "caffeineMg": 277.4
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 284.4,
+          "sugarG": 29.5,
+          "caffeineMg": 144.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-29cf10dc",
+      "name": "蜂蜜茉香輕乳茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 454.1,
+          "sugarG": 94.3,
+          "caffeineMg": 78.9
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 457.4,
+          "sugarG": 65.5,
+          "caffeineMg": 95.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-teabar-0c09a5f1",
+      "name": "蜜露紅輕乳茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 462.3,
+          "sugarG": 68.5,
+          "caffeineMg": 273.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 431.5,
+          "sugarG": 64.3,
+          "caffeineMg": 268.1
+        }
+      ]
+    }
+  ]
+}

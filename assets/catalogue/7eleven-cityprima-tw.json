@@ -1,0 +1,520 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "CITY PRIMA",
+  "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+  "note": "官方表頭三欄皆為最高值；容量為杯子容量，冰飲含冰。精品咖啡豆款會更換，括號內為查證日的豆款。",
+  "drinks": [
+    {
+      "id": "7eleven-cityprima-d6c50df3",
+      "name": "金盞花膠原蜂蜜拿鐵（衣索比亞）",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 278.0,
+          "sugarG": 37.1,
+          "caffeineMg": 232.1
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 362.6,
+          "sugarG": 41.7,
+          "caffeineMg": 229.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-d56658d3",
+      "name": "大溪地檸檬風味冰磚精品美式（衣索比亞）",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 236.8,
+          "sugarG": 49.0,
+          "caffeineMg": 276.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-a90c138d",
+      "name": "拉拉山蜜桃風味冰磚精品美式（衣索比亞）",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 203.9,
+          "sugarG": 42.1,
+          "caffeineMg": 269.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-2b1c52ef",
+      "name": "精品美式咖啡（衣索比亞）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 10.8,
+          "sugarG": 0.0,
+          "caffeineMg": 163.6
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 10.3,
+          "sugarG": 0.0,
+          "caffeineMg": 200.0
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 14.7,
+          "sugarG": 0.2,
+          "caffeineMg": 223.2
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 18.1,
+          "sugarG": 0.2,
+          "caffeineMg": 229.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 20.0,
+          "sugarG": 0.2,
+          "caffeineMg": 259.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 21.0,
+          "sugarG": 0.2,
+          "caffeineMg": 271.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-5fb33977",
+      "name": "精品拿鐵咖啡（衣索比亞）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 93.2,
+          "sugarG": 6.4,
+          "caffeineMg": 100.7
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 121.8,
+          "sugarG": 8.3,
+          "caffeineMg": 119.0
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 161.9,
+          "sugarG": 11.2,
+          "caffeineMg": 159.4
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 188.9,
+          "sugarG": 13.7,
+          "caffeineMg": 136.4
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 179.0,
+          "sugarG": 11.4,
+          "caffeineMg": 200.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 242.0,
+          "sugarG": 16.0,
+          "caffeineMg": 197.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-11665493",
+      "name": "精品馥芮白（衣索比亞）",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 136.8,
+          "sugarG": 7.8,
+          "caffeineMg": 200.3
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 155.6,
+          "sugarG": 9.1,
+          "caffeineMg": 179.5
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 162.6,
+          "sugarG": 9.3,
+          "caffeineMg": 228.9
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 194.3,
+          "sugarG": 11.7,
+          "caffeineMg": 207.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-6cb71abf",
+      "name": "精品美式咖啡（蜜桃協奏曲）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 9.5,
+          "sugarG": 0.0,
+          "caffeineMg": 140.3
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 11.4,
+          "sugarG": 0.0,
+          "caffeineMg": 159.1
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 16.3,
+          "sugarG": 0.0,
+          "caffeineMg": 235.5
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 14.6,
+          "sugarG": 0.0,
+          "caffeineMg": 247.8
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 21.7,
+          "sugarG": 0.0,
+          "caffeineMg": 296.7
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 18.5,
+          "sugarG": 0.0,
+          "caffeineMg": 294.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-2e21d145",
+      "name": "精品拿鐵咖啡（蜜桃協奏曲）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 90.1,
+          "sugarG": 6.3,
+          "caffeineMg": 103.0
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 124.6,
+          "sugarG": 8.7,
+          "caffeineMg": 111.9
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 165.2,
+          "sugarG": 10.8,
+          "caffeineMg": 157.7
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 198.8,
+          "sugarG": 13.5,
+          "caffeineMg": 150.4
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 177.4,
+          "sugarG": 11.9,
+          "caffeineMg": 214.3
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 237.5,
+          "sugarG": 15.6,
+          "caffeineMg": 210.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-097e039c",
+      "name": "精品馥芮白（蜜桃協奏曲）",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 130.4,
+          "sugarG": 8.4,
+          "caffeineMg": 216.3
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 158.5,
+          "sugarG": 11.1,
+          "caffeineMg": 215.8
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 146.6,
+          "sugarG": 9.7,
+          "caffeineMg": 253.9
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 194.2,
+          "sugarG": 12.5,
+          "caffeineMg": 261.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-0d21b8fc",
+      "name": "精品美式咖啡（瓜地馬拉）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 12.8,
+          "sugarG": 0.0,
+          "caffeineMg": 188.6
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 12.7,
+          "sugarG": 0.0,
+          "caffeineMg": 178.8
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 16.0,
+          "sugarG": 0.2,
+          "caffeineMg": 245.0
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 16.0,
+          "sugarG": 0.2,
+          "caffeineMg": 219.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 20.0,
+          "sugarG": 0.2,
+          "caffeineMg": 292.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 21.0,
+          "sugarG": 0.2,
+          "caffeineMg": 313.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-a8d7b244",
+      "name": "精品拿鐵咖啡（瓜地馬拉）",
+      "sizes": [
+        {
+          "name": "小杯・冰",
+          "millilitres": 240,
+          "kcal": 94.7,
+          "sugarG": 6.3,
+          "caffeineMg": 116.2
+        },
+        {
+          "name": "小杯・熱",
+          "millilitres": 240,
+          "kcal": 110.1,
+          "sugarG": 8.7,
+          "caffeineMg": 130.2
+        },
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 166.0,
+          "sugarG": 11.2,
+          "caffeineMg": 193.0
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 191.0,
+          "sugarG": 13.5,
+          "caffeineMg": 191.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 182.0,
+          "sugarG": 12.0,
+          "caffeineMg": 255.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 233.0,
+          "sugarG": 16.6,
+          "caffeineMg": 253.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-9085b54b",
+      "name": "精品馥芮白（瓜地馬拉）",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 121.2,
+          "sugarG": 7.8,
+          "caffeineMg": 225.8
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 161.6,
+          "sugarG": 11.0,
+          "caffeineMg": 220.1
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 136.1,
+          "sugarG": 9.1,
+          "caffeineMg": 297.4
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 189.9,
+          "sugarG": 12.4,
+          "caffeineMg": 282.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-7e712c57",
+      "name": "精品香椰厚拿鐵（衣索比亞）",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 239.9,
+          "sugarG": 15.1,
+          "caffeineMg": 143.6
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 234.5,
+          "sugarG": 14.5,
+          "caffeineMg": 138.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-19f28d49",
+      "name": "精品燕麥拿鐵（衣索比亞）",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 184.0,
+          "sugarG": 7.0,
+          "caffeineMg": 193.5
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 193.3,
+          "sugarG": 7.0,
+          "caffeineMg": 197.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-a3a9871a",
+      "name": "精品濃醇摩卡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 441.8,
+          "sugarG": 40.2,
+          "caffeineMg": 202.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-cityprima-74c210cf",
+      "name": "ESPRESSO（衣索比亞）",
+      "sizes": [
+        {
+          "name": "熱",
+          "kcal": 9.5,
+          "sugarG": 0.0,
+          "caffeineMg": 84.2
+        }
+      ]
+    }
+  ]
+}

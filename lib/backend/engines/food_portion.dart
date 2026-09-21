@@ -2,7 +2,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 
 /// Bumped whenever the arithmetic below changes.
-const foodPortionVersion = 1;
+const foodPortionVersion = 2;
 
 /// How much of a food was eaten, and what that comes to.
 ///
@@ -45,8 +45,12 @@ class FoodPortion {
   ///
   /// Being poured is not enough: soup is measured in millilitres and no
   /// food authority calls it a drink, so the food has to say so.
+  ///
+  /// A cup's capacity is not what was drunk either — an iced 480 mL cup
+  /// is partly ice — so a food whose volume is its cup gives none.
   int? get millilitres =>
       food.kind == ConsumptionKind.beverage &&
+          !food.isCupCapacity &&
           food.servingUnit.dimension == ServingDimension.volume
       ? food.servingUnit.convert(amount, ServingUnit.millilitre).round()
       : null;

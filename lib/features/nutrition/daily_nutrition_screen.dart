@@ -133,7 +133,7 @@ class _MealCard extends StatelessWidget {
               Text(meal.timeLabel, style: AppTextStyles.caption),
               const Spacer(),
               Text(
-                '${meal.isEstimated ? '~' : ''}${formatKcalOrDash(meal.kcal)}',
+                formatKcalOrDash(meal.kcal),
                 style: AppTextStyles.bigNumber.copyWith(fontSize: 26),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -369,7 +369,7 @@ class _CaffeineEstimate extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               StatBlock(
-                value: '≈${milligrams.round()}',
+                value: '${milligrams.round()}',
                 unit: 'mg',
                 label: '估計體內殘留咖啡因',
               ),

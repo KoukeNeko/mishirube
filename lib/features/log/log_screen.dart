@@ -182,31 +182,13 @@ class _LogScreenState extends State<LogScreen> {
           (day, entries),
     ];
     return [
-      // Full-bleed: the chips scroll to the screen edge, so the row pads
-      // its own content instead of taking a Gutter.
-      SizedBox(
-        height: pillHeight(context),
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.screenGutter,
-          ),
-          itemCount: _LogFilter.values.length,
-          separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
-          itemBuilder: (_, index) {
-            final filter = _LogFilter.values[index];
-            return SelectChip(
-              label: filter.label,
-              icon: filter.icon,
-              iconColor: filter.color,
-              // Rim in the category's colour; a fill would drown the icon.
-              showsSelectionAsOutline: true,
-              selectedColor: filter.color,
-              isSelected: filter == _filter,
-              onTap: () => setState(() => _filter = filter),
-            );
-          },
-        ),
+      FilterChipBar<_LogFilter>(
+        options: _LogFilter.values,
+        selected: _filter,
+        labelOf: (filter) => filter.label,
+        iconOf: (filter) => filter.icon,
+        colorOf: (filter) => filter.color,
+        onSelected: (filter) => setState(() => _filter = filter),
       ),
       if (records.days.isEmpty)
         Gutter(

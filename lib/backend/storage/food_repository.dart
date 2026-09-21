@@ -92,7 +92,7 @@ class FoodRepository {
   List<FoodItem> menuOf(String brand) => [
     for (final row in _db.select(
       'SELECT * FROM foods WHERE deleted_at IS NULL AND parent_id IS NULL '
-      "AND source = 'catalogue' AND brand = ? ORDER BY name",
+      "AND source = 'catalogue' AND brand = ? ORDER BY series, name",
       [brand],
     ))
       _fromRow(row),
@@ -129,6 +129,7 @@ class FoodRepository {
           'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
           'size_name = ?, consumption_kind = ?, value_type = ?, '
           'source_url = ?, checked_at = ?, search_terms = ?, '
+          'is_cup_capacity = ?, series = ?, caffeine_basis = ?, '
           'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
           'WHERE id = ?',
           [
@@ -149,6 +150,9 @@ class FoodRepository {
             food.sourceUrl,
             food.checkedAt?.millisecondsSinceEpoch,
             food.searchTerms,
+            food.isCupCapacity ? 1 : 0,
+            food.series,
+            food.caffeineBasis.name,
             now,
             food.id,
           ],
@@ -158,9 +162,10 @@ class FoodRepository {
           'INSERT INTO foods (id, name, brand, serving_label, '
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
           'fibre_g, parent_id, size_name, consumption_kind, value_type, '
-          'source_url, checked_at, search_terms, created_at, updated_at, '
-          'source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'source_url, checked_at, search_terms, is_cup_capacity, series, '
+          'caffeine_basis, created_at, updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
+          '?, ?, ?)',
           [
             food.id,
             food.name,
@@ -180,6 +185,9 @@ class FoodRepository {
             food.sourceUrl,
             food.checkedAt?.millisecondsSinceEpoch,
             food.searchTerms,
+            food.isCupCapacity ? 1 : 0,
+            food.series,
+            food.caffeineBasis.name,
             now,
             now,
             source.name,
@@ -233,6 +241,35 @@ class FoodRepository {
     });
   }
 
+  /// Tombstones the shipped foods that are no longer in [shippedIds]: a
+  /// drink the chain stopped selling leaves the menu with the release
+  /// that drops it. Meals logged from one keep their numbers.
+  void retireCatalogue(Set<String> shippedIds) {
+    _db.transaction(() {
+      final stale = [
+        for (final row in _db.select(
+          'SELECT id FROM foods WHERE source = ? AND deleted_at IS NULL',
+          [ChangeSource.catalogue.name],
+        ))
+          if (!shippedIds.contains(row['id'])) row['id']! as String,
+      ];
+      final now = _db.now().millisecondsSinceEpoch;
+      for (final id in stale) {
+        _db.execute(
+          'UPDATE foods SET deleted_at = ?, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ?',
+          [now, now, id],
+        );
+        _db.audit(
+          entityType: 'food',
+          entityId: id,
+          action: 'delete',
+          source: ChangeSource.catalogue,
+        );
+      }
+    });
+  }
+
   /// Brings a deleted food back, for undoing a delete.
   void undelete(String id) {
     _db.transaction(() {
@@ -271,6 +308,11 @@ class FoodRepository {
       },
       isBuiltIn: row['source'] == ChangeSource.catalogue.name,
       searchTerms: row['search_terms']! as String,
+      isCupCapacity: row['is_cup_capacity'] == 1,
+      series: row['series']! as String,
+      caffeineBasis: CaffeineBasis.values.byName(
+        row['caffeine_basis']! as String,
+      ),
     );
   }
 }

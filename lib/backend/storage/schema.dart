@@ -567,6 +567,21 @@ final List<String> _migrations = [
     $_entityColumns
   );
   ''',
+  '''
+  -- The food's volume is the cup it comes in rather than the drink, as
+  -- chains publish it. Such a volume is never counted as fluid drunk.
+  ALTER TABLE foods ADD COLUMN is_cup_capacity INTEGER NOT NULL DEFAULT 0;
+  ''',
+  '''
+  -- The brand's own line a food belongs to (CITY CAFE, CITY TEA), so one
+  -- chain's menu can be read in the sections it is sold in.
+  ALTER TABLE foods ADD COLUMN series TEXT NOT NULL DEFAULT '';
+  ''',
+  '''
+  -- How a food's caffeine was typed: per 100 g/ml, as bottled drinks
+  -- print it, or the total in one serving. Stored per serving either way.
+  ALTER TABLE foods ADD COLUMN caffeine_basis TEXT NOT NULL DEFAULT 'serving';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

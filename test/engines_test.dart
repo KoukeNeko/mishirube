@@ -6,6 +6,8 @@ import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/features/nutrition/plate_screen.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
@@ -108,6 +110,44 @@ void main() {
 
       expect(summary.hasRecords, isFalse);
       expect(isFoodLogIncomplete(summary), isFalse);
+    });
+  });
+
+  group('water', () {
+    MealEvent drink(String name, int millilitres, {String tag = '已確認'}) =>
+        MealEvent(
+          id: '$name$millilitres',
+          name: name,
+          timeLabel: '10:00',
+          qualityTag: tag,
+          dishes: const [],
+          kind: ConsumptionKind.beverage,
+          millilitres: millilitres,
+        );
+
+    test('only the water shortcut counts as water', () {
+      final water = summariseWater([
+        drink('水', 250, tag: waterQualityTag),
+        drink('拿鐵', 350),
+        // A saved food someone called 水 comes through a portion.
+        drink('水', 500).copyWith(
+          dishes: const [
+            DishEntry(name: '水', quantityLabel: '500 ml', subtitle: '自訂食物'),
+          ],
+        ),
+        drink('水', 300, tag: waterQualityTag),
+      ]);
+
+      expect(water.millilitres, 550);
+      expect(water.times, 2);
+      expect(water.lastTimeLabel, '10:00');
+    });
+
+    test('no water is none, not an empty number pretending', () {
+      final water = summariseWater([drink('拿鐵', 350)]);
+
+      expect(water.millilitres, 0);
+      expect(water.lastTimeLabel, isNull);
     });
   });
 
@@ -1050,5 +1090,23 @@ void main() {
       expect(intakes, hasLength(1));
       expect(intakes.single.milligrams, 95);
     });
+  });
+
+  test('a plate total names what it left out instead of marking it', () {
+    FoodPortion one(int? kcal, NutrientValueType type) => FoodPortion(
+      FoodItem(id: '$kcal$type', name: 'x', kcal: kcal, valueType: type),
+      1,
+    );
+    const declared = NutrientValueType.declared;
+    expect(
+      plateKcalLabel([one(100, declared), one(6, NutrientValueType.max)]),
+      '106',
+    );
+    expect(plateMissingLabel([one(100, declared)]), isNull);
+    expect(
+      plateMissingLabel([one(100, declared), one(null, declared)]),
+      '1 項沒有熱量',
+    );
+    expect(plateKcalLabel([one(100, declared), one(null, declared)]), '100');
   });
 }

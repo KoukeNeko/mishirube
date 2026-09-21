@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -362,11 +363,12 @@ class IntakeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Text('今日攝取', style: AppTextStyles.overline),
-              Spacer(),
-              TagChip(label: '含估計值', tone: TagTone.nutrition),
+              const Text('今日攝取', style: AppTextStyles.overline),
+              const Spacer(),
+              if (summary.hasEstimates)
+                const TagChip(label: '含估計值', tone: TagTone.nutrition),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -416,6 +418,10 @@ class IntakeCard extends StatelessWidget {
               ),
             ],
           ),
+          if (_leftOut(summary) case final note?) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(note, style: AppTextStyles.caption),
+          ],
           const Divider(height: AppSpacing.xxl),
           Text(
             store.isLunchLogged
@@ -429,9 +435,24 @@ class IntakeCard extends StatelessWidget {
   }
 }
 
-/// One macro's day total, written as what it is: `~42` when every
-/// record carried the figure, `≥42` when some did not — the sum is a
-/// floor then, not the day — and `—` when none did.
+/// `蛋白質、碳水有 1 筆紀錄沒有數字，未計入。`, or null when every
+/// total is complete. A total that some records lacked is only what the
+/// others add up to, and the tile would not say so on its own.
+String? _leftOut(DaySummary summary) {
+  bool partial(int missing) => missing > 0 && missing < summary.recordCount;
+  final macros = [
+    if (partial(summary.mealsWithoutProtein)) '蛋白質',
+    if (partial(summary.mealsWithoutCarb)) '碳水',
+    if (partial(summary.mealsWithoutFat)) '脂肪',
+    if (partial(summary.mealsWithoutFibre)) '纖維',
+  ];
+  if (macros.isEmpty) return null;
+  return '${macros.join('、')}有紀錄沒有數字，未計入。';
+}
+
+/// One macro's day total: what the records that carried the figure add
+/// up to, or `—` when none did. Records without it are named under the
+/// tiles rather than marked on the number.
 class _MacroTile extends StatelessWidget {
   const _MacroTile({
     required this.label,
@@ -447,11 +468,7 @@ class _MacroTile extends StatelessWidget {
   final int missing;
   final int records;
 
-  String get _value => switch (missing) {
-    0 => '~$grams',
-    _ when missing == records => '—',
-    _ => '≥$grams',
-  };
+  String get _value => missing == records && records > 0 ? '—' : '$grams';
 
   @override
   Widget build(BuildContext context) {

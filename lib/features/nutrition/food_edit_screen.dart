@@ -52,18 +52,30 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late ServingUnit _servingUnit =
       widget.editing?.servingUnit ?? ServingUnit.gram;
 
+  /// Caffeine is typed either per 100 g/ml, the way bottled drinks print
+  /// it, or as the total in one serving. The food keeps it per serving.
+  late CaffeineBasis _caffeineBasis =
+      widget.editing?.caffeineBasis ?? CaffeineBasis.per100;
+  late final _caffeine = TextEditingController(
+    text: switch ((
+      widget.editing,
+      widget.editing?.nutrients[Nutrient.caffeine],
+    )) {
+      (final food?, final perServing?) => formatAmount(
+        food.caffeineBasis == CaffeineBasis.per100
+            ? perServing / food.servingAmount * 100
+            : perServing,
+      ),
+      _ => '',
+    },
+  );
+
   /// Eaten or drunk. Prefilled from the unit because that is right more
   /// often than not, but shown and changeable, because the unit does not
   /// actually decide it: soup is poured and is not a drink.
   late ConsumptionKind _kind =
       widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
 
-  /// What kind of number these figures are. Most hand entry is off a
-  /// packet, so it starts there.
-  late NutrientValueType _valueType =
-      widget.editing?.valueType ??
-      widget.sizeOf?.valueType ??
-      NutrientValueType.declared;
   late final _kcal = _number(widget.editing?.kcal);
   late final _protein = _number(widget.editing?.proteinGrams);
   late final _carb = _number(widget.editing?.carbGrams);
@@ -86,8 +98,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late bool _showsEveryNutrient =
       widget.editing?.nutrients.keys.any(_isBeyondLabel) ?? false;
 
+  /// Caffeine has its own field below the label's nutrients.
   static bool _isBeyondLabel(Nutrient nutrient) =>
-      !_labelNutrients.contains(nutrient);
+      !_labelNutrients.contains(nutrient) && nutrient != Nutrient.caffeine;
 
   static TextEditingController _number(int? value) =>
       TextEditingController(text: value == null ? '' : '$value');
@@ -95,7 +108,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   @override
   void initState() {
     super.initState();
-    for (final controller in [_name, _sizeName, _servingAmount]) {
+    for (final controller in [_name, _sizeName, _servingAmount, _caffeine]) {
       controller.addListener(() => setState(() {}));
     }
   }
@@ -108,6 +121,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _brand,
       _serving,
       _servingAmount,
+      _caffeine,
       _kcal,
       _protein,
       _carb,
@@ -134,6 +148,19 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
   double get _amount => double.tryParse(_servingAmount.text.trim()) ?? 0;
 
+  /// Per 100 only makes sense for grams or millilitres.
+  CaffeineBasis get _effectiveCaffeineBasis =>
+      _servingUnit.isMeasured ? _caffeineBasis : CaffeineBasis.serving;
+
+  /// The typed caffeine in one serving, or null when none was typed.
+  double? get _caffeinePerServing {
+    final typed = double.tryParse(_caffeine.text.trim());
+    if (typed == null) return null;
+    return _effectiveCaffeineBasis == CaffeineBasis.per100
+        ? typed * _amount / 100
+        : typed;
+  }
+
   bool get _isSize => widget.sizeOf != null || widget.editing?.isSize == true;
 
   bool get _canSave =>
@@ -155,6 +182,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       servingLabel: _serving.text.trim(),
       servingAmount: _amount,
       servingUnit: _servingUnit,
+      caffeineBasis: _effectiveCaffeineBasis,
       kcal: _valueOf(_kcal),
       proteinGrams: _valueOf(_protein),
       carbGrams: _valueOf(_carb),
@@ -164,7 +192,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       parentId: widget.sizeOf?.id ?? widget.editing?.parentId,
       sizeName: _sizeName.text.trim(),
       kind: _kind,
-      valueType: _valueType,
+      // Not asked: hand-typed figures are what the packet says, and a
+      // size keeps the kind of figure its drink has.
+      valueType:
+          widget.editing?.valueType ??
+          widget.sizeOf?.valueType ??
+          NutrientValueType.declared,
       sourceUrl: widget.editing?.sourceUrl ?? widget.sizeOf?.sourceUrl ?? '',
       checkedAt: widget.editing?.checkedAt ?? widget.sizeOf?.checkedAt,
     );
@@ -178,8 +211,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   Nutrients _typedNutrients() {
     final nutrients = <Nutrient, double>{};
     for (final MapEntry(key: nutrient, value: field) in _extra.entries) {
+      if (nutrient == Nutrient.caffeine) continue;
       final amount = double.tryParse(field.text.trim());
       if (amount != null) nutrients[nutrient] = amount;
+    }
+    if (_caffeinePerServing case final caffeine?) {
+      nutrients[Nutrient.caffeine] = caffeine;
     }
     return nutrients;
   }
@@ -385,24 +422,31 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             style: AppTextStyles.caption,
           ),
         ),
-        Gutter(child: const SectionLabel('這些數字是什麼')),
+        Gutter(child: const SectionLabel('咖啡因')),
         Gutter(
-          child: ChipWrap(
-            options: NutrientValueType.values,
-            labelOf: (type) => type.label,
-            isSelected: (type) => type == _valueType,
-            onTap: (type) => setState(() => _valueType = type),
+          child: _NumberField(label: '含量', unit: 'mg', field: _caffeine),
+        ),
+        if (_servingUnit.isMeasured)
+          Gutter(
+            child: ChipWrap(
+              options: CaffeineBasis.values,
+              labelOf: (basis) => switch (basis) {
+                CaffeineBasis.per100 => '每 100 ${_servingUnit.label}',
+                CaffeineBasis.serving => '一份總共',
+              },
+              isSelected: (basis) => basis == _caffeineBasis,
+              onTap: (basis) => setState(() => _caffeineBasis = basis),
+            ),
           ),
-        ),
-        Gutter(
-          child: Text(switch (_valueType) {
-            NutrientValueType.declared => '包裝或品牌公布的數值，照原樣顯示。',
-            NutrientValueType.max =>
-              '上限，不是這一杯的實際量——台灣連鎖飲料依法標的就是最高值。'
-                  '畫面上會顯示成「≤」。',
-            NutrientValueType.estimate => '同類東西的大概值，不是這一份的量。畫面上會顯示成「≈」。',
-          }, style: AppTextStyles.caption),
-        ),
+        if (_effectiveCaffeineBasis == CaffeineBasis.per100 &&
+            _caffeinePerServing != null)
+          Gutter(
+            child: Text(
+              '一份 ${formatAmount(_amount)} ${_servingUnit.label} 是 '
+              '${formatAmount(_caffeinePerServing!)} mg',
+              style: AppTextStyles.caption,
+            ),
+          ),
       ],
     );
   }

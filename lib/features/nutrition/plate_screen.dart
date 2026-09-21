@@ -7,12 +7,16 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'portion_screen.dart';
 
-/// `486`, or `≥486` when something on the plate has no calorie figure:
-/// the sum of what is known is a floor, not the plate.
-String plateKcalLabel(List<FoodPortion> plate) {
-  final known = plate.fold(0, (sum, portion) => sum + (portion.kcal ?? 0));
-  final isPartial = plate.any((portion) => portion.kcal == null);
-  return '${isPartial ? '≥' : ''}${formatKcal(known)}';
+/// The calories of everything on the plate that has a figure. Anything
+/// without one is left out and said so beside it ([plateMissingLabel]),
+/// not folded into the number.
+String plateKcalLabel(List<FoodPortion> plate) =>
+    formatKcal(plate.fold(0, (sum, portion) => sum + (portion.kcal ?? 0)));
+
+/// `1 項沒有熱量`, or null when every item has a figure.
+String? plateMissingLabel(List<FoodPortion> plate) {
+  final missing = plate.where((portion) => portion.kcal == null).length;
+  return missing == 0 ? null : '$missing 項沒有熱量';
 }
 
 /// Everything picked so far, each at its portion, before it is logged.
@@ -39,6 +43,10 @@ class PlateScreen extends StatefulWidget {
 }
 
 class _PlateScreenState extends State<PlateScreen> {
+  /// Shows a remove button on every row: the way to remove that does not
+  /// depend on knowing the swipe.
+  bool _isEditing = false;
+
   Future<void> _change(int index) async {
     final current = widget.plate[index];
     final portion = await showPortionScreen(
@@ -51,10 +59,21 @@ class _PlateScreenState extends State<PlateScreen> {
     widget.onChanged();
   }
 
+  /// Takes a row off at once and offers it back, rather than asking
+  /// first: nothing is logged yet. Removing the last one leaves the page
+  /// open — an empty plate and being done with it are different things.
   void _remove(int index) {
+    final removed = widget.plate[index];
     setState(() => widget.plate.removeAt(index));
     widget.onChanged();
-    if (widget.plate.isEmpty) Navigator.of(context).pop();
+    ToastScope.read(context).showUndo(
+      '已移除「${removed.food.displayName}」',
+      onUndo: () {
+        widget.plate.insert(index.clamp(0, widget.plate.length), removed);
+        widget.onChanged();
+        if (mounted) setState(() {});
+      },
+    );
   }
 
   // The owner closes every page it opened, this one included, as it logs.
@@ -66,39 +85,67 @@ class _PlateScreenState extends State<PlateScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: '這一餐',
-        subtitle: '${plate.length} 項 · ${plateKcalLabel(plate)} kcal',
+        subtitle: [
+          '${plate.length} 項',
+          '${plateKcalLabel(plate)} kcal',
+          ?plateMissingLabel(plate),
+        ].join(' · '),
+        actions: [
+          if (plate.isNotEmpty || _isEditing)
+            HeaderAction(
+              icon: _isEditing ? Icons.check : Icons.edit_outlined,
+              label: _isEditing ? '完成' : '編輯',
+              semanticLabel: _isEditing ? '完成編輯' : '編輯這一餐',
+              onTap: () => setState(() => _isEditing = !_isEditing),
+            ),
+        ],
       ),
-      footer: PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: _log),
+      footer: plate.isEmpty
+          ? SecondaryButton(
+              label: '回去挑選',
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          : PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: _log),
       children: [
         for (final (index, portion) in plate.indexed)
           Gutter(
-            child: AppCard(
-              padding: EdgeInsets.zero,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: NavRow(
-                      title: portion.food.displayName,
-                      subtitle:
-                          '${portion.label} · '
-                          '${portion.food.valueType.write(formatKcalOrDash(portion.kcal))}'
-                          ' kcal',
-                      onTap: () => _change(index),
+            child: SwipeAction(
+              // Keyed by the food, so a row's slide does not pass to the
+              // one that moves up into its place.
+              key: ValueKey(portion.food.id),
+              label: '移除',
+              semanticLabel: '移除「${portion.food.displayName}」',
+              onAction: () => _remove(index),
+              child: AppCard(
+                padding: EdgeInsets.zero,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: NavRow(
+                        title: portion.food.displayName,
+                        subtitle:
+                            '${portion.label} · '
+                            '${formatKcalOrDash(portion.kcal)} kcal',
+                        onTap: () => _change(index),
+                      ),
                     ),
-                  ),
-                  SquareIconButton(
-                    icon: Icons.close,
-                    tooltip: '拿掉「${portion.food.displayName}」',
-                    onPressed: () => _remove(index),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                ],
+                    if (_isEditing) ...[
+                      SquareIconButton(
+                        icon: Icons.delete_outline,
+                        color: AppColors.destructive,
+                        tooltip: '移除「${portion.food.displayName}」',
+                        onPressed: () => _remove(index),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                    ],
+                  ],
+                ),
               ),
             ),
           ),
         Gutter(
-          child: const Text(
-            '點一項可以改份量。記錄後可以在提示中一起復原。',
+          child: Text(
+            plate.isEmpty ? '這一餐目前沒有東西。' : '點一項可以改份量，往左滑可以移除。',
             style: AppTextStyles.caption,
           ),
         ),
@@ -126,17 +173,28 @@ class PlateBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonPair(
-      secondary: SecondaryButton(
-        label: [
-          ?mealType?.label,
-          '${plate.length} 項',
-          '${plateKcalLabel(plate)} kcal',
-        ].join(' · '),
-        onPressed: onReview,
-      ),
-      primaryFlex: 2,
-      primary: PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: onLog),
+    return Row(
+      children: [
+        // The count is already on the log button; what the plate holds
+        // is one tap away rather than squeezed into a label.
+        SquareIconButton(
+          icon: Icons.receipt_long_outlined,
+          size: buttonHeight,
+          radius: AppRadius.button,
+          tooltip: [
+            '這一餐',
+            ?mealType?.label,
+            '${plate.length} 項',
+            '${plateKcalLabel(plate)} kcal',
+            ?plateMissingLabel(plate),
+          ].join(' · '),
+          onPressed: onReview,
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: onLog),
+        ),
+      ],
     );
   }
 }

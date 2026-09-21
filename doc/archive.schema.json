@@ -567,6 +567,9 @@
               "valueType",
               "sourceUrl",
               "searchTerms",
+              "isCupCapacity",
+              "series",
+              "caffeineBasis",
               "createdAt",
               "updatedAt",
               "revision",
@@ -647,6 +650,15 @@
                 "format": "date-time"
               },
               "searchTerms": {
+                "type": "string"
+              },
+              "isCupCapacity": {
+                "type": "boolean"
+              },
+              "series": {
+                "type": "string"
+              },
+              "caffeineBasis": {
                 "type": "string"
               },
               "createdAt": {

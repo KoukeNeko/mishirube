@@ -28,6 +28,11 @@ class DishEntry {
   bool get isComposite => components.isNotEmpty;
 }
 
+/// How the water shortcut marks what it writes, so a glass of water can
+/// be told from any other drink — including a saved food someone named
+/// 「水」, which comes through a portion instead.
+const waterQualityTag = '水';
+
 class MealEvent {
   const MealEvent({
     required this.id,
@@ -60,6 +65,10 @@ class MealEvent {
   /// has: the numbers above were copied and never follow the food.
   final String? foodId;
   final double? servings;
+
+  /// Plain water from the water shortcut, as opposed to any other drink.
+  bool get isWater =>
+      qualityTag == waterQualityTag && dishes.isEmpty && foodId == null;
 
   /// Some amount in the meal is a guess, so its totals read as `~`.
   final bool isEstimated;
@@ -158,28 +167,19 @@ class MealEvent {
 /// precision nobody has.
 enum NutrientValueType {
   /// A figure the maker declares: a packet label, a brand's own table.
-  declared('標示值', ''),
+  declared('標示值'),
 
   /// A ceiling, not a measurement — what Taiwanese chains are required
-  /// to publish. Shown with a `≤` because that is what it means.
-  max('最高值', '≤'),
+  /// to publish. The number is shown as it is and the pages that show it
+  /// say it is a maximum, the way the chains' own tables do.
+  max('最高值'),
 
   /// A general figure for this kind of thing, not this thing.
-  estimate('估計值', '≈');
+  estimate('估計值');
 
-  const NutrientValueType(this.label, this.prefix);
+  const NutrientValueType(this.label);
 
   final String label;
-
-  /// What goes in front of the number so it reads as what it is.
-  final String prefix;
-
-  /// [value] written as what it is: `195`, `≤257`, `≈120`.
-  ///
-  /// The prefix is not decoration. A Taiwanese chain publishes a
-  /// maximum per cup, not the amount in the cup, and printing that as a
-  /// bare number claims a precision the figure does not have.
-  String write(String value) => '$prefix$value';
 }
 
 /// Which sitting a record belongs to, when the user says so.
@@ -226,6 +226,11 @@ enum ConsumptionKind {
 
   final String label;
 }
+
+/// How a caffeine figure was typed: per 100 g or ml, or the total in
+/// one serving. The food keeps it per serving either way; this is only
+/// so the form can show it back as it was typed.
+enum CaffeineBasis { serving, per100 }
 
 /// What kind of quantity a unit measures.
 ///
@@ -313,6 +318,9 @@ class FoodItem {
     this.checkedAt,
     this.isBuiltIn = false,
     this.searchTerms = '',
+    this.isCupCapacity = false,
+    this.series = '',
+    this.caffeineBasis = CaffeineBasis.serving,
   });
 
   final String id;
@@ -321,6 +329,10 @@ class FoodItem {
 
   /// The maker, when the food has one; empty for anything homemade.
   final String brand;
+
+  /// The maker's own line the food belongs to, when it names one:
+  /// 7-ELEVEN sells CITY CAFE and CITY TEA, and both have a 拿鐵.
+  final String series;
 
   /// What the user calls one serving: `一碗`, `一片`, `一罐`. Optional,
   /// and separate from how much that is — what you call it and how much
@@ -334,7 +346,9 @@ class FoodItem {
 
   /// `一碗 · 250 ml`, or just the measurement when it has no name.
   String get servingDescription {
-    final measured = '${formatAmount(servingAmount)} ${servingUnit.label}';
+    final measured = isCupCapacity
+        ? '杯容量 ${formatAmount(servingAmount)} ${servingUnit.label}'
+        : '${formatAmount(servingAmount)} ${servingUnit.label}';
     if (servingLabel.isEmpty) return measured;
     return servingUnit.isMeasured ? '$servingLabel · $measured' : servingLabel;
   }
@@ -367,16 +381,26 @@ class FoodItem {
   /// with no date is a figure nobody can check.
   final DateTime? checkedAt;
 
+  /// Its volume is the cup it comes in, not the drink.
+  ///
+  /// Chains publish cup sizes — 7-ELEVEN's 480 mL is a 16 oz cup, ice
+  /// included when iced — and say so. Such a volume names the size; it
+  /// is never counted as fluid drunk.
+  final bool isCupCapacity;
+
+  /// Other words it answers to in search, space separated: a brand's
+  /// other spellings (`Starbucks STARBUCKS` for 星巴克). Not shown.
+  final String searchTerms;
+
+  /// How the caffeine figure was typed.
+  final CaffeineBasis caffeineBasis;
+
   /// Shipped with the app, and read-only.
   ///
   /// The app replaces this data wholesale when it updates, which is only
   /// safe while nobody has edited it: an edit would be silently undone by
   /// the next release. Anyone wanting their own version makes their own
   /// food.
-  /// Other words it answers to in search, space separated: a brand's
-  /// other spellings (`Starbucks STARBUCKS` for 星巴克). Not shown.
-  final String searchTerms;
-
   final bool isBuiltIn;
 
   /// The food this is a size of, when it is one.
@@ -389,9 +413,14 @@ class FoodItem {
   bool get isSize => parentId != null;
 
   /// `統一 雞胸肉` when it has a maker, otherwise just the name. A size
-  /// says which one it is: `星巴克 美式咖啡 Tall`.
+  /// says which one it is: `星巴克 美式咖啡 Tall`, and a line which it
+  /// belongs to: `7-ELEVEN CITY CAFE 拿鐵咖啡`.
   String get displayName {
-    final named = brand.isEmpty ? name : '$brand $name';
+    final named = [
+      brand,
+      series,
+      name,
+    ].where((part) => part.isNotEmpty).join(' ');
     return sizeName.isEmpty ? named : '$named $sizeName';
   }
 
@@ -416,8 +445,14 @@ class FoodItem {
     DateTime? checkedAt,
     bool? isBuiltIn,
     String? searchTerms,
+    bool? isCupCapacity,
+    String? series,
+    CaffeineBasis? caffeineBasis,
   }) => FoodItem(
+    series: series ?? this.series,
+    caffeineBasis: caffeineBasis ?? this.caffeineBasis,
     searchTerms: searchTerms ?? this.searchTerms,
+    isCupCapacity: isCupCapacity ?? this.isCupCapacity,
     id: id ?? this.id,
     name: name ?? this.name,
     brand: brand ?? this.brand,

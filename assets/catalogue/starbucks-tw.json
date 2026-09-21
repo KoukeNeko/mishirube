@@ -5,6 +5,7 @@
   "sourceUrl": "https://www.starbucks.com.tw/products/drinks/",
   "checkedAt": "2026-09-21",
   "valueType": "declared",
+  "volumeIs": "cup",
   "note": "熱濃縮咖啡飲品。每筆的頁面連結見 pageUrl。冰飲與冷萃尚未收錄。",
   "drinks": [
     {

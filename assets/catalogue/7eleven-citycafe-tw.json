@@ -1,0 +1,701 @@
+{
+  "brand": "7-ELEVEN",
+  "brandAliases": [
+    "7-11",
+    "711",
+    "7-Eleven",
+    "小七",
+    "統一超商"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-21",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "CITY CAFE",
+  "sourceUrl": "https://www.citycafe.com.tw/file/ingredient.pdf",
+  "note": "官方表頭三欄皆為最高值；容量為杯子容量，冰飲含冰。",
+  "drinks": [
+    {
+      "id": "7eleven-citycafe-eba7aa0e",
+      "name": "黑糖粉粿冬瓜拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 327.4,
+          "sugarG": 44.5,
+          "caffeineMg": 196.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-fb5220c1",
+      "name": "開心果奶蓋瑪奇朵",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 492.2,
+          "sugarG": 49.4,
+          "caffeineMg": 223.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-7092cd63",
+      "name": "榛果摩卡高蛋白拿鐵(22g)",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 289.1,
+          "sugarG": 29.8,
+          "caffeineMg": 182.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-84ef95e2",
+      "name": "真果芭樂氣泡咖啡",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 284.5,
+          "sugarG": 61.5,
+          "caffeineMg": 240.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-8ab35d32",
+      "name": "奶油爆米花風味拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 319.1,
+          "sugarG": 32.0,
+          "caffeineMg": 233.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 310.7,
+          "sugarG": 31.2,
+          "caffeineMg": 234.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-ad102fba",
+      "name": "皇家醇濃伯爵紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 365.8,
+          "sugarG": 42.7,
+          "caffeineMg": 206.5
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 435.1,
+          "sugarG": 44.3,
+          "caffeineMg": 215.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-24d1fdec",
+      "name": "日本靜岡濃抹茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 378.2,
+          "sugarG": 34.8,
+          "caffeineMg": 218.8
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 465.6,
+          "sugarG": 38.6,
+          "caffeineMg": 223.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-7655ac13",
+      "name": "香草焦糖風味瑪奇朵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 329.6,
+          "sugarG": 40.6,
+          "caffeineMg": 195.7
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 331.1,
+          "sugarG": 40.9,
+          "caffeineMg": 269.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-892dfa23",
+      "name": "黃金榛果太妃風味拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 304.2,
+          "sugarG": 33.8,
+          "caffeineMg": 205.6
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 312.2,
+          "sugarG": 33.9,
+          "caffeineMg": 298.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-bde31c2d",
+      "name": "文旦肉肉美式咖啡",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 320.6,
+          "sugarG": 73.2,
+          "caffeineMg": 185.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-a4d87a31",
+      "name": "特選美式咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 17.5,
+          "sugarG": 0.0,
+          "caffeineMg": 314.5
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 18.9,
+          "sugarG": 0.0,
+          "caffeineMg": 303.1
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-b0464893",
+      "name": "特選拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 191.6,
+          "sugarG": 12.6,
+          "caffeineMg": 235.8
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 247.3,
+          "sugarG": 17.2,
+          "caffeineMg": 248.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-800d3eb1",
+      "name": "榛果風味燕麥拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 317.7,
+          "sugarG": 31.8,
+          "caffeineMg": 245.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 308.6,
+          "sugarG": 31.7,
+          "caffeineMg": 235.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-bb73bd09",
+      "name": "鹿兒島濃焙茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 345.5,
+          "sugarG": 35.9,
+          "caffeineMg": 165.2
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 457.8,
+          "sugarG": 46.5,
+          "caffeineMg": 163.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-6d8bc389",
+      "name": "福岡八女濃抹茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 369.4,
+          "sugarG": 33.5,
+          "caffeineMg": 218.8
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 438.5,
+          "sugarG": 41.6,
+          "caffeineMg": 223.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-39d1d531",
+      "name": "HERSHEY'S好時經典可可",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 399.3,
+          "sugarG": 40.1,
+          "caffeineMg": 43.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 455.7,
+          "sugarG": 41.6,
+          "caffeineMg": 44.7
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-e8889130",
+      "name": "厚乳拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 202.3,
+          "sugarG": 13.5,
+          "caffeineMg": 139.3
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 290.6,
+          "sugarG": 20.1,
+          "caffeineMg": 162.1
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 287.9,
+          "sugarG": 21.0,
+          "caffeineMg": 165.2
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 655,
+          "kcal": 396.4,
+          "sugarG": 27.8,
+          "caffeineMg": 207.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-078b250e",
+      "name": "西西里風檸檬咖啡",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 338.2,
+          "sugarG": 77.9,
+          "caffeineMg": 349.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-5b82e468",
+      "name": "西西里風檸檬氣泡咖啡",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 321.1,
+          "sugarG": 75.6,
+          "caffeineMg": 246.5
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-5a866f12",
+      "name": "濃萃美式咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 23.7,
+          "sugarG": 0.0,
+          "caffeineMg": 340.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 25.1,
+          "sugarG": 0.0,
+          "caffeineMg": 326.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 31.7,
+          "sugarG": 0.0,
+          "caffeineMg": 444.0
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 655,
+          "kcal": 31.5,
+          "sugarG": 0.0,
+          "caffeineMg": 414.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-7d6cf127",
+      "name": "濃萃拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 186.0,
+          "sugarG": 11.4,
+          "caffeineMg": 324.6
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 244.8,
+          "sugarG": 16.4,
+          "caffeineMg": 319.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 220.5,
+          "sugarG": 15.2,
+          "caffeineMg": 381.0
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 655,
+          "kcal": 313.7,
+          "sugarG": 23.7,
+          "caffeineMg": 383.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-1c40c318",
+      "name": "燕麥拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 174.6,
+          "sugarG": 6.0,
+          "caffeineMg": 214.9
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 222.3,
+          "sugarG": 7.5,
+          "caffeineMg": 214.3
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 198.9,
+          "sugarG": 7.0,
+          "caffeineMg": 235.4
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 261.3,
+          "sugarG": 9.0,
+          "caffeineMg": 255.3
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-57760919",
+      "name": "美式咖啡",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 15.4,
+          "sugarG": 0.0,
+          "caffeineMg": 210.0
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 12.9,
+          "sugarG": 0.0,
+          "caffeineMg": 214.0
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 21.6,
+          "sugarG": 0.0,
+          "caffeineMg": 302.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 16.8,
+          "sugarG": 0.0,
+          "caffeineMg": 278.0
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 28.9,
+          "sugarG": 0.0,
+          "caffeineMg": 369.0
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 655,
+          "kcal": 25.9,
+          "sugarG": 0.0,
+          "caffeineMg": 350.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-eb25f340",
+      "name": "拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 170.8,
+          "sugarG": 10.7,
+          "caffeineMg": 188.5
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 203.0,
+          "sugarG": 14.2,
+          "caffeineMg": 172.2
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 188.1,
+          "sugarG": 13.1,
+          "caffeineMg": 241.8
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 254.4,
+          "sugarG": 16.7,
+          "caffeineMg": 226.2
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 237.7,
+          "sugarG": 15.2,
+          "caffeineMg": 286.0
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 655,
+          "kcal": 325.2,
+          "sugarG": 22.3,
+          "caffeineMg": 316.2
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-9e56ce45",
+      "name": "卡布奇諾",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 145.4,
+          "sugarG": 9.3,
+          "caffeineMg": 235.2
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 143.5,
+          "sugarG": 9.3,
+          "caffeineMg": 292.4
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 186.6,
+          "sugarG": 12.1,
+          "caffeineMg": 295.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-1985d228",
+      "name": "太妃焦糖風味瑪奇朵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 294.1,
+          "sugarG": 41.2,
+          "caffeineMg": 166.5
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 297.6,
+          "sugarG": 42.0,
+          "caffeineMg": 192.9
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-7c46ed0f",
+      "name": "焙烤榛果風味拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 282.3,
+          "sugarG": 39.9,
+          "caffeineMg": 151.2
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 257.1,
+          "sugarG": 36.0,
+          "caffeineMg": 196.4
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-c6c1a64b",
+      "name": "皇家伯爵紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 312.6,
+          "sugarG": 46.6,
+          "caffeineMg": 181.3
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 370.5,
+          "sugarG": 54.5,
+          "caffeineMg": 185.6
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-0afcecc0",
+      "name": "北海道牛乳拿鐵(函館)",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 187.0,
+          "sugarG": 12.0,
+          "caffeineMg": 179.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 259.0,
+          "sugarG": 16.0,
+          "caffeineMg": 182.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-ec93a7ab",
+      "name": "北海道牛乳拿鐵(四葉)",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 192.0,
+          "sugarG": 12.0,
+          "caffeineMg": 184.0
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 261.0,
+          "sugarG": 17.0,
+          "caffeineMg": 169.0
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citycafe-f6febd86",
+      "name": "ESPRESSO",
+      "sizes": [
+        {
+          "name": "熱",
+          "kcal": 5.8,
+          "sugarG": 0.0,
+          "caffeineMg": 103.1
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
@@ -18,8 +19,10 @@ import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
+import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -901,6 +904,31 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('caffeine per 100 ml comes to the bottle', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await _openFromHost(tester, const FoodSearchScreen(), store);
+
+    await _tapText(tester, '新增食物或飲品');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(AppTextField).first, '無糖紅茶');
+    await tester.enterText(find.byType(AppTextField).at(2), '600');
+    await tester.ensureVisible(find.text('ml'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ml'));
+    await tester.pumpAndSettle();
+    // Bottled drinks print caffeine per 100 ml; that is where it starts.
+    await _enterBeside(tester, '含量', '20');
+    await tester.pump();
+    expect(find.text('一份 600 ml 是 120 mg'), findsOneWidget);
+
+    await _tapText(tester, '只建立');
+    await tester.pumpAndSettle();
+    final saved = store.searchFoods('無糖紅茶').single;
+    expect(saved.nutrients[Nutrient.caffeine], 120);
+    expect(saved.caffeineBasis, CaffeineBasis.per100);
+    await disposeTree(tester);
+  });
+
   testWidgets('several foods go on one plate and are logged together', (
     tester,
   ) async {
@@ -914,26 +942,48 @@ void main() {
     final before = store.todayMeals.length;
     await _openFromHost(tester, const FoodSearchScreen(), store);
 
-    await tester.tap(find.byTooltip('加入「白飯」').first);
-    await tester.pump();
-    await tester.tap(find.byTooltip('加入「蛋」').first);
-    await tester.pump();
-    expect(find.text('2 項 · 200 kcal'), findsOneWidget);
+    // A list only finds the food; each goes on the plate from its own
+    // portion page.
+    for (final food in ['白飯', '蛋']) {
+      final rows = find.descendant(
+        of: find.byType(FoodRow),
+        matching: find.text(food),
+      );
+      // Lazy lists build a row only once it is near the screen.
+      if (rows.evaluate().isEmpty) {
+        await tester.dragUntilVisible(
+          rows,
+          find.byType(CustomScrollView).first,
+          _scrollStep,
+        );
+      }
+      final row = rows.first;
+      await Scrollable.ensureVisible(tester.element(row), alignment: 0.5);
+      await tester.pump();
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('加入'));
+      await tester.pumpAndSettle();
+    }
+    expect(find.byIcon(Icons.add), findsNothing, reason: 'no ＋ on a list row');
+    expect(find.byTooltip('這一餐 · 2 項 · 200 kcal'), findsOneWidget);
 
     // Which meal is chosen from the title, for the whole plate.
     await tester.tap(find.bySemanticsLabel(RegExp('這是哪一餐')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('晚餐'));
     await tester.pumpAndSettle();
-    expect(find.text('晚餐 · 2 項 · 200 kcal'), findsOneWidget);
+    expect(find.byTooltip('這一餐 · 晚餐 · 2 項 · 200 kcal'), findsOneWidget);
     await tester.tap(find.text('記錄 2 項'));
     await tester.pumpAndSettle();
 
     final plate = store.todayMeals.skip(before).toList();
     expect(plate.map((m) => m.name), ['白飯', '蛋']);
-    expect(plate.map((m) => m.mealType).toSet(), {
-      MealType.dinner,
-    }, reason: 'the meal chosen on the page applies to the whole plate');
+    expect(
+      plate.map((m) => m.mealType).toSet(),
+      {MealType.dinner},
+      reason: 'the meal chosen on the page applies to the whole plate',
+    );
     await disposeTree(tester);
   });
 
@@ -1070,11 +1120,22 @@ void main() {
     }
     await _openFromHost(tester, const FoodSearchScreen(), store);
 
-    await tester.dragUntilVisible(
+    expect(
       find.text('連鎖品牌'),
-      find.byType(CustomScrollView).first,
-      _scrollStep,
+      findsNothing,
+      reason: '「全部」is for what the user eats; chains have their scope',
     );
+    // The scopes scroll sideways, like the log's categories.
+    await tester.scrollUntilVisible(
+      find.text('品牌'),
+      100,
+      scrollable: find.descendant(
+        of: find.byWidgetPredicate((widget) => widget is FilterChipBar),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.text('品牌'));
+    await tester.pump();
     expect(find.text('星巴克'), findsOneWidget);
     expect(
       find.text('那堤'),
@@ -1082,12 +1143,127 @@ void main() {
       reason: 'the chain is one row, not every drink on its menu',
     );
 
+    await tester.scrollUntilVisible(
+      find.text('全部'),
+      -100,
+      scrollable: find.descendant(
+        of: find.byWidgetPredicate((widget) => widget is FilterChipBar),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.tap(find.text('全部'));
+    await tester.pump();
     await tester.enterText(find.byType(TextField), '星巴克');
     await tester.pump();
     await tester.tap(find.text('星巴克 · 查看完整菜單'));
     await tester.pumpAndSettle();
     expect(find.text('那堤'), findsOneWidget);
     expect(find.text('摩卡'), findsOneWidget);
+
+    // Taking a cup off the plate from the plate's own page empties the
+    // menu's plate bar as well, not only the page that owns the plate.
+    await tester.tap(find.text('那堤'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tall'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('加入'));
+    await tester.pumpAndSettle();
+    expect(find.text('記錄 1 項'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+    await tester.pumpAndSettle();
+
+    // Sliding a row only uncovers 移除; nothing goes until it is tapped.
+    await tester.drag(find.text('星巴克 那堤 Tall'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('記錄 1 項'), findsOneWidget);
+    await tester.tap(find.text('移除'));
+    // Not pumpAndSettle: the undo countdown would run the toast out.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      find.text('回去挑選'),
+      findsOneWidget,
+      reason: 'emptying the plate is not the same as leaving it',
+    );
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('記錄 1 項'), findsOneWidget, reason: 'undo puts it back');
+
+    // The same without the gesture: 編輯 shows a remove button per row.
+    await tester.tap(find.text('編輯'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('移除「星巴克 那堤 Tall」'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('回去挑選'));
+    await tester.pumpAndSettle();
+    expect(find.text('摩卡'), findsOneWidget, reason: 'back on the menu');
+    expect(find.text('記錄 1 項'), findsNothing);
+    expect(find.byIcon(Icons.receipt_long_outlined), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('what is already logged today is one tap away', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final day = store.todaySummary;
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    final row = find.text('${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal');
+    expect(
+      row,
+      findsOneWidget,
+      reason: 'the page is opened from ＋, not from the day',
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    expect(find.byType(DailyNutritionScreen), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the water card logs a glass and keeps water apart', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    // A coffee with a volume: a drink, but not water.
+    store.logPortion(
+      FoodPortion(
+        const FoodItem(
+          id: 'latte',
+          name: '拿鐵',
+          kind: ConsumptionKind.beverage,
+          servingUnit: ServingUnit.millilitre,
+          servingAmount: 350,
+        ),
+        1,
+      ),
+    );
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final glass = store.glassMillilitres;
+
+    expect(store.todayWater.millilitres, 0, reason: 'coffee is not water');
+    await tester.tap(find.text('＋ $glass mL'));
+    await tester.pump();
+
+    expect(store.todayWater.millilitres, glass);
+    expect(store.todayWater.times, 1);
+    expect(
+      find.textContaining('飲品總量 ${glass + 350} mL'),
+      findsOneWidget,
+      reason: 'other drinks are counted on a line of their own',
+    );
+    expect(
+      find.descendant(
+        of: find.byType(WaterCard),
+        matching: find.textContaining('目標'),
+      ),
+      findsNothing,
+      reason: 'no daily amount the app cannot vouch for',
+    );
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(store.todayWater.millilitres, 0);
     await disposeTree(tester);
   });
 
@@ -1133,7 +1309,7 @@ void main() {
     final before = store.todayKcal;
     final saved = store.searchFoods('').length;
 
-    await _tapText(tester, '快速記錄');
+    await _tapText(tester, '快速記錄一次');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(AppTextField).first, '同事帶的蛋糕');
     await _enterBeside(tester, '熱量', '320');
@@ -1156,7 +1332,7 @@ void main() {
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
     final before = summariseFluid(store.todayMeals).millilitres;
 
-    await _tapText(tester, '水 250 mL');
+    await _tapText(tester, '＋ 250 mL');
     await tester.pumpAndSettle();
 
     expect(summariseFluid(store.todayMeals).millilitres, before + 250);
