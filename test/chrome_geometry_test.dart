@@ -492,6 +492,7 @@ void _dialogActionLayoutTests() {
     WidgetTester tester,
     List<DialogAction> actions, {
     double textScale = 1,
+    bool isChoiceList = false,
   }) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -501,7 +502,11 @@ void _dialogActionLayoutTests() {
         builder: (context) => MediaQuery(
           data: MediaQuery.of(context)
               .copyWith(textScaler: TextScaler.linear(textScale)),
-          child: AppDialog(title: '訓練名稱', actions: actions),
+          child: AppDialog(
+            title: '訓練名稱',
+            actions: actions,
+            isChoiceList: isChoiceList,
+          ),
         ),
       ),
       store: store,
@@ -525,6 +530,24 @@ void _dialogActionLayoutTests() {
       cancel.dx,
       lessThan(save.dx),
       reason: 'the way out is leading, what was asked for is trailing',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('two options of equal standing stack in their order', (
+    tester,
+  ) async {
+    await pumpDialog(tester, [
+      DialogAction(label: '大杯', onTap: () {}),
+      DialogAction(label: '特大杯', onTap: () {}),
+    ], isChoiceList: true);
+
+    expect(
+      tester.getCenter(find.text('大杯')).dy,
+      lessThan(tester.getCenter(find.text('特大杯')).dy),
+      reason:
+          'a list of options is read top to bottom, not as a way out '
+          'and an answer side by side',
     );
     await disposeTree(tester);
   });

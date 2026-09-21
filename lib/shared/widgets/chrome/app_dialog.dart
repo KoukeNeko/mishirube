@@ -37,11 +37,21 @@ class DialogAction {
     required this.label,
     required this.onTap,
     this.tone = DialogTone.normal,
+    this.icon,
+    this.detail,
   });
 
   final String label;
   final VoidCallback onTap;
   final DialogTone tone;
+
+  /// Drawn before the label, in the label's colour, when a list of
+  /// choices reads faster with a picture beside each one.
+  final IconData? icon;
+
+  /// A quieter second line under the label, for choices that differ in
+  /// more than their name.
+  final String? detail;
 
   Color get _color => switch (tone) {
     DialogTone.primary => AppColors.training,
@@ -60,6 +70,7 @@ class AppDialog extends StatelessWidget {
     required this.actions,
     this.message,
     this.content,
+    this.isChoiceList = false,
   });
 
   final String title;
@@ -72,6 +83,11 @@ class AppDialog extends StatelessWidget {
 
   /// Most important first: they are read top to bottom.
   final List<DialogAction> actions;
+
+  /// The actions are options of equal standing — which meal, which cup —
+  /// rather than a way out and an answer. They then always stack in the
+  /// order given, even when two would fit side by side.
+  final bool isChoiceList;
 
   @override
   Widget build(BuildContext context) {
@@ -126,11 +142,14 @@ class AppDialog extends StatelessWidget {
   /// size, not how many characters they have — a longer translation or
   /// larger type has to fall back on its own.
   Widget _actionArea(BuildContext context, double width) {
-    if (actions.length == 2) {
+    if (actions.length == 2 && !isChoiceList) {
       final slot = (width - _hairline) / 2;
       final fits = actions.every(
         (action) =>
-            _labelWidth(context, action.label) + AppSpacing.lg * 2 <= slot,
+            _labelWidth(context, action.label) +
+                (action.icon == null ? 0 : _iconSize + AppSpacing.sm) +
+                AppSpacing.lg * 2 <=
+            slot,
       );
       if (fits) {
         // Leading is the way out, trailing is what the dialog asked for,
@@ -196,6 +215,8 @@ const _messageStyle = TextStyle(
 
 const _actionStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
 
+const _iconSize = 20.0;
+
 /// A hairline between choices, so they read as one list instead of three
 /// separate blocks.
 const _separator = Color(0x14FFFFFF);
@@ -229,14 +250,45 @@ class _ActionRow extends StatelessWidget {
           highlightColor: color.withValues(alpha: 0.12),
           splashColor: color.withValues(alpha: 0.08),
           child: Container(
-            height: _actionHeight,
+            constraints: const BoxConstraints(minHeight: _actionHeight),
             alignment: isCentered
                 ? Alignment.center
                 : AlignmentDirectional.centerStart,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Text(
-              action.label,
-              style: _actionStyle.copyWith(color: color),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (action.icon case final icon?) ...[
+                  Icon(icon, size: _iconSize, color: color),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                Flexible(
+                  child: action.detail == null
+                      ? Text(
+                          action.label,
+                          style: _actionStyle.copyWith(color: color),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.sm,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                action.label,
+                                style: _actionStyle.copyWith(color: color),
+                              ),
+                              Text(
+                                action.detail!,
+                                style: AppTextStyles.caption,
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
             ),
           ),
         ),
