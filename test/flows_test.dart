@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
@@ -913,6 +914,48 @@ void main() {
       _scrollStep,
     );
     expect(find.text('鈣'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a habitual meal label is offered, not chosen', (tester) async {
+    final clock = FakeClock()..current = DateTime(2026, 9, 17, 15);
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    for (var day = 0; day < 2; day++) {
+      store.logPortion(
+        FoodPortion(FoodItem(id: 'rice$day', name: '便當', kcal: 700), 1),
+        mealType: MealType.lunch,
+      );
+      clock.advance(const Duration(days: 1));
+    }
+    await pumpScreen(
+      tester,
+      const PortionScreen(
+        food: FoodItem(id: 'soup', name: '味噌湯', kcal: 40),
+      ),
+      store: store,
+    );
+
+    await tester.dragUntilVisible(
+      find.text('套用'),
+      find.byType(CustomScrollView).first,
+      _scrollStep,
+    );
+    expect(find.textContaining('通常記成「午餐」'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is SelectChip && widget.isSelected,
+      ),
+      findsNothing,
+      reason: 'nothing is picked on the user\'s behalf',
+    );
+
+    await tester.tap(find.text('套用'));
+    await tester.pump();
+    expect(
+      find.text('套用'),
+      findsNothing,
+      reason: 'taken, so no longer offered',
+    );
     await disposeTree(tester);
   });
 

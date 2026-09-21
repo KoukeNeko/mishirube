@@ -44,6 +44,23 @@ class MealRepository {
     });
   }
 
+  /// Labelled meals since [since], with the time each was eaten as
+  /// lived, for learning what the user calls a meal at a given hour.
+  List<(DateTime, MealType)> labelledSince(DateTime since) => [
+    for (final row in _db.select(
+      'SELECT eaten_at, utc_offset_minutes, meal_type FROM meals '
+      'WHERE deleted_at IS NULL AND meal_type IS NOT NULL AND eaten_at >= ?',
+      [since.millisecondsSinceEpoch],
+    ))
+      (
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row['eaten_at']! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
+        MealType.values.byName(row['meal_type']! as String),
+      ),
+  ];
+
   /// Starred meals, newest first.
   List<(DateTime, MealEvent)> favorites() => [
     for (final row in _db.select(
@@ -141,7 +158,7 @@ class MealRepository {
       _db.execute(
         'UPDATE meals SET name = ?, kcal = ?, protein_g = ?, carb_g = ?, '
         'fat_g = ?, fibre_g = ?, is_estimated = ?, quality_tag = ?, '
-        'updated_at = ?, revision = revision + 1 WHERE id = ?',
+        'meal_type = ?, updated_at = ?, revision = revision + 1 WHERE id = ?',
         [
           meal.name,
           meal.kcal,
@@ -151,6 +168,7 @@ class MealRepository {
           meal.fibreGrams,
           meal.isEstimated ? 1 : 0,
           meal.qualityTag,
+          meal.mealType?.name,
           _db.now().millisecondsSinceEpoch,
           meal.id,
         ],
@@ -166,6 +184,7 @@ class MealRepository {
             'protein_g': previous.proteinGrams,
             'carb_g': previous.carbGrams,
             'fat_g': previous.fatGrams,
+            'meal_type': previous.mealType?.name,
           },
         },
       );

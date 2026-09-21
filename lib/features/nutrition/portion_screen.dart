@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'meal_type_picker.dart';
 
 /// A portion, and which sitting the user said it belonged to.
 class LoggedPortion {
@@ -223,13 +225,10 @@ class _PortionScreenState extends State<PortionScreen> {
           ),
         Gutter(child: const SectionLabel('這是哪一餐（可不選）')),
         Gutter(
-          child: ChipWrap(
-            options: MealType.values,
-            labelOf: (mealType) => mealType.label,
-            isSelected: (mealType) => mealType == _mealType,
-            onTap: (mealType) => setState(
-              () => _mealType = _mealType == mealType ? null : mealType,
-            ),
+          child: MealTypePicker(
+            selected: _mealType,
+            suggested: AppStoreScope.of(context).suggestedMealType(),
+            onChanged: (type) => setState(() => _mealType = type),
           ),
         ),
       ],

@@ -618,6 +618,11 @@ class AppStore extends ChangeNotifier {
   /// Meals worth offering again, newest first.
   List<RecentMeal> get recentMeals => _backend.nutrition.recent();
 
+  /// What the user usually calls a meal eaten at [at]; null until their
+  /// own labels show a habit. Offered, never applied on its own.
+  MealType? suggestedMealType([DateTime? at]) =>
+      _backend.nutrition.suggestedMealType(at ?? now());
+
   /// Logs [meal] as eaten now.
   MealEvent logMeal(MealEvent meal) {
     final logged = _backend.nutrition.logMeal(meal, eatenAt: now());

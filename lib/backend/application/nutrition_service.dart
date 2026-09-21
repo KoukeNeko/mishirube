@@ -4,6 +4,7 @@ import '../../domain/domain.dart';
 import '../engines/exercise_search.dart' show normalizeTerm;
 import '../engines/food_portion.dart';
 import '../../shared/format.dart';
+import '../engines/meal_type_suggestion.dart';
 import '../engines/nutrition_summary.dart';
 import '../storage/database.dart';
 import '../storage/food_repository.dart';
@@ -47,6 +48,13 @@ class NutritionService {
   final FoodRepository _foods;
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
+
+  /// What the user usually calls a meal eaten at [at], learned from the
+  /// last eight weeks of their own labels; null until there is a habit.
+  MealType? suggestedMealType(DateTime at) => suggestMealType(
+    _meals.labelledSince(_db.now().subtract(const Duration(days: 56))),
+    at,
+  );
 
   DaySummary summaryOf(DateTime day) =>
       summariseDay(_meals.onDay(day), isOver: !_isToday(day));

@@ -1750,6 +1750,49 @@ void main() {
     });
   });
 
+  group('meal type', () {
+    test('can be changed or cleared after the fact, and is audited', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      final meal = store.logPortion(
+        FoodPortion(FoodItem(id: 'latte', name: '拿鐵', kcal: 190), 1),
+      );
+      expect(meal.mealType, isNull);
+
+      store.updateMeal(meal, meal.copyWith(mealType: MealType.breakfast));
+      final reopened = store.backend.nutrition
+          .mealsOn(store.now())
+          .firstWhere((m) => m.id == meal.id);
+      expect(reopened.mealType, MealType.breakfast, reason: 'it was saved');
+
+      final audit = store.backend.db.select(
+        "SELECT payload FROM audit_events WHERE entity_id = ? "
+        "AND action = 'edit'",
+        [meal.id],
+      );
+      expect(audit, hasLength(1));
+    });
+
+    test('the suggestion comes from the user, not the clock', () {
+      final clock = FakeClock()..current = DateTime(2026, 9, 1, 15);
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      expect(store.suggestedMealType(), isNull);
+
+      for (var day = 0; day < 2; day++) {
+        store.logPortion(
+          FoodPortion(FoodItem(id: 'rice$day', name: '便當', kcal: 700), 1),
+          mealType: MealType.lunch,
+        );
+        clock.advance(const Duration(days: 1));
+      }
+
+      expect(
+        store.suggestedMealType(),
+        MealType.lunch,
+        reason: 'two lunches at three o\'clock make three o\'clock lunch',
+      );
+    });
+  });
+
   group('canonical archive', () {
     test('export → restore into an empty store → export is lossless', () {
       final source = AppStore(clock: clock.now, isOnboarded: true)

@@ -5,6 +5,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'meal_type_picker.dart';
 
 /// Correcting what a meal was. The numbers usually arrived as an
 /// estimate; confirming them here is what makes them the user's own, so
@@ -25,6 +26,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
   late final _carbs = _field(widget.meal.carbGrams);
   late final _fat = _field(widget.meal.fatGrams);
   late final _fibre = _field(widget.meal.fibreGrams);
+  late MealType? _mealType = widget.meal.mealType;
 
   /// A figure nobody wrote down leaves the field empty. Printing `null`
   /// into it was the screen saying the quiet part out loud.
@@ -80,7 +82,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
         nutrients: meal.nutrients,
         millilitres: meal.millilitres,
         kind: meal.kind,
-        mealType: meal.mealType,
+        mealType: _mealType,
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: kcal,
@@ -107,6 +109,16 @@ class _MealEditScreenState extends State<MealEditScreen> {
         Gutter(child: const SectionLabel('名稱')),
         Gutter(
           child: AppTextField(controller: _name, hint: '例如：午餐'),
+        ),
+        Gutter(child: const SectionLabel('這是哪一餐（可不選）')),
+        Gutter(
+          // No suggestion here: the user already had their chance to
+          // label it, and an offer on a past meal would be the app
+          // second-guessing them.
+          child: MealTypePicker(
+            selected: _mealType,
+            onChanged: (type) => setState(() => _mealType = type),
+          ),
         ),
         Gutter(child: const SectionLabel('熱量')),
         Gutter(

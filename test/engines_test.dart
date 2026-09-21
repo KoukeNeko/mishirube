@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
+import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -107,6 +108,61 @@ void main() {
 
       expect(summary.hasRecords, isFalse);
       expect(isFoodLogIncomplete(summary), isFalse);
+    });
+  });
+
+  group('meal type suggestion', () {
+    DateTime at(int hour, [int minute = 0]) =>
+        DateTime(2026, 9, 19, hour, minute);
+
+    test('says nothing until the user has shown a habit', () {
+      expect(
+        suggestMealType(const [], at(12)),
+        isNull,
+        reason:
+            'no rule of thumb from the clock: noon is not lunch for '
+            'everybody',
+      );
+      expect(
+        suggestMealType([(at(12, 10), MealType.lunch)], at(12)),
+        isNull,
+        reason: 'once is not a habit',
+      );
+    });
+
+    test('offers what the user usually calls this hour', () {
+      final history = [
+        (at(15, 0), MealType.lunch),
+        (at(15, 40), MealType.lunch),
+        (at(8, 0), MealType.breakfast),
+      ];
+
+      expect(
+        suggestMealType(history, at(15, 20)),
+        MealType.lunch,
+        reason: 'somebody who eats lunch at three gets lunch at three',
+      );
+      expect(suggestMealType(history, at(19)), isNull);
+    });
+
+    test('a tie is a guess, so it is not offered', () {
+      final history = [
+        (at(10), MealType.breakfast),
+        (at(10, 30), MealType.breakfast),
+        (at(10, 10), MealType.snack),
+        (at(10, 20), MealType.snack),
+      ];
+
+      expect(suggestMealType(history, at(10, 15)), isNull);
+    });
+
+    test('a night-shift meal either side of midnight is one habit', () {
+      final history = [
+        (at(23, 40), MealType.dinner),
+        (at(0, 20), MealType.dinner),
+      ];
+
+      expect(suggestMealType(history, at(0, 5)), MealType.dinner);
     });
   });
 

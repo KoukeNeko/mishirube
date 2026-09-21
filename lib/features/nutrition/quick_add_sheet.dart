@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'meal_type_picker.dart';
 
 /// Logs something once without saving it as a food.
 ///
@@ -104,12 +105,10 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
           const SizedBox(height: AppSpacing.lg),
           Text('這是哪一餐（可不選）', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
-          ChipWrap(
-            options: MealType.values,
-            labelOf: (type) => type.label,
-            isSelected: (type) => type == _mealType,
-            onTap: (type) =>
-                setState(() => _mealType = _mealType == type ? null : type),
+          MealTypePicker(
+            selected: _mealType,
+            suggested: AppStoreScope.of(context).suggestedMealType(),
+            onChanged: (type) => setState(() => _mealType = type),
           ),
           const SizedBox(height: AppSpacing.lg),
           PrimaryButton(label: '記錄', onPressed: _canLog ? _log : null),
