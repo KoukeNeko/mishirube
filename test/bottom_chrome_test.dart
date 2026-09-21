@@ -116,10 +116,14 @@ void main() {
       of: find.byKey(quickLogMenuKey),
       matching: find.byType(InkWell),
     );
-    // One rhythm all the way down, × included.
-    final rows = [
+    // One rhythm all the way down, × included. A row can hold two pills
+    // (water beside food), so rows are told apart by where they start.
+    final byTop = <int, Rect>{
       for (var i = 0; i < pills.evaluate().length; i++)
-        tester.getRect(pills.at(i)),
+        tester.getRect(pills.at(i)).top.round(): tester.getRect(pills.at(i)),
+    };
+    final rows = [
+      ...(byTop.keys.toList()..sort()).map((top) => byTop[top]!),
       tester.getRect(find.byTooltip('關閉')),
     ];
     final gaps = {
@@ -127,6 +131,21 @@ void main() {
         (rows[i].top - rows[i - 1].bottom).round(),
     };
     expect(gaps, hasLength(1), reason: 'the spacing is even, $gaps');
+
+    final food = tester.getRect(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('飲食'),
+      ),
+    );
+    final water = tester.getRect(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('水'),
+      ),
+    );
+    expect(water.center.dy, closeTo(food.center.dy, 1), reason: 'one row');
+    expect(water.left, greaterThan(food.right), reason: 'to its right');
 
     await tester.tap(find.byTooltip('關閉'));
     await tester.pump();
@@ -181,6 +200,32 @@ void main() {
           : findsNothing,
       reason: 'switching a module changes the menu with it',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('water from the menu is one tap, and can be taken back', (
+    tester,
+  ) async {
+    final store = await _pumpApp(tester, FakeClock());
+    final before = store.todayMeals.length;
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('水'),
+      ),
+    );
+    await _settleFor(tester);
+
+    expect(store.todayMeals, hasLength(before + 1));
+    expect(store.todayMeals.last.millilitres, store.glassMillilitres);
+    expect(find.byKey(quickLogMenuKey), findsNothing, reason: 'nothing opens');
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(store.todayMeals, hasLength(before));
     await disposeTree(tester);
   });
 

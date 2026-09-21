@@ -151,7 +151,17 @@ class _QuickLogMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = enabledRecordOptions(context);
+    // One row per option, except shortcuts that ride beside the option
+    // they belong to (water beside food); without that option they get
+    // a row of their own.
+    final rows = <List<RecordOption>>[];
+    for (final option in enabledRecordOptions(context)) {
+      if (option.isBesidePrevious && rows.isNotEmpty) {
+        rows.last.add(option);
+      } else {
+        rows.add([option]);
+      }
+    }
     final metrics = DockMetrics.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -171,16 +181,25 @@ class _QuickLogMenu extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (var i = 0; i < options.length; i++)
+                    for (var i = 0; i < rows.length; i++)
                       _Staggered(
                         animation: animation,
-                        // Items nearest the button appear first.
-                        order: options.length - 1 - i,
-                        child: _MenuItem(
-                          icon: options[i].icon,
-                          color: options[i].color,
-                          label: options[i].title,
-                          onTap: () => openRecordOption(context, options[i]),
+                        // Rows nearest the button appear first.
+                        order: rows.length - 1 - i,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final (index, option) in rows[i].indexed) ...[
+                              if (index > 0)
+                                const SizedBox(width: _itemSpacing),
+                              _MenuItem(
+                                icon: option.icon,
+                                color: option.color,
+                                label: option.title,
+                                onTap: () => openRecordOption(context, option),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                   ],

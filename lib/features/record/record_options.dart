@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
@@ -19,8 +20,21 @@ class RecordOption {
     required this.title,
     required this.subtitle,
     required this.module,
-    required this.destination,
-  });
+    required Widget Function() this.destination,
+  }) : onSelect = null,
+       isBesidePrevious = false;
+
+  /// An option that is done in one tap and opens nothing, such as logging
+  /// a glass of water.
+  const RecordOption.action({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.module,
+    required void Function(BuildContext context) this.onSelect,
+    this.isBesidePrevious = false,
+  }) : destination = null;
 
   final IconData icon;
   final Color color;
@@ -31,9 +45,15 @@ class RecordOption {
   /// option out of the menu.
   final AppModule module;
 
-  /// The screen that records it. Every option has one: an entry that led
+  /// The screen that records it, or [onSelect] for an option done in one
+  /// tap. Every option has exactly one of the two: an entry that led
   /// nowhere would be a button that only says it is not done yet.
-  final Widget Function() destination;
+  final Widget Function()? destination;
+  final void Function(BuildContext context)? onSelect;
+
+  /// Shown on the same row as the option before it, as a shortcut that
+  /// belongs to it — water beside food.
+  final bool isBesidePrevious;
 }
 
 /// What the user can add, most used first. The menu shows the ones whose
@@ -62,6 +82,25 @@ final recordOptions = [
     module: AppModule.nutrition,
     subtitle: '吃的和喝的，都記在這裡',
     destination: () => const FoodSearchScreen(),
+  ),
+  // The most repeated record there is, so it is one tap from anywhere:
+  // the same drink record the food page's water button writes, with an
+  // undo in case the tap was a slip.
+  RecordOption.action(
+    icon: Icons.water_drop_outlined,
+    color: AppColors.nutrition,
+    title: '水',
+    module: AppModule.nutrition,
+    subtitle: '記一杯，一杯的量在飲食頁設定',
+    isBesidePrevious: true,
+    onSelect: (context) {
+      final store = AppStoreScope.read(context);
+      final logged = store.logWater();
+      ToastScope.read(context).showUndo(
+        '已記錄 ${logged.millilitres} mL 水',
+        onUndo: () => store.deleteMeals([logged]),
+      );
+    },
   ),
   RecordOption(
     icon: Icons.monitor_weight_outlined,
@@ -114,9 +153,13 @@ List<RecordOption> enabledRecordOptions(BuildContext context) {
   ];
 }
 
-/// Closes the quick-log menu and opens [option]'s screen.
+/// Closes the quick-log menu and opens [option]'s screen, or does what it
+/// does.
 void openRecordOption(BuildContext context, RecordOption option) {
-  final navigator = Navigator.of(context);
-  navigator.pop();
-  navigator.push(MaterialPageRoute<void>(builder: (_) => option.destination()));
+  final navigator = Navigator.of(context)..pop();
+  if (option.destination case final destination?) {
+    navigator.push(MaterialPageRoute<void>(builder: (_) => destination()));
+  } else {
+    option.onSelect!(navigator.context);
+  }
 }
