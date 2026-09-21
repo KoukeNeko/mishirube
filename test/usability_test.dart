@@ -97,6 +97,33 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a macro some meals lacked reads as a floor', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    // The card with the macro tiles is the midday one.
+    while (store.phase != DayPhase.noon) {
+      store.cyclePhase();
+    }
+    store.logPortion(
+      FoodPortion(FoodItem(id: 'bar', name: '能量棒', kcal: 200), 1),
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    await tester.pumpAndSettle();
+
+    await reveal(tester, find.text('蛋白質'));
+    expect(
+      find.textContaining(
+        '≥${store.todaySummary.proteinGrams}',
+        findRichText: true,
+      ),
+      findsOneWidget,
+      reason:
+          'a bar with only its energy printed adds nothing to the '
+          'protein total, so the tile says the total is at least this '
+          'much — not that this is how much there was',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('an estimate carries its method, not just its symbol', (
     tester,
   ) async {

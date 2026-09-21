@@ -67,6 +67,35 @@ void main() {
       expect(isFoodLogIncomplete(summary), isTrue);
     });
 
+    test('a missing macro is counted, not added as zero', () {
+      final summary = summariseDay([
+        _meal('早餐'),
+        // A packet that printed energy and nothing else.
+        MealEvent(
+          id: 'bar',
+          name: '能量棒',
+          timeLabel: '15:00',
+          kcal: 200,
+          qualityTag: '已確認',
+          dishes: const [],
+        ),
+      ]);
+
+      expect(summary.proteinGrams, 30, reason: 'the sum of what is known');
+      expect(
+        summary.mealsWithoutProtein,
+        1,
+        reason:
+            'and how much of the day it could not see — 30 g alone '
+            'would read as the day, when it is only a floor',
+      );
+      expect(summary.mealsWithoutCarb, 1);
+      expect(summary.mealsWithoutFat, 1);
+      expect(summary.mealsWithoutFibre, 1);
+      expect(summary.mealsWithoutFigures, 0, reason: 'energy was printed');
+      expect(summary.recordCount, 2);
+    });
+
     test('a day still running is never called incomplete', () {
       final summary = summariseDay([_meal('早餐')], isOver: false);
 

@@ -375,6 +375,7 @@ class IntakeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pendingMeals = store.isLunchLogged ? '晚餐未記錄' : '午餐與晚餐未記錄';
+    final summary = store.todaySummary;
     return AppCard(
       onTap: onTap,
       child: Column(
@@ -396,7 +397,7 @@ class IntakeCard extends StatelessWidget {
                   style: AppTextStyles.hugeNumber,
                 ),
                 TextSpan(
-                  text: ' kcal · ${store.todayMeals.length} 餐',
+                  text: ' kcal · ${summary.mealCount} 餐',
                   style: AppTextStyles.caption.copyWith(fontSize: 15),
                 ),
               ],
@@ -405,13 +406,33 @@ class IntakeCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              _MacroTile(grams: store.todayProteinGrams, label: '蛋白質'),
+              _MacroTile(
+                label: '蛋白質',
+                grams: summary.proteinGrams,
+                missing: summary.mealsWithoutProtein,
+                records: summary.recordCount,
+              ),
               const SizedBox(width: AppSpacing.xs),
-              _MacroTile(grams: store.todayCarbGrams, label: '碳水'),
+              _MacroTile(
+                label: '碳水',
+                grams: summary.carbGrams,
+                missing: summary.mealsWithoutCarb,
+                records: summary.recordCount,
+              ),
               const SizedBox(width: AppSpacing.xs),
-              _MacroTile(grams: store.todayFatGrams, label: '脂肪'),
+              _MacroTile(
+                label: '脂肪',
+                grams: summary.fatGrams,
+                missing: summary.mealsWithoutFat,
+                records: summary.recordCount,
+              ),
               const SizedBox(width: AppSpacing.xs),
-              _MacroTile(grams: store.todayFibreGrams, label: '纖維'),
+              _MacroTile(
+                label: '纖維',
+                grams: summary.fibreGrams,
+                missing: summary.mealsWithoutFibre,
+                records: summary.recordCount,
+              ),
             ],
           ),
           const Divider(height: AppSpacing.xxl),
@@ -427,11 +448,29 @@ class IntakeCard extends StatelessWidget {
   }
 }
 
+/// One macro's day total, written as what it is: `~42` when every
+/// record carried the figure, `≥42` when some did not — the sum is a
+/// floor then, not the day — and `—` when none did.
 class _MacroTile extends StatelessWidget {
-  const _MacroTile({required this.grams, required this.label});
+  const _MacroTile({
+    required this.label,
+    required this.grams,
+    required this.missing,
+    required this.records,
+  });
 
-  final int grams;
   final String label;
+  final int grams;
+
+  /// Records in the day with no figure for this macro, out of [records].
+  final int missing;
+  final int records;
+
+  String get _value => switch (missing) {
+    0 => '~$grams',
+    _ when missing == records => '—',
+    _ => '≥$grams',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -441,8 +480,8 @@ class _MacroTile extends StatelessWidget {
         radius: AppRadius.small,
         padding: const EdgeInsets.all(AppSpacing.sm),
         child: StatBlock(
-          value: '~$grams',
-          unit: 'g',
+          value: _value,
+          unit: missing == records && records > 0 ? null : 'g',
           label: label,
           valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 22),
         ),

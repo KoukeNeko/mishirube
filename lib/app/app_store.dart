@@ -315,10 +315,6 @@ class AppStore extends ChangeNotifier {
   DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
 
   int get todayKcal => todaySummary.kcal;
-  int get todayProteinGrams => todaySummary.proteinGrams;
-  int get todayCarbGrams => todaySummary.carbGrams;
-  int get todayFatGrams => todaySummary.fatGrams;
-  int get todayFibreGrams => todaySummary.fibreGrams;
 
   @override
   void dispose() {

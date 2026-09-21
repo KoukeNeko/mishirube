@@ -19,6 +19,11 @@ class DaySummary {
     required this.hasEstimates,
     required this.isComplete,
     this.mealsWithoutFigures = 0,
+    this.mealsWithoutProtein = 0,
+    this.mealsWithoutCarb = 0,
+    this.mealsWithoutFat = 0,
+    this.mealsWithoutFibre = 0,
+    this.recordCount = 0,
   });
 
   static const empty = DaySummary(
@@ -46,6 +51,19 @@ class DaySummary {
   /// one, so the totals above are a floor, not the day.
   final int mealsWithoutFigures;
 
+  /// Records with no figure for each macro. Counted separately from
+  /// [mealsWithoutFigures] because a packet can print energy and leave
+  /// out fibre: a gram total that quietly added nothing for those
+  /// records would read as the day, when it is only a floor.
+  final int mealsWithoutProtein;
+  final int mealsWithoutCarb;
+  final int mealsWithoutFat;
+  final int mealsWithoutFibre;
+
+  /// Records counted in the totals, drinks included — what the
+  /// `mealsWithout…` counts are out of.
+  final int recordCount;
+
   /// Enough meals for the day's totals to be worth comparing.
   final bool isComplete;
 
@@ -64,34 +82,32 @@ class DaySummary {
 /// glasses of water is not three meals, and a day that called itself
 /// complete on the strength of them would be lying.
 DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
-  var summary = DaySummary.empty;
-  for (final meal in meals) {
-    summary = DaySummary(
-      kcal: summary.kcal + (meal.kcal ?? 0),
-      proteinGrams: summary.proteinGrams + (meal.proteinGrams ?? 0),
-      carbGrams: summary.carbGrams + (meal.carbGrams ?? 0),
-      fatGrams: summary.fatGrams + (meal.fatGrams ?? 0),
-      fibreGrams: summary.fibreGrams + (meal.fibreGrams ?? 0),
-      mealCount:
-          summary.mealCount + (meal.kind == ConsumptionKind.beverage ? 0 : 1),
-      hasEstimates: summary.hasEstimates || meal.isEstimated,
-      isComplete: false,
-      // A meal with no figures is counted, not skipped: the day has to
-      // be able to say how much of itself it could not see.
-      mealsWithoutFigures:
-          summary.mealsWithoutFigures + (meal.kcal == null ? 1 : 0),
-    );
-  }
+  final records = meals.toList();
+  // A missing figure is counted, not skipped and not added as zero: the
+  // day has to be able to say how much of itself it could not see.
+  int sumOf(int? Function(MealEvent) figure) =>
+      records.fold(0, (total, meal) => total + (figure(meal) ?? 0));
+  int missing(int? Function(MealEvent) figure) =>
+      records.where((meal) => figure(meal) == null).length;
+
+  final mealCount = records
+      .where((meal) => meal.kind != ConsumptionKind.beverage)
+      .length;
   return DaySummary(
-    kcal: summary.kcal,
-    proteinGrams: summary.proteinGrams,
-    carbGrams: summary.carbGrams,
-    fatGrams: summary.fatGrams,
-    fibreGrams: summary.fibreGrams,
-    mealsWithoutFigures: summary.mealsWithoutFigures,
-    mealCount: summary.mealCount,
-    hasEstimates: summary.hasEstimates,
-    isComplete: !isOver || summary.mealCount >= mealsForCompleteDay,
+    kcal: sumOf((meal) => meal.kcal),
+    proteinGrams: sumOf((meal) => meal.proteinGrams),
+    carbGrams: sumOf((meal) => meal.carbGrams),
+    fatGrams: sumOf((meal) => meal.fatGrams),
+    fibreGrams: sumOf((meal) => meal.fibreGrams),
+    mealsWithoutFigures: missing((meal) => meal.kcal),
+    mealsWithoutProtein: missing((meal) => meal.proteinGrams),
+    mealsWithoutCarb: missing((meal) => meal.carbGrams),
+    mealsWithoutFat: missing((meal) => meal.fatGrams),
+    mealsWithoutFibre: missing((meal) => meal.fibreGrams),
+    recordCount: records.length,
+    mealCount: mealCount,
+    hasEstimates: records.any((meal) => meal.isEstimated),
+    isComplete: !isOver || mealCount >= mealsForCompleteDay,
   );
 }
 
