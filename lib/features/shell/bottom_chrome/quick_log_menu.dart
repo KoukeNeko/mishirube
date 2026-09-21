@@ -4,7 +4,7 @@ import 'dart:ui' show ImageFilter, lerpDouble;
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
-import '../../record/add_record_sheet.dart';
+import '../../record/record_options.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 import 'split_dock.dart';
@@ -12,9 +12,6 @@ import '../../../shared/haptics.dart';
 
 const _menuDuration = Duration(milliseconds: 280);
 
-/// How many record types the menu offers before "更多": enough for the
-/// everyday ones, short enough to read at a glance.
-const _quickOptionCount = 5;
 const _staggerStep = 0.12;
 const _itemSpacing = 10.0;
 const _itemHeight = 52.0;
@@ -36,8 +33,9 @@ const _recessDimAndroid = 0.32;
 
 const quickLogMenuKey = ValueKey('quick-log-menu');
 
-/// Staggered action list that grows out of the dock's「+」. The first few
-/// record types are one tap away; the rest stay in the full sheet.
+/// Staggered action list that grows out of the dock's「+」, offering every
+/// record type whose module is switched on. A second, fuller list behind
+/// a「更多」would only have held the same things one tap further away.
 ///
 /// [recess] is pointed at the menu's animation so [QuickLogScrim] and
 /// [QuickLogRecess] can push the app back in step with the menu.
@@ -151,17 +149,9 @@ class _QuickLogMenu extends StatelessWidget {
 
   final Animation<double> animation;
 
-  void _openMore(BuildContext context) {
-    final navigator = Navigator.of(context)..pop();
-    showAddRecordSheet(navigator.context);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final quickOptions = enabledRecordOptions(context)
-        .take(_quickOptionCount)
-        .toList();
-    final itemCount = quickOptions.length + 1;
+    final options = enabledRecordOptions(context);
     final metrics = DockMetrics.of(context);
     return Padding(
       padding: EdgeInsets.only(
@@ -173,30 +163,33 @@ class _QuickLogMenu extends StatelessWidget {
           key: quickLogMenuKey,
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < quickOptions.length; i++)
-              _Staggered(
-                animation: animation,
-                // Items nearest the button appear first.
-                order: itemCount - 1 - i,
-                child: _MenuItem(
-                  icon: quickOptions[i].icon,
-                  color: quickOptions[i].color,
-                  label: quickOptions[i].title,
-                  onTap: () => openRecordOption(context, quickOptions[i]),
+            // Scrolls only when a short screen or large text cannot fit
+            // every type; reversed so the ones nearest the thumb show.
+            Flexible(
+              child: SingleChildScrollView(
+                reverse: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < options.length; i++)
+                      _Staggered(
+                        animation: animation,
+                        // Items nearest the button appear first.
+                        order: options.length - 1 - i,
+                        child: _MenuItem(
+                          icon: options[i].icon,
+                          color: options[i].color,
+                          label: options[i].title,
+                          onTap: () => openRecordOption(context, options[i]),
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-            _Staggered(
-              animation: animation,
-              order: 0,
-              child: _MenuItem(
-                icon: Icons.more_horiz,
-                color: AppColors.textSecondary,
-                label: '更多紀錄類型',
-                onTap: () => _openMore(context),
               ),
             ),
             // Each item already carries the gap below it, so × sits the
-            // same distance from 「更多」 as the pills do from each other.
+            // same distance from the last type as the pills do from each
+            // other.
             _CloseButton(animation: animation, size: metrics.height),
           ],
         ),

@@ -7,6 +7,7 @@ import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
+import 'package:mishirube/features/record/record_options.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/session_accessory.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
@@ -90,20 +91,17 @@ void main() {
 
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
-    for (final label in ['訓練', '飲食', '體重', '睡眠', '更多紀錄類型']) {
-      expect(
-        find.descendant(
-          of: find.byKey(quickLogMenuKey),
-          matching: find.text(label),
-        ),
-        findsOneWidget,
-        reason: label,
-      );
-    }
+    expect(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('訓練'),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('關閉'));
     await _settleFor(tester);
-    expect(find.text('更多紀錄類型'), findsNothing);
+    expect(find.byKey(quickLogMenuKey), findsNothing);
     await disposeTree(tester);
   });
 
@@ -143,15 +141,69 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('「更多紀錄類型」falls back to the full sheet', (tester) async {
-    await _pumpApp(tester, FakeClock());
+  testWidgets('the menu offers every enabled module and nothing else', (
+    tester,
+  ) async {
+    final store = await _pumpApp(tester, FakeClock());
+    List<String> shown() => [
+      for (final option in recordOptions)
+        if (find
+            .descendant(
+              of: find.byKey(quickLogMenuKey),
+              matching: find.text(option.title),
+            )
+            .evaluate()
+            .isNotEmpty)
+          option.title,
+    ];
 
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
-    await tester.tap(find.text('更多紀錄類型'));
+    expect(shown(), [
+      for (final option in recordOptions)
+        if (store.enabledModules.contains(option.module)) option.title,
+    ], reason: 'all of them, not the first few and a「更多」');
+    expect(find.text('更多紀錄類型'), findsNothing);
+    await tester.tap(find.byTooltip('關閉'));
     await _settleFor(tester);
 
-    expect(find.text('要記錄什麼？'), findsOneWidget);
+    store.toggleModule(AppModule.notes);
+    await tester.pump();
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    expect(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('筆記'),
+      ),
+      store.enabledModules.contains(AppModule.notes)
+          ? findsOneWidget
+          : findsNothing,
+      reason: 'switching a module changes the menu with it',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a small screen with large text scrolls the menu', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    // iPhone SE size, the largest standard text setting.
+    tester.view.physicalSize = const Size(375, 667);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'every type is offered, so they must fit or scroll',
+    );
+    expect(find.byTooltip('關閉'), findsOneWidget);
     await disposeTree(tester);
   });
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
-import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
@@ -10,20 +9,7 @@ import '../journal/note_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
 import '../nutrition/food_search_screen.dart';
-import '../onboarding/onboarding_screen.dart';
 import '../training/routine_detail_screen.dart';
-
-Future<void> showAddRecordSheet(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
-    ),
-    builder: (_) => const AddRecordSheet(),
-  );
-}
 
 /// One kind of record the user can add from the quick-log entry points.
 class RecordOption {
@@ -128,115 +114,9 @@ List<RecordOption> enabledRecordOptions(BuildContext context) {
   ];
 }
 
-/// Closes the current popup (sheet or menu) and opens [option]'s screen.
+/// Closes the quick-log menu and opens [option]'s screen.
 void openRecordOption(BuildContext context, RecordOption option) {
   final navigator = Navigator.of(context);
   navigator.pop();
   navigator.push(MaterialPageRoute<void>(builder: (_) => option.destination()));
-}
-
-class AddRecordSheet extends StatelessWidget {
-  const AddRecordSheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenGutter,
-        AppSpacing.sm,
-        AppSpacing.screenGutter,
-        AppSpacing.lg + MediaQuery.paddingOf(context).bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _DragHandle(),
-          Row(
-            children: [
-              const Text('要記錄什麼？', style: AppTextStyles.pageTitle),
-              const Spacer(),
-              LinkText(
-                label: '取消',
-                color: AppColors.textSecondary,
-                onTap: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          for (final option in enabledRecordOptions(context)) ...[
-            _RecordOptionTile(
-              option: option,
-              onTap: () => openRecordOption(context, option),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
-          Row(
-            children: [
-              const Text('這裡只列出你已啟用的模組。', style: AppTextStyles.caption),
-              LinkText(
-                label: '管理模組',
-                onTap: () {
-                  final navigator = Navigator.of(context)..pop();
-                  navigator.push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const OnboardingScreen(isEditing: true),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DragHandle extends StatelessWidget {
-  const _DragHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 4,
-        margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.textTertiary,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-  }
-}
-
-class _RecordOptionTile extends StatelessWidget {
-  const _RecordOptionTile({required this.option, required this.onTap});
-
-  final RecordOption option;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: EdgeInsets.zero,
-      tone: CardTone.raised,
-      child: NavRow(
-        title: option.title,
-        subtitle: option.subtitle,
-        onTap: onTap,
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: option.color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(AppRadius.small),
-          ),
-          child: Icon(option.icon, color: option.color),
-        ),
-      ),
-    );
-  }
 }
