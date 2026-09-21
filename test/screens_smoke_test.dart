@@ -13,20 +13,16 @@ import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
-import 'package:mishirube/features/me/ai_permissions_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/data_sources_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
-import 'package:mishirube/features/me/sync_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
-import 'package:mishirube/features/nutrition/meal_confirm_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
-import 'package:mishirube/features/nutrition/meal_entry_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -168,8 +164,6 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withActivity,
   ),
   'activity type picker': ((_) => const ActivityTypePicker(), _noSetup),
-  'meal entry': ((_) => const MealEntryScreen(), _noSetup),
-  'meal confirm': ((_) => const MealConfirmScreen(), _noSetup),
   'daily nutrition': ((_) => const DailyNutritionScreen(), _withLunch),
   'daily nutrition (a day with nothing)': (
     (store) => DailyNutritionScreen(
@@ -194,10 +188,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
   'trends empty': ((_) => const TrendsEmptyScreen(), _noSetup),
-  'ai permissions': ((_) => const AiPermissionsScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
   'export': ((_) => const ExportScreen(), _noSetup),
-  'sync': ((_) => const SyncScreen(), _noSetup),
 };
 
 /// Pages that intentionally skip the shared app bar.

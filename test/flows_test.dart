@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
@@ -115,32 +117,18 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('photo → confirm meal → split dish → undo', (tester) async {
+  testWidgets('a logged dish splits into its parts and comes back', (
+    tester,
+  ) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-      ..cyclePhase();
+      ..logMeal(DemoNutrition.lunch);
     await tester.pumpWidget(MishirubeApp(store: store));
-
-    expect(find.text('記錄午餐'), findsOneWidget);
-    await _tapText(tester, '拍照');
-    expect(find.text('確認這一餐'), findsWidgets);
-
-    await _tapText(tester, '多一點');
-    expect(find.text('~665'), findsOneWidget);
-
-    await _tapText(tester, '確認並存入');
-    expect(store.isLunchLogged, isTrue);
-    final lunch = store.todayMeals.last;
-    expect(lunch.kcal, 665, reason: 'the confirmed estimate is what is kept');
-    expect(lunch.qualityTag, '份量為估計');
-    expect(
-      lunch.dishes.single.components
-          .firstWhere((component) => component.name == '美乃滋')
-          .amountLabel,
-      '~18 g',
-      reason: 'the answer replaces the inferred range',
+    pushPage(
+      tester.element(find.byType(Navigator).first),
+      const DailyNutritionScreen(),
     );
-    expect(find.text('飲食'), findsWidgets);
+    await tester.pumpAndSettle();
 
     // Dishes start collapsed; the components appear when one is opened.
     await _tapText(tester, '雞肉照燒蛋全麥三明治');

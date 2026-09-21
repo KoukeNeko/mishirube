@@ -258,15 +258,8 @@ class QuickActionTile extends StatelessWidget {
 }
 
 class NextMealCard extends StatelessWidget {
-  const NextMealCard({
-    super.key,
-    required this.onPhoto,
-    required this.onVoice,
-    required this.onSearch,
-  });
+  const NextMealCard({super.key, required this.onSearch});
 
-  final VoidCallback onPhoto;
-  final VoidCallback onVoice;
   final VoidCallback onSearch;
 
   @override
@@ -292,21 +285,9 @@ class NextMealCard extends StatelessWidget {
           Row(
             children: [
               _MealMethodButton(
-                icon: Icons.photo_camera_outlined,
-                label: '拍照',
-                isPrimary: true,
-                onTap: onPhoto,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              _MealMethodButton(
-                icon: Icons.mic_none,
-                label: '說出來',
-                onTap: onVoice,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              _MealMethodButton(
                 icon: Icons.search,
                 label: '搜尋',
+                isPrimary: true,
                 onTap: onSearch,
               ),
             ],

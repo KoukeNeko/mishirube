@@ -7,7 +7,6 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
-import 'meal_entry_screen.dart';
 import 'portion_screen.dart';
 import 'quick_add_sheet.dart';
 import 'recent_meal_row.dart';
@@ -269,14 +268,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                   ),
                 ),
             ],
-        if (query.isEmpty)
-          Gutter(
-            child: NavCard(
-              title: '其他記錄方式',
-              subtitle: '拍照、說出來、掃條碼、餐點模板',
-              onTap: () => pushPage(context, const MealEntryScreen()),
-            ),
-          ),
       ],
     );
   }

@@ -18,6 +18,8 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Screens taken out of the app, kept for reference; see archive/README.md.
+    - archive/**
 
 linter:
   # The lint rules applied to this project can be customized in the

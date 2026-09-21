@@ -8,8 +8,6 @@ import '../../shared/widgets/widgets.dart';
 import '../goal/goal_entry_button.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
-import '../nutrition/meal_confirm_screen.dart';
-import '../nutrition/meal_entry_screen.dart';
 import '../training/active_workout_screen.dart';
 import '../training/routine_detail_screen.dart';
 import '../training/workout_summary_screen.dart';
@@ -104,8 +102,6 @@ class TodayScreen extends StatelessWidget {
       if (!store.isLunchLogged)
         Gutter(
           child: NextMealCard(
-            onPhoto: () => pushPage(context, const MealConfirmScreen()),
-            onVoice: () => pushPage(context, const MealEntryScreen()),
             onSearch: () => pushPage(context, const FoodSearchScreen()),
           ),
         ),
