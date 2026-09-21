@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../haptics.dart';
 
-const _buttonHeight = 60.0;
+/// The height of a full-size button, for controls that sit beside one.
+const buttonHeight = 60.0;
 const _compactButtonHeight = 48.0;
 
 class PrimaryButton extends StatelessWidget {
@@ -32,7 +33,7 @@ class PrimaryButton extends StatelessWidget {
       icon: icon,
       background: color,
       foreground: foregroundColor,
-      height: isCompact ? _compactButtonHeight : _buttonHeight,
+      height: isCompact ? _compactButtonHeight : buttonHeight,
     );
   }
 }
@@ -84,7 +85,7 @@ class SecondaryButton extends StatelessWidget {
       icon: icon,
       background: AppColors.surfaceRaised,
       foreground: AppColors.textPrimary,
-      height: isCompact ? _compactButtonHeight : _buttonHeight,
+      height: isCompact ? _compactButtonHeight : buttonHeight,
     );
   }
 }
@@ -146,6 +147,7 @@ class SquareIconButton extends StatelessWidget {
     this.tooltip,
     this.size = 48,
     this.color = AppColors.textPrimary,
+    this.radius = AppRadius.small,
   });
 
   final IconData icon;
@@ -153,6 +155,9 @@ class SquareIconButton extends StatelessWidget {
   final String? tooltip;
   final double size;
   final Color color;
+
+  /// Beside a full-height button it takes that button's corners.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +170,7 @@ class SquareIconButton extends StatelessWidget {
           backgroundColor: AppColors.surfaceRaised,
           foregroundColor: color,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.small),
+            borderRadius: BorderRadius.circular(radius),
           ),
         ),
         icon: Icon(icon),

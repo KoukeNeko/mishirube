@@ -20,6 +20,7 @@ export 'controls/month_picker_sheet.dart';
 export 'controls/month_popover.dart';
 export 'controls/pill.dart';
 export 'controls/step_slider.dart';
+export 'controls/swipe_action.dart';
 // Page frame: app bar, collapsing header, edge-to-edge layout, footers.
 export 'page/collapsing_header.dart';
 export 'page/collapsing_page.dart';

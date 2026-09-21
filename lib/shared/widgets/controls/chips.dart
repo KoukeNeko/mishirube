@@ -258,3 +258,58 @@ class ChipWrap<T> extends StatelessWidget {
     );
   }
 }
+
+/// A row of single-choice filters that scrolls sideways to the screen's
+/// edges: the log's categories, the food page's scopes.
+///
+/// Full-bleed, so it pads its own content instead of taking a Gutter. The
+/// chosen chip is marked with a rim in its colour rather than a fill,
+/// which would drown the icon.
+class FilterChipBar<T> extends StatelessWidget {
+  const FilterChipBar({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.labelOf,
+    required this.onSelected,
+    this.iconOf,
+    this.colorOf,
+  });
+
+  final List<T> options;
+  final T selected;
+  final String Function(T option) labelOf;
+  final ValueChanged<T> onSelected;
+  final IconData? Function(T option)? iconOf;
+
+  /// The icon's and the rim's colour; the primary text colour otherwise.
+  final Color Function(T option)? colorOf;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: pillHeight(context),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.screenGutter,
+        ),
+        itemCount: options.length,
+        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
+        itemBuilder: (_, index) {
+          final option = options[index];
+          final color = colorOf?.call(option) ?? AppColors.textPrimary;
+          return SelectChip(
+            label: labelOf(option),
+            icon: iconOf?.call(option),
+            iconColor: color,
+            showsSelectionAsOutline: true,
+            selectedColor: color,
+            isSelected: option == selected,
+            onTap: () => onSelected(option),
+          );
+        },
+      ),
+    );
+  }
+}
