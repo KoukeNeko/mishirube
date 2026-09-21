@@ -156,10 +156,19 @@ List<RecordOption> enabledRecordOptions(BuildContext context) {
 /// Closes the quick-log menu and opens [option]'s screen, or does what it
 /// does.
 void openRecordOption(BuildContext context, RecordOption option) {
+  final menu = ModalRoute.of(context);
   final navigator = Navigator.of(context)..pop();
   if (option.destination case final destination?) {
     navigator.push(MaterialPageRoute<void>(builder: (_) => destination()));
-  } else {
-    option.onSelect!(navigator.context);
+    return;
   }
+  // Wait for the menu to finish folding away, so what the action shows —
+  // its undo toast — does not land on top of the menu on its way out.
+  final Future<Object?> closed = switch (menu) {
+    final TransitionRoute<Object?> route => route.completed,
+    _ => Future.value(),
+  };
+  closed.then((_) {
+    if (navigator.mounted) option.onSelect!(navigator.context);
+  });
 }

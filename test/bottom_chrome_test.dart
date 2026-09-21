@@ -217,12 +217,21 @@ void main() {
         matching: find.text('水'),
       ),
     );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(
+      find.text('復原'),
+      findsNothing,
+      reason: 'the toast does not land on the menu while it folds away',
+    );
     await _settleFor(tester);
 
     expect(store.todayMeals, hasLength(before + 1));
     expect(store.todayMeals.last.millilitres, store.glassMillilitres);
     expect(find.byKey(quickLogMenuKey), findsNothing, reason: 'nothing opens');
 
+    // The toast waits for the menu to finish closing, then comes in.
+    await _settleFor(tester);
     await tester.tap(find.text('復原'));
     await tester.pump();
     expect(store.todayMeals, hasLength(before));
@@ -879,12 +888,19 @@ void main() {
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
 
-    final sizes = tester
-        .widgetList<Icon>(find.byIcon(Icons.add))
-        .map((icon) => icon.size)
-        .toSet();
-    expect(find.byIcon(Icons.add), findsNWidgets(2), reason: '「+」and ×');
-    expect(sizes, hasLength(1));
+    // Only the dock's「+」and the menu's ×: the page behind may show「+」
+    // buttons of its own.
+    final plus = find.descendant(
+      of: find.byKey(_centerAction),
+      matching: find.byIcon(Icons.add),
+    );
+    final cross = find.descendant(
+      of: find.byKey(quickLogMenuKey),
+      matching: find.byIcon(Icons.add),
+    );
+    expect(plus, findsOneWidget);
+    expect(cross, findsOneWidget, reason: '× is the「+」turned');
+    expect(tester.widget<Icon>(cross).size, tester.widget<Icon>(plus).size);
     await disposeTree(tester);
   });
 }
