@@ -10,8 +10,11 @@ only records intent that cannot be read from them.
 MISHIRUBE is a local-first Flutter fitness and nutrition logging app (iOS
 and Android). Data lives in an on-device SQLite database (`lib/backend/`),
 seeded with the design's demo data on first launch; there is no server,
-sync, HealthKit or AI integration. The UI is dark, edge-to-edge and built
-from custom floating glass chrome rather than stock Material widgets.
+sync or HealthKit integration. AI is optional and only drafts: Apple's
+on-device model or Ollama Cloud with the user's own key, and nothing a
+model returns is logged until the user confirms it. The UI is dark,
+edge-to-edge and built from custom floating glass chrome rather than
+stock Material widgets.
 
 ## Toolchain
 
@@ -51,6 +54,11 @@ flutter test test/<file>_test.dart
     `NutritionService`, `CatalogService`, `JournalService`,
     `InsightsService`).
   - `import_export/` – canonical JSON archive, CSV views, Strong importer.
+  - `ai/` – the AI providers (`MealDrafter`) and the keychain-backed
+    `SecretStore`. A provider returns a draft and holds no repository;
+    `AiService` in `application/` chooses one, and writing a confirmed
+    draft is `NutritionService`'s job. Not an engine: model output is
+    not deterministic.
   - `seed/` – the demo content and the first-launch seed.
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing

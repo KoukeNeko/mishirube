@@ -303,6 +303,53 @@ class NutritionService {
   void setFoodFavorite(String foodId, {required bool isFavorite}) =>
       _foods.setFavorite(foodId, isFavorite: isFavorite);
 
+  /// Logs the items of a draft the user confirmed, as eaten now and all
+  /// or none. Each is marked as an estimate from an AI draft, and the
+  /// audit trail keeps which provider and model it came from.
+  List<MealEvent> logDraft(
+    MealDraft draft,
+    List<DraftItem> items, {
+    MealType? mealType,
+  }) {
+    final eatenAt = _db.now();
+    return _db.transaction(
+      () => [
+        for (final item in items)
+          () {
+            final meal = MealEvent(
+              id: _db.newId(),
+              name: item.amount.isEmpty
+                  ? item.name
+                  : '${item.name}（${item.amount}）',
+              timeLabel: formatTimeOfDay(eatenAt),
+              qualityTag: aiDraftQualityTag,
+              dishes: const [],
+              kind: item.isDrink
+                  ? ConsumptionKind.beverage
+                  : ConsumptionKind.food,
+              kcal: item.kcal,
+              proteinGrams: item.proteinGrams,
+              carbGrams: item.carbGrams,
+              fatGrams: item.fatGrams,
+              mealType: mealType,
+              isEstimated: true,
+              valueType: NutrientValueType.estimate,
+            );
+            _meals.insert(
+              meal,
+              eatenAt: eatenAt,
+              source: ChangeSource.aiDraft,
+              auditPayload: {
+                'provider': draft.provider.name,
+                'model': draft.model,
+              },
+            );
+            return meal;
+          }(),
+      ],
+    );
+  }
+
   /// Logs a glass of water of [millilitres].
   ///
   /// A shortcut, not a second kind of record: it writes the same meal

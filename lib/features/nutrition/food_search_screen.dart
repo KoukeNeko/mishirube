@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'daily_nutrition_screen.dart';
+import 'describe_meal_screen.dart';
 import 'food_edit_screen.dart';
 import 'food_row.dart';
 import 'meal_type_picker.dart';
@@ -243,6 +244,25 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         ),
       );
 
+  /// A meal drafted by the AI and confirmed on its own page; once it is
+  /// logged, this page closes too and offers the undo, as a plate does.
+  Future<void> _describe() async {
+    final store = AppStoreScope.read(context);
+    final toast = ToastScope.read(context);
+    final logged = await pushPage<List<MealEvent>>(
+      context,
+      DescribeMealScreen(mealType: _mealType),
+    );
+    if (logged == null || logged.isEmpty || !mounted) return;
+    Navigator.of(context).pop();
+    toast.showUndo(
+      logged.length == 1
+          ? '已記錄「${logged.single.name}」'
+          : '已記錄 ${logged.length} 項',
+      onUndo: () => store.deleteMeals(logged),
+    );
+  }
+
   Future<void> _quickAdd() async {
     final logged = await showQuickAddSheet(context);
     if (logged != true || !mounted) return;
@@ -341,10 +361,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             onOpenDay: () => pushPage(context, const DailyNutritionScreen()),
           ),
         ),
-        // The other way in that exists today. Photo, barcode and
-        // describing a meal join it when they are real, not before.
+        // The other ways in: numbers typed once, or a sentence for the
+        // AI to draft. Photo and barcode join them when they are real.
         Gutter(
-          child: SecondaryButton(label: '快速記錄一次', onPressed: _quickAdd),
+          child: ButtonPair(
+            secondary: SecondaryButton(label: '快速記錄一次', onPressed: _quickAdd),
+            primary: SecondaryButton(
+              label: '用一句話記錄',
+              icon: Icons.auto_awesome_outlined,
+              onPressed: _describe,
+            ),
+          ),
         ),
         ..._section('最近', [for (final r in recent.take(_preview)) r.food]),
         ..._section('收藏', starred.take(_preview).toList()),

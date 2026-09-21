@@ -4,6 +4,7 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import 'app/app.dart';
 import 'app/app_store.dart';
+import 'backend/application/ai_service.dart';
 import 'backend/backend.dart';
 import 'backend/seed/catalogue.dart';
 
@@ -19,7 +20,9 @@ Future<void> main() async {
   runApp(
     LiquidGlassWidgets.wrap(
       brightnessResolver: Theme.maybeBrightnessOf,
-      child: MishirubeApp(store: AppStore(backend: backend)),
+      child: MishirubeApp(
+        store: AppStore(backend: backend, ai: AiService.onDevice(backend.db)),
+      ),
     ),
   );
 }

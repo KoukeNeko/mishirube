@@ -17,10 +17,12 @@ import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
+import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/me/data_sources_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
@@ -90,6 +92,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'sleep entry': ((_) => const SleepEntryScreen(), _noSetup),
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
+  'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
+  'describe a meal': ((_) => const DescribeMealScreen(), _noSetup),
   'brand menu': (
     (_) => BrandMenuScreen(
       brand: '星巴克',

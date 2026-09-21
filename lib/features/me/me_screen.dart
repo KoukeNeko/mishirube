@@ -6,6 +6,7 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../goal/goal_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import 'ai_settings_screen.dart';
 import 'data_sources_screen.dart';
 import 'export_screen.dart';
 
@@ -48,6 +49,11 @@ class MeScreen extends StatelessWidget {
                 subtitle: '$moduleNames 已啟用',
                 onTap: () =>
                     pushPage(context, const OnboardingScreen(isEditing: true)),
+              ),
+              NavRow(
+                title: 'AI',
+                subtitle: store.aiProvider?.label ?? '未啟用',
+                onTap: () => pushPage(context, const AiSettingsScreen()),
               ),
             ],
           ),

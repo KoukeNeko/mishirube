@@ -153,6 +153,7 @@ class MealRepository {
     required DateTime eatenAt,
     ChangeSource source = ChangeSource.local,
     String? importBatchId,
+    Object? auditPayload,
   }) {
     _db.transaction(() {
       final now = _db.now().millisecondsSinceEpoch;
@@ -197,6 +198,7 @@ class MealRepository {
         action: 'create',
         source: source,
         importBatchId: importBatchId,
+        payload: auditPayload,
       );
     });
   }

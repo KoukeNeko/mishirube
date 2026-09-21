@@ -5,6 +5,7 @@
 library;
 
 export 'activity.dart';
+export 'ai.dart';
 export 'body.dart';
 export 'exercise_filter.dart';
 export 'goal.dart';

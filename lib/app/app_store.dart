@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 import '../backend/application/activity_service.dart';
+import '../backend/application/ai_service.dart';
 import '../backend/application/goal_service.dart';
 import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
@@ -66,11 +67,16 @@ enum MuscleFigure {
 class AppStore extends ChangeNotifier {
   /// [backend] defaults to a seeded in-memory store (tests, previews); the
   /// app passes the on-device one. A given [isOnboarded] overrides and
-  /// saves the stored value.
-  AppStore({DateTime Function()? clock, bool? isOnboarded, Backend? backend})
-    : _clock = clock ?? DateTime.now,
-      _backend = backend ?? Backend.inMemory(clock: clock),
-      _ownsBackend = backend == null {
+  /// saves the stored value. [ai] defaults to no provider at all.
+  AppStore({
+    DateTime Function()? clock,
+    bool? isOnboarded,
+    Backend? backend,
+    AiService? ai,
+  }) : _clock = clock ?? DateTime.now,
+       _backend = backend ?? Backend.inMemory(clock: clock),
+       _ownsBackend = backend == null {
+    _ai = ai ?? AiService.none(_backend.db);
     seedDemoData(_backend, now());
     if (isOnboarded != null && isOnboarded != _storedOnboarded) {
       _backend.db.setSetting(_onboardedKey, '$isOnboarded');
@@ -112,6 +118,7 @@ class AppStore extends ChangeNotifier {
 
   final DateTime Function() _clock;
   final Backend _backend;
+  late final AiService _ai;
   final bool _ownsBackend;
 
   late bool _isOnboarded;
@@ -711,6 +718,58 @@ class AppStore extends ChangeNotifier {
 
   /// Logs a glass of water. It writes the same record every drink
   /// writes, so the day's fluid stays one total.
+  /// The provider drafts come from, or null until one is chosen.
+  AiProviderKind? get aiProvider => _ai.provider;
+
+  void setAiProvider(AiProviderKind kind) {
+    _ai.setProvider(kind);
+    notifyListeners();
+  }
+
+  String get ollamaModel => _ai.ollamaModel;
+
+  void setOllamaModel(String model) {
+    _ai.setOllamaModel(model);
+    notifyListeners();
+  }
+
+  bool get hasCloudConsent => _ai.hasCloudConsent;
+
+  void setCloudConsent(bool agreed) {
+    _ai.setCloudConsent(agreed);
+    notifyListeners();
+  }
+
+  Future<bool> hasOllamaKey() => _ai.hasOllamaKey();
+
+  Future<void> setOllamaKey(String key) async {
+    await _ai.setOllamaKey(key);
+    notifyListeners();
+  }
+
+  Future<AiAvailability> aiAvailability(AiProviderKind kind) =>
+      _ai.availability(kind);
+
+  /// A draft of a described meal; nothing is logged. Throws
+  /// [AiException].
+  Future<MealDraft> draftMeal(String description) => _ai.draftMeal(description);
+
+  /// Logs the draft items the user kept.
+  List<MealEvent> logDraft(
+    MealDraft draft,
+    List<DraftItem> items, {
+    MealType? mealType,
+  }) {
+    final logged = _backend.nutrition.logDraft(
+      draft,
+      items,
+      mealType: mealType,
+    );
+    _todayMeals.addAll(logged);
+    notifyListeners();
+    return logged;
+  }
+
   MealEvent logWater([int? millilitres]) {
     final logged = _backend.nutrition.logWater(millilitres ?? glassMillilitres);
     _todayMeals.add(logged);
