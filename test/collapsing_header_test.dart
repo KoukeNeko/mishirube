@@ -1,7 +1,12 @@
+import 'package:flutter/rendering.dart';
+
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -285,4 +290,51 @@ void main() {
       await disposeTree(tester);
     });
   }
+
+  testWidgets('the filter button is as tall as the field is drawn', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    const frame = Key('frame');
+    await pumpScreen(
+      tester,
+      const RepaintBoundary(
+        key: frame,
+        child: ExercisePickerScreen(purpose: PickerPurpose.browse),
+      ),
+      store: store,
+    );
+
+    // Layout boxes agreed before while the field's fill was drawn 8 pt
+    // shorter than its box, so compare what is painted.
+    final boundary = tester.renderObject<RenderRepaintBoundary>(
+      find.byKey(frame),
+    );
+    final image = (await tester.runAsync(() => boundary.toImage()))!;
+    final pixels = (await tester.runAsync(
+      () => image.toByteData(format: ui.ImageByteFormat.rawRgba),
+    ))!;
+    final fill = AppColors.surface;
+    bool isFill(int x, int y) {
+      final i = (y * image.width + x) * 4;
+      return (pixels.getUint8(i) - (fill.r * 255).round()).abs() < 3 &&
+          (pixels.getUint8(i + 1) - (fill.g * 255).round()).abs() < 3 &&
+          (pixels.getUint8(i + 2) - (fill.b * 255).round()).abs() < 3;
+    }
+
+    int paintedHeight(Rect box, double x) => [
+      for (var y = box.top.round(); y < box.bottom.round(); y++)
+        if (isFill(x.round(), y)) y,
+    ].length;
+
+    final field = tester.getRect(find.byType(SearchField));
+    final button = tester.getRect(find.byType(SearchFieldButton));
+    // Sample clear of the rounded corners, the hint text and the icon.
+    expect(
+      paintedHeight(field, field.right - 30),
+      paintedHeight(button, button.left + 14),
+      reason: 'the grey of the field and of the button are one height',
+    );
+    await disposeTree(tester);
+  });
 }

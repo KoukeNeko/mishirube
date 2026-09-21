@@ -12,8 +12,6 @@ import 'exercise_filter_screen.dart';
 const _maxSuggestions = 3;
 
 /// Search field (56) plus the pinned row's vertical padding.
-const _searchRowHeight = 72.0;
-
 enum _PickerTab {
   recent('最近使用'),
   favorites('收藏'),
@@ -200,7 +198,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
             onFilter: _openFilter,
           ),
         ),
-        pinnedHeight: _searchRowHeight,
+        pinnedHeight: measurePinnedSearchHeight(),
         footer: _selected.isNotEmpty
             ? _SelectionTray(
                 selected: _selected,
@@ -287,10 +285,9 @@ class _SearchRow extends StatelessWidget {
             label: Text('$filterCount'),
             backgroundColor: AppColors.training,
             textColor: AppColors.onTraining,
-            child: SquareIconButton(
+            child: SearchFieldButton(
               icon: Icons.filter_list,
               tooltip: '篩選',
-              size: 56,
               onPressed: onFilter,
             ),
           ),

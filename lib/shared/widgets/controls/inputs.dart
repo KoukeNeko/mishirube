@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../haptics.dart';
 
 const _fieldHeight = 56.0;
+
+/// How tall a [SearchField] is, for a page that pins one in its header.
+const searchFieldHeight = _fieldHeight;
 
 /// Puts the keyboard away when a tap lands outside the field.
 ///
@@ -12,9 +16,12 @@ const _fieldHeight = 56.0;
 void dismissKeyboardOnTapOutside(PointerDownEvent _) =>
     FocusManager.instance.primaryFocus?.unfocus();
 
+/// The corner of every input, and of anything that sits beside one.
+const _fieldRadius = AppRadius.small + 4;
+
 InputDecoration _decoration({required String hint, Widget? prefixIcon}) {
   final border = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppRadius.small + 4),
+    borderRadius: BorderRadius.circular(_fieldRadius),
     borderSide: BorderSide.none,
   );
   return InputDecoration(
@@ -23,13 +30,61 @@ InputDecoration _decoration({required String hint, Widget? prefixIcon}) {
     prefixIcon: prefixIcon,
     filled: true,
     fillColor: AppColors.surface,
-    contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    // Without vertical padding the fill is drawn at the text row's own
+    // 48 and sits at the top of the 56 box, so anything placed beside the
+    // field at the field's height looks larger than it.
+    contentPadding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.md,
+      vertical: 18,
+    ),
     border: border,
     enabledBorder: border,
     focusedBorder: border.copyWith(
       borderSide: const BorderSide(color: AppColors.trainingOutline),
     ),
   );
+}
+
+/// An icon button that sits beside a [SearchField] — filters, most often.
+///
+/// Same height, corner and fill as the field, so the two read as one row
+/// rather than a field and a smaller square that happens to be next to it.
+class SearchFieldButton extends StatelessWidget {
+  const SearchFieldButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: _fieldHeight,
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: () {
+          AppHaptics.tap();
+          onPressed();
+        },
+        style: IconButton.styleFrom(
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.textSecondary,
+          fixedSize: const Size.square(_fieldHeight),
+          padding: EdgeInsets.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+          ),
+        ),
+        icon: Icon(icon),
+      ),
+    );
+  }
 }
 
 class SearchField extends StatelessWidget {
@@ -50,6 +105,7 @@ class SearchField extends StatelessWidget {
         controller: controller,
         onTapOutside: dismissKeyboardOnTapOutside,
         textInputAction: TextInputAction.search,
+        textAlignVertical: TextAlignVertical.center,
         style: AppTextStyles.body,
         decoration: _decoration(
           hint: hint,
@@ -90,6 +146,7 @@ class AppTextField extends StatelessWidget {
         maxLines: maxLines,
         keyboardType: keyboardType,
         style: AppTextStyles.body.copyWith(fontSize: 17),
+        textAlignVertical: TextAlignVertical.center,
         decoration: _decoration(hint: hint),
       ),
     );

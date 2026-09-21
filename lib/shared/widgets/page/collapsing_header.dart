@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../../../app/theme.dart';
 import '../../motion.dart';
 import '../chrome/chrome_surface.dart';
+import '../controls/inputs.dart';
 import '../controls/pill.dart';
 
 const _blurSigma = 24.0;
@@ -154,6 +155,10 @@ double measureLargeTitleHeight(
 double measurePinnedControlHeight(BuildContext context) {
   return pillHeight(context) + _pinnedVerticalPadding * 2;
 }
+
+/// Height of a pinned row holding a [SearchField].
+double measurePinnedSearchHeight() =>
+    searchFieldHeight + _pinnedVerticalPadding * 2;
 
 /// Height of the pinned slot, given its [measured] height (control plus the
 /// normal vertical padding). Without a compact bar the pinned row *is* the
