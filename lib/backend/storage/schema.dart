@@ -554,6 +554,19 @@ final List<String> _migrations = [
   ALTER TABLE meals ADD COLUMN food_id TEXT;
   ALTER TABLE meals ADD COLUMN servings REAL;
   ''',
+  '''
+  -- Other words a food answers to in search, such as a brand's English
+  -- name. The catalogue writes them; nothing shows them.
+  ALTER TABLE foods ADD COLUMN search_terms TEXT NOT NULL DEFAULT '';
+
+  -- Starred foods, one row per food or cup size. Kept apart from foods
+  -- because the catalogue's rows are replaced wholesale on every app
+  -- update, and a star stored on them would go with them.
+  CREATE TABLE food_favorites (
+    food_id TEXT PRIMARY KEY,
+    $_entityColumns
+  );
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

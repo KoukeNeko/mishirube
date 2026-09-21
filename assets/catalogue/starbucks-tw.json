@@ -1,5 +1,6 @@
 {
   "brand": "星巴克",
+  "brandAliases": ["Starbucks", "STARBUCKS", "星巴克咖啡"],
   "market": "tw",
   "sourceUrl": "https://www.starbucks.com.tw/products/drinks/",
   "checkedAt": "2026-09-21",

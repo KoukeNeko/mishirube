@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
+import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -290,6 +292,34 @@ void main() {
       await disposeTree(tester);
     });
   }
+
+  testWidgets('the food search stays pinned while the list scrolls', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    for (var i = 0; i < 30; i++) {
+      store.backend.nutrition.saveFood(
+        FoodItem(id: 'food$i', name: '食物 $i', kcal: 100),
+      );
+    }
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = tester.getRect(find.byType(SearchField));
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
+    await tester.pumpAndSettle();
+
+    final after = tester.getRect(find.byType(SearchField));
+    expect(after.top, greaterThanOrEqualTo(phoneTopInset));
+    expect(
+      after.top,
+      lessThan(before.top),
+      reason:
+          'it rides up with the title and then holds, like the log\'s '
+          'view switch, instead of scrolling away with the list',
+    );
+    expect(find.byType(SearchField).hitTestable(), findsOneWidget);
+    await disposeTree(tester);
+  });
 
   testWidgets('the filter button is as tall as the field is drawn', (
     tester,

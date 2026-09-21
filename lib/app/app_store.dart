@@ -676,6 +676,22 @@ class AppStore extends ChangeNotifier {
   List<FoodItem> searchFoods(String query) =>
       _backend.nutrition.searchFoods(query);
 
+  /// Brands whose menu [query] names on its own.
+  List<String> brandsNamedBy(String query) =>
+      _backend.nutrition.brandsNamedBy(query);
+
+  List<FoodItem> menuOf(String brand) => _backend.nutrition.menuOf(brand);
+
+  List<FoodItem> get favoriteFoods => _backend.nutrition.favoriteFoods();
+
+  bool isFavoriteFood(String foodId) =>
+      favoriteFoods.any((food) => food.id == foodId);
+
+  void setFoodFavorite(String foodId, {required bool isFavorite}) {
+    _backend.nutrition.setFoodFavorite(foodId, isFavorite: isFavorite);
+    notifyListeners();
+  }
+
   /// How much one tap of the water shortcut logs. The user's own glass
   /// or bottle, because nobody drinks in units the app picked.
   int get glassMillilitres =>

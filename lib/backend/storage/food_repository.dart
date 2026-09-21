@@ -59,6 +59,45 @@ class FoodRepository {
     [id, ChangeSource.catalogue.name],
   ).isNotEmpty;
 
+  /// The starred foods and cup sizes, most recently starred first.
+  List<String> favoriteIds() => [
+    for (final row in _db.select(
+      'SELECT food_id FROM food_favorites WHERE deleted_at IS NULL '
+      'ORDER BY updated_at DESC',
+    ))
+      row['food_id']! as String,
+  ];
+
+  /// Stars or unstars [foodId]. Unstarring is a tombstone like any other
+  /// removal, so starring again brings the same row back.
+  void setFavorite(String foodId, {required bool isFavorite}) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO food_favorites (food_id, created_at, updated_at, '
+        'deleted_at) VALUES (?, ?, ?, ?) ON CONFLICT(food_id) DO UPDATE SET '
+        'deleted_at = excluded.deleted_at, updated_at = excluded.updated_at, '
+        'revision = revision + 1',
+        [foodId, now, now, isFavorite ? null : now],
+      );
+      _db.audit(
+        entityType: 'food_favorite',
+        entityId: foodId,
+        action: isFavorite ? 'star' : 'unstar',
+      );
+    });
+  }
+
+  /// A brand's shipped menu: its drinks, without their cup sizes.
+  List<FoodItem> menuOf(String brand) => [
+    for (final row in _db.select(
+      'SELECT * FROM foods WHERE deleted_at IS NULL AND parent_id IS NULL '
+      "AND source = 'catalogue' AND brand = ? ORDER BY name",
+      [brand],
+    ))
+      _fromRow(row),
+  ];
+
   FoodItem? byId(String id) {
     final rows = _db.select(
       'SELECT * FROM foods WHERE id = ? AND deleted_at IS NULL',
@@ -89,8 +128,9 @@ class FoodRepository {
           'serving_amount = ?, serving_unit = ?, kcal = ?, protein_g = ?, '
           'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
           'size_name = ?, consumption_kind = ?, value_type = ?, '
-          'source_url = ?, checked_at = ?, deleted_at = NULL, '
-          'updated_at = ?, revision = revision + 1 WHERE id = ?',
+          'source_url = ?, checked_at = ?, search_terms = ?, '
+          'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
+          'WHERE id = ?',
           [
             food.name,
             food.brand,
@@ -108,6 +148,7 @@ class FoodRepository {
             food.valueType.name,
             food.sourceUrl,
             food.checkedAt?.millisecondsSinceEpoch,
+            food.searchTerms,
             now,
             food.id,
           ],
@@ -117,8 +158,9 @@ class FoodRepository {
           'INSERT INTO foods (id, name, brand, serving_label, '
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
           'fibre_g, parent_id, size_name, consumption_kind, value_type, '
-          'source_url, checked_at, created_at, updated_at, source) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'source_url, checked_at, search_terms, created_at, updated_at, '
+          'source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -137,6 +179,7 @@ class FoodRepository {
             food.valueType.name,
             food.sourceUrl,
             food.checkedAt?.millisecondsSinceEpoch,
+            food.searchTerms,
             now,
             now,
             source.name,
@@ -227,6 +270,7 @@ class FoodRepository {
         null => null,
       },
       isBuiltIn: row['source'] == ChangeSource.catalogue.name,
+      searchTerms: row['search_terms']! as String,
     );
   }
 }

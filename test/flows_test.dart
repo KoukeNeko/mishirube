@@ -7,6 +7,8 @@ import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/storage/database.dart';
+import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
@@ -918,7 +920,12 @@ void main() {
     await tester.pump();
     expect(find.text('2 項 · 200 kcal'), findsOneWidget);
 
-    await _tapText(tester, '晚餐');
+    // Which meal is chosen from the title, for the whole plate.
+    await tester.tap(find.bySemanticsLabel(RegExp('這是哪一餐')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('晚餐'));
+    await tester.pumpAndSettle();
+    expect(find.text('晚餐 · 2 項 · 200 kcal'), findsOneWidget);
     await tester.tap(find.text('記錄 2 項'));
     await tester.pumpAndSettle();
 
@@ -968,10 +975,8 @@ void main() {
 
     expect(find.textContaining('通常記成「午餐」'), findsOneWidget);
     expect(
-      find.byWidgetPredicate(
-        (widget) => widget is SelectChip && widget.isSelected,
-      ),
-      findsNothing,
+      find.bySemanticsLabel(RegExp('目前不指定')),
+      findsOneWidget,
       reason: 'nothing is picked on the user\'s behalf',
     );
 
@@ -982,6 +987,7 @@ void main() {
       findsNothing,
       reason: 'taken, so no longer offered',
     );
+    expect(find.bySemanticsLabel(RegExp('目前午餐')), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -1037,6 +1043,51 @@ void main() {
       _scrollStep,
     );
     expect(find.text('晚上聚餐，吃得比平常多'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a chain is one row, and naming it opens its menu', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    for (final food in parseCatalogue({
+      'brand': '星巴克',
+      'sourceUrl': 'https://example.com',
+      'checkedAt': '2026-09-21',
+      'valueType': 'declared',
+      'drinks': [
+        for (final (id, name) in [('latte', '那堤'), ('mocha', '摩卡')])
+          {
+            'id': id,
+            'name': name,
+            'sizes': [
+              {'name': 'Tall', 'millilitres': 350, 'caffeineMg': 150},
+            ],
+          },
+      ],
+    })) {
+      store.backend.storage.foods.save(food, source: ChangeSource.catalogue);
+    }
+    await _openFromHost(tester, const FoodSearchScreen(), store);
+
+    await tester.dragUntilVisible(
+      find.text('連鎖品牌'),
+      find.byType(CustomScrollView).first,
+      _scrollStep,
+    );
+    expect(find.text('星巴克'), findsOneWidget);
+    expect(
+      find.text('那堤'),
+      findsNothing,
+      reason: 'the chain is one row, not every drink on its menu',
+    );
+
+    await tester.enterText(find.byType(TextField), '星巴克');
+    await tester.pump();
+    await tester.tap(find.text('星巴克 · 查看完整菜單'));
+    await tester.pumpAndSettle();
+    expect(find.text('那堤'), findsOneWidget);
+    expect(find.text('摩卡'), findsOneWidget);
     await disposeTree(tester);
   });
 

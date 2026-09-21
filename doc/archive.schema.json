@@ -566,6 +566,7 @@
               "consumptionKind",
               "valueType",
               "sourceUrl",
+              "searchTerms",
               "createdAt",
               "updatedAt",
               "revision",
@@ -644,6 +645,55 @@
                   "null"
                 ],
                 "format": "date-time"
+              },
+              "searchTerms": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "foodFavorites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "foodId",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "foodId": {
+                "type": "string"
               },
               "createdAt": {
                 "type": "string",

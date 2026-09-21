@@ -39,6 +39,11 @@ Future<void> loadCatalogue(FoodRepository foods) async {
 /// in a 350 ml tall — so each one carries its own figures.
 List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
   final brand = file['brand']! as String;
+  // Other spellings of the brand, so 'starbucks latte' finds 星巴克's.
+  final aliases = [
+    for (final alias in file['brandAliases'] as List<dynamic>? ?? const [])
+      alias as String,
+  ].join(' ');
   final sourceUrl = file['sourceUrl']! as String;
   final checkedAt = DateTime.parse(file['checkedAt']! as String);
   final valueType = NutrientValueType.values.byName(
@@ -63,6 +68,7 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
           id: itemId,
           name: name,
           brand: brand,
+          searchTerms: aliases,
           kind: ConsumptionKind.beverage,
           sizeName: sizeName,
           parentId: parentId,

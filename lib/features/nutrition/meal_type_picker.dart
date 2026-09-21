@@ -39,16 +39,68 @@ class MealTypePicker extends StatelessWidget {
         ),
         if (offer != null) ...[
           const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: AppSpacing.xs,
-            children: [
-              Text('這個時間你通常記成「${offer.label}」', style: AppTextStyles.caption),
-              LinkText(label: '套用', onTap: () => onChanged(offer)),
-            ],
-          ),
+          MealTypeOffer(offer: offer, onTake: () => onChanged(offer)),
         ],
       ],
     );
   }
 }
+
+/// 「這個時間你通常記成『午餐』 · 套用」: a label the user's own habit
+/// suggests, offered and never applied on its own.
+class MealTypeOffer extends StatelessWidget {
+  const MealTypeOffer({super.key, required this.offer, required this.onTake});
+
+  final MealType offer;
+  final VoidCallback onTake;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.xs,
+      children: [
+        Text('這個時間你通常記成「${offer.label}」', style: AppTextStyles.caption),
+        LinkText(label: '套用', onTap: onTake),
+      ],
+    );
+  }
+}
+
+/// Asks which meal this is, from the page title. Resolves to a record so
+/// that choosing「不指定」 (null) can be told apart from backing out.
+Future<(MealType?,)?> showMealTypeDialog(
+  BuildContext context, {
+  required MealType? selected,
+}) => showAppDialog<(MealType?,)>(
+  context,
+  AppDialog(
+    title: '這是哪一餐',
+    message: '可以不指定。時間已經記下了，餐次只是你怎麼稱呼它。',
+    isChoiceList: true,
+    actions: [
+      for (final type in MealType.values)
+        DialogAction(
+          icon: mealTypeIcon(type),
+          label: type == selected ? '${type.label} ✓' : type.label,
+          tone: type == selected ? DialogTone.primary : DialogTone.normal,
+          onTap: () => Navigator.of(context).pop((type,)),
+        ),
+      DialogAction(
+        icon: Icons.schedule,
+        label: selected == null ? '不指定 ✓' : '不指定',
+        tone: selected == null ? DialogTone.primary : DialogTone.normal,
+        onTap: () => Navigator.of(context).pop((null,)),
+      ),
+    ],
+  ),
+);
+
+/// The picture beside a meal's name: the sun rising, high, set, and a
+/// cup for the in-between.
+IconData mealTypeIcon(MealType type) => switch (type) {
+  MealType.breakfast => Icons.wb_twilight,
+  MealType.lunch => Icons.wb_sunny_outlined,
+  MealType.dinner => Icons.nightlight_outlined,
+  MealType.snack => Icons.local_cafe_outlined,
+};

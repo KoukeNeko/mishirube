@@ -1873,6 +1873,92 @@ void main() {
     });
   });
 
+  group('finding a chain\'s drinks', () {
+    /// A small shipped menu, loaded the way the app loads the real one.
+    Backend withMenu() {
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      final parsed = parseCatalogue({
+        'brand': '星巴克',
+        'brandAliases': ['Starbucks'],
+        'sourceUrl': 'https://example.com',
+        'checkedAt': '2026-09-21',
+        'valueType': 'declared',
+        'drinks': [
+          for (final (id, name) in [('latte', '那堤'), ('mocha', '摩卡')])
+            {
+              'id': id,
+              'name': name,
+              'sizes': [
+                {'name': 'Tall', 'millilitres': 350, 'caffeineMg': 150},
+                {'name': 'Grande', 'millilitres': 470, 'caffeineMg': 225},
+              ],
+            },
+        ],
+      });
+      for (final food in parsed) {
+        backend.storage.foods.save(food, source: ChangeSource.catalogue);
+      }
+      backend.nutrition.saveFood(
+        const FoodItem(id: 'own', name: '自己泡的那堤', kcal: 120),
+      );
+      return backend;
+    }
+
+    test('the brand and its other spelling find the same drink', () {
+      final backend = withMenu();
+      addTearDown(backend.close);
+      List<String> ids(String query) => [
+        for (final food in backend.nutrition.searchFoods(query)) food.id,
+      ];
+
+      expect(ids('星巴克 那堤'), ['latte']);
+      expect(ids('starbucks 那堤'), ['latte']);
+      expect(ids('STARBUCKS'), containsAll(['latte', 'mocha']));
+    });
+
+    test('a name that starts with the words beats one that contains them', () {
+      final backend = withMenu();
+      addTearDown(backend.close);
+
+      expect(backend.nutrition.searchFoods('那堤').map((f) => f.id).toList(), [
+        'latte',
+        'own',
+      ], reason: '那堤 starts one name and is only inside the other');
+    });
+
+    test('naming a chain on its own offers its menu', () {
+      final backend = withMenu();
+      addTearDown(backend.close);
+
+      expect(backend.nutrition.brandsNamedBy('星巴克'), ['星巴克']);
+      expect(backend.nutrition.brandsNamedBy('star'), ['星巴克']);
+      expect(backend.nutrition.brandsNamedBy('那堤'), isEmpty);
+      expect(backend.nutrition.menuOf('星巴克').map((f) => f.id).toList(), [
+        'mocha',
+        'latte',
+      ], reason: 'the drinks, not their cup sizes');
+    });
+
+    test('a starred cup survives the menu being shipped again', () {
+      final backend = withMenu();
+      addTearDown(backend.close);
+      backend.nutrition.setFoodFavorite('latte-Grande', isFavorite: true);
+
+      // An app update writes the whole catalogue over again.
+      for (final food in backend.storage.foods.all()) {
+        if (food.isBuiltIn) {
+          backend.storage.foods.save(food, source: ChangeSource.catalogue);
+        }
+      }
+      expect(backend.nutrition.favoriteFoods().map((f) => f.displayName), [
+        '星巴克 那堤 Grande',
+      ]);
+
+      backend.nutrition.setFoodFavorite('latte-Grande', isFavorite: false);
+      expect(backend.nutrition.favoriteFoods(), isEmpty);
+    });
+  });
+
   group('notes', () {
     test('a day note sits in the log on its day and round-trips', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);

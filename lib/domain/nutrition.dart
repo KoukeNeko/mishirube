@@ -312,6 +312,7 @@ class FoodItem {
     this.sourceUrl = '',
     this.checkedAt,
     this.isBuiltIn = false,
+    this.searchTerms = '',
   });
 
   final String id;
@@ -372,6 +373,10 @@ class FoodItem {
   /// safe while nobody has edited it: an edit would be silently undone by
   /// the next release. Anyone wanting their own version makes their own
   /// food.
+  /// Other words it answers to in search, space separated: a brand's
+  /// other spellings (`Starbucks STARBUCKS` for 星巴克). Not shown.
+  final String searchTerms;
+
   final bool isBuiltIn;
 
   /// The food this is a size of, when it is one.
@@ -410,7 +415,9 @@ class FoodItem {
     String? sourceUrl,
     DateTime? checkedAt,
     bool? isBuiltIn,
+    String? searchTerms,
   }) => FoodItem(
+    searchTerms: searchTerms ?? this.searchTerms,
     id: id ?? this.id,
     name: name ?? this.name,
     brand: brand ?? this.brand,

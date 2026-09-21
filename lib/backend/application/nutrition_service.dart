@@ -236,16 +236,72 @@ class NutritionService {
   /// Saved foods whose name or maker contains [query]. An empty query is
   /// the whole list: there is nothing clever to rank by here, because
   /// every one of these was typed in by the person searching.
+  /// Saved foods matching [query], best first; an empty query is all of
+  /// them.
+  ///
+  /// Every word has to appear somewhere — the name, the brand, the cup
+  /// size or the brand's other spellings — so 「星巴克 拿鐵」 and
+  /// 「starbucks 拿鐵」 find the same drink. Among the matches, a name
+  /// that starts with what was typed beats one that merely contains it,
+  /// which beats a match on the brand alone; within each of those, what
+  /// the user starred or ate recently comes first.
   List<FoodItem> searchFoods(String query) {
-    final wanted = normalizeTerm(query);
-    if (wanted.isEmpty) return foods();
-    return [
-      for (final food in foods())
-        if (normalizeTerm(food.name).contains(wanted) ||
-            normalizeTerm(food.brand).contains(wanted))
-          food,
+    final words = [
+      for (final word in query.split(RegExp(r'\s+')))
+        if (normalizeTerm(word) case final term when term.isNotEmpty) term,
     ];
+    if (words.isEmpty) return foods();
+    final personal = {
+      ..._foods.favoriteIds(),
+      for (final (foodId, _, _, _) in _meals.portionsLogged()) foodId,
+    };
+    final ranked = <(int, bool, FoodItem)>[];
+    for (final food in foods()) {
+      final name = normalizeTerm(food.name);
+      final elsewhere = normalizeTerm(
+        '${food.brand}${food.sizeName}${food.searchTerms}',
+      );
+      if (!words.every((w) => name.contains(w) || elsewhere.contains(w))) {
+        continue;
+      }
+      final inName = words.where(name.contains).toList();
+      final tier = inName.isEmpty ? 2 : (inName.any(name.startsWith) ? 0 : 1);
+      ranked.add((tier, personal.contains(food.id), food));
+    }
+    ranked.sort((a, b) {
+      if (a.$1 != b.$1) return a.$1.compareTo(b.$1);
+      if (a.$2 != b.$2) return a.$2 ? -1 : 1;
+      return a.$3.name.compareTo(b.$3.name);
+    });
+    return [for (final (_, _, food) in ranked) food];
   }
+
+  /// Brands whose shipped menu [query] names on its own — 「星巴克」 or
+  /// 「starbucks」 — so the screen can offer the menu before the drinks.
+  List<String> brandsNamedBy(String query) {
+    final wanted = normalizeTerm(query);
+    if (wanted.isEmpty) return const [];
+    return {
+      for (final food in foods())
+        if (food.isBuiltIn &&
+            [food.brand, ...food.searchTerms.split(' ')]
+                .map(normalizeTerm)
+                .any((name) => name.isNotEmpty && name.startsWith(wanted)))
+          food.brand,
+    }.toList();
+  }
+
+  /// A brand's shipped menu, without cup sizes.
+  List<FoodItem> menuOf(String brand) => _foods.menuOf(brand);
+
+  /// Starred foods and cup sizes, most recently starred first. One since
+  /// deleted is left out.
+  List<FoodItem> favoriteFoods() => [
+    for (final id in _foods.favoriteIds()) ?_foods.byId(id),
+  ];
+
+  void setFoodFavorite(String foodId, {required bool isFavorite}) =>
+      _foods.setFavorite(foodId, isFavorite: isFavorite);
 
   /// Logs a glass of water of [millilitres].
   ///

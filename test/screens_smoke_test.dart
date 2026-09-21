@@ -19,6 +19,7 @@ import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/data_sources_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
+import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
@@ -89,6 +90,14 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'sleep entry': ((_) => const SleepEntryScreen(), _noSetup),
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
+  'brand menu': (
+    (_) => BrandMenuScreen(
+      brand: '星巴克',
+      rowFor: (food, _) => Text(food.name),
+      footer: () => null,
+    ),
+    _noSetup,
+  ),
   'plate': (
     (_) => PlateScreen(
       plate: [

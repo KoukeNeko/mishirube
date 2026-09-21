@@ -174,8 +174,13 @@ const _tables = [
     _Column('value_type', _Kind.text),
     _Column('source_url', _Kind.text),
     _Column('checked_at', _Kind.time, isNullable: true),
+    _Column('search_terms', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('foodFavorites', 'food_favorites', [
+    _Column('food_id', _Kind.text),
+    ..._entity,
+  ], orderBy: 'food_id'),
   _Table('foodNutrients', 'food_nutrients', [
     _Column('food_id', _Kind.text),
     _Column('nutrient', _Kind.text),

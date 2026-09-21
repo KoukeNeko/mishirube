@@ -139,6 +139,7 @@ class _PortionScreenState extends State<PortionScreen> {
     final food = widget.food;
     final portion = _portion;
     final type = food.valueType;
+    final isStarred = AppStoreScope.of(context).isFavoriteFood(food.id);
     return DetailPage(
       appBar: PageAppBar(
         title: food.displayName,
@@ -146,6 +147,16 @@ class _PortionScreenState extends State<PortionScreen> {
         // Food that ships with the app is read-only: the next release
         // replaces it, so an edit here would not survive.
         actions: [
+          // Any food can be starred, a shipped cup size included: the star
+          // is kept apart from the food, so a catalogue update keeps it.
+          HeaderAction(
+            icon: isStarred ? Icons.star : Icons.star_border,
+            label: isStarred ? '已收藏' : '收藏',
+            semanticLabel: isStarred ? '取消收藏' : '收藏這個食物',
+            onTap: () =>
+                AppStoreScope.read(context)
+                    .setFoodFavorite(food.id, isFavorite: !isStarred),
+          ),
           if (!food.isBuiltIn)
             HeaderAction(
               icon: Icons.edit_outlined,
