@@ -21,7 +21,7 @@ export '../backend/application/catalog_service.dart' show TrackingChangeRefused;
 export '../backend/application/provenance_service.dart'
     show CatalogueRecord, ImportRecord;
 export '../backend/application/nutrition_service.dart'
-    show DishSplitSnapshot, RecentMeal;
+    show DishSplitSnapshot, RecentFood, RecentMeal;
 
 /// Which moment of the mock day the Today screen is showing.
 enum DayPhase {
@@ -733,6 +733,36 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
     return logged;
   }
+
+  /// Logs a plate: every portion, as one action.
+  List<MealEvent> logPortions(
+    List<FoodPortion> portions, {
+    MealType? mealType,
+  }) {
+    final logged = _backend.nutrition.logPortions(portions, mealType: mealType);
+    _todayMeals.addAll(logged);
+    notifyListeners();
+    return logged;
+  }
+
+  /// Takes logged meals back out; [restoreMeals] puts them back.
+  void deleteMeals(List<MealEvent> meals) {
+    _backend.nutrition.deleteMeals(meals.map((meal) => meal.id));
+    final ids = {for (final meal in meals) meal.id};
+    _todayMeals.removeWhere((meal) => ids.contains(meal.id));
+    notifyListeners();
+  }
+
+  void restoreMeals(List<MealEvent> meals) {
+    _backend.nutrition.restoreMeals(meals.map((meal) => meal.id));
+    _todayMeals
+      ..clear()
+      ..addAll(_backend.nutrition.mealsOn(now()));
+    notifyListeners();
+  }
+
+  /// Saved foods eaten recently, each once, with its last portion.
+  List<RecentFood> get recentFoods => _backend.nutrition.recentFoods();
 
   DishSplitSnapshot? splitDish({
     required String mealId,

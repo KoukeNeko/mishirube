@@ -545,6 +545,15 @@ final List<String> _migrations = [
   );
   CREATE INDEX notes_day ON notes(local_day) WHERE deleted_at IS NULL;
   ''',
+  '''
+  -- Which saved food a meal was logged from, and how many servings of
+  -- it, so the next time can start from the usual portion. The figures
+  -- stay copied on the meal; these do not bring the food's current
+  -- numbers back. Meals logged before this, quick records and water
+  -- have neither.
+  ALTER TABLE meals ADD COLUMN food_id TEXT;
+  ALTER TABLE meals ADD COLUMN servings REAL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

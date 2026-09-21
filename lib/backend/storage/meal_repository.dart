@@ -97,6 +97,53 @@ class MealRepository {
       ),
   ];
 
+  /// Removes a logged meal; [restore] takes it back. A tombstone, like
+  /// every other record.
+  void delete(String id) => _setDeleted(id, deleted: true);
+
+  void restore(String id) => _setDeleted(id, deleted: false);
+
+  void _setDeleted(String id, {required bool deleted}) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE meals SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [deleted ? now : null, now, id],
+      );
+      _db.audit(
+        entityType: 'meal',
+        entityId: id,
+        action: deleted ? 'delete' : 'restore',
+      );
+    });
+  }
+
+  /// Portions logged from saved foods, newest first: which food, how
+  /// many servings, which meal it was called and when.
+  List<(String, double, MealType?, DateTime)> portionsLogged({
+    int limit = 200,
+  }) => [
+    for (final row in _db.select(
+      'SELECT food_id, servings, meal_type, eaten_at, utc_offset_minutes '
+      'FROM meals WHERE deleted_at IS NULL AND food_id IS NOT NULL '
+      'AND servings IS NOT NULL ORDER BY eaten_at DESC LIMIT ?',
+      [limit],
+    ))
+      (
+        row['food_id']! as String,
+        (row['servings']! as num).toDouble(),
+        switch (row['meal_type'] as String?) {
+          final name? => MealType.values.byName(name),
+          null => null,
+        },
+        asLived(
+          DateTime.fromMillisecondsSinceEpoch(row['eaten_at']! as int),
+          row['utc_offset_minutes'] as int?,
+        ),
+      ),
+  ];
+
   bool exists(String id) =>
       _db.select('SELECT 1 FROM meals WHERE id = ?', [id]).isNotEmpty;
 
@@ -113,8 +160,10 @@ class MealRepository {
         'INSERT INTO meals (id, name, eaten_at, kcal, protein_g, carb_g, '
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
-        'source, import_batch_id, local_day, utc_offset_minutes) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'source, import_batch_id, local_day, utc_offset_minutes, food_id, '
+        'servings) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
+        '?, ?)',
         [
           meal.id,
           meal.name,
@@ -136,6 +185,8 @@ class MealRepository {
           importBatchId,
           localDayOf(eatenAt),
           eatenAt.timeZoneOffset.inMinutes,
+          meal.foodId,
+          meal.servings,
         ],
       );
       _writeDishes(meal);
@@ -286,6 +337,8 @@ class MealRepository {
       isFavorite: row['is_favorite'] == 1,
       millilitres: row['millilitres'] as int?,
       kind: ConsumptionKind.values.byName(row['consumption_kind']! as String),
+      foodId: row['food_id'] as String?,
+      servings: (row['servings'] as num?)?.toDouble(),
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,

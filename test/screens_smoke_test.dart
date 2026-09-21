@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/activity/activity_detail_screen.dart';
 import 'package:mishirube/features/activity/activity_type_picker.dart';
@@ -21,6 +22,7 @@ import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
+import 'package:mishirube/features/nutrition/plate_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
@@ -87,6 +89,17 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'sleep entry': ((_) => const SleepEntryScreen(), _noSetup),
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
+  'plate': (
+    (_) => PlateScreen(
+      plate: [
+        FoodPortion(const FoodItem(id: 'rice', name: '白飯', kcal: 130), 1.5),
+        FoodPortion(const FoodItem(id: 'egg', name: '蛋'), 2),
+      ],
+      onChanged: () {},
+      onLog: () {},
+    ),
+    _noSetup,
+  ),
   'weight detail': (
     (store) {
       final weight = store.recentWeights.last;

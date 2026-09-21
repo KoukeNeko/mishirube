@@ -1793,6 +1793,86 @@ void main() {
     });
   });
 
+  group('logging several foods at once', () {
+    FoodItem food(String id, String name, {int kcal = 100}) => FoodItem(
+      id: id,
+      name: name,
+      kcal: kcal,
+      servingUnit: ServingUnit.gram,
+      servingAmount: 100,
+    );
+
+    test('recent lists each food once, at the portion it was last eaten', () {
+      final clock = FakeClock();
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final chicken = backend.nutrition.saveFood(food('chicken', '雞胸肉'));
+      backend.nutrition.logPortion(FoodPortion(chicken, 1.5));
+      clock.advance(const Duration(days: 1));
+      backend.nutrition.logPortion(
+        FoodPortion(chicken, 2),
+        mealType: MealType.dinner,
+      );
+
+      final recent = backend.nutrition.recentFoods();
+      expect(
+        recent.where((r) => r.food.id == 'chicken'),
+        hasLength(1),
+        reason: 'two portions of one food are one row, not two',
+      );
+      expect(recent.first.servings, 2, reason: 'the last one wins');
+      expect(recent.first.mealType, MealType.dinner);
+      expect(recent.first.portion.amount, 200);
+    });
+
+    test('a deleted food is no longer offered', () {
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      addTearDown(backend.close);
+      final egg = backend.nutrition.saveFood(food('egg', '蛋', kcal: 70));
+      backend.nutrition.logPortion(FoodPortion(egg, 1));
+
+      backend.nutrition.deleteFood('egg');
+      expect(backend.nutrition.recentFoods(), isEmpty);
+      expect(
+        backend.nutrition.mealsOn(FakeClock().now()).single.kcal,
+        70,
+        reason: 'what was eaten stays: its numbers were copied',
+      );
+    });
+
+    test('a plate is logged, and undone, as one', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      final before = store.todayMeals.length;
+      final plate = store.logPortions([
+        FoodPortion(food('rice', '白飯', kcal: 130), 1.5),
+        FoodPortion(food('egg', '蛋', kcal: 70), 2),
+      ], mealType: MealType.lunch);
+
+      expect(store.todayMeals, hasLength(before + 2));
+      expect(plate.map((m) => m.mealType).toSet(), {MealType.lunch});
+
+      store.deleteMeals(plate);
+      expect(store.todayMeals, hasLength(before));
+      store.restoreMeals(plate);
+      expect(store.todayMeals, hasLength(before + 2));
+    });
+
+    test('the source food survives a backup', () {
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      addTearDown(backend.close);
+      final rice = backend.nutrition.saveFood(food('rice', '白飯'));
+      backend.nutrition.logPortion(FoodPortion(rice, 1.5));
+
+      final restored = Backend.inMemory(clock: FakeClock().now);
+      addTearDown(restored.close);
+      restoreArchive(
+        restored.db,
+        jsonDecode(encodeArchive(exportArchive(backend.db))),
+      );
+      expect(restored.nutrition.recentFoods().single.servings, 1.5);
+    });
+  });
+
   group('notes', () {
     test('a day note sits in the log on its day and round-trips', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);

@@ -47,11 +47,19 @@ class MealEvent {
     this.kind = ConsumptionKind.unknown,
     this.mealType,
     this.valueType = NutrientValueType.declared,
+    this.foodId,
+    this.servings,
   });
 
   final String id;
   final String name;
   final String timeLabel;
+
+  /// The saved food this was logged from, and how many of its servings,
+  /// when it came from one. Only for remembering what the user usually
+  /// has: the numbers above were copied and never follow the food.
+  final String? foodId;
+  final double? servings;
 
   /// Some amount in the meal is a guess, so its totals read as `~`.
   final bool isEstimated;
@@ -117,6 +125,8 @@ class MealEvent {
     MealType? mealType,
     NutrientValueType? valueType,
   }) => MealEvent(
+    foodId: foodId,
+    servings: servings,
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,

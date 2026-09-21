@@ -39,6 +39,27 @@ class RecentMeal {
   String get label => meal.dishes.isEmpty ? meal.name : meal.dishes.first.name;
 }
 
+/// A saved food as it was last eaten: one row per food, however many
+/// times and at however many portions it was logged.
+class RecentFood {
+  const RecentFood({
+    required this.food,
+    required this.servings,
+    required this.eatenAt,
+    this.mealType,
+  });
+
+  final FoodItem food;
+
+  /// The servings logged the last time, which is where the next one
+  /// starts.
+  final double servings;
+  final DateTime eatenAt;
+  final MealType? mealType;
+
+  FoodPortion get portion => FoodPortion(food, servings);
+}
+
 /// Logging food and changing how a meal is structured.
 class NutritionService {
   NutritionService(this._db, this._meals, this._foods);
@@ -76,6 +97,46 @@ class NutritionService {
     }
     return recent;
   }
+
+  /// Saved foods eaten recently, newest first, each once with the portion
+  /// it was last logged at. A food since deleted is left out; one whose
+  /// numbers have changed is offered with its current numbers, since
+  /// logging it again is a new meal.
+  List<RecentFood> recentFoods({int limit = 12}) {
+    final recent = <String, RecentFood>{};
+    for (final (foodId, servings, mealType, eatenAt)
+        in _meals.portionsLogged()) {
+      if (recent.containsKey(foodId)) continue;
+      final food = _foods.byId(foodId);
+      if (food == null) continue;
+      recent[foodId] = RecentFood(
+        food: food,
+        servings: servings,
+        eatenAt: eatenAt,
+        mealType: mealType,
+      );
+      if (recent.length == limit) break;
+    }
+    return recent.values.toList();
+  }
+
+  /// Logs several portions as eaten now, all or none: a plate is one
+  /// action, so it is written in one transaction and undone as one.
+  List<MealEvent> logPortions(
+    List<FoodPortion> portions, {
+    MealType? mealType,
+  }) => _db.transaction(
+    () => [
+      for (final portion in portions) logPortion(portion, mealType: mealType),
+    ],
+  );
+
+  /// Removes logged meals; [restoreMeals] takes them back.
+  void deleteMeals(Iterable<String> ids) =>
+      _db.transaction(() => ids.forEach(_meals.delete));
+
+  void restoreMeals(Iterable<String> ids) =>
+      _db.transaction(() => ids.forEach(_meals.restore));
 
   /// Saves a correction to a meal's name and totals. Confirming the
   /// numbers is what takes the estimate mark off them.
@@ -257,6 +318,8 @@ class NutritionService {
         kind: food.kind,
         mealType: mealType,
         valueType: food.valueType,
+        foodId: food.id,
+        servings: portion.servings,
         qualityTag: '自訂食物',
         dishes: [
           DishEntry(

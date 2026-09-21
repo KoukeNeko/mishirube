@@ -7,23 +7,22 @@ import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
-import 'meal_type_picker.dart';
+import 'food_edit_screen.dart';
 
-/// A portion, and which sitting the user said it belonged to.
-class LoggedPortion {
-  const LoggedPortion(this.portion, this.mealType);
-
-  final FoodPortion portion;
-
-  /// Null when they did not say, which is most of the time and is fine.
-  final MealType? mealType;
-}
-
-/// Asks how much of [food] is being logged, and resolves to that portion.
+/// Asks how much of [food] goes on the plate, and resolves to that
+/// portion; null when the user backed out, or edited or deleted the food
+/// instead.
 ///
-/// It opens at one serving, so logging the usual amount is one more tap.
-Future<LoggedPortion?> showPortionScreen(BuildContext context, FoodItem food) =>
-    pushPage<LoggedPortion>(context, PortionScreen(food: food));
+/// It opens at [servings] — the portion last eaten, when there is one —
+/// so the usual amount is one more tap.
+Future<FoodPortion?> showPortionScreen(
+  BuildContext context,
+  FoodItem food, {
+  double servings = 1,
+}) => pushPage<FoodPortion>(
+  context,
+  PortionScreen(food: food, servings: servings),
+);
 
 /// How much of a food is being logged, and everything that comes to.
 ///
@@ -31,18 +30,23 @@ Future<LoggedPortion?> showPortionScreen(BuildContext context, FoodItem food) =>
 /// once brand data is involved, and a half-height sheet either hides
 /// them or makes the page scroll behind the keyboard.
 class PortionScreen extends StatefulWidget {
-  const PortionScreen({super.key, required this.food});
+  const PortionScreen({super.key, required this.food, this.servings = 1});
 
   final FoodItem food;
+
+  /// Where the portion starts.
+  final double servings;
 
   @override
   State<PortionScreen> createState() => _PortionScreenState();
 }
 
 class _PortionScreenState extends State<PortionScreen> {
-  late final _servings = TextEditingController(text: '1');
+  late final _servings = TextEditingController(
+    text: formatAmount(widget.servings),
+  );
   late final _amount = TextEditingController(
-    text: formatAmount(widget.food.servingAmount),
+    text: formatAmount(widget.food.servingAmount * widget.servings),
   );
 
   /// The unit the amount field is written in. It starts as the food's
@@ -52,11 +56,6 @@ class _PortionScreenState extends State<PortionScreen> {
   /// The field the user is typing in owns the number; the other one
   /// follows. Without this they would fight each other on every keypress.
   bool _isEditingAmount = false;
-
-  /// Which sitting this was. Never guessed from the clock: the time is
-  /// already recorded and is a fact, while what to call the sitting is
-  /// the user's own reading of it.
-  MealType? _mealType;
 
   bool get _isMeasured => widget.food.servingUnit.isMeasured;
 
@@ -107,6 +106,26 @@ class _PortionScreenState extends State<PortionScreen> {
     });
   }
 
+  /// Edits the food itself, then leaves: the portion on this page was
+  /// worked out from the numbers that were just changed.
+  Future<void> _edit() async {
+    await pushPage<FoodItem>(context, FoodEditScreen(editing: widget.food));
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  /// Takes the food out of the list. What was already eaten is kept: its
+  /// numbers were copied when it was logged.
+  void _delete() {
+    final store = AppStoreScope.read(context);
+    final food = widget.food;
+    store.deleteFood(food.id);
+    Navigator.of(context).pop();
+    ToastScope.read(context).showUndo(
+      '已刪除「${food.displayName}」',
+      onUndo: () => store.undeleteFood(food.id),
+    );
+  }
+
   void _onAmountTyped() {
     if (!_isEditingAmount) return;
     _servings.text = formatAmount(
@@ -124,11 +143,22 @@ class _PortionScreenState extends State<PortionScreen> {
       appBar: PageAppBar(
         title: food.displayName,
         subtitle: '一份 = ${food.servingDescription}',
+        // Food that ships with the app is read-only: the next release
+        // replaces it, so an edit here would not survive.
+        actions: [
+          if (!food.isBuiltIn)
+            HeaderAction(
+              icon: Icons.edit_outlined,
+              label: '編輯',
+              semanticLabel: '編輯這個食物',
+              onTap: _edit,
+            ),
+        ],
       ),
       footer: PrimaryButton(
-        label: '記錄 ${portion.label}',
+        label: '加入 ${portion.label}',
         onPressed: portion.servings > 0
-            ? () => Navigator.of(context).pop(LoggedPortion(portion, _mealType))
+            ? () => Navigator.of(context).pop(portion)
             : null,
       ),
       children: [
@@ -223,14 +253,14 @@ class _PortionScreenState extends State<PortionScreen> {
               style: AppTextStyles.caption,
             ),
           ),
-        Gutter(child: const SectionLabel('這是哪一餐（可不選）')),
-        Gutter(
-          child: MealTypePicker(
-            selected: _mealType,
-            suggested: AppStoreScope.of(context).suggestedMealType(),
-            onChanged: (type) => setState(() => _mealType = type),
+        if (!food.isBuiltIn)
+          Gutter(
+            child: LinkText(
+              label: '刪除這個食物',
+              color: AppColors.textSecondary,
+              onTap: _delete,
+            ),
           ),
-        ),
       ],
     );
   }

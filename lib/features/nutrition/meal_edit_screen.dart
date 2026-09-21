@@ -83,6 +83,8 @@ class _MealEditScreenState extends State<MealEditScreen> {
         millilitres: meal.millilitres,
         kind: meal.kind,
         mealType: _mealType,
+        foodId: meal.foodId,
+        servings: meal.servings,
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: kcal,

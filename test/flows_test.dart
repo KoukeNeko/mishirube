@@ -10,7 +10,6 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
-import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
@@ -60,6 +59,19 @@ Future<void> _enterBeside(
     value,
   );
   await tester.pump();
+}
+
+/// Opens [screen] on top of a blank page, so a screen that closes itself
+/// when it is done has somewhere to go back to.
+Future<void> _openFromHost(
+  WidgetTester tester,
+  Widget screen,
+  AppStore store,
+) async {
+  const host = Key('host');
+  await pumpScreen(tester, const SizedBox(key: host), store: store);
+  pushPage(tester.element(find.byKey(host)), screen);
+  await tester.pumpAndSettle();
 }
 
 Future<void> _tapText(WidgetTester tester, String text) async {
@@ -856,7 +868,7 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    await _openFromHost(tester, const FoodSearchScreen(), store);
     final before = store.todayKcal;
 
     expect(find.text('還沒有存過東西'), findsOneWidget);
@@ -870,17 +882,51 @@ void main() {
     // Creating and logging is one trip, not two.
     await _tapText(tester, '建立並記錄');
     await tester.pumpAndSettle();
-    expect(find.text('記錄 100 g'), findsOneWidget, reason: 'opens at a serving');
+    expect(find.text('加入 100 g'), findsOneWidget, reason: 'opens at a serving');
 
     // Eating 150 g instead: the servings follow the amount.
     await tester.enterText(find.byType(AppTextField).last, '150');
     await tester.pumpAndSettle();
-    await _tapText(tester, '記錄 150 g');
+    await _tapText(tester, '加入 150 g');
     await tester.pumpAndSettle();
+    expect(store.todayKcal, before, reason: 'on the plate, not yet logged');
 
+    await tester.tap(find.text('記錄 1 項'));
+    await tester.pumpAndSettle();
     expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
     expect(store.todayMeals.last.proteinGrams, 47);
     expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
+    await disposeTree(tester);
+  });
+
+  testWidgets('several foods go on one plate and are logged together', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    for (final (id, name, kcal) in [('rice', '白飯', 130), ('egg', '蛋', 70)]) {
+      final food = store.backend.nutrition.saveFood(
+        FoodItem(id: id, name: name, kcal: kcal),
+      );
+      store.logPortion(FoodPortion(food, 1));
+    }
+    final before = store.todayMeals.length;
+    await _openFromHost(tester, const FoodSearchScreen(), store);
+
+    await tester.tap(find.byTooltip('加入「白飯」').first);
+    await tester.pump();
+    await tester.tap(find.byTooltip('加入「蛋」').first);
+    await tester.pump();
+    expect(find.text('2 項 · 200 kcal'), findsOneWidget);
+
+    await _tapText(tester, '晚餐');
+    await tester.tap(find.text('記錄 2 項'));
+    await tester.pumpAndSettle();
+
+    final plate = store.todayMeals.skip(before).toList();
+    expect(plate.map((m) => m.name), ['白飯', '蛋']);
+    expect(plate.map((m) => m.mealType).toSet(), {
+      MealType.dinner,
+    }, reason: 'the meal chosen on the page applies to the whole plate');
     await disposeTree(tester);
   });
 
@@ -918,19 +964,8 @@ void main() {
       );
       clock.advance(const Duration(days: 1));
     }
-    await pumpScreen(
-      tester,
-      const PortionScreen(
-        food: FoodItem(id: 'soup', name: '味噌湯', kcal: 40),
-      ),
-      store: store,
-    );
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
 
-    await tester.dragUntilVisible(
-      find.text('套用'),
-      find.byType(CustomScrollView).first,
-      _scrollStep,
-    );
     expect(find.textContaining('通常記成「午餐」'), findsOneWidget);
     expect(
       find.byWidgetPredicate(

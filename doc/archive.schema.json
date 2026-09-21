@@ -785,6 +785,18 @@
               "isFavorite": {
                 "type": "boolean"
               },
+              "foodId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "servings": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",

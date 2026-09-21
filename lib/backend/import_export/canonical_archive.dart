@@ -197,6 +197,8 @@ const _tables = [
     _Column('quality_tag', _Kind.text),
     _Column('is_estimated', _Kind.boolean),
     _Column('is_favorite', _Kind.boolean),
+    _Column('food_id', _Kind.text, isNullable: true),
+    _Column('servings', _Kind.real, isNullable: true),
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),
