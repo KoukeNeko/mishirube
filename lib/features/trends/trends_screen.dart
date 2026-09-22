@@ -41,7 +41,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     final activity = store.activitySummary(window: _range.window);
     return CollapsingPage(
       title: '趨勢',
-      subtitle: '${_date(overview.from)} – ${_date(overview.to)}・你的訓練與身體變化',
+      subtitle: '${_date(overview.from)} – ${_date(overview.to)}・訓練與身體變化',
       compactBar: CompactBarBehavior.none,
       // The range drives every chart below, so it stays pinned.
       pinned: Gutter(

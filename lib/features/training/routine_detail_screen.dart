@@ -120,9 +120,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         },
       ),
       children: [
-        Gutter(
-          child: const InfoBanner(message: '修改這份訓練模板只會影響之後的訓練，已完成的訓練紀錄不會被改寫。'),
-        ),
+        Gutter(child: const InfoBanner(message: '修改模板只影響之後的訓練，已完成的紀錄不會改寫。')),
         Gutter(
           child: SectionLabel(
             '計畫的動作',

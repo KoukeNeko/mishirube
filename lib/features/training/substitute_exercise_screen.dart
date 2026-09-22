@@ -100,7 +100,7 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
               tone: CardTone.warning,
               message:
                   '${current.equipment.label}換${selected.exercise.equipment.label}'
-                  '沒有可靠的重量換算，只保留組數、次數與 RIR，重量要重新設定。',
+                  '沒有可靠的重量換算：保留組數、次數與 RIR，重量重新設定。',
             ),
           ),
         Gutter(

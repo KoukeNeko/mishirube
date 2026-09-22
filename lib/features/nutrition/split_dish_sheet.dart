@@ -42,8 +42,8 @@ class _SplitDishSheet extends StatelessWidget {
           Text('要把這道料理拆成 $count 筆獨立紀錄嗎？', style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '「${dish.name}」目前是一道料理。拆開後，每項成分會變成可以單獨編輯、'
-            '移到別餐或刪除的紀錄，料理的層級就不存在了。',
+            '拆開後每項成分各自成為一筆紀錄，可以單獨編輯、移到別餐或刪除，'
+            '「${dish.name}」這一層就不存在了。',
             style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
           const SizedBox(height: AppSpacing.lg),

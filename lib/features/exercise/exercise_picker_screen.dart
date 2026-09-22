@@ -544,7 +544,7 @@ class _NoResults extends StatelessWidget {
           icon: Icons.search,
           title: '沒有符合的動作',
           message: hasEquipmentFilter
-              ? '目前套用了「器材：$equipmentLabel」，你要找的動作可能是另一種器材。'
+              ? '套用了「器材：$equipmentLabel」，要找的動作可能是別種器材。'
               : '換個說法、英文名稱或別名再試一次。',
           action: hasEquipmentFilter
               ? PrimaryButton(

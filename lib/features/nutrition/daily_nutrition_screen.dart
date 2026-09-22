@@ -337,7 +337,7 @@ class _FluidLogged extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              '${fluid.drinkCount} 筆以毫升記錄。只計入記錄到的，沒有記的不算 0。',
+              '${fluid.drinkCount} 筆以毫升記錄，只計入記錄到的。',
               textAlign: TextAlign.right,
               style: AppTextStyles.caption,
             ),

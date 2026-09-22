@@ -39,7 +39,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final key = await showTextDialog(
       context,
       title: '${store.aiProvider?.label ?? ''} API 金鑰',
-      hint: '貼上金鑰；留空就刪除',
+      hint: '貼上金鑰，留空即刪除',
     );
     if (key == null) return;
     await store.setAiKey(key);
@@ -303,7 +303,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       if (store.hasCloudConsent)
                         NavRow(
                           title: '已同意送出文字',
-                          subtitle: '點一下撤回',
+                          subtitle: '撤回',
                           onTap: _revokeConsent,
                         ),
                     ],
@@ -330,9 +330,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
 
 String _appleStatus(AiAvailability? availability) => switch (availability) {
   null => '檢查中…',
-  AiAvailability.available => '可以用。在手機上執行，資料不會離開這支手機。',
+  AiAvailability.available => '在手機上執行，資料不離開這支手機。',
   AiAvailability.deviceNotEligible => '這支手機不支援 Apple Intelligence。',
-  AiAvailability.notEnabled => '請到「設定 > Apple Intelligence 與 Siri」開啟。',
+  AiAvailability.notEnabled => '到「設定 > Apple Intelligence 與 Siri」開啟。',
   AiAvailability.modelNotReady => '模型還在下載，稍後再試。',
   AiAvailability.needsKey ||
   AiAvailability.unavailable => '需要 iOS 26 以上、支援 Apple Intelligence 的 iPhone。',
@@ -345,24 +345,23 @@ String _cloudNote(AiProviderKind provider) {
     AiProviderKind.googleAiStudio => '金鑰在 aistudio.google.com 建立。',
     AiProviderKind.anthropic => '金鑰在 console.anthropic.com 建立。',
     AiProviderKind.azureAiFoundry =>
-      '位址是你的 Azure AI Foundry 資源網址，模型填部署名稱；金鑰在 Azure 入口網站取得。',
+      '位址填 Azure AI Foundry 資源網址，模型填部署名稱，金鑰在 Azure 入口網站取得。',
     AiProviderKind.microsoftCopilot =>
-      '需要公司或學校帳號、Microsoft 365 Copilot 授權，以及你自己在 Entra 註冊的應用程式。',
+      '需要公司或學校帳號、Microsoft 365 Copilot 授權，以及在 Entra 註冊的應用程式。',
     AiProviderKind.openAiCompatible => '填服務商給的 API 位址與金鑰。',
     AiProviderKind.appleOnDevice => '',
   };
-  return '會送出的只有你打的文字，或從照片辨識出的文字；照片和其他紀錄不會送出。$where';
+  return '只送出你打的文字，或從照片辨識出的文字，照片本身不送出。$where';
 }
 
 /// What a provider's own terms mean for a health log.
 String? _warningOf(AiProviderKind provider) => switch (provider) {
   AiProviderKind.microsoftCopilot =>
-    'Microsoft 的 Copilot Chat API 目前是 beta，官方寫明不支援用在正式產品，'
-        '而且會依你公司的權限設定存取資料。個人的 Microsoft 帳號不能用。',
+    'Copilot Chat API 仍是 beta，官方寫明不支援正式產品，並依公司的權限設定存取資料。'
+        '個人 Microsoft 帳號不能用。',
   AiProviderKind.googleAiStudio =>
-    'Google 的條款寫明：免費額度送出的內容會用來改進 Google 的產品，'
-        '可能由人工審閱，官方也要求不要送出個人或敏感資訊。'
-        '要記自己的飲食，請改用已啟用計費的付費專案金鑰。',
+    'Google 的條款寫明：免費額度送出的內容會用來改進 Google 的產品，可能由人工審閱，'
+        '也要求不要送出個人或敏感資訊。記錄飲食改用已啟用計費的金鑰。',
   _ => null,
 };
 
@@ -376,8 +375,8 @@ Future<bool> askCloudConsent(BuildContext context) async {
     AppDialog(
       title: '送到 $provider？',
       message:
-          '你打的文字、或從照片辨識出的文字會送到 $provider 產生草稿。'
-          '照片本身和其他紀錄不會送出。之後可以在「我的 > AI」撤回。',
+          '送出的只有你打的文字，或從照片辨識出的文字，照片本身和其他紀錄不送出。'
+          '之後在「我的 > AI」可以撤回。',
       actions: [
         DialogAction(
           label: '取消',
@@ -398,12 +397,12 @@ Future<bool> askCloudConsent(BuildContext context) async {
 
 /// Why a request produced no draft, in the words the screens show.
 String aiFailureMessage(AiFailure failure) => switch (failure) {
-  AiFailure.unavailable => 'AI 現在不能用，到「我的 > AI」看看設定。',
+  AiFailure.unavailable => 'AI 還不能用，到「我的 > AI」設定。',
   AiFailure.needsConsent => '還沒同意送出文字。',
   AiFailure.authentication => '金鑰無效或沒有權限，到「我的 > AI」重新設定。',
-  AiFailure.rateLimited => '請求太頻繁或額度用完了，稍後再試。',
+  AiFailure.rateLimited => '請求太頻繁或額度用完，稍後再試。',
   AiFailure.network => '連不上網路，稍後再試。',
   AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
-  AiFailure.unreadable => '看不懂 AI 的回答，換個說法或換張照片再試一次。',
-  AiFailure.noText => '照片裡讀不到文字，換一張清楚、正面的照片再試。',
+  AiFailure.unreadable => '看不懂 AI 的回答，再試一次。',
+  AiFailure.noText => '照片裡讀不到文字，換一張清楚的正面照片。',
 };

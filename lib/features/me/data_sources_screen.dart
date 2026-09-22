@@ -81,7 +81,7 @@ class DataSourcesScreen extends StatelessWidget {
           Gutter(
             child: Text(
               [
-                '依品牌官網逐筆轉錄，唯讀，不能修改；App 更新時會整批替換。',
+                '依品牌官網逐筆轉錄，唯讀。App 更新時整批替換。',
                 for (final catalogue in catalogues)
                   if (catalogue.checkedAt case final at?)
                     '${catalogue.brand}查證於 ${formatDate(at)}。',
@@ -125,9 +125,8 @@ class _HealthPlatform extends StatefulWidget {
 }
 
 class _HealthPlatformState extends State<_HealthPlatform> {
-  late final Future<bool> _isAvailable = AppStoreScope.read(
-    context,
-  ).isHealthAvailable();
+  late final Future<bool> _isAvailable = AppStoreScope.read(context)
+      .isHealthAvailable();
 
   /// Read again after every connect, sync or request: the user may have
   /// changed what is allowed in the platform's own settings meanwhile.
@@ -165,7 +164,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
       context,
       AppDialog(
         title: store.healthSourceName,
-        message: '每次打開 App 會自動讀取最近 30 天。中斷連接後，已讀進來的紀錄會保留。',
+        message: '每次打開 App 讀取最近 30 天。中斷連接後紀錄保留。',
         actions: [
           DialogAction(
             label: '立即同步',
@@ -198,7 +197,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
           return Gutter(
             child: Text(
               snapshot.hasData
-                  ? '這台裝置沒有 ${store.healthSourceName}，或還沒安裝、更新。'
+                  ? '這台裝置沒有 ${store.healthSourceName}，或版本太舊。'
                   : '檢查中…',
               style: AppTextStyles.caption,
             ),
@@ -221,7 +220,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                         : '連接 ${store.healthSourceName}',
                     subtitle: switch ((_isWorking, store.isHealthConnected)) {
                       (true, _) => '讀取中…',
-                      (_, false) => '點一下允許讀取',
+                      (_, false) => '允許讀取',
                       (_, true) when store.healthSyncFailed => '上次自動同步失敗',
                       (_, true) when synced != null =>
                         '上次同步 ${formatDate(synced)} '
@@ -252,12 +251,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                       : () => _run(store.askHealthAgain),
                 ),
               ),
-            Gutter(
-              child: Text(
-                '只讀不寫：$kinds。你自己記過的那晚睡眠會保留你的，刪掉的紀錄不會再讀回來。',
-                style: AppTextStyles.caption,
-              ),
-            ),
+            Gutter(child: Text('只讀不寫：$kinds。', style: AppTextStyles.caption)),
             Gutter(
               child: LinkText(
                 label: '隱私說明',
@@ -298,8 +292,8 @@ class _Permissions extends StatelessWidget {
     if (allowed == null) {
       return Gutter(
         child: const Text(
-          'iPhone 不會告訴 App 你拒絕了哪些類別：沒允許的類別只會讀不到資料，'
-          '看起來和沒有紀錄一樣。要查看或修改，到「設定 > 健康 > 資料存取與裝置 > MISHIRUBE」。',
+          'iPhone 不會告訴 App 哪些類別被拒絕，未允許的類別只是讀不到資料。'
+          '到「設定 > 健康 > 資料存取與裝置 > MISHIRUBE」查看或修改。',
           style: AppTextStyles.caption,
         ),
       );
@@ -317,7 +311,7 @@ class _Permissions extends StatelessWidget {
               for (final kind in kinds)
                 KeyValueRow(
                   label: kind.label,
-                  value: allowed.contains(kind) ? '已允許' : '未允許，不會讀取',
+                  value: allowed.contains(kind) ? '已允許' : '未允許',
                 ),
               if (denied.isNotEmpty)
                 NavRow(
@@ -340,7 +334,7 @@ String _summary(HealthImport? imported) {
     return switch (imported.denied) {
       final denied? when denied.isNotEmpty =>
         '沒有讀到資料。未允許：${denied.map((kind) => kind.label).join('、')}。',
-      _ => '沒有讀到資料。如果剛才沒有允許，可以到系統的健康設定裡開啟。',
+      _ => '沒有讀到資料。到系統的健康設定確認允許的類別。',
     };
   }
   const units = {
@@ -354,7 +348,7 @@ String _summary(HealthImport? imported) {
     for (final MapEntry(key: kind, value: count) in imported.added.entries)
       if (count > 0) '${kind.label} $count ${units[kind]}',
     if (imported.updated > 0) '更新 ${imported.updated} 晚睡眠',
-    if (imported.skipped > 0) '${imported.skipped} 晚你自己記過，保留你的',
+    if (imported.skipped > 0) '${imported.skipped} 晚保留你自己記的',
     if (imported.denied case final denied? when denied.isNotEmpty)
       '未允許：${denied.map((kind) => kind.label).join('、')}',
   ].join('、');

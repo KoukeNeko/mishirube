@@ -115,7 +115,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
     } on TrackingChangeRefused catch (refusal) {
       setState(
         () => _error =
-            '已經有 ${refusal.sessionCount} 次紀錄用這個追蹤方式，改了會讓舊紀錄變成另一種意思。'
+            '已有 ${refusal.sessionCount} 次紀錄用這個追蹤方式，改了會讓舊紀錄變成另一種意思。'
             '要換成別的追蹤方式，請建立一個新動作。',
       );
       return;
@@ -162,7 +162,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
         ),
         Gutter(
           child: const Text(
-            '追蹤方式決定歷史怎麼被解讀。之後要改成不相容的方式，必須建立新動作。',
+            '追蹤方式決定歷史怎麼解讀。要改成不相容的方式，必須建立新動作。',
             style: AppTextStyles.caption,
           ),
         ),

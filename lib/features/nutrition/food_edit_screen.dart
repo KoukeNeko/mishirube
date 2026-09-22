@@ -507,7 +507,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(
           child: Text(
             _servingUnit.isMeasured
-                ? '記錄時可以改份數，或直接填 ${_servingUnit.label}。'
+                ? '記錄時可改份數，或直接填 ${_servingUnit.label}。'
                 : '「份」不是度量，不會換算成公克或毫升。',
             style: AppTextStyles.caption,
           ),
@@ -536,7 +536,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
           Gutter(
             child: const Text(
-              '每個杯型有自己的數字。大杯不是小杯放大——星巴克美式短杯 98 mg、'
+              '每個杯型有自己的數字，大杯不是小杯放大：星巴克美式短杯 98 mg、'
               '中杯 195 mg，容量只差 1.5 倍。',
               style: AppTextStyles.caption,
             ),
@@ -576,8 +576,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         Gutter(
           child: const Text(
-            '留空的欄位不會被當成 0，而是沒有資料——包裝上印 0 g 也只代表低於'
-            '標示門檻，不是真的沒有。',
+            '留空代表沒有資料，不是 0。包裝上印的 0 g 也只代表低於標示門檻。',
             style: AppTextStyles.caption,
           ),
         ),

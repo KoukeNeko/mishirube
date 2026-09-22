@@ -107,8 +107,8 @@ class InsightDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   last < first
-                      ? '想維持肌力但減少疲勞，目前的組數合理。想繼續進步，可以把每週組數拉回 $first 組左右。'
-                      : '目前的組數穩定。想繼續進步，可以小幅增加每週組數或重量。',
+                      ? '要維持肌力、減少疲勞，目前的組數合理。要繼續進步，每週組數拉回 $first 組左右。'
+                      : '目前的組數穩定。要繼續進步，小幅增加每週組數或重量。',
                   style: AppTextStyles.body,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -123,7 +123,7 @@ class InsightDetailScreen extends StatelessWidget {
         ),
         Gutter(
           child: Text(
-            '由訓練引擎 v$trainingMetricsVersion 的規則計算，同樣的資料會得到同樣的結果。'
+            '由訓練引擎 v$trainingMetricsVersion 計算，同樣的資料得到同樣的結果。'
             '這是訓練紀錄的描述，不是醫療建議。',
             style: AppTextStyles.caption,
           ),

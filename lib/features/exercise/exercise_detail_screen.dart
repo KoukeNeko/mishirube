@@ -51,7 +51,7 @@ Future<void> _mergeInto(
     AppDialog(
       title: '把「${duplicate.name}」併入「${canonical.name}」？',
       message:
-          '過去的紀錄會改成算在「${canonical.name}」下，動作本身不再出現在選擇器。'
+          '過去的紀錄改算在「${canonical.name}」下，動作不再出現在選擇器。'
           '紀錄的內容不會被改寫，但這個合併無法復原。',
       actions: [
         DialogAction(
