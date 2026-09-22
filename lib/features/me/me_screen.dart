@@ -26,7 +26,7 @@ class MeScreen extends StatelessWidget {
           child: const InfoBanner(
             tone: CardTone.training,
             icon: Icons.shield_outlined,
-            message: '所有紀錄都先存在這台裝置。沒有帳號也能使用，雲端同步是可選的。',
+            message: '紀錄只存在這台裝置。沒有帳號，也沒有伺服器。',
           ),
         ),
         Gutter(child: const SectionLabel('產品怎麼為我工作')),
