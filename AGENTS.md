@@ -12,9 +12,11 @@ and Android). Data lives in an on-device SQLite database (`lib/backend/`),
 seeded with the design's demo data on first launch; there is no server
 or sync. Sleep, weight, waist, workouts and water can be read, never
 written, from Apple Health (iOS) or Health Connect (Android). AI is
-optional and only drafts: Apple's on-device model or Ollama Cloud with
-the user's own key, and nothing a model returns is logged until the
-user confirms it. The UI is dark, edge-to-edge and built from custom
+optional and only drafts: Apple's on-device model, or a cloud provider
+with the user's own key (Ollama Cloud, Google AI Studio, Anthropic,
+Azure AI Foundry, or any OpenAI-compatible address), or Microsoft 365
+Copilot signed in to, and nothing a model returns is logged
+until the user confirms it. The UI is dark, edge-to-edge and built from custom
 floating glass chrome rather than stock Material widgets.
 
 ## Toolchain
@@ -55,8 +57,8 @@ flutter test test/<file>_test.dart
     `NutritionService`, `CatalogService`, `JournalService`,
     `InsightsService`).
   - `import_export/` – canonical JSON archive, CSV views, Strong importer.
-  - `ai/` – the AI providers (`MealDrafter`) and the keychain-backed
-    `SecretStore`. A provider returns a draft and holds no repository;
+  - `ai/` – the AI providers (`MealDrafter`, cloud ones sharing
+    `CloudDrafter`) and the keychain-backed `SecretStore`. A provider returns a draft and holds no repository;
     `AiService` in `application/` chooses one, and writing a confirmed
     draft is `NutritionService`'s job. Not an engine: model output is
     not deterministic.

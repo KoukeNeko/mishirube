@@ -10,12 +10,14 @@ import 'package:mishirube/backend/ai/food_label_json.dart';
 import 'package:mishirube/backend/ai/label_reader.dart';
 import 'package:mishirube/backend/ai/meal_draft_json.dart';
 import 'package:mishirube/backend/ai/meal_drafter.dart';
-import 'package:mishirube/backend/ai/ollama_meal_drafter.dart';
+import 'package:mishirube/backend/ai/cloud_drafter.dart';
+import 'package:mishirube/backend/ai/copilot_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
 import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/label_text.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 
@@ -241,6 +243,47 @@ void main() {
     });
   });
 
+  testWidgets('the model is chosen from what the provider offers', (
+    tester,
+  ) async {
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final client = MockClient(
+      (_) async => http.Response(
+        '{"data":[{"id":"gemma4:31b"},{"id":"qwen3:8b"}]}',
+        200,
+      ),
+    );
+    final secrets = MemorySecretStore();
+    final ai = AiService(
+      backend.db,
+      secrets: secrets,
+      drafters: {
+        AiProviderKind.ollamaCloud: OllamaDrafter(
+          client: client,
+          readKey: () async => 'k-123',
+          readModel: () => 'gemma4:31b',
+        ),
+      },
+    )..setProvider(AiProviderKind.ollamaCloud);
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: ai,
+    );
+    await pumpScreen(tester, const AiSettingsScreen(), store: store);
+
+    await tester.tap(find.text('模型'));
+    await tester.pumpAndSettle();
+    expect(find.text('qwen3:8b'), findsOneWidget, reason: 'listed to pick');
+    await tester.tap(find.text('qwen3:8b'));
+    await tester.pumpAndSettle();
+
+    expect(store.aiModel, 'qwen3:8b');
+    expect(find.text('qwen3:8b'), findsOneWidget, reason: 'now the model');
+    await disposeTree(tester);
+  });
+
   testWidgets('a label photo from the library fills the form to check', (
     tester,
   ) async {
@@ -293,8 +336,8 @@ void main() {
   });
 
   group('Ollama Cloud', () {
-    OllamaMealDrafter drafter(http.Client client, {String? key = 'k-123'}) =>
-        OllamaMealDrafter(
+    OllamaDrafter drafter(http.Client client, {String? key = 'k-123'}) =>
+        OllamaDrafter(
           client: client,
           readKey: () async => key,
           readModel: () => 'gemma4:31b',
@@ -321,7 +364,7 @@ void main() {
 
         final draft = await drafter(client).draftMeal('早餐 蛋餅');
 
-        expect(sent.url, OllamaMealDrafter.endpoint);
+        expect(sent.url, OllamaDrafter.endpoint);
         expect(sent.headers['Authorization'], 'Bearer k-123');
         final body = jsonDecode(sent.body) as Map<String, dynamic>;
         expect(body['model'], 'gemma4:31b');
@@ -349,6 +392,38 @@ void main() {
       }
     });
 
+    test('lists the models the key can reach, in order', () async {
+      late http.Request sent;
+      final client = MockClient((request) async {
+        sent = request;
+        return http.Response(
+          '{"object":"list","data":[{"id":"qwen3:8b"},{"id":"gemma4:31b"},'
+          '{"id":""}]}',
+          200,
+        );
+      });
+
+      final models = await drafter(client).models();
+
+      expect(sent.url, OllamaDrafter.modelsEndpoint);
+      expect(sent.headers['Authorization'], 'Bearer k-123');
+      expect(models, ['gemma4:31b', 'qwen3:8b'], reason: 'sorted, no blanks');
+    });
+
+    test('an invalid key while listing models says so', () async {
+      final client = MockClient((_) async => http.Response('no', 401));
+      await expectLater(
+        drafter(client).models(),
+        throwsA(
+          isA<AiException>().having(
+            (e) => e.failure,
+            'failure',
+            AiFailure.authentication,
+          ),
+        ),
+      );
+    });
+
     test('without a key it is not available and sends nothing', () async {
       var calls = 0;
       final client = MockClient((_) async {
@@ -358,6 +433,333 @@ void main() {
       final noKey = drafter(client, key: null);
       expect(await noKey.availability(), AiAvailability.needsKey);
       await expectLater(noKey.draftMeal('x'), throwsA(isA<AiException>()));
+      expect(calls, 0);
+    });
+  });
+
+  group('Google AI Studio', () {
+    test('asks Gemini in its own shape, key in a header', () async {
+      late http.Request sent;
+      final client = MockClient((request) async {
+        sent = request;
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'candidates': [
+                {
+                  'content': {
+                    'parts': [
+                      {'text': '{"items":[{"name":"蛋餅","kcal":250}]}'},
+                    ],
+                  },
+                },
+              ],
+            }),
+          ),
+          200,
+        );
+      });
+      final gemini = GoogleAiStudioDrafter(
+        client: client,
+        readKey: () async => 'g-key',
+        readModel: () => 'gemini-3.8-flash',
+      );
+
+      final draft = await gemini.draftMeal('早餐 蛋餅');
+
+      expect(
+        sent.url.toString(),
+        'https://generativelanguage.googleapis.com/v1beta/models/'
+        'gemini-3.8-flash:generateContent',
+      );
+      expect(sent.headers['x-goog-api-key'], 'g-key');
+      expect(
+        sent.url.query,
+        isEmpty,
+        reason: 'a key in the URL ends up in logs',
+      );
+      final body = jsonDecode(sent.body) as Map<String, dynamic>;
+      expect(body['systemInstruction'], isNotNull);
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('lists only the models that can answer', () async {
+      final client = MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'models': [
+              {
+                'name': 'models/gemini-3.8-flash',
+                'supportedGenerationMethods': ['generateContent'],
+              },
+              {
+                'name': 'models/text-embedding-004',
+                'supportedGenerationMethods': ['embedContent'],
+              },
+            ],
+          }),
+          200,
+        ),
+      );
+      final models = await GoogleAiStudioDrafter(
+        client: client,
+        readKey: () async => 'g-key',
+        readModel: () => 'gemini-3.8-flash',
+      ).models();
+
+      expect(models, ['gemini-3.8-flash'], reason: 'no embedding models');
+    });
+  });
+
+  group('Anthropic', () {
+    test('asks the Messages API with its version header', () async {
+      late http.Request sent;
+      final client = MockClient((request) async {
+        sent = request;
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'content': [
+                {'type': 'text', 'text': '{"items":[{"name":"蛋餅"}]}'},
+              ],
+            }),
+          ),
+          200,
+        );
+      });
+      final anthropic = AnthropicDrafter(
+        client: client,
+        readKey: () async => 'a-key',
+        readModel: () => 'claude-opus-4-5',
+      );
+
+      final draft = await anthropic.draftMeal('早餐 蛋餅');
+
+      expect(sent.url, AnthropicDrafter.endpoint);
+      expect(sent.headers['x-api-key'], 'a-key');
+      expect(sent.headers['anthropic-version'], AnthropicDrafter.version);
+      final body = jsonDecode(sent.body) as Map<String, dynamic>;
+      expect(body['model'], 'claude-opus-4-5');
+      expect(body['system'], isNotEmpty);
+      expect(draft.items.single.name, '蛋餅');
+    });
+  });
+
+  group('Microsoft 365 Copilot', () {
+    CopilotDrafter copilot(
+      http.Client client, {
+      String? refresh = 'r-token',
+      void Function(String)? onSave,
+    }) => CopilotDrafter(
+      client: client,
+      readKey: () async => refresh,
+      readModel: () => '',
+      readClientId: () => 'client-1',
+      readTenant: () => '',
+      saveRefreshToken: (token) async => onSave?.call(token),
+    );
+
+    test('signs in with a device code and keeps the refresh token', () async {
+      final saved = <String>[];
+      final asked = <Uri>[];
+      var polls = 0;
+      final client = MockClient((request) async {
+        asked.add(request.url);
+        if (request.url.path.endsWith('/devicecode')) {
+          return http.Response(
+            jsonEncode({
+              'device_code': 'd-code',
+              'user_code': 'ABCD-EFGH',
+              'verification_uri': 'https://microsoft.com/devicelogin',
+              'interval': 1,
+              'expires_in': 900,
+            }),
+            200,
+          );
+        }
+        // Microsoft answers "not yet" until the user finishes.
+        polls++;
+        return http.Response(
+          polls == 1
+              ? jsonEncode({'error': 'authorization_pending'})
+              : jsonEncode({
+                  'access_token': 'a-token',
+                  'refresh_token': 'r-new',
+                  'expires_in': 3600,
+                }),
+          polls == 1 ? 400 : 200,
+        );
+      });
+      final drafter = copilot(client, onSave: saved.add);
+
+      final prompt = await drafter.startSignIn();
+      expect(prompt.userCode, 'ABCD-EFGH');
+      expect(prompt.verificationUri, 'https://microsoft.com/devicelogin');
+      expect(
+        asked.first.toString(),
+        'https://login.microsoftonline.com/organizations/oauth2/v2.0/devicecode',
+      );
+
+      // No real waiting in a test; the polling is what is under test.
+      await drafter.finishSignIn(prompt, wait: (_) async {});
+
+      expect(polls, 2, reason: 'it waited for the user, then took the token');
+      expect(saved, ['r-new']);
+      expect(await drafter.availability(), AiAvailability.available);
+    });
+
+    test('opens a conversation, asks, and reads the last message', () async {
+      final asked = <Uri>[];
+      final client = MockClient((request) async {
+        asked.add(request.url);
+        if (request.url.path.endsWith('/token')) {
+          return http.Response(
+            jsonEncode({'access_token': 'a-token', 'expires_in': 3600}),
+            200,
+          );
+        }
+        if (request.url.path.endsWith('/conversations')) {
+          return http.Response(jsonEncode({'id': 'c-1'}), 201);
+        }
+        expect(request.headers['Authorization'], 'Bearer a-token');
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(
+          (body['message'] as Map)['text'],
+          contains('早餐 蛋餅'),
+          reason: 'Copilot takes no system message, so it leads the text',
+        );
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'id': 'c-1',
+              'messages': [
+                {'text': '早餐 蛋餅'},
+                {'text': '{"items":[{"name":"蛋餅","kcal":250}]}'},
+              ],
+            }),
+          ),
+          200,
+        );
+      });
+
+      final draft = await copilot(client).draftMeal('早餐 蛋餅');
+
+      expect(draft.items.single.name, '蛋餅');
+      expect(draft.model, 'Microsoft 365 Copilot');
+      expect(
+        asked.map((url) => url.path),
+        containsAllInOrder([
+          '/organizations/oauth2/v2.0/token',
+          '/beta/copilot/conversations',
+          '/beta/copilot/conversations/c-1/chat',
+        ]),
+      );
+    });
+
+    test('without a sign-in it asks for one and sends nothing', () async {
+      var calls = 0;
+      final client = MockClient((_) async {
+        calls++;
+        return http.Response('', 200);
+      });
+      final drafter = copilot(client, refresh: null);
+
+      expect(await drafter.availability(), AiAvailability.needsKey);
+      await expectLater(drafter.draftMeal('蛋餅'), throwsA(isA<AiException>()));
+      expect(calls, 0);
+    });
+  });
+
+  group('Azure AI Foundry', () {
+    test('posts to the resource with the API version', () async {
+      late http.Request sent;
+      final client = MockClient((request) async {
+        sent = request;
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'choices': [
+                {
+                  'message': {'content': '{"items":[{"name":"蛋餅"}]}'},
+                },
+              ],
+            }),
+          ),
+          200,
+        );
+      });
+      final foundry = AzureAiFoundryDrafter(
+        client: client,
+        readKey: () async => 'az-key',
+        readModel: () => 'my-deployment',
+        readEndpoint: () => 'https://mine.services.ai.azure.com/models/',
+      );
+
+      final draft = await foundry.draftMeal('早餐 蛋餅');
+
+      expect(
+        sent.url.toString(),
+        'https://mine.services.ai.azure.com/models/chat/completions'
+        '?api-version=${AzureAiFoundryDrafter.apiVersion}',
+      );
+      expect(sent.headers['Authorization'], 'Bearer az-key');
+      expect(jsonDecode(sent.body), containsPair('model', 'my-deployment'));
+      expect(draft.items.single.name, '蛋餅');
+      expect(
+        await foundry.models(),
+        isEmpty,
+        reason: 'Foundry has no listing; the deployment name is typed',
+      );
+    });
+  });
+
+  group('an OpenAI-compatible endpoint', () {
+    OpenAiCompatibleDrafter drafterAt(String endpoint, http.Client client) =>
+        OpenAiCompatibleDrafter(
+          client: client,
+          readKey: () async => 'k',
+          readModel: () => 'some-model',
+          readEndpoint: () => endpoint,
+        );
+
+    test('posts to the address the user gave', () async {
+      late http.Request sent;
+      final client = MockClient((request) async {
+        sent = request;
+        return http.Response.bytes(
+          utf8.encode(
+            jsonEncode({
+              'choices': [
+                {
+                  'message': {'content': '{"items":[{"name":"蛋餅"}]}'},
+                },
+              ],
+            }),
+          ),
+          200,
+        );
+      });
+
+      // A trailing slash is the user's, not a second path segment.
+      await drafterAt('https://example.invalid/v1/', client).draftMeal('蛋餅');
+
+      expect(
+        sent.url.toString(),
+        'https://example.invalid/v1/chat/completions',
+      );
+      expect(sent.headers['Authorization'], 'Bearer k');
+    });
+
+    test('without an address it is not ready and sends nothing', () async {
+      var calls = 0;
+      final client = MockClient((_) async {
+        calls++;
+        return http.Response('', 200);
+      });
+      final drafter = drafterAt('  ', client);
+
+      expect(await drafter.availability(), AiAvailability.needsKey);
+      await expectLater(drafter.draftMeal('蛋餅'), throwsA(isA<AiException>()));
       expect(calls, 0);
     });
   });
@@ -423,14 +825,21 @@ void main() {
       final secrets = MemorySecretStore();
       final ai = AiService(backend.db, secrets: secrets, drafters: const {});
 
-      await ai.setOllamaKey('  k-123  ');
-      expect(await secrets.read(AiService.ollamaKeyName), 'k-123');
+      await ai.setKey(AiProviderKind.ollamaCloud, '  k-123  ');
+      expect(
+        await secrets.read(AiService.keyName(AiProviderKind.ollamaCloud)),
+        'k-123',
+      );
       expect(
         backend.db.select('SELECT value FROM settings').map((r) => r['value']),
         isNot(contains('k-123')),
       );
-      await ai.setOllamaKey('');
-      expect(await ai.hasOllamaKey(), isFalse, reason: 'empty forgets it');
+      await ai.setKey(AiProviderKind.ollamaCloud, '');
+      expect(
+        await ai.hasKey(AiProviderKind.ollamaCloud),
+        isFalse,
+        reason: 'empty forgets it',
+      );
     });
 
     test(

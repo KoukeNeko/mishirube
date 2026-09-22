@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import '../backend/application/activity_service.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/application/goal_service.dart';
+import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
@@ -731,10 +732,28 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get ollamaModel => _ai.ollamaModel;
+  /// The model the chosen provider is set to use.
+  String get aiModel => switch (_ai.provider) {
+    final kind? => _ai.modelFor(kind),
+    null => '',
+  };
 
-  void setOllamaModel(String model) {
-    _ai.setOllamaModel(model);
+  void setAiModel(String model) {
+    if (_ai.provider case final kind?) _ai.setModel(kind, model);
+    notifyListeners();
+  }
+
+  /// The models the chosen provider offers. Throws [AiException].
+  Future<List<String>> aiModels() => _ai.models();
+
+  /// Where the chosen provider lives, when it needs an address.
+  String get aiEndpoint => switch (_ai.provider) {
+    final kind? => _ai.endpointFor(kind),
+    null => '',
+  };
+
+  void setAiEndpoint(String address) {
+    if (_ai.provider case final kind?) _ai.setEndpoint(kind, address);
     notifyListeners();
   }
 
@@ -745,10 +764,38 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> hasOllamaKey() => _ai.hasOllamaKey();
+  /// The app registration Microsoft 365 Copilot signs in through.
+  String get aiClientId => _ai.clientId;
 
-  Future<void> setOllamaKey(String key) async {
-    await _ai.setOllamaKey(key);
+  void setAiClientId(String id) {
+    _ai.setClientId(id);
+    notifyListeners();
+  }
+
+  /// The tenant that registration belongs to; blank means any.
+  String get aiTenant => _ai.tenant;
+
+  void setAiTenant(String tenant) {
+    _ai.setTenant(tenant);
+    notifyListeners();
+  }
+
+  /// Starts a Copilot sign-in; [finishAiSignIn] waits for it.
+  Future<DeviceCodePrompt> startAiSignIn() => _ai.startSignIn();
+
+  Future<void> finishAiSignIn(DeviceCodePrompt prompt) async {
+    await _ai.finishSignIn(prompt);
+    notifyListeners();
+  }
+
+  /// Whether the chosen provider has its key.
+  Future<bool> hasAiKey() async => switch (_ai.provider) {
+    final kind? => _ai.hasKey(kind),
+    null => false,
+  };
+
+  Future<void> setAiKey(String key) async {
+    if (_ai.provider case final kind?) await _ai.setKey(kind, key);
     notifyListeners();
   }
 

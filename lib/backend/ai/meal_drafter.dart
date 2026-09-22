@@ -19,3 +19,10 @@ abstract interface class MealDrafter {
   /// phone, one table row per line. Throws [AiException].
   Future<FoodLabelDraft> draftFoodLabel(String labelText);
 }
+
+/// A provider that can say which models it offers, so the settings page
+/// can list them instead of asking the user to type a name exactly.
+abstract interface class ModelCatalogue {
+  /// Throws [AiException]; empty when the provider answered with none.
+  Future<List<String>> models();
+}

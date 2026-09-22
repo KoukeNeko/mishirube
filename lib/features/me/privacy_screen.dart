@@ -66,8 +66,13 @@ class PrivacyScreen extends StatelessWidget {
           lines: [
             '預設不使用任何 AI，沒選之前什麼都不會送出。',
             '選 Apple Intelligence 時，模型在手機上執行，資料不會離開這支手機。',
-            '選 Ollama Cloud 時，只會送出你在「用一句話記錄」打的那段文字，送到 ollama.com；'
-                '第一次送出前會先問你，之後可以在「我的 > AI」撤回。其他紀錄和健康資料都不會送出。',
+            '選雲端 AI（Ollama Cloud、Google AI Studio、Anthropic、Azure AI Foundry、'
+                'Microsoft 365 Copilot，或你自己填的 OpenAI 相容位址）時，'
+                '只會送出你打的那段文字，或從照片辨識出的文字；'
+                '第一次送出前會先問你，之後可以在「我的 > AI」撤回。'
+                '其他紀錄和健康資料都不會送出。',
+            'Google AI Studio 的免費額度另有一點要知道：Google 的條款寫明那些內容會用於改進'
+                '他們的產品，且可能由人工審閱。設定頁上也寫著這件事。',
             '掃描營養標示時，照片在手機上辨識文字，照片本身不會送出；'
                 '選 Ollama Cloud 時送出的是辨識出的文字。',
             'AI 只產生草稿，你確認之後才會記錄。',

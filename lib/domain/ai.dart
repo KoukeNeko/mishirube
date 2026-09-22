@@ -9,7 +9,25 @@ enum AiProviderKind {
   appleOnDevice('Apple Intelligence', leavesDevice: false),
 
   /// Models hosted by Ollama, reached with the user's own key.
-  ollamaCloud('Ollama Cloud', leavesDevice: true);
+  ollamaCloud('Ollama Cloud', leavesDevice: true),
+
+  /// Google's Gemini API, the key from AI Studio.
+  googleAiStudio('Google AI Studio', leavesDevice: true),
+
+  /// Anthropic's Claude API.
+  anthropic('Anthropic', leavesDevice: true),
+
+  /// Microsoft's Azure AI Foundry, a model deployed in the user's own
+  /// Azure resource.
+  azureAiFoundry('Azure AI Foundry', leavesDevice: true),
+
+  /// Microsoft 365 Copilot, through its Chat API: a sign-in with a work
+  /// or school account rather than a key.
+  microsoftCopilot('Microsoft 365 Copilot', leavesDevice: true),
+
+  /// Anything else speaking OpenAI's chat API at an address the user
+  /// gives: a gateway, a server of their own.
+  openAiCompatible('OpenAI 相容端點', leavesDevice: true);
 
   const AiProviderKind(this.label, {required this.leavesDevice});
 
@@ -17,6 +35,21 @@ enum AiProviderKind {
 
   /// Whether a request sends what the user typed to someone else.
   final bool leavesDevice;
+
+  /// Whether it needs a key from the user.
+  bool get needsKey => leavesDevice && !needsSignIn;
+
+  /// Whether the user signs in instead of pasting a key.
+  bool get needsSignIn => this == AiProviderKind.microsoftCopilot;
+
+  /// Whether the user picks the model.
+  bool get hasModelChoice =>
+      leavesDevice && this != AiProviderKind.microsoftCopilot;
+
+  /// Whether the user also has to say where to send it.
+  bool get needsEndpoint =>
+      this == AiProviderKind.openAiCompatible ||
+      this == AiProviderKind.azureAiFoundry;
 }
 
 /// Whether a provider can answer right now, and if not, what the user
