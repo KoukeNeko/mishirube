@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
+import 'food_label_json.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 
@@ -40,12 +41,26 @@ class OllamaMealDrafter implements MealDrafter {
       : AiAvailability.needsKey;
 
   @override
-  Future<MealDraft> draftMeal(String description) async {
+  Future<MealDraft> draftMeal(String description) async => parseMealDraft(
+    await _chat(mealDraftInstructions, description),
+    provider: kind,
+    model: readModel(),
+  );
+
+  @override
+  Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
+      parseFoodLabel(
+        await _chat(foodLabelInstructions, labelText),
+        provider: kind,
+        model: readModel(),
+      );
+
+  /// One question, one whole answer: the model's reply text.
+  Future<String> _chat(String instructions, String message) async {
     final key = await readKey();
     if (key == null || key.isEmpty) {
       throw const AiException(AiFailure.unavailable);
     }
-    final model = readModel();
     final http.Response response;
     try {
       response = await client
@@ -56,11 +71,11 @@ class OllamaMealDrafter implements MealDrafter {
               'Content-Type': 'application/json',
             },
             body: jsonEncode({
-              'model': model,
+              'model': readModel(),
               'stream': false,
               'messages': [
-                {'role': 'system', 'content': mealDraftInstructions},
-                {'role': 'user', 'content': description},
+                {'role': 'system', 'content': instructions},
+                {'role': 'user', 'content': message},
               ],
             }),
           )
@@ -88,10 +103,9 @@ class OllamaMealDrafter implements MealDrafter {
     } on FormatException {
       throw AiException(AiFailure.unreadable, response.body);
     }
-    final content = switch (body) {
+    return switch (body) {
       {'message': {'content': final String content}} => content,
       _ => throw AiException(AiFailure.unreadable, response.body),
     };
-    return parseMealDraft(content, provider: kind, model: model);
   }
 }

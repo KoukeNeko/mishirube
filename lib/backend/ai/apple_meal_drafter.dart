@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '../../domain/domain.dart';
+import 'food_label_json.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 
@@ -38,13 +39,28 @@ class AppleMealDrafter implements MealDrafter {
   }
 
   @override
-  Future<MealDraft> draftMeal(String description) async {
-    final String? answer;
+  Future<MealDraft> draftMeal(String description) async => parseMealDraft(
+    await _ask('draftMeal', mealDraftInstructions, description),
+    provider: kind,
+    model: await modelName(),
+  );
+
+  @override
+  Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
+      parseFoodLabel(
+        await _ask('draftFoodLabel', foodLabelInstructions, labelText),
+        provider: kind,
+        model: await modelName(),
+      );
+
+  /// Runs one of the Swift side's guided generations; its JSON answer.
+  Future<String> _ask(String method, String instructions, String text) async {
     try {
-      answer = await _channel.invokeMethod<String>('draftMeal', {
-        'instructions': mealDraftInstructions,
-        'text': description,
-      });
+      return await _channel.invokeMethod<String>(method, {
+            'instructions': instructions,
+            'text': text,
+          }) ??
+          '';
     } on PlatformException catch (error) {
       throw AiException(switch (error.code) {
         'unavailable' => AiFailure.unavailable,
@@ -54,10 +70,5 @@ class AppleMealDrafter implements MealDrafter {
     } on MissingPluginException {
       throw const AiException(AiFailure.unavailable);
     }
-    return parseMealDraft(
-      answer ?? '',
-      provider: kind,
-      model: await modelName(),
-    );
   }
 }

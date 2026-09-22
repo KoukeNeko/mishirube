@@ -1,8 +1,9 @@
 import '../../domain/domain.dart';
 
-/// Turns a sentence into a [MealDraft]. That is all it can do: it is
-/// given no repository and no database, so whatever a model answers, the
-/// only thing it can produce is a draft for the user to confirm.
+/// Turns a sentence into a [MealDraft], or a label's text into a
+/// [FoodLabelDraft]. That is all it can do: it is given no repository
+/// and no database, so whatever a model answers, the only thing it can
+/// produce is a draft for the user to confirm.
 abstract interface class MealDrafter {
   AiProviderKind get kind;
 
@@ -13,4 +14,8 @@ abstract interface class MealDrafter {
 
   /// Throws [AiException] when no draft can be made.
   Future<MealDraft> draftMeal(String description);
+
+  /// [labelText] is a nutrition label already read off a photo on the
+  /// phone, one table row per line. Throws [AiException].
+  Future<FoodLabelDraft> draftFoodLabel(String labelText);
 }

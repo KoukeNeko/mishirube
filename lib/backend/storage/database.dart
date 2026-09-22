@@ -19,6 +19,12 @@ enum ChangeSource {
   aiDraft,
   strongImport,
   archiveImport,
+
+  /// Read from Apple Health.
+  healthKit,
+
+  /// Read from Health Connect.
+  healthConnect,
 }
 
 /// The on-device SQLite store: the app's source of truth.
@@ -163,6 +169,11 @@ class AppDatabase {
       ],
     );
   }
+
+  /// Whether [table] has a row with [id], live or tombstoned. An import
+  /// asks this so a record the user deleted is not brought back.
+  bool hasRow(String table, String id) =>
+      _db.select('SELECT 1 FROM $table WHERE id = ?', [id]).isNotEmpty;
 
   /// Settings whose key starts with this are never exported.
   ///

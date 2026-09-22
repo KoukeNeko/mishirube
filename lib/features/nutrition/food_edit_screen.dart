@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
@@ -6,6 +7,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../me/ai_settings_screen.dart';
 
 /// Creating or correcting one of the user's own foods.
 ///
@@ -17,6 +19,7 @@ class FoodEditScreen extends StatefulWidget {
     this.editing,
     this.initialName = '',
     this.sizeOf,
+    this.pickPhoto,
   });
 
   /// The food being corrected; null when adding a new one.
@@ -28,6 +31,10 @@ class FoodEditScreen extends StatefulWidget {
   /// carries its own figures: a bigger cup is not the smaller one
   /// scaled up, because the shot count changes too.
   final FoodItem? sizeOf;
+
+  /// Where a label photo comes from; the system picker unless a test
+  /// hands one in. Returns the photo's path, or null when cancelled.
+  final Future<String?> Function(ImageSource source)? pickPhoto;
 
   @override
   State<FoodEditScreen> createState() => _FoodEditScreenState();
@@ -168,6 +175,118 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _amount > 0 &&
       (!_isSize || _sizeName.text.trim().isNotEmpty);
 
+  bool _isScanning = false;
+
+  /// What the last scan filled in, for the note that says to check it.
+  FoodLabelDraft? _scanned;
+  AiFailure? _scanFailure;
+
+  static Future<String?> _pickWithSystemPicker(ImageSource source) async =>
+      (await ImagePicker().pickImage(
+        source: source,
+        // Large enough to read small print, small enough not to strain
+        // memory on the phone while it is read.
+        maxWidth: 2400,
+        maxHeight: 2400,
+      ))?.path;
+
+  /// A photo of the nutrition label, from the camera or the library,
+  /// read into the form. Nothing is saved: the user checks every number
+  /// here and saves as usual.
+  Future<void> _scan() async {
+    final store = AppStoreScope.read(context);
+    if (store.aiProvider == null) {
+      await pushPage<void>(context, const AiSettingsScreen());
+      return;
+    }
+    final source = await showAppDialog<ImageSource>(
+      context,
+      AppDialog(
+        title: '掃描營養標示',
+        message: '照片在手機上辨識文字，不會送出；AI 只拿到辨識出的文字。',
+        isChoiceList: true,
+        actions: [
+          DialogAction(
+            icon: Icons.photo_camera_outlined,
+            label: '拍照',
+            onTap: () => Navigator.of(context).pop(ImageSource.camera),
+          ),
+          DialogAction(
+            icon: Icons.photo_library_outlined,
+            label: '從相簿選取',
+            onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+          ),
+          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        ],
+      ),
+    );
+    if (source == null || !mounted) return;
+    final path = await (widget.pickPhoto ?? _pickWithSystemPicker)(source);
+    if (path == null || !mounted) return;
+    await _readLabel(path);
+  }
+
+  Future<void> _readLabel(String path) async {
+    final store = AppStoreScope.read(context);
+    setState(() {
+      _isScanning = true;
+      _scanFailure = null;
+    });
+    try {
+      _fillFrom(await store.scanFoodLabel(path));
+    } on AiException catch (error) {
+      if (!mounted) return;
+      if (error.failure == AiFailure.needsConsent) {
+        setState(() => _isScanning = false);
+        if (await askCloudConsent(context)) await _readLabel(path);
+        return;
+      }
+      setState(() => _scanFailure = error.failure);
+    } finally {
+      if (mounted) setState(() => _isScanning = false);
+    }
+  }
+
+  /// Puts what the label said into the fields. A name already typed is
+  /// kept; a figure the label did not give leaves its field as it was.
+  void _fillFrom(FoodLabelDraft draft) {
+    if (!mounted) return;
+    void put(TextEditingController field, num? value) {
+      if (value != null) field.text = formatAmount(value.toDouble());
+    }
+
+    setState(() {
+      if (_name.text.trim().isEmpty && draft.name != null) {
+        _name.text = draft.name!;
+      }
+      if (_brand.text.trim().isEmpty && draft.brand != null) {
+        _brand.text = draft.brand!;
+      }
+      if (draft.servingUnit case final unit?) {
+        final wasSuggested = _kind == _kindForUnit;
+        _servingUnit = unit;
+        if (wasSuggested) _kind = _kindForUnit;
+      }
+      put(_servingAmount, draft.servingAmount);
+      put(_kcal, draft.kcal);
+      put(_protein, draft.proteinGrams);
+      put(_carb, draft.carbGrams);
+      put(_fat, draft.fatGrams);
+      put(_fibre, draft.fibreGrams);
+      for (final MapEntry(key: nutrient, value: amount)
+          in draft.nutrients.entries) {
+        if (nutrient == Nutrient.caffeine) {
+          // A label states its figures per serving.
+          _caffeineBasis = CaffeineBasis.serving;
+          put(_caffeine, amount);
+        } else {
+          put(_extra[nutrient]!, amount);
+        }
+      }
+      _scanned = draft;
+    });
+  }
+
   /// Saves, and says whether the caller should log it straight away.
   ///
   /// Popping the food means "log this now"; popping nothing means it was
@@ -259,7 +378,19 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   Widget build(BuildContext context) {
     final isNew = widget.editing == null;
     return DetailPage(
-      appBar: PageAppBar(title: isNew ? '新增食物' : '編輯食物', subtitle: '只存在這台裝置'),
+      appBar: PageAppBar(
+        title: isNew ? '新增食物' : '編輯食物',
+        subtitle: '只存在這台裝置',
+        actions: [
+          if (isNew && !_isSize)
+            HeaderAction(
+              icon: Icons.document_scanner_outlined,
+              label: '掃描標示',
+              semanticLabel: '掃描營養標示',
+              onTap: _isScanning ? null : _scan,
+            ),
+        ],
+      ),
       footer: isNew && !_isSize
           ? ButtonPair(
               secondary: SecondaryButton(
@@ -277,6 +408,34 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               onPressed: _canSave ? () => _save(logNow: false) : null,
             ),
       children: [
+        if (_isScanning)
+          Gutter(
+            child: const InfoBanner(
+              icon: Icons.document_scanner_outlined,
+              message: '正在辨識營養標示…',
+            ),
+          )
+        else if (_scanFailure case final failure?)
+          Gutter(
+            child: InfoBanner(
+              tone: CardTone.warning,
+              message: aiFailureMessage(failure),
+            ),
+          )
+        else if (_scanned case final draft?)
+          Gutter(
+            child: InfoBanner(
+              icon: Icons.fact_check_outlined,
+              tone: draft.warnings.isEmpty
+                  ? CardTone.neutral
+                  : CardTone.warning,
+              message: [
+                '已從標示填入，數字來自 ${draft.provider.label}（${draft.model}）'
+                    '的判讀。請對照包裝逐一核對，確認後再儲存。',
+                ...draft.warnings,
+              ].join('\n'),
+            ),
+          ),
         Gutter(child: const SectionLabel('名稱')),
         Gutter(
           child: AppTextField(controller: _name, hint: '例如：雞胸肉'),

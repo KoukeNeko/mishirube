@@ -102,6 +102,46 @@ class JournalRepository {
     });
   }
 
+  /// A night's row whatever its state: null when there is none, and
+  /// `isDeleted` when the user removed it — an import must not bring a
+  /// deleted night back.
+  ({bool isDeleted, DateTime sleptAt, Duration duration})? sleepRow(String id) {
+    final rows = _db.select(
+      'SELECT slept_at, duration_minutes, deleted_at FROM sleep_entries '
+      'WHERE id = ?',
+      [id],
+    );
+    if (rows.isEmpty) return null;
+    final row = rows.single;
+    return (
+      isDeleted: row['deleted_at'] != null,
+      sleptAt: DateTime.fromMillisecondsSinceEpoch(row['slept_at']! as int),
+      duration: Duration(minutes: row['duration_minutes']! as int),
+    );
+  }
+
+  /// Whether a live night from anywhere but [source] lies in
+  /// `[start, end)`.
+  bool hasSleepOtherThan(ChangeSource source, DateTime start, DateTime end) =>
+      _db.select(
+        'SELECT 1 FROM sleep_entries WHERE deleted_at IS NULL '
+        'AND source != ? AND slept_at >= ? AND slept_at < ? LIMIT 1',
+        [source.name, start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+      ).isNotEmpty;
+
+  /// Moves an imported night to what its source now says.
+  void resyncSleep(
+    String id, {
+    required DateTime sleptAt,
+    required Duration duration,
+    required ChangeSource source,
+  }) => _update('sleep_entries', id, {
+    'slept_at': sleptAt.millisecondsSinceEpoch,
+    'duration_minutes': duration.inMinutes,
+    'local_day': localDayOf(sleptAt),
+    'utc_offset_minutes': sleptAt.timeZoneOffset.inMinutes,
+  }, source: source);
+
   /// Nights logged in `[start, end)`, oldest first.
   List<SleepEntry> sleepBetween(DateTime start, DateTime end) => [
     for (final row in _db.select(
@@ -358,7 +398,12 @@ class JournalRepository {
   /// Writes [values] over a record, recording what they replaced. The
   /// time it was taken is not among them: correcting a weight does not
   /// move it to another day.
-  void _update(String table, String id, Map<String, Object?> values) {
+  void _update(
+    String table,
+    String id,
+    Map<String, Object?> values, {
+    ChangeSource source = ChangeSource.local,
+  }) {
     _db.transaction(() {
       final previous = _db.select(
         'SELECT ${values.keys.join(', ')} FROM $table WHERE id = ?',
@@ -374,6 +419,7 @@ class JournalRepository {
         entityType: _tables[table]!,
         entityId: id,
         action: 'edit',
+        source: source,
         payload: {
           'previous': {...previous},
         },

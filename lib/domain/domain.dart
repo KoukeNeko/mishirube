@@ -9,6 +9,7 @@ export 'ai.dart';
 export 'body.dart';
 export 'exercise_filter.dart';
 export 'goal.dart';
+export 'health.dart';
 export 'history.dart';
 export 'note.dart';
 export 'nutrition.dart';

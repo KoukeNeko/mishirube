@@ -6,6 +6,8 @@ import 'application/activity_service.dart';
 import 'application/catalog_service.dart';
 import 'application/goal_service.dart';
 import 'application/insights_service.dart';
+import 'application/health_service.dart';
+import 'health/health_source.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
 import 'application/provenance_service.dart';
@@ -111,6 +113,10 @@ class Backend {
   late final ProvenanceService provenance;
 
   AppDatabase get db => storage.db;
+
+  /// Records read from [source] into this store.
+  HealthService healthFrom(HealthSource source) =>
+      HealthService(db, storage.journal, storage.activities, nutrition, source);
 
   TimelineQuery get timeline => storage.timeline;
 

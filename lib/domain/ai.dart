@@ -1,3 +1,5 @@
+import 'nutrition.dart';
+
 /// Where a model runs, as the user chooses it.
 ///
 /// The two differ in the one way that matters to a health log: whether
@@ -51,6 +53,9 @@ enum AiFailure {
 
   /// The model answered, but not with anything a draft can be made of.
   unreadable,
+
+  /// No text could be read off the photo.
+  noText,
 }
 
 class AiException implements Exception {
@@ -115,4 +120,75 @@ class DraftItem {
     fatGrams: fatGrams,
     isDrink: isDrink,
   );
+}
+
+/// One line of text read off a photo, with where it sat, as a fraction
+/// of the photo's width and height from the top left. Where it sat is
+/// what keeps a label's rows together: 「熱量」 and its numbers are three
+/// separate pieces of text on the same line.
+class TextLine {
+  const TextLine({
+    required this.text,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+  });
+
+  final String text;
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+
+  double get centreY => top + height / 2;
+}
+
+/// A packaged food as a model read it off its nutrition label: the
+/// figures for one serving, which the user checks in the food form
+/// before anything is saved. Any of them may be missing.
+class FoodLabelDraft {
+  const FoodLabelDraft({
+    required this.provider,
+    required this.model,
+    this.name,
+    this.brand,
+    this.servingAmount,
+    this.servingUnit,
+    this.kcal,
+    this.proteinGrams,
+    this.carbGrams,
+    this.fatGrams,
+    this.fibreGrams,
+    this.nutrients = const {},
+    this.warnings = const [],
+  });
+
+  final AiProviderKind provider;
+  final String model;
+  final String? name;
+  final String? brand;
+
+  /// The label's 每一份量, in grams or millilitres.
+  final double? servingAmount;
+  final ServingUnit? servingUnit;
+  final int? kcal;
+  final int? proteinGrams;
+  final int? carbGrams;
+  final int? fatGrams;
+  final int? fibreGrams;
+
+  /// Saturated and trans fat, sugar, sodium and caffeine, per serving.
+  final Nutrients nutrients;
+
+  /// What did not add up, in the words the form shows: the figures are
+  /// still filled in, and these say where to look.
+  final List<String> warnings;
+
+  bool get isEmpty =>
+      kcal == null &&
+      proteinGrams == null &&
+      carbGrams == null &&
+      fatGrams == null &&
+      nutrients.isEmpty;
 }

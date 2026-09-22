@@ -1,5 +1,35 @@
 package com.example.mishirube
 
-import io.flutter.embedding.android.FlutterActivity
+import android.content.Intent
+import io.flutter.embedding.android.FlutterFragmentActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity()
+// A FragmentActivity, because asking for Health Connect permissions
+// goes through an activity result.
+class MainActivity : FlutterFragmentActivity() {
+    private var health: HealthConnectBridge? = null
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/healthconnect")
+        val bridge = HealthConnectBridge(this, channel, privacyRequested = asksForPrivacy(intent))
+        channel.setMethodCallHandler(bridge::handle)
+        health = bridge
+        val labels = LabelReaderBridge(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/ocr")
+            .setMethodCallHandler(labels::handle)
+    }
+
+    // Health Connect's permission screens open the app again to have it
+    // explain its use of health data.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (asksForPrivacy(intent)) health?.showPrivacy()
+    }
+
+    private fun asksForPrivacy(intent: Intent?) = intent?.action in setOf(
+        "androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE",
+        "android.intent.action.VIEW_PERMISSION_USAGE",
+    )
+}

@@ -169,3 +169,44 @@ String _appleStatus(AiAvailability? availability) => switch (availability) {
   AiAvailability.needsKey ||
   AiAvailability.unavailable => '需要 iOS 26 以上、支援 Apple Intelligence 的 iPhone。',
 };
+
+/// Asked once, before the first request that leaves the phone; true when
+/// the user agreed, which is then remembered.
+Future<bool> askCloudConsent(BuildContext context) async {
+  final store = AppStoreScope.read(context);
+  final agreed = await showAppDialog<bool>(
+    context,
+    AppDialog(
+      title: '送到 Ollama Cloud？',
+      message:
+          '你打的文字、或從照片辨識出的文字會送到 Ollama（ollama.com）產生草稿。'
+          '照片本身和其他紀錄不會送出。之後可以在「我的 > AI」撤回。',
+      actions: [
+        DialogAction(
+          label: '取消',
+          onTap: () => Navigator.of(context).pop(false),
+        ),
+        DialogAction(
+          label: '同意並送出',
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    ),
+  );
+  if (agreed != true) return false;
+  store.setCloudConsent(true);
+  return true;
+}
+
+/// Why a request produced no draft, in the words the screens show.
+String aiFailureMessage(AiFailure failure) => switch (failure) {
+  AiFailure.unavailable => 'AI 現在不能用，到「我的 > AI」看看設定。',
+  AiFailure.needsConsent => '還沒同意送出文字。',
+  AiFailure.authentication => 'Ollama 金鑰無效，到「我的 > AI」重新設定。',
+  AiFailure.rateLimited => '請求太頻繁或額度用完了，稍後再試。',
+  AiFailure.network => '連不上網路，稍後再試。',
+  AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
+  AiFailure.unreadable => '看不懂 AI 的回答，換個說法或換張照片再試一次。',
+  AiFailure.noText => '照片裡讀不到文字，換一張清楚、正面的照片再試。',
+};

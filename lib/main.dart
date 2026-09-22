@@ -6,6 +6,7 @@ import 'app/app.dart';
 import 'app/app_store.dart';
 import 'backend/application/ai_service.dart';
 import 'backend/backend.dart';
+import 'backend/health/health_source.dart';
 import 'backend/seed/catalogue.dart';
 
 Future<void> main() async {
@@ -17,12 +18,18 @@ Future<void> main() async {
   // update brings the corrections with it. It is safe to replace because
   // it is read-only, and meals logged from it kept their own numbers.
   await loadCatalogue(backend.storage.foods);
+  final store = AppStore(
+    backend: backend,
+    ai: AiService.onDevice(backend.db),
+    health: PlatformHealthSource.forThisDevice(),
+  );
   runApp(
     LiquidGlassWidgets.wrap(
       brightnessResolver: Theme.maybeBrightnessOf,
-      child: MishirubeApp(
-        store: AppStore(backend: backend, ai: AiService.onDevice(backend.db)),
-      ),
+      child: MishirubeApp(store: store),
     ),
   );
+  // Apple Health or Health Connect is read again on every launch once
+  // connected, so last night is there without asking.
+  store.syncHealthInBackground();
 }

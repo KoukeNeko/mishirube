@@ -19,6 +19,7 @@ import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/me/data_sources_screen.dart';
+import 'package:mishirube/features/me/privacy_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
@@ -95,6 +96,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
   'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
+  'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'describe a meal': ((_) => const DescribeMealScreen(), _noSetup),
   'brand menu': (
     (_) => BrandMenuScreen(

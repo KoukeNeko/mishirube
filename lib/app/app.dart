@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../features/me/privacy_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/shell/home_shell.dart';
 import '../shared/toast/toast_host.dart';
@@ -20,6 +21,28 @@ class MishirubeApp extends StatefulWidget {
 
 class _MishirubeAppState extends State<MishirubeApp> {
   late final AppStore _store = widget.store ?? AppStore();
+  final _navigator = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Health Connect opens the app to have it explain what it does with
+    // health data; that is the privacy page, on top of whatever is open.
+    _store.onHealthPrivacyRequest(_showPrivacy);
+  }
+
+  /// The request can come before the first frame, when there is no
+  /// navigator to push onto yet.
+  void _showPrivacy() {
+    final navigator = _navigator.currentState;
+    if (navigator == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showPrivacy());
+      return;
+    }
+    navigator.push(
+      MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
+    );
+  }
 
   @override
   void dispose() {
@@ -33,6 +56,7 @@ class _MishirubeAppState extends State<MishirubeApp> {
       store: _store,
       child: MaterialApp(
         title: 'MISHIRUBE',
+        navigatorKey: _navigator,
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
         locale: const Locale('zh', 'TW'),

@@ -32,6 +32,23 @@ class SleepEntry {
   final String note;
 }
 
+/// What a stretch of time in a health platform's sleep record was.
+enum SleepStage { inBed, asleep, awake }
+
+/// One stretch from a platform's sleep record, as it came: Apple Health
+/// stores a night as many of these, from every device that watched it.
+class SleepSample {
+  const SleepSample({
+    required this.start,
+    required this.end,
+    required this.stage,
+  });
+
+  final DateTime start;
+  final DateTime end;
+  final SleepStage stage;
+}
+
 /// A self-rated 1–5 check-in with an optional note.
 class WellnessEntry {
   const WellnessEntry({

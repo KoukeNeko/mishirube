@@ -5,12 +5,14 @@ import 'package:flutter/widgets.dart';
 import '../backend/application/activity_service.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/application/goal_service.dart';
+import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
 import '../backend/engines/caffeine.dart';
+import '../backend/health/health_source.dart';
 import '../backend/engines/food_portion.dart';
 import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
@@ -73,10 +75,12 @@ class AppStore extends ChangeNotifier {
     bool? isOnboarded,
     Backend? backend,
     AiService? ai,
+    HealthSource? health,
   }) : _clock = clock ?? DateTime.now,
        _backend = backend ?? Backend.inMemory(clock: clock),
        _ownsBackend = backend == null {
     _ai = ai ?? AiService.none(_backend.db);
+    _health = _backend.healthFrom(health ?? const NoHealthSource());
     seedDemoData(_backend, now());
     if (isOnboarded != null && isOnboarded != _storedOnboarded) {
       _backend.db.setSetting(_onboardedKey, '$isOnboarded');
@@ -119,6 +123,7 @@ class AppStore extends ChangeNotifier {
   final DateTime Function() _clock;
   final Backend _backend;
   late final AiService _ai;
+  late final HealthService _health;
   final bool _ownsBackend;
 
   late bool _isOnboarded;
@@ -754,6 +759,11 @@ class AppStore extends ChangeNotifier {
   /// [AiException].
   Future<MealDraft> draftMeal(String description) => _ai.draftMeal(description);
 
+  /// A food drafted from a photo of its nutrition label; nothing is
+  /// saved. Throws [AiException].
+  Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>
+      _ai.scanFoodLabel(imagePath);
+
   /// Logs the draft items the user kept.
   List<MealEvent> logDraft(
     MealDraft draft,
@@ -999,6 +1009,8 @@ class AppStore extends ChangeNotifier {
         ChangeSource.strongImport || ChangeSource.archiveImport => '匯入',
         ChangeSource.aiDraft => 'AI 草稿，經你確認',
         ChangeSource.catalogue => '內建目錄',
+        ChangeSource.healthKit => 'Apple 健康',
+        ChangeSource.healthConnect => 'Health Connect',
         null => '不明',
       };
 
@@ -1064,6 +1076,78 @@ class AppStore extends ChangeNotifier {
   /// what has been tracked at all.
   Map<MeasurementSite, BodyMeasurement> get latestMeasurements =>
       _backend.journal.latestMeasurements();
+
+  /// The health platform on this device: Apple Health or Health Connect.
+  String get healthSourceName => _health.source.name;
+
+  /// What it can be read for.
+  Set<HealthDataKind> get healthKinds => _health.source.kinds;
+
+  Future<bool> isHealthAvailable() => _health.isAvailable();
+
+  bool get isHealthConnected => _health.isConnected;
+
+  /// What the user allowed; null when the platform will not say.
+  Future<Set<HealthDataKind>?> healthGrantedKinds() => _health.grantedKinds();
+
+  /// Asks again for what was not allowed, and reads what now is.
+  Future<HealthImport?> askHealthAgain() async {
+    final imported = await _health.askAgain();
+    _reloadAfterImport();
+    return imported;
+  }
+
+  /// Shows the privacy page whenever the platform asks the app to
+  /// explain its use of health data.
+  Future<void> onHealthPrivacyRequest(void Function() show) =>
+      _health.source.onPrivacyRequest(show);
+
+  DateTime? get lastHealthSync => _health.lastSync;
+
+  /// Asks for read access to every kind and reads the last month; null
+  /// when the platform is missing or the request did not go through.
+  Future<HealthImport?> connectHealth() async {
+    final imported = await _health.connect();
+    _reloadAfterImport();
+    return imported;
+  }
+
+  void disconnectHealth() {
+    _health.disconnect();
+    notifyListeners();
+  }
+
+  /// Reads the last month again, when connected.
+  Future<HealthImport?> syncHealth() async {
+    if (!_health.isConnected) return null;
+    final imported = await _health.importAll();
+    _reloadAfterImport();
+    return imported;
+  }
+
+  /// Whether the last automatic sync failed.
+  bool get healthSyncFailed => _healthSyncFailed;
+  bool _healthSyncFailed = false;
+
+  /// The sync run at launch. Nobody is waiting on it, so a failure is
+  /// kept for 資料來源 to show rather than thrown into nowhere.
+  Future<void> syncHealthInBackground() async {
+    try {
+      await syncHealth();
+      _healthSyncFailed = false;
+    } on Exception {
+      _healthSyncFailed = true;
+    }
+    notifyListeners();
+  }
+
+  /// Water read in may be today's, and today's meals are kept in memory.
+  void _reloadAfterImport() {
+    _todayMeals
+      ..clear()
+      ..addAll(_backend.nutrition.mealsOn(now()));
+    notifyListeners();
+  }
 
   /// Records a night's sleep.
   void recordSleep(Duration slept, {int? score, String note = ''}) {

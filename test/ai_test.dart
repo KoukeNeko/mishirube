@@ -2,17 +2,22 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/ai/food_label_json.dart';
+import 'package:mishirube/backend/ai/label_reader.dart';
 import 'package:mishirube/backend/ai/meal_draft_json.dart';
 import 'package:mishirube/backend/ai/meal_drafter.dart';
 import 'package:mishirube/backend/ai/ollama_meal_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
 import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/engines/label_text.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
+import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 
 import 'support/harness.dart';
 
@@ -36,7 +41,37 @@ class _FakeDrafter implements MealDrafter {
     asked.add(description);
     return MealDraft(items: items, provider: kind, model: 'fake-1');
   }
+
+  /// The label text it was given; answers with a model's JSON for it.
+  final labels = <String>[];
+  String labelAnswer =
+      '{"name":"燕麥奶","serving_amount":200,"serving_unit":"ml",'
+      '"kcal":120,"protein_g":2,"fat_g":5,"saturated_fat_g":0.5,'
+      '"carb_g":16,"sugar_g":7,"sodium_mg":95}';
+
+  @override
+  Future<FoodLabelDraft> draftFoodLabel(String labelText) async {
+    labels.add(labelText);
+    return parseFoodLabel(labelAnswer, provider: kind, model: 'fake-1');
+  }
 }
+
+/// Text recognition as a list of lines.
+class _FakeReader implements LabelReader {
+  _FakeReader(this.lines);
+
+  final List<TextLine> lines;
+  final read = <String>[];
+
+  @override
+  Future<List<TextLine>> readText(String imagePath) async {
+    read.add(imagePath);
+    return lines;
+  }
+}
+
+TextLine _line(String text, double left, double top) =>
+    TextLine(text: text, left: left, top: top, width: 0.2, height: 0.04);
 
 const _eggPancake = DraftItem(name: '蛋餅', amount: '一份', kcal: 250);
 const _milkTea = DraftItem(name: '冰奶茶', amount: '大杯', kcal: 300, isDrink: true);
@@ -86,6 +121,175 @@ void main() {
         );
       }
     });
+  });
+
+  group('reading a label', () {
+    test('pieces on the same line become one row, left to right', () {
+      final text = labelTextFrom([
+        _line('400 大卡', 0.7, 0.301),
+        _line('熱量', 0.1, 0.3),
+        _line('120 大卡', 0.4, 0.305),
+        _line('營養標示', 0.3, 0.1),
+        _line('蛋白質', 0.1, 0.36),
+        _line('3.2 公克', 0.4, 0.358),
+      ]);
+      expect(text, '營養標示\n熱量  120 大卡  400 大卡\n蛋白質  3.2 公克');
+    });
+
+    test('a figure that cannot be what the label says is left blank', () {
+      final draft = parseFoodLabel(
+        '{"serving_amount":30,"serving_unit":"公克","kcal":150,'
+        '"fat_g":5,"saturated_fat_g":8,"carb_g":20,"sugar_g":25,'
+        '"sodium_mg":18000,"protein_g":3}',
+        provider: AiProviderKind.appleOnDevice,
+        model: 'm',
+      );
+      expect(draft.servingAmount, 30);
+      expect(draft.servingUnit, ServingUnit.gram);
+      expect(draft.kcal, 150);
+      expect(
+        draft.nutrients.keys,
+        isEmpty,
+        reason:
+            'saturated fat above total fat, sugar above carbohydrate and '
+            '18 g of sodium in 30 g are misreadings, not the label',
+      );
+    });
+
+    test('swapped columns and energy that does not add up are flagged', () {
+      FoodLabelDraft parse(String json) => parseFoodLabel(
+        json,
+        provider: AiProviderKind.appleOnDevice,
+        model: 'm',
+      );
+      // 30 g of something with 400 kcal per 100 g is 120 a serving.
+      final right = parse(
+        '{"serving_amount":30,"serving_unit":"g","kcal":120,'
+        '"kcal_per_100":400,"protein_g":3,"carb_g":18,"fat_g":4}',
+      );
+      expect(right.warnings, isEmpty);
+
+      final swapped = parse(
+        '{"serving_amount":30,"serving_unit":"g","kcal":400,'
+        '"kcal_per_100":120}',
+      );
+      expect(swapped.kcal, 400, reason: 'still filled in, for the user');
+      expect(swapped.warnings.single, contains('另一欄'));
+
+      final offEnergy = parse(
+        '{"kcal":500,"protein_g":3,"carb_g":18,"fat_g":4}',
+      );
+      expect(offEnergy.warnings.single, contains('蛋白質、碳水、脂肪'));
+    });
+
+    test('the photo is read on the phone and only its text is sent', () async {
+      final backend = Backend.inMemory();
+      addTearDown(backend.close);
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+      final reader = _FakeReader([
+        _line('每一份量 200 毫升', 0.1, 0.1),
+        _line('熱量', 0.1, 0.2),
+        _line('120 大卡', 0.5, 0.2),
+      ]);
+      final ai = AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: {AiProviderKind.ollamaCloud: cloud},
+        labelReader: reader,
+      )..setProvider(AiProviderKind.ollamaCloud);
+
+      await expectLater(
+        ai.scanFoodLabel('/photo.jpg'),
+        throwsA(
+          isA<AiException>().having(
+            (e) => e.failure,
+            'failure',
+            AiFailure.needsConsent,
+          ),
+        ),
+      );
+      expect(reader.read, isEmpty, reason: 'not even read before consent');
+
+      ai.setCloudConsent(true);
+      final draft = await ai.scanFoodLabel('/photo.jpg');
+      expect(cloud.labels, ['每一份量 200 毫升\n熱量  120 大卡']);
+      expect(draft.kcal, 120);
+    });
+
+    test('a photo with no text asks for another', () async {
+      final backend = Backend.inMemory();
+      addTearDown(backend.close);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final ai = AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: {AiProviderKind.appleOnDevice: apple},
+        labelReader: _FakeReader(const []),
+      )..setProvider(AiProviderKind.appleOnDevice);
+
+      await expectLater(
+        ai.scanFoodLabel('/blank.jpg'),
+        throwsA(
+          isA<AiException>().having(
+            (e) => e.failure,
+            'failure',
+            AiFailure.noText,
+          ),
+        ),
+      );
+      expect(apple.labels, isEmpty);
+    });
+  });
+
+  testWidgets('a label photo from the library fills the form to check', (
+    tester,
+  ) async {
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: {AiProviderKind.appleOnDevice: apple},
+        labelReader: _FakeReader([_line('熱量 120 大卡', 0.1, 0.1)]),
+      )..setProvider(AiProviderKind.appleOnDevice),
+    );
+    final picked = <ImageSource>[];
+    await pumpScreen(
+      tester,
+      FoodEditScreen(
+        pickPhoto: (source) async {
+          picked.add(source);
+          return '/label.jpg';
+        },
+      ),
+      store: store,
+    );
+    final foods = store.searchFoods('').length;
+
+    await tester.tap(find.bySemanticsLabel('掃描營養標示'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('從相簿選取'));
+    await tester.pumpAndSettle();
+
+    expect(picked, [ImageSource.gallery]);
+    expect(find.textContaining('請對照包裝逐一核對'), findsOneWidget);
+    expect(find.text('燕麥奶'), findsOneWidget, reason: 'the name, filled');
+    await tester.dragUntilVisible(
+      find.text('120'),
+      find.byType(CustomScrollView).first,
+      const Offset(0, -200),
+    );
+    expect(find.text('120'), findsOneWidget, reason: 'the calories, filled');
+    expect(
+      store.searchFoods('').length,
+      foods,
+      reason: 'nothing is saved until the user saves it',
+    );
+    await disposeTree(tester);
   });
 
   group('Ollama Cloud', () {

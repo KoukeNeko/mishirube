@@ -2,9 +2,11 @@ import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
 import '../ai/apple_meal_drafter.dart';
+import '../ai/label_reader.dart';
 import '../ai/meal_drafter.dart';
 import '../ai/ollama_meal_drafter.dart';
 import '../ai/secret_store.dart';
+import '../engines/label_text.dart';
 import '../storage/database.dart';
 
 /// The AI layer's front door: which provider the user chose, its key
@@ -15,7 +17,12 @@ import '../storage/database.dart';
 /// service's job, so a model's answer cannot reach the records without
 /// passing through the user.
 class AiService {
-  AiService(this._db, {required this.secrets, required this.drafters});
+  AiService(
+    this._db, {
+    required this.secrets,
+    required this.drafters,
+    this.labelReader = const NoLabelReader(),
+  });
 
   /// The providers the app ships: Apple's on-device model and Ollama
   /// Cloud with a key from the keychain.
@@ -25,6 +32,7 @@ class AiService {
     service = AiService(
       db,
       secrets: secrets,
+      labelReader: const PlatformLabelReader(),
       drafters: {
         AiProviderKind.appleOnDevice: const AppleMealDrafter(),
         AiProviderKind.ollamaCloud: OllamaMealDrafter(
@@ -55,6 +63,9 @@ class AiService {
 
   /// What each provider drafts with; one missing is unavailable.
   final Map<AiProviderKind, MealDrafter> drafters;
+
+  /// Reads a photo's text on the phone, before any model sees anything.
+  final LabelReader labelReader;
 
   /// The chosen provider, or null until the user picks one: nothing is
   /// sent anywhere by default.
@@ -91,7 +102,28 @@ class AiService {
 
   /// A draft of the meal [description] describes. Throws [AiException];
   /// [AiFailure.needsConsent] before the first cloud request.
-  Future<MealDraft> draftMeal(String description) async {
+  Future<MealDraft> draftMeal(String description) async =>
+      _drafter().draftMeal(description);
+
+  /// A food drafted from a nutrition label's text, read off a photo on
+  /// the phone: only the text is ever sent, never the photo.
+  Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
+      _drafter().draftFoodLabel(labelText);
+
+  /// A food drafted from a photo of its nutrition label. The photo is
+  /// read on the phone; the chosen model only ever gets the text, put
+  /// back into the label's rows. Throws [AiException]; [AiFailure.noText]
+  /// when the photo has no text in it.
+  Future<FoodLabelDraft> scanFoodLabel(String imagePath) async {
+    // Checked first, so a photo is not read for a request that cannot go.
+    final drafter = _drafter();
+    final text = labelTextFrom(await labelReader.readText(imagePath));
+    if (text.isEmpty) throw const AiException(AiFailure.noText);
+    return drafter.draftFoodLabel(text);
+  }
+
+  /// The chosen provider's drafter, once the rules allow a request.
+  MealDrafter _drafter() {
     final kind = provider;
     final drafter = kind == null ? null : drafters[kind];
     if (kind == null || drafter == null) {
@@ -100,6 +132,6 @@ class AiService {
     if (kind.leavesDevice && !hasCloudConsent) {
       throw const AiException(AiFailure.needsConsent);
     }
-    return drafter.draftMeal(description);
+    return drafter;
   }
 }

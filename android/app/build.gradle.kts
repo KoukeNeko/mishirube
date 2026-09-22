@@ -19,7 +19,8 @@ android {
         applicationId = "com.example.mishirube"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Health Connect's client needs Android 8 (API 26).
+        minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
@@ -46,4 +47,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("androidx.health.connect:connect-client:1.1.0")
+    // Bundled, so reading a label works offline on first use.
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
 }

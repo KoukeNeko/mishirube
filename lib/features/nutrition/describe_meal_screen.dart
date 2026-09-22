@@ -71,33 +71,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     }
   }
 
-  /// Asked once, before the first request that leaves the phone.
-  Future<bool> _askConsent() async {
-    final store = AppStoreScope.read(context);
-    final agreed = await showAppDialog<bool>(
-      context,
-      AppDialog(
-        title: '送到 Ollama Cloud？',
-        message:
-            '你打的這段描述會送到 Ollama（ollama.com）產生草稿，'
-            '不會送出其他紀錄。之後可以在「我的 > AI」撤回。',
-        actions: [
-          DialogAction(
-            label: '取消',
-            onTap: () => Navigator.of(context).pop(false),
-          ),
-          DialogAction(
-            label: '同意並送出',
-            tone: DialogTone.primary,
-            onTap: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-    if (agreed != true) return false;
-    store.setCloudConsent(true);
-    return true;
-  }
+  Future<bool> _askConsent() => askCloudConsent(context);
 
   Future<void> _editKcal(int index) async {
     final item = _items[index];
@@ -184,7 +158,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
           Gutter(
             child: InfoBanner(
               tone: CardTone.warning,
-              message: _failureMessage(failure),
+              message: aiFailureMessage(failure),
             ),
           ),
         if (draft != null) ...[
@@ -226,13 +200,3 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     );
   }
 }
-
-String _failureMessage(AiFailure failure) => switch (failure) {
-  AiFailure.unavailable => 'AI 現在不能用，到「我的 > AI」看看設定。',
-  AiFailure.needsConsent => '還沒同意送出描述。',
-  AiFailure.authentication => 'Ollama 金鑰無效，到「我的 > AI」重新設定。',
-  AiFailure.rateLimited => '請求太頻繁或額度用完了，稍後再試。',
-  AiFailure.network => '連不上網路，稍後再試。',
-  AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
-  AiFailure.unreadable => '看不懂 AI 的回答，換個說法再試一次。',
-};

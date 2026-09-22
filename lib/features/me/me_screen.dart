@@ -10,6 +10,7 @@ import '../onboarding/onboarding_screen.dart';
 import 'ai_settings_screen.dart';
 import 'data_sources_screen.dart';
 import 'export_screen.dart';
+import 'privacy_screen.dart';
 
 class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
@@ -90,6 +91,11 @@ class MeScreen extends StatelessWidget {
                 title: '匯出',
                 subtitle: '完整封存 JSON · CSV 檢視',
                 onTap: () => pushPage(context, const ExportScreen()),
+              ),
+              NavRow(
+                title: '隱私說明',
+                subtitle: '資料存在哪裡、會送出什麼',
+                onTap: () => pushPage(context, const PrivacyScreen()),
               ),
             ],
           ),

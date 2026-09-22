@@ -177,11 +177,15 @@ class NutritionService {
 
   /// Stores [meal] eaten at [eatenAt], keeping its id free of collisions
   /// with a meal logged on another day.
-  MealEvent logMeal(MealEvent meal, {required DateTime eatenAt}) {
+  MealEvent logMeal(
+    MealEvent meal, {
+    required DateTime eatenAt,
+    ChangeSource source = ChangeSource.local,
+  }) {
     final stored = _meals.exists(meal.id)
         ? meal.copyWith(id: _db.newId())
         : meal;
-    _meals.insert(stored, eatenAt: eatenAt);
+    _meals.insert(stored, eatenAt: eatenAt, source: source);
     return stored;
   }
 
@@ -355,11 +359,18 @@ class NutritionService {
   /// A shortcut, not a second kind of record: it writes the same meal
   /// every drink writes, so the day's fluid is one total rather than two
   /// that disagree.
-  MealEvent logWater(int millilitres) {
-    final eatenAt = _db.now();
+  ///
+  /// [at], [id] and [source] are for water read from a health platform.
+  MealEvent logWater(
+    int millilitres, {
+    DateTime? at,
+    String? id,
+    ChangeSource source = ChangeSource.local,
+  }) {
+    final eatenAt = at ?? _db.now();
     return logMeal(
       MealEvent(
-        id: _db.newId(),
+        id: id ?? _db.newId(),
         name: '水',
         timeLabel: formatTimeOfDay(eatenAt),
         qualityTag: waterQualityTag,
@@ -372,6 +383,7 @@ class NutritionService {
         fatGrams: 0,
       ),
       eatenAt: eatenAt,
+      source: source,
     );
   }
 

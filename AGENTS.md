@@ -9,12 +9,13 @@ only records intent that cannot be read from them.
 
 MISHIRUBE is a local-first Flutter fitness and nutrition logging app (iOS
 and Android). Data lives in an on-device SQLite database (`lib/backend/`),
-seeded with the design's demo data on first launch; there is no server,
-sync or HealthKit integration. AI is optional and only drafts: Apple's
-on-device model or Ollama Cloud with the user's own key, and nothing a
-model returns is logged until the user confirms it. The UI is dark,
-edge-to-edge and built from custom floating glass chrome rather than
-stock Material widgets.
+seeded with the design's demo data on first launch; there is no server
+or sync. Sleep, weight, waist, workouts and water can be read, never
+written, from Apple Health (iOS) or Health Connect (Android). AI is
+optional and only drafts: Apple's on-device model or Ollama Cloud with
+the user's own key, and nothing a model returns is logged until the
+user confirms it. The UI is dark, edge-to-edge and built from custom
+floating glass chrome rather than stock Material widgets.
 
 ## Toolchain
 
@@ -59,6 +60,13 @@ flutter test test/<file>_test.dart
     `AiService` in `application/` chooses one, and writing a confirmed
     draft is `NutritionService`'s job. Not an engine: model output is
     not deterministic.
+  - `health/` – `HealthSource`: Apple Health through
+    `ios/Runner/AppDelegate.swift`, Health Connect through
+    `android/.../HealthConnectBridge.kt`, both answering the same channel
+    calls. `HealthService` imports what they read with ids derived from
+    the platform's (a night from its morning, via
+    `engines/sleep_nights.dart`), so a re-read never duplicates and a
+    deleted record never returns.
   - `seed/` – the demo content and the first-launch seed.
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
