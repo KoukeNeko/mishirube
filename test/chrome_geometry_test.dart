@@ -518,6 +518,35 @@ void _dialogActionLayoutTests() {
     DialogAction(label: '取消', onTap: () {}),
   ];
 
+  testWidgets('a long list of choices scrolls inside the dialog', (
+    tester,
+  ) async {
+    await pumpDialog(tester, [
+      for (var index = 0; index < 40; index++)
+        DialogAction(label: '模型 $index', onTap: () {}),
+    ], isChoiceList: true);
+
+    final screen =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final dialog = tester.getRect(find.byType(ChromeSurface).first);
+    expect(dialog.top, greaterThanOrEqualTo(0));
+    expect(
+      dialog.bottom,
+      lessThanOrEqualTo(screen),
+      reason: 'the dialog stays on screen however many choices there are',
+    );
+    expect(find.text('訓練名稱'), findsOneWidget, reason: 'the title is not cut');
+
+    // The last choice is reached by scrolling the list, not by the
+    // dialog growing past the screen.
+    await tester.dragUntilVisible(
+      find.text('模型 39'),
+      find.byType(SingleChildScrollView).first,
+      const Offset(0, -200),
+    );
+    expect(find.text('模型 39'), findsOneWidget);
+  });
+
   testWidgets('two short choices sit side by side, cancel leading', (
     tester,
   ) async {

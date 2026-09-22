@@ -125,9 +125,15 @@ class AppDialog extends StatelessWidget {
                     ],
                   ),
                 ),
-                LayoutBuilder(
-                  builder: (context, constraints) =>
-                      _actionArea(context, constraints.maxWidth),
+                // A long list of choices — every model a provider offers —
+                // scrolls inside the dialog instead of growing past it.
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) =>
+                          _actionArea(context, constraints.maxWidth),
+                    ),
+                  ),
                 ),
               ],
             ),
