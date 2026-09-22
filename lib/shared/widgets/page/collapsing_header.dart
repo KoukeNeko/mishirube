@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
+import '../../window_layout.dart';
 import '../chrome/chrome_surface.dart';
 import '../controls/inputs.dart';
 import '../controls/pill.dart';
@@ -275,48 +276,54 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
           solidColor: solidColor,
           isHighContrast: isHighContrast,
         ),
-        Column(
-          // Stretch so the large title can sit at the leading edge.
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: topInset),
-            SizedBox(
-              height: toolbarHeight,
-              child: ClipRect(
-                // Sliding away, the bar passes under the status bar like
-                // scrolled content; a clip here would cut it off at the
-                // inset. Tucking away (auto-hide) it must not cover the
-                // title below.
-                clipBehavior: scrollsToolbarAway ? Clip.none : Clip.hardEdge,
-                child: Opacity(
-                  opacity: toolbarOpacity,
-                  // The control row hangs from the top of the bar; on iOS
-                  // the bar's extra height is space below it. Scrolling
-                  // away, the whole bar slides up under the status bar, so
-                  // that space stays between the actions and the pinned
-                  // control instead of the control eating into the actions.
-                  child: OverflowBox(
-                    alignment: scrollsToolbarAway
-                        ? Alignment.bottomCenter
-                        : Alignment.topCenter,
-                    minHeight: toolbar.height,
-                    maxHeight: toolbar.height,
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: SizedBox(
-                        height: toolbar.controlRowHeight,
-                        child: _Toolbar(
-                          leading: leading,
-                          actions: actions,
-                          title: ExcludeSemantics(
-                            excluding: !showsCompactTitle,
-                            child: Semantics(
-                              header: true,
-                              child: Opacity(
-                                opacity: scrollsToolbarAway
-                                    ? 0
-                                    : compactOpacity,
-                                child: compactTitle,
+        _ContentColumn(
+          child: Column(
+            // Stretch so the large title can sit at the leading edge.
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: topInset),
+              SizedBox(
+                height: toolbarHeight,
+                child: _InColumn(
+                  child: ClipRect(
+                    // Sliding away, the bar passes under the status bar like
+                    // scrolled content; a clip here would cut it off at the
+                    // inset. Tucking away (auto-hide) it must not cover the
+                    // title below.
+                    clipBehavior: scrollsToolbarAway
+                        ? Clip.none
+                        : Clip.hardEdge,
+                    child: Opacity(
+                      opacity: toolbarOpacity,
+                      // The control row hangs from the top of the bar; on iOS
+                      // the bar's extra height is space below it. Scrolling
+                      // away, the whole bar slides up under the status bar, so
+                      // that space stays between the actions and the pinned
+                      // control instead of the control eating into the actions.
+                      child: OverflowBox(
+                        alignment: scrollsToolbarAway
+                            ? Alignment.bottomCenter
+                            : Alignment.topCenter,
+                        minHeight: toolbar.height,
+                        maxHeight: toolbar.height,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: SizedBox(
+                            height: toolbar.controlRowHeight,
+                            child: _Toolbar(
+                              leading: leading,
+                              actions: actions,
+                              title: ExcludeSemantics(
+                                excluding: !showsCompactTitle,
+                                child: Semantics(
+                                  header: true,
+                                  child: Opacity(
+                                    opacity: scrollsToolbarAway
+                                        ? 0
+                                        : compactOpacity,
+                                    child: compactTitle,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -326,43 +333,48 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ClipRect(
-                // Bottom-aligned so shrinking reads as the title scrolling up.
-                child: OverflowBox(
-                  alignment: AlignmentDirectional.bottomStart,
-                  minHeight: largeHeight,
-                  maxHeight: largeHeight,
-                  child: ExcludeSemantics(
-                    excluding: showsCompactTitle,
-                    child: Opacity(
-                      opacity: (1 - progress / _titleSwapPoint).clamp(0.0, 1.0),
-                      child: large,
+              Expanded(
+                child: _InColumn(
+                  child: ClipRect(
+                    // Bottom-aligned so shrinking reads as the title scrolling up.
+                    child: OverflowBox(
+                      alignment: AlignmentDirectional.bottomStart,
+                      minHeight: largeHeight,
+                      maxHeight: largeHeight,
+                      child: ExcludeSemantics(
+                        excluding: showsCompactTitle,
+                        child: Opacity(
+                          opacity: (1 - progress / _titleSwapPoint).clamp(
+                            0.0,
+                            1.0,
+                          ),
+                          child: large,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (pinned != null)
-              SizedBox(
-                height: pinnedHeight,
-                // As the bar, the control sits where toolbar controls do:
-                // in the control row, with the bar's extra space below.
-                // Horizontal spacing is the pinned element's own (see
-                // Gutter), not the slot's.
-                child: Padding(
-                  padding: scrollsToolbarAway
-                      ? EdgeInsets.only(
-                          bottom: toolbar.height - toolbar.controlRowHeight,
-                        )
-                      : const EdgeInsets.symmetric(
-                          vertical: _pinnedVerticalPadding,
-                        ),
-                  child: scrollsToolbarAway ? Center(child: pinned) : pinned,
+              if (pinned != null)
+                SizedBox(
+                  height: pinnedHeight,
+                  // As the bar, the control sits where toolbar controls do:
+                  // in the control row, with the bar's extra space below.
+                  // Horizontal spacing is the pinned element's own (see
+                  // Gutter), not the slot's.
+                  child: Padding(
+                    padding: scrollsToolbarAway
+                        ? EdgeInsets.only(
+                            bottom: toolbar.height - toolbar.controlRowHeight,
+                          )
+                        : const EdgeInsets.symmetric(
+                            vertical: _pinnedVerticalPadding,
+                          ),
+                    child: scrollsToolbarAway ? Center(child: pinned) : pinned,
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -373,6 +385,38 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;
+}
+
+/// The page's content column for what sits on the header's full-width
+/// glass: the title and controls keep to it (see [_InColumn]), and a
+/// pinned row lays itself out by it (see `Gutter`).
+class _ContentColumn extends StatelessWidget {
+  const _ContentColumn({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => PageColumn(
+        insets: contentColumnInsets(context, constraints.maxWidth),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Keeps the title and toolbar to the content column, so they line up with
+/// the cards below them.
+class _InColumn extends StatelessWidget {
+  const _InColumn({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: PageColumn.of(context), child: child);
+  }
 }
 
 class _HeaderBackground extends StatelessWidget {
@@ -447,39 +491,60 @@ class _Toolbar extends StatelessWidget {
     // The title is centred on the bar rather than in the space left over,
     // so it stays put however many actions a page has. It gives way when
     // the sides need the room.
-    return NavigationToolbar(
-      centerMiddle: true,
-      middleSpacing: AppSpacing.sm,
-      leading: leading == null
-          ? null
-          : Padding(
-              // The control is a glass pill like the actions opposite it,
-              // so its edge keeps the same gutter as theirs.
-              padding: const EdgeInsetsDirectional.only(
-                start: AppSpacing.screenGutter,
-              ),
-              child: leading,
-            ),
-      middle: title,
-      trailing: actions.isEmpty
-          ? null
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < actions.length; i++)
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(
-                      start: AppSpacing.xs,
-                      end: i == actions.length - 1
-                          ? AppSpacing.screenGutter
-                          : 0,
-                    ),
-                    child: actions[i],
+    return LayoutBuilder(
+      builder: (context, constraints) => ToolbarWidth(
+        width: constraints.maxWidth,
+        child: NavigationToolbar(
+          centerMiddle: true,
+          middleSpacing: AppSpacing.sm,
+          leading: leading == null
+              ? null
+              : Padding(
+                  // The control is a glass pill like the actions opposite it,
+                  // so its edge keeps the same gutter as theirs.
+                  padding: const EdgeInsetsDirectional.only(
+                    start: AppSpacing.screenGutter,
                   ),
-              ],
-            ),
+                  child: leading,
+                ),
+          middle: title,
+          trailing: actions.isEmpty
+              ? null
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < actions.length; i++)
+                      Padding(
+                        padding: EdgeInsetsDirectional.only(
+                          start: AppSpacing.xs,
+                          end: i == actions.length - 1
+                              ? AppSpacing.screenGutter
+                              : 0,
+                        ),
+                        child: actions[i],
+                      ),
+                  ],
+                ),
+        ),
+      ),
     );
   }
+}
+
+/// How wide the toolbar is, for an action that grows across it (a search
+/// field). The actions sit in a row that gives them no width to measure,
+/// and the window is the wrong answer: beside a rail, in a list pane or in
+/// a centred column the bar is narrower than the screen.
+class ToolbarWidth extends InheritedWidget {
+  const ToolbarWidth({super.key, required this.width, required super.child});
+
+  final double width;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ToolbarWidth>()!.width;
+
+  @override
+  bool updateShouldNotify(ToolbarWidth oldWidget) => width != oldWidget.width;
 }
 
 /// Large title + subtitle block shown before the header collapses.
@@ -667,40 +732,49 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: _onScroll,
-      child: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          SliverPersistentHeader(pinned: true, delegate: widget.header),
-          // Only vertical clearance for the floating chrome; each element
-          // brings its own horizontal spacing (see Gutter).
-          SliverPadding(
-            padding: EdgeInsets.only(
-              top: _contentTopGap,
-              bottom:
-                  widget.bottomPadding + MediaQuery.paddingOf(context).bottom,
-            ),
-            sliver: SliverList.separated(
-              itemCount: widget.children.length,
-              separatorBuilder: (_, _) => SizedBox(height: widget.spacing),
-              itemBuilder: (_, index) => widget.children[index],
-            ),
-          ),
-          // Minimum page height: always enough to collapse the header fully,
-          // so content that shrinks (a day without records, a narrow filter)
-          // cannot pull a collapsed header back open.
-          SliverLayoutBuilder(
-            builder: (context, constraints) => SliverToBoxAdapter(
-              child: SizedBox(
-                height: math.max(
-                  0,
-                  constraints.viewportMainAxisExtent +
-                      widget.header.collapseRange -
-                      constraints.precedingScrollExtent,
+      // The scroll view and its rows stay as wide as the page: a drag in the
+      // margin beside a centred column still scrolls it, and a row of chips
+      // still runs off the screen. Each element keeps to the column itself.
+      child: LayoutBuilder(
+        builder: (context, constraints) => PageColumn(
+          insets: contentColumnInsets(context, constraints.maxWidth),
+          child: CustomScrollView(
+            controller: _controller,
+            slivers: [
+              SliverPersistentHeader(pinned: true, delegate: widget.header),
+              // Only vertical clearance for the floating chrome; each element
+              // brings its own horizontal spacing (see Gutter).
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  top: _contentTopGap,
+                  bottom:
+                      widget.bottomPadding +
+                      MediaQuery.paddingOf(context).bottom,
+                ),
+                sliver: SliverList.separated(
+                  itemCount: widget.children.length,
+                  separatorBuilder: (_, _) => SizedBox(height: widget.spacing),
+                  itemBuilder: (_, index) => widget.children[index],
                 ),
               ),
-            ),
+              // Minimum page height: always enough to collapse the header fully,
+              // so content that shrinks (a day without records, a narrow filter)
+              // cannot pull a collapsed header back open.
+              SliverLayoutBuilder(
+                builder: (context, constraints) => SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: math.max(
+                      0,
+                      constraints.viewportMainAxisExtent +
+                          widget.header.collapseRange -
+                          constraints.precedingScrollExtent,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

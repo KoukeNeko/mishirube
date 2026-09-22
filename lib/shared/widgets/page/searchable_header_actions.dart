@@ -100,9 +100,7 @@ class _SearchableHeaderActionsState extends State<SearchableHeaderActions>
     // Never negative, even on a zero-width first frame.
     final fullWidth = math.max(
       0.0,
-      MediaQuery.sizeOf(context).width -
-          AppSpacing.screenGutter * 2 -
-          AppSpacing.xs,
+      ToolbarWidth.of(context) - AppSpacing.screenGutter * 2 - AppSpacing.xs,
     );
     final collapsedWidth = metrics.actionHitSize;
     // Open, the field also covers the gap before this slot, so its left edge

@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../../app/theme.dart';
 import '../motion.dart';
+import '../window_layout.dart';
 import '../widgets/chrome/chrome_surface.dart';
 import '../widgets/content/stats.dart';
 import 'toast_controller.dart';
@@ -101,11 +102,13 @@ class _ToastLayerState extends State<_ToastLayer> {
         final bottom = _cameWithKeyboard
             ? math.max(chromeBottom, keyboard + _chromeGap)
             : chromeBottom;
+        // Never across a hinge: on the leading side of one, like dialogs.
+        final span = usableSpan(context, media.size.width);
         return AnimatedPositioned(
           duration: reduceMotion ? Duration.zero : _moveDuration,
           curve: Curves.easeOut,
-          left: _gutter,
-          right: _gutter,
+          left: span.start + _gutter,
+          right: media.size.width - span.end + _gutter,
           bottom: bottom,
           child: Align(
             heightFactor: 1,

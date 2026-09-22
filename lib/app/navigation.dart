@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../shared/widgets/page/list_detail_layout.dart';
 import 'app_store.dart';
 
+/// Opens [page] over the current one; or, picked from a list with a detail
+/// pane beside it, in that pane.
 Future<T?> pushPage<T>(BuildContext context, Widget page) {
+  if (DetailPane.maybeOf(context) case final pane?) return pane.show<T>(page);
   return Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => page));
 }
 

@@ -6,6 +6,7 @@ import 'package:flutter/physics.dart';
 import '../../../app/app_store.dart';
 import '../../../domain/domain.dart';
 import '../../../shared/toast/toast_host.dart';
+import '../../../shared/window_layout.dart';
 import 'chrome_metrics.dart';
 import 'session_accessory.dart';
 import 'split_dock.dart';
@@ -97,45 +98,54 @@ class _AppBottomChromeState extends State<AppBottomChrome>
     // No SafeArea: like the native Liquid Glass tab bar, the dock dips into
     // the home-indicator area instead of stacking on top of it.
     return ToastObstruction(
-      child: AnimatedBuilder(
-        animation: _morph,
-        builder: (context, child) {
-          final t = _morph.value.clamp(0.0, 1.0);
-          final inset = lerpDouble(expandedInset, minimizedInset, t)!;
-          return Padding(
-            padding: EdgeInsets.fromLTRB(
-              inset,
-              0,
-              inset,
-              lerpDouble(expandedOffset, minimizedOffset, t)!,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final column = contentColumnInsets(
+            context,
+            constraints.maxWidth,
+            maxWidth: ChromeMetrics.dockMaxWidth,
+          );
+          return AnimatedBuilder(
+            animation: _morph,
+            builder: (context, child) {
+              final t = _morph.value.clamp(0.0, 1.0);
+              final inset = lerpDouble(expandedInset, minimizedInset, t)!;
+              return Padding(
+                padding: EdgeInsets.fromLTRB(
+                  column.left + inset,
+                  0,
+                  column.right + inset,
+                  lerpDouble(expandedOffset, minimizedOffset, t)!,
+                ),
+                child: child,
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (running != null)
+                  _CollapsingAccessory(
+                    morph: _morph,
+                    session: running,
+                    onTogglePause: widget.onTogglePause,
+                    onOpen: widget.onOpenSession,
+                    onFinish: widget.onFinish,
+                  )
+                else
+                  const SizedBox(width: double.infinity),
+                SplitDock(
+                  selected: widget.selected,
+                  onSelect: widget.onSelect,
+                  morph: _morph,
+                  session: widget.session,
+                  onQuickLog: widget.onQuickLog,
+                  onOpenSession: widget.onOpenSession,
+                  quickLogProgress: widget.quickLogProgress,
+                ),
+              ],
             ),
-            child: child,
           );
         },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (running != null)
-              _CollapsingAccessory(
-                morph: _morph,
-                session: running,
-                onTogglePause: widget.onTogglePause,
-                onOpen: widget.onOpenSession,
-                onFinish: widget.onFinish,
-              )
-            else
-              const SizedBox(width: double.infinity),
-            SplitDock(
-              selected: widget.selected,
-              onSelect: widget.onSelect,
-              morph: _morph,
-              session: widget.session,
-              onQuickLog: widget.onQuickLog,
-              onOpenSession: widget.onOpenSession,
-              quickLogProgress: widget.quickLogProgress,
-            ),
-          ],
-        ),
       ),
     );
   }

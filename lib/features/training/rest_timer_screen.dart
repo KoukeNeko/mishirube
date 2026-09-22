@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../shared/window_layout.dart';
 
 const _defaultRest = Duration(seconds: 90);
 const _restExtension = Duration(seconds: 30);
@@ -69,47 +70,76 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
     final workout = AppStoreScope.of(context).activeWorkout;
     final elapsedFraction = 1 - _remaining.inSeconds / _total.inSeconds;
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _RestHeader(workout: workout),
-            const Spacer(),
-            const Text(
-              '休息中',
-              style: TextStyle(
-                color: AppColors.training,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 2,
+      body: LayoutBuilder(
+        builder: (context, constraints) => Padding(
+          padding: contentColumnInsets(context, constraints.maxWidth),
+          child: SafeArea(
+            // A phone on its side is too short for the countdown and the
+            // set it follows, so there it scrolls; anywhere taller the
+            // spacers spread it out as before.
+            child: LayoutBuilder(
+              builder: (context, safe) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: safe.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        _RestHeader(workout: workout),
+                        const Spacer(),
+                        const Text(
+                          '休息中',
+                          style: TextStyle(
+                            color: AppColors.training,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        Text(
+                          formatClock(_remaining),
+                          style: AppTextStyles.hugeNumber.copyWith(
+                            fontSize: 112,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.screenGutter,
+                          ),
+                          child: ProgressLine(progress: elapsedFraction),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xs,
+                          ),
+                          child: _JustCompletedCard(
+                            set: widget.completedSet,
+                            isPersonalRecord: widget.isPersonalRecord,
+                            nextLabel: _nextSetLabel(workout),
+                          ),
+                        ),
+                        const Spacer(flex: 2),
+                        Padding(
+                          padding: const EdgeInsets.all(
+                            AppSpacing.screenGutter,
+                          ),
+                          child: ButtonPair(
+                            secondary: SecondaryButton(
+                              label: '+30 秒',
+                              onPressed: _extend,
+                            ),
+                            primary: PrimaryButton(
+                              label: '跳過休息',
+                              onPressed: _endRest,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-            Text(
-              formatClock(_remaining),
-              style: AppTextStyles.hugeNumber.copyWith(fontSize: 112),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.screenGutter,
-              ),
-              child: ProgressLine(progress: elapsedFraction),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-              child: _JustCompletedCard(
-                set: widget.completedSet,
-                isPersonalRecord: widget.isPersonalRecord,
-                nextLabel: _nextSetLabel(workout),
-              ),
-            ),
-            const Spacer(flex: 2),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.screenGutter),
-              child: ButtonPair(
-                secondary: SecondaryButton(label: '+30 秒', onPressed: _extend),
-                primary: PrimaryButton(label: '跳過休息', onPressed: _endRest),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
+import '../../window_layout.dart';
 import '../chrome/chrome_visibility.dart';
 import 'collapsing_header.dart';
 
@@ -85,7 +86,10 @@ class CollapsingPage extends StatelessWidget {
           context,
           title: title,
           subtitle: subtitle,
-          maxWidth: constraints.maxWidth - AppSpacing.screenGutter * 2,
+          maxWidth:
+              constraints.maxWidth -
+              contentColumnInsets(context, constraints.maxWidth).horizontal -
+              AppSpacing.screenGutter * 2,
           bottomPadding: largeBottomPadding,
         );
         return TweenAnimationBuilder<double>(

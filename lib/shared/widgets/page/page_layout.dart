@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../window_layout.dart';
 import '../chrome/chrome_surface.dart';
 import '../controls/pill.dart';
 import 'collapsing_header.dart';
 import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
+import 'list_detail_layout.dart';
 import '../../toast/toast_host.dart';
 
 /// Page layouts add no horizontal padding; each element on a page spaces
@@ -19,10 +21,7 @@ class Gutter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenGutter),
-      child: child,
-    );
+    return Padding(padding: PageColumn.gutterOf(context), child: child);
   }
 }
 
@@ -153,7 +152,8 @@ class PageScaffold extends StatelessWidget {
       body: CollapsingPage(
         title: appBar.title,
         subtitle: appBar.subtitle,
-        leading: appBar.leading == AppBarLeading.back
+        leading:
+            appBar.leading == AppBarLeading.back && !isDetailPaneRoot(context)
             ? AppBarBackButton(onPressed: appBar.onBack)
             : null,
         actions: appBar.actions,
@@ -226,33 +226,40 @@ class BottomActionBar extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.screenGutter,
-            _footerFadeHeight,
-            AppSpacing.screenGutter,
-            floatingChromeBottomOffset(context),
-          ),
-          child: FilledButtonTheme(
-            data: const FilledButtonThemeData(
-              style: ButtonStyle(
-                elevation: WidgetStatePropertyAll(_floatingButtonElevation),
-                shadowColor: WidgetStatePropertyAll(Colors.black),
+        LayoutBuilder(
+          // The buttons keep to the page's content column: a button
+          // stretched across a tablet reads as a bar, not a button.
+          builder: (context, constraints) {
+            final column = contentColumnInsets(context, constraints.maxWidth);
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                column.left + AppSpacing.screenGutter,
+                _footerFadeHeight,
+                column.right + AppSpacing.screenGutter,
+                floatingChromeBottomOffset(context),
               ),
-            ),
-            child: ToastObstruction(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  child,
-                  if (caption != null) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(caption!, style: AppTextStyles.caption),
-                  ],
-                ],
+              child: FilledButtonTheme(
+                data: const FilledButtonThemeData(
+                  style: ButtonStyle(
+                    elevation: WidgetStatePropertyAll(_floatingButtonElevation),
+                    shadowColor: WidgetStatePropertyAll(Colors.black),
+                  ),
+                ),
+                child: ToastObstruction(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      child,
+                      if (caption != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(caption!, style: AppTextStyles.caption),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );

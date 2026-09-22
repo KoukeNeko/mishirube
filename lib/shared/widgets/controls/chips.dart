@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../window_layout.dart';
 import 'pill.dart';
 
 enum TagTone {
@@ -291,9 +292,8 @@ class FilterChipBar<T> extends StatelessWidget {
       height: pillHeight(context),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenGutter,
-        ),
+        // Runs edge to edge; the first chip lines up with the page's cards.
+        padding: PageColumn.gutterOf(context),
         itemCount: options.length,
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
         itemBuilder: (_, index) {

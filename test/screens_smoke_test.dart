@@ -229,44 +229,64 @@ const _screensWithoutAppBar = {
   'rest timer',
 };
 
+/// Every screen at each window it must survive; the phone's cases keep
+/// their plain names.
+const _windows = [phone, phoneLandscape, tablet];
+
+String _named(String name, WindowCase window) =>
+    window == phone ? name : '$name ($window)';
+
 void main() {
-  for (final MapEntry(key: name, value: (build, setup)) in _screens.entries) {
-    testWidgets('$name renders without layout errors', (tester) async {
-      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-      setup(store);
+  for (final window in _windows) {
+    for (final MapEntry(key: name, value: (build, setup)) in _screens.entries) {
+      testWidgets(_named('$name renders without layout errors', window), (
+        tester,
+      ) async {
+        final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+        setup(store);
 
-      await pumpScreen(tester, build(store), store: store);
+        await pumpScreen(tester, build(store), store: store, window: window);
 
-      expect(tester.takeException(), isNull);
-      if (!_screensWithoutAppBar.contains(name)) {
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is SliverPersistentHeader &&
-                widget.delegate is CollapsingHeaderDelegate,
-          ),
-          findsWidgets,
-          reason: '$name uses the shared app bar',
-        );
-      }
-      await disposeTree(tester);
-    });
+        expect(tester.takeException(), isNull);
+        if (!_screensWithoutAppBar.contains(name)) {
+          expect(
+            find.byWidgetPredicate(
+              (widget) =>
+                  widget is SliverPersistentHeader &&
+                  widget.delegate is CollapsingHeaderDelegate,
+            ),
+            findsWidgets,
+            reason: '$name uses the shared app bar',
+          );
+        }
+        await disposeTree(tester);
+      });
+    }
   }
 
-  for (final phase in DayPhase.values) {
-    testWidgets('today in $phase renders every tab', (tester) async {
-      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-      while (store.phase != phase) {
-        store.cyclePhase();
-      }
-      await pumpScreen(tester, const HomeShell(), store: store);
+  for (final window in _windows) {
+    for (final phase in DayPhase.values) {
+      testWidgets(_named('today in $phase renders every tab', window), (
+        tester,
+      ) async {
+        final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+        while (store.phase != phase) {
+          store.cyclePhase();
+        }
+        await pumpScreen(
+          tester,
+          const HomeShell(),
+          store: store,
+          window: window,
+        );
 
-      for (final tab in HomeTab.values) {
-        store.selectTab(tab);
-        await tester.pump();
-        expect(tester.takeException(), isNull, reason: 'tab $tab');
-      }
-      await disposeTree(tester);
-    });
+        for (final tab in HomeTab.values) {
+          store.selectTab(tab);
+          await tester.pump();
+          expect(tester.takeException(), isNull, reason: 'tab $tab');
+        }
+        await disposeTree(tester);
+      });
+    }
   }
 }

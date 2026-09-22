@@ -167,6 +167,25 @@ In particular, do not create a parallel version of:
 - Top bar and dock sizes differ per platform (`ToolbarMetrics`,
   `DockMetrics`). Keep platform differences inside those metrics instead of
   scattering platform checks.
+- Window sizes are decided in `lib/shared/window_layout.dart` and nowhere
+  else: from 840dp, or on any foldable opened like a book (the panes then
+  meet at the fold), every tab is a main page on the leading side
+  (`mainPaneWidthFor`: 40% of the window, within 360–480) with what is
+  opened from it beside it, and a page's content column is at most
+  `contentMaxWidth`, inside the safe area and on one side of a hinge or
+  bent fold. The dock floats
+  along the bottom of the main page where a phone has it, never across
+  the window and never as a side rail. Decide by the window, never the
+  device, and derive the layout on every build rather than storing a
+  "tablet mode".
+- Pages stay as wide as the window; `Gutter` keeps an element to the
+  column (`PageColumn`). A row that scrolls sideways runs edge to edge and
+  pads its content by `PageColumn.gutterOf`, so it still leaves the screen.
+- Never size a page element from `MediaQuery.sizeOf`: in a list pane or in
+  the centred column a page element has less room than the window.
+  Measure the space it is given (`LayoutBuilder`, `ToolbarWidth`).
+- A list whose rows open pages goes in `ListDetailLayout`; its rows keep
+  calling `pushPage`, which opens them in the pane when there is one.
 - Use tokens from `lib/app/theme.dart` (`AppColors`, `AppSpacing`,
   `AppRadius`, `AppTextStyles`) rather than raw values.
 
@@ -203,7 +222,9 @@ task requires it.
 - `performance_test.dart` keeps the reads quick at 10,000 sets. They run
   on the UI isolate, so a regression there is dropped frames on a phone.
 - Geometry tests (`chrome_geometry_test.dart`, `edge_to_edge_test.dart`,
-  `collapsing_header_test.dart`, `toast_test.dart`) pin layout contracts.
+  `collapsing_header_test.dart`, `toast_test.dart`,
+  `adaptive_layout_test.dart`) pin layout contracts. The smoke test runs
+  every screen on a phone, a phone on its side and a tablet.
   When you change the dock, app bar, footers, toasts or insets, update or
   add a geometry test that states the intended invariant.
 - `secrets_test.dart` scans the source for credential-shaped literals

@@ -5,6 +5,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../shared/window_layout.dart';
 import '../activity/activity_detail_screen.dart';
 import '../activity/live_activity_screen.dart';
 import '../log/log_screen.dart';
@@ -61,10 +62,23 @@ class _HomeShellState extends State<HomeShell> {
     store.selectTab(tab);
   }
 
+  /// The main pane's width when the window shows two panes, which the dock
+  /// keeps to; null when the page is the whole window.
+  double? _mainWidth(BuildContext context) {
+    final window = MediaQuery.sizeOf(context);
+    return showsTwoPanes(context)
+        ? mainPaneExtent(context, window.width)
+        : null;
+  }
+
   void _openQuickLog() {
     // The menu's close button is drawn where the expanded「+」sits.
     _setMinimized(false);
-    showQuickLogMenu(context, recess: _quickLogProgress);
+    showQuickLogMenu(
+      context,
+      recess: _quickLogProgress,
+      width: _mainWidth(context),
+    );
   }
 
   void _openSession(ActiveSession session) =>
@@ -147,33 +161,93 @@ class _HomeShellState extends State<HomeShell> {
               animation: _quickLogProgress,
               child: IndexedStack(
                 index: store.selectedTab.index,
+                // With two panes every tab is a main page and what is
+                // opened from it, so the dock stays put between tabs.
                 children: const [
-                  TodayScreen(),
-                  LogScreen(),
-                  TrendsScreen(),
-                  MeScreen(),
+                  ListDetailLayout(
+                    list: TodayScreen(),
+                    placeholder: DetailPanePlaceholder(
+                      icon: Icons.my_location_outlined,
+                      label: '未選取項目',
+                    ),
+                  ),
+                  ListDetailLayout(
+                    list: LogScreen(),
+                    placeholder: DetailPanePlaceholder(
+                      icon: Icons.list_alt,
+                      label: '未選取紀錄',
+                    ),
+                  ),
+                  ListDetailLayout(
+                    list: TrendsScreen(),
+                    placeholder: DetailPanePlaceholder(
+                      icon: Icons.insights_outlined,
+                      label: '未選取項目',
+                    ),
+                  ),
+                  ListDetailLayout(
+                    list: MeScreen(),
+                    placeholder: DetailPanePlaceholder(
+                      icon: Icons.person_outline,
+                      label: '未選取項目',
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
-        bottomNavigationBar: AppBottomChrome(
-          selected: store.selectedTab,
-          onSelect: (tab) => _selectTab(store, tab),
-          isMinimized: _isChromeMinimized,
-          session: store.activeSession,
-          onQuickLog: _openQuickLog,
-          onOpenSession: () {
-            if (store.activeSession case final session?) _openSession(session);
-          },
-          onTogglePause: store.togglePause,
-          onFinish: () {
-            if (store.activeSession case final session?) {
-              _confirmFinish(store, session);
-            }
-          },
-          quickLogProgress: _quickLogProgress,
+        bottomNavigationBar: _MainPaneDock(
+          width: _mainWidth(context),
+          child: AppBottomChrome(
+            selected: store.selectedTab,
+            onSelect: (tab) => _selectTab(store, tab),
+            isMinimized: _isChromeMinimized,
+            session: store.activeSession,
+            onQuickLog: _openQuickLog,
+            onOpenSession: () {
+              if (store.activeSession case final session?) {
+                _openSession(session);
+              }
+            },
+            onTogglePause: store.togglePause,
+            onFinish: () {
+              if (store.activeSession case final session?) {
+                _confirmFinish(store, session);
+              }
+            },
+            quickLogProgress: _quickLogProgress,
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// The dock where a phone has it: along the bottom of the page, which with
+/// two panes is the main pane on the leading side rather than the window.
+class _MainPaneDock extends StatelessWidget {
+  const _MainPaneDock({required this.width, required this.child});
+
+  /// The main pane's width, or null when the page is the whole window.
+  final double? width;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = this.width;
+    if (width == null) return child;
+    final isLtr = Directionality.of(context) == TextDirection.ltr;
+    return Padding(
+      padding: EdgeInsetsDirectional.only(
+        end: MediaQuery.sizeOf(context).width - width,
+      ),
+      // The pane's far edge is not the screen's, so it has no inset there.
+      child: MediaQuery.removePadding(
+        context: context,
+        removeLeft: !isLtr,
+        removeRight: isLtr,
+        child: child,
       ),
     );
   }

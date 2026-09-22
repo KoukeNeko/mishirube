@@ -11,6 +11,11 @@ abstract final class ChromeMetrics {
   static const accessoryHeight = 54.0;
   static const timerCapsuleWidth = 136.0;
 
+  /// The widest a phone is held upright. A wider window (a phone on its
+  /// side, a tablet) floats the dock at this width, centred, instead of
+  /// stretching the tabs apart.
+  static const dockMaxWidth = 430.0;
+
   static const morphDuration = Duration(milliseconds: 320);
 
   /// The chrome changing shape: near-critical, so a scroll that reverses

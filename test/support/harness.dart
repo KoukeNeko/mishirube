@@ -1,3 +1,5 @@
+import 'dart:ui' show DisplayFeature;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -20,13 +22,59 @@ class FakeClock {
   void advance(Duration duration) => current = current.add(duration);
 }
 
-void usePhoneViewport(WidgetTester tester) {
-  const insets = FakeViewPadding(top: phoneTopInset, bottom: phoneBottomInset);
+void usePhoneViewport(WidgetTester tester) => useWindow(tester, phone);
+
+/// A window the app runs in: its size, the system's insets around it and
+/// any fold or hinge across it.
+class WindowCase {
+  const WindowCase(
+    this.name,
+    this.size, {
+    this.padding = const FakeViewPadding(),
+    this.displayFeatures = const [],
+  });
+
+  final String name;
+  final Size size;
+  final FakeViewPadding padding;
+  final List<DisplayFeature> displayFeatures;
+
+  @override
+  String toString() => name;
+}
+
+const phone = WindowCase(
+  'phone',
+  phoneSize,
+  padding: FakeViewPadding(top: phoneTopInset, bottom: phoneBottomInset),
+);
+
+/// The same phone on its side: the notch moves to the leading edge and
+/// the height is compact, so it keeps the dock.
+const phoneLandscape = WindowCase(
+  'phone landscape',
+  Size(844, 390),
+  padding: FakeViewPadding(
+    left: phoneTopInset,
+    right: phoneTopInset,
+    bottom: 21,
+  ),
+);
+
+/// A 10.5" tablet, one of Android's reference sizes for adaptive apps.
+const tablet = WindowCase(
+  'tablet',
+  Size(1280, 800),
+  padding: FakeViewPadding(top: 24, bottom: 20),
+);
+
+void useWindow(WidgetTester tester, WindowCase window) {
   tester.view
-    ..physicalSize = phoneSize
+    ..physicalSize = window.size
     ..devicePixelRatio = 1
-    ..padding = insets
-    ..viewPadding = insets;
+    ..padding = window.padding
+    ..viewPadding = window.padding
+    ..displayFeatures = window.displayFeatures;
   addTearDown(tester.view.reset);
 }
 
@@ -34,8 +82,9 @@ Future<void> pumpScreen(
   WidgetTester tester,
   Widget screen, {
   required AppStore store,
+  WindowCase window = phone,
 }) async {
-  usePhoneViewport(tester);
+  useWindow(tester, window);
   await tester.pumpWidget(
     AppStoreScope(
       store: store,

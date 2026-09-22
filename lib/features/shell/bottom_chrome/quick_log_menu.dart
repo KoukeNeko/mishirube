@@ -39,9 +39,13 @@ const quickLogMenuKey = ValueKey('quick-log-menu');
 ///
 /// [recess] is pointed at the menu's animation so [QuickLogScrim] and
 /// [QuickLogRecess] can push the app back in step with the menu.
+///
+/// [width] is the main pane's when the window shows two, since the dock and
+/// its「+」are in that pane rather than across the whole window.
 Future<void> showQuickLogMenu(
   BuildContext context, {
   required ProxyAnimation recess,
+  double? width,
 }) {
   final route = RawDialogRoute<void>(
     barrierDismissible: true,
@@ -49,7 +53,15 @@ Future<void> showQuickLogMenu(
     // The recessed app carries the dimming.
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),
-    pageBuilder: (_, animation, _) => _QuickLogMenu(animation: animation),
+    pageBuilder: (_, animation, _) => width == null
+        ? _QuickLogMenu(animation: animation)
+        : Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: SizedBox(
+              width: width,
+              child: _QuickLogMenu(animation: animation),
+            ),
+          ),
     // No route-wide fade: the items stagger in on their own, and × must be
     // fully there the moment the dock's「+」hides under it. Closing plays
     // the same animation backwards, so the menu folds back into 「+」.

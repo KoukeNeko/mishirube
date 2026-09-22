@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../shared/window_layout.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_detail_screen.dart';
 import 'exercise_filter_screen.dart';
@@ -309,10 +310,9 @@ class _TabRow extends StatelessWidget {
       height: pillHeight(context) + AppSpacing.sm * 2,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenGutter,
-          vertical: AppSpacing.sm,
-        ),
+        // Runs edge to edge; the first chip lines up with the page's cards.
+        padding: PageColumn.gutterOf(context)
+            .copyWith(top: AppSpacing.sm, bottom: AppSpacing.sm),
         itemCount: _PickerTab.values.length,
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xs),
         itemBuilder: (_, index) {

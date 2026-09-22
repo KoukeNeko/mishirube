@@ -25,5 +25,6 @@ export 'controls/swipe_action.dart';
 export 'page/collapsing_header.dart';
 export 'page/collapsing_page.dart';
 export 'page/edge_to_edge_layout.dart';
+export 'page/list_detail_layout.dart';
 export 'page/page_layout.dart';
 export 'page/searchable_header_actions.dart';
