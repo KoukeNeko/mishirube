@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import 'food_photo.dart';
 
 /// Turns a sentence into a [MealDraft], or a label's text into a
 /// [FoodLabelDraft]. That is all it can do: it is given no repository
@@ -18,6 +19,14 @@ abstract interface class MealDrafter {
   /// [labelText] is a nutrition label already read off a photo on the
   /// phone, one table row per line. Throws [AiException].
   Future<FoodLabelDraft> draftFoodLabel(String labelText);
+
+  /// Whether this provider, with the model chosen, can look at a photo.
+  Future<bool> readsPhotos();
+
+  /// What a food photo shows, item by item, with [note] the user added
+  /// (「飯半碗」「微糖少冰」) taking precedence over what the photo seems
+  /// to show. Throws [AiException].
+  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''});
 }
 
 /// A provider that can say which models it offers, so the settings page

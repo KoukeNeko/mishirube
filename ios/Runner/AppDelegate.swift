@@ -66,6 +66,19 @@ enum AppleIntelligence {
           return
         }
         draftFoodLabel(text: text, instructions: instructions, result: result)
+      case "readsPhotos":
+        result(readsPhotos())
+      case "draftMealPhoto":
+        guard let arguments = call.arguments as? [String: Any],
+          let text = arguments["text"] as? String,
+          let instructions = arguments["instructions"] as? String,
+          let path = arguments["path"] as? String
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        draftMealPhoto(
+          path: path, text: text, instructions: instructions, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -103,23 +116,71 @@ enum AppleIntelligence {
             let response = try await session.respond(
               to: text, generating: MealDraftOutput.self)
             result(try response.content.json())
-          } catch let error as LanguageModelSession.GenerationError {
-            switch error {
-            case .rateLimited, .concurrentRequests:
-              result(FlutterError(code: "rateLimited", message: "\(error)", details: nil))
-            case .assetsUnavailable:
-              result(FlutterError(code: "unavailable", message: "\(error)", details: nil))
-            default:
-              result(FlutterError(code: "failed", message: "\(error)", details: nil))
-            }
           } catch {
-            result(FlutterError(code: "failed", message: "\(error)", details: nil))
+            report(error, to: result)
           }
         }
         return
       }
     #endif
     result(FlutterError(code: "unavailable", message: nil, details: nil))
+  }
+
+  /// Whether the on-device model can look at a photo: from iOS 27, on a
+  /// device whose model has vision.
+  static func readsPhotos() -> Bool {
+    #if canImport(FoundationModels)
+      if #available(iOS 27.0, *) {
+        let model = SystemLanguageModel.default
+        return model.isAvailable && model.capabilities.contains(.vision)
+      }
+    #endif
+    return false
+  }
+
+  /// A food photo, read on the device, into items with estimated figures.
+  /// The photo is never sent anywhere.
+  static func draftMealPhoto(
+    path: String, text: String, instructions: String, result: @escaping FlutterResult
+  ) {
+    #if canImport(FoundationModels)
+      if #available(iOS 27.0, *) {
+        Task { @MainActor in
+          do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(generating: MealPhotoOutput.self) {
+              text
+              Attachment(imageURL: URL(fileURLWithPath: path))
+            }
+            result(try response.content.json())
+          } catch {
+            report(error, to: result)
+          }
+        }
+        return
+      }
+    #endif
+    result(FlutterError(code: "unsupported", message: nil, details: nil))
+  }
+
+  /// A generation's failure, in the codes the Dart side reads.
+  static func report(_ error: Error, to result: @escaping FlutterResult) {
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, *),
+        let error = error as? LanguageModelSession.GenerationError
+      {
+        switch error {
+        case .rateLimited, .concurrentRequests:
+          result(FlutterError(code: "rateLimited", message: "\(error)", details: nil))
+        case .assetsUnavailable:
+          result(FlutterError(code: "unavailable", message: "\(error)", details: nil))
+        default:
+          result(FlutterError(code: "failed", message: "\(error)", details: nil))
+        }
+        return
+      }
+    #endif
+    result(FlutterError(code: "failed", message: "\(error)", details: nil))
   }
 
   /// A label's text, already read on the phone, into the food form's
@@ -136,17 +197,8 @@ enum AppleIntelligence {
               to: text, generating: FoodLabelOutput.self,
               options: GenerationOptions(sampling: .greedy))
             result(try response.content.json())
-          } catch let error as LanguageModelSession.GenerationError {
-            switch error {
-            case .rateLimited, .concurrentRequests:
-              result(FlutterError(code: "rateLimited", message: "\(error)", details: nil))
-            case .assetsUnavailable:
-              result(FlutterError(code: "unavailable", message: "\(error)", details: nil))
-            default:
-              result(FlutterError(code: "failed", message: "\(error)", details: nil))
-            }
           } catch {
-            result(FlutterError(code: "failed", message: "\(error)", details: nil))
+            report(error, to: result)
           }
         }
         return
@@ -250,6 +302,51 @@ enum AppleIntelligence {
         ]
       }
       let data = try JSONSerialization.data(withJSONObject: ["items": list])
+      return String(decoding: data, as: UTF8.self)
+    }
+  }
+
+  @available(iOS 26.0, *)
+  @Generable
+  struct MealPhotoOutput {
+    @Guide(description: "照片裡看得到的每一項食物或飲料；沒有食物就是空的")
+    var items: [Item]
+    @Guide(description: "照片看不出來、但會影響數字的油、醬汁或糖，一句一件事，最多三句")
+    var notes: [String]
+
+    @Generable
+    struct Item {
+      @Guide(description: "品名，台灣常用的說法，繁體中文")
+      var name: String
+      @Guide(description: "估計的重量或容量與範圍，例如「約 180 g（150–220 g）」")
+      var amount: String
+      @Guide(description: "這個份量的熱量估計，單位大卡；不確定就留空")
+      var kcal: Int?
+      @Guide(description: "蛋白質估計，單位公克；不確定就留空")
+      var proteinGrams: Int?
+      @Guide(description: "碳水化合物估計，單位公克；不確定就留空")
+      var carbGrams: Int?
+      @Guide(description: "脂肪估計，單位公克；不確定就留空")
+      var fatGrams: Int?
+      @Guide(description: "是飲料就是 true")
+      var isDrink: Bool
+    }
+
+    /// The JSON `parseMealPhoto` reads, with the keys every provider uses.
+    func json() throws -> String {
+      let list: [[String: Any]] = items.map { item in
+        [
+          "name": item.name,
+          "amount": item.amount,
+          "kcal": item.kcal as Any? ?? NSNull(),
+          "protein_g": item.proteinGrams as Any? ?? NSNull(),
+          "carb_g": item.carbGrams as Any? ?? NSNull(),
+          "fat_g": item.fatGrams as Any? ?? NSNull(),
+          "is_drink": item.isDrink,
+        ]
+      }
+      let data = try JSONSerialization.data(
+        withJSONObject: ["items": list, "notes": notes])
       return String(decoding: data, as: UTF8.self)
     }
   }

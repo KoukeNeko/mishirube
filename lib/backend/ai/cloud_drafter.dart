@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
 import 'food_label_json.dart';
+import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 
@@ -54,8 +55,24 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
         model: await modelName(),
       );
 
-  /// One question, one whole answer: the model's reply text.
-  Future<String> chat(String instructions, String message);
+  @override
+  Future<bool> readsPhotos() async => true;
+
+  @override
+  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async =>
+      parseMealPhoto(
+        await chat(
+          mealPhotoInstructions,
+          note.trim().isEmpty ? '這張照片裡的食物。' : '補充：${note.trim()}',
+          photo: photo,
+        ),
+        provider: kind,
+        model: await modelName(),
+      );
+
+  /// One question, one whole answer: the model's reply text. [photo]
+  /// goes with [message] when there is one.
+  Future<String> chat(String instructions, String message, {FoodPhoto? photo});
 
   /// The key, or [AiFailure.unavailable] when there is none: a request
   /// without one is not sent at all.
@@ -128,7 +145,11 @@ class OllamaDrafter extends CloudDrafter {
   AiProviderKind get kind => AiProviderKind.ollamaCloud;
 
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
     final body = await send(
       () async => client.post(
         endpoint,
@@ -141,7 +162,11 @@ class OllamaDrafter extends CloudDrafter {
           'stream': false,
           'messages': [
             {'role': 'system', 'content': instructions},
-            {'role': 'user', 'content': message},
+            {
+              'role': 'user',
+              'content': message,
+              'images': ?(photo == null ? null : [photo.base64]),
+            },
           ],
         }),
       ),
@@ -178,7 +203,11 @@ class GoogleAiStudioDrafter extends CloudDrafter {
   AiProviderKind get kind => AiProviderKind.googleAiStudio;
 
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
     // The key goes in a header, never in the URL: a query string ends up
     // in logs and history.
     final body = await send(
@@ -198,6 +227,13 @@ class GoogleAiStudioDrafter extends CloudDrafter {
             {
               'role': 'user',
               'parts': [
+                if (photo != null)
+                  {
+                    'inlineData': {
+                      'mimeType': photo.mimeType,
+                      'data': photo.base64,
+                    },
+                  },
                 {'text': message},
               ],
             },
@@ -267,7 +303,11 @@ class AnthropicDrafter extends CloudDrafter {
   };
 
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
     final body = await send(
       () async => client.post(
         endpoint,
@@ -277,7 +317,22 @@ class AnthropicDrafter extends CloudDrafter {
           'max_tokens': 2048,
           'system': instructions,
           'messages': [
-            {'role': 'user', 'content': message},
+            {
+              'role': 'user',
+              'content': photo == null
+                  ? message
+                  : [
+                      {
+                        'type': 'image',
+                        'source': {
+                          'type': 'base64',
+                          'media_type': photo.mimeType,
+                          'data': photo.base64,
+                        },
+                      },
+                      {'type': 'text', 'text': message},
+                    ],
+            },
           ],
         }),
       ),
@@ -323,7 +378,11 @@ class AzureAiFoundryDrafter extends CloudDrafter {
       : super.availability();
 
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
     final base = baseOf(readEndpoint());
     if (base == null) throw const AiException(AiFailure.unavailable);
     final body = await send(
@@ -340,7 +399,7 @@ class AzureAiFoundryDrafter extends CloudDrafter {
           'model': readModel(),
           'messages': [
             {'role': 'system', 'content': instructions},
-            {'role': 'user', 'content': message},
+            {'role': 'user', 'content': _openAiContent(message, photo)},
           ],
         }),
       ),
@@ -382,7 +441,11 @@ class OpenAiCompatibleDrafter extends CloudDrafter {
   }
 
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
     final body = await send(
       () async => client.post(
         _at('/chat/completions'),
@@ -394,7 +457,7 @@ class OpenAiCompatibleDrafter extends CloudDrafter {
           'model': readModel(),
           'messages': [
             {'role': 'system', 'content': instructions},
-            {'role': 'user', 'content': message},
+            {'role': 'user', 'content': _openAiContent(message, photo)},
           ],
         }),
       ),
@@ -437,6 +500,18 @@ Uri? baseOf(String address) {
       : parsed.path;
   return parsed.replace(path: path);
 }
+
+/// A user message as OpenAI-shaped APIs take it: plain text, or the
+/// text and the photo as a data URL.
+Object _openAiContent(String message, FoodPhoto? photo) => photo == null
+    ? message
+    : [
+        {'type': 'text', 'text': message},
+        {
+          'type': 'image_url',
+          'image_url': {'url': photo.dataUrl, 'detail': 'high'},
+        },
+      ];
 
 /// `{"choices": [{"message": {"content": "…"}}]}`, the shape Azure AI
 /// Foundry and every OpenAI-shaped endpoint reply with.

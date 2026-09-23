@@ -175,6 +175,20 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _noSetup,
   ),
   'describe a meal': ((_) => const DescribeMealScreen(), _noSetup),
+  'photo estimate': (
+    (_) => const DescribeMealScreen(
+      draft: MealDraft(
+        items: [
+          DraftItem(name: '白飯', amount: '約 180 g（150–220 g）', kcal: 250),
+          DraftItem(name: '滷雞腿', amount: '約 120 g', kcal: 300),
+        ],
+        provider: AiProviderKind.anthropic,
+        model: 'claude',
+        warnings: ['滷汁的油量看不出來'],
+      ),
+    ),
+    _noSetup,
+  ),
   'brand menu': (
     (_) => BrandMenuScreen(
       brand: '星巴克',

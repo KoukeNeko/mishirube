@@ -587,6 +587,13 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get hasPhotoConsent => _ai.hasPhotoConsent;
+
+  void setPhotoConsent(bool agreed) {
+    _ai.setPhotoConsent(agreed);
+    notifyListeners();
+  }
+
   /// The app registration Microsoft 365 Copilot signs in through.
   String get aiClientId => _ai.clientId;
 
@@ -633,6 +640,11 @@ class AppStore extends ChangeNotifier {
   /// saved. Throws [AiException].
   Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>
       _ai.scanFoodLabel(imagePath);
+
+  /// The items a food photo shows, with estimated figures; nothing is
+  /// logged. Throws [AiException].
+  Future<MealDraft> draftMealPhoto(String imagePath, {String note = ''}) =>
+      _ai.draftMealPhoto(imagePath, note: note);
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);

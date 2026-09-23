@@ -34,37 +34,108 @@ MealDraft parseMealDraft(
   required AiProviderKind provider,
   required String model,
 }) {
+  final items = _itemsOf(_decode(answer), answer);
+  if (items.isEmpty) throw AiException(AiFailure.unreadable, answer);
+  return MealDraft(items: items, provider: provider, model: model);
+}
+
+/// What every provider is asked about a food photo. It returns the same
+/// items as [mealDraftInstructions], so the review and logging are the
+/// same, plus what the photo cannot show.
+const mealPhotoInstructions = '''
+你會看到一張食物照片，可能還有使用者補充的一句話。辨識照片裡每一項食物或飲料，估計份量與營養。
+只回傳 JSON，不要任何說明文字，格式：
+{"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
+規則：
+- name 用台灣常用的說法，繁體中文。便當、自助餐拆成看得到的每一項（白飯、雞腿、青菜），一碗滷肉飯這種一道菜就算一項。
+- amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
+- 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。
+- kcal、protein_g、carb_g、fat_g 是你對這個份量的估計；不確定就填 null，不要填 0。
+- 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
+- 同一份食物只算一次，只列照片裡看得到的東西。
+- 照片裡沒有食物或飲料時回傳 {"items":[],"notes":[]}。''';
+
+/// Reads a model's answer about a food photo into a draft. Throws
+/// [AiFailure.noFood] when it saw nothing to eat, and
+/// [AiFailure.unreadable] when the answer is not the JSON asked for.
+///
+/// An item whose energy does not come near its macronutrients (4 kcal a
+/// gram of protein and carbohydrate, 9 of fat) is flagged, not changed:
+/// the check is a prompt to look, and the figures are the model's.
+MealDraft parseMealPhoto(
+  String answer, {
+  required AiProviderKind provider,
+  required String model,
+}) {
+  final decoded = _decode(answer);
+  final items = _itemsOf(decoded, answer);
+  if (items.isEmpty) throw AiException(AiFailure.noFood, answer);
+  final notes = [
+    if (decoded case {'notes': final List<dynamic> notes})
+      for (final note in notes.take(3))
+        if (note case final String text when text.trim().isNotEmpty)
+          text.trim(),
+  ];
+  return MealDraft(
+    items: items,
+    provider: provider,
+    model: model,
+    warnings: [...notes, ...items.map(_energyWarning).nonNulls],
+  );
+}
+
+Object? _decode(String answer) {
   final start = answer.indexOf('{');
   final end = answer.lastIndexOf('}');
   if (start < 0 || end <= start) {
     throw AiException(AiFailure.unreadable, answer);
   }
-  final Object? decoded;
   try {
-    decoded = jsonDecode(answer.substring(start, end + 1));
+    return jsonDecode(answer.substring(start, end + 1));
   } on FormatException {
     throw AiException(AiFailure.unreadable, answer);
   }
-  final items = [
-    if (decoded case {'items': final List<dynamic> list})
-      for (final entry in list)
-        if (entry case {'name': final String name} when name.trim().isNotEmpty)
-          DraftItem(
-            name: name.trim(),
-            amount: switch (entry['amount']) {
-              final String amount when amount.trim().isNotEmpty =>
-                amount.trim(),
-              _ => '一份',
-            },
-            kcal: _figure(entry['kcal'], _maxKcal),
-            proteinGrams: _figure(entry['protein_g'], _maxGrams),
-            carbGrams: _figure(entry['carb_g'], _maxGrams),
-            fatGrams: _figure(entry['fat_g'], _maxGrams),
-            isDrink: entry['is_drink'] == true,
-          ),
+}
+
+List<DraftItem> _itemsOf(Object? decoded, String answer) {
+  if (decoded is! Map<String, dynamic> || decoded['items'] is! List) {
+    throw AiException(AiFailure.unreadable, answer);
+  }
+  return [
+    for (final entry in decoded['items'] as List<dynamic>)
+      if (entry case {'name': final String name} when name.trim().isNotEmpty)
+        DraftItem(
+          name: name.trim(),
+          amount: switch (entry['amount']) {
+            final String amount when amount.trim().isNotEmpty => amount.trim(),
+            _ => '一份',
+          },
+          kcal: _figure(entry['kcal'], _maxKcal),
+          proteinGrams: _figure(entry['protein_g'], _maxGrams),
+          carbGrams: _figure(entry['carb_g'], _maxGrams),
+          fatGrams: _figure(entry['fat_g'], _maxGrams),
+          isDrink: entry['is_drink'] == true,
+        ),
   ];
-  if (items.isEmpty) throw AiException(AiFailure.unreadable, answer);
-  return MealDraft(items: items, provider: provider, model: model);
+}
+
+/// Whether [item]'s energy is far from what its macronutrients add up
+/// to. Wide margin: fibre, alcohol and rounding all move it.
+String? _energyWarning(DraftItem item) {
+  final (kcal, protein, carb, fat) = (
+    item.kcal,
+    item.proteinGrams,
+    item.carbGrams,
+    item.fatGrams,
+  );
+  if (kcal == null || protein == null || carb == null || fat == null) {
+    return null;
+  }
+  final estimate = 4 * protein + 4 * carb + 9 * fat;
+  final gap = (kcal - estimate).abs();
+  if (gap <= 30 || gap <= 0.15 * kcal) return null;
+  return '${item.name}的${MacroLabel.energy}和${MacroLabel.protein}、'
+      '${MacroLabel.carb}、${MacroLabel.fat}算起來差得多，請核對。';
 }
 
 int? _figure(Object? value, int max) => switch (value) {

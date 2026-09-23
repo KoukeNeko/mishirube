@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
@@ -5,6 +8,7 @@ import '../ai/apple_meal_drafter.dart';
 import '../ai/label_reader.dart';
 import '../ai/meal_drafter.dart';
 import '../ai/cloud_drafter.dart';
+import '../ai/food_photo.dart';
 import '../ai/copilot_drafter.dart';
 import '../ai/secret_store.dart';
 import '../engines/label_text.dart';
@@ -23,6 +27,7 @@ class AiService {
     required this.secrets,
     required this.drafters,
     this.labelReader = const NoLabelReader(),
+    this.readPhoto = _readFile,
   });
 
   /// The providers the app ships: Apple's on-device model and Ollama
@@ -101,6 +106,7 @@ class AiService {
 
   static const _providerKey = 'ai.provider';
   static const _consentKey = 'ai.cloud_consent';
+  static const _photoConsentKey = 'ai.photo_consent';
   static const _endpointKey = 'ai.endpoint';
 
   final AppDatabase _db;
@@ -108,6 +114,11 @@ class AiService {
 
   /// What each provider drafts with; one missing is unavailable.
   final Map<AiProviderKind, MealDrafter> drafters;
+
+  /// Reads a photo's file; the file system unless a test hands bytes in.
+  final Future<Uint8List> Function(String path) readPhoto;
+
+  static Future<Uint8List> _readFile(String path) => File(path).readAsBytes();
 
   /// Reads a photo's text on the phone, before any model sees anything.
   final LabelReader labelReader;
@@ -169,6 +180,13 @@ class AiService {
 
   void setCloudConsent(bool agreed) => _db.setSetting(_consentKey, '$agreed');
 
+  /// Whether the user agreed to send food photos to a cloud provider:
+  /// agreeing to send text never covered a photo.
+  bool get hasPhotoConsent => _db.setting(_photoConsentKey) == 'true';
+
+  void setPhotoConsent(bool agreed) =>
+      _db.setSetting(_photoConsentKey, '$agreed');
+
   Future<bool> hasKey(AiProviderKind kind) async =>
       (await secrets.read(keyName(kind)))?.isNotEmpty == true;
 
@@ -209,15 +227,46 @@ class AiService {
     return drafter.draftFoodLabel(text);
   }
 
+  /// What a food photo at [imagePath] shows, item by item, with [note]
+  /// the user added. Throws [AiException]: [AiFailure.needsPhotoConsent]
+  /// before the first photo goes to a cloud provider, and
+  /// [AiFailure.photoUnsupported] when the provider or its model cannot
+  /// look at one.
+  ///
+  /// What leaves the device is the picture alone: the metadata that says
+  /// where and when it was taken is stripped first.
+  Future<MealDraft> draftMealPhoto(String imagePath, {String note = ''}) async {
+    final drafter = _drafter(sendsPhoto: true);
+    if (!await drafter.readsPhotos()) {
+      throw const AiException(AiFailure.photoUnsupported);
+    }
+    final bytes = await readPhoto(imagePath);
+    final mimeType = imageMimeType(bytes);
+    if (mimeType == null) throw const AiException(AiFailure.photoFormat);
+    return drafter.draftMealPhoto(
+      FoodPhoto(
+        path: imagePath,
+        bytes: stripJpegMetadata(bytes),
+        mimeType: mimeType,
+      ),
+      note: note,
+    );
+  }
+
   /// The chosen provider's drafter, once the rules allow a request.
-  MealDrafter _drafter() {
+  MealDrafter _drafter({bool sendsPhoto = false}) {
     final kind = provider;
     final drafter = kind == null ? null : drafters[kind];
     if (kind == null || drafter == null) {
       throw const AiException(AiFailure.unavailable);
     }
-    if (kind.leavesDevice && !hasCloudConsent) {
-      throw const AiException(AiFailure.needsConsent);
+    if (kind.leavesDevice) {
+      if (sendsPhoto && !hasPhotoConsent) {
+        throw const AiException(AiFailure.needsPhotoConsent);
+      }
+      if (!sendsPhoto && !hasCloudConsent) {
+        throw const AiException(AiFailure.needsConsent);
+      }
     }
     return drafter;
   }

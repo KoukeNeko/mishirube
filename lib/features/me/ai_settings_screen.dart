@@ -196,7 +196,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             label: '撤回同意',
             tone: DialogTone.destructive,
             onTap: () {
-              store.setCloudConsent(false);
+              store
+                ..setCloudConsent(false)
+                ..setPhotoConsent(false);
               Navigator.of(context).pop();
             },
           ),
@@ -296,10 +298,17 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                               : store.aiModel,
                           onTap: _isLoadingModels ? null : _editModel,
                         ),
-                      if (store.hasCloudConsent)
+                      if (store.hasCloudConsent || store.hasPhotoConsent)
                         NavRow(
                           title: '撤回同意',
-                          subtitle: '目前已同意送出文字',
+                          subtitle: switch ((
+                            store.hasCloudConsent,
+                            store.hasPhotoConsent,
+                          )) {
+                            (true, true) => '目前已同意送出文字與照片',
+                            (true, false) => '目前已同意送出文字',
+                            _ => '目前已同意送出照片',
+                          },
                           onTap: _revokeConsent,
                         ),
                     ],
@@ -377,6 +386,36 @@ Future<bool> askCloudConsent(BuildContext context) async {
   return true;
 }
 
+/// Asks before the first food photo goes to a cloud provider: agreeing
+/// to send text never covered a photo.
+Future<bool> askPhotoConsent(BuildContext context) async {
+  final store = AppStoreScope.read(context);
+  final provider = store.aiProvider?.label ?? '雲端 AI';
+  final agreed = await showAppDialog<bool>(
+    context,
+    AppDialog(
+      title: '送出食物照片到 $provider？',
+      message:
+          '只送出這張照片與補充說明，先移除照片裡的位置與拍攝資訊，'
+          '不保存照片。可在「我的 > AI」撤回。',
+      actions: [
+        DialogAction(
+          label: '取消',
+          onTap: () => Navigator.of(context).pop(false),
+        ),
+        DialogAction(
+          label: '同意並送出',
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    ),
+  );
+  if (agreed != true) return false;
+  store.setPhotoConsent(true);
+  return true;
+}
+
 /// Why a request produced no draft, in the words the screens show.
 String aiFailureMessage(AiFailure failure) => switch (failure) {
   AiFailure.unavailable => 'AI 還不能用，到「我的 > AI」設定。',
@@ -387,4 +426,8 @@ String aiFailureMessage(AiFailure failure) => switch (failure) {
   AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
   AiFailure.unreadable => 'AI 的回覆無法解讀，再試一次。',
   AiFailure.noText => '照片裡讀不到文字，換一張清楚的正面照片。',
+  AiFailure.needsPhotoConsent => '未同意送出照片。',
+  AiFailure.photoUnsupported => '目前的 AI 不能讀照片，到「我的 > AI」換一個。',
+  AiFailure.noFood => '照片裡看不到食物或飲料，換一張再試。',
+  AiFailure.photoFormat => '這張照片的格式無法讀取，換一張再試。',
 };

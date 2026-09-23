@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/ai/food_label_json.dart';
+import 'package:mishirube/backend/ai/food_photo.dart';
 import 'package:mishirube/backend/ai/label_reader.dart';
 import 'package:mishirube/backend/ai/meal_draft_json.dart';
 import 'package:mishirube/backend/ai/meal_drafter.dart';
@@ -55,6 +57,26 @@ class _FakeDrafter implements MealDrafter {
   Future<FoodLabelDraft> draftFoodLabel(String labelText) async {
     labels.add(labelText);
     return parseFoodLabel(labelAnswer, provider: kind, model: 'fake-1');
+  }
+
+  /// Whether it can look at a photo, and the photos and notes it was
+  /// given; answers with a model's JSON for them.
+  bool canReadPhotos = true;
+  final photos = <FoodPhoto>[];
+  final notes = <String>[];
+  String photoAnswer =
+      '{"items":[{"name":"滷肉飯","amount":"約 300 g","kcal":620,'
+      '"protein_g":18,"carb_g":82,"fat_g":24,"is_drink":false}],'
+      '"notes":["滷汁的油量看不出來"]}';
+
+  @override
+  Future<bool> readsPhotos() async => canReadPhotos;
+
+  @override
+  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async {
+    photos.add(photo);
+    notes.add(note);
+    return parseMealPhoto(photoAnswer, provider: kind, model: 'fake-1');
   }
 }
 
@@ -328,9 +350,9 @@ void main() {
     );
     final foods = store.backend.nutrition.searchFoods('').length;
 
-    await tester.tap(find.bySemanticsLabel('掃描營養標示'));
+    await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('從相簿選取'));
+    await tester.tap(find.text('從相簿選營養標示'));
     await tester.pumpAndSettle();
 
     expect(picked, [ImageSource.gallery]);
@@ -358,6 +380,132 @@ void main() {
       reason: 'nothing is saved until the user saves it',
     );
     await disposeTree(tester);
+  });
+
+  group('a food photo', () {
+    // The smallest JPEG the service accepts: what the picker would hand
+    // it, without a real file behind it.
+    final jpeg = Uint8List.fromList(const [
+      0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x02, //
+      0xFF, 0xDA, 0x00, 0x02, 0xFF, 0xD9,
+    ]);
+
+    AppStore storeWith(_FakeDrafter drafter) {
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      return AppStore(
+        clock: FakeClock().now,
+        isOnboarded: true,
+        backend: backend,
+        ai: AiService(
+          backend.db,
+          secrets: MemorySecretStore(),
+          drafters: {drafter.kind: drafter},
+          readPhoto: (_) async => jpeg,
+        )..setProvider(drafter.kind),
+      );
+    }
+
+    Future<void> scanFood(WidgetTester tester, {String note = ''}) async {
+      await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('拍食物'));
+      await tester.pumpAndSettle();
+      if (note.isNotEmpty) {
+        await tester.enterText(find.byType(TextField).last, note);
+      }
+      await tester.tap(find.text('估算'));
+      await tester.pumpAndSettle();
+    }
+
+    FoodEditScreen screen({bool logsOnce = false}) =>
+        FoodEditScreen(logsOnce: logsOnce, pickPhoto: (_) async => '/meal.jpg');
+
+    testWidgets('fills a quick record, which logs the estimate', (
+      tester,
+    ) async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final store = storeWith(apple);
+      await pumpScreen(tester, screen(logsOnce: true), store: store);
+      final before = store.todayKcal;
+
+      await scanFood(tester, note: '飯半碗');
+
+      expect(apple.notes, ['飯半碗'], reason: 'the note goes with the photo');
+      expect(find.text('滷肉飯'), findsOneWidget, reason: 'the name, filled');
+      expect(find.textContaining('從照片的估算'), findsOneWidget);
+      expect(
+        find.textContaining('滷汁的油量看不出來'),
+        findsOneWidget,
+        reason: 'what the photo cannot show is said',
+      );
+      await tester.tap(find.text('記錄'));
+      await tester.pumpAndSettle();
+      expect(store.todayKcal, before + 620);
+      await disposeTree(tester);
+    });
+
+    testWidgets('saved as a food, its figures are marked as an estimate', (
+      tester,
+    ) async {
+      final store = storeWith(
+        _FakeDrafter(AiProviderKind.appleOnDevice, const []),
+      );
+      await pumpScreen(tester, screen(), store: store);
+
+      await scanFood(tester);
+      await tester.tap(find.text('只建立'));
+      await tester.pumpAndSettle();
+
+      final saved = store.backend.nutrition.searchFoods('滷肉飯').single;
+      expect(saved.kcal, 620);
+      expect(saved.servingAmount, 300);
+      expect(saved.servingUnit, ServingUnit.gram);
+      expect(saved.valueType, NutrientValueType.estimate);
+      await disposeTree(tester);
+    });
+
+    testWidgets('a plate can be logged item by item', (tester) async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..photoAnswer =
+            '{"items":[{"name":"白飯","amount":"約 180 g","kcal":250},'
+            '{"name":"滷雞腿","amount":"約 120 g","kcal":300}],'
+            '"notes":["滷汁的油量看不出來"]}';
+      final store = storeWith(apple);
+      await pumpScreen(tester, screen(logsOnce: true), store: store);
+      final before = store.todayMeals.length;
+
+      await scanFood(tester);
+      expect(find.text('照片裡有 2 項'), findsOneWidget);
+      await tester.tap(find.text('逐項記錄'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DescribeMealScreen), findsOneWidget);
+      await tester.tap(find.text('記錄 2 項'));
+      await tester.pumpAndSettle();
+
+      expect(store.todayMeals, hasLength(before + 2));
+      expect(
+        store.backend.nutrition.searchFoods('白飯'),
+        isEmpty,
+        reason: 'a plate is a meal, not a food',
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('a cloud provider asks before the first photo', (tester) async {
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+      final store = storeWith(cloud)..setCloudConsent(true);
+      await pumpScreen(tester, screen(logsOnce: true), store: store);
+
+      await scanFood(tester);
+      expect(find.text('送出食物照片到 Ollama Cloud？'), findsOneWidget);
+      expect(cloud.photos, isEmpty, reason: 'nothing leaves before a yes');
+      await tester.tap(find.text('同意並送出'));
+      await tester.pumpAndSettle();
+
+      expect(cloud.photos, hasLength(1));
+      expect(store.hasPhotoConsent, isTrue);
+      await disposeTree(tester);
+    });
   });
 
   group('Ollama Cloud', () {

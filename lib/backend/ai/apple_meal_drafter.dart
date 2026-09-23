@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../domain/domain.dart';
 import 'food_label_json.dart';
+import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 
@@ -53,17 +54,49 @@ class AppleMealDrafter implements MealDrafter {
         model: await modelName(),
       );
 
+  /// On the device from iOS 27, where the model has vision.
+  @override
+  Future<bool> readsPhotos() async {
+    if (!Platform.isIOS) return false;
+    try {
+      return await _channel.invokeMethod<bool>('readsPhotos') ?? false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  /// The photo is read on the device, from its file; nothing is sent.
+  @override
+  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async =>
+      parseMealPhoto(
+        await _ask(
+          'draftMealPhoto',
+          mealPhotoInstructions,
+          note.trim().isEmpty ? '這張照片裡的食物。' : '補充：${note.trim()}',
+          path: photo.path,
+        ),
+        provider: kind,
+        model: await modelName(),
+      );
+
   /// Runs one of the Swift side's guided generations; its JSON answer.
-  Future<String> _ask(String method, String instructions, String text) async {
+  Future<String> _ask(
+    String method,
+    String instructions,
+    String text, {
+    String? path,
+  }) async {
     try {
       return await _channel.invokeMethod<String>(method, {
             'instructions': instructions,
             'text': text,
+            'path': ?path,
           }) ??
           '';
     } on PlatformException catch (error) {
       throw AiException(switch (error.code) {
         'unavailable' => AiFailure.unavailable,
+        'unsupported' => AiFailure.photoUnsupported,
         'rateLimited' => AiFailure.rateLimited,
         _ => AiFailure.providerError,
       }, error.message);

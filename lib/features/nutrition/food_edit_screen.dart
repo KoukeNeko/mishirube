@@ -9,6 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
+import 'describe_meal_screen.dart';
 import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 
@@ -172,22 +173,32 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _amount > 0 &&
       (!_isSize || _sizeName.text.trim().isNotEmpty);
 
-  bool _isScanning = false;
+  /// What is being read, while it is: a label or a food photo.
+  _Scan? _scanning;
 
-  /// What the last scan filled in, for the note that says to check it.
+  /// What the last scan filled in, for the note that says to check it:
+  /// a label's figures, or a photo's estimate.
   FoodLabelDraft? _scanned;
+  MealDraft? _estimated;
   AiFailure? _scanFailure;
 
-  static Future<String?> _pickWithSystemPicker(ImageSource source) async =>
-      (await ImagePicker().pickImage(
-        source: source,
-        // Large enough to read small print, small enough not to strain
-        // memory on the phone while it is read.
-        maxWidth: 2400,
-        maxHeight: 2400,
-      ))?.path;
+  /// Set when a photo's estimate filled the form: its figures are the
+  /// model's guess, not what a packet declares.
+  NutrientValueType? _valueType;
 
-  /// A photo of the nutrition label, from the camera or the library,
+  static Future<String?> _pickWithSystemPicker(
+    ImageSource source, {
+    double maxSide = 2400,
+  }) async => (await ImagePicker().pickImage(
+    source: source,
+    maxWidth: maxSide,
+    maxHeight: maxSide,
+    // Re-encoded as JPEG at this size: plenty for a model, a fraction of
+    // what the camera takes.
+    imageQuality: 85,
+  ))?.path;
+
+  /// A food photo or a nutrition label, from the camera or the library,
   /// read into the form. Nothing is saved: the user checks every number
   /// here and saves as usual.
   Future<void> _scan() async {
@@ -196,36 +207,194 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       await pushPage<void>(context, const AiSettingsScreen());
       return;
     }
-    final source = await showAppDialog<ImageSource>(
+    void pick(_Scan scan, ImageSource source) =>
+        Navigator.of(context).pop((scan, source));
+    final choice = await showAppDialog<(_Scan, ImageSource)>(
       context,
       AppDialog(
-        title: '掃描營養標示',
+        title: '掃描',
         isChoiceList: true,
         actions: [
           DialogAction(
             icon: Icons.photo_camera_outlined,
-            label: '拍照',
-            onTap: () => Navigator.of(context).pop(ImageSource.camera),
+            label: '拍食物',
+            onTap: () => pick(_Scan.food, ImageSource.camera),
           ),
           DialogAction(
             icon: Icons.photo_library_outlined,
-            label: '從相簿選取',
-            onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+            label: '從相簿選食物照片',
+            onTap: () => pick(_Scan.food, ImageSource.gallery),
+          ),
+          DialogAction(
+            icon: Icons.document_scanner_outlined,
+            label: '拍營養標示',
+            onTap: () => pick(_Scan.label, ImageSource.camera),
+          ),
+          DialogAction(
+            icon: Icons.photo_library_outlined,
+            label: '從相簿選營養標示',
+            onTap: () => pick(_Scan.label, ImageSource.gallery),
           ),
           DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
         ],
       ),
     );
-    if (source == null || !mounted) return;
-    final path = await (widget.pickPhoto ?? _pickWithSystemPicker)(source);
+    if (choice == null || !mounted) return;
+    final (scan, source) = choice;
+    final path =
+        await (widget.pickPhoto ??
+            (source) => _pickWithSystemPicker(
+              source,
+              // A label's small print needs more than a plate does; past
+              // about 1600 px a model scales a photo down anyway.
+              maxSide: scan == _Scan.food ? 1568 : 2400,
+            ))(source);
     if (path == null || !mounted) return;
-    await _readLabel(path);
+    switch (scan) {
+      case _Scan.label:
+        await _readLabel(path);
+      case _Scan.food:
+        // What only the eater knows: how much rice, how sweet the tea.
+        final note = await showTextDialog(
+          context,
+          title: '補充說明',
+          hint: '選填，例如：飯半碗、微糖少冰',
+          confirmLabel: '估算',
+          maxLines: 2,
+        );
+        if (note == null || !mounted) return;
+        await _estimatePhoto(path, note);
+    }
+  }
+
+  Future<void> _estimatePhoto(String path, String note) async {
+    final store = AppStoreScope.read(context);
+    setState(() {
+      _scanning = _Scan.food;
+      _scanFailure = null;
+    });
+    try {
+      final draft = await store.draftMealPhoto(path, note: note);
+      if (!mounted) return;
+      setState(() => _scanning = null);
+      await _useEstimate(draft);
+    } on AiException catch (error) {
+      if (!mounted) return;
+      if (error.failure == AiFailure.needsPhotoConsent) {
+        setState(() => _scanning = null);
+        if (await askPhotoConsent(context)) await _estimatePhoto(path, note);
+        return;
+      }
+      setState(() => _scanFailure = error.failure);
+    } finally {
+      if (mounted) setState(() => _scanning = null);
+    }
+  }
+
+  /// One item fills the form. Several are a plate: kept together as one
+  /// food, or logged item by item as a meal, which is the user's call —
+  /// a lunch box is rarely a food anyone picks again.
+  Future<void> _useEstimate(MealDraft draft) async {
+    if (draft.items.length == 1) {
+      _fillFromPhoto(draft);
+      return;
+    }
+    final names = draft.items.map((item) => item.name).join('、');
+    final choice = await showAppDialog<bool>(
+      context,
+      AppDialog(
+        title: '照片裡有 ${draft.items.length} 項',
+        message: names,
+        actions: [
+          DialogAction(
+            label: '合併成一個食物',
+            onTap: () => Navigator.of(context).pop(true),
+          ),
+          DialogAction(
+            label: '逐項記錄',
+            tone: DialogTone.primary,
+            onTap: () => Navigator.of(context).pop(false),
+          ),
+          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        ],
+      ),
+    );
+    if (choice == null || !mounted) return;
+    if (choice) {
+      _fillFromPhoto(draft);
+      return;
+    }
+    final toast = ToastScope.read(context);
+    final logged = await pushPage<List<MealEvent>>(
+      context,
+      DescribeMealScreen(draft: draft, mealType: _mealType),
+    );
+    if (logged == null || logged.isEmpty || !mounted) return;
+    Navigator.of(context).pop();
+    toast.showUndo(
+      '已記錄 ${logged.length} 項',
+      onUndo: () => _nutrition.deleteMeals(logged),
+    );
+  }
+
+  /// Puts a photo's estimate into the form as one serving: every item
+  /// added up, so a figure any item lacks is left empty rather than
+  /// undercounted. The name typed so far is kept.
+  void _fillFromPhoto(MealDraft draft) {
+    final items = draft.items;
+    double? total(int? Function(DraftItem) figure) {
+      final figures = items.map(figure);
+      if (figures.any((value) => value == null)) return null;
+      return figures.fold<double>(0, (sum, value) => sum + value!);
+    }
+
+    void put(TextEditingController field, double? value) =>
+        field.text = value == null ? '' : formatAmount(value);
+    final amounts = items.map((item) => _measuredAmount(item.amount)).toList();
+    final unit = amounts.firstOrNull?.$2;
+    final isMeasured =
+        amounts.every((amount) => amount != null && amount.$2 == unit) &&
+        unit != null;
+    setState(() {
+      if (_name.text.trim().isEmpty) {
+        _name.text = items.map((item) => item.name).join('、');
+      }
+      _servingUnit = isMeasured ? unit : ServingUnit.serving;
+      _servingAmount.text = formatAmount(
+        isMeasured ? amounts.fold(0.0, (sum, amount) => sum + amount!.$1) : 1,
+      );
+      _kind = items.every((item) => item.isDrink)
+          ? ConsumptionKind.beverage
+          : ConsumptionKind.food;
+      _basis = CaffeineBasis.serving;
+      put(_kcal, total((item) => item.kcal));
+      put(_protein, total((item) => item.proteinGrams));
+      put(_carb, total((item) => item.carbGrams));
+      put(_fat, total((item) => item.fatGrams));
+      _valueType = NutrientValueType.estimate;
+      _estimated = draft;
+      _scanned = null;
+    });
+  }
+
+  /// The first weight or volume in a model's amount (「約 180 g（150–220 g）」
+  /// is 180 g), or null when it gave none.
+  static (double, ServingUnit)? _measuredAmount(String amount) {
+    final match = RegExp(r'(\d+(?:\.\d+)?)\s*(g|公克|克|ml|mL|毫升)')
+        .firstMatch(amount);
+    if (match == null) return null;
+    final value = double.parse(match.group(1)!);
+    final unit = switch (match.group(2)) {
+      'ml' || 'mL' || '毫升' => ServingUnit.millilitre,
+      _ => ServingUnit.gram,
+    };
+    return (value, unit);
   }
 
   Future<void> _readLabel(String path) async {
     final store = AppStoreScope.read(context);
     setState(() {
-      _isScanning = true;
+      _scanning = _Scan.label;
       _scanFailure = null;
     });
     try {
@@ -233,13 +402,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     } on AiException catch (error) {
       if (!mounted) return;
       if (error.failure == AiFailure.needsConsent) {
-        setState(() => _isScanning = false);
+        setState(() => _scanning = null);
         if (await askCloudConsent(context)) await _readLabel(path);
         return;
       }
       setState(() => _scanFailure = error.failure);
     } finally {
-      if (mounted) setState(() => _isScanning = false);
+      if (mounted) setState(() => _scanning = null);
     }
   }
 
@@ -276,6 +445,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         put(_extra[nutrient]!, amount);
       }
       _scanned = draft;
+      _estimated = null;
+      _valueType = null;
     });
   }
 
@@ -326,6 +497,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       // Not asked: hand-typed figures are what the packet says, and a
       // size keeps the kind of figure its drink has.
       valueType:
+          _valueType ??
           widget.editing?.valueType ??
           widget.sizeOf?.valueType ??
           NutrientValueType.declared,
@@ -386,9 +558,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           if (isNew && !_isSize)
             HeaderAction(
               icon: Icons.document_scanner_outlined,
-              label: '掃描標示',
-              semanticLabel: '掃描營養標示',
-              onTap: _isScanning ? null : _scan,
+              label: '掃描',
+              semanticLabel: '掃描食物或營養標示',
+              onTap: _scanning != null ? null : _scan,
             ),
         ],
       ),
@@ -411,11 +583,14 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               onPressed: _canSave ? () => _save(logNow: false) : null,
             ),
       children: [
-        if (_isScanning)
+        if (_scanning case final scan?)
           Gutter(
-            child: const InfoBanner(
+            child: InfoBanner(
               icon: Icons.document_scanner_outlined,
-              message: '正在辨識營養標示…',
+              message: switch (scan) {
+                _Scan.label => '正在辨識營養標示…',
+                _Scan.food => '正在估算…',
+              },
             ),
           )
         else if (_scanFailure case final failure?)
@@ -435,6 +610,20 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               message: [
                 '數字來自 ${draft.provider.label}（${draft.model}）的判讀，'
                     '請對照包裝核對。',
+                ...draft.warnings,
+              ].join('\n'),
+            ),
+          )
+        else if (_estimated case final draft?)
+          Gutter(
+            child: InfoBanner(
+              icon: Icons.fact_check_outlined,
+              tone: draft.warnings.isEmpty
+                  ? CardTone.neutral
+                  : CardTone.warning,
+              message: [
+                '數字是 ${draft.provider.label}（${draft.model}）從照片的估算，'
+                    '請核對。',
                 ...draft.warnings,
               ].join('\n'),
             ),
@@ -631,3 +820,6 @@ class _NumberField extends StatelessWidget {
     );
   }
 }
+
+/// What a scan reads.
+enum _Scan { label, food }

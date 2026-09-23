@@ -10,14 +10,16 @@ import '../me/ai_settings_screen.dart';
 import 'nutrition_view_model.dart';
 
 /// A meal in one sentence: the chosen AI drafts it, the user checks and
-/// corrects it, and only then is anything logged.
+/// corrects it, and only then is anything logged. Given a [draft] already
+/// made — a food photo's items — it opens on the check.
 ///
 /// Pops with the logged meals, so the page that opened it can close too
 /// and offer the undo, the way logging a plate does.
 class DescribeMealScreen extends StatefulWidget {
-  const DescribeMealScreen({super.key, this.mealType});
+  const DescribeMealScreen({super.key, this.mealType, this.draft});
 
   final MealType? mealType;
+  final MealDraft? draft;
 
   @override
   State<DescribeMealScreen> createState() => _DescribeMealScreenState();
@@ -39,6 +41,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     super.initState();
     _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _text.addListener(() => setState(() {}));
+    if (widget.draft case final draft?) {
+      _draft = draft;
+      _items = draft.items;
+    }
   }
 
   @override
@@ -121,7 +127,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     final draft = _draft;
     return DetailPage(
       appBar: PageAppBar(
-        title: '用一句話記錄',
+        title: widget.draft == null ? '用一句話記錄' : '照片估算',
         subtitle: store.aiProvider?.label ?? 'AI 未啟用',
       ),
       footer: draft == null
@@ -139,7 +145,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               onPressed: _items.isEmpty ? null : _log,
             ),
       children: [
-        if (store.aiProvider == null) ...[
+        if (store.aiProvider == null && widget.draft == null) ...[
           Gutter(
             child: const InfoBanner(
               icon: Icons.auto_awesome_outlined,
@@ -153,13 +159,14 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
             ),
           ),
         ],
-        Gutter(
-          child: AppTextField(
-            controller: _text,
-            hint: '例如：早餐 蛋餅加大杯冰奶茶',
-            maxLines: 3,
+        if (widget.draft == null)
+          Gutter(
+            child: AppTextField(
+              controller: _text,
+              hint: '例如：早餐 蛋餅加大杯冰奶茶',
+              maxLines: 3,
+            ),
           ),
-        ),
         if (_failure case final failure?)
           Gutter(
             child: InfoBanner(
@@ -168,6 +175,13 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
             ),
           ),
         if (draft != null) ...[
+          if (draft.warnings.isNotEmpty)
+            Gutter(
+              child: InfoBanner(
+                tone: CardTone.warning,
+                message: draft.warnings.join('\n'),
+              ),
+            ),
           Gutter(child: const SectionLabel('草稿')),
           for (final (index, item) in _items.indexed)
             Gutter(
@@ -191,12 +205,13 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               style: AppTextStyles.caption,
             ),
           ),
-          Gutter(
-            child: LinkText(
-              label: '重新產生',
-              onTap: () => setState(() => _draft = null),
+          if (widget.draft == null)
+            Gutter(
+              child: LinkText(
+                label: '重新產生',
+                onTap: () => setState(() => _draft = null),
+              ),
             ),
-          ),
         ],
       ],
     );

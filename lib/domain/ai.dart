@@ -89,6 +89,19 @@ enum AiFailure {
 
   /// No text could be read off the photo.
   noText,
+
+  /// A food photo would go to a cloud provider the user has not agreed
+  /// to send photos to: agreeing to text does not cover a photo.
+  needsPhotoConsent,
+
+  /// The chosen provider, or its model, cannot look at a photo.
+  photoUnsupported,
+
+  /// The model saw no food or drink in the photo.
+  noFood,
+
+  /// The photo is in a format the providers do not read.
+  photoFormat,
 }
 
 class AiException implements Exception {
@@ -114,10 +127,16 @@ class MealDraft {
     required this.items,
     required this.provider,
     required this.model,
+    this.warnings = const [],
   });
 
   final List<DraftItem> items;
   final AiProviderKind provider;
+
+  /// What a photo cannot show and the figures depend on — oil, sauce, a
+  /// drink's sugar — or what does not add up, in the words the review
+  /// shows.
+  final List<String> warnings;
 
   /// The model's own name, kept with what it produced.
   final String model;

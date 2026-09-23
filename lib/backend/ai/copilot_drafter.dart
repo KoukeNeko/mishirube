@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../domain/domain.dart';
 import 'cloud_drafter.dart';
+import 'food_photo.dart';
 
 /// What the user has to do to sign in: type this code on that page.
 class DeviceCodePrompt {
@@ -194,10 +195,20 @@ class CopilotDrafter extends CloudDrafter {
     return _accessToken ?? unreadable(body);
   }
 
-  /// One conversation per request: the app asks one question at a time,
-  /// and a fresh conversation carries nothing from the last one.
+  /// Copilot's chat takes text only: no image goes in a message.
   @override
-  Future<String> chat(String instructions, String message) async {
+  Future<bool> readsPhotos() async => false;
+
+  /// One conversation per request: the app asks one question at a time,
+  /// and a fresh conversation carries nothing from the last one. A photo
+  /// cannot be sent at all.
+  @override
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
+    if (photo != null) throw const AiException(AiFailure.photoUnsupported);
     final token = await key();
     final headers = {
       'Authorization': 'Bearer $token',
