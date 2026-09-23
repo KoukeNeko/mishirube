@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -39,11 +40,11 @@ class FoodEditScreen extends StatefulWidget {
   /// hands one in. Returns the photo's path, or null when cancelled.
   final Future<String?> Function(ImageSource source)? pickPhoto;
 
-  /// 快速記錄: the same form, logged as one serving eaten now and never
-  /// kept as a food. For the things nobody plans to eat again — a
-  /// colleague's birthday cake, a stall on holiday — which would only
-  /// fill the list with entries never picked twice. Pops the food that
-  /// was logged.
+  /// 快速記錄: the same form, logged as one serving eaten now and, unless
+  /// 存入食物庫 is switched on, not kept as a food. For the things nobody
+  /// plans to eat again — a colleague's birthday cake, a stall on holiday
+  /// — which would only fill the list with entries never picked twice.
+  /// Pops the food that was logged.
   final bool logsOnce;
 
   @override
@@ -78,6 +79,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// actually decide it: soup is poured and is not a drink.
   /// The meal a quick record is logged under; none unless picked.
   MealType? _mealType;
+
+  /// Whether a quick record also keeps the food in the library.
+  bool _keepsFood = false;
 
   late ConsumptionKind _kind =
       widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
@@ -286,10 +290,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     Navigator.of(context).pop(logNow ? food : null);
   }
 
-  /// Logs the form as one serving eaten now, keeping no food.
+  /// Logs the form as one serving eaten now, keeping the food only when
+  /// asked to.
   void _logOnce() {
     final food = _food();
-    _nutrition.logOnce(food, mealType: _mealType);
+    if (_keepsFood) {
+      _nutrition.saveFood(food);
+      _nutrition.logPortions([FoodPortion(food, 1)], mealType: _mealType);
+    } else {
+      _nutrition.logOnce(food, mealType: _mealType);
+    }
     Navigator.of(context).pop(food);
   }
 
@@ -440,6 +450,17 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               selected: _mealType,
               suggested: _nutrition.suggestedMealType(),
               onChanged: (type) => setState(() => _mealType = type),
+            ),
+          ),
+          Gutter(
+            child: GroupedCard(
+              children: [
+                SwitchRow(
+                  title: '存入食物庫',
+                  value: _keepsFood,
+                  onChanged: (keeps) => setState(() => _keepsFood = keeps),
+                ),
+              ],
             ),
           ),
         ],

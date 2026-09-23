@@ -1471,6 +1471,28 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a quick record can also keep the food', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = store.todayKcal;
+
+    await _tapText(tester, '快速記錄');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(AppTextField).first, '公司樓下便當');
+    await _tapText(tester, '存入食物庫');
+    await _enterBeside(tester, '熱量', '650');
+    await _tapText(tester, '記錄');
+    await tester.pumpAndSettle();
+
+    expect(store.todayKcal, before + 650);
+    expect(
+      store.backend.nutrition.searchFoods('便當').map((food) => food.name),
+      contains('公司樓下便當'),
+      reason: 'switched on, it is there to pick next time',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a glass of water is one tap and one kind of record', (
     tester,
   ) async {
