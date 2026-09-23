@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../window_controls.dart';
+import '../chrome/chrome_visibility.dart';
 import '../../window_layout.dart';
 
 /// A list and the page picked from it. With room for two panes (see
@@ -121,16 +122,27 @@ class ListDetailLayoutState extends State<ListDetailLayout> {
                 // The window controls are in the list pane's corner.
                 child: WindowControls(
                   leadingInset: 0,
-                  child: NavigatorPopHandler(
-                    // The system back gesture goes back inside the pane
-                    // first, as it does in a pushed page.
-                    onPopWithResult: (_) => _paneKey.currentState?.maybePop(),
-                    child: Navigator(
-                      key: _paneKey,
-                      onGenerateRoute: (_) => PageRouteBuilder<void>(
-                        pageBuilder: (_, _, _) =>
-                            Scaffold(body: Center(child: widget.placeholder)),
-                        transitionDuration: Duration.zero,
+                  // The app's chrome sits on the list pane and follows its
+                  // scrolling, as a column's bars do on iPad; this pane's
+                  // own header collapses with this pane.
+                  child: ChromeVisibility(
+                    isMinimized: false,
+                    child: NotificationListener<UserScrollNotification>(
+                      onNotification: (_) => true,
+                      child: NavigatorPopHandler(
+                        // The system back gesture goes back inside the pane
+                        // first, as it does in a pushed page.
+                        onPopWithResult: (_) =>
+                            _paneKey.currentState?.maybePop(),
+                        child: Navigator(
+                          key: _paneKey,
+                          onGenerateRoute: (_) => PageRouteBuilder<void>(
+                            pageBuilder: (_, _, _) => Scaffold(
+                              body: Center(child: widget.placeholder),
+                            ),
+                            transitionDuration: Duration.zero,
+                          ),
+                        ),
                       ),
                     ),
                   ),

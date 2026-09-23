@@ -10,6 +10,7 @@ import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
+import 'package:mishirube/features/shell/bottom_chrome/app_bottom_chrome.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
@@ -378,6 +379,40 @@ void main() {
 
       expect(find.byType(ExportScreen), findsOneWidget);
       expect(find.byType(PrivacyScreen), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('scrolling the page beside the list leaves the dock alone', (
+      tester,
+    ) async {
+      final store = _store();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+      store.selectTab(HomeTab.me);
+      await tester.pumpAndSettle();
+      await _tapRow(tester, '隱私說明');
+      bool isMinimized() => tester
+          .widget<AppBottomChrome>(find.byType(AppBottomChrome))
+          .isMinimized;
+
+      await tester.drag(
+        find.descendant(
+          of: find.byType(PrivacyScreen),
+          matching: find.byType(CustomScrollView),
+        ),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(isMinimized(), isFalse, reason: 'the dock is on the list pane');
+
+      await tester.drag(
+        find.descendant(
+          of: find.byType(MeScreen),
+          matching: find.byType(CustomScrollView),
+        ),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(isMinimized(), isTrue, reason: 'its own pane still moves it');
       await disposeTree(tester);
     });
 
