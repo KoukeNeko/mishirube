@@ -3,17 +3,35 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/haptics.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../shared/window_controls.dart';
 import '../../shared/window_layout.dart';
 import '../record/record_options.dart';
+import 'bottom_chrome/chrome_metrics.dart';
+import 'bottom_chrome/press_feedback.dart';
+import 'bottom_chrome/split_dock.dart';
 import 'home_tabs.dart';
 
-/// The tabs once the window can spare a column for them: a rail of icons,
-/// or, with room for their names, a sidebar. Recording something sits at
-/// the top, as the rail's one action, with a running session under it;
-/// neither is a place to go, so neither is a tab.
+/// Space between the navigation's glass and the window's edges, and
+/// between its pieces: the dock's gap.
+const _gap = ChromeMetrics.gap;
+
+/// Height of a tab in the sidebar, where its name sits beside the icon.
+const _sidebarTabHeight = 44.0;
+
+/// Height of a tab in the rail, with its name under the icon.
+const _railTabHeight = 56.0;
+
+/// Height of the record button and the running session under it.
+const _actionHeight = 48.0;
+const _sessionHeight = 40.0;
+
+/// The tabs once the window can spare a column for them: the dock's
+/// pieces stood on end. A rail of icons, or with room for their names a
+/// sidebar; the green「+」above them, the running session under it, and
+/// the tabs on one pane of glass with the dock's selection lens.
 ///
 /// Unlike the dock it never tucks away while a page scrolls: it takes no
 /// height from the page, and a pointer finds it where it always is.
@@ -44,93 +62,191 @@ class SideNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The rail keeps to the safe area itself. A windowed iPad also draws
-    // its window controls over this corner, which the safe area does not
-    // cover; the rail starts below them, where a bar would have been.
+    final padding = MediaQuery.paddingOf(context);
+    final isLtr = Directionality.of(context) == TextDirection.ltr;
+    // A windowed iPad draws its window controls over this corner, which
+    // the safe area does not cover; start below them, where a bar would
+    // have been.
     final controls = WindowControls.leadingInsetOf(context) > 0
         ? ToolbarMetrics.of(context).height
         : 0.0;
-    return DecoratedBox(
-      decoration: BoxDecoration(
+    final session = this.session;
+    // The full height of the window, its background behind the glass.
+    return SizedBox(
+      height: double.infinity,
+      child: ColoredBox(
         color: AppColors.background,
-        border: BorderDirectional(
-          end: const BorderSide(color: AppColors.outline),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(top: controls),
-        // A phone on its side is short: the rail scrolls rather than
-        // cutting off its last tab.
-        child: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(child: _rail(session)),
-            ),
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: padding.top + controls,
+            bottom: padding.bottom,
+            left: isLtr ? padding.left : 0,
+            right: isLtr ? 0 : padding.right,
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _rail(ActiveSession? session) {
-    return NavigationRail(
-      extended: isExtended,
-      minWidth: railWidth,
-      minExtendedWidth: sidebarWidth,
-      backgroundColor: Colors.transparent,
-      labelType: isExtended
-          ? NavigationRailLabelType.none
-          : NavigationRailLabelType.all,
-      selectedIndex: selected.index,
-      onDestinationSelected: (index) => onSelect(HomeTab.values[index]),
-      indicatorColor: AppColors.surfaceRaised,
-      selectedIconTheme: const IconThemeData(color: AppColors.training),
-      unselectedIconTheme: const IconThemeData(color: AppColors.textSecondary),
-      selectedLabelTextStyle: AppTextStyles.caption.copyWith(
-        color: AppColors.textPrimary,
-      ),
-      unselectedLabelTextStyle: AppTextStyles.caption,
-      leading: Padding(
-        padding: const EdgeInsets.only(
-          top: AppSpacing.xs,
-          bottom: AppSpacing.md,
-        ),
-        child: Column(
-          children: [
-            _RecordButton(
-              isExtended: isExtended,
-              controller: recordMenu,
-              onOpen: onOpen,
-            ),
-            if (session != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              _SessionButton(
-                isExtended: isExtended,
-                session: session,
-                onOpen: onOpenSession,
+          child: SizedBox(
+            width: isExtended ? sidebarWidth : railWidth,
+            // A phone on its side is short: the column scrolls rather than
+            // cutting off its last tab.
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(_gap),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _RecordButton(
+                    isExtended: isExtended,
+                    controller: recordMenu,
+                    onOpen: onOpen,
+                  ),
+                  if (session != null) ...[
+                    const SizedBox(height: _gap),
+                    _SessionButton(
+                      isExtended: isExtended,
+                      session: session,
+                      onOpen: onOpenSession,
+                    ),
+                  ],
+                  const SizedBox(height: _gap),
+                  ChromeSurface(
+                    refracts: true,
+                    radius: AppRadius.card,
+                    child: Padding(
+                      padding: const EdgeInsets.all(ChromeMetrics.lensInset),
+                      child: Column(
+                        children: [
+                          for (final spec in homeTabs)
+                            _SideTab(
+                              spec: spec,
+                              isExtended: isExtended,
+                              isSelected: spec.tab == selected,
+                              onTap: () {
+                                if (spec.tab != selected) {
+                                  AppHaptics.selection(context);
+                                }
+                                onSelect(spec.tab);
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
-      destinations: [
-        for (final spec in homeTabs)
-          NavigationRailDestination(
-            icon: Icon(spec.icon),
-            selectedIcon: Icon(spec.selectedIcon),
-            label: Text(spec.label),
-          ),
-      ],
     );
   }
 }
 
-/// Width of what sits above the sidebar's tabs, inside its margins.
-const _sidebarItemWidth = sidebarWidth - AppSpacing.md * 2;
+/// One tab: the dock's icon, label and lens, with a lighter lens under a
+/// pointer so a mouse sees what it would pick.
+class _SideTab extends StatefulWidget {
+  const _SideTab({
+    required this.spec,
+    required this.isExtended,
+    required this.isSelected,
+    required this.onTap,
+  });
 
-/// The record menu: every type the user logs, as a list under the button
-/// rather than the dock's pills, which grow up from the bottom of a phone.
+  final HomeTabSpec spec;
+  final bool isExtended;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  State<_SideTab> createState() => _SideTabState();
+}
+
+class _SideTabState extends State<_SideTab> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final spec = widget.spec;
+    final isSelected = widget.isSelected;
+    final color = isSelected ? AppColors.training : AppColors.textSecondary;
+    final label = Text(
+      spec.label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: color,
+        fontSize: widget.isExtended ? 15 : 11,
+        // Bolder when selected, as in the dock, so colour is not the only
+        // cue.
+        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+      ),
+    );
+    final icon = Icon(
+      isSelected ? spec.selectedIcon : spec.icon,
+      color: color,
+      size: 24,
+    );
+    final lensOpacity = isSelected
+        ? (_isPressed
+              ? ChromeMetrics.lensPressedFillOpacity
+              : ChromeMetrics.lensFillOpacity)
+        : (_isHovered ? ChromeMetrics.lensFillOpacity / 2 : 0.0);
+    return Semantics(
+      label: spec.label,
+      selected: isSelected,
+      button: true,
+      onTap: widget.onTap,
+      excludeSemantics: true,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: PressScale(
+          pressedScale: ChromeMetrics.tabPressedScale,
+          onPressedChanged: (isPressed) =>
+              setState(() => _isPressed = isPressed),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: ChromeMetrics.pressDuration,
+              height: widget.isExtended ? _sidebarTabHeight : _railTabHeight,
+              decoration: ShapeDecoration(
+                shape: StadiumBorder(
+                  side: BorderSide(
+                    color: Colors.white.withValues(
+                      alpha: isSelected ? ChromeMetrics.lensBorderOpacity : 0,
+                    ),
+                  ),
+                ),
+                color: Colors.white.withValues(alpha: lensOpacity),
+              ),
+              child: widget.isExtended
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          icon,
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(child: label),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [icon, const SizedBox(height: 2), label],
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The dock's green「+」, opening every type the user logs as a list
+/// under it: the quick-log pills grow up from the bottom of a phone,
+/// which is not where this button is.
 class _RecordButton extends StatelessWidget {
   const _RecordButton({
     required this.isExtended,
@@ -146,10 +262,32 @@ class _RecordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return MenuAnchor(
       controller: controller,
+      alignmentOffset: const Offset(0, _gap),
+      style: MenuStyle(
+        backgroundColor: const WidgetStatePropertyAll(AppColors.surfaceRaised),
+        elevation: const WidgetStatePropertyAll(8),
+        shadowColor: const WidgetStatePropertyAll(Colors.black),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.all(ChromeMetrics.lensInset),
+        ),
+        shape: const WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(AppRadius.card)),
+            side: BorderSide(color: AppColors.outline),
+          ),
+        ),
+      ),
       menuChildren: [
         for (final option in enabledRecordOptions(context))
           MenuItemButton(
-            leadingIcon: Icon(option.icon, color: option.color),
+            style: MenuItemButton.styleFrom(
+              foregroundColor: AppColors.textPrimary,
+              textStyle: AppTextStyles.itemTitle,
+              minimumSize: const Size(200, 44),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              shape: const StadiumBorder(),
+            ),
+            leadingIcon: Icon(option.icon, color: option.color, size: 22),
             onPressed: () {
               if (option.destination case final destination?) {
                 onOpen(destination());
@@ -161,44 +299,63 @@ class _RecordButton extends StatelessWidget {
           ),
       ],
       builder: (context, controller, _) {
-        void toggle() =>
-            controller.isOpen ? controller.close() : controller.open();
-        const shape = RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppRadius.small)),
-        );
-        if (isExtended) {
-          return SizedBox(
-            width: _sidebarItemWidth,
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.training,
-                foregroundColor: AppColors.onTraining,
-                minimumSize: const Size.fromHeight(48),
-                shape: shape,
-              ),
-              onPressed: toggle,
-              icon: const Icon(Icons.add),
-              label: const Text('新增紀錄'),
-            ),
-          );
+        void toggle() {
+          AppHaptics.tap();
+          controller.isOpen ? controller.close() : controller.open();
         }
-        return IconButton.filled(
-          tooltip: '新增紀錄',
-          style: IconButton.styleFrom(
-            backgroundColor: AppColors.training,
-            foregroundColor: AppColors.onTraining,
-            fixedSize: const Size.square(56),
-            shape: shape,
-          ),
-          onPressed: toggle,
-          icon: const Icon(Icons.add),
+
+        final plus = Icon(
+          Icons.add,
+          color: CenterActionSurface.foreground,
+          size: 26,
         );
+        final button = Semantics(
+          button: true,
+          label: '新增紀錄',
+          onTap: toggle,
+          excludeSemantics: true,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: PressScale(
+              pressedScale: ChromeMetrics.actionPressedScale,
+              child: SizedBox(
+                height: _actionHeight,
+                child: CenterActionSurface(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: toggle,
+                    child: Center(
+                      child: isExtended
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                plus,
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  '新增紀錄',
+                                  style: AppTextStyles.itemTitle.copyWith(
+                                    color: CenterActionSurface.foreground,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : plus,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        return isExtended ? button : Tooltip(message: '新增紀錄', child: button);
       },
     );
   }
 }
 
-/// The running workout or exercise: its clock, and a way back to it.
+/// The running workout or exercise on the dock accessory's tinted glass:
+/// its clock, and a way back to it.
 class _SessionButton extends StatelessWidget {
   const _SessionButton({
     required this.isExtended,
@@ -213,6 +370,7 @@ class _SessionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = session.label;
+    final isActivity = session.category == RecordCategory.activity;
     final color = switch (session) {
       _ when session.isPaused => AppColors.warning,
       ActiveActivity() => AppColors.activity,
@@ -220,43 +378,66 @@ class _SessionButton extends StatelessWidget {
     };
     final style = AppTextStyles.caption.copyWith(
       color: color,
+      fontWeight: FontWeight.w700,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
+    final status = session.isPaused ? '$label已暫停' : '$label進行中';
     return Tooltip(
-      message: session.isPaused ? '$label已暫停' : '$label進行中',
-      child: Material(
-        color: AppColors.surfaceRaised,
-        shape: const StadiumBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          key: const ValueKey('side-session-open'),
-          onTap: onOpen,
-          child: SizedBox(
-            width: isExtended ? _sidebarItemWidth : 64,
-            height: 36,
-            // A long session's clock scales down rather than spill out of
-            // the rail.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    session.isPaused ? Icons.pause : Icons.circle,
-                    size: 8,
-                    color: color,
-                  ),
-                  const SizedBox(width: AppSpacing.xxs),
-                  if (isExtended)
-                    Text(
-                      session.isPaused ? '已暫停 · ' : '$label進行中 · ',
-                      style: style,
+      message: status,
+      child: Semantics(
+        button: true,
+        label: '$status，回到$label',
+        onTap: onOpen,
+        excludeSemantics: true,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: PressScale(
+            pressedScale: ChromeMetrics.actionPressedScale,
+            child: SizedBox(
+              height: _sessionHeight,
+              child: ChromeSurface(
+                tint: isActivity
+                    ? AppColors.activitySurface
+                    : AppColors.trainingSurface,
+                borderColor: isActivity
+                    ? AppColors.activityOutline
+                    : AppColors.trainingOutline,
+                child: GestureDetector(
+                  key: const ValueKey('side-session-open'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onOpen,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
                     ),
-                  ElapsedClock(
-                    session: session,
-                    builder: (_, elapsed) => Text(elapsed, style: style),
+                    // A long session's clock scales down rather than spill
+                    // out of the rail.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            session.isPaused ? Icons.pause : Icons.circle,
+                            size: 8,
+                            color: color,
+                          ),
+                          const SizedBox(width: AppSpacing.xxs),
+                          if (isExtended)
+                            Text(
+                              session.isPaused ? '已暫停 · ' : '$status · ',
+                              style: style,
+                            ),
+                          ElapsedClock(
+                            session: session,
+                            builder: (_, elapsed) =>
+                                Text(elapsed, style: style),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

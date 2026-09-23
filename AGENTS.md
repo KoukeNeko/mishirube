@@ -110,7 +110,9 @@ In particular, do not create a parallel version of:
 - the floating split dock (`lib/features/shell/bottom_chrome/`) and the
   rail or sidebar that replaces it on wider windows
   (`lib/features/shell/side_navigation.dart`); both draw the tabs from
-  `homeTabs`;
+  `homeTabs`, and the rail is built from the dock's own pieces
+  (`ChromeSurface`, `CenterActionSurface`, the selection lens), never
+  Material's `NavigationRail`;
 - toasts: `showToast` / `ToastScope.read(context).showUndo` – never
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
