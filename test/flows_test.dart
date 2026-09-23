@@ -131,11 +131,33 @@ void main() {
 
     clock.advance(const Duration(minutes: 30));
     await _tapText(tester, '結束');
+    expect(
+      find.text('結束這次訓練？'),
+      findsOneWidget,
+      reason: 'sets are left, so ending is asked, not assumed',
+    );
+    await _tapText(tester, '結束並儲存');
     expect(find.text('回到今天'), findsOneWidget);
     expect(store.lastFinishedWorkout, isNotNull);
 
     await _tapText(tester, '回到今天');
     expect(find.text('下肢 A 已完成'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a workout ended early can be given up', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _tapText(tester, '開始訓練');
+    final id = store.activeWorkout!.id;
+
+    await _tapText(tester, '結束');
+    await _tapText(tester, '放棄這次訓練');
+    expect(store.activeWorkout, isNull);
+    expect(store.lastFinishedWorkout?.id, isNot(id));
+    expect(find.text('完成這一組'), findsNothing);
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });

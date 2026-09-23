@@ -12,6 +12,7 @@ import '../../shared/motion.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
+import '../shell/finish_session_dialog.dart';
 import 'rest_timer_screen.dart';
 import 'set_editor_dialog.dart';
 import 'substitute_exercise_screen.dart';
@@ -34,6 +35,25 @@ class ActiveWorkoutScreen extends StatelessWidget {
   void _finish(BuildContext context) {
     AppStoreScope.read(context).finishWorkout();
     replaceWithPage(context, const WorkoutSummaryScreen());
+  }
+
+  /// Ends the workout from its header. With every set done that is the
+  /// footer's answer; with sets left it asks first.
+  Future<void> _end(BuildContext context, WorkoutSession workout) async {
+    if (workout.completedSets == workout.totalSets) return _finish(context);
+    final store = AppStoreScope.read(context);
+    final choice = await askHowSessionEnds(context, ActiveWorkout(workout));
+    if (!context.mounted) return;
+    switch (choice) {
+      case null || FinishChoice.keepGoing:
+        return;
+      case FinishChoice.finish:
+        _finish(context);
+      case FinishChoice.discard:
+        store.discardWorkout();
+        Navigator.of(context).maybePop();
+        showToast(context, '已放棄這次訓練');
+    }
   }
 
   void _completeSet(BuildContext context, WorkoutSession workout) {
@@ -92,7 +112,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
                 icon: Icons.stop_rounded,
                 label: '結束',
                 semanticLabel: '結束訓練',
-                onTap: () => _finish(context),
+                onTap: () => _end(context, workout),
               ),
             ],
             compactTitle: _LiveTitle(workout: workout),

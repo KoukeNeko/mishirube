@@ -16,9 +16,9 @@ import '../training/workout_summary_screen.dart';
 import '../trends/trends_screen.dart';
 import 'bottom_chrome/app_bottom_chrome.dart';
 import 'bottom_chrome/quick_log_menu.dart';
+import 'finish_session_dialog.dart';
 
 /// What the user chose in the "finish this session?" dialog.
-enum _FinishChoice { keepGoing, discard, finish }
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -103,41 +103,12 @@ class _HomeShellState extends State<HomeShell> {
 
   Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
     final label = session.label;
-    final choice = await showAppDialog<_FinishChoice>(
-      context,
-      AppDialog(
-        title: '結束這次$label？',
-        message: switch (session) {
-          ActiveWorkout() => '已完成的組數會存成紀錄；放棄則不會算成一次訓練。',
-          ActiveActivity() => '結束會存成一筆運動紀錄；放棄則什麼都不留。',
-        },
-        actions: [
-          DialogAction(
-            label: '結束並儲存',
-            tone: DialogTone.primary,
-            onTap: () => Navigator.of(context).pop(_FinishChoice.finish),
-          ),
-          DialogAction(
-            label: switch (session) {
-              ActiveWorkout() => '放棄這次訓練',
-              ActiveActivity() => '放棄這次運動',
-            },
-            tone: DialogTone.destructive,
-            onTap: () => Navigator.of(context).pop(_FinishChoice.discard),
-          ),
-          // The way out goes last, where a stacked Cancel belongs.
-          DialogAction(
-            label: '繼續$label',
-            onTap: () => Navigator.of(context).pop(_FinishChoice.keepGoing),
-          ),
-        ],
-      ),
-    );
+    final choice = await askHowSessionEnds(context, session);
     if (!mounted) return;
     switch (choice) {
-      case null || _FinishChoice.keepGoing:
+      case null || FinishChoice.keepGoing:
         return;
-      case _FinishChoice.discard:
+      case FinishChoice.discard:
         switch (session) {
           case ActiveWorkout():
             store.discardWorkout();
@@ -145,7 +116,7 @@ class _HomeShellState extends State<HomeShell> {
             store.discardActivity();
         }
         showToast(context, '已放棄這次$label');
-      case _FinishChoice.finish:
+      case FinishChoice.finish:
         switch (session) {
           case ActiveWorkout():
             store.finishWorkout();
