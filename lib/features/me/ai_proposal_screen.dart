@@ -117,7 +117,6 @@ class _ChangeRow extends StatelessWidget {
     };
     return AppCard(
       tone: tone,
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           SizedBox(

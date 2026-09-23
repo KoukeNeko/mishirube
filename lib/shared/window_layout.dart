@@ -37,10 +37,11 @@ double mainPaneExtent(BuildContext context, double width) {
   };
 }
 
-/// Widest the page column grows. Past this, lines of text and rows with a
-/// label at one end and its value at the other stop reading as one thing,
-/// so a wider page centres the column instead of stretching it.
-const contentMaxWidth = 640.0;
+/// Widest a paragraph grows before its lines get too long to read, and
+/// widest a footer button grows before it reads as a bar. Only those are
+/// held to it: cards, lists and charts use the whole column, the way a
+/// split view's detail column does on iPad.
+const readableMaxWidth = 640.0;
 
 /// The hinge or half-opened fold running down a region [width] wide, in
 /// the region's coordinates, or null when nothing divides it into sides.
@@ -82,14 +83,16 @@ Rect? dividingFold(BuildContext context, double width) {
 }
 
 /// Insets from the edges of a region [width] wide to its content column:
-/// no wider than [maxWidth], centred in the [usableSpan].
+/// the [usableSpan], or no wider than [maxWidth] and centred in it.
 EdgeInsets contentColumnInsets(
   BuildContext context,
   double width, {
-  double maxWidth = contentMaxWidth,
+  double? maxWidth,
 }) {
   final span = usableSpan(context, width);
-  final spare = math.max(0.0, span.end - span.start - maxWidth);
+  final spare = maxWidth == null
+      ? 0.0
+      : math.max(0.0, span.end - span.start - maxWidth);
   return EdgeInsets.only(
     left: span.start + spare / 2,
     right: width - span.end + spare / 2,
@@ -97,8 +100,8 @@ EdgeInsets contentColumnInsets(
 }
 
 /// The content column of the page around [context], as insets from the
-/// page's edges. `Gutter` keeps an element to it, so cards line up in a
-/// wide window; an element that runs edge to edge (a row of chips that
+/// page's edges: the safe area and the side of a fold. `Gutter` keeps an
+/// element to it; an element that runs edge to edge (a row of chips that
 /// scrolls sideways) pads its content by it instead, so the first chip
 /// lines up with the cards and the row still runs off the screen.
 class PageColumn extends InheritedWidget {

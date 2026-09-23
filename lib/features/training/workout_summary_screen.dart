@@ -130,7 +130,6 @@ class _ResultRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
       radius: AppRadius.small + 4,
       child: Row(
         children: [

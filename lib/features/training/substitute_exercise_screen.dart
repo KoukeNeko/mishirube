@@ -125,7 +125,6 @@ class _CandidateCard extends StatelessWidget {
     return AppCard(
       tone: isSelected ? CardTone.training : CardTone.neutral,
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

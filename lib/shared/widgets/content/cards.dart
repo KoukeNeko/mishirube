@@ -20,7 +20,7 @@ class AppCard extends StatelessWidget {
     super.key,
     required this.child,
     this.tone = CardTone.neutral,
-    this.padding = const EdgeInsets.all(AppSpacing.lg),
+    this.padding = const EdgeInsets.all(AppSpacing.md),
     this.radius = AppRadius.card,
     this.borderColor,
     this.onTap,

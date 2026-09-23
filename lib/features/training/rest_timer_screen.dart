@@ -72,7 +72,11 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) => Padding(
-          padding: contentColumnInsets(context, constraints.maxWidth),
+          padding: contentColumnInsets(
+            context,
+            constraints.maxWidth,
+            maxWidth: readableMaxWidth,
+          ),
           child: SafeArea(
             // A phone on its side is too short for the countdown and the
             // set it follows, so there it scrolls; anywhere taller the

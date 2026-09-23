@@ -118,7 +118,6 @@ class _StructurePreview extends StatelessWidget {
     return AppCard(
       tone: tone,
       radius: AppRadius.small + 4,
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

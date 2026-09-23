@@ -27,7 +27,6 @@ class InfoBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       tone: tone,
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

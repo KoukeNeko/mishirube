@@ -28,7 +28,6 @@ class ProgressionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final target = '${formatWeight(suggestion.targetWeightKg)} kg';
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

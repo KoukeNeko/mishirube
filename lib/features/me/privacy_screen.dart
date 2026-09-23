@@ -113,7 +113,9 @@ class _Section extends StatelessWidget {
           Gutter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-              child: Text(line, style: AppTextStyles.body),
+              child: ReadableWidth(
+                child: Text(line, style: AppTextStyles.body),
+              ),
             ),
           ),
       ],

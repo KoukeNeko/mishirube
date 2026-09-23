@@ -125,7 +125,7 @@ Future<void> _tapRow(WidgetTester tester, String title) async {
 void main() {
   group('every window size', () {
     for (final window in _matrix) {
-      testWidgets('$window: the chrome fits and cards keep to the column', (
+      testWidgets('$window: the chrome fits and cards keep the gutter', (
         tester,
       ) async {
         final store = _store();
@@ -156,11 +156,14 @@ void main() {
           expect(tester.takeException(), isNull, reason: '$tab');
           for (final card in _cardRects(tester)) {
             expect(
-              card.width,
-              lessThanOrEqualTo(
-                contentMaxWidth - AppSpacing.screenGutter * 2 + 0.01,
-              ),
-              reason: '$tab: a card never stretches past the column',
+              card.left,
+              greaterThanOrEqualTo(pageLeft + AppSpacing.screenGutter - 0.01),
+              reason: '$tab: a card keeps the gutter from its page edge',
+            );
+            expect(
+              card.right,
+              lessThanOrEqualTo(pageRight - AppSpacing.screenGutter + 0.01),
+              reason: '$tab: a card keeps the gutter from its page edge',
             );
             expect(card.left, greaterThanOrEqualTo(window.padding.left));
             expect(
@@ -235,15 +238,34 @@ void main() {
     final rowRect = tester.getRect(row);
     expect(rowRect.left, 0);
     expect(rowRect.right, tablet.size.width);
-    final column = (tablet.size.width - contentMaxWidth) / 2;
     expect(
       tester.getRect(find.byType(SelectChip).first).left,
-      column + AppSpacing.screenGutter,
+      AppSpacing.screenGutter,
     );
     await disposeTree(tester);
   });
 
-  testWidgets('a footer button keeps to the column', (tester) async {
+  testWidgets('the trends summary goes three across when there is room', (
+    tester,
+  ) async {
+    for (final (window, isWide) in [
+      (phone, false),
+      (const WindowCase('839 × 900', Size(839, 900)), true),
+    ]) {
+      final store = _store()..selectTab(HomeTab.trends);
+      await pumpScreen(tester, const HomeShell(), store: store, window: window);
+      final weight = tester.getRect(find.text('體重').first);
+      final activity = tester.getRect(find.text('每週運動'));
+      expect(
+        activity.top == weight.top,
+        isWide,
+        reason: '$window: exercise beside weight only when wide',
+      );
+      await disposeTree(tester);
+    }
+  });
+
+  testWidgets('a footer button keeps to the readable width', (tester) async {
     await pumpScreen(
       tester,
       const WeightEntryScreen(),
@@ -254,7 +276,7 @@ void main() {
     final button = tester.getRect(find.byType(PrimaryButton));
     expect(
       button.width,
-      lessThanOrEqualTo(contentMaxWidth - AppSpacing.screenGutter * 2 + 0.01),
+      lessThanOrEqualTo(readableMaxWidth - AppSpacing.screenGutter * 2 + 0.01),
     );
     expect(
       button.center.dx,
@@ -350,10 +372,23 @@ void main() {
 
       await _tapRow(tester, '動作庫');
 
+      final detail = tester.getRect(find.byType(ExercisePickerScreen));
       expect(
-        tester.getRect(find.byType(ExercisePickerScreen)).left,
+        detail.left,
         greaterThanOrEqualTo(tester.getRect(find.byType(MeScreen)).right),
       );
+      // The detail pane keeps the list's gutter instead of centring a
+      // narrower column in its own width.
+      final card = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(ExercisePickerScreen),
+              matching: find.byType(AppCard),
+            )
+            .first,
+      );
+      expect(card.left - detail.left, AppSpacing.screenGutter);
+      expect(detail.right - card.right, AppSpacing.screenGutter);
       await disposeTree(tester);
     });
 

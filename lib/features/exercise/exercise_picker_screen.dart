@@ -385,7 +385,6 @@ class _ExerciseTile extends StatelessWidget {
       child: AppCard(
         tone: isSelected ? CardTone.training : CardTone.neutral,
         onTap: onTap,
-        padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           children: [
             _OrderBadge(order: order),

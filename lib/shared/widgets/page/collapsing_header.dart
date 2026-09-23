@@ -533,8 +533,8 @@ class _Toolbar extends StatelessWidget {
 
 /// How wide the toolbar is, for an action that grows across it (a search
 /// field). The actions sit in a row that gives them no width to measure,
-/// and the window is the wrong answer: beside a rail, in a list pane or in
-/// a centred column the bar is narrower than the screen.
+/// and the window is the wrong answer: beside a rail, in a list pane or
+/// beside a fold the bar is narrower than the screen.
 class ToolbarWidth extends InheritedWidget {
   const ToolbarWidth({super.key, required this.width, required super.child});
 
@@ -733,8 +733,8 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
     return NotificationListener<ScrollNotification>(
       onNotification: _onScroll,
       // The scroll view and its rows stay as wide as the page: a drag in the
-      // margin beside a centred column still scrolls it, and a row of chips
-      // still runs off the screen. Each element keeps to the column itself.
+      // safe-area margin still scrolls it, and a row of chips still runs off
+      // the screen. Each element keeps to the column itself.
       child: LayoutBuilder(
         builder: (context, constraints) => PageColumn(
           insets: contentColumnInsets(context, constraints.maxWidth),

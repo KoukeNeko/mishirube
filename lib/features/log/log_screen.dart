@@ -301,7 +301,6 @@ class _TimelineRow extends StatelessWidget {
         Expanded(
           child: AppCard(
             onTap: onTap,
-            padding: const EdgeInsets.all(AppSpacing.md),
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

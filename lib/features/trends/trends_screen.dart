@@ -117,89 +117,98 @@ class _SummaryGrid extends StatelessWidget {
   final TrendsOverview overview;
   final ActivitySummary activity;
 
+  /// Narrowest a tile reads well at: a value, its unit and a small chart.
+  static const _minTileWidth = 180.0;
+
   @override
   Widget build(BuildContext context) {
     final weight = overview.weight;
     final change = weight.change;
     final foodDays = overview.foodDaysTracked;
-    return Column(
-      children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: _SummaryTile(
-                  category: '體重',
-                  color: AppColors.body,
-                  value: weight.latest == null
-                      ? '—'
-                      : formatWeight(weight.latest!),
-                  // A single measurement is a number, not a change.
-                  delta: change == null
-                      ? null
-                      : '${change < 0 ? '−' : '+'}'
-                            '${formatWeight(change.abs())}',
-                  caption: weight.values.isEmpty ? '沒有體重紀錄' : null,
-                  chart: weight.values.length < 2
-                      ? null
-                      : Sparkline(values: weight.values),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: _SummaryTile(
-                  category: '每週訓練',
-                  color: AppColors.training,
-                  value: '${overview.workoutsThisWeek}',
-                  unit: '次 · 本週',
-                  chart: MiniBarChart(
-                    bars: overview.weeklyWorkouts,
-                    height: 40,
-                  ),
+    final weightTile = _SummaryTile(
+      category: '體重',
+      color: AppColors.body,
+      value: weight.latest == null ? '—' : formatWeight(weight.latest!),
+      // A single measurement is a number, not a change.
+      delta: change == null
+          ? null
+          : '${change < 0 ? '−' : '+'}'
+                '${formatWeight(change.abs())}',
+      caption: weight.values.isEmpty ? '沒有體重紀錄' : null,
+      chart: weight.values.length < 2 ? null : Sparkline(values: weight.values),
+    );
+    final workoutsTile = _SummaryTile(
+      category: '每週訓練',
+      color: AppColors.training,
+      value: '${overview.workoutsThisWeek}',
+      unit: '次 · 本週',
+      chart: MiniBarChart(bars: overview.weeklyWorkouts, height: 40),
+    );
+    // Exercise stands beside training rather than inside it: a run is
+    // not a workout, and folding them together hides both.
+    final activityTile = _SummaryTile(
+      category: '每週運動',
+      color: AppColors.activity,
+      value: '${activity.thisWeek}',
+      unit: '次 · 本週',
+      caption: _activityCaption(activity),
+      chart: activity.hasRecords
+          ? MiniBarChart(bars: activity.weekly, height: 40)
+          : null,
+    );
+    final sleepTile = _SummaryTile(
+      category: '平均睡眠',
+      value: overview.averageSleep == null
+          ? '—'
+          : formatHoursMinutes(overview.averageSleep!),
+      caption: overview.averageSleep == null ? '沒有睡眠紀錄' : null,
+    );
+    final foodTile = _SummaryTile(
+      category: '飲食完整天數',
+      value: foodDays == 0 ? '—' : '${overview.foodDaysComplete}/$foodDays',
+      caption: foodDays == 0 ? '沒有飲食紀錄' : '其餘天數只記錄了部分的餐',
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Three across once the column has room, as a dashboard uses a wide
+        // pane; on a phone, exercise gets a row of its own between pairs.
+        final isWide =
+            constraints.maxWidth >= _minTileWidth * 3 + AppSpacing.sm * 2;
+        final rows = isWide
+            ? [
+                [weightTile, workoutsTile, activityTile],
+                [sleepTile, foodTile],
+              ]
+            : [
+                [weightTile, workoutsTile],
+                [activityTile],
+                [sleepTile, foodTile],
+              ];
+        final columns = isWide ? 3 : 1;
+        return Column(
+          children: [
+            for (final (index, row) in rows.indexed) ...[
+              if (index > 0) const SizedBox(height: AppSpacing.sm),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final (i, tile) in row.indexed) ...[
+                      if (i > 0) const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: tile),
+                    ],
+                    // A short last row keeps the grid's column widths.
+                    for (var i = row.length; i < columns; i++) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      const Expanded(child: SizedBox()),
+                    ],
+                  ],
                 ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        // Exercise stands beside training rather than inside it: a run is
-        // not a workout, and folding them together hides both.
-        _SummaryTile(
-          category: '每週運動',
-          color: AppColors.activity,
-          value: '${activity.thisWeek}',
-          unit: '次 · 本週',
-          caption: _activityCaption(activity),
-          chart: activity.hasRecords
-              ? MiniBarChart(bars: activity.weekly, height: 40)
-              : null,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: [
-            Expanded(
-              child: _SummaryTile(
-                category: '平均睡眠',
-                value: overview.averageSleep == null
-                    ? '—'
-                    : formatHoursMinutes(overview.averageSleep!),
-                caption: overview.averageSleep == null ? '沒有睡眠紀錄' : null,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _SummaryTile(
-                category: '飲食完整天數',
-                value: foodDays == 0
-                    ? '—'
-                    : '${overview.foodDaysComplete}/$foodDays',
-                caption: foodDays == 0 ? '沒有飲食紀錄' : '其餘天數只記錄了部分的餐',
-              ),
-            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -236,7 +245,6 @@ class _SummaryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

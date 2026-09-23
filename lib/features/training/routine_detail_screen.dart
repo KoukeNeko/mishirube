@@ -217,7 +217,6 @@ class _PlannedExerciseCard extends StatelessWidget {
         ? null
         : 'RIR ${planned.rir}';
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

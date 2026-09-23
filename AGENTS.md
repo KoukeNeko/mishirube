@@ -171,9 +171,9 @@ In particular, do not create a parallel version of:
   else: from 840dp, or on any foldable opened like a book (the panes then
   meet at the fold), every tab is a main page on the leading side
   (`mainPaneWidthFor`: 40% of the window, within 360–480) with what is
-  opened from it beside it, and a page's content column is at most
-  `contentMaxWidth`, inside the safe area and on one side of a hinge or
-  bent fold. The dock floats
+  opened from it beside it, and a page's content column is its pane,
+  inside the safe area and on one side of a hinge or bent fold. The dock
+  floats
   along the bottom of the main page where a phone has it, never across
   the window and never as a side rail. Decide by the window, never the
   device, and derive the layout on every build rather than storing a
@@ -181,8 +181,18 @@ In particular, do not create a parallel version of:
 - Pages stay as wide as the window; `Gutter` keeps an element to the
   column (`PageColumn`). A row that scrolls sideways runs edge to edge and
   pads its content by `PageColumn.gutterOf`, so it still leaves the screen.
-- Never size a page element from `MediaQuery.sizeOf`: in a list pane or in
-  the centred column a page element has less room than the window.
+- Every pane has the same side margin, the `AppSpacing.screenGutter`
+  `Gutter` adds, and the content column is never capped or centred:
+  cards, lists and charts use the pane's width, as a split view's detail
+  column does on iPad. Only prose (`ReadableWidth`) and footer buttons keep
+  to `readableMaxWidth`. A wide pane shows more, not more margin: a group
+  of tiles adds columns when it has room (the trends summary), measured
+  with `LayoutBuilder`, never by device or orientation.
+- Card content sits `AppSpacing.md` in from the card's edge, the
+  `AppCard` default and the inset of rows in a `GroupedCard`. Do not pass
+  another padding for an ordinary card.
+- Never size a page element from `MediaQuery.sizeOf`: in a list pane or
+  beside a fold a page element has less room than the window.
   Measure the space it is given (`LayoutBuilder`, `ToolbarWidth`).
 - A list whose rows open pages goes in `ListDetailLayout`; its rows keep
   calling `pushPage`, which opens them in the pane when there is one.
