@@ -60,7 +60,7 @@ class MealTypeOffer extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: AppSpacing.xs,
       children: [
-        Text('這個時間你通常記成「${offer.label}」', style: AppTextStyles.caption),
+        Text('常用：${offer.label}', style: AppTextStyles.caption),
         LinkText(label: '套用', onTap: onTake),
       ],
     );

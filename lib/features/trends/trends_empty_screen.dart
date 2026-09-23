@@ -18,7 +18,7 @@ class TrendsEmptyScreen extends StatelessWidget {
           child: EmptyStateCard(
             icon: Icons.show_chart,
             title: '還不足以判斷趨勢',
-            message: '體重短期波動大，至少 14 天才分得出趨勢和雜訊。目前 3 天。',
+            message: '需要 14 天體重紀錄，目前 3 天。',
             action: SizedBox(
               width: 200,
               child: PrimaryButton(
@@ -29,7 +29,7 @@ class TrendsEmptyScreen extends StatelessWidget {
             ),
           ),
         ),
-        Gutter(child: const SectionLabel('已經可以看的')),
+        Gutter(child: const SectionLabel('其他指標')),
         Gutter(
           child: const _ReadyMetric(
             title: '每週訓練次數',

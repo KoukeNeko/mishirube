@@ -28,11 +28,10 @@ class OnboardingScreen extends StatelessWidget {
           ? const PageAppBar(title: '模組')
           : const PageAppBar(
               title: '模組',
-              subtitle: '可複選，之後在「我的 > 模組」修改。',
+              subtitle: '可複選',
               leading: AppBarLeading.none,
             ),
       footer: BottomActionBar(
-        caption: '不需要註冊帳號，資料先留在這台裝置。',
         child: PrimaryButton(
           label: isEditing ? '完成' : '繼續',
           onPressed: enabled.isEmpty ? null : () => _continue(context),

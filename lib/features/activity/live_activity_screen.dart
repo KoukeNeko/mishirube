@@ -78,9 +78,6 @@ class LiveActivityScreen extends StatelessWidget {
           ),
         ),
         Gutter(
-          child: const Text('暫停的時間不算進這次運動。', style: AppTextStyles.caption),
-        ),
-        Gutter(
           child: Center(
             child: LinkText(
               label: '放棄這次運動',

@@ -20,7 +20,7 @@ class InsightDetailScreen extends StatelessWidget {
     if (report == null) {
       return const DetailPage(
         appBar: PageAppBar(title: '訓練量', subtitle: '值得注意'),
-        children: [Gutter(child: InfoBanner(message: '這段期間還沒有足夠的訓練紀錄可以說明。'))],
+        children: [Gutter(child: InfoBanner(message: '訓練紀錄不足。'))],
       );
     }
     final weeks = report.weeklySets.length;

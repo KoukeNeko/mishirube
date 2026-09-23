@@ -120,7 +120,7 @@ ProgressionSuggestion? suggestProgression({
     reps: planned.reps,
     reason: switch (last) {
       _ when last.reps < planned.reps =>
-        '上次 ${_sets(last)}，還沒做到 ${planned.reps} 下，先維持同重量。',
+        '上次 ${_sets(last)}，未做到 ${planned.reps} 下，先維持同重量。',
       _ when last.workingSets < planned.sets =>
         '上次只做了 ${last.workingSets} 組，先把 ${planned.sets} 組做滿再加重。',
       _ => '上次做滿了，但最後一組已經接近極限（RIR ${last.rir}），先維持同重量。',

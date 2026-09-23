@@ -199,6 +199,50 @@ In particular, do not create a parallel version of:
 - Layout must survive large text: measure text instead of hard-coding
   heights that contain it.
 
+## UI copy
+
+Words on screen follow `research/19-glossary.md`: one concept, one
+term. On top of that, three rules. When unsure, write less: deleting a
+sentence is almost always better than rewording it.
+
+1. **Labels and states are nouns or short states.** Section labels,
+   row titles, subtitles, chips, stat labels and empty states name the
+   thing or its state: `服務`, `未設定`, `已暫停`, `沒有紀錄`,
+   `3 天前`. Do not address the reader (`你`, `你的`), do not say
+   `還沒` (use `未` or `沒有`), do not ask questions (`用哪一個`,
+   `這是吃的還是喝的`), and do not coach, motivate or reassure
+   (`休息也是訓練的一部分`, `之後隨時可以調整`).
+2. **Explanations only where the user decides.** A sentence that
+   explains belongs in a dialog that asks for a choice, a destructive
+   confirmation, a warning (`InfoBanner` with `CardTone.warning`) or an
+   error. Nowhere else: no footnote captions under sections or forms,
+   no banners restating how the page works, no gesture hints ("點一項
+   可以…", "往左滑…"), no design rationale ("條件之間可以自由組合"),
+   no "這裡會…" promises in empty states. A value that needs a qualifier
+   gets a short tag (`Epley 估計，非實測`, `依半衰期 5 小時推算`), not a
+   paragraph. Keep a warning to the risk and what to do about it, and
+   put a field's instructions in that field's dialog hint.
+3. **Privacy and storage are explained once, on the privacy page**
+   (`lib/features/me/privacy_screen.dart`). Other screens do not repeat
+   that data stays on the device, what AI receives, where keys are kept
+   or that nothing is uploaded. The cloud-AI consent dialog is the one
+   exception, because it is the decision.
+
+Also:
+
+- Units are symbols (`kg`, `cm`, `km`, `mL`, `m`) in values and
+  sentences alike; minutes are `分`. Dates read `9 月 19 日（週六）`,
+  parts are joined with ` · `.
+- Say "device", not "phone" (`這台裝置`, `iOS`): the app runs on iPad
+  too.
+- A button or destructive action names its object (`刪除這份模板`,
+  `撤回同意`), per the glossary.
+- A string shown only to a screen reader follows the same rules.
+
+`test/copy_test.dart` fails on `你` or `還沒` in any string under
+`lib/` (AI prompts and seed data excepted). The other rules are for
+review: read every new string against them before finishing.
+
 ## Native folders
 
 Do not change `ios/` or `android/` configuration (bundle identifier,

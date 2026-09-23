@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
-import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -63,20 +62,14 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: widget.brand,
-        subtitle: '${menu.length} 款 · 官方資料',
+        subtitle: [
+          '${menu.length} 款',
+          '官方資料',
+          if (record?.checkedAt case final at?) '查證 ${formatDate(at)}',
+        ].join(' · '),
       ),
       footer: widget.footer(),
       children: [
-        Gutter(
-          child: InfoBanner(
-            message: [
-              '依品牌官網逐筆轉錄，唯讀。',
-              if (menu.any((food) => food.valueType == NutrientValueType.max))
-                '數字是品牌依規定公布的最高值，實際可能較低。',
-              if (record?.checkedAt case final at?) '查證於 ${formatDate(at)}。',
-            ].join(''),
-          ),
-        ),
         // A chain that sells several lines lists them apart: CITY CAFE's
         // 拿鐵 and 不可思議咖啡's are different drinks.
         for (final (index, food) in menu.indexed) ...[
@@ -85,9 +78,6 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
             Gutter(child: SectionLabel(food.series)),
           Gutter(child: widget.rowFor(food, _refresh)),
         ],
-        Gutter(
-          child: const Text('在杯型的份量頁按星號收藏。', style: AppTextStyles.caption),
-        ),
       ],
     );
   }

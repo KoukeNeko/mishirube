@@ -344,7 +344,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             child: NavRow(
               title: '今天',
               subtitle: switch (store.todaySummary) {
-                DaySummary(recordCount: 0) => '還沒有記錄',
+                DaySummary(recordCount: 0) => '沒有紀錄',
                 final day =>
                   '${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal',
               },
@@ -381,7 +381,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: '還沒有存過食物',
+              title: '沒有食物',
               action: PrimaryButton(label: '新增食物', onPressed: _create),
             ),
           ),
@@ -393,7 +393,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (recent.isEmpty && store.recentMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '還沒有最近吃過的食物。')),
+          Gutter(child: const InfoBanner(message: '沒有最近吃過的食物。')),
       ],
       _Scope.starred => [
         ..._section('收藏的食物', starred),
@@ -402,7 +402,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (starred.isEmpty && store.favoriteMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '在份量頁按星號收藏。')),
+          Gutter(child: const InfoBanner(message: '沒有收藏。')),
       ],
       _Scope.own => [
         ..._section('自己的', own.toList()),
@@ -410,7 +410,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: '還沒有自己存的食物',
+              title: '沒有自己的食物',
               action: PrimaryButton(label: '新增食物', onPressed: _create),
             ),
           ),
@@ -418,7 +418,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       _Scope.brands => [
         ..._brands(store),
         if (store.catalogues.isEmpty)
-          Gutter(child: const InfoBanner(message: '還沒有內建的連鎖品牌。')),
+          Gutter(child: const InfoBanner(message: '沒有內建的連鎖品牌。')),
       ],
     };
   }
@@ -461,7 +461,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           child: EmptyStateCard(
             icon: Icons.search_off,
             title: '沒有符合的項目',
-            message: '只搜尋自己的食物與內建品牌。',
             action: PrimaryButton(label: '新增食物', onPressed: _create),
           ),
         )

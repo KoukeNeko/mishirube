@@ -52,7 +52,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       context,
       title: 'API 位址',
       initial: store.aiEndpoint,
-      hint: 'https://…/v1',
+      hint: store.aiProvider == AiProviderKind.azureAiFoundry
+          ? 'Azure AI Foundry 資源網址'
+          : 'https://…/v1',
     );
     if (address != null) store.setAiEndpoint(address);
   }
@@ -77,7 +79,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       context,
       AppDialog(
         title: '模型',
-        message: models.isEmpty ? '沒有讀到可用的模型清單，可以直接輸入名稱。' : null,
+        message: models.isEmpty ? '讀不到模型清單，請直接輸入名稱。' : null,
         isChoiceList: true,
         actions: [
           for (final model in models)
@@ -100,7 +102,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
         context,
         title: '模型',
         initial: store.aiModel,
-        hint: '例如 gemini-3.8-flash',
+        hint: store.aiProvider == AiProviderKind.azureAiFoundry
+            ? '部署名稱'
+            : '例如 gemini-3.8-flash',
       );
       if (typed != null) store.setAiModel(typed);
       return;
@@ -127,7 +131,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           title: '在瀏覽器登入',
           message:
               '到 ${prompt.verificationUri} 輸入代碼 ${prompt.userCode}，'
-              '用你的公司或學校帳號登入。完成後自動連接。',
+              '以公司或學校帳號登入。',
           actions: [
             DialogAction(
               label: '複製代碼',
@@ -185,7 +189,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       context,
       AppDialog(
         title: '撤回同意？',
-        message: '之後用雲端 AI 前會再問你一次。',
+        message: '下次使用雲端 AI 前會再次詢問。',
         actions: [
           DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
           DialogAction(
@@ -208,13 +212,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     return DetailPage(
       appBar: const PageAppBar(title: 'AI'),
       children: [
-        Gutter(
-          child: const InfoBanner(
-            icon: Icons.auto_awesome_outlined,
-            message: 'AI 只幫你寫草稿，你確認之後才會記錄。',
-          ),
-        ),
-        Gutter(child: const SectionLabel('用哪一個')),
+        Gutter(child: const SectionLabel('服務')),
         Gutter(
           child: ChipWrap(
             options: AiProviderKind.values,
@@ -230,14 +228,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           future: _status,
           builder: (context, snapshot) {
             final (apple, hasKey) = snapshot.data ?? (null, false);
-            if (provider == null) {
-              return Gutter(
-                child: const Text(
-                  '還沒選。沒選之前不會送出任何東西。',
-                  style: AppTextStyles.caption,
-                ),
-              );
-            }
+            if (provider == null) return const SizedBox.shrink();
             if (provider == AiProviderKind.appleOnDevice) {
               return Gutter(
                 child: Text(_appleStatus(apple), style: AppTextStyles.caption),
@@ -253,7 +244,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                         NavRow(
                           title: 'API 位址',
                           subtitle: store.aiEndpoint.isEmpty
-                              ? '還沒設定，例如 https://…/v1'
+                              ? '未設定'
                               : store.aiEndpoint,
                           onTap: _editEndpoint,
                         ),
@@ -261,24 +252,24 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                         NavRow(
                           title: '用戶端 ID',
                           subtitle: store.aiClientId.isEmpty
-                              ? '還沒設定'
+                              ? '未設定'
                               : store.aiClientId,
                           onTap: _editClientId,
                         ),
                         NavRow(
                           title: '租用戶',
                           subtitle: store.aiTenant.isEmpty
-                              ? 'organizations（任何公司或學校帳號）'
+                              ? 'organizations'
                               : store.aiTenant,
                           onTap: _editTenant,
                         ),
                         NavRow(
                           title: hasKey ? '已登入' : '登入',
                           subtitle: _isSigningIn
-                              ? '等待你在瀏覽器完成登入…'
+                              ? '等待瀏覽器登入…'
                               : hasKey
                               ? '重新登入'
-                              : '用公司或學校帳號登入',
+                              : null,
                           onTap: _isSigningIn || store.aiClientId.isEmpty
                               ? null
                               : _signIn,
@@ -287,16 +278,21 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       if (provider.needsKey)
                         NavRow(
                           title: 'API 金鑰',
-                          subtitle: hasKey ? '已設定，存在系統鑰匙圈' : '還沒設定',
+                          subtitle: hasKey
+                              ? '已設定'
+                              : [
+                                  '未設定',
+                                  ?_keySource(provider),
+                                ].join(' · '),
                           onTap: _editKey,
                         ),
                       if (provider.hasModelChoice)
                         NavRow(
                           title: '模型',
                           subtitle: _isLoadingModels
-                              ? '讀取可用的模型…'
+                              ? '讀取模型…'
                               : store.aiModel.isEmpty
-                              ? '還沒選'
+                              ? '未選擇'
                               : store.aiModel,
                           onTap: _isLoadingModels ? null : _editModel,
                         ),
@@ -307,12 +303,6 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                           onTap: _revokeConsent,
                         ),
                     ],
-                  ),
-                ),
-                Gutter(
-                  child: Text(
-                    _cloudNote(provider),
-                    style: AppTextStyles.caption,
                   ),
                 ),
                 if (_warningOf(provider) case final warning?)
@@ -330,38 +320,30 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
 
 String _appleStatus(AiAvailability? availability) => switch (availability) {
   null => '檢查中…',
-  AiAvailability.available => '在手機上執行，資料不離開這支手機。',
-  AiAvailability.deviceNotEligible => '這支手機不支援 Apple Intelligence。',
-  AiAvailability.notEnabled => '到「設定 > Apple Intelligence 與 Siri」開啟。',
-  AiAvailability.modelNotReady => '模型還在下載，稍後再試。',
+  AiAvailability.available => '在裝置上執行',
+  AiAvailability.deviceNotEligible => '這台裝置不支援 Apple Intelligence',
+  AiAvailability.notEnabled => '到「設定 > Apple Intelligence 與 Siri」開啟',
+  AiAvailability.modelNotReady => '模型下載中',
   AiAvailability.needsKey ||
-  AiAvailability.unavailable => '需要 iOS 26 以上、支援 Apple Intelligence 的 iPhone。',
+  AiAvailability.unavailable => '需要 iOS 26 以上且支援 Apple Intelligence',
 };
 
-/// What is sent, and where the key comes from.
-String _cloudNote(AiProviderKind provider) {
-  final where = switch (provider) {
-    AiProviderKind.ollamaCloud => '金鑰在 ollama.com 的帳號設定建立。',
-    AiProviderKind.googleAiStudio => '金鑰在 aistudio.google.com 建立。',
-    AiProviderKind.anthropic => '金鑰在 console.anthropic.com 建立。',
-    AiProviderKind.azureAiFoundry =>
-      '位址填 Azure AI Foundry 資源網址，模型填部署名稱，金鑰在 Azure 入口網站取得。',
-    AiProviderKind.microsoftCopilot =>
-      '需要公司或學校帳號、Microsoft 365 Copilot 授權，以及在 Entra 註冊的應用程式。',
-    AiProviderKind.openAiCompatible => '填服務商給的 API 位址與金鑰。',
-    AiProviderKind.appleOnDevice => '',
-  };
-  return '只送出你打的文字，或從照片辨識出的文字，照片本身不送出。$where';
-}
+/// Where a provider's key is created, for a row that has none yet.
+String? _keySource(AiProviderKind provider) => switch (provider) {
+  AiProviderKind.ollamaCloud => 'ollama.com',
+  AiProviderKind.googleAiStudio => 'aistudio.google.com',
+  AiProviderKind.anthropic => 'console.anthropic.com',
+  AiProviderKind.azureAiFoundry => 'Azure 入口網站',
+  _ => null,
+};
 
 /// What a provider's own terms mean for a health log.
 String? _warningOf(AiProviderKind provider) => switch (provider) {
   AiProviderKind.microsoftCopilot =>
-    'Copilot Chat API 仍是 beta，官方寫明不支援正式產品，並依公司的權限設定存取資料。'
-        '個人 Microsoft 帳號不能用。',
+    'Beta API，不支援正式產品。需要公司或學校帳號、Microsoft 365 Copilot 授權'
+        '與 Entra 應用程式註冊。',
   AiProviderKind.googleAiStudio =>
-    'Google 的條款寫明：免費額度送出的內容會用來改進 Google 的產品，可能由人工審閱，'
-        '也要求不要送出個人或敏感資訊。記錄飲食改用已啟用計費的金鑰。',
+    '免費額度的內容可能被 Google 用於改進產品並經人工審閱。請使用已啟用計費的金鑰。',
   _ => null,
 };
 
@@ -375,8 +357,8 @@ Future<bool> askCloudConsent(BuildContext context) async {
     AppDialog(
       title: '送到 $provider？',
       message:
-          '送出的只有你打的文字，或從照片辨識出的文字，照片本身和其他紀錄不送出。'
-          '之後在「我的 > AI」可以撤回。',
+          '只送出輸入的文字或從照片辨識出的文字，不送出照片與其他紀錄。'
+          '可在「我的 > AI」撤回。',
       actions: [
         DialogAction(
           label: '取消',
@@ -398,7 +380,7 @@ Future<bool> askCloudConsent(BuildContext context) async {
 /// Why a request produced no draft, in the words the screens show.
 String aiFailureMessage(AiFailure failure) => switch (failure) {
   AiFailure.unavailable => 'AI 還不能用，到「我的 > AI」設定。',
-  AiFailure.needsConsent => '還沒同意送出文字。',
+  AiFailure.needsConsent => '未同意送出文字。',
   AiFailure.authentication => '金鑰無效或沒有權限，到「我的 > AI」重新設定。',
   AiFailure.rateLimited => '請求太頻繁或額度用完，稍後再試。',
   AiFailure.network => '連不上網路，稍後再試。',

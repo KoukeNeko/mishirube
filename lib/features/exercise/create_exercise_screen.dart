@@ -181,12 +181,6 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
             onTap: (equipment) => setState(() => _equipment = equipment),
           ),
         ),
-        Gutter(
-          child: const Text(
-            '別名、說明、媒體與次要肌群之後都能補。',
-            style: AppTextStyles.caption,
-          ),
-        ),
       ],
     );
   }

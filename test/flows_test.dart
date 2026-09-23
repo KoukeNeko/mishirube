@@ -877,7 +877,7 @@ void main() {
     await _openFromHost(tester, const FoodSearchScreen(), store);
     final before = store.todayKcal;
 
-    expect(find.text('還沒有存過食物'), findsOneWidget);
+    expect(find.text('沒有食物'), findsOneWidget);
 
     await _tapText(tester, '新增食物');
     await tester.enterText(find.byType(AppTextField).first, '雞胸肉');
@@ -1023,7 +1023,7 @@ void main() {
     }
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
 
-    expect(find.textContaining('通常記成「午餐」'), findsOneWidget);
+    expect(find.textContaining('常用：午餐'), findsOneWidget);
     expect(
       find.bySemanticsLabel(RegExp('目前不指定')),
       findsOneWidget,

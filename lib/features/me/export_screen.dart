@@ -48,9 +48,8 @@ class ExportScreen extends StatelessWidget {
         ),
         Gutter(
           child: const InfoBanner(
-            message:
-                '匯出的檔案沒有加密。它就是你的健康紀錄，存到哪裡就和那裡一樣私密。'
-                'API 金鑰之類的祕密不會寫進去。',
+            tone: CardTone.warning,
+            message: '匯出的檔案沒有加密。',
           ),
         ),
       ],

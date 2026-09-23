@@ -73,7 +73,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
             child: const EmptyStateCard(
               icon: Icons.no_meals_outlined,
               title: '這一天沒有記錄任何一餐',
-              message: '這一天的數字是空的，不是零。',
             ),
           ),
         for (final meal in meals)
@@ -286,24 +285,14 @@ class _NutrientTotals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final partial = totals.where((total) => !total.isComplete).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppCard(
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              for (final total in totals)
-                KeyValueRow(label: total.nutrient.label, value: total.label),
-            ],
-          ),
-        ),
-        if (partial.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Text('「至少」：有幾餐沒有記錄這項營養素。', style: AppTextStyles.caption),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          for (final total in totals)
+            KeyValueRow(label: total.nutrient.label, value: total.label),
         ],
-      ],
+      ),
     );
   }
 }
@@ -369,13 +358,13 @@ class _CaffeineEstimate extends StatelessWidget {
               StatBlock(
                 value: '${milligrams.round()}',
                 unit: 'mg',
-                label: '估計體內殘留咖啡因',
+                label: '估計殘留咖啡因',
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '依半衰期 $caffeineHalfLifeHours 小時推算，不是量測值。',
+            '依半衰期 $caffeineHalfLifeHours 小時推算',
             style: AppTextStyles.caption,
           ),
         ],

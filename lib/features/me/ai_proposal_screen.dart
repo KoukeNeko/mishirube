@@ -53,14 +53,14 @@ class AiProposalScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('你問的是', style: AppTextStyles.overline),
+                Text('提問', style: AppTextStyles.overline),
                 SizedBox(height: AppSpacing.xs),
                 Text('「最近深蹲的組數是不是太少了？幫我加回來。」', style: AppTextStyles.body),
               ],
             ),
           ),
         ),
-        Gutter(child: const SectionLabel('會改動 2 個動作')),
+        Gutter(child: const SectionLabel('改動 2 個動作')),
         for (final change in _changes)
           Gutter(child: _ChangeRow(change: change)),
         Gutter(
@@ -71,7 +71,7 @@ class AiProposalScreen extends StatelessWidget {
                 Text('理由', style: AppTextStyles.overline),
                 SizedBox(height: AppSpacing.xs),
                 Text(
-                  '每週工作組數從 12 降到 8，依你設定的「肌力維持」目標，'
+                  '每週工作組數從 12 降到 8，依「肌力維持」目標，'
                   '訓練引擎建議的區間是 10 – 12 組。',
                   style: AppTextStyles.body,
                 ),
@@ -86,12 +86,6 @@ class AiProposalScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
-        Gutter(
-          child: const Text(
-            '接受後會留下紀錄：什麼模型、什麼時間、你確認了哪些項目。',
-            style: AppTextStyles.caption,
           ),
         ),
       ],

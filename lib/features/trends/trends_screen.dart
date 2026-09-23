@@ -76,13 +76,6 @@ class _TrendsScreenState extends State<TrendsScreen> {
         Gutter(
           child: MuscleLoadCard(load: store.muscleLoad(window: _range.window)),
         ),
-        Gutter(
-          child: const Text(
-            '每週的工作組數，只計動作的主要肌群；熱身組不算。'
-            '顏色只反映記錄到的組數，不代表疲勞或恢復程度。',
-            style: AppTextStyles.caption,
-          ),
-        ),
         Gutter(child: const SectionLabel('詳細圖表')),
         Gutter(
           child: AccentRow(
@@ -147,7 +140,7 @@ class _SummaryGrid extends StatelessWidget {
                       ? null
                       : '${change < 0 ? '−' : '+'}'
                             '${formatWeight(change.abs())}',
-                  caption: weight.values.isEmpty ? '尚未記錄體重' : null,
+                  caption: weight.values.isEmpty ? '沒有體重紀錄' : null,
                   chart: weight.values.length < 2
                       ? null
                       : Sparkline(values: weight.values),
@@ -191,7 +184,7 @@ class _SummaryGrid extends StatelessWidget {
                 value: overview.averageSleep == null
                     ? '—'
                     : formatHoursMinutes(overview.averageSleep!),
-                caption: overview.averageSleep == null ? '尚未記錄睡眠' : null,
+                caption: overview.averageSleep == null ? '沒有睡眠紀錄' : null,
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -201,7 +194,7 @@ class _SummaryGrid extends StatelessWidget {
                 value: foodDays == 0
                     ? '—'
                     : '${overview.foodDaysComplete}/$foodDays',
-                caption: foodDays == 0 ? '尚未記錄飲食' : '其餘天數只記錄了部分的餐',
+                caption: foodDays == 0 ? '沒有飲食紀錄' : '其餘天數只記錄了部分的餐',
               ),
             ),
           ],
@@ -214,7 +207,7 @@ class _SummaryGrid extends StatelessWidget {
 /// What the week's minutes mean: against a normal week once there is one,
 /// and plainly until then.
 String _activityCaption(ActivitySummary activity) {
-  if (!activity.hasRecords) return '尚未記錄運動';
+  if (!activity.hasRecords) return '沒有運動紀錄';
   final minutes = activity.minutesThisWeek;
   final typical = activity.typicalWeeklyMinutes;
   if (typical == null) return '$minutes 分';

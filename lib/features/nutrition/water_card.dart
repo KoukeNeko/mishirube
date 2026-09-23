@@ -116,7 +116,7 @@ class WaterCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxs),
           Text(switch (water.lastTimeLabel) {
             final last? => '${water.times} 次 · 最近 $last',
-            null => '今天還沒有記錄',
+            null => '沒有紀錄',
           }, style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.md),
           NutritionButton(

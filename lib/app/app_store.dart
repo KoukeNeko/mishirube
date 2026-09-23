@@ -1054,7 +1054,7 @@ class AppStore extends ChangeNotifier {
         ChangeSource.local => '手動輸入',
         ChangeSource.seed => '示範資料',
         ChangeSource.strongImport || ChangeSource.archiveImport => '匯入',
-        ChangeSource.aiDraft => 'AI 草稿，經你確認',
+        ChangeSource.aiDraft => 'AI 草稿（已確認）',
         ChangeSource.catalogue => '內建目錄',
         ChangeSource.healthKit => 'Apple 健康',
         ChangeSource.healthConnect => 'Health Connect',

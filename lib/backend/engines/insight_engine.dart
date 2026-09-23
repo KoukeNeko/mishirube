@@ -50,7 +50,7 @@ Insight? weeklyTrainingInsight(
   final (_, thisWeek) = weeks.last;
   if (thisWeek == 0) return null;
   final statement = thisWeek >= goalPerWeek
-      ? '這是本週第 $thisWeek 次訓練，達成你設定的每週 $goalPerWeek 次。'
+      ? '這是本週第 $thisWeek 次訓練，達成每週 $goalPerWeek 次的目標。'
       : '本週已完成 $thisWeek 次訓練，距離每週 $goalPerWeek 次還差 ${goalPerWeek - thisWeek} 次。';
   return Insight(
     statement: statement,

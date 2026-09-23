@@ -139,7 +139,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await reveal(tester, find.textContaining('估計體內殘留咖啡因'));
+    await reveal(tester, find.textContaining('估計殘留咖啡因'));
     expect(
       find.textContaining('半衰期'),
       findsOneWidget,

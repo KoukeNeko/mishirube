@@ -78,7 +78,7 @@ class TodayScreen extends StatelessWidget {
                   category: '飲食',
                   color: AppColors.nutrition,
                   action: '記錄早餐',
-                  caption: '今天還沒有紀錄',
+                  caption: '沒有紀錄',
                   onTap: () => pushPage(context, const FoodSearchScreen()),
                 ),
               ),
@@ -129,7 +129,7 @@ class TodayScreen extends StatelessWidget {
       Gutter(
         child: NextActionCard(
           title: '記錄晚餐',
-          message: '訓練後還沒有記錄任何一餐',
+          message: '訓練後沒有記錄任何一餐',
           onTap: () => pushPage(context, const FoodSearchScreen()),
         ),
       ),

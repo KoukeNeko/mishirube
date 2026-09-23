@@ -101,7 +101,7 @@ class MeScreen extends StatelessWidget {
 /// What the row says without opening the page: the goal, or that there
 /// is not one yet.
 String _goalSummary(AppStore store) {
-  if (!store.isGoalEnabled) return '還沒設定';
+  if (!store.isGoalEnabled) return '未設定';
   final overview = store.goalOverview;
   if (overview.isPaused) return '已暫停';
   final week = overview.thisWeek;

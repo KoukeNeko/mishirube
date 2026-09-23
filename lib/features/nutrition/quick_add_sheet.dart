@@ -91,10 +91,8 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('快速記錄', style: AppTextStyles.pageTitle),
-          const SizedBox(height: AppSpacing.xs),
-          Text('只記這一次，不會存進清單。', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.lg),
-          AppTextField(controller: _name, hint: '這是什麼', autofocus: true),
+          AppTextField(controller: _name, hint: '名稱', autofocus: true),
           const SizedBox(height: AppSpacing.md),
           _Field(label: '熱量', unit: 'kcal', field: _kcal),
           _Field(label: '蛋白質', unit: 'g', field: _protein),

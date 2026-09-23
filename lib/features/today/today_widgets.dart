@@ -277,11 +277,6 @@ class NextMealCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           const Text('記錄午餐', style: AppTextStyles.cardTitle),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            '你通常這個時間吃午餐',
-            style: AppTextStyles.caption.copyWith(fontSize: 14),
-          ),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [

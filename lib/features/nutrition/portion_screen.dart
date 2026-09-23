@@ -240,8 +240,8 @@ class _PortionScreenState extends State<PortionScreen> {
         if (type != NutrientValueType.declared)
           Gutter(
             child: Text(switch (type) {
-              NutrientValueType.max => '這些是上限，不是實際量。台灣連鎖飲料依法標示最高值。',
-              NutrientValueType.estimate => '這些是同類食物的大概值，不是這一份的量。',
+              NutrientValueType.max => '標示上限值，實際可能較低。',
+              NutrientValueType.estimate => '同類食物的概估值。',
               NutrientValueType.declared => '',
             }, style: AppTextStyles.caption),
           ),

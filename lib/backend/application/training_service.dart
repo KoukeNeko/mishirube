@@ -312,7 +312,7 @@ class TrainingService {
       name: name,
       programName: _ownProgramName,
       estimatedMinutes: 0,
-      lastCompletedLabel: '還沒完成過',
+      lastCompletedLabel: '未完成過',
       exercises: const [],
     );
     _routines.save(routine, action: 'create');

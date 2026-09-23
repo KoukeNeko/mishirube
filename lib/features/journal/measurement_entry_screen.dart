@@ -114,7 +114,6 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: widget.editing?.site.label ?? '圍度',
-        subtitle: widget.editing == null ? '填你有量的部位就好' : null,
       ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [

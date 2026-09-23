@@ -149,7 +149,7 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
     if (workout == null) return '訓練已結束';
     final exercise = workout.currentExercise;
     final nextIndex = exercise.nextSetIndex;
-    if (nextIndex == null) return '所有組數已完成，可以結束訓練';
+    if (nextIndex == null) return '所有組數已完成';
     final nextSet = exercise.sets[nextIndex];
     return '${exercise.exercise.name} · 第 ${nextIndex + 1} 組 · '
         '建議 ${formatWeight(nextSet.weightKg)} kg × ${nextSet.reps}';

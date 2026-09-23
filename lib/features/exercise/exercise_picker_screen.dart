@@ -378,7 +378,7 @@ class _ExerciseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSelected = order > 0;
     final lastUsed = exercise.lastPerformance == null
-        ? '尚未做過'
+        ? '沒有紀錄'
         : '${exercise.lastPerformance} · ${exercise.lastUsedDaysAgo} 天前';
     return Semantics(
       selected: isSelected,
@@ -556,7 +556,7 @@ class _NoResults extends StatelessWidget {
                 )
               : null,
         ),
-        if (suggestions.isNotEmpty) const SectionLabel('你可能是在找'),
+        if (suggestions.isNotEmpty) const SectionLabel('相近的動作'),
         for (final exercise in suggestions)
           AccentRow(
             color: AppColors.training,

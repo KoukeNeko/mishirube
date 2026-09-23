@@ -307,7 +307,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           if (pace != null)
             Gutter(
               child: Text(
-                '配速 ${formatHoursMinutes(pace)} /km（由時長與距離計算）',
+                '配速 ${formatHoursMinutes(pace)} /km',
                 style: AppTextStyles.caption,
               ),
             ),

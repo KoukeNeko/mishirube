@@ -143,12 +143,10 @@ class _PlateScreenState extends State<PlateScreen> {
               ),
             ),
           ),
-        Gutter(
-          child: Text(
-            plate.isEmpty ? '這一餐沒有項目。' : '點一項可以改份量，往左滑可以移除。',
-            style: AppTextStyles.caption,
+        if (plate.isEmpty)
+          Gutter(
+            child: const Text('這一餐沒有項目。', style: AppTextStyles.caption),
           ),
-        ),
       ],
     );
   }

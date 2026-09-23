@@ -32,8 +32,7 @@ class RoutineListScreen extends StatelessWidget {
           Gutter(
             child: EmptyStateCard(
               icon: Icons.list_alt_outlined,
-              title: '還沒有訓練模板',
-              message: '模板是計畫，不是紀錄。',
+              title: '沒有訓練模板',
               action: PrimaryButton(
                 label: '新增訓練模板',
                 onPressed: () => _create(context),

@@ -113,7 +113,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
         if (own.isEmpty)
           Gutter(
             child: Text(
-              query.isEmpty ? '還沒有自己存的食物。' : '沒有符合的食物。',
+              query.isEmpty ? '沒有自己的食物。' : '沒有符合的食物。',
               style: AppTextStyles.caption,
             ),
           ),

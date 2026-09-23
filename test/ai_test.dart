@@ -319,7 +319,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(picked, [ImageSource.gallery]);
-    expect(find.textContaining('請對照包裝逐一核對'), findsOneWidget);
+    expect(find.textContaining('請對照包裝核對'), findsOneWidget);
     expect(find.text('燕麥奶'), findsOneWidget, reason: 'the name, filled');
     await tester.dragUntilVisible(
       find.text('120'),

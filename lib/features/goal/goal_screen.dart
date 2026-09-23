@@ -25,7 +25,7 @@ class GoalScreen extends StatelessWidget {
         title: '每週目標',
         subtitle: overview.hasGoal
             ? '每週 ${overview.thisWeek.targetDays} 個運動日'
-            : '還沒設定',
+            : '未設定',
         actions: [
           HeaderAction(
             icon: Icons.tune,
@@ -47,7 +47,7 @@ class GoalScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '設定一週想要有幾個運動日。訓練與運動都算，同一天做幾件事都算一個運動日。',
+              '每週要有幾個運動日。',
               style: AppTextStyles.body,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -109,12 +109,6 @@ class GoalScreen extends StatelessWidget {
           child: _GoalMonth(month: today, today: today, overview: overview),
         ),
       ),
-      Gutter(
-        child: const Text(
-          '訓練與運動都算，同一天做幾件事都算一個運動日。',
-          style: AppTextStyles.caption,
-        ),
-      ),
     ];
   }
 
@@ -125,7 +119,7 @@ class GoalScreen extends StatelessWidget {
   }
 
   static String _detail(WeekProgress week) {
-    if (week.isPaused) return '這一週不會累積，也不會中斷連續達標';
+    if (week.isPaused) return '不計入連續達標';
     if (week.isMet) return '${week.activeDays} 個運動日';
     return '還差 ${week.remaining} 個運動日';
   }
@@ -145,7 +139,7 @@ class _StreakCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              streak.previous > 0 ? '本週重新開始' : '還沒有連續達標的紀錄',
+              streak.previous > 0 ? '本週重新開始' : '沒有連續達標紀錄',
               style: AppTextStyles.cardTitle,
             ),
             const SizedBox(height: AppSpacing.xxs),

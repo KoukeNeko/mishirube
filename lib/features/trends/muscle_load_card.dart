@@ -20,7 +20,7 @@ class MuscleLoadCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (load.isEmpty) {
-      return const InfoBanner(message: '還沒有完成的工作組。');
+      return const InfoBanner(message: '沒有工作組紀錄。');
     }
     final most = load.first.$2;
     final store = AppStoreScope.of(context);

@@ -195,7 +195,6 @@ class _LogScreenState extends State<LogScreen> {
           child: EmptyStateCard(
             icon: Icons.event_busy_outlined,
             title: '${_month.month} 月沒有紀錄',
-            message: '從「+」新增紀錄。',
           ),
         )
       else if (days.isEmpty)

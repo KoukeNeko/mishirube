@@ -130,7 +130,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                   },
                 )
               else
-                NavRow(title: '暫停每週目標', subtitle: '生病、受傷或旅行時', onTap: _pause),
+                NavRow(title: '暫停每週目標', onTap: _pause),
               NavRow(
                 title: '關閉每週目標',
                 subtitle: '不再顯示目標與連續達標，紀錄不受影響',

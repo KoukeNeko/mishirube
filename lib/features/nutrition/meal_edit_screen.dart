@@ -137,21 +137,6 @@ class _MealEditScreenState extends State<MealEditScreen> {
             ],
           ),
         ),
-        if (widget.meal.isEstimated)
-          Gutter(
-            child: const Text(
-              '這一餐的數字目前是估計值。儲存後會標示為你確認過的數字。',
-              style: AppTextStyles.caption,
-            ),
-          ),
-        if (widget.meal.dishes.isNotEmpty)
-          Gutter(
-            child: Text(
-              '這裡不動料理本身（${widget.meal.dishes.length} 道）；'
-              '要改組成請回到那一餐拆開。',
-              style: AppTextStyles.caption,
-            ),
-          ),
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

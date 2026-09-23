@@ -75,7 +75,7 @@ class RoutineRepository {
       [routineId],
     );
     final last = rows.first['last'] as int?;
-    if (last == null) return '還沒完成過';
+    if (last == null) return '未完成過';
     final date = DateTime.fromMillisecondsSinceEpoch(last);
     return '上次 ${date.month} 月 ${date.day} 日完成';
   }

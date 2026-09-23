@@ -27,27 +27,21 @@ class DataSourcesScreen extends StatelessWidget {
     return DetailPage(
       appBar: const PageAppBar(title: '資料來源'),
       children: [
-        Gutter(child: const SectionLabel('你輸入的')),
+        Gutter(child: const SectionLabel('手動輸入')),
         Gutter(
-          child: _Counts(counts: typed, empty: '還沒有自己輸入的紀錄。'),
+          child: _Counts(counts: typed, empty: '沒有紀錄。'),
         ),
         if (demo.isNotEmpty) ...[
           Gutter(child: const SectionLabel('示範資料')),
           Gutter(
             child: _Counts(counts: demo, empty: ''),
           ),
-          Gutter(
-            child: const Text(
-              '第一次開啟時放進來的範例，不是你的紀錄。',
-              style: AppTextStyles.caption,
-            ),
-          ),
         ],
         Gutter(child: SectionLabel(store.healthSourceName)),
         const _HealthPlatform(),
         Gutter(child: const SectionLabel('匯入')),
         if (imports.isEmpty)
-          Gutter(child: const Text('還沒有匯入過任何檔案。', style: AppTextStyles.caption))
+          Gutter(child: const Text('沒有匯入紀錄。', style: AppTextStyles.caption))
         else
           Gutter(
             child: GroupedCard(
@@ -81,11 +75,10 @@ class DataSourcesScreen extends StatelessWidget {
           Gutter(
             child: Text(
               [
-                '依品牌官網逐筆轉錄，唯讀。App 更新時整批替換。',
                 for (final catalogue in catalogues)
                   if (catalogue.checkedAt case final at?)
-                    '${catalogue.brand}查證於 ${formatDate(at)}。',
-              ].join(''),
+                    '${catalogue.brand}查證於 ${formatDate(at)}',
+              ].join(' · '),
               style: AppTextStyles.caption,
             ),
           ),
@@ -164,7 +157,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
       context,
       AppDialog(
         title: store.healthSourceName,
-        message: '每次打開 App 讀取最近 30 天。中斷連接後紀錄保留。',
+        message: '中斷連接後紀錄保留。',
         actions: [
           DialogAction(
             label: '立即讀取',
@@ -251,7 +244,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                       : () => _run(store.askHealthAgain),
                 ),
               ),
-            Gutter(child: Text('只讀不寫：$kinds。', style: AppTextStyles.caption)),
+            Gutter(child: Text('讀取：$kinds', style: AppTextStyles.caption)),
             Gutter(
               child: LinkText(
                 label: '隱私說明',
@@ -292,8 +285,7 @@ class _Permissions extends StatelessWidget {
     if (allowed == null) {
       return Gutter(
         child: const Text(
-          'iPhone 不會告訴 App 哪些類別被拒絕，未允許的類別只是讀不到資料。'
-          '到「設定 > 健康 > 資料存取與裝置 > MISHIRUBE」查看或修改。',
+          '權限在「設定 > 健康 > 資料存取與裝置 > MISHIRUBE」修改。',
           style: AppTextStyles.caption,
         ),
       );
@@ -348,7 +340,7 @@ String _summary(HealthImport? imported) {
     for (final MapEntry(key: kind, value: count) in imported.added.entries)
       if (count > 0) '${kind.label} $count ${units[kind]}',
     if (imported.updated > 0) '更新 ${imported.updated} 晚睡眠',
-    if (imported.skipped > 0) '${imported.skipped} 晚保留你自己記的',
+    if (imported.skipped > 0) '${imported.skipped} 晚保留手動紀錄',
     if (imported.denied case final denied? when denied.isNotEmpty)
       '未允許：${denied.map((kind) => kind.label).join('、')}',
   ].join('、');

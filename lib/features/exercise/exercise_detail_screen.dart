@@ -107,11 +107,11 @@ class ExerciseDetailScreen extends StatelessWidget {
           Gutter(child: const SectionLabel('重點提示')),
           Gutter(child: _CueList(cues: exercise.cues)),
         ],
-        Gutter(child: const SectionLabel('你的紀錄')),
+        Gutter(child: const SectionLabel('紀錄')),
         if (history.last != null)
           Gutter(child: _HistoryCard(history: history))
         else
-          Gutter(child: const InfoBanner(message: '還沒有這個動作的紀錄。')),
+          Gutter(child: const InfoBanner(message: '沒有紀錄。')),
         Gutter(child: const SectionLabel('管理')),
         Gutter(
           child: GroupedCard(
@@ -151,7 +151,6 @@ class ExerciseDetailScreen extends StatelessWidget {
                 ),
               NavRow(
                 title: exercise.isHidden ? '取消隱藏' : '隱藏這個動作',
-                subtitle: exercise.isHidden ? '目前不會出現在選擇器' : '歷史紀錄會保留',
                 onTap: () {
                   store.toggleHidden(exercise);
                   showToast(

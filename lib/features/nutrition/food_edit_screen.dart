@@ -203,7 +203,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       context,
       AppDialog(
         title: '掃描營養標示',
-        message: '照片在手機上辨識文字，不會送出；AI 只拿到辨識出的文字。',
         isChoiceList: true,
         actions: [
           DialogAction(
@@ -429,8 +428,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
                   ? CardTone.neutral
                   : CardTone.warning,
               message: [
-                '已從標示填入，數字來自 ${draft.provider.label}（${draft.model}）'
-                    '的判讀。請對照包裝逐一核對，確認後再儲存。',
+                '數字來自 ${draft.provider.label}（${draft.model}）的判讀，'
+                    '請對照包裝核對。',
                 ...draft.warnings,
               ].join('\n'),
             ),
@@ -467,9 +466,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             onTap: (kind) => setState(() => _kind = kind),
           ),
         ),
-        Gutter(
-          child: const Text('只有飲品會算進當日飲品總量，湯不算。', style: AppTextStyles.caption),
-        ),
         Gutter(child: const SectionLabel('份量')),
         Gutter(
           child: Row(
@@ -498,14 +494,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               _servingUnit = unit;
               if (wasSuggested) _kind = _kindForUnit;
             }),
-          ),
-        ),
-        Gutter(
-          child: Text(
-            _servingUnit.isMeasured
-                ? '記錄時可改份數，或直接填 ${_servingUnit.label}。'
-                : '「份」不是度量，不會換算成 g 或 mL。',
-            style: AppTextStyles.caption,
           ),
         ),
         Gutter(child: const SectionLabel('份量名稱（選填）')),
@@ -563,9 +551,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               onPressed: () => setState(() => _showsEveryNutrient = true),
             ),
           ),
-        Gutter(
-          child: const Text('留空代表沒有資料，不是 0。', style: AppTextStyles.caption),
-        ),
         Gutter(child: const SectionLabel('咖啡因')),
         Gutter(
           child: _NumberField(label: '含量', unit: 'mg', field: _caffeine),
