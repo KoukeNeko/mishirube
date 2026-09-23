@@ -23,10 +23,10 @@ class ListDetailLayout extends StatefulWidget {
   final Widget placeholder;
 
   @override
-  State<ListDetailLayout> createState() => _ListDetailLayoutState();
+  State<ListDetailLayout> createState() => ListDetailLayoutState();
 }
 
-class _ListDetailLayoutState extends State<ListDetailLayout> {
+class ListDetailLayoutState extends State<ListDetailLayout> {
   /// Keeps the list's state (scroll offset, filters) when a resize adds or
   /// removes the pane beside it.
   final _listKey = GlobalKey();
@@ -55,6 +55,11 @@ class _ListDetailLayoutState extends State<ListDetailLayout> {
     }
     _wasTwoPanes = isTwoPanes;
   }
+
+  /// Opens [page] in the pane, for what is opened from outside the list
+  /// (the dock, the add menu); null when there is no pane to open it in.
+  Future<T?>? showBeside<T>(Widget page) =>
+      showsTwoPanes(context) ? _show<T>(page) : null;
 
   Future<T?> _show<T>(Widget page) {
     _shown = page;

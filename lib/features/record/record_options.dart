@@ -141,13 +141,17 @@ List<RecordOption> enabledRecordOptions(BuildContext context) {
   ];
 }
 
-/// Closes the quick-log menu and opens [option]'s screen, or does what it
-/// does.
-void openRecordOption(BuildContext context, RecordOption option) {
+/// Closes the quick-log menu and opens [option]'s screen with [open], or
+/// does what it does.
+void openRecordOption(
+  BuildContext context,
+  RecordOption option,
+  void Function(Widget page) open,
+) {
   final menu = ModalRoute.of(context);
   final navigator = Navigator.of(context)..pop();
   if (option.destination case final destination?) {
-    navigator.push(MaterialPageRoute<void>(builder: (_) => destination()));
+    open(destination());
     return;
   }
   // Wait for the menu to finish folding away, so what the action shows —

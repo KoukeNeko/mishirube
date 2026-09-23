@@ -42,9 +42,13 @@ const quickLogMenuKey = ValueKey('quick-log-menu');
 ///
 /// [width] is the main pane's when the window shows two, since the dock and
 /// its「+」are in that pane rather than across the whole window.
+///
+/// [onOpen] opens the page an option leads to: beside the list when there
+/// are two panes, since the menu sits above the shell and cannot see them.
 Future<void> showQuickLogMenu(
   BuildContext context, {
   required ProxyAnimation recess,
+  required void Function(Widget page) onOpen,
   double? width,
 }) {
   final route = RawDialogRoute<void>(
@@ -54,12 +58,12 @@ Future<void> showQuickLogMenu(
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),
     pageBuilder: (_, animation, _) => width == null
-        ? _QuickLogMenu(animation: animation)
+        ? _QuickLogMenu(animation: animation, onOpen: onOpen)
         : Align(
             alignment: AlignmentDirectional.centerStart,
             child: SizedBox(
               width: width,
-              child: _QuickLogMenu(animation: animation),
+              child: _QuickLogMenu(animation: animation, onOpen: onOpen),
             ),
           ),
     // No route-wide fade: the items stagger in on their own, and × must be
@@ -157,9 +161,10 @@ class QuickLogRecess extends StatelessWidget {
 }
 
 class _QuickLogMenu extends StatelessWidget {
-  const _QuickLogMenu({required this.animation});
+  const _QuickLogMenu({required this.animation, required this.onOpen});
 
   final Animation<double> animation;
+  final void Function(Widget page) onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +213,8 @@ class _QuickLogMenu extends StatelessWidget {
                                 icon: option.icon,
                                 color: option.color,
                                 label: option.title,
-                                onTap: () => openRecordOption(context, option),
+                                onTap: () =>
+                                    openRecordOption(context, option, onOpen),
                               ),
                             ],
                           ],

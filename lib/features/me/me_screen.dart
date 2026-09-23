@@ -34,7 +34,7 @@ class MeScreen extends StatelessWidget {
               NavRow(
                 title: '動作庫',
                 subtitle: '瀏覽、搜尋與建立自訂動作',
-                onTap: () => pushModalPage<void>(
+                onTap: () => pushPage(
                   context,
                   const ExercisePickerScreen(purpose: PickerPurpose.browse),
                 ),

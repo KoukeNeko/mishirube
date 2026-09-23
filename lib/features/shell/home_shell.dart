@@ -33,6 +33,20 @@ class _HomeShellState extends State<HomeShell> {
   /// Follows the quick-log menu's animation while it is open.
   final _quickLogProgress = ProxyAnimation(kAlwaysDismissedAnimation);
 
+  /// One per tab, so what the dock and the add menu open lands beside the
+  /// selected tab's list when there are two panes.
+  final _layouts = [
+    for (final _ in HomeTab.values) GlobalKey<ListDetailLayoutState>(),
+  ];
+
+  /// Opens [page] beside the selected tab's list, or over the shell when
+  /// the window has one pane.
+  Future<T?> _open<T>(Widget page) {
+    final tab = AppStoreScope.read(context).selectedTab;
+    return _layouts[tab.index].currentState?.showBeside<T>(page) ??
+        pushPage<T>(context, page);
+  }
+
   void _setMinimized(bool value) {
     if (_isChromeMinimized != value) {
       setState(() => _isChromeMinimized = value);
@@ -78,14 +92,14 @@ class _HomeShellState extends State<HomeShell> {
       context,
       recess: _quickLogProgress,
       width: _mainWidth(context),
+      onOpen: _open,
     );
   }
 
-  void _openSession(ActiveSession session) =>
-      pushPage(context, switch (session) {
-        ActiveWorkout() => const ActiveWorkoutScreen(),
-        ActiveActivity() => const LiveActivityScreen(),
-      });
+  void _openSession(ActiveSession session) => _open<void>(switch (session) {
+    ActiveWorkout() => const ActiveWorkoutScreen(),
+    ActiveActivity() => const LiveActivityScreen(),
+  });
 
   Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
     final label = session.label;
@@ -135,11 +149,11 @@ class _HomeShellState extends State<HomeShell> {
         switch (session) {
           case ActiveWorkout():
             store.finishWorkout();
-            pushPage(context, const WorkoutSummaryScreen());
+            _open<void>(const WorkoutSummaryScreen());
           case ActiveActivity():
             final finished = store.finishActivity();
             if (finished == null) return;
-            pushPage(context, ActivityDetailScreen(activityId: finished.id));
+            _open<void>(ActivityDetailScreen(activityId: finished.id));
         }
     }
   }
@@ -163,31 +177,35 @@ class _HomeShellState extends State<HomeShell> {
                 index: store.selectedTab.index,
                 // With two panes every tab is a main page and what is
                 // opened from it, so the dock stays put between tabs.
-                children: const [
+                children: [
                   ListDetailLayout(
-                    list: TodayScreen(),
-                    placeholder: DetailPanePlaceholder(
+                    key: _layouts[HomeTab.today.index],
+                    list: const TodayScreen(),
+                    placeholder: const DetailPanePlaceholder(
                       icon: Icons.my_location_outlined,
                       label: '未選取項目',
                     ),
                   ),
                   ListDetailLayout(
-                    list: LogScreen(),
-                    placeholder: DetailPanePlaceholder(
+                    key: _layouts[HomeTab.log.index],
+                    list: const LogScreen(),
+                    placeholder: const DetailPanePlaceholder(
                       icon: Icons.list_alt,
                       label: '未選取紀錄',
                     ),
                   ),
                   ListDetailLayout(
-                    list: TrendsScreen(),
-                    placeholder: DetailPanePlaceholder(
+                    key: _layouts[HomeTab.trends.index],
+                    list: const TrendsScreen(),
+                    placeholder: const DetailPanePlaceholder(
                       icon: Icons.insights_outlined,
                       label: '未選取項目',
                     ),
                   ),
                   ListDetailLayout(
-                    list: MeScreen(),
-                    placeholder: DetailPanePlaceholder(
+                    key: _layouts[HomeTab.me.index],
+                    list: const MeScreen(),
+                    placeholder: const DetailPanePlaceholder(
                       icon: Icons.person_outline,
                       label: '未選取項目',
                     ),

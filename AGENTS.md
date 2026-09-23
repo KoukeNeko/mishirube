@@ -186,6 +186,17 @@ In particular, do not create a parallel version of:
   Measure the space it is given (`LayoutBuilder`, `ToolbarWidth`).
 - A list whose rows open pages goes in `ListDetailLayout`; its rows keep
   calling `pushPage`, which opens them in the pane when there is one.
+- With two panes nothing a user opens covers the whole window. Open pages
+  with `pushPage`, never `Navigator.push` with a `MaterialPageRoute`.
+  What is opened from outside a tab's list (the dock, the add menu, a
+  session's finish dialog) goes through `HomeShell`'s opener, which uses
+  `ListDetailLayoutState.showBeside`. `pushModalPage` is only for pages
+  opened from a page that is already open, where it stays in that page's
+  navigator; a tab's list uses `pushPage`. Sheets and `showAppDialog`
+  already open in the navigator they are called from. The only
+  full-window pages are onboarding and a system request (the health
+  privacy page). `test/adaptive_layout_test.dart` pins each entry point;
+  add one there for a new way in.
 - Use tokens from `lib/app/theme.dart` (`AppColors`, `AppSpacing`,
   `AppRadius`, `AppTextStyles`) rather than raw values.
 

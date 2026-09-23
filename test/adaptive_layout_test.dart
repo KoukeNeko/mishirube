@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/me/me_screen.dart';
@@ -13,6 +14,9 @@ import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
+import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/features/training/active_workout_screen.dart';
+import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/shared/window_layout.dart';
 
@@ -287,6 +291,69 @@ void main() {
 
       expect(find.byType(ExportScreen), findsOneWidget);
       expect(find.byType(PrivacyScreen), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('what the add menu opens goes beside the list', (tester) async {
+      final store = _store();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+
+      await tester.tap(find.byKey(const ValueKey('dock-center-action')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(quickLogMenuKey),
+          matching: find.text('體重'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getRect(find.byType(WeightEntryScreen)).left,
+        greaterThanOrEqualTo(tester.getRect(find.byType(TodayScreen)).right),
+      );
+      expect(find.byType(TodayScreen).hitTestable(), findsWidgets);
+      await disposeTree(tester);
+    });
+
+    testWidgets('a session opened and finished from the dock stays beside '
+        'the list', (tester) async {
+      final store = _store()..startWorkout();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+      final list = tester.getRect(find.byType(TodayScreen));
+
+      await tester.tap(find.textContaining('訓練進行中 ·'));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        tester.getRect(find.byType(ActiveWorkoutScreen)).left,
+        greaterThanOrEqualTo(list.right),
+      );
+
+      await tester.tap(find.byTooltip('結束訓練').first);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.text('結束並儲存'));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        tester.getRect(find.byType(WorkoutSummaryScreen)).left,
+        greaterThanOrEqualTo(list.right),
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('the exercise library opens beside 我的', (tester) async {
+      final store = _store();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+      store.selectTab(HomeTab.me);
+      await tester.pumpAndSettle();
+
+      await _tapRow(tester, '動作庫');
+
+      expect(
+        tester.getRect(find.byType(ExercisePickerScreen)).left,
+        greaterThanOrEqualTo(tester.getRect(find.byType(MeScreen)).right),
+      );
       await disposeTree(tester);
     });
 
