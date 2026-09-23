@@ -17,7 +17,6 @@ import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 import 'plate_screen.dart';
 import 'portion_screen.dart';
-import 'quick_add_sheet.dart';
 import 'recent_meal_row.dart';
 import 'water_card.dart';
 
@@ -249,8 +248,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   Future<void> _quickAdd() async {
-    final logged = await showQuickAddSheet(context);
-    if (logged != true || !mounted) return;
+    final logged = await pushPage<FoodItem>(
+      context,
+      FoodEditScreen(initialName: _query.text.trim(), logsOnce: true),
+    );
+    if (logged == null || !mounted) return;
     showToast(context, '已記錄', kind: ToastKind.success);
   }
 

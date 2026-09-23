@@ -415,9 +415,23 @@ class NutritionService {
   /// The numbers are copied, not linked: correcting the food later is not
   /// a claim about what was eaten last Tuesday. They are also not marked
   /// as estimated — the user typed them and chose the portion.
-  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) {
+  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) =>
+      _logPortion(portion, mealType: mealType, keepsFood: true);
+
+  /// Logs [portion] of a food typed for this one meal and not kept, as
+  /// 快速記錄 does: the same record as [logPortion], with nothing tying it
+  /// to a food the list would offer again.
+  MealEvent logOnce(FoodPortion portion, {MealType? mealType}) =>
+      _logPortion(portion, mealType: mealType, keepsFood: false);
+
+  MealEvent _logPortion(
+    FoodPortion portion, {
+    required MealType? mealType,
+    required bool keepsFood,
+  }) {
     final eatenAt = _db.now();
     final food = portion.food;
+    final tag = keepsFood ? '自訂食物' : '快速記錄';
     return logMeal(
       MealEvent(
         id: _db.newId(),
@@ -433,14 +447,14 @@ class NutritionService {
         kind: food.kind,
         mealType: mealType,
         valueType: food.valueType,
-        foodId: food.id,
-        servings: portion.servings,
-        qualityTag: '自訂食物',
+        foodId: keepsFood ? food.id : null,
+        servings: keepsFood ? portion.servings : null,
+        qualityTag: tag,
         dishes: [
           DishEntry(
             name: food.displayName,
             quantityLabel: portion.label,
-            subtitle: '自訂食物',
+            subtitle: tag,
           ),
         ],
       ),

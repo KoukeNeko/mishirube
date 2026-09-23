@@ -287,6 +287,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'food search (empty)': ((_) => const FoodSearchScreen(), _noSetup),
   'food search': ((_) => const FoodSearchScreen(), _withFood),
+  'quick record': ((_) => const FoodEditScreen(logsOnce: true), _noSetup),
   'food edit (new)': ((_) => const FoodEditScreen(), _noSetup),
   'portion': (
     (store) =>

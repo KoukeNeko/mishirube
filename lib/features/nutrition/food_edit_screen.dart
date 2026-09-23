@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
+import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 
 /// Creating or correcting one of the user's own foods.
@@ -21,6 +22,7 @@ class FoodEditScreen extends StatefulWidget {
     this.initialName = '',
     this.sizeOf,
     this.pickPhoto,
+    this.logsOnce = false,
   });
 
   /// The food being corrected; null when adding a new one.
@@ -36,6 +38,13 @@ class FoodEditScreen extends StatefulWidget {
   /// Where a label photo comes from; the system picker unless a test
   /// hands one in. Returns the photo's path, or null when cancelled.
   final Future<String?> Function(ImageSource source)? pickPhoto;
+
+  /// 快速記錄: the same form, logged as one serving eaten now and never
+  /// kept as a food. For the things nobody plans to eat again — a
+  /// colleague's birthday cake, a stall on holiday — which would only
+  /// fill the list with entries never picked twice. Pops the food that
+  /// was logged.
+  final bool logsOnce;
 
   @override
   State<FoodEditScreen> createState() => _FoodEditScreenState();
@@ -67,6 +76,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// Eaten or drunk. Prefilled from the unit because that is right more
   /// often than not, but shown and changeable, because the unit does not
   /// actually decide it: soup is poured and is not a drink.
+  /// The meal a quick record is logged under; none unless picked.
+  MealType? _mealType;
+
   late ConsumptionKind _kind =
       widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
 
@@ -269,7 +281,21 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// only saved. Filling in a whole label and then being sent back to
   /// the list to find it again is a round trip with nothing in it.
   void _save({required bool logNow}) {
-    final food = FoodItem(
+    final food = _food();
+    _nutrition.saveFood(food);
+    Navigator.of(context).pop(logNow ? food : null);
+  }
+
+  /// Logs the form as one serving eaten now, keeping no food.
+  void _logOnce() {
+    final food = _food();
+    _nutrition.logOnce(food, mealType: _mealType);
+    Navigator.of(context).pop(food);
+  }
+
+  /// The food as the form has it.
+  FoodItem _food() {
+    return FoodItem(
       id: widget.editing?.id ?? _nutrition.newFoodId(),
       name: _name.text.trim(),
       brand: _brand.text.trim(),
@@ -296,8 +322,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       sourceUrl: widget.editing?.sourceUrl ?? widget.sizeOf?.sourceUrl ?? '',
       checkedAt: widget.editing?.checkedAt ?? widget.sizeOf?.checkedAt,
     );
-    _nutrition.saveFood(food);
-    Navigator.of(context).pop(logNow ? food : null);
   }
 
   /// Only the nutrients with a number in them. An empty field leaves the
@@ -347,7 +371,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     final isNew = widget.editing == null;
     return DetailPage(
       appBar: PageAppBar(
-        title: isNew ? '新增食物' : '編輯食物',
+        title: widget.logsOnce ? '快速記錄' : (isNew ? '新增食物' : '編輯食物'),
         actions: [
           if (isNew && !_isSize)
             HeaderAction(
@@ -358,7 +382,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
         ],
       ),
-      footer: isNew && !_isSize
+      footer: widget.logsOnce
+          ? PrimaryButton(label: '記錄', onPressed: _canSave ? _logOnce : null)
+          : isNew && !_isSize
           ? ButtonPair(
               secondary: SecondaryButton(
                 label: '只建立',
@@ -407,6 +433,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(
           child: AppTextField(controller: _name, hint: '例如：雞胸肉'),
         ),
+        if (widget.logsOnce) ...[
+          Gutter(child: const SectionLabel('餐次（選填）')),
+          Gutter(
+            child: MealTypePicker(
+              selected: _mealType,
+              suggested: _nutrition.suggestedMealType(),
+              onChanged: (type) => setState(() => _mealType = type),
+            ),
+          ),
+        ],
         if (_isSize) ...[
           Gutter(child: const SectionLabel('杯型')),
           Gutter(

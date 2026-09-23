@@ -571,6 +571,29 @@ void main() {
       expect(logged.kcal, 412, reason: '274.4 × 1.5 = 411.6');
     });
 
+    test('a quick record is logged like a food but keeps none', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final saved = store.backend.nutrition.searchFoods('').length;
+
+      final logged = store.backend.nutrition.logOnce(
+        FoodPortion(
+          const FoodItem(id: 'cake', name: '同事帶的蛋糕', kcal: 320.5),
+          1,
+        ),
+        mealType: MealType.snack,
+      );
+
+      expect(logged.kcal, 321);
+      expect(logged.mealType, MealType.snack);
+      expect(logged.foodId, isNull, reason: 'nothing to offer again');
+      expect(store.backend.nutrition.searchFoods(''), hasLength(saved));
+      expect(
+        store.backend.nutrition.recentFoods().map((r) => r.food.name),
+        isNot(contains('同事帶的蛋糕')),
+      );
+    });
+
     test('a different portion is worked out, not retyped', () {
       final backend = openFile();
       addTearDown(backend.close);
