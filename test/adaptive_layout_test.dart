@@ -1,7 +1,6 @@
 import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
@@ -16,7 +15,6 @@ import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
-import 'package:mishirube/features/shell/side_navigation.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
@@ -138,38 +136,20 @@ void main() {
           store: store,
           window: window,
         );
-        final width = window.size.width;
-        final double pageLeft;
-        final double pageRight;
-        if (width < mediumWidth) {
-          // Where a phone has it: along the bottom of the page.
-          pageLeft = window.padding.left;
-          pageRight = width - window.padding.right;
-          final dock = tester.getRect(find.byType(SplitDock));
-          expect(dock.width, lessThanOrEqualTo(ChromeMetrics.dockMaxWidth));
-          expect(
-            dock.center.dx,
-            moreOrLessEquals((pageLeft + pageRight) / 2, epsilon: 0.5),
-            reason: 'the dock floats centred along the bottom of the page',
-          );
-          expect(dock.bottom, greaterThan(window.size.height - 60));
-        } else {
-          // Beside the page, with room for names from the large width.
-          final isSidebar = width >= largeWidth;
-          final navigation = tester.getRect(find.byType(SideNavigation));
-          expect(find.byType(SplitDock), findsNothing);
-          expect(navigation.left, 0);
-          expect(
-            navigation.width,
-            window.padding.left + (isSidebar ? sidebarWidth : railWidth),
-          );
-          expect(navigation.height, window.size.height);
-          pageLeft = navigation.right;
-          // With two panes the main one is a share of what is beside it.
-          pageRight = width >= expandedWidth
-              ? pageLeft + mainPaneWidthFor(width - pageLeft)
-              : width - window.padding.right;
-        }
+        // Where a phone has it: along the bottom of the page, which with
+        // two panes is the main pane on the left.
+        final pageLeft = window.padding.left;
+        final pageRight = window.size.width >= expandedWidth
+            ? mainPaneWidthFor(window.size.width)
+            : window.size.width - window.padding.right;
+        final dock = tester.getRect(find.byType(SplitDock));
+        expect(dock.width, lessThanOrEqualTo(ChromeMetrics.dockMaxWidth));
+        expect(
+          dock.center.dx,
+          moreOrLessEquals((pageLeft + pageRight) / 2, epsilon: 0.5),
+          reason: 'the dock floats centred along the bottom of the page',
+        );
+        expect(dock.bottom, greaterThan(window.size.height - 60));
 
         for (final tab in HomeTab.values) {
           store.selectTab(tab);
@@ -202,7 +182,7 @@ void main() {
   testWidgets('pages run under the floating dock, edge to edge', (
     tester,
   ) async {
-    const wide = WindowCase('599 × 900', Size(599, 900));
+    const wide = WindowCase('839 × 900', Size(839, 900));
     await pumpScreen(tester, const HomeShell(), store: _store(), window: wide);
 
     final page = tester.getRect(find.byType(CollapsingScrollView).first);
@@ -215,18 +195,15 @@ void main() {
   testWidgets('with two panes the dock and its menu keep to the main pane', (
     tester,
   ) async {
-    // Opened like a book, the fold leaves no room for a rail beside the
-    // main page, so the dock stays on it.
-    final window = _galaxyFold(DisplayFeatureState.postureHalfOpened);
     final store = _store();
-    await pumpScreen(tester, const HomeShell(), store: store, window: window);
+    await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
 
     for (final tab in HomeTab.values) {
       store.selectTab(tab);
       await tester.pumpAndSettle();
       expect(
         tester.getRect(find.byType(SplitDock)).center.dx,
-        moreOrLessEquals(345 / 2, epsilon: 0.5),
+        moreOrLessEquals(mainPaneWidthFor(tablet.size.width) / 2, epsilon: 0.5),
         reason: '$tab: the dock stays put between tabs',
       );
     }
@@ -243,74 +220,6 @@ void main() {
     );
     expect(close.center.dx, moreOrLessEquals(plus.center.dx, epsilon: 0.5));
     expect(close.center.dy, moreOrLessEquals(plus.center.dy, epsilon: 0.5));
-    await disposeTree(tester);
-  });
-
-  testWidgets('the rail stays put between tabs and never tucks away', (
-    tester,
-  ) async {
-    final store = _store();
-    await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
-    final rail = tester.getRect(find.byType(SideNavigation));
-    final tabsGlass = tester.getRect(
-      find
-          .ancestor(
-            of: find.descendant(
-              of: find.byType(SideNavigation),
-              matching: find.text('紀錄'),
-            ),
-            matching: find.byType(ChromeSurface),
-          )
-          .first,
-    );
-    expect(
-      tabsGlass.bottom,
-      tablet.size.height - tablet.padding.bottom - ChromeMetrics.gap,
-      reason: "the tabs' glass runs down the window",
-    );
-
-    for (final tab in HomeTab.values) {
-      store.selectTab(tab);
-      await tester.pumpAndSettle();
-      expect(tester.getRect(find.byType(SideNavigation)), rail, reason: '$tab');
-    }
-    await tester.drag(
-      find.descendant(
-        of: find.byType(MeScreen),
-        matching: find.byType(CustomScrollView),
-      ),
-      const Offset(0, -300),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.getRect(find.byType(SideNavigation)), rail);
-    expect(
-      ChromeVisibility.isMinimizedOf(tester.element(find.byType(MeScreen))),
-      isFalse,
-      reason: 'it takes no height from the page, so it has none to give',
-    );
-    await disposeTree(tester);
-  });
-
-  testWidgets('the keyboard reaches every tab and the record menu', (
-    tester,
-  ) async {
-    final store = _store();
-    await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
-    // Tests run as Android, where the modifier is Control.
-    Future<void> press(LogicalKeyboardKey key) async {
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
-      await tester.sendKeyEvent(key);
-      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
-      await tester.pumpAndSettle();
-    }
-
-    await press(LogicalKeyboardKey.digit3);
-    expect(store.selectedTab, HomeTab.trends);
-    await press(LogicalKeyboardKey.digit1);
-    expect(store.selectedTab, HomeTab.today);
-
-    await press(LogicalKeyboardKey.keyN);
-    expect(find.widgetWithText(MenuItemButton, '體重'), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -477,12 +386,7 @@ void main() {
       tester,
     ) async {
       final store = _store();
-      await pumpScreen(
-        tester,
-        const HomeShell(),
-        store: store,
-        window: _galaxyFold(DisplayFeatureState.postureHalfOpened),
-      );
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
       store.selectTab(HomeTab.me);
       await tester.pumpAndSettle();
       await _tapRow(tester, '隱私說明');
@@ -516,9 +420,14 @@ void main() {
       final store = _store();
       await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
 
-      await tester.tap(find.text('新增紀錄'));
+      await tester.tap(find.byKey(const ValueKey('dock-center-action')));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(MenuItemButton, '體重'));
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(quickLogMenuKey),
+          matching: find.text('體重'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(
@@ -529,13 +438,13 @@ void main() {
       await disposeTree(tester);
     });
 
-    testWidgets('a session opened and finished from the rail stays beside '
+    testWidgets('a session opened and finished from the dock stays beside '
         'the list', (tester) async {
       final store = _store()..startWorkout();
       await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
       final list = tester.getRect(find.byType(TodayScreen));
 
-      await tester.tap(find.byKey(const ValueKey('side-session-open')));
+      await tester.tap(find.textContaining('訓練進行中 ·'));
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(seconds: 1));
       expect(
@@ -543,8 +452,9 @@ void main() {
         greaterThanOrEqualTo(list.right),
       );
 
-      // The rail has no finish button; the workout's own page has.
-      await tester.tap(find.bySemanticsLabel('結束訓練'));
+      await tester.tap(find.byTooltip('結束訓練').first);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.text('結束並儲存'));
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(seconds: 1));
       expect(
@@ -718,11 +628,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('未選取項目'), findsNothing);
-      expect(
-        tester.getRect(find.byType(MeScreen)).width,
-        690 - railWidth,
-        reason: 'one page beside the rail, the crease left to scroll past',
-      );
+      expect(tester.getRect(find.byType(MeScreen)).width, 690);
       await disposeTree(tester);
     });
 
@@ -743,7 +649,7 @@ void main() {
       await disposeTree(tester);
     });
 
-    testWidgets('the rail keeps off the hinge', (tester) async {
+    testWidgets('the dock keeps off the hinge', (tester) async {
       await pumpScreen(
         tester,
         const HomeShell(),
@@ -751,9 +657,9 @@ void main() {
         window: _dualScreen,
       );
 
-      expect(find.byType(SplitDock), findsNothing);
-      final rail = tester.getRect(find.byType(SideNavigation));
-      expect(rail.right, lessThanOrEqualTo(540));
+      final dock = tester.getRect(find.byType(SplitDock));
+      expect(dock.right, lessThanOrEqualTo(540));
+      expect(dock.center.dx, moreOrLessEquals(270, epsilon: 0.5));
       await disposeTree(tester);
     });
 

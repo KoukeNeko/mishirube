@@ -1,15 +1,10 @@
-import 'dart:ui' show DisplayFeature;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
-import '../../shared/window_controls.dart';
 import '../../shared/window_layout.dart';
 import '../activity/activity_detail_screen.dart';
 import '../activity/live_activity_screen.dart';
@@ -21,7 +16,6 @@ import '../training/workout_summary_screen.dart';
 import '../trends/trends_screen.dart';
 import 'bottom_chrome/app_bottom_chrome.dart';
 import 'bottom_chrome/quick_log_menu.dart';
-import 'side_navigation.dart';
 
 /// What the user chose in the "finish this session?" dialog.
 enum _FinishChoice { keepGoing, discard, finish }
@@ -35,41 +29,6 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   bool _isChromeMinimized = false;
-
-  /// The tabs' pages, kept by key so a window resized past a breakpoint
-  /// moves them beside the rail, or back above the dock, without losing
-  /// where they were.
-  final _content = GlobalKey();
-
-  /// The rail's record menu, for opening it from the keyboard.
-  final _recordMenu = MenuController();
-
-  @override
-  void initState() {
-    super.initState();
-    HardwareKeyboard.instance.addHandler(_onKey);
-  }
-
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_onKey);
-    super.dispose();
-  }
-
-  /// Handles the shortcuts whatever has focus, since a page taking or
-  /// dropping it leaves the shell's own focus behind; but only while the
-  /// shell is on top, so a dialog or a page pushed over it keeps its keys.
-  bool _onKey(KeyEvent event) {
-    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return false;
-    final shortcuts = _shortcuts(AppStoreScope.read(context));
-    for (final MapEntry(key: activator, value: run) in shortcuts.entries) {
-      if (activator.accepts(event, HardwareKeyboard.instance)) {
-        run();
-        return true;
-      }
-    }
-    return false;
-  }
 
   /// Follows the quick-log menu's animation while it is open.
   final _quickLogProgress = ProxyAnimation(kAlwaysDismissedAnimation);
@@ -97,7 +56,6 @@ class _HomeShellState extends State<HomeShell> {
   /// Scrolling down tucks the chrome away; scrolling up or reaching the top
   /// brings it back, mirroring iOS tab bar minimisation.
   bool _onScroll(UserScrollNotification notification) {
-    if (tabPlacementOf(context) != TabPlacement.dock) return false;
     final metrics = notification.metrics;
     if (metrics.axis != Axis.vertical) return false;
     // The direction is reported before the offset moves, so pixels are only
@@ -128,10 +86,6 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   void _openQuickLog() {
-    if (tabPlacementOf(context) != TabPlacement.dock) {
-      _recordMenu.open();
-      return;
-    }
     // The menu's close button is drawn where the expanded「+」sits.
     _setMinimized(false);
     showQuickLogMenu(
@@ -204,88 +158,9 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
-  /// A keyboard's way round: Command (Control off Apple) with 1 to 4 for
-  /// the tabs and N for a new record. Not on the web, where the browser
-  /// already owns them.
-  Map<ShortcutActivator, VoidCallback> _shortcuts(AppStore store) {
-    if (kIsWeb) return const {};
-    final isApple = switch (defaultTargetPlatform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => true,
-      _ => false,
-    };
-    SingleActivator withModifier(LogicalKeyboardKey key) => SingleActivator(
-      key,
-      meta: isApple,
-      control: !isApple,
-      includeRepeats: false,
-    );
-    const digits = [
-      LogicalKeyboardKey.digit1,
-      LogicalKeyboardKey.digit2,
-      LogicalKeyboardKey.digit3,
-      LogicalKeyboardKey.digit4,
-    ];
-    return {
-      for (final tab in HomeTab.values)
-        withModifier(digits[tab.index]): () => _selectTab(store, tab),
-      withModifier(LogicalKeyboardKey.keyN): _openQuickLog,
-    };
-  }
-
-  void _openActiveSession(AppStore store) {
-    if (store.activeSession case final session?) _openSession(session);
-  }
-
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final placement = tabPlacementOf(context);
-    final hasDock = placement == TabPlacement.dock;
-    final content = KeyedSubtree(
-      key: _content,
-      child: QuickLogRecess(
-        animation: _quickLogProgress,
-        child: IndexedStack(
-          index: store.selectedTab.index,
-          // With two panes every tab is a main page and what is
-          // opened from it, so the navigation stays put between tabs.
-          children: [
-            ListDetailLayout(
-              key: _layouts[HomeTab.today.index],
-              list: const TodayScreen(),
-              placeholder: const DetailPanePlaceholder(
-                icon: Icons.my_location_outlined,
-                label: '未選取項目',
-              ),
-            ),
-            ListDetailLayout(
-              key: _layouts[HomeTab.log.index],
-              list: const LogScreen(),
-              placeholder: const DetailPanePlaceholder(
-                icon: Icons.list_alt,
-                label: '未選取紀錄',
-              ),
-            ),
-            ListDetailLayout(
-              key: _layouts[HomeTab.trends.index],
-              list: const TrendsScreen(),
-              placeholder: const DetailPanePlaceholder(
-                icon: Icons.insights_outlined,
-                label: '未選取項目',
-              ),
-            ),
-            ListDetailLayout(
-              key: _layouts[HomeTab.me.index],
-              list: const MeScreen(),
-              placeholder: const DetailPanePlaceholder(
-                icon: Icons.person_outline,
-                label: '未選取項目',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
     return QuickLogScrim(
       animation: _quickLogProgress,
       child: Scaffold(
@@ -293,88 +168,76 @@ class _HomeShellState extends State<HomeShell> {
         extendBody: true,
         // Pages paint their own headers behind the status bar.
         body: ChromeVisibility(
-          isMinimized: hasDock && _isChromeMinimized,
+          isMinimized: _isChromeMinimized,
           child: NotificationListener<UserScrollNotification>(
             onNotification: _onScroll,
-            child: hasDock
-                ? content
-                : Row(
-                    children: [
-                      SideNavigation(
-                        isExtended: placement == TabPlacement.sidebar,
-                        selected: store.selectedTab,
-                        onSelect: (tab) => _selectTab(store, tab),
-                        recordMenu: _recordMenu,
-                        onOpen: _open,
-                        session: store.activeSession,
-                        onOpenSession: () => _openActiveSession(store),
-                      ),
-                      Expanded(
-                        child: _BesideNavigation(
-                          navigationWidth: placement.width,
-                          child: content,
-                        ),
-                      ),
-                    ],
+            child: QuickLogRecess(
+              animation: _quickLogProgress,
+              child: IndexedStack(
+                index: store.selectedTab.index,
+                // With two panes every tab is a main page and what is
+                // opened from it, so the dock stays put between tabs.
+                children: [
+                  ListDetailLayout(
+                    key: _layouts[HomeTab.today.index],
+                    list: const TodayScreen(),
+                    placeholder: const DetailPanePlaceholder(
+                      icon: Icons.my_location_outlined,
+                      label: '未選取項目',
+                    ),
                   ),
+                  ListDetailLayout(
+                    key: _layouts[HomeTab.log.index],
+                    list: const LogScreen(),
+                    placeholder: const DetailPanePlaceholder(
+                      icon: Icons.list_alt,
+                      label: '未選取紀錄',
+                    ),
+                  ),
+                  ListDetailLayout(
+                    key: _layouts[HomeTab.trends.index],
+                    list: const TrendsScreen(),
+                    placeholder: const DetailPanePlaceholder(
+                      icon: Icons.insights_outlined,
+                      label: '未選取項目',
+                    ),
+                  ),
+                  ListDetailLayout(
+                    key: _layouts[HomeTab.me.index],
+                    list: const MeScreen(),
+                    placeholder: const DetailPanePlaceholder(
+                      icon: Icons.person_outline,
+                      label: '未選取項目',
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        bottomNavigationBar: hasDock
-            ? _MainPaneDock(
-                width: _mainWidth(context),
-                child: AppBottomChrome(
-                  selected: store.selectedTab,
-                  onSelect: (tab) => _selectTab(store, tab),
-                  isMinimized: _isChromeMinimized,
-                  session: store.activeSession,
-                  onQuickLog: _openQuickLog,
-                  onOpenSession: () => _openActiveSession(store),
-                  onTogglePause: store.togglePause,
-                  onFinish: () {
-                    if (store.activeSession case final session?) {
-                      _confirmFinish(store, session);
-                    }
-                  },
-                  quickLogProgress: _quickLogProgress,
-                ),
-              )
-            : null,
+        bottomNavigationBar: _MainPaneDock(
+          width: _mainWidth(context),
+          child: AppBottomChrome(
+            selected: store.selectedTab,
+            onSelect: (tab) => _selectTab(store, tab),
+            isMinimized: _isChromeMinimized,
+            session: store.activeSession,
+            onQuickLog: _openQuickLog,
+            onOpenSession: () {
+              if (store.activeSession case final session?) {
+                _openSession(session);
+              }
+            },
+            onTogglePause: store.togglePause,
+            onFinish: () {
+              if (store.activeSession case final session?) {
+                _confirmFinish(store, session);
+              }
+            },
+            quickLogProgress: _quickLogProgress,
+          ),
+        ),
       ),
-    );
-  }
-}
-
-/// The pages beside the rail or sidebar, which starts where the window
-/// does: the safe area on that side is the navigation's, the window
-/// controls are over it rather than the pages, and a fold is measured
-/// from the pages' own edge.
-class _BesideNavigation extends StatelessWidget {
-  const _BesideNavigation({required this.navigationWidth, required this.child});
-
-  final double navigationWidth;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    final isLtr = Directionality.of(context) == TextDirection.ltr;
-    EdgeInsets trim(EdgeInsets insets) =>
-        isLtr ? insets.copyWith(left: 0) : insets.copyWith(right: 0);
-    final shift = isLtr ? navigationWidth : 0.0;
-    return MediaQuery(
-      data: media.copyWith(
-        padding: trim(media.padding),
-        viewPadding: trim(media.viewPadding),
-        displayFeatures: [
-          for (final feature in media.displayFeatures)
-            DisplayFeature(
-              bounds: feature.bounds.shift(Offset(-shift, 0)),
-              type: feature.type,
-              state: feature.state,
-            ),
-        ],
-      ),
-      child: WindowControls(leadingInset: 0, child: child),
     );
   }
 }

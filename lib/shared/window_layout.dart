@@ -4,53 +4,6 @@ import 'package:flutter/widgets.dart';
 
 import '../app/theme.dart';
 
-/// Material 3's medium width: from here the window can spare a column
-/// for the tabs, which leave the bottom of the page for a rail beside it.
-const mediumWidth = 600.0;
-
-/// Material 3's large width: from here the rail has room for the tabs'
-/// names and becomes a sidebar.
-const largeWidth = 1200.0;
-
-/// Where the tabs are, by the window.
-enum TabPlacement {
-  /// Along the bottom of the main page, as on a phone.
-  dock,
-
-  /// A rail of icons beside the page, [railWidth] wide.
-  rail,
-
-  /// A sidebar with the tabs' names, [sidebarWidth] wide.
-  sidebar;
-
-  double get width => switch (this) {
-    dock => 0,
-    rail => railWidth,
-    sidebar => sidebarWidth,
-  };
-}
-
-/// Material's navigation rail, and the width it extends to.
-const railWidth = 72.0;
-const sidebarWidth = 256.0;
-
-/// Where the tabs go: the dock below [mediumWidth], beside the page from
-/// there, with their names from [largeWidth]. A fold that leaves the
-/// leading side no wider than a phone keeps the dock there, since a rail
-/// would squeeze the main page below a phone's.
-TabPlacement tabPlacementOf(BuildContext context) {
-  final width = MediaQuery.sizeOf(context).width;
-  if (width < mediumWidth) return TabPlacement.dock;
-  if (dividingFold(context, width) case final fold?) {
-    final leadingSide = switch (Directionality.of(context)) {
-      TextDirection.ltr => fold.left,
-      TextDirection.rtl => width - fold.right,
-    };
-    if (leadingSide < railWidth + minMainPaneWidth) return TabPlacement.dock;
-  }
-  return width >= largeWidth ? TabPlacement.sidebar : TabPlacement.rail;
-}
-
 /// Material 3's expanded width, measured on the window the app is given
 /// and never on the device: a tablet in split screen is compact, a phone
 /// driving an external display is not. From here a list and the page
@@ -71,11 +24,7 @@ bool showsTwoPanes(BuildContext context) {
 /// read as a strip, but never narrower than Material's first pane and
 /// never wider than the widest phone with its dock, so the main page keeps
 /// the layout it has on a phone.
-double mainPaneWidthFor(double width) =>
-    (width * 0.4).clamp(minMainPaneWidth, 480.0);
-
-/// Narrowest the main pane gets: Material's first pane, about a phone.
-const minMainPaneWidth = 360.0;
+double mainPaneWidthFor(double width) => (width * 0.4).clamp(360.0, 480.0);
 
 /// How wide the main pane is in a region [width] wide showing two panes:
 /// [mainPaneWidthFor], or up to a [dividingFold] so the panes meet at it.

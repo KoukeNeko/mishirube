@@ -10,7 +10,6 @@ import '../../../app/theme.dart';
 import '../../../domain/domain.dart';
 import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
-import '../home_tabs.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 import '../../../shared/haptics.dart';
@@ -18,9 +17,25 @@ import '../../../shared/haptics.dart';
 /// Width of a tab's icon area; its height comes from [DockMetrics.iconBox].
 const _indicatorWidth = 56.0;
 
-/// The dock's two capsules: the tabs either side of the「+」.
-final _leadingTabs = homeTabs.sublist(0, 2);
-final _trailingTabs = homeTabs.sublist(2);
+class _TabSpec {
+  const _TabSpec(this.tab, this.icon, this.selectedIcon, this.label);
+
+  final HomeTab tab;
+  final IconData icon;
+
+  /// Filled variant, so selection is not signalled by colour alone.
+  final IconData selectedIcon;
+  final String label;
+}
+
+const _leadingTabs = [
+  _TabSpec(HomeTab.today, Icons.my_location_outlined, Icons.my_location, '今天'),
+  _TabSpec(HomeTab.log, Icons.list_alt_outlined, Icons.list_alt, '紀錄'),
+];
+const _trailingTabs = [
+  _TabSpec(HomeTab.trends, Icons.insights_outlined, Icons.insights, '趨勢'),
+  _TabSpec(HomeTab.me, Icons.person_outline, Icons.person, '我的'),
+];
 
 /// Two navigation capsules around a separate action button: tabs mean
 /// "where am I", the centre means "record something" (or, minimised during
@@ -106,7 +121,7 @@ class SplitDock extends StatelessWidget {
     );
   }
 
-  Widget _capsule(List<HomeTabSpec> tabs, DockMetrics metrics, double t) {
+  Widget _capsule(List<_TabSpec> tabs, DockMetrics metrics, double t) {
     return _Capsule(
       tabs: tabs,
       metrics: metrics,
@@ -128,7 +143,7 @@ class _Capsule extends StatefulWidget {
     required this.onSelect,
   });
 
-  final List<HomeTabSpec> tabs;
+  final List<_TabSpec> tabs;
   final DockMetrics metrics;
   final HomeTab selected;
   final bool showLabels;
@@ -451,7 +466,7 @@ class _TabButton extends StatelessWidget {
     required this.onPressedChanged,
   });
 
-  final HomeTabSpec spec;
+  final _TabSpec spec;
   final DockMetrics metrics;
 
   /// The tab that is actually selected (what assistive tech reports).
@@ -619,19 +634,12 @@ class _CenterAction extends StatelessWidget {
 /// light. The quick-log menu's × wears the same, since it stands in for
 /// 「+」while the menu is open.
 class CenterActionSurface extends StatelessWidget {
-  const CenterActionSurface({
-    super.key,
-    required this.child,
-    this.radius = AppRadius.chip,
-  });
+  const CenterActionSurface({super.key, required this.child});
 
   /// Colour of what sits on the surface: the「+」, ×, and workout timer.
   static const foreground = AppColors.onTraining;
 
   final Widget child;
-
-  /// A capsule in the dock; the side navigation matches its own glass.
-  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -640,7 +648,6 @@ class CenterActionSurface extends StatelessWidget {
       tint: AppColors.training,
       tintOpacity: 0.7,
       borderColor: AppColors.training,
-      radius: radius,
       child: child,
     );
   }

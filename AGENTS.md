@@ -76,8 +76,8 @@ flutter test test/<file>_test.dart
   (buttons, chips, pills, inputs, pickers), `content/` (cards, rows, stats,
   charts, banners).
 - `lib/shared/toast/` – app-wide toast host and controller.
-- `lib/features/<area>/` – screens per area; `shell/` holds the home shell,
-  the floating bottom dock and the side navigation.
+- `lib/features/<area>/` – screens per area; `shell/` holds the home shell
+  and the floating bottom dock.
 - `test/support/harness.dart` – shared test harness (phone viewport with
   iPhone insets, fake clock, `pumpScreen`).
 
@@ -107,12 +107,7 @@ In particular, do not create a parallel version of:
 
 - the page frame: `PageScaffold` / `DetailPage` with `PageAppBar`, or
   `CollapsingPage` for tab roots (collapsing large-title app bar);
-- the floating split dock (`lib/features/shell/bottom_chrome/`) and the
-  rail or sidebar that replaces it on wider windows
-  (`lib/features/shell/side_navigation.dart`); both draw the tabs from
-  `homeTabs`, and the rail is built from the dock's own pieces
-  (`ChromeSurface`, `CenterActionSurface`, the selection lens), never
-  Material's `NavigationRail`;
+- the floating split dock (`lib/features/shell/bottom_chrome/`);
 - toasts: `showToast` / `ToastScope.read(context).showUndo` – never
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
@@ -201,20 +196,12 @@ In particular, do not create a parallel version of:
   meet at the fold), every tab is a main page on the leading side
   (`mainPaneWidthFor`: 40% of the window, within 360–480) with what is
   opened from it beside it, and a page's content column is its pane,
-  inside the safe area and on one side of a hinge or bent fold. Where
-  the tabs go is `tabPlacementOf`: the dock below 600dp, floating along
-  the bottom of the main page where a phone has it, never across the
-  window; a rail (`SideNavigation`) beside the pages from 600dp, and a
-  sidebar with the tabs' names from 1200dp. A fold that leaves the
-  leading side too narrow for a rail and a phone-wide page keeps the
-  dock. The rail never tucks away on scroll; the record menu is its one
-  action, at the top, with a running session under it. Resizing past a
-  breakpoint swaps only the navigation: the tabs' pages keep their state.
-  Decide by the window, never the device, and derive the layout on every
-  build rather than storing a "tablet mode".
-- A hardware keyboard reaches the tabs with Command (Control off Apple)
-  and 1–4, and the record menu with N, while the shell is on top. Not on
-  the web, where the browser owns those keys.
+  inside the safe area and on one side of a hinge or bent fold. The dock
+  floats
+  along the bottom of the main page where a phone has it, never across
+  the window and never as a side rail. Decide by the window, never the
+  device, and derive the layout on every build rather than storing a
+  "tablet mode".
 - Pages stay as wide as the window; `Gutter` keeps an element to the
   column (`PageColumn`). A row that scrolls sideways runs edge to edge and
   pads its content by `PageColumn.gutterOf`, so it still leaves the screen.
