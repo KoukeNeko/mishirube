@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../window_controls.dart';
 import '../../window_layout.dart';
 
 /// A list and the page picked from it. With room for two panes (see
@@ -117,16 +118,20 @@ class ListDetailLayoutState extends State<ListDetailLayout> {
             Expanded(
               child: MediaQuery(
                 data: paneMedia(isList: false),
-                child: NavigatorPopHandler(
-                  // The system back gesture goes back inside the pane
-                  // first, as it does in a pushed page.
-                  onPopWithResult: (_) => _paneKey.currentState?.maybePop(),
-                  child: Navigator(
-                    key: _paneKey,
-                    onGenerateRoute: (_) => PageRouteBuilder<void>(
-                      pageBuilder: (_, _, _) =>
-                          Scaffold(body: Center(child: widget.placeholder)),
-                      transitionDuration: Duration.zero,
+                // The window controls are in the list pane's corner.
+                child: WindowControls(
+                  leadingInset: 0,
+                  child: NavigatorPopHandler(
+                    // The system back gesture goes back inside the pane
+                    // first, as it does in a pushed page.
+                    onPopWithResult: (_) => _paneKey.currentState?.maybePop(),
+                    child: Navigator(
+                      key: _paneKey,
+                      onGenerateRoute: (_) => PageRouteBuilder<void>(
+                        pageBuilder: (_, _, _) =>
+                            Scaffold(body: Center(child: widget.placeholder)),
+                        transitionDuration: Duration.zero,
+                      ),
                     ),
                   ),
                 ),

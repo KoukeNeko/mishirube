@@ -28,6 +28,9 @@ import Vision
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LabelReader") {
       LabelReader.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
+      WindowControls.register(with: registrar.messenger())
+    }
   }
 }
 

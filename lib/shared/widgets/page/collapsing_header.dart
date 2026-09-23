@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
+import '../../window_controls.dart';
 import '../../window_layout.dart';
 import '../chrome/chrome_surface.dart';
 import '../controls/inputs.dart';
@@ -505,9 +506,12 @@ class _Toolbar extends StatelessWidget {
               ? null
               : Padding(
                   // The control is a glass pill like the actions opposite it,
-                  // so its edge keeps the same gutter as theirs.
-                  padding: const EdgeInsetsDirectional.only(
-                    start: AppSpacing.screenGutter,
+                  // so its edge keeps the same gutter as theirs, past any
+                  // window controls in the corner.
+                  padding: EdgeInsetsDirectional.only(
+                    start:
+                        AppSpacing.screenGutter +
+                        WindowControls.leadingInsetOf(context),
                   ),
                   child: leading,
                 ),

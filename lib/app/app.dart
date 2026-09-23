@@ -5,6 +5,7 @@ import '../features/me/privacy_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/shell/home_shell.dart';
 import '../shared/toast/toast_host.dart';
+import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'theme.dart';
 
@@ -62,7 +63,9 @@ class _MishirubeAppState extends State<MishirubeApp> {
         locale: const Locale('zh', 'TW'),
         builder: (_, child) => AnnotatedRegion<SystemUiOverlayStyle>(
           value: appSystemOverlayStyle,
-          child: ToastHost(child: child ?? const SizedBox.shrink()),
+          child: WindowControlsScope(
+            child: ToastHost(child: child ?? const SizedBox.shrink()),
+          ),
         ),
         home: const _RootGate(),
       ),

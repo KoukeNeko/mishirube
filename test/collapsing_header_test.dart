@@ -13,6 +13,7 @@ import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/shared/window_controls.dart';
 
 import 'support/harness.dart';
 
@@ -198,6 +199,36 @@ void main() {
     await pumpScreen(tester, page(isMinimized: true), store: store);
     await tester.pump(_settle);
     expect(tester.getRect(header).height, phoneTopInset);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the leading control moves clear of the window controls', (
+    tester,
+  ) async {
+    const control = Key('leading');
+    Widget page({required double windowControls}) => WindowControls(
+      leadingInset: windowControls,
+      child: const CollapsingPage(
+        title: '測試',
+        leading: SizedBox(key: control, width: 44, height: 44),
+        children: [SizedBox(height: 60)],
+      ),
+    );
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, page(windowControls: 0), store: store);
+    expect(tester.getTopLeft(find.byKey(control)).dx, AppSpacing.screenGutter);
+    final titleLeft = tester.getTopLeft(find.text('測試').last).dx;
+
+    await pumpScreen(tester, page(windowControls: 60), store: store);
+    expect(
+      tester.getTopLeft(find.byKey(control)).dx,
+      AppSpacing.screenGutter + 60,
+    );
+    expect(
+      tester.getTopLeft(find.text('測試').last).dx,
+      titleLeft,
+      reason: 'the large title sits below the controls and stays put',
+    );
     await disposeTree(tester);
   });
 
