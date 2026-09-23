@@ -9,15 +9,23 @@ class MiniBarChart extends StatelessWidget {
     required this.bars,
     this.height = 80,
     this.showLabels = true,
+    this.color = AppColors.training,
+    this.dimColor = AppColors.trainingDim,
   });
 
   final List<(String, int)> bars;
   final double height;
   final bool showLabels;
 
+  /// The last bar's colour, and the others'.
+  final Color color;
+  final Color dimColor;
+
   @override
   Widget build(BuildContext context) {
-    final maxValue = bars.map((bar) => bar.$2).reduce((a, b) => a > b ? a : b);
+    final highest = bars.map((bar) => bar.$2).fold(0, (a, b) => a > b ? a : b);
+    // All zero is a row of empty bars, not a division by zero.
+    final maxValue = highest == 0 ? 1 : highest;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -30,9 +38,7 @@ class MiniBarChart extends StatelessWidget {
                 Container(
                   height: height * bars[i].$2 / maxValue,
                   decoration: BoxDecoration(
-                    color: i == bars.length - 1
-                        ? AppColors.training
-                        : AppColors.trainingDim,
+                    color: i == bars.length - 1 ? color : dimColor,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(3),
                     ),

@@ -18,7 +18,7 @@ class HealthImport {
   /// New records per kind.
   final Map<HealthDataKind, int> added;
 
-  /// Nights whose length changed since the last read.
+  /// Sleeps whose figures changed since the last read.
   final int updated;
 
   /// Nights the user already logged by hand: theirs is kept.
@@ -118,10 +118,19 @@ class HealthService {
     final water = kinds.contains(HealthDataKind.water)
         ? await source.water(from, now)
         : const <HealthWater>[];
+    final sleeps = [for (final night in nightsOf(samples)) _planOf(night)];
+    // Only over the time each sleep covers: a whole month of heart rate
+    // is not what the sleep page shows.
+    final readings = kinds.contains(HealthDataKind.overnight)
+        ? await source.overnight([
+            for (final sleep in sleeps)
+              (sleep.entry.startedAt!, sleep.entry.sleptAt),
+          ])
+        : null;
 
     return _db.transaction(() {
       final added = {for (final kind in kinds) kind: 0};
-      final (nights, updated, skipped) = _importNights(nightsOf(samples));
+      final (nights, updated, skipped) = _importSleeps(sleeps, readings);
       if (kinds.contains(HealthDataKind.sleep)) {
         added[HealthDataKind.sleep] = nights;
       }
@@ -190,41 +199,88 @@ class HealthService {
     });
   }
 
-  /// Adds, updates or skips each night; returns how many of each.
-  (int, int, int) _importNights(List<NightOfSleep> nights) {
+  /// The record a sleep becomes, from the source the user picked for it
+  /// when that source still recorded it.
+  ({String id, SleepEntry entry, List<SleepSample> samples}) _planOf(
+    NightOfSleep night,
+  ) {
+    final day = localDayOf(night.morning);
+    final start = night.summary.start;
+    final id = switch (night.kind) {
+      SleepKind.night => '${source.idPrefix}-sleep-$day',
+      // Named by when it began: a day can have more than one.
+      SleepKind.nap =>
+        '${source.idPrefix}-nap-$day-'
+            '${start.hour.toString().padLeft(2, '0')}'
+            '${start.minute.toString().padLeft(2, '0')}',
+    };
+    final chosen = _journal.chosenSleepSource(id);
+    final summary =
+        (chosen == null ? null : summarize(night.samples, source: chosen)) ??
+        night.summary;
+    return (
+      id: id,
+      entry: SleepEntry(
+        id: id,
+        sleptAt: summary.end,
+        // Whole minutes, as the log keeps them.
+        duration: Duration(minutes: summary.length.inMinutes),
+        startedAt: summary.start,
+        kind: night.kind,
+        measure: summary.measure,
+        sourceName: summary.sourceName,
+      ),
+      samples: night.samples,
+    );
+  }
+
+  /// Adds, updates or skips each sleep, with its stretches and what was
+  /// measured over it; returns how many were added, updated and skipped.
+  (int, int, int) _importSleeps(
+    List<({String id, SleepEntry entry, List<SleepSample> samples})> sleeps,
+    List<List<OvernightReading>>? readings,
+  ) {
     var added = 0, updated = 0, skipped = 0;
-    for (final night in nights) {
-      final id = '${source.idPrefix}-sleep-${localDayOf(night.morning)}';
-      // Whole minutes, as the log keeps them.
-      final asleep = Duration(minutes: night.asleep.inMinutes);
+    for (final (index, (:id, :entry, :samples)) in sleeps.indexed) {
       switch (_journal.sleepRow(id)) {
-        case (isDeleted: true, sleptAt: _, duration: _):
+        case (isDeleted: true, entry: _, chosenSource: _):
           continue;
-        case (isDeleted: false, :final sleptAt, :final duration):
-          if (sleptAt == night.wokeAt && duration == asleep) continue;
-          _journal.resyncSleep(
-            id,
-            sleptAt: night.wokeAt,
-            duration: asleep,
-            source: source.changeSource,
-          );
-          updated++;
-        case null:
-          // A night logged by hand is dated when it was logged, which is
-          // usually soon after waking.
-          final from = night.wokeAt.subtract(const Duration(hours: 12));
-          final to = night.wokeAt.add(const Duration(hours: 12));
-          if (_journal.hasSleepOtherThan(source.changeSource, from, to)) {
-            skipped++;
-            continue;
+        case (isDeleted: false, entry: final stored, chosenSource: _):
+          if (!_sameFigures(stored, entry)) {
+            _journal.resyncSleep(entry, source: source.changeSource);
+            updated++;
           }
-          _journal.addSleep(
-            SleepEntry(id: id, sleptAt: night.wokeAt, duration: asleep),
-            source: source.changeSource,
-          );
+        case null:
+          if (entry.kind == SleepKind.night) {
+            // A night logged by hand is dated when it was logged, which
+            // is usually soon after waking.
+            final from = entry.sleptAt.subtract(const Duration(hours: 12));
+            final to = entry.sleptAt.add(const Duration(hours: 12));
+            if (_journal.hasSleepOtherThan(source.changeSource, from, to)) {
+              skipped++;
+              continue;
+            }
+          }
+          _journal.addSleep(entry, source: source.changeSource);
           added++;
+      }
+      _journal.replaceSleepSegments(id, samples, source: source.changeSource);
+      if (readings != null) {
+        _journal.replaceSleepReadings(
+          id,
+          readings[index],
+          source: source.changeSource,
+        );
       }
     }
     return (added, updated, skipped);
   }
+
+  static bool _sameFigures(SleepEntry a, SleepEntry b) =>
+      a.sleptAt == b.sleptAt &&
+      a.duration == b.duration &&
+      a.startedAt == b.startedAt &&
+      a.kind == b.kind &&
+      a.measure == b.measure &&
+      a.sourceName == b.sourceName;
 }

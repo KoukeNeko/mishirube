@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
+import '../sleep/sleep_screen.dart';
 import 'insight_detail_screen.dart';
 import 'muscle_load_card.dart';
 import 'trends_empty_screen.dart';
@@ -162,6 +163,7 @@ class _SummaryGrid extends StatelessWidget {
           ? '—'
           : formatHoursMinutes(overview.averageSleep!),
       caption: overview.averageSleep == null ? '沒有睡眠紀錄' : null,
+      onTap: () => pushPage(context, const SleepScreen()),
     );
     final foodTile = _SummaryTile(
       category: '飲食完整天數',
@@ -232,6 +234,7 @@ class _SummaryTile extends StatelessWidget {
     this.delta,
     this.caption,
     this.chart,
+    this.onTap,
   });
 
   final String category;
@@ -241,10 +244,12 @@ class _SummaryTile extends StatelessWidget {
   final String? delta;
   final String? caption;
   final Widget? chart;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

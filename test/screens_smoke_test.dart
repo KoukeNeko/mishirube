@@ -11,6 +11,7 @@ import 'package:mishirube/features/exercise/create_exercise_screen.dart';
 import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
+import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -41,6 +42,7 @@ import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/features/training/routine_list_screen.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
+import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/trends_empty_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -53,6 +55,74 @@ typedef _StoreSetup = void Function(AppStore store);
 void _noSetup(AppStore store) {}
 
 void _withWorkout(AppStore store) => store.startWorkout();
+
+/// Last night from a watch, with stages, overnight readings, a second
+/// source and a nap, so the sleep page draws every section.
+void _withStagedNight(AppStore store) {
+  final journal = store.backend.storage.journal;
+  final woke = store.now().subtract(const Duration(hours: 1));
+  final start = woke.subtract(const Duration(hours: 8));
+  SleepSample stretch(SleepStage stage, int from, int to, String source) =>
+      SleepSample(
+        start: start.add(Duration(minutes: from)),
+        end: start.add(Duration(minutes: to)),
+        stage: stage,
+        source: source,
+        sourceName: source == 'watch' ? 'Apple Watch' : 'Oura',
+      );
+  journal.addSleep(
+    SleepEntry(
+      id: 'night',
+      sleptAt: woke,
+      duration: const Duration(hours: 8),
+      startedAt: start,
+      sourceName: 'Apple Watch',
+    ),
+    source: ChangeSource.healthKit,
+  );
+  journal.replaceSleepSegments('night', [
+    stretch(SleepStage.core, 0, 120, 'watch'),
+    stretch(SleepStage.deep, 120, 200, 'watch'),
+    stretch(SleepStage.awake, 200, 210, 'watch'),
+    stretch(SleepStage.rem, 210, 480, 'watch'),
+    stretch(SleepStage.asleep, 5, 470, 'ring'),
+  ], source: ChangeSource.healthKit);
+  journal.replaceSleepReadings('night', const [
+    OvernightReading(
+      measure: OvernightMeasure.heartRate,
+      minimum: 52,
+      maximum: 67,
+      average: 58,
+      count: 100,
+    ),
+    OvernightReading(
+      measure: OvernightMeasure.skinTemperatureChange,
+      minimum: -0.2,
+      maximum: 0.3,
+      average: 0.1,
+      count: 20,
+    ),
+    OvernightReading(
+      measure: OvernightMeasure.breathingDisturbances,
+      minimum: 3,
+      maximum: 3,
+      average: 3,
+      count: 1,
+      isElevated: false,
+    ),
+  ], source: ChangeSource.healthKit);
+  journal.addSleep(
+    SleepEntry(
+      id: 'nap',
+      sleptAt: woke.subtract(const Duration(minutes: 1)),
+      duration: const Duration(minutes: 30),
+      startedAt: woke.subtract(const Duration(minutes: 31)),
+      kind: SleepKind.nap,
+      sourceName: 'Apple Watch',
+    ),
+    source: ChangeSource.healthKit,
+  );
+}
 
 void _withLunch(AppStore store) => store.confirmLunch();
 
@@ -97,6 +167,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
+  'sleep': ((_) => const SleepScreen(), _withStagedNight),
+  'sleep, nothing recorded': (
+    (store) =>
+        SleepScreen(day: store.now().subtract(const Duration(days: 400))),
+    _noSetup,
+  ),
   'describe a meal': ((_) => const DescribeMealScreen(), _noSetup),
   'brand menu': (
     (_) => BrandMenuScreen(

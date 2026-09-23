@@ -8,6 +8,7 @@ import '../../shared/widgets/widgets.dart';
 import '../activity/activity_detail_screen.dart';
 import '../journal/journal_detail_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
+import '../sleep/sleep_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
 
@@ -119,6 +120,11 @@ class _LogScreenState extends State<LogScreen> {
       RecordCategory.activity when id != null => ActivityDetailScreen(
         activityId: id,
       ),
+      // A sleep opens on its day's sleep page, stages and all.
+      RecordCategory.wellness
+          when id != null &&
+              AppStoreScope.read(context).journalEntry(id) is SleepEntry =>
+        SleepScreen(day: entry.at),
       RecordCategory.body || RecordCategory.wellness when id != null =>
         JournalDetailScreen(id: id, at: entry.at),
       // Every source gives its rows an id; a row without one has nothing

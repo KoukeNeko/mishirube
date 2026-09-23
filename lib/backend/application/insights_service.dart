@@ -211,8 +211,16 @@ class InsightsService {
 
   /// The mean night in the window, or null while nothing is logged: an
   /// average of no nights is not zero sleep.
+  ///
+  /// Only nights measured as time asleep count: a nap is not a night, and
+  /// time in bed is not sleep.
   Duration? _averageSleep(DateTime from, DateTime to) {
-    final nights = _journal.sleepBetween(from, to);
+    final nights = [
+      for (final entry in _journal.sleepBetween(from, to))
+        if (entry.kind == SleepKind.night &&
+            entry.measure == SleepMeasure.asleep)
+          entry,
+    ];
     if (nights.isEmpty) return null;
     final total = nights.fold(
       Duration.zero,

@@ -5,7 +5,11 @@ enum HealthDataKind {
   weight('體重'),
   waist('腰圍'),
   workouts('運動'),
-  water('喝水');
+  water('喝水'),
+
+  /// Heart rate, breathing, blood oxygen, temperature and heart rate
+  /// variability, read only for the time a sleep covers.
+  overnight('夜間數據');
 
   const HealthDataKind(this.label);
 

@@ -26,6 +26,7 @@ import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
+import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -1095,6 +1096,25 @@ void main() {
       reason: 'taken, so no longer offered',
     );
     expect(find.bySemanticsLabel(RegExp('目前午餐')), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a night in the log opens its sleep page', (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.recordSleep(const Duration(hours: 7), score: 4);
+    await pumpScreen(tester, const LogScreen(), store: store);
+
+    await _tapText(tester, '睡眠 7:00');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SleepScreen), findsOneWidget);
+    expect(
+      find.textContaining('紀錄的睡眠'),
+      findsOneWidget,
+      reason: 'typed in, not measured',
+    );
+    expect(find.text('睡眠階段'), findsNothing, reason: 'no stages to show');
+    expect(find.text('品質 4 / 5'), findsOneWidget);
     await disposeTree(tester);
   });
 

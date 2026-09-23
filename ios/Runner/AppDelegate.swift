@@ -293,6 +293,9 @@ enum HealthKitBridge {
         if kinds.contains("workouts") {
           types.formUnion(distanceTypes)
         }
+        if kinds.contains("overnight") {
+          types.formUnion(overnightTypes.map(\.type))
+        }
         store.requestAuthorization(toShare: [], read: types) { success, error in
           DispatchQueue.main.async {
             if let error {
@@ -316,6 +319,15 @@ enum HealthKitBridge {
           from: Date(timeIntervalSince1970: Double(from) / 1000),
           to: Date(timeIntervalSince1970: Double(to) / 1000),
           result: result)
+      case "overnight":
+        let windows = (arguments["windows"] as? [[Int]] ?? []).compactMap { pair in
+          pair.count == 2
+            ? DateInterval(
+              start: Date(timeIntervalSince1970: Double(pair[0]) / 1000),
+              end: Date(timeIntervalSince1970: Double(max(pair[0], pair[1])) / 1000))
+            : nil
+        }
+        overnight(windows: windows, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -353,10 +365,15 @@ enum HealthKitBridge {
     let id = sample.uuid.uuidString
     switch (kind, sample) {
     case ("sleep", let sample as HKCategorySample):
-      guard let stage = stage(of: sample.value) else { return nil }
+      guard let (stage, native) = stage(of: sample.value) else { return nil }
+      let source = sample.sourceRevision.source
       return [
         "start": milliseconds(sample.startDate), "end": milliseconds(sample.endDate),
-        "stage": stage,
+        "stage": stage, "native": native,
+        "source": source.bundleIdentifier,
+        // The watch or ring when Health knows it; the app otherwise.
+        "sourceName": sample.device?.name ?? source.name,
+        "manual": sample.metadata?[HKMetadataKeyWasUserEntered] as? Bool ?? false,
       ]
     case ("weight", let sample as HKQuantitySample):
       return [
@@ -397,14 +414,98 @@ enum HealthKitBridge {
     return workout.totalDistance?.doubleValue(for: .meter())
   }
 
-  /// The three stages the app keeps; core, deep and REM are all asleep.
-  static func stage(of value: Int) -> String? {
+  /// The app's name for a stage, and HealthKit's own. Core is shown
+  /// beside Health Connect's light sleep but keeps its name here.
+  static func stage(of value: Int) -> (String, String)? {
     switch HKCategoryValueSleepAnalysis(rawValue: value) {
-    case .inBed: return "inBed"
-    case .awake: return "awake"
-    case .asleepUnspecified, .asleepCore, .asleepDeep, .asleepREM: return "asleep"
+    case .inBed: return ("inBed", "HKCategoryValueSleepAnalysis.inBed")
+    case .awake: return ("awake", "HKCategoryValueSleepAnalysis.awake")
+    case .asleepUnspecified:
+      return ("asleep", "HKCategoryValueSleepAnalysis.asleepUnspecified")
+    case .asleepCore: return ("core", "HKCategoryValueSleepAnalysis.asleepCore")
+    case .asleepDeep: return ("deep", "HKCategoryValueSleepAnalysis.asleepDeep")
+    case .asleepREM: return ("rem", "HKCategoryValueSleepAnalysis.asleepREM")
     default: return nil
     }
+  }
+
+  /// What is read over a sleep, the app's name for each, and the unit
+  /// the platform reports it in. Heart rate variability is SDNN here;
+  /// it is not converted to anything else.
+  static var overnightTypes: [(name: String, type: HKQuantityType, unit: HKUnit, scale: Double)] {
+    let perMinute = HKUnit.count().unitDivided(by: .minute())
+    var types: [(name: String, type: HKQuantityType, unit: HKUnit, scale: Double)] = [
+      ("heartRate", HKQuantityType(.heartRate), perMinute, 1),
+      ("respiratoryRate", HKQuantityType(.respiratoryRate), perMinute, 1),
+      ("oxygenSaturation", HKQuantityType(.oxygenSaturation), .percent(), 100),
+      ("hrvSdnn", HKQuantityType(.heartRateVariabilitySDNN), .secondUnit(with: .milli), 1),
+    ]
+    if #available(iOS 16.0, *) {
+      types.append(
+        ("wristTemperature", HKQuantityType(.appleSleepingWristTemperature), .degreeCelsius(), 1))
+    }
+    if #available(iOS 18.0, *) {
+      types.append(
+        ("breathingDisturbances", HKQuantityType(.appleSleepingBreathingDisturbances), .count(), 1))
+    }
+    return types
+  }
+
+  /// Each measure's range over each window, as rows the Dart side reads:
+  /// the window's index, the measure, its minimum, maximum and average,
+  /// and how many samples fell in it.
+  static func overnight(windows: [DateInterval], result: @escaping FlutterResult) {
+    guard !windows.isEmpty else {
+      result([])
+      return
+    }
+    let predicate = NSCompoundPredicate(
+      orPredicateWithSubpredicates: windows.map {
+        HKQuery.predicateForSamples(withStart: $0.start, end: $0.end)
+      })
+    let group = DispatchGroup()
+    let lock = NSLock()
+    var rows: [[String: Any]] = []
+    for measure in overnightTypes {
+      group.enter()
+      let query = HKSampleQuery(
+        sampleType: measure.type, predicate: predicate, limit: HKObjectQueryNoLimit,
+        sortDescriptors: nil
+      ) { _, samples, _ in
+        // A measure not allowed or not recorded reads as no samples;
+        // Health does not say which.
+        var values = Array(repeating: [Double](), count: windows.count)
+        var elevated = Array(repeating: Bool?.none, count: windows.count)
+        for case let sample as HKQuantitySample in samples ?? [] {
+          guard sample.quantity.is(compatibleWith: measure.unit),
+            let index = windows.firstIndex(where: { $0.contains(sample.startDate) })
+          else { continue }
+          values[index].append(sample.quantity.doubleValue(for: measure.unit) * measure.scale)
+          if #available(iOS 18.0, *), measure.name == "breathingDisturbances",
+            let reading = HKAppleSleepingBreathingDisturbancesClassification(
+              classifying: sample.quantity)
+          {
+            elevated[index] = reading == .elevated
+          }
+        }
+        lock.lock()
+        for (index, found) in values.enumerated() where !found.isEmpty {
+          var row: [String: Any] = [
+            "window": index, "measure": measure.name,
+            "min": found.min()!, "max": found.max()!,
+            "avg": found.reduce(0, +) / Double(found.count), "count": found.count,
+          ]
+          if let value = elevated[index] {
+            row["elevated"] = value
+          }
+          rows.append(row)
+        }
+        lock.unlock()
+        group.leave()
+      }
+      store.execute(query)
+    }
+    group.notify(queue: .main) { result(rows) }
   }
 
   /// The app's activity type ids; anything else is `other`.

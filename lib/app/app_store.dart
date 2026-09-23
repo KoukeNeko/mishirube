@@ -11,6 +11,7 @@ import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/application/provenance_service.dart';
+import '../backend/application/sleep_service.dart';
 import '../backend/backend.dart';
 import '../backend/engines/caffeine.dart';
 import '../backend/health/health_source.dart';
@@ -946,6 +947,19 @@ class AppStore extends ChangeNotifier {
   /// Nights logged in the last few weeks, oldest first.
   List<SleepEntry> get recentSleep =>
       _backend.journal.recentSleep(const Duration(days: 28));
+
+  /// The sleeps logged against [day]: its night first, then its naps.
+  List<SleepRecord> sleepOn(DateTime day) => _backend.sleep.day(day);
+
+  /// Nights (not naps) that ended in `[start, end)`, oldest first.
+  List<SleepEntry> sleepNights(DateTime start, DateTime end) =>
+      _backend.sleep.nights(start, end);
+
+  /// Shows a sleep from another source that recorded it.
+  void chooseSleepSource(String id, String source) {
+    _backend.sleep.chooseSource(id, source);
+    notifyListeners();
+  }
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);

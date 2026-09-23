@@ -11,6 +11,7 @@ import 'health/health_source.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
 import 'application/provenance_service.dart';
+import 'application/sleep_service.dart';
 import 'application/training_service.dart';
 import 'storage/activity_repository.dart';
 import 'storage/goal_repository.dart';
@@ -78,6 +79,7 @@ class Backend {
     nutrition = NutritionService(db, storage.meals, storage.foods);
     activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
+    sleep = SleepService(db, storage.journal);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
     provenance = ProvenanceService(db);
     insights = InsightsService(
@@ -108,6 +110,7 @@ class Backend {
   late final NutritionService nutrition;
   late final ActivityService activity;
   late final JournalService journal;
+  late final SleepService sleep;
   late final GoalService goal;
   late final InsightsService insights;
   late final ProvenanceService provenance;

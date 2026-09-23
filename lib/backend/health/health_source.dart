@@ -40,6 +40,12 @@ abstract interface class HealthSource {
   Future<void> onPrivacyRequest(void Function() show);
 
   Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to);
+
+  /// What was measured over each of [windows], one list per window, in
+  /// the statistic the platform reports each measure in.
+  Future<List<List<OvernightReading>>> overnight(
+    List<(DateTime, DateTime)> windows,
+  );
   Future<List<HealthWeight>> weights(DateTime from, DateTime to);
   Future<List<HealthWaist>> waists(DateTime from, DateTime to);
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to);
@@ -157,8 +163,45 @@ class PlatformHealthSource implements HealthSource {
           start: _time(row['start']),
           end: _time(row['end']),
           stage: stage,
+          native: row['native'] as String? ?? '',
+          source: row['source'] as String? ?? '',
+          sourceName: row['sourceName'] as String? ?? '',
+          isManual: row['manual'] == true,
         ),
   ];
+
+  @override
+  Future<List<List<OvernightReading>>> overnight(
+    List<(DateTime, DateTime)> windows,
+  ) async {
+    final result = [for (final _ in windows) <OvernightReading>[]];
+    if (windows.isEmpty) return result;
+    final rows =
+        await _channel.invokeListMethod<Map<Object?, Object?>>('overnight', {
+          'windows': [
+            for (final (start, end) in windows)
+              [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+          ],
+        }) ??
+        const [];
+    final byName = OvernightMeasure.values.asNameMap();
+    for (final row in rows) {
+      final index = row['window']! as int;
+      final measure = byName[row['measure']];
+      if (measure == null || index < 0 || index >= windows.length) continue;
+      result[index].add(
+        OvernightReading(
+          measure: measure,
+          minimum: (row['min']! as num).toDouble(),
+          maximum: (row['max']! as num).toDouble(),
+          average: (row['avg']! as num).toDouble(),
+          count: row['count']! as int,
+          isElevated: row['elevated'] as bool?,
+        ),
+      );
+    }
+    return result;
+  }
 
   @override
   Future<List<HealthWeight>> weights(DateTime from, DateTime to) async => [
@@ -232,6 +275,10 @@ class NoHealthSource implements HealthSource {
   @override
   Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to) async =>
       const [];
+  @override
+  Future<List<List<OvernightReading>>> overnight(
+    List<(DateTime, DateTime)> windows,
+  ) async => [for (final _ in windows) const []];
   @override
   Future<List<HealthWeight>> weights(DateTime from, DateTime to) async =>
       const [];

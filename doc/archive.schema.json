@@ -1382,6 +1382,9 @@
               "sleptAt",
               "durationMinutes",
               "note",
+              "kind",
+              "measure",
+              "sourceName",
               "createdAt",
               "updatedAt",
               "revision",
@@ -1407,6 +1410,28 @@
               "note": {
                 "type": "string"
               },
+              "startedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "measure": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              },
+              "chosenSource": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",
@@ -1416,6 +1441,162 @@
               "utcOffsetMinutes": {
                 "type": [
                   "integer",
+                  "null"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "sleepSegments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "sleepId",
+              "startedAt",
+              "endedAt",
+              "stage",
+              "nativeStage",
+              "recordedBy",
+              "recordedByName",
+              "isManual",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "sleepId": {
+                "type": "string"
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "nativeStage": {
+                "type": "string"
+              },
+              "recordedBy": {
+                "type": "string"
+              },
+              "recordedByName": {
+                "type": "string"
+              },
+              "isManual": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "sleepReadings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "sleepId",
+              "measure",
+              "minimum",
+              "maximum",
+              "average",
+              "sampleCount",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "sleepId": {
+                "type": "string"
+              },
+              "measure": {
+                "type": "string"
+              },
+              "minimum": {
+                "type": "number"
+              },
+              "maximum": {
+                "type": "number"
+              },
+              "average": {
+                "type": "number"
+              },
+              "sampleCount": {
+                "type": "integer"
+              },
+              "isElevated": {
+                "type": [
+                  "boolean",
                   "null"
                 ]
               },

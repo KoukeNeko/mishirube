@@ -8,6 +8,7 @@ import '../../shared/widgets/widgets.dart';
 import '../goal/goal_entry_button.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
+import '../sleep/sleep_screen.dart';
 import '../training/active_workout_screen.dart';
 import '../training/routine_detail_screen.dart';
 import '../training/workout_summary_screen.dart';
@@ -64,12 +65,13 @@ class TodayScreen extends StatelessWidget {
             children: [
               const Expanded(child: _WeightTile()),
               const SizedBox(width: AppSpacing.xs),
-              const Expanded(
+              Expanded(
                 child: QuickStatTile(
                   category: '睡眠',
                   color: AppColors.wellness,
                   value: '6:52',
                   caption: 'Apple Health',
+                  onTap: () => pushPage(context, const SleepScreen()),
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),

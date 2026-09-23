@@ -78,8 +78,8 @@ class JournalRepository {
       _db.execute(
         'INSERT INTO sleep_entries (id, slept_at, duration_minutes, score, '
         'note, created_at, updated_at, source, local_day, '
-        'utc_offset_minutes) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'utc_offset_minutes, started_at, kind, measure, source_name) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           entry.id,
           entry.sleptAt.millisecondsSinceEpoch,
@@ -91,6 +91,10 @@ class JournalRepository {
           source.name,
           localDayOf(entry.sleptAt),
           entry.sleptAt.timeZoneOffset.inMinutes,
+          entry.startedAt?.millisecondsSinceEpoch,
+          entry.kind.name,
+          entry.measure.name,
+          entry.sourceName,
         ],
       );
       _db.audit(
@@ -105,18 +109,16 @@ class JournalRepository {
   /// A night's row whatever its state: null when there is none, and
   /// `isDeleted` when the user removed it — an import must not bring a
   /// deleted night back.
-  ({bool isDeleted, DateTime sleptAt, Duration duration})? sleepRow(String id) {
-    final rows = _db.select(
-      'SELECT slept_at, duration_minutes, deleted_at FROM sleep_entries '
-      'WHERE id = ?',
-      [id],
-    );
+  ({bool isDeleted, SleepEntry entry, String? chosenSource})? sleepRow(
+    String id,
+  ) {
+    final rows = _db.select('SELECT * FROM sleep_entries WHERE id = ?', [id]);
     if (rows.isEmpty) return null;
     final row = rows.single;
     return (
       isDeleted: row['deleted_at'] != null,
-      sleptAt: DateTime.fromMillisecondsSinceEpoch(row['slept_at']! as int),
-      duration: Duration(minutes: row['duration_minutes']! as int),
+      entry: _sleepFrom(row),
+      chosenSource: row['chosen_source'] as String?,
     );
   }
 
@@ -129,18 +131,193 @@ class JournalRepository {
         [source.name, start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
       ).isNotEmpty;
 
-  /// Moves an imported night to what its source now says.
+  /// Moves an imported sleep to what its source now says, and records
+  /// which source the user picked when [chosenSource] is given.
   void resyncSleep(
-    String id, {
-    required DateTime sleptAt,
-    required Duration duration,
+    SleepEntry entry, {
     required ChangeSource source,
-  }) => _update('sleep_entries', id, {
-    'slept_at': sleptAt.millisecondsSinceEpoch,
-    'duration_minutes': duration.inMinutes,
-    'local_day': localDayOf(sleptAt),
-    'utc_offset_minutes': sleptAt.timeZoneOffset.inMinutes,
+    String? chosenSource,
+  }) => _update('sleep_entries', entry.id, {
+    'slept_at': entry.sleptAt.millisecondsSinceEpoch,
+    'duration_minutes': entry.duration.inMinutes,
+    'local_day': localDayOf(entry.sleptAt),
+    'utc_offset_minutes': entry.sleptAt.timeZoneOffset.inMinutes,
+    'started_at': entry.startedAt?.millisecondsSinceEpoch,
+    'kind': entry.kind.name,
+    'measure': entry.measure.name,
+    'source_name': entry.sourceName,
+    'chosen_source': ?chosenSource,
   }, source: source);
+
+  /// Sleeps logged against the day [day] falls on, oldest first.
+  List<SleepEntry> sleepOn(DateTime day) => [
+    for (final row in _db.select(
+      'SELECT * FROM sleep_entries WHERE deleted_at IS NULL '
+      'AND local_day = ? ORDER BY slept_at',
+      [localDayOf(day)],
+    ))
+      _sleepFrom(row),
+  ];
+
+  /// The source the user picked for [sleepId], or null for the default.
+  String? chosenSleepSource(String sleepId) =>
+      _db.select('SELECT chosen_source FROM sleep_entries WHERE id = ?', [
+            sleepId,
+          ]).firstOrNull?['chosen_source']
+          as String?;
+
+  /// Every source's stretches of [sleepId], in time order.
+  List<SleepSample> sleepSegments(String sleepId) => [
+    for (final row in _db.select(
+      'SELECT * FROM sleep_segments WHERE sleep_id = ? AND deleted_at IS NULL '
+      'ORDER BY started_at, recorded_by',
+      [sleepId],
+    ))
+      SleepSample(
+        start: DateTime.fromMillisecondsSinceEpoch(row['started_at']! as int),
+        end: DateTime.fromMillisecondsSinceEpoch(row['ended_at']! as int),
+        stage: SleepStage.values.byName(row['stage']! as String),
+        native: row['native_stage']! as String,
+        source: row['recorded_by']! as String,
+        sourceName: row['recorded_by_name']! as String,
+        isManual: row['is_manual'] == 1,
+      ),
+  ];
+
+  /// Makes [samples] the stretches of [sleepId]. Nothing is written when
+  /// they are what is already there; otherwise the old ones are
+  /// tombstoned, as every record is, and the new ones added.
+  void replaceSleepSegments(
+    String sleepId,
+    List<SleepSample> samples, {
+    required ChangeSource source,
+  }) {
+    final sorted = [...samples]
+      ..sort((a, b) {
+        final byStart = a.start.compareTo(b.start);
+        return byStart != 0 ? byStart : a.source.compareTo(b.source);
+      });
+    final current = sleepSegments(sleepId);
+    if (_sameList(current, sorted)) return;
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE sleep_segments SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE sleep_id = ? AND deleted_at IS NULL',
+        [now, now, sleepId],
+      );
+      for (final sample in sorted) {
+        _db.execute(
+          'INSERT INTO sleep_segments (id, sleep_id, started_at, ended_at, '
+          'stage, native_stage, recorded_by, recorded_by_name, is_manual, '
+          'created_at, updated_at, source) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            _db.newId(),
+            sleepId,
+            sample.start.millisecondsSinceEpoch,
+            sample.end.millisecondsSinceEpoch,
+            sample.stage.name,
+            sample.native,
+            sample.source,
+            sample.sourceName,
+            sample.isManual ? 1 : 0,
+            now,
+            now,
+            source.name,
+          ],
+        );
+      }
+      _db.audit(
+        entityType: 'sleep_segments',
+        entityId: sleepId,
+        action: 'replace',
+        source: source,
+        payload: {'count': sorted.length},
+      );
+    });
+  }
+
+  /// What was measured over [sleepId], in [OvernightMeasure] order.
+  List<OvernightReading> sleepReadings(String sleepId) {
+    final readings = [
+      for (final row in _db.select(
+        'SELECT * FROM sleep_readings WHERE sleep_id = ? '
+        'AND deleted_at IS NULL',
+        [sleepId],
+      ))
+        OvernightReading(
+          measure: OvernightMeasure.values.byName(row['measure']! as String),
+          minimum: row['minimum']! as double,
+          maximum: row['maximum']! as double,
+          average: row['average']! as double,
+          count: row['sample_count']! as int,
+          isElevated: switch (row['is_elevated']) {
+            null => null,
+            final value => value == 1,
+          },
+        ),
+    ];
+    return readings..sort((a, b) => a.measure.index.compareTo(b.measure.index));
+  }
+
+  /// Makes [readings] what was measured over [sleepId], writing nothing
+  /// when they are what is already there.
+  void replaceSleepReadings(
+    String sleepId,
+    List<OvernightReading> readings, {
+    required ChangeSource source,
+  }) {
+    final sorted = [...readings]
+      ..sort((a, b) => a.measure.index.compareTo(b.measure.index));
+    if (_sameList(sleepReadings(sleepId), sorted)) return;
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE sleep_readings SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE sleep_id = ? AND deleted_at IS NULL',
+        [now, now, sleepId],
+      );
+      for (final reading in sorted) {
+        _db.execute(
+          'INSERT INTO sleep_readings (id, sleep_id, measure, minimum, '
+          'maximum, average, sample_count, is_elevated, created_at, '
+          'updated_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            _db.newId(),
+            sleepId,
+            reading.measure.name,
+            reading.minimum,
+            reading.maximum,
+            reading.average,
+            reading.count,
+            switch (reading.isElevated) {
+              null => null,
+              final value => value ? 1 : 0,
+            },
+            now,
+            now,
+            source.name,
+          ],
+        );
+      }
+      _db.audit(
+        entityType: 'sleep_readings',
+        entityId: sleepId,
+        action: 'replace',
+        source: source,
+        payload: {'count': sorted.length},
+      );
+    });
+  }
+
+  static bool _sameList<T>(List<T> a, List<T> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 
   /// Nights logged in `[start, end)`, oldest first.
   List<SleepEntry> sleepBetween(DateTime start, DateTime end) => [
@@ -158,6 +335,13 @@ class JournalRepository {
     duration: Duration(minutes: row['duration_minutes']! as int),
     score: row['score'] as int?,
     note: row['note']! as String,
+    startedAt: switch (row['started_at']) {
+      final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+      _ => null,
+    },
+    kind: SleepKind.values.byName(row['kind']! as String),
+    measure: SleepMeasure.values.byName(row['measure']! as String),
+    sourceName: row['source_name']! as String,
   );
 
   /// The oldest live row of [table], by its [timeColumn].
@@ -564,8 +748,10 @@ class SleepTimelineSource extends TimelineSource {
   ];
 
   @override
+  /// A day's line is about its night; a nap has its own row.
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
-    for (final (day, _, night) in _nights(start, end)) day % 100: _label(night),
+    for (final (day, _, night) in _nights(start, end))
+      if (night.kind == SleepKind.night) day % 100: _label(night),
   };
 
   List<(int, DateTime, SleepEntry)> _nights(DateTime start, DateTime end) =>
@@ -577,8 +763,8 @@ class SleepTimelineSource extends TimelineSource {
         _journal._sleepFrom,
       );
 
-  static String _label(SleepEntry night) =>
-      '睡眠 ${formatHoursMinutes(night.duration)}';
+  static String _label(SleepEntry sleep) =>
+      '${sleep.kind.label} ${formatHoursMinutes(sleep.duration)}';
 }
 
 /// Energy, mood and symptom check-ins as log rows.

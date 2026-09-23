@@ -1,15 +1,22 @@
 package com.example.mishirube
 
+import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -59,9 +66,11 @@ class HealthConnectBridge(
     /** The kinds whose read permission is granted; a workout needs its session. */
     private suspend fun grantedKinds(): List<String> {
         val granted = client.permissionController.getGrantedPermissions()
-        return listOf("sleep", "weight", "workouts", "water").filter { kind ->
+        return listOf("sleep", "weight", "workouts", "water", "overnight").filter { kind ->
             val needed = when (kind) {
                 "workouts" -> HealthPermission.getReadPermission(ExerciseSessionRecord::class)
+                // Heart rate stands for the rest: one allowed is enough to read.
+                "overnight" -> HealthPermission.getReadPermission(HeartRateRecord::class)
                 else -> permissionsFor(listOf(kind)).single()
             }
             needed in granted
@@ -100,6 +109,18 @@ class HealthConnectBridge(
                     }
                 }
             }
+            "overnight" -> {
+                val windows = call.argument<List<List<Number>>>("windows").orEmpty().map {
+                    Instant.ofEpochMilli(it[0].toLong()) to Instant.ofEpochMilli(it[1].toLong())
+                }
+                scope.launch {
+                    try {
+                        result.success(overnight(windows))
+                    } catch (error: Exception) {
+                        result.error("failed", error.message, null)
+                    }
+                }
+            }
             "read" -> {
                 val kind = call.argument<String>("kind")
                 val from = call.argument<Number>("from")?.toLong()
@@ -129,9 +150,71 @@ class HealthConnectBridge(
             // A session's distance is recorded apart from the session.
             "workouts" -> listOf(ExerciseSessionRecord::class, DistanceRecord::class)
             "water" -> listOf(HydrationRecord::class)
+            "overnight" -> overnightTypes
             else -> emptyList()
         }
     }.map { HealthPermission.getReadPermission(it) }.toSet()
+
+    /** What is read over a sleep; HRV is RMSSD here and stays RMSSD. */
+    private val overnightTypes = listOf(
+        HeartRateRecord::class,
+        RespiratoryRateRecord::class,
+        OxygenSaturationRecord::class,
+        HeartRateVariabilityRmssdRecord::class,
+        SkinTemperatureRecord::class,
+    )
+
+    /**
+     * Each measure's range over each window, as rows the Dart side reads.
+     * A measure not allowed is left out rather than failing the rest.
+     */
+    private suspend fun overnight(windows: List<Pair<Instant, Instant>>): List<Map<String, Any>> {
+        if (windows.isEmpty()) return emptyList()
+        val granted = client.permissionController.getGrantedPermissions()
+        fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
+        val rows = mutableListOf<Map<String, Any>>()
+        for ((index, window) in windows.withIndex()) {
+            val (from, to) = window
+            fun add(measure: String, values: List<Double>) {
+                if (values.isEmpty()) return
+                rows += mapOf(
+                    "window" to index,
+                    "measure" to measure,
+                    "min" to values.min(),
+                    "max" to values.max(),
+                    "avg" to values.average(),
+                    "count" to values.size,
+                )
+            }
+            fun inWindow(time: Instant) = !time.isBefore(from) && time.isBefore(to)
+            if (allowed(HeartRateRecord::class)) {
+                add("heartRate", readAll(HeartRateRecord::class, from, to).flatMap { record ->
+                    record.samples.filter { inWindow(it.time) }.map { it.beatsPerMinute.toDouble() }
+                })
+            }
+            if (allowed(RespiratoryRateRecord::class)) {
+                add("respiratoryRate", readAll(RespiratoryRateRecord::class, from, to)
+                    .filter { inWindow(it.time) }.map { it.rate })
+            }
+            if (allowed(OxygenSaturationRecord::class)) {
+                add("oxygenSaturation", readAll(OxygenSaturationRecord::class, from, to)
+                    .filter { inWindow(it.time) }.map { it.percentage.value })
+            }
+            if (allowed(HeartRateVariabilityRmssdRecord::class)) {
+                add("hrvRmssd", readAll(HeartRateVariabilityRmssdRecord::class, from, to)
+                    .filter { inWindow(it.time) }.map { it.heartRateVariabilityMillis })
+            }
+            if (allowed(SkinTemperatureRecord::class)) {
+                // Health Connect keeps skin temperature as changes from a
+                // baseline; that is what is shown.
+                add("skinTemperatureChange", readAll(SkinTemperatureRecord::class, from, to)
+                    .flatMap { record ->
+                        record.deltas.filter { inWindow(it.time) }.map { it.delta.inCelsius }
+                    })
+            }
+        }
+        return rows
+    }
 
     private suspend fun read(kind: String, from: Instant, to: Instant): List<Map<String, Any>> =
         when (kind) {
@@ -182,31 +265,64 @@ class HealthConnectBridge(
             AggregateRequest(setOf(DistanceRecord.DISTANCE_TOTAL), TimeRangeFilter.between(start, end))
         )[DistanceRecord.DISTANCE_TOTAL]?.inMeters
 
-    /** A session without stages was all asleep; with them, each stage is a sample. */
+    /**
+     * A session without stages was all asleep; with them, each stage is a
+     * sample. Light is shown beside Apple's core sleep but keeps its name.
+     */
     private fun sleepRows(session: SleepSessionRecord): List<Map<String, Any>> {
+        val metadata = session.metadata
         if (session.stages.isEmpty()) {
-            return listOf(sleepRow(session.startTime, session.endTime, "asleep"))
+            return listOf(
+                sleepRow(metadata, session.startTime, session.endTime, "asleep", "SESSION")
+            )
         }
         return session.stages.mapNotNull { stage ->
-            val name = when (stage.stage) {
-                SleepSessionRecord.STAGE_TYPE_SLEEPING,
-                SleepSessionRecord.STAGE_TYPE_LIGHT,
-                SleepSessionRecord.STAGE_TYPE_DEEP,
-                SleepSessionRecord.STAGE_TYPE_REM -> "asleep"
-                SleepSessionRecord.STAGE_TYPE_AWAKE,
-                SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED,
-                SleepSessionRecord.STAGE_TYPE_OUT_OF_BED -> "awake"
+            val names = when (stage.stage) {
+                SleepSessionRecord.STAGE_TYPE_SLEEPING -> "asleep" to "STAGE_TYPE_SLEEPING"
+                SleepSessionRecord.STAGE_TYPE_LIGHT -> "core" to "STAGE_TYPE_LIGHT"
+                SleepSessionRecord.STAGE_TYPE_DEEP -> "deep" to "STAGE_TYPE_DEEP"
+                SleepSessionRecord.STAGE_TYPE_REM -> "rem" to "STAGE_TYPE_REM"
+                SleepSessionRecord.STAGE_TYPE_AWAKE -> "awake" to "STAGE_TYPE_AWAKE"
+                SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED -> "awake" to "STAGE_TYPE_AWAKE_IN_BED"
+                SleepSessionRecord.STAGE_TYPE_OUT_OF_BED -> "awake" to "STAGE_TYPE_OUT_OF_BED"
                 else -> null
             }
-            name?.let { sleepRow(stage.startTime, stage.endTime, it) }
+            names?.let { (stageName, native) ->
+                sleepRow(metadata, stage.startTime, stage.endTime, stageName, native)
+            }
         }
     }
 
-    private fun sleepRow(start: Instant, end: Instant, stage: String) = mapOf<String, Any>(
-        "start" to start.toEpochMilli(),
-        "end" to end.toEpochMilli(),
-        "stage" to stage,
-    )
+    private fun sleepRow(
+        metadata: Metadata,
+        start: Instant,
+        end: Instant,
+        stage: String,
+        native: String,
+    ): Map<String, Any> {
+        val origin = metadata.dataOrigin.packageName
+        // The watch or ring when the writer says; the app otherwise.
+        val device = listOfNotNull(metadata.device?.manufacturer, metadata.device?.model)
+            .joinToString(" ")
+        return mapOf(
+            "start" to start.toEpochMilli(),
+            "end" to end.toEpochMilli(),
+            "stage" to stage,
+            "native" to "SleepSessionRecord.$native",
+            "source" to origin,
+            "sourceName" to device.ifEmpty { appLabel(origin) },
+            "manual" to (metadata.recordingMethod == Metadata.RECORDING_METHOD_MANUAL_ENTRY),
+        )
+    }
+
+    /** What the user calls the app that wrote a record, or its package name. */
+    private fun appLabel(packageName: String): String = try {
+        val manager = activity.packageManager
+        manager.getApplicationLabel(manager.getApplicationInfo(packageName, 0)).toString()
+    } catch (error: PackageManager.NameNotFoundException) {
+        // Uninstalled since it wrote the record, or hidden from this app.
+        packageName
+    }
 
     /** The app's activity type ids; anything else is "other". */
     private fun activity(type: Int): String = when (type) {

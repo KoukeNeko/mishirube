@@ -582,6 +582,53 @@ final List<String> _migrations = [
   -- print it, or the total in one serving. Stored per serving either way.
   ALTER TABLE foods ADD COLUMN caffeine_basis TEXT NOT NULL DEFAULT 'serving';
   ''',
+  '''
+  -- A sleep read from a health platform: when it began, whether it was
+  -- the day's night or a nap beside it, whether its length is time
+  -- asleep or only time in bed, which source it is shown from, and the
+  -- source the user picked over the default. A length typed in by hand
+  -- has none of these.
+  ALTER TABLE sleep_entries ADD COLUMN started_at INTEGER;
+  ALTER TABLE sleep_entries ADD COLUMN kind TEXT NOT NULL DEFAULT 'night';
+  ALTER TABLE sleep_entries ADD COLUMN measure TEXT NOT NULL DEFAULT 'asleep';
+  ALTER TABLE sleep_entries ADD COLUMN source_name TEXT NOT NULL DEFAULT '';
+  ALTER TABLE sleep_entries ADD COLUMN chosen_source TEXT;
+
+  -- Every source's stretches of a sleep by stage, with the platform's own
+  -- name for the stage, so another source can be shown without reading
+  -- the platform again. recorded_by is the app or device that measured
+  -- it, apart from source, which says how the row reached this database.
+  CREATE TABLE sleep_segments (
+    id TEXT PRIMARY KEY,
+    sleep_id TEXT NOT NULL REFERENCES sleep_entries(id),
+    started_at INTEGER NOT NULL,
+    ended_at INTEGER NOT NULL,
+    stage TEXT NOT NULL,
+    native_stage TEXT NOT NULL,
+    recorded_by TEXT NOT NULL,
+    recorded_by_name TEXT NOT NULL,
+    is_manual INTEGER NOT NULL,
+    $_entityColumns
+  );
+  CREATE INDEX sleep_segments_sleep ON sleep_segments(sleep_id)
+    WHERE deleted_at IS NULL;
+
+  -- What the platform measured over a sleep, one row per measure, in the
+  -- statistic the platform reports it in.
+  CREATE TABLE sleep_readings (
+    id TEXT PRIMARY KEY,
+    sleep_id TEXT NOT NULL REFERENCES sleep_entries(id),
+    measure TEXT NOT NULL,
+    minimum REAL NOT NULL,
+    maximum REAL NOT NULL,
+    average REAL NOT NULL,
+    sample_count INTEGER NOT NULL,
+    is_elevated INTEGER,
+    $_entityColumns
+  );
+  CREATE INDEX sleep_readings_sleep ON sleep_readings(sleep_id)
+    WHERE deleted_at IS NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
