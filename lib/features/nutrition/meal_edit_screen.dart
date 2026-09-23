@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'meal_type_picker.dart';
+import 'nutrition_view_model.dart';
 
 /// Correcting what a meal was. The numbers usually arrived as an
 /// estimate; confirming them here is what makes them the user's own, so
@@ -20,6 +21,7 @@ class MealEditScreen extends StatefulWidget {
 }
 
 class _MealEditScreenState extends State<MealEditScreen> {
+  late final NutritionViewModel _nutrition;
   late final _name = TextEditingController(text: widget.meal.name);
   late final _kcal = _field(widget.meal.kcal);
   late final _protein = _field(widget.meal.proteinGrams);
@@ -35,10 +37,17 @@ class _MealEditScreenState extends State<MealEditScreen> {
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+  }
+
+  @override
   void dispose() {
     for (final controller in [_name, _kcal, _protein, _carbs, _fat, _fibre]) {
       controller.dispose();
     }
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -68,9 +77,8 @@ class _MealEditScreenState extends State<MealEditScreen> {
       setState(() => _error = '營養素不能是負數。');
       return;
     }
-    final store = AppStoreScope.read(context);
     final meal = widget.meal;
-    store.updateMeal(
+    _nutrition.updateMeal(
       meal,
       // Built by hand rather than with copyWith, which cannot put a
       // figure back to "nobody wrote this down".

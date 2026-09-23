@@ -16,6 +16,7 @@ import 'package:mishirube/backend/storage/food_repository.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
 
 import 'support/harness.dart';
@@ -308,8 +309,8 @@ void main() {
         backend: backend,
       );
       final deleted = store.routine;
-      final workouts = store
-          .backend.timeline.month(DateTime(2026, 9))
+      final workouts = store.backend.timeline
+          .month(DateTime(2026, 9))
           .days
           .expand((day) => day.entries)
           .where((entry) => entry.category == RecordCategory.training)
@@ -323,8 +324,8 @@ void main() {
         reason: 'moved on to another',
       );
       expect(
-        store
-            .backend.timeline.month(DateTime(2026, 9))
+        store.backend.timeline
+            .month(DateTime(2026, 9))
             .days
             .expand((day) => day.entries)
             .where((entry) => entry.category == RecordCategory.training)
@@ -413,7 +414,11 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      expect(store.backend.goal.isEnabled, isFalse, reason: 'nothing set by default');
+      expect(
+        store.backend.goal.isEnabled,
+        isFalse,
+        reason: 'nothing set by default',
+      );
       expect(store.backend.goal.overview().hasGoal, isFalse);
 
       store.backend.goal.setGoal(4, applyThisWeek: true);
@@ -426,7 +431,10 @@ void main() {
 
       reopened.backend.goal.resume();
       expect(
-        AppStore(clock: clock.now, backend: backend).backend.goal.overview().isPaused,
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).backend.goal.overview().isPaused,
         isFalse,
       );
     });
@@ -497,7 +505,7 @@ void main() {
         backend: backend,
       );
       final food = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '雞胸肉',
         brand: '大成',
         servingLabel: '一片',
@@ -508,15 +516,17 @@ void main() {
         carbGrams: 0,
         fatGrams: 4,
       );
-      store.saveFood(food);
+      store.backend.nutrition.saveFood(food);
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      final stored = reopened.searchFoods('雞胸').single;
+      final stored = reopened.backend.nutrition.searchFoods('雞胸').single;
       expect(stored.displayName, '大成 雞胸肉');
       expect(stored.kcal, 165);
 
       final before = reopened.todayKcal;
-      final logged = reopened.logPortion(FoodPortion(stored, 2));
+      final logged = reopened.backend.nutrition.logPortion(
+        FoodPortion(stored, 2),
+      );
       expect(logged.kcal, 330);
       expect(logged.proteinGrams, 62);
       expect(reopened.todayKcal, before + 330);
@@ -535,7 +545,7 @@ void main() {
         backend: backend,
       );
       final rice = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '白飯',
         servingAmount: 100,
         servingUnit: ServingUnit.gram,
@@ -544,7 +554,7 @@ void main() {
         carbGrams: 28,
         fatGrams: 0,
       );
-      store.saveFood(rice);
+      store.backend.nutrition.saveFood(rice);
 
       final byAmount = FoodPortion.ofAmount(rice, 150);
       expect(byAmount.servings, 1.5);
@@ -555,7 +565,7 @@ void main() {
       expect(byServings.amount, 150);
       expect(byServings.kcal, byAmount.kcal);
 
-      final logged = store.logPortion(byAmount);
+      final logged = store.backend.nutrition.logPortion(byAmount);
       expect(logged.kcal, 195);
       expect(logged.dishes.single.quantityLabel, '150 g');
     });
@@ -594,7 +604,7 @@ void main() {
         backend: backend,
       );
       final milk = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '鮮奶',
         kind: ConsumptionKind.beverage,
         servingAmount: 250,
@@ -606,13 +616,13 @@ void main() {
         nutrients: const {Nutrient.calcium: 250, Nutrient.sodium: 100},
       );
       store
-        ..saveFood(milk)
-        ..logPortion(FoodPortion(milk, 2));
+        ..backend.nutrition.saveFood(milk)
+        ..backend.nutrition.logPortion(FoodPortion(milk, 2));
 
       final stored = AppStore(
         clock: clock.now,
         backend: backend,
-      ).searchFoods('鮮奶').single;
+      ).backend.nutrition.searchFoods('鮮奶').single;
       expect(stored.nutrients[Nutrient.calcium], 250);
       expect(
         stored.nutrients.containsKey(Nutrient.iron),
@@ -651,8 +661,8 @@ void main() {
         fatGrams: 0,
       );
       store
-        ..logPortion(const FoodPortion(milk, 1))
-        ..logPortion(const FoodPortion(rice, 1));
+        ..backend.nutrition.logPortion(const FoodPortion(milk, 1))
+        ..backend.nutrition.logPortion(const FoodPortion(rice, 1));
 
       final calcium = summariseNutrients(
         store.todayMeals,
@@ -679,7 +689,7 @@ void main() {
         backend: backend,
       );
       final unknown = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '路邊攤炒麵',
         servingAmount: 1,
         servingUnit: ServingUnit.serving,
@@ -696,12 +706,12 @@ void main() {
       );
       final before = summariseDay(store.todayMeals, isOver: false);
       store
-        ..saveFood(unknown)
-        ..logPortion(FoodPortion(unknown, 1))
-        ..logPortion(const FoodPortion(known, 1));
+        ..backend.nutrition.saveFood(unknown)
+        ..backend.nutrition.logPortion(FoodPortion(unknown, 1))
+        ..backend.nutrition.logPortion(const FoodPortion(known, 1));
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      expect(reopened.searchFoods('炒麵').single.kcal, isNull);
+      expect(reopened.backend.nutrition.searchFoods('炒麵').single.kcal, isNull);
       expect(
         reopened.todayMeals.map((meal) => meal.kcal),
         contains(isNull),
@@ -752,9 +762,9 @@ void main() {
       );
       final before = summariseFluid(store.todayMeals);
       store
-        ..logPortion(const FoodPortion(water, 1))
-        ..logPortion(const FoodPortion(coffee, 1))
-        ..logPortion(const FoodPortion(rice, 1));
+        ..backend.nutrition.logPortion(const FoodPortion(water, 1))
+        ..backend.nutrition.logPortion(const FoodPortion(coffee, 1))
+        ..backend.nutrition.logPortion(const FoodPortion(rice, 1));
 
       final fluid = summariseFluid(
         AppStore(clock: clock.now, backend: backend).todayMeals,
@@ -822,7 +832,7 @@ void main() {
         backend: backend,
       );
       final americano = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '美式咖啡',
         brand: '星巴克',
         kind: ConsumptionKind.beverage,
@@ -830,16 +840,16 @@ void main() {
         servingUnit: ServingUnit.millilitre,
         kcal: 5,
       );
-      store.saveFood(americano);
+      store.backend.nutrition.saveFood(americano);
       // Short 240 ml / 98 mg, Tall 350 ml / 195 mg: the cup is 1.5 times
       // bigger and the caffeine is double, because the shots differ.
       for (final (name, ml, caffeine) in [
         ('Short', 240.0, 98.0),
         ('Tall', 350.0, 195.0),
       ]) {
-        store.saveFood(
+        store.backend.nutrition.saveFood(
           FoodItem(
-            id: store.newFoodId(),
+            id: store.backend.nutrition.newFoodId(),
             name: '美式咖啡',
             brand: '星巴克',
             kind: ConsumptionKind.beverage,
@@ -855,22 +865,23 @@ void main() {
 
       final reopened = AppStore(clock: clock.now, backend: backend);
       expect(
-        reopened.searchFoods(''),
+        reopened.backend.nutrition.searchFoods(''),
         hasLength(1),
         reason: 'sizes belong to the drink, they are not loose in the list',
       );
 
-      final sizes = reopened.sizesOf(americano.id);
+      final sizes = reopened.backend.nutrition.sizesOf(americano.id);
       expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
       expect(sizes.last.displayName, '星巴克 美式咖啡 Tall');
       expect(sizes.last.nutrients[Nutrient.caffeine], 195);
-      expect(
-        reopened.sizeNamesFor('星巴克'),
-        ['Short', 'Tall'],
-        reason: 'the next drink from the same shop offers the same cups',
-      );
+      expect(reopened.backend.nutrition.sizeNamesFor('星巴克'), [
+        'Short',
+        'Tall',
+      ], reason: 'the next drink from the same shop offers the same cups');
 
-      final tall = reopened.logPortion(FoodPortion(sizes.last, 1));
+      final tall = reopened.backend.nutrition.logPortion(
+        FoodPortion(sizes.last, 1),
+      );
       expect(tall.nutrients[Nutrient.caffeine], 195);
       expect(tall.millilitres, 350);
     });
@@ -897,8 +908,8 @@ void main() {
       );
       final before = summariseFluid(store.todayMeals);
       store
-        ..logPortion(const FoodPortion(soup, 1))
-        ..logPortion(const FoodPortion(tea, 1));
+        ..backend.nutrition.logPortion(const FoodPortion(soup, 1))
+        ..backend.nutrition.logPortion(const FoodPortion(tea, 1));
 
       final fluid = summariseFluid(store.todayMeals);
       expect(
@@ -922,7 +933,7 @@ void main() {
       );
       final before = summariseDay(store.todayMeals).mealCount;
       for (var i = 0; i < 3; i++) {
-        store.logPortion(const FoodPortion(water, 1));
+        store.backend.nutrition.logPortion(const FoodPortion(water, 1));
       }
 
       expect(
@@ -948,8 +959,11 @@ void main() {
         kcal: 150,
       );
       store
-        ..logPortion(const FoodPortion(toast, 1), mealType: MealType.breakfast)
-        ..logPortion(const FoodPortion(toast, 1));
+        ..backend.nutrition.logPortion(
+          const FoodPortion(toast, 1),
+          mealType: MealType.breakfast,
+        )
+        ..backend.nutrition.logPortion(const FoodPortion(toast, 1));
 
       final reopened = AppStore(clock: clock.now, backend: backend).todayMeals;
       expect(reopened[reopened.length - 2].mealType, MealType.breakfast);
@@ -971,7 +985,7 @@ void main() {
       // What a Taiwanese chain has to publish is a maximum per cup, not
       // the amount in the cup.
       final latte = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '拿鐵',
         brand: 'CITY CAFE',
         kind: ConsumptionKind.beverage,
@@ -983,17 +997,17 @@ void main() {
         kcal: 180,
         nutrients: const {Nutrient.caffeine: 180},
       );
-      store.saveFood(latte);
+      store.backend.nutrition.saveFood(latte);
 
       final stored = AppStore(
         clock: clock.now,
         backend: backend,
-      ).searchFoods('拿鐵').single;
+      ).backend.nutrition.searchFoods('拿鐵').single;
       expect(stored.valueType, NutrientValueType.max);
       expect(stored.sourceUrl, 'https://example.invalid/citycafe.pdf');
       expect(stored.checkedAt, isNotNull);
 
-      final logged = store.logPortion(FoodPortion(stored, 1));
+      final logged = store.backend.nutrition.logPortion(FoodPortion(stored, 1));
       expect(
         logged.valueType,
         NutrientValueType.max,
@@ -1036,11 +1050,11 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      final drink = store.searchFoods('美式').single;
+      final drink = store.backend.nutrition.searchFoods('美式').single;
       expect(drink.isBuiltIn, isTrue);
       expect(drink.sourceUrl, 'https://example.invalid/tw/menu');
 
-      final sizes = store.sizesOf(drink.id);
+      final sizes = store.backend.nutrition.sizesOf(drink.id);
       expect(sizes.map((size) => size.sizeName), ['Short', 'Tall']);
       expect(sizes.last.nutrients[Nutrient.caffeine], 195);
       expect(
@@ -1066,7 +1080,7 @@ void main() {
         AppStore(
           clock: clock.now,
           backend: backend,
-        ).searchFoods('美式').single.name,
+        ).backend.nutrition.searchFoods('美式').single.name,
         '美式咖啡（新配方）',
       );
     });
@@ -1157,7 +1171,7 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      final cup = store.sizesOf('7eleven-americano').single;
+      final cup = store.backend.nutrition.sizesOf('7eleven-americano').single;
       expect(cup.isCupCapacity, isTrue, reason: 'it survives the database');
       expect(cup.servingDescription, '杯容量 480 ml');
       expect(
@@ -1168,14 +1182,16 @@ void main() {
       expect(cup.nutrients[Nutrient.sugar], 0);
       expect(cup.nutrients[Nutrient.caffeine], 302);
 
-      final fluidBefore = store.todayFluid.millilitres;
-      final logged = store.logPortion(FoodPortion(cup, 1));
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
+      final fluidBefore = nutrition.todayFluid.millilitres;
+      final logged = store.backend.nutrition.logPortion(FoodPortion(cup, 1));
       expect(
         logged.millilitres,
         isNull,
         reason: 'an iced 480 ml cup is partly ice',
       );
-      expect(store.todayFluid.millilitres, fluidBefore);
+      expect(nutrition.todayFluid.millilitres, fluidBefore);
     });
 
     test('a chain lists its lines apart and drops what it stopped selling', () {
@@ -1229,7 +1245,9 @@ void main() {
         backend: backend,
       );
       expect(
-        store.menuOf('7-ELEVEN').map((food) => food.displayName),
+        store.backend.nutrition
+            .menuOf('7-ELEVEN')
+            .map((food) => food.displayName),
         [
           '7-ELEVEN CITY CAFE 燕麥拿鐵',
           '7-ELEVEN 不可思議咖啡 原味黑珠',
@@ -1237,9 +1255,9 @@ void main() {
         ],
         reason: 'the same name in two lines is two drinks',
       );
-      expect(store.searchFoods('city cafe'), isNotEmpty);
+      expect(store.backend.nutrition.searchFoods('city cafe'), isNotEmpty);
 
-      final mug = store.sizesOf('reserve-latte').single;
+      final mug = store.backend.nutrition.sizesOf('reserve-latte').single;
       expect(
         mug.servingUnit,
         ServingUnit.serving,
@@ -1247,9 +1265,9 @@ void main() {
       );
       expect(mug.isCupCapacity, isFalse);
       expect(mug.servingDescription, '一杯');
-      final pearls = store.menuOf('7-ELEVEN')[1];
+      final pearls = store.backend.nutrition.menuOf('7-ELEVEN')[1];
       expect(pearls.kind, ConsumptionKind.food);
-      expect(store.sizesOf(pearls.id), isEmpty);
+      expect(store.backend.nutrition.sizesOf(pearls.id), isEmpty);
       expect(pearls.kcal, 286);
 
       // The next release no longer ships the pearls.
@@ -1257,10 +1275,10 @@ void main() {
         for (final food in shipped)
           if (food.id != 'reserve-pearls') food.id,
       });
-      expect(store.menuOf('7-ELEVEN').map((food) => food.name), [
-        '燕麥拿鐵',
-        '燕麥拿鐵',
-      ]);
+      expect(
+        store.backend.nutrition.menuOf('7-ELEVEN').map((food) => food.name),
+        ['燕麥拿鐵', '燕麥拿鐵'],
+      );
     });
 
     test('correcting a food does not rewrite the meals logged from it', () {
@@ -1272,7 +1290,7 @@ void main() {
         backend: backend,
       );
       final food = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '豆漿',
         kind: ConsumptionKind.beverage,
         servingAmount: 250,
@@ -1283,12 +1301,12 @@ void main() {
         fatGrams: 5,
       );
       store
-        ..saveFood(food)
-        ..logPortion(FoodPortion(food, 1));
+        ..backend.nutrition.saveFood(food)
+        ..backend.nutrition.logPortion(FoodPortion(food, 1));
 
-      store.saveFood(food.copyWith(kcal: 90));
+      store.backend.nutrition.saveFood(food.copyWith(kcal: 90));
 
-      expect(store.searchFoods('豆漿').single.kcal, 90);
+      expect(store.backend.nutrition.searchFoods('豆漿').single.kcal, 90);
       expect(
         AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
         130,
@@ -1307,7 +1325,7 @@ void main() {
         backend: backend,
       );
       final food = FoodItem(
-        id: store.newFoodId(),
+        id: store.backend.nutrition.newFoodId(),
         name: '地瓜',
         servingLabel: '一條',
         kcal: 130,
@@ -1316,19 +1334,19 @@ void main() {
         fatGrams: 0,
       );
       store
-        ..saveFood(food)
-        ..logPortion(FoodPortion(food, 1))
-        ..deleteFood(food.id);
+        ..backend.nutrition.saveFood(food)
+        ..backend.nutrition.logPortion(FoodPortion(food, 1))
+        ..backend.nutrition.deleteFood(food.id);
 
-      expect(store.searchFoods(''), isEmpty);
+      expect(store.backend.nutrition.searchFoods(''), isEmpty);
       expect(
         AppStore(clock: clock.now, backend: backend).todayMeals.last.kcal,
         130,
         reason: 'removing a food is not a change to what was eaten',
       );
 
-      store.undeleteFood(food.id);
-      expect(store.searchFoods('').single.name, '地瓜');
+      store.backend.nutrition.undeleteFood(food.id);
+      expect(store.backend.nutrition.searchFoods('').single.name, '地瓜');
     });
 
     test('an exploded dish and its undo are both stored', () {
@@ -1340,12 +1358,18 @@ void main() {
         backend: backend,
       )..confirmLunch();
       final lunchDishes = store.todayMeals.last.dishes.length;
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
 
-      final snapshot = store.splitDish(mealId: 'lunch', dishIndex: 0)!;
+      final snapshot = nutrition.splitDish(
+        mealId: 'lunch',
+        dishIndex: 0,
+        day: clock.now(),
+      )!;
       final exploded = AppStore(clock: clock.now, backend: backend);
       expect(exploded.todayMeals.last.dishes, hasLength(lunchDishes + 4));
 
-      store.undoSplit(snapshot);
+      nutrition.undoSplit(snapshot);
       final restored = AppStore(clock: clock.now, backend: backend);
       expect(restored.todayMeals.last.dishes, hasLength(lunchDishes));
       expect(restored.todayMeals.last.dishes.first.components, hasLength(5));
@@ -1354,8 +1378,10 @@ void main() {
     test('recent meals come from the records and can be logged again', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
 
-      final recent = store.recentMeals;
+      final recent = nutrition.recentMeals;
       expect(recent, hasLength(3));
       expect(recent.first.eatenAt.isAfter(recent.last.eatenAt), isTrue);
       expect(
@@ -1365,7 +1391,7 @@ void main() {
       );
 
       final before = store.todayKcal;
-      final again = store.copyMeal(recent.first.meal);
+      final again = nutrition.copyMeal(recent.first.meal);
 
       expect(store.todayMeals.last.id, again.id);
       expect(store.todayKcal, before + recent.first.meal.kcal!);
@@ -1385,14 +1411,16 @@ void main() {
         backend: backend,
       );
       final yesterday = clock.now().subtract(const Duration(days: 1));
-      final meals = store.mealsOn(yesterday);
-      final summary = store.summaryOf(yesterday);
+      final meals = store.backend.nutrition.mealsOn(yesterday);
+      final summary = store.backend.nutrition.summaryOf(yesterday);
 
       expect(meals, hasLength(1));
       expect(summary.mealCount, 1);
       expect(summary.isComplete, isFalse, reason: 'only one meal that day');
 
-      final snapshot = store.splitDish(
+      final nutrition = NutritionViewModel(backend);
+      addTearDown(nutrition.dispose);
+      final snapshot = nutrition.splitDish(
         mealId: meals.single.id,
         dishIndex: 0,
         day: yesterday,
@@ -1401,13 +1429,16 @@ void main() {
         AppStore(
           clock: clock.now,
           backend: backend,
-        ).mealsOn(yesterday).single.dishes,
+        ).backend.nutrition.mealsOn(yesterday).single.dishes,
         hasLength(5),
       );
       expect(store.todayMeals, hasLength(1), reason: 'today is untouched');
 
-      store.undoSplit(snapshot);
-      expect(store.mealsOn(yesterday).single.dishes, hasLength(1));
+      nutrition.undoSplit(snapshot);
+      expect(
+        store.backend.nutrition.mealsOn(yesterday).single.dishes,
+        hasLength(1),
+      );
     });
 
     test('a lunch on a later day gets its own id', () {
@@ -1449,8 +1480,8 @@ void main() {
       expect(today.single.effort, 6);
       expect(today.single.pace, const Duration(minutes: 6, seconds: 15));
 
-      final entries = reopened
-          .backend.timeline.month(DateTime(2026, 9))
+      final entries = reopened.backend.timeline
+          .month(DateTime(2026, 9))
           .days
           .first
           .entries;
@@ -1501,7 +1532,10 @@ void main() {
       store.backend.activity.restore(logged.id);
       expect(store.backend.activity.byId(logged.id), isNotNull);
       expect(
-        AppStore(clock: clock.now, backend: backend).backend.activity.byId(logged.id),
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).backend.activity.byId(logged.id),
         isNotNull,
         reason: 'the undo is written through, not only held in memory',
       );
@@ -1704,8 +1738,8 @@ void main() {
       clock.advance(const Duration(minutes: 58));
       store.finishWorkout();
 
-      final entry = store
-          .backend.timeline.month(DateTime(2026, 9))
+      final entry = store.backend.timeline
+          .month(DateTime(2026, 9))
           .days
           .first
           .entries
@@ -1797,7 +1831,10 @@ void main() {
         reason: 'a site that was not measured has no figure, not a zero',
       );
 
-      final today = reopened.backend.timeline.month(DateTime(2026, 9)).days.first;
+      final today = reopened.backend.timeline
+          .month(DateTime(2026, 9))
+          .days
+          .first;
       expect(
         today.entries.where((e) => e.title.startsWith('腰圍')),
         hasLength(1),
@@ -1818,7 +1855,9 @@ void main() {
       store.backend.journal.recordMeasurement(MeasurementSite.waist, 80.5);
 
       expect(
-        store.backend.journal.latestMeasurements()[MeasurementSite.waist]!.centimetres,
+        store.backend.journal
+            .latestMeasurements()[MeasurementSite.waist]!
+            .centimetres,
         80.5,
       );
     });
@@ -1833,25 +1872,35 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      expect(store.favoriteMeals, isEmpty);
-      final meal = store.recentMeals.first;
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
+      expect(nutrition.favoriteMeals, isEmpty);
+      final meal = nutrition.recentMeals.first;
 
-      store.setMealFavorite(meal.meal, isFavorite: true);
+      nutrition.setMealFavorite(meal.meal, isFavorite: true);
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      expect(reopened.favoriteMeals.map((m) => m.label), [meal.label]);
+      expect(reopened.backend.nutrition.favorites().map((m) => m.label), [
+        meal.label,
+      ]);
 
       // Logging it again keeps the star on the one that was starred.
-      final copy = reopened.copyMeal(meal.meal);
+      final copy = reopened.backend.nutrition.copy(meal.meal);
       expect(copy.isFavorite, isFalse);
       expect(
-        AppStore(clock: clock.now, backend: backend).favoriteMeals,
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).backend.nutrition.favorites(),
         hasLength(1),
       );
 
-      reopened.setMealFavorite(meal.meal, isFavorite: false);
+      reopened.backend.nutrition.setFavorite(meal.meal, isFavorite: false);
       expect(
-        AppStore(clock: clock.now, backend: backend).favoriteMeals,
+        AppStore(
+          clock: clock.now,
+          backend: backend,
+        ).backend.nutrition.favorites(),
         isEmpty,
       );
     });
@@ -1881,7 +1930,8 @@ void main() {
         ..startWorkout();
       addTearDown(store.dispose);
       final before = {
-        for (final (muscle, sets) in store.backend.insights.muscleLoad()) muscle: sets,
+        for (final (muscle, sets) in store.backend.insights.muscleLoad())
+          muscle: sets,
       };
 
       for (var i = 0; i < 6; i++) {
@@ -1891,7 +1941,8 @@ void main() {
       store.finishWorkout();
 
       final after = {
-        for (final (muscle, sets) in store.backend.insights.muscleLoad()) muscle: sets,
+        for (final (muscle, sets) in store.backend.insights.muscleLoad())
+          muscle: sets,
       };
       expect(
         after[MuscleGroup.quads],
@@ -1904,12 +1955,14 @@ void main() {
   group('meal type', () {
     test('can be changed or cleared after the fact, and is audited', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-      final meal = store.logPortion(
+      final meal = store.backend.nutrition.logPortion(
         FoodPortion(FoodItem(id: 'latte', name: '拿鐵', kcal: 190), 1),
       );
       expect(meal.mealType, isNull);
 
-      store.updateMeal(meal, meal.copyWith(mealType: MealType.breakfast));
+      NutritionViewModel(store.backend)
+        ..updateMeal(meal, meal.copyWith(mealType: MealType.breakfast))
+        ..dispose();
       final reopened = store.backend.nutrition
           .mealsOn(store.now())
           .firstWhere((m) => m.id == meal.id);
@@ -1926,10 +1979,12 @@ void main() {
     test('the suggestion comes from the user, not the clock', () {
       final clock = FakeClock()..current = DateTime(2026, 9, 1, 15);
       final store = AppStore(clock: clock.now, isOnboarded: true);
-      expect(store.suggestedMealType(), isNull);
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
+      expect(nutrition.suggestedMealType(), isNull);
 
       for (var day = 0; day < 2; day++) {
-        store.logPortion(
+        store.backend.nutrition.logPortion(
           FoodPortion(FoodItem(id: 'rice$day', name: '便當', kcal: 700), 1),
           mealType: MealType.lunch,
         );
@@ -1937,7 +1992,7 @@ void main() {
       }
 
       expect(
-        store.suggestedMealType(),
+        nutrition.suggestedMealType(),
         MealType.lunch,
         reason: 'two lunches at three o\'clock make three o\'clock lunch',
       );
@@ -1994,7 +2049,7 @@ void main() {
     test('a plate is logged, and undone, as one', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       final before = store.todayMeals.length;
-      final plate = store.logPortions([
+      final plate = store.backend.nutrition.logPortions([
         FoodPortion(food('rice', '白飯', kcal: 130), 1.5),
         FoodPortion(food('egg', '蛋', kcal: 70), 2),
       ], mealType: MealType.lunch);
@@ -2002,9 +2057,11 @@ void main() {
       expect(store.todayMeals, hasLength(before + 2));
       expect(plate.map((m) => m.mealType).toSet(), {MealType.lunch});
 
-      store.deleteMeals(plate);
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
+      nutrition.deleteMeals(plate);
       expect(store.todayMeals, hasLength(before));
-      store.restoreMeals(plate);
+      nutrition.restoreMeals(plate);
       expect(store.todayMeals, hasLength(before + 2));
     });
 
@@ -2071,11 +2128,10 @@ void main() {
       final backend = withMenu();
       addTearDown(backend.close);
 
-      expect(
-        backend.nutrition.searchFoods('那堤').map((f) => f.id).toList(),
-        ['latte', 'own'],
-        reason: '那堤 starts one name and is only inside the other',
-      );
+      expect(backend.nutrition.searchFoods('那堤').map((f) => f.id).toList(), [
+        'latte',
+        'own',
+      ], reason: '那堤 starts one name and is only inside the other');
     });
 
     test('naming a chain on its own offers its menu', () {
@@ -2085,11 +2141,10 @@ void main() {
       expect(backend.nutrition.brandsNamedBy('星巴克'), ['星巴克']);
       expect(backend.nutrition.brandsNamedBy('star'), ['星巴克']);
       expect(backend.nutrition.brandsNamedBy('那堤'), isEmpty);
-      expect(
-        backend.nutrition.menuOf('星巴克').map((f) => f.id).toList(),
-        ['mocha', 'latte'],
-        reason: 'the drinks, not their cup sizes',
-      );
+      expect(backend.nutrition.menuOf('星巴克').map((f) => f.id).toList(), [
+        'mocha',
+        'latte',
+      ], reason: 'the drinks, not their cup sizes');
     });
 
     test('a starred cup survives the menu being shipped again', () {
@@ -2138,7 +2193,10 @@ void main() {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       store.backend.journal.recordNote('頭痛');
       final summaries =
-          store.backend.timeline.month(store.now()).summaries[store.now().day] ?? {};
+          store.backend.timeline.month(store.now()).summaries[store
+              .now()
+              .day] ??
+          {};
       expect(
         summaries[RecordCategory.wellness] ?? '',
         isNot(contains('頭痛')),
@@ -2229,11 +2287,13 @@ void main() {
         ..completeNextSet()
         ..confirmLunch();
       addTearDown(source.dispose);
+      final split = NutritionViewModel(source.backend);
+      addTearDown(split.dispose);
+      split.splitDish(mealId: 'lunch', dishIndex: 0, day: clock.now());
       source
-        ..splitDish(mealId: 'lunch', dishIndex: 0)
-        ..saveFood(
+        ..backend.nutrition.saveFood(
           FoodItem(
-            id: source.newFoodId(),
+            id: source.backend.nutrition.newFoodId(),
             name: '雞胸肉',
             brand: '大成',
             servingLabel: '一片',
@@ -2247,9 +2307,9 @@ void main() {
           ),
         )
         // A bottle whose caffeine was typed per 100 ml.
-        ..saveFood(
+        ..backend.nutrition.saveFood(
           FoodItem(
-            id: source.newFoodId(),
+            id: source.backend.nutrition.newFoodId(),
             name: '無糖紅茶',
             servingAmount: 600,
             servingUnit: ServingUnit.millilitre,
@@ -2269,13 +2329,22 @@ void main() {
       final restoredStore = AppStore(clock: clock.now, backend: target);
       expect(restoredStore.activeWorkout!.completedSets, 1);
       expect(restoredStore.todayMeals, hasLength(2));
-      expect(restoredStore.searchFoods('雞胸').single.kcal, 165);
       expect(
-        restoredStore.searchFoods('無糖紅茶').single.caffeineBasis,
+        restoredStore.backend.nutrition.searchFoods('雞胸').single.kcal,
+        165,
+      );
+      expect(
+        restoredStore.backend.nutrition
+            .searchFoods('無糖紅茶')
+            .single
+            .caffeineBasis,
         CaffeineBasis.per100,
       );
       expect(
-        restoredStore.searchFoods('雞胸').single.nutrients[Nutrient.sodium],
+        restoredStore.backend.nutrition
+            .searchFoods('雞胸')
+            .single
+            .nutrients[Nutrient.sodium],
         74,
       );
     });

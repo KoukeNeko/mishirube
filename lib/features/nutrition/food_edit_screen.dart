@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
+import 'nutrition_view_model.dart';
 
 /// Creating or correcting one of the user's own foods.
 ///
@@ -41,6 +42,7 @@ class FoodEditScreen extends StatefulWidget {
 }
 
 class _FoodEditScreenState extends State<FoodEditScreen> {
+  late final NutritionViewModel _nutrition;
   late final _name = TextEditingController(
     text: widget.editing?.name ?? widget.sizeOf?.name ?? widget.initialName,
   );
@@ -115,6 +117,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     for (final controller in [_name, _sizeName, _servingAmount, _caffeine]) {
       controller.addListener(() => setState(() {}));
     }
@@ -138,6 +141,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     ]) {
       controller.dispose();
     }
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -145,7 +149,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// is saved, because a size has to belong to something.
   List<FoodItem> get _sizes => widget.editing == null
       ? const []
-      : AppStoreScope.of(context).sizesOf(widget.editing!.id);
+      : _nutrition.sizesOf(widget.editing!.id);
 
   ConsumptionKind get _kindForUnit => switch (_servingUnit.dimension) {
     ServingDimension.volume => ConsumptionKind.beverage,
@@ -292,9 +296,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// only saved. Filling in a whole label and then being sent back to
   /// the list to find it again is a round trip with nothing in it.
   void _save({required bool logNow}) {
-    final store = AppStoreScope.read(context);
     final food = FoodItem(
-      id: widget.editing?.id ?? store.newFoodId(),
+      id: widget.editing?.id ?? _nutrition.newFoodId(),
       name: _name.text.trim(),
       brand: _brand.text.trim(),
       servingLabel: _serving.text.trim(),
@@ -319,7 +322,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       sourceUrl: widget.editing?.sourceUrl ?? widget.sizeOf?.sourceUrl ?? '',
       checkedAt: widget.editing?.checkedAt ?? widget.sizeOf?.checkedAt,
     );
-    store.saveFood(food);
+    _nutrition.saveFood(food);
     Navigator.of(context).pop(logNow ? food : null);
   }
 
@@ -349,7 +352,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   List<String> _brandSizeNames() {
     final brand = _brand.text.trim();
     if (brand.isEmpty) return const [];
-    return AppStoreScope.of(context)
+    return _nutrition
         .sizeNamesFor(brand)
         .where((name) => name != _sizeName.text.trim())
         .toList();
@@ -374,7 +377,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final isNew = widget.editing == null;
     return DetailPage(
       appBar: PageAppBar(

@@ -126,9 +126,9 @@ void _withStagedNight(AppStore store) {
 
 void _withLunch(AppStore store) => store.confirmLunch();
 
-void _withFood(AppStore store) => store.saveFood(
+void _withFood(AppStore store) => store.backend.nutrition.saveFood(
   FoodItem(
-    id: store.newFoodId(),
+    id: store.backend.nutrition.newFoodId(),
     name: '雞胸肉',
     brand: '大成',
     servingLabel: '一片',
@@ -197,7 +197,9 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'weight detail': (
     (store) {
-      final weight = store.backend.journal.recentWeights(const Duration(days: 28)).last;
+      final weight = store.backend.journal
+          .recentWeights(const Duration(days: 28))
+          .last;
       return JournalDetailScreen(id: weight.id, at: weight.measuredAt);
     },
     _noSetup,
@@ -287,11 +289,13 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'food search': ((_) => const FoodSearchScreen(), _withFood),
   'food edit (new)': ((_) => const FoodEditScreen(), _noSetup),
   'portion': (
-    (store) => PortionScreen(food: store.searchFoods('').single),
+    (store) =>
+        PortionScreen(food: store.backend.nutrition.searchFoods('').single),
     _withFood,
   ),
   'food edit': (
-    (store) => FoodEditScreen(editing: store.searchFoods('').single),
+    (store) =>
+        FoodEditScreen(editing: store.backend.nutrition.searchFoods('').single),
     _withFood,
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),

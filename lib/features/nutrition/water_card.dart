@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
+import 'nutrition_view_model.dart';
 
 /// The amounts offered for one tap, named after what holds them.
 const _presets = [('一杯', 250), ('大杯', 350), ('一瓶', 500)];
@@ -25,16 +26,19 @@ class WaterCard extends StatelessWidget {
   /// be corrected.
   final VoidCallback onOpenDay;
 
-  void _logGlass(BuildContext context, AppStore store) {
-    final logged = store.logWater();
+  void _logGlass(BuildContext context, NutritionViewModel nutrition) {
+    final logged = nutrition.logWater();
     ToastScope.read(context).showUndo(
       '已記錄 ${logged.millilitres} mL 水',
-      onUndo: () => store.deleteMeals([logged]),
+      onUndo: () => nutrition.deleteMeals([logged]),
     );
   }
 
-  Future<void> _pickAmount(BuildContext context, AppStore store) async {
-    final current = store.glassMillilitres;
+  Future<void> _pickAmount(
+    BuildContext context,
+    NutritionViewModel nutrition,
+  ) async {
+    final current = nutrition.glassMillilitres;
     final isPreset = _presets.any((preset) => preset.$2 == current);
     await showAppDialog<void>(
       context,
@@ -52,7 +56,7 @@ class WaterCard extends StatelessWidget {
                   ? DialogTone.primary
                   : DialogTone.normal,
               onTap: () {
-                store.setGlassMillilitres(millilitres);
+                nutrition.setGlassMillilitres(millilitres);
                 Navigator.of(context).pop();
               },
             ),
@@ -71,7 +75,7 @@ class WaterCard extends StatelessWidget {
               );
               final millilitres = int.tryParse(typed?.trim() ?? '');
               if (millilitres != null && millilitres > 0) {
-                store.setGlassMillilitres(millilitres);
+                nutrition.setGlassMillilitres(millilitres);
               }
             },
           ),
@@ -81,11 +85,13 @@ class WaterCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final water = store.todayWater;
-    final fluid = store.todayFluid;
-    final glass = store.glassMillilitres;
+  Widget build(BuildContext context) =>
+      ViewModelBuilder(create: NutritionViewModel.new, builder: _card);
+
+  Widget _card(BuildContext context, NutritionViewModel nutrition) {
+    final water = nutrition.todayWater;
+    final fluid = nutrition.todayFluid;
+    final glass = nutrition.glassMillilitres;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,7 +108,7 @@ class WaterCard extends StatelessWidget {
               ChipButton(
                 label: '$glass mL ▾',
                 semanticLabel: '一次記多少，目前 $glass 毫升',
-                onTap: () => _pickAmount(context, store),
+                onTap: () => _pickAmount(context, nutrition),
               ),
             ],
           ),
@@ -121,7 +127,7 @@ class WaterCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           NutritionButton(
             label: '＋ $glass mL',
-            onPressed: () => _logGlass(context, store),
+            onPressed: () => _logGlass(context, nutrition),
           ),
           // Only when other drinks added something, and never under the
           // name 「水」.

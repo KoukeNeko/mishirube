@@ -4,6 +4,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 
 import 'support/harness.dart';
@@ -53,8 +54,10 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), store: store);
 
     final meals = store.todaySummary.mealCount;
-    store.logWater();
-    store.logPortion(coffee());
+    NutritionViewModel(store.backend)
+      ..logWater()
+      ..dispose();
+    store.backend.nutrition.logPortion(coffee());
     await tester.pumpAndSettle();
 
     expect(
@@ -78,7 +81,9 @@ void main() {
   testWidgets('the day counts the same meals Today does', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     final meals = store.todaySummary.mealCount;
-    store.logWater();
+    NutritionViewModel(store.backend)
+      ..logWater()
+      ..dispose();
     await pumpScreen(
       tester,
       DailyNutritionScreen(day: store.now()),
@@ -105,7 +110,7 @@ void main() {
     while (store.phase != DayPhase.noon) {
       store.cyclePhase();
     }
-    store.logPortion(
+    store.backend.nutrition.logPortion(
       FoodPortion(FoodItem(id: 'bar', name: '能量棒', kcal: 200), 1),
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
@@ -128,7 +133,7 @@ void main() {
   ) async {
     final clock = FakeClock();
     final store = AppStore(clock: clock.now, isOnboarded: true);
-    store.logPortion(coffee());
+    store.backend.nutrition.logPortion(coffee());
     // The estimate reads what was drunk before now, so a cup logged in
     // this very millisecond is not yet in the body.
     clock.advance(const Duration(minutes: 30));

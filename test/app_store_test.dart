@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 
 import 'support/harness.dart';
 
@@ -115,8 +116,14 @@ void main() {
     test('splitDish turns components into entries and can be undone', () {
       store.confirmLunch();
       final lunchBefore = store.todayMeals.last;
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
 
-      final snapshot = store.splitDish(mealId: 'lunch', dishIndex: 0)!;
+      final snapshot = nutrition.splitDish(
+        mealId: 'lunch',
+        dishIndex: 0,
+        day: store.now(),
+      )!;
       final lunchAfter = store.todayMeals.last;
       expect(
         lunchAfter.dishes,
@@ -128,7 +135,7 @@ void main() {
       );
       expect(lunchAfter.dishes.first.isComposite, isFalse);
 
-      store.undoSplit(snapshot);
+      nutrition.undoSplit(snapshot);
       // Read back from the database, so compared by what it holds.
       expect(
         [for (final dish in store.todayMeals.last.dishes) dish.name],
@@ -139,8 +146,13 @@ void main() {
 
     test('splitDish ignores dishes without components', () {
       store.confirmLunch();
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
 
-      expect(store.splitDish(mealId: 'lunch', dishIndex: 1), isNull);
+      expect(
+        nutrition.splitDish(mealId: 'lunch', dishIndex: 1, day: store.now()),
+        isNull,
+      );
     });
   });
 

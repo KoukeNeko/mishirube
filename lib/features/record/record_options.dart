@@ -10,6 +10,7 @@ import '../journal/note_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
 import '../nutrition/food_search_screen.dart';
+import '../nutrition/nutrition_view_model.dart';
 import '../training/routine_detail_screen.dart';
 
 /// One kind of record the user can add from the quick-log entry points.
@@ -87,11 +88,13 @@ final recordOptions = [
     module: AppModule.nutrition,
     isBesidePrevious: true,
     onSelect: (context) {
-      final store = AppStoreScope.read(context);
-      final logged = store.logWater();
+      final nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+      final logged = nutrition.logWater();
+      // Nothing here rebuilds from it; the undo only writes.
+      nutrition.dispose();
       ToastScope.read(context).showUndo(
         '已記錄 ${logged.millilitres} mL 水',
-        onUndo: () => store.deleteMeals([logged]),
+        onUndo: () => nutrition.deleteMeals([logged]),
       );
     },
   ),

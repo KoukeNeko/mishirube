@@ -14,6 +14,7 @@ import 'describe_meal_screen.dart';
 import 'food_edit_screen.dart';
 import 'food_row.dart';
 import 'meal_type_picker.dart';
+import 'nutrition_view_model.dart';
 import 'plate_screen.dart';
 import 'portion_screen.dart';
 import 'quick_add_sheet.dart';
@@ -61,6 +62,8 @@ class FoodSearchScreen extends StatefulWidget {
 }
 
 class _FoodSearchScreenState extends State<FoodSearchScreen> {
+  late final NutritionViewModel _nutrition;
+
   /// How many recent or starred foods 「全部」 shows before the rest.
   static const _preview = 4;
 
@@ -91,6 +94,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _query.addListener(() => setState(() {}));
   }
 
@@ -98,6 +102,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   void dispose() {
     _query.dispose();
     _plateChanges.dispose();
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -140,7 +145,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   /// Tapping a row: choose the size and portion, then onto the plate.
   Future<void> _choose(FoodItem food, {RecentFood? last}) async {
-    final sizes = AppStoreScope.read(context).sizesOf(food.id);
+    final sizes = _nutrition.sizesOf(food.id);
     // A size carries its own figures, so the one chosen is what gets
     // logged — not the food scaled up to it.
     final chosen = sizes.isEmpty
@@ -164,18 +169,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// Logs the plate and closes this page with every page it opened over
   /// itself — the plate review, a brand's menu.
   void _logPlate() {
-    final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
     final navigator = Navigator.of(context);
     final ownRoute = ModalRoute.of(context);
     final count = _plate.length;
-    final logged = store.logPortions(List.of(_plate), mealType: _mealType);
+    final logged = _nutrition.logPortions(List.of(_plate), mealType: _mealType);
     navigator
       ..popUntil((route) => route == ownRoute)
       ..pop();
     toast.showUndo(
       count == 1 ? '已記錄「${logged.single.name}」' : '已記錄 $count 項',
-      onUndo: () => store.deleteMeals(logged),
+      onUndo: () => _nutrition.deleteMeals(logged),
     );
   }
 
@@ -207,15 +211,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// was last eaten. [onChanged] also rebuilds a page opened over this
   /// one, which a change to the plate would otherwise not reach.
   Widget _row(FoodItem food, {VoidCallback? onChanged}) {
-    final store = AppStoreScope.read(context);
-    final last = store.recentFoods
+    final last = _nutrition.recentFoods
         .where((r) => r.food.id == food.id || r.food.parentId == food.id)
         .firstOrNull;
     return FoodRow(
       food: food,
       adds: last != null
           ? addsLastPortion(last.portion)
-          : addsFirstPortion(food, sizeCount: store.sizesOf(food.id).length),
+          : addsFirstPortion(
+              food,
+              sizeCount: _nutrition.sizesOf(food.id).length,
+            ),
       isOnPlate: _isOnPlate(food),
       onTap: () async {
         await _choose(food, last: last);
@@ -227,7 +233,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// A meal drafted by the AI and confirmed on its own page; once it is
   /// logged, this page closes too and offers the undo, as a plate does.
   Future<void> _describe() async {
-    final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
     final logged = await pushPage<List<MealEvent>>(
       context,
@@ -239,7 +244,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       logged.length == 1
           ? '已記錄「${logged.single.name}」'
           : '已記錄 ${logged.length} 項',
-      onUndo: () => store.deleteMeals(logged),
+      onUndo: () => _nutrition.deleteMeals(logged),
     );
   }
 
@@ -250,19 +255,23 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   void _logAgain(RecentMeal recent) {
-    AppStoreScope.read(context).copyMeal(recent.meal);
+    _nutrition.copyMeal(recent.meal);
     showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
   }
 
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
-    AppStoreScope.read(context)
-        .setMealFavorite(recent.meal, isFavorite: isFavorite);
+    _nutrition.setMealFavorite(recent.meal, isFavorite: isFavorite);
     showToast(context, isFavorite ? '已加入收藏' : '已取消收藏');
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final store = AppStoreScope.of(context);
     final query = _query.text.trim();
     return PageScaffold(
@@ -289,7 +298,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       },
       children: [
         if (_mealType == null)
-          if (store.suggestedMealType() case final offer?)
+          if (_nutrition.suggestedMealType() case final offer?)
             Gutter(
               child: MealTypeOffer(
                 offer: offer,
@@ -310,9 +319,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   /// What shows before anything is typed, for the chosen scope.
   List<Widget> _browse(AppStore store) {
-    final recent = store.recentFoods;
-    final starred = store.favoriteFoods;
-    final own = store.searchFoods('').where((food) => !food.isBuiltIn);
+    final recent = _nutrition.recentFoods;
+    final starred = _nutrition.favoriteFoods;
+    final own = _nutrition.searchFoods('').where((food) => !food.isBuiltIn);
     return switch (_scope) {
       _Scope.all => [
         // What is already logged today, one tap away: this page is
@@ -364,20 +373,21 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       ],
       _Scope.recent => [
         ..._section('吃過的食物', [for (final r in recent) r.food]),
-        if (store.recentMeals case final meals when meals.isNotEmpty) ...[
+        if (_nutrition.recentMeals case final meals when meals.isNotEmpty) ...[
           Gutter(child: const SectionLabel('最近的餐')),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
-        if (recent.isEmpty && store.recentMeals.isEmpty)
+        if (recent.isEmpty && _nutrition.recentMeals.isEmpty)
           Gutter(child: const InfoBanner(message: '沒有最近吃過的食物。')),
       ],
       _Scope.starred => [
         ..._section('收藏的食物', starred),
-        if (store.favoriteMeals case final meals when meals.isNotEmpty) ...[
+        if (_nutrition.favoriteMeals case final meals
+            when meals.isNotEmpty) ...[
           Gutter(child: const SectionLabel('收藏的餐')),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
-        if (starred.isEmpty && store.favoriteMeals.isEmpty)
+        if (starred.isEmpty && _nutrition.favoriteMeals.isEmpty)
           Gutter(child: const InfoBanner(message: '沒有收藏。')),
       ],
       _Scope.own => [
@@ -403,12 +413,12 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// query naming a chain on its own offers the whole menu first.
   List<Widget> _results(AppStore store, String query) {
     final ids = switch (_scope) {
-      _Scope.recent => {for (final r in store.recentFoods) r.food.id},
-      _Scope.starred => {for (final f in store.favoriteFoods) f.id},
+      _Scope.recent => {for (final r in _nutrition.recentFoods) r.food.id},
+      _Scope.starred => {for (final f in _nutrition.favoriteFoods) f.id},
       _ => null,
     };
     final foods = [
-      for (final food in store.searchFoods(query))
+      for (final food in _nutrition.searchFoods(query))
         if (switch (_scope) {
           _Scope.own => !food.isBuiltIn,
           _Scope.brands => food.isBuiltIn,
@@ -417,14 +427,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           food,
     ];
     final brands = _scope == _Scope.all || _scope == _Scope.brands
-        ? store.brandsNamedBy(query)
+        ? _nutrition.brandsNamedBy(query)
         : const <String>[];
     return [
       for (final brand in brands)
         Gutter(
           child: NavCard(
             title: '$brand · 查看完整菜單',
-            subtitle: '${store.menuOf(brand).length} 款 · 官方資料',
+            subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料',
             onTap: () => _openBrand(brand),
           ),
         ),

@@ -6,12 +6,9 @@ import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
-import '../backend/application/nutrition_service.dart';
 import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
-import '../backend/engines/caffeine.dart';
 import '../backend/health/health_source.dart';
-import '../backend/engines/food_portion.dart';
 import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
 import '../backend/seed/seed.dart';
@@ -108,10 +105,6 @@ class AppStore extends ChangeNotifier {
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
   static const _selectedRoutineKey = 'selected_routine';
-  static const _glassKey = 'glass_millilitres';
-
-  /// What one glass is, until the user says otherwise.
-  static const defaultGlassMillilitres = 250;
 
   final DateTime Function() _clock;
   final Backend _backend;
@@ -258,19 +251,6 @@ class AppStore extends ChangeNotifier {
   List<ImportRecord> get imports => _backend.provenance.imports();
 
   List<CatalogueRecord> get catalogues => _backend.provenance.catalogues();
-
-  /// Saves a correction to a meal.
-  void updateMeal(MealEvent previous, MealEvent corrected) {
-    _backend.nutrition.edit(previous, corrected);
-  }
-
-  /// Starred meals, for logging again without going looking.
-  List<RecentMeal> get favoriteMeals => _backend.nutrition.favorites();
-
-  /// Stars or unstars a meal.
-  void setMealFavorite(MealEvent meal, {required bool isFavorite}) {
-    _backend.nutrition.setFavorite(meal, isFavorite: isFavorite);
-  }
 
   /// Today's food totals and how complete the day's log is.
   DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
@@ -567,90 +547,6 @@ class AppStore extends ChangeNotifier {
   WorkoutSession? workoutById(String id) =>
       _backend.storage.workouts.byId(id, _exercise);
 
-  /// Meals eaten on [day].
-  List<MealEvent> mealsOn(DateTime day) =>
-      _isToday(day) ? todayMeals : _backend.nutrition.mealsOn(day);
-
-  /// Food totals for [day] and how complete its log is.
-  DaySummary summaryOf(DateTime day) =>
-      _isToday(day) ? todaySummary : _backend.nutrition.summaryOf(day);
-
-  /// Meals worth offering again, newest first.
-  List<RecentMeal> get recentMeals => _backend.nutrition.recent();
-
-  /// What the user usually calls a meal eaten at [at]; null until their
-  /// own labels show a habit. Offered, never applied on its own.
-  MealType? suggestedMealType([DateTime? at]) =>
-      _backend.nutrition.suggestedMealType(at ?? now());
-
-  /// Logs [meal] as eaten now.
-  MealEvent logMeal(MealEvent meal) {
-    final logged = _backend.nutrition.logMeal(meal, eatenAt: now());
-    notifyListeners();
-    return logged;
-  }
-
-  /// Logs a meal eaten before all over again.
-  MealEvent copyMeal(MealEvent meal) {
-    final logged = _backend.nutrition.copy(meal);
-    notifyListeners();
-    return logged;
-  }
-
-  /// How much caffeine is likely still in the body right now, in
-  /// milligrams, from what was logged over the last day.
-  ///
-  /// An estimate from a population half-life, not a reading. The screen
-  /// showing it has to say so.
-  double get estimatedCaffeineMg => estimatedCaffeineRemaining(
-    caffeineIntakes(
-      _backend.nutrition.between(
-        now().subtract(const Duration(days: 1)),
-        now(),
-      ),
-    ),
-    now: now(),
-  );
-
-  /// Saved foods matching [query]; an empty query is all of them.
-  List<FoodItem> searchFoods(String query) =>
-      _backend.nutrition.searchFoods(query);
-
-  /// Brands whose menu [query] names on its own.
-  List<String> brandsNamedBy(String query) =>
-      _backend.nutrition.brandsNamedBy(query);
-
-  List<FoodItem> menuOf(String brand) => _backend.nutrition.menuOf(brand);
-
-  List<FoodItem> get favoriteFoods => _backend.nutrition.favoriteFoods();
-
-  bool isFavoriteFood(String foodId) =>
-      favoriteFoods.any((food) => food.id == foodId);
-
-  void setFoodFavorite(String foodId, {required bool isFavorite}) {
-    _backend.nutrition.setFoodFavorite(foodId, isFavorite: isFavorite);
-    notifyListeners();
-  }
-
-  /// How much one tap of the water shortcut logs. The user's own glass
-  /// or bottle, because nobody drinks in units the app picked.
-  int get glassMillilitres =>
-      int.tryParse(_backend.db.setting(_glassKey) ?? '') ??
-      defaultGlassMillilitres;
-
-  void setGlassMillilitres(int millilitres) {
-    _backend.db.setSetting(_glassKey, '$millilitres');
-    notifyListeners();
-  }
-
-  /// What today's drinks came to, counting only those logged by volume.
-  FluidLogged get todayFluid => summariseFluid(_todayMeals);
-
-  /// Today's plain water, apart from every other drink.
-  WaterLogged get todayWater => summariseWater(_todayMeals);
-
-  /// Logs a glass of water. It writes the same record every drink
-  /// writes, so the day's fluid stays one total.
   /// The provider drafts come from, or null until one is chosen.
   AiProviderKind? get aiProvider => _ai.provider;
 
@@ -737,117 +633,6 @@ class AppStore extends ChangeNotifier {
   /// saved. Throws [AiException].
   Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>
       _ai.scanFoodLabel(imagePath);
-
-  /// Logs the draft items the user kept.
-  List<MealEvent> logDraft(
-    MealDraft draft,
-    List<DraftItem> items, {
-    MealType? mealType,
-  }) {
-    final logged = _backend.nutrition.logDraft(
-      draft,
-      items,
-      mealType: mealType,
-    );
-    notifyListeners();
-    return logged;
-  }
-
-  MealEvent logWater([int? millilitres]) {
-    final logged = _backend.nutrition.logWater(millilitres ?? glassMillilitres);
-    notifyListeners();
-    return logged;
-  }
-
-  /// The sizes of a food, smallest first. A food with none is logged as
-  /// itself.
-  List<FoodItem> sizesOf(String foodId) => _backend.nutrition.sizesOf(foodId);
-
-  /// The size names this brand already uses, so a second drink from the
-  /// same shop offers the same cups.
-  List<String> sizeNamesFor(String brand) =>
-      _backend.nutrition.sizeNamesFor(brand);
-
-  /// A fresh id for a food about to be saved.
-  String newFoodId() => _backend.nutrition.newFoodId();
-
-  /// Stores a food, new or edited.
-  void saveFood(FoodItem food) {
-    _backend.nutrition.saveFood(food);
-    notifyListeners();
-  }
-
-  /// Removes a saved food. The meals already logged from it keep their
-  /// numbers, so this is not a change to any record.
-  void deleteFood(String id) {
-    _backend.nutrition.deleteFood(id);
-    notifyListeners();
-  }
-
-  void undeleteFood(String id) {
-    _backend.nutrition.undeleteFood(id);
-    notifyListeners();
-  }
-
-  /// Logs a portion of a saved food as a meal eaten now.
-  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) {
-    final logged = _backend.nutrition.logPortion(portion, mealType: mealType);
-    notifyListeners();
-    return logged;
-  }
-
-  /// Logs a plate: every portion, as one action.
-  List<MealEvent> logPortions(
-    List<FoodPortion> portions, {
-    MealType? mealType,
-  }) {
-    final logged = _backend.nutrition.logPortions(portions, mealType: mealType);
-    notifyListeners();
-    return logged;
-  }
-
-  /// Takes logged meals back out; [restoreMeals] puts them back.
-  void deleteMeals(List<MealEvent> meals) {
-    _backend.nutrition.deleteMeals(meals.map((meal) => meal.id));
-    notifyListeners();
-  }
-
-  void restoreMeals(List<MealEvent> meals) {
-    _backend.nutrition.restoreMeals(meals.map((meal) => meal.id));
-  }
-
-  /// Saved foods eaten recently, each once, with its last portion.
-  List<RecentFood> get recentFoods => _backend.nutrition.recentFoods();
-
-  DishSplitSnapshot? splitDish({
-    required String mealId,
-    required int dishIndex,
-    DateTime? day,
-  }) {
-    final date = day ?? now();
-    final exploded = _backend.nutrition.explodeDish(
-      mealsOn(date),
-      mealId: mealId,
-      dishIndex: dishIndex,
-      day: date,
-    );
-    if (exploded == null) return null;
-    return exploded.$2;
-  }
-
-  void undoSplit(DishSplitSnapshot snapshot) {
-    _backend.nutrition.undoExplode(
-      snapshot,
-      current: mealsOn(snapshot.day)[snapshot.mealIndex],
-    );
-  }
-
-  bool _isToday(DateTime day) {
-    final today = now();
-    return day.year == today.year &&
-        day.month == today.month &&
-        day.day == today.day;
-  }
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);

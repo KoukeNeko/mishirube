@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
 import 'package:mishirube/features/record/record_options.dart';
@@ -227,7 +228,9 @@ void main() {
     await _settleFor(tester);
 
     expect(store.todayMeals, hasLength(before + 1));
-    expect(store.todayMeals.last.millilitres, store.glassMillilitres);
+    final nutrition = NutritionViewModel(store.backend);
+    addTearDown(nutrition.dispose);
+    expect(store.todayMeals.last.millilitres, nutrition.glassMillilitres);
     expect(find.byKey(quickLogMenuKey), findsNothing, reason: 'nothing opens');
 
     // The toast waits for the menu to finish closing, then comes in.

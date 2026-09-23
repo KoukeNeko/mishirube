@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'nutrition_view_model.dart';
 
 /// One chain's menu as it shipped with the app.
 ///
@@ -38,24 +39,32 @@ class BrandMenuScreen extends StatefulWidget {
 }
 
 class _BrandMenuScreenState extends State<BrandMenuScreen> {
+  late final NutritionViewModel _nutrition;
   void _refresh() => setState(() {});
 
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     widget.plateChanges.addListener(_refresh);
   }
 
   @override
   void dispose() {
     widget.plateChanges.removeListener(_refresh);
+    _nutrition.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final menu = store.menuOf(widget.brand);
+    final menu = _nutrition.menuOf(widget.brand);
     final record = store.catalogues
         .where((catalogue) => catalogue.brand == widget.brand)
         .firstOrNull;

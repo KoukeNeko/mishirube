@@ -7,6 +7,7 @@ import 'package:mishirube/backend/health/health_source.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 
 import 'support/harness.dart';
 
@@ -220,7 +221,9 @@ void main() {
     );
 
     List<SleepEntry> imported(AppStore store) => [
-      for (final night in store.backend.journal.recentSleep(const Duration(days: 28)))
+      for (final night in store.backend.journal.recentSleep(
+        const Duration(days: 28),
+      ))
         if (store.backend.journal.sourceOf(night.id) == ChangeSource.healthKit)
           night,
     ];
@@ -303,7 +306,9 @@ void main() {
         waterRows: [HealthWater(id: 'h1', at: at, ml: 300)],
       );
       final store = storeWith(health);
-      final waterBefore = store.todayWater.millilitres;
+      final nutrition = NutritionViewModel(store.backend);
+      addTearDown(nutrition.dispose);
+      final waterBefore = nutrition.todayWater.millilitres;
 
       final first = await store.connectHealth();
       expect(first!.added, {
@@ -314,7 +319,13 @@ void main() {
         HealthDataKind.water: 1,
         HealthDataKind.overnight: 0,
       });
-      expect(store.backend.journal.recentWeights(const Duration(days: 28)).last.weightKg, 71.4);
+      expect(
+        store.backend.journal
+            .recentWeights(const Duration(days: 28))
+            .last
+            .weightKg,
+        71.4,
+      );
       final run = store
           .activitiesOn(at)
           .firstWhere((session) => session.id == 'healthkit-workout-r1');
@@ -322,7 +333,7 @@ void main() {
       expect(run.distanceMeters, 5000);
       expect(run.duration, const Duration(minutes: 30));
       expect(
-        store.todayWater.millilitres,
+        nutrition.todayWater.millilitres,
         waterBefore + 300,
         reason: 'water read in shows on today at once',
       );
@@ -342,12 +353,18 @@ void main() {
         weightRows: [HealthWeight(id: 'w1', at: at, kg: 71.4)],
       )..granted = {HealthDataKind.sleep};
       final store = storeWith(health);
-      final weighings = store.backend.journal.recentWeights(const Duration(days: 28)).length;
+      final weighings = store.backend.journal
+          .recentWeights(const Duration(days: 28))
+          .length;
 
       final result = await store.connectHealth();
 
       expect(result!.added.keys, [HealthDataKind.sleep]);
-      expect(store.backend.journal.recentWeights(const Duration(days: 28)), hasLength(weighings), reason: 'not read');
+      expect(
+        store.backend.journal.recentWeights(const Duration(days: 28)),
+        hasLength(weighings),
+        reason: 'not read',
+      );
       expect(result.denied, {
         HealthDataKind.weight,
         HealthDataKind.waist,

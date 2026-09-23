@@ -8,6 +8,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'food_edit_screen.dart';
+import 'nutrition_view_model.dart';
 import 'portion_screen.dart';
 
 /// Every food the app knows, for looking after rather than logging: the
@@ -21,6 +22,7 @@ class FoodLibraryScreen extends StatefulWidget {
 }
 
 class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
+  late final NutritionViewModel _nutrition;
   final _query = TextEditingController();
 
   /// A brand's menu opened from here browses; nothing goes on a plate.
@@ -29,12 +31,14 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _query.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _query.dispose();
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -72,7 +76,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   /// A shipped drink is read-only: it opens on its figures, after the cup
   /// when it comes in sizes, with nothing to add it to.
   Future<void> _openCatalogueFood(FoodItem food) async {
-    final sizes = AppStoreScope.read(context).sizesOf(food.id);
+    final sizes = _nutrition.sizesOf(food.id);
     final chosen = sizes.isEmpty
         ? food
         : await pickCupSize(context, food, sizes);
@@ -81,7 +85,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   }
 
   Widget _catalogueRow(FoodItem food) {
-    final sizes = AppStoreScope.read(context).sizesOf(food.id).length;
+    final sizes = _nutrition.sizesOf(food.id).length;
     return NavCard(
       title: food.name,
       subtitle: sizes > 0
@@ -93,15 +97,20 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final store = AppStoreScope.of(context);
     final query = _query.text.trim();
-    final found = store.searchFoods(query).where((food) => !food.isSize);
+    final found = _nutrition.searchFoods(query).where((food) => !food.isSize);
     final own = found.where((food) => !food.isBuiltIn).toList();
     final brands = query.isEmpty
         ? [for (final catalogue in store.catalogues) catalogue.brand]
         : {
-            ...store.brandsNamedBy(query),
+            ..._nutrition.brandsNamedBy(query),
             for (final food in found)
               if (food.isBuiltIn) food.brand,
           }.toList();
@@ -130,7 +139,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
             Gutter(
               child: NavCard(
                 title: brand,
-                subtitle: '${store.menuOf(brand).length} 款 · 官方資料，唯讀',
+                subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料，唯讀',
                 onTap: () => _openBrand(brand),
               ),
             ),

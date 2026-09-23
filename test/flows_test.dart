@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
@@ -143,8 +144,8 @@ void main() {
     tester,
   ) async {
     usePhoneViewport(tester);
-    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-      ..logMeal(DemoNutrition.lunch);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.nutrition.logMeal(DemoNutrition.lunch, eatenAt: store.now());
     await tester.pumpWidget(MishirubeApp(store: store));
     pushPage(
       tester.element(find.byType(Navigator).first),
@@ -612,7 +613,7 @@ void main() {
       AppStore(
         clock: FakeClock().now,
         backend: store.backend,
-      ).mealsOn(store.now()).last.kcal,
+      ).backend.nutrition.mealsOn(store.now()).last.kcal,
       700,
       reason: 'and it is stored, not only shown',
     );
@@ -989,7 +990,7 @@ void main() {
 
     await _tapText(tester, '只建立');
     await tester.pumpAndSettle();
-    final saved = store.searchFoods('無糖紅茶').single;
+    final saved = store.backend.nutrition.searchFoods('無糖紅茶').single;
     expect(saved.nutrients[Nutrient.caffeine], 120);
     expect(saved.caffeineBasis, CaffeineBasis.per100);
     await disposeTree(tester);
@@ -1003,7 +1004,7 @@ void main() {
       final food = store.backend.nutrition.saveFood(
         FoodItem(id: id, name: name, kcal: kcal),
       );
-      store.logPortion(FoodPortion(food, 1));
+      store.backend.nutrition.logPortion(FoodPortion(food, 1));
     }
     final before = store.todayMeals.length;
     await _openFromHost(tester, const FoodSearchScreen(), store);
@@ -1080,7 +1081,7 @@ void main() {
     final clock = FakeClock()..current = DateTime(2026, 9, 17, 15);
     final store = AppStore(clock: clock.now, isOnboarded: true);
     for (var day = 0; day < 2; day++) {
-      store.logPortion(
+      store.backend.nutrition.logPortion(
         FoodPortion(FoodItem(id: 'rice$day', name: '便當', kcal: 700), 1),
         mealType: MealType.lunch,
       );
@@ -1292,7 +1293,13 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    store.saveFood(FoodItem(id: store.newFoodId(), name: '自煮雞胸', kcal: 165));
+    store.backend.nutrition.saveFood(
+      FoodItem(
+        id: store.backend.nutrition.newFoodId(),
+        name: '自煮雞胸',
+        kcal: 165,
+      ),
+    );
     for (final food in parseCatalogue({
       'brand': '星巴克',
       'sourceUrl': 'https://example.com',
@@ -1369,7 +1376,7 @@ void main() {
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     // A coffee with a volume: a drink, but not water.
-    store.logPortion(
+    store.backend.nutrition.logPortion(
       FoodPortion(
         const FoodItem(
           id: 'latte',
@@ -1382,14 +1389,16 @@ void main() {
       ),
     );
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
-    final glass = store.glassMillilitres;
+    final nutrition = NutritionViewModel(store.backend);
+    addTearDown(nutrition.dispose);
+    final glass = nutrition.glassMillilitres;
 
-    expect(store.todayWater.millilitres, 0, reason: 'coffee is not water');
+    expect(nutrition.todayWater.millilitres, 0, reason: 'coffee is not water');
     await tester.tap(find.text('＋ $glass mL'));
     await tester.pump();
 
-    expect(store.todayWater.millilitres, glass);
-    expect(store.todayWater.times, 1);
+    expect(nutrition.todayWater.millilitres, glass);
+    expect(nutrition.todayWater.times, 1);
     expect(
       find.textContaining('飲品總量 ${glass + 350} mL'),
       findsOneWidget,
@@ -1406,7 +1415,7 @@ void main() {
 
     await tester.tap(find.text('復原'));
     await tester.pump();
-    expect(store.todayWater.millilitres, 0);
+    expect(nutrition.todayWater.millilitres, 0);
     await disposeTree(tester);
   });
 
@@ -1450,7 +1459,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
     final before = store.todayKcal;
-    final saved = store.searchFoods('').length;
+    final saved = store.backend.nutrition.searchFoods('').length;
 
     await _tapText(tester, '快速記錄');
     await tester.pumpAndSettle();
@@ -1461,7 +1470,7 @@ void main() {
 
     expect(store.todayKcal, before + 320);
     expect(
-      store.searchFoods(''),
+      store.backend.nutrition.searchFoods(''),
       hasLength(saved),
       reason: 'a one-off is logged without being saved for next time',
     );
@@ -1496,7 +1505,9 @@ void main() {
       name: '路邊攤炒麵',
       kind: ConsumptionKind.food,
     );
-    final logged = store.logPortion(const FoodPortion(unknown, 1));
+    final logged = store.backend.nutrition.logPortion(
+      const FoodPortion(unknown, 1),
+    );
     await pumpScreen(tester, MealEditScreen(meal: logged), store: store);
 
     expect(

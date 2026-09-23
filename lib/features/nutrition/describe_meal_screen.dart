@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
+import 'nutrition_view_model.dart';
 
 /// A meal in one sentence: the chosen AI drafts it, the user checks and
 /// corrects it, and only then is anything logged.
@@ -23,6 +24,7 @@ class DescribeMealScreen extends StatefulWidget {
 }
 
 class _DescribeMealScreenState extends State<DescribeMealScreen> {
+  late final NutritionViewModel _nutrition;
   final _text = TextEditingController();
   bool _isDrafting = false;
   AiFailure? _failure;
@@ -35,12 +37,14 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _text.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _text.dispose();
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -103,9 +107,11 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   }
 
   void _log() {
-    final logged = AppStoreScope.read(
-      context,
-    ).logDraft(_draft!, _items, mealType: widget.mealType);
+    final logged = _nutrition.logDraft(
+      _draft!,
+      _items,
+      mealType: widget.mealType,
+    );
     Navigator.of(context).pop(logged);
   }
 

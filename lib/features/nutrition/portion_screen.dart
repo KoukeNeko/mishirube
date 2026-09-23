@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
+import 'nutrition_view_model.dart';
 
 /// Asks how much of [food] goes on the plate, and resolves to that
 /// portion; null when the user backed out, or edited or deleted the food
@@ -96,6 +97,7 @@ class PortionScreen extends StatefulWidget {
 }
 
 class _PortionScreenState extends State<PortionScreen> {
+  late final NutritionViewModel _nutrition;
   late final _servings = TextEditingController(
     text: formatAmount(widget.servings),
   );
@@ -123,6 +125,7 @@ class _PortionScreenState extends State<PortionScreen> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _servings.addListener(_onServingsTyped);
     _amount.addListener(_onAmountTyped);
   }
@@ -131,6 +134,7 @@ class _PortionScreenState extends State<PortionScreen> {
   void dispose() {
     _servings.dispose();
     _amount.dispose();
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -170,13 +174,12 @@ class _PortionScreenState extends State<PortionScreen> {
   /// Takes the food out of the list. What was already eaten is kept: its
   /// numbers were copied when it was logged.
   void _delete() {
-    final store = AppStoreScope.read(context);
     final food = widget.food;
-    store.deleteFood(food.id);
+    _nutrition.deleteFood(food.id);
     Navigator.of(context).pop();
     ToastScope.read(context).showUndo(
       '已刪除「${food.displayName}」',
-      onUndo: () => store.undeleteFood(food.id),
+      onUndo: () => _nutrition.undeleteFood(food.id),
     );
   }
 
@@ -189,11 +192,16 @@ class _PortionScreenState extends State<PortionScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final food = widget.food;
     final portion = _portion;
     final type = food.valueType;
-    final isStarred = AppStoreScope.of(context).isFavoriteFood(food.id);
+    final isStarred = _nutrition.isFavoriteFood(food.id);
     return DetailPage(
       appBar: PageAppBar(
         title: food.displayName,
@@ -208,8 +216,7 @@ class _PortionScreenState extends State<PortionScreen> {
             label: isStarred ? '已收藏' : '收藏',
             semanticLabel: isStarred ? '取消收藏' : '收藏這個食物',
             onTap: () =>
-                AppStoreScope.read(context)
-                    .setFoodFavorite(food.id, isFavorite: !isStarred),
+                _nutrition.setFoodFavorite(food.id, isFavorite: !isStarred),
           ),
           if (!food.isBuiltIn)
             HeaderAction(

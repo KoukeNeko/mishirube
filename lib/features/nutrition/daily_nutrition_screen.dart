@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'meal_edit_screen.dart';
+import 'nutrition_view_model.dart';
 import 'split_dish_sheet.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
@@ -23,6 +24,20 @@ class DailyNutritionScreen extends StatefulWidget {
 }
 
 class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
+  late final NutritionViewModel _nutrition;
+
+  @override
+  void initState() {
+    super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+  }
+
+  @override
+  void dispose() {
+    _nutrition.dispose();
+    super.dispose();
+  }
+
   /// Keys of expanded dishes (`mealId/dishName`); display-only state.
   final Set<String> _expanded = {};
 
@@ -33,7 +48,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   });
 
   Future<void> _split(MealEvent meal, int dishIndex) async {
-    final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
     final day = _day;
     final shouldSplit = await showSplitDishSheet(
@@ -41,21 +55,26 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       meal.dishes[dishIndex],
     );
     if (shouldSplit != true) return;
-    final snapshot = store.splitDish(
+    final snapshot = _nutrition.splitDish(
       mealId: meal.id,
       dishIndex: dishIndex,
       day: day,
     );
     if (snapshot == null) return;
-    toast.showUndo('已拆成獨立紀錄', onUndo: () => store.undoSplit(snapshot));
+    toast.showUndo('已拆成獨立紀錄', onUndo: () => _nutrition.undoSplit(snapshot));
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: _nutrition,
+    builder: (context, _) => _page(context),
+  );
+
+  Widget _page(BuildContext context) {
     final store = AppStoreScope.of(context);
     final day = _day;
-    final meals = store.mealsOn(day);
-    final summary = store.summaryOf(day);
+    final meals = _nutrition.mealsOn(day);
+    final summary = _nutrition.summaryOf(day);
     return PageScaffold(
       appBar: PageAppBar(
         title: '飲食',
@@ -89,7 +108,8 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           Gutter(child: const SectionLabel('飲品')),
           Gutter(child: _FluidLogged(fluid: fluid)),
         ],
-        if (store.estimatedCaffeineMg case final caffeine when caffeine >= 1)
+        if (_nutrition.estimatedCaffeineMg case final caffeine
+            when caffeine >= 1)
           Gutter(child: _CaffeineEstimate(milligrams: caffeine)),
         if (summariseNutrients(meals) case final nutrients
             when nutrients.isNotEmpty) ...[

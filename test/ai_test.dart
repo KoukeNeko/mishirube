@@ -311,7 +311,7 @@ void main() {
       ),
       store: store,
     );
-    final foods = store.searchFoods('').length;
+    final foods = store.backend.nutrition.searchFoods('').length;
 
     await tester.tap(find.bySemanticsLabel('掃描營養標示'));
     await tester.pumpAndSettle();
@@ -328,7 +328,7 @@ void main() {
     );
     expect(find.text('120'), findsOneWidget, reason: 'the calories, filled');
     expect(
-      store.searchFoods('').length,
+      store.backend.nutrition.searchFoods('').length,
       foods,
       reason: 'nothing is saved until the user saves it',
     );
@@ -853,7 +853,7 @@ void main() {
           model: 'gemma4:31b',
         );
 
-        final logged = store.logDraft(draft, [
+        final logged = store.backend.nutrition.logDraft(draft, [
           _milkTea,
         ], mealType: MealType.breakfast);
 

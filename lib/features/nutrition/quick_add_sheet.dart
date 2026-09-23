@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'meal_type_picker.dart';
+import 'nutrition_view_model.dart';
 
 /// Logs something once without saving it as a food.
 ///
@@ -32,6 +33,7 @@ class _QuickAddSheet extends StatefulWidget {
 }
 
 class _QuickAddSheetState extends State<_QuickAddSheet> {
+  late final NutritionViewModel _nutrition;
   final _name = TextEditingController();
   final _kcal = TextEditingController();
   final _protein = TextEditingController();
@@ -44,6 +46,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
   @override
   void initState() {
     super.initState();
+    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
     _name.addListener(() => setState(() {}));
   }
 
@@ -52,6 +55,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
     for (final field in [_name, _kcal, _protein, _carb, _fat]) {
       field.dispose();
     }
+    _nutrition.dispose();
     super.dispose();
   }
 
@@ -59,10 +63,9 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
       int.tryParse(field.text.trim());
 
   void _log() {
-    final store = AppStoreScope.read(context);
-    store.logMeal(
+    _nutrition.logMeal(
       MealEvent(
-        id: store.newFoodId(),
+        id: _nutrition.newFoodId(),
         name: _name.text.trim(),
         timeLabel: '',
         qualityTag: '快速記錄',
@@ -103,7 +106,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
           const SizedBox(height: AppSpacing.xs),
           MealTypePicker(
             selected: _mealType,
-            suggested: AppStoreScope.of(context).suggestedMealType(),
+            suggested: _nutrition.suggestedMealType(),
             onChanged: (type) => setState(() => _mealType = type),
           ),
           const SizedBox(height: AppSpacing.lg),

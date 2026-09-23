@@ -117,7 +117,7 @@ String _goalSummary(GoalViewModel goal) {
 
 /// `自己的 3 種 · 品牌 2 家`: what is in the library without opening it.
 String _foodLibrarySummary(AppStore store) {
-  final own = store
+  final own = store.backend.nutrition
       .searchFoods('')
       .where((food) => !food.isBuiltIn && !food.isSize)
       .length;
