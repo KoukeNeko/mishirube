@@ -632,6 +632,35 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a punch-hole camera is not a fold', (tester) async {
+      // A Nothing Phone (3): its camera cutout is taller than it is wide,
+      // which Flutter's avoid-bounds rule alone would read as a divide.
+      const punchHole = WindowCase(
+        'punch-hole phone',
+        Size(420, 933),
+        displayFeatures: [
+          DisplayFeature(
+            bounds: Rect.fromLTRB(192, 0, 228, 54),
+            type: DisplayFeatureType.cutout,
+            state: DisplayFeatureState.unknown,
+          ),
+        ],
+      );
+      final store = _store();
+      await pumpScreen(
+        tester,
+        const HomeShell(),
+        store: store,
+        window: punchHole,
+      );
+      store.selectTab(HomeTab.me);
+      await tester.pumpAndSettle();
+
+      expect(find.text('未選取項目'), findsNothing);
+      expect(tester.getRect(find.byType(MeScreen)).width, 420);
+      await disposeTree(tester);
+    });
+
     testWidgets('list and detail meet at the hinge', (tester) async {
       final store = _store();
       await pumpScreen(

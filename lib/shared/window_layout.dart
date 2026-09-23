@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' show DisplayFeatureType;
 
 import 'package:flutter/widgets.dart';
 
@@ -47,15 +48,22 @@ const readableMaxWidth = 640.0;
 /// the region's coordinates, or null when nothing divides it into sides.
 ///
 /// What counts as dividing the screen is Flutter's own rule, the one its
-/// dialogs and sheets already follow. A fold across the region (tabletop)
-/// does not give it sides, so it is left to scroll past.
+/// dialogs and sheets already follow, for folds and hinges only: that
+/// rule also counts a camera cutout, and a punch-hole camera taller than
+/// it is wide would split a phone in two. A fold across the region
+/// (tabletop) does not give it sides, so it is left to scroll past.
 ///
 /// The display features in [context]'s [MediaQuery] must be in the
 /// region's coordinates: a page that does not start at the window's edge
 /// (a list-detail pane) is handed none.
 Rect? dividingFold(BuildContext context, double width) {
   final separating = DisplayFeatureSubScreen.avoidBounds(
-    MediaQueryData(displayFeatures: MediaQuery.displayFeaturesOf(context)),
+    MediaQueryData(
+      displayFeatures: [
+        for (final feature in MediaQuery.displayFeaturesOf(context))
+          if (feature.type != DisplayFeatureType.cutout) feature,
+      ],
+    ),
   );
   for (final bounds in separating) {
     final runsDown = bounds.height > bounds.width;
