@@ -10,6 +10,7 @@ import '../../../app/theme.dart';
 import '../../../domain/domain.dart';
 import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
+import '../home_tabs.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 import '../../../shared/haptics.dart';
@@ -17,25 +18,9 @@ import '../../../shared/haptics.dart';
 /// Width of a tab's icon area; its height comes from [DockMetrics.iconBox].
 const _indicatorWidth = 56.0;
 
-class _TabSpec {
-  const _TabSpec(this.tab, this.icon, this.selectedIcon, this.label);
-
-  final HomeTab tab;
-  final IconData icon;
-
-  /// Filled variant, so selection is not signalled by colour alone.
-  final IconData selectedIcon;
-  final String label;
-}
-
-const _leadingTabs = [
-  _TabSpec(HomeTab.today, Icons.my_location_outlined, Icons.my_location, '今天'),
-  _TabSpec(HomeTab.log, Icons.list_alt_outlined, Icons.list_alt, '紀錄'),
-];
-const _trailingTabs = [
-  _TabSpec(HomeTab.trends, Icons.insights_outlined, Icons.insights, '趨勢'),
-  _TabSpec(HomeTab.me, Icons.person_outline, Icons.person, '我的'),
-];
+/// The dock's two capsules: the tabs either side of the「+」.
+final _leadingTabs = homeTabs.sublist(0, 2);
+final _trailingTabs = homeTabs.sublist(2);
 
 /// Two navigation capsules around a separate action button: tabs mean
 /// "where am I", the centre means "record something" (or, minimised during
@@ -121,7 +106,7 @@ class SplitDock extends StatelessWidget {
     );
   }
 
-  Widget _capsule(List<_TabSpec> tabs, DockMetrics metrics, double t) {
+  Widget _capsule(List<HomeTabSpec> tabs, DockMetrics metrics, double t) {
     return _Capsule(
       tabs: tabs,
       metrics: metrics,
@@ -143,7 +128,7 @@ class _Capsule extends StatefulWidget {
     required this.onSelect,
   });
 
-  final List<_TabSpec> tabs;
+  final List<HomeTabSpec> tabs;
   final DockMetrics metrics;
   final HomeTab selected;
   final bool showLabels;
@@ -466,7 +451,7 @@ class _TabButton extends StatelessWidget {
     required this.onPressedChanged,
   });
 
-  final _TabSpec spec;
+  final HomeTabSpec spec;
   final DockMetrics metrics;
 
   /// The tab that is actually selected (what assistive tech reports).
