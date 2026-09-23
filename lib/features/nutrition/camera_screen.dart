@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 
 import '../../app/theme.dart';
 import '../../shared/haptics.dart';
+import '../../shared/photo_library.dart';
 import '../../shared/widgets/widgets.dart';
+import '../shell/bottom_chrome/chrome_metrics.dart';
+import '../shell/bottom_chrome/press_feedback.dart';
 
 /// A viewfinder for a food or a nutrition label: the shutter, and beside
 /// it the library for a photo already taken. Pops with the photo's path,
@@ -18,6 +21,7 @@ class CameraScreen extends StatefulWidget {
     required this.title,
     required this.pickFromLibrary,
     this.findCameras = availableCameras,
+    this.findLatestPhoto = latestPhotoThumbnail,
   });
 
   final String title;
@@ -28,13 +32,27 @@ class CameraScreen extends StatefulWidget {
   /// The device's cameras; the plugin's list unless a test hands one in.
   final Future<List<CameraDescription>> Function() findCameras;
 
+  /// The newest photo in the library as a thumbnail about the given
+  /// pixels on a side, shown on the library button; null for an icon.
+  final Future<Uint8List?> Function(int pixels) findLatestPhoto;
+
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
 class _CameraScreenState extends State<CameraScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   CameraController? _controller;
+
+  /// The newest photo in the library, for the library button.
+  Uint8List? _latestPhoto;
+
+  /// The white flash over the preview when the shutter fires: 1 at the
+  /// moment of the photo, fading to 0.
+  late final _flash = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 280),
+  );
 
   /// No camera to open: a Mac, or a camera the user did not allow.
   bool _isUnavailable = false;
@@ -45,12 +63,24 @@ class _CameraScreenState extends State<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _open();
+    _showLatestPhoto();
+  }
+
+  Future<void> _showLatestPhoto() async {
+    // Wait for the first frame, so the screen's pixel density is known.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final pixels = (_libraryButtonSize * MediaQuery.devicePixelRatioOf(context))
+        .round();
+    final photo = await widget.findLatestPhoto(pixels);
+    if (photo != null && mounted) setState(() => _latestPhoto = photo);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
+    _flash.dispose();
     super.dispose();
   }
 
@@ -112,7 +142,14 @@ class _CameraScreenState extends State<CameraScreen>
   Future<void> _take() async {
     final controller = _controller;
     if (controller == null || _isTaking) return;
-    AppHaptics.tap();
+    // The photo is taken now, as far as the eye and hand can tell; the
+    // file follows.
+    AppHaptics.shutter();
+    if (chromeDuration(context, _flash.duration!) != Duration.zero) {
+      _flash
+        ..value = 1
+        ..animateTo(0, curve: Curves.easeOut);
+    }
     setState(() => _isTaking = true);
     try {
       final photo = await controller.takePicture();
@@ -153,6 +190,12 @@ class _CameraScreenState extends State<CameraScreen>
                   )
                 else if (_isUnavailable)
                   Center(child: Text('沒有可用的相機', style: AppTextStyles.caption)),
+                IgnorePointer(
+                  child: FadeTransition(
+                    opacity: _flash,
+                    child: const ColoredBox(color: Colors.white),
+                  ),
+                ),
                 Positioned(
                   top: padding.top + AppSpacing.xs,
                   left: padding.left + AppSpacing.screenGutter,
@@ -191,11 +234,8 @@ class _CameraScreenState extends State<CameraScreen>
               ),
               child: Row(
                 children: [
-                  SquareIconButton(
-                    icon: Icons.photo_library_outlined,
-                    tooltip: '從相簿選取',
-                    size: 56,
-                    radius: 28,
+                  _LibraryButton(
+                    photo: _latestPhoto,
                     onPressed: _pickFromLibrary,
                   ),
                   Expanded(
@@ -207,7 +247,7 @@ class _CameraScreenState extends State<CameraScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 56),
+                  const SizedBox(width: _libraryButtonSize),
                 ],
               ),
             ),
@@ -236,24 +276,85 @@ class _Shutter extends StatelessWidget {
       label: '拍照',
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Opacity(
-          opacity: onPressed == null ? 0.4 : 1,
-          child: Container(
-            width: _size,
-            height: _size,
-            padding: const EdgeInsets.all(5),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.fromBorderSide(
-                BorderSide(color: AppColors.textPrimary, width: 3),
+      child: PressScale(
+        pressedScale: ChromeMetrics.actionPressedScale,
+        child: GestureDetector(
+          onTap: onPressed,
+          child: Opacity(
+            opacity: onPressed == null ? 0.4 : 1,
+            child: Container(
+              width: _size,
+              height: _size,
+              padding: const EdgeInsets.all(5),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.fromBorderSide(
+                  BorderSide(color: AppColors.textPrimary, width: 3),
+                ),
+              ),
+              child: const DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.training,
+                ),
               ),
             ),
-            child: const DecoratedBox(
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Size of the library button, and of the space that balances it on the
+/// other side of the shutter.
+const _libraryButtonSize = 56.0;
+
+/// The library, beside the shutter: the newest photo in it when that can
+/// be shown, as camera apps do, and an icon otherwise.
+class _LibraryButton extends StatelessWidget {
+  const _LibraryButton({required this.photo, required this.onPressed});
+
+  final Uint8List? photo;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = this.photo;
+    if (photo == null) {
+      return SquareIconButton(
+        icon: Icons.photo_library_outlined,
+        tooltip: '從相簿選取',
+        size: _libraryButtonSize,
+        radius: _libraryButtonSize / 2,
+        onPressed: onPressed,
+      );
+    }
+    return Tooltip(
+      message: '從相簿選取',
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: '從相簿選取',
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: PressScale(
+          pressedScale: ChromeMetrics.actionPressedScale,
+          child: GestureDetector(
+            onTap: () {
+              AppHaptics.tap();
+              onPressed();
+            },
+            child: Container(
+              width: _libraryButtonSize,
+              height: _libraryButtonSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.training,
+                border: Border.all(color: AppColors.textPrimary, width: 2),
+                image: DecorationImage(
+                  image: MemoryImage(photo),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

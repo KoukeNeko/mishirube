@@ -8,6 +8,9 @@ abstract final class AppHaptics {
   /// system's.
   static void tap() => HapticFeedback.lightImpact();
 
+  /// A photo taken: firmer than a tap, like a camera's shutter.
+  static void shutter() => HapticFeedback.mediumImpact();
+
   /// The chosen option changed (tabs, chips, segments). iOS ticks; Android
   /// selection controls stay silent, as Material's do.
   static void selection(BuildContext context) {

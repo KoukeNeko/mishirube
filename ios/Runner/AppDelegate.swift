@@ -1,5 +1,6 @@
 import Flutter
 import HealthKit
+import Photos
 import ImageIO
 import UIKit
 import Vision
@@ -27,6 +28,9 @@ import Vision
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LabelReader") {
       LabelReader.register(with: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PhotoLibrary") {
+      PhotoLibrary.register(with: registrar.messenger())
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
       WindowControls.register(with: registrar.messenger())
@@ -773,6 +777,63 @@ enum LabelReader {
           continuation.resume(throwing: error)
         }
       }
+    }
+  }
+}
+
+/// The newest photo in the library, as a small JPEG for the camera's
+/// library button (`lib/shared/photo_library.dart`). Read only once the
+/// user allows it; with limited access it is the newest of the photos
+/// they chose. Nothing is sent anywhere.
+enum PhotoLibrary {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/photo_library", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "latestThumbnail" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let pixels = (call.arguments as? [String: Any])?["pixels"] as? Double ?? 160
+      latestThumbnail(pixels: CGFloat(pixels), result: result)
+    }
+  }
+
+  static func latestThumbnail(pixels: CGFloat, result: @escaping FlutterResult) {
+    func fetch() {
+      let options = PHFetchOptions()
+      options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+      options.fetchLimit = 1
+      guard let asset = PHAsset.fetchAssets(with: .image, options: options).firstObject else {
+        result(nil)
+        return
+      }
+      let request = PHImageRequestOptions()
+      // One callback, the finished image: no blurry first pass.
+      request.deliveryMode = .highQualityFormat
+      request.resizeMode = .fast
+      request.isNetworkAccessAllowed = true
+      PHImageManager.default().requestImage(
+        for: asset, targetSize: CGSize(width: pixels, height: pixels),
+        contentMode: .aspectFill, options: request
+      ) { image, _ in
+        let data = image?.jpegData(compressionQuality: 0.8)
+        DispatchQueue.main.async {
+          result(data.map { FlutterStandardTypedData(bytes: $0) })
+        }
+      }
+    }
+    switch PHPhotoLibrary.authorizationStatus(for: .readWrite) {
+    case .authorized, .limited:
+      fetch()
+    case .notDetermined:
+      PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+        DispatchQueue.main.async {
+          if status == .authorized || status == .limited { fetch() } else { result(nil) }
+        }
+      }
+    default:
+      result(nil)
     }
   }
 }

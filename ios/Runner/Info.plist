@@ -29,7 +29,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>拍下食物或營養標示，估算營養或讀取標示數字後填進紀錄。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>從相簿選一張食物或營養標示的照片，估算營養或讀取標示數字後填進紀錄。</string>
+	<string>在相機畫面顯示最新一張照片，並從相簿選食物或營養標示的照片，估算營養或讀取標示數字。</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>讀取「健康」App 裡的睡眠、體重、腰圍、體能訓練與喝水紀錄，記進你的紀錄。只讀取，不會寫入。</string>
 	<key>UIApplicationSceneManifest</key>

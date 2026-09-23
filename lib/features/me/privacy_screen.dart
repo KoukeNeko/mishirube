@@ -34,6 +34,13 @@ class PrivacyScreen extends StatelessWidget {
             ('解除安裝 App', '清除所有紀錄'),
           ],
         ),
+        const _Facts(
+          title: '相機與相簿',
+          facts: [
+            ('相機', '只在掃描時開啟'),
+            ('相簿', '讀取最新一張做為選取按鈕的縮圖'),
+          ],
+        ),
         _Facts(
           title: '健康資料（$platform）',
           facts: [

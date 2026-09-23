@@ -560,7 +560,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         actions: [
           if (isNew && !_isSize)
             HeaderAction(
-              icon: Icons.document_scanner_outlined,
+              icon: Icons.photo_camera_outlined,
               label: '掃描',
               semanticLabel: '掃描食物或營養標示',
               onTap: _scanning != null ? null : _scan,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -23,6 +25,7 @@ void main() {
                     title: '食物',
                     pickFromLibrary: () async => '/lunch.jpg',
                     findCameras: () async => const [],
+                    findLatestPhoto: (_) async => null,
                   ),
                 ),
               );
@@ -47,6 +50,45 @@ void main() {
     await tester.tap(find.byTooltip('從相簿選取'));
     await tester.pumpAndSettle();
     expect(popped, '/lunch.jpg');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the library button shows the newest photo when it can', (
+    tester,
+  ) async {
+    // A 1×1 PNG.
+    final photo = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwAD'
+      'hgGAWjR9awAAAABJRU5ErkJggg==',
+    );
+    int? asked;
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      CameraScreen(
+        title: '食物',
+        pickFromLibrary: () async => null,
+        findCameras: () async => const [],
+        findLatestPhoto: (pixels) async {
+          asked = pixels;
+          return photo;
+        },
+      ),
+      store: store,
+    );
+    await tester.pumpAndSettle();
+
+    expect(asked, greaterThan(0), reason: 'asked at the screen\'s density');
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration! as BoxDecoration).image?.image is MemoryImage,
+      ),
+      findsOneWidget,
+    );
+    expect(find.bySemanticsLabel('從相簿選取'), findsOneWidget);
     await disposeTree(tester);
   });
 }
