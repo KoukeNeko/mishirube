@@ -255,8 +255,6 @@ class ExerciseSession {
     final index = sets.indexWhere((set) => !set.isDone);
     return index < 0 ? null : index;
   }
-
-  bool get hasPersonalRecord => isPersonalRecordCandidate && completedSets > 0;
 }
 
 class WorkoutSession {
@@ -293,9 +291,6 @@ class WorkoutSession {
       exercises.where((item) => item.isComplete).length;
 
   int get totalSets => exercises.fold(0, (sum, item) => sum + item.sets.length);
-
-  int get personalRecords =>
-      exercises.where((item) => item.hasPersonalRecord).length;
 
   /// Active training time: a running pause freezes the clock and finished
   /// pauses are subtracted.

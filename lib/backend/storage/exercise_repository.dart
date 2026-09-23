@@ -71,21 +71,24 @@ class ExerciseRepository {
       final best = heaviestSet(sets);
       if (best == null) continue;
       final date = startedAt[id]!;
+      double? sessionEstimate;
+      for (final set in countedSets(sets)) {
+        final estimate = estimateOneRepMax(set.weightKg, set.reps);
+        if (estimate != null && estimate > (sessionEstimate ?? 0)) {
+          sessionEstimate = estimate;
+        }
+      }
       entries.add(
         ExerciseHistoryEntry(
           date: date,
           weightKg: best.weightKg,
           reps: best.reps,
           rir: best.rir,
+          oneRepMaxKg: sessionEstimate,
         ),
       );
-      if (date.isBefore(windowStart)) continue;
-      for (final set in countedSets(sets)) {
-        final estimate = estimateOneRepMax(set.weightKg, set.reps);
-        if (estimate != null && estimate > (bestEstimate ?? 0)) {
-          bestEstimate = estimate;
-        }
-      }
+      if (date.isBefore(windowStart) || sessionEstimate == null) continue;
+      if (sessionEstimate > (bestEstimate ?? 0)) bestEstimate = sessionEstimate;
     }
     return ExerciseHistory(
       recent: entries,

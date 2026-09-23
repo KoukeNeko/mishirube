@@ -6,6 +6,7 @@ import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
+import '../backend/engines/workout_review.dart';
 import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
 import '../backend/health/health_source.dart';
@@ -196,6 +197,10 @@ class AppStore extends ChangeNotifier {
   /// The exercise catalog with usage derived from finished workouts.
   List<ExerciseDefinition> get exercises => List.unmodifiable(_exercises);
 
+  /// [workout] against what came before it.
+  WorkoutReview workoutReview(WorkoutSession workout) =>
+      _backend.training.review(workout);
+
   ExerciseHistory exerciseHistory(ExerciseDefinition exercise) =>
       _backend.catalog.history(exercise.id);
 
@@ -308,6 +313,13 @@ class AppStore extends ChangeNotifier {
     );
     notifyListeners();
     return true;
+  }
+
+  /// Whether [set] of the running workout's current exercise beats every
+  /// earlier session of it.
+  bool isPersonalRecord(WorkoutSet set) {
+    final workout = activeWorkout;
+    return workout != null && _backend.training.isPersonalRecord(workout, set);
   }
 
   /// Marks the next pending set of the current exercise as done.

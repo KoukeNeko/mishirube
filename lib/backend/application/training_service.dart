@@ -3,6 +3,7 @@ import '../engines/training_metrics.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
 import '../engines/progression_engine.dart';
+import '../engines/workout_review.dart';
 import '../storage/routine_repository.dart';
 import '../storage/workout_repository.dart';
 
@@ -67,6 +68,32 @@ class TrainingService {
       ),
     );
   }
+
+  /// [workout] against what came before it, finished or still running.
+  WorkoutReview review(WorkoutSession workout) {
+    final routineId = workout.routineId;
+    return reviewWorkout(
+      workout,
+      earlier: {
+        for (final session in workout.exercises)
+          session.exercise.id: _exercises
+              .history(session.exercise.id)
+              .before(workout.startedAt),
+      },
+      previous: routineId == null
+          ? null
+          : _workouts.previousOf(routineId, workout.startedAt, _exercise),
+    );
+  }
+
+  /// Whether [set] of the current exercise beats every earlier session.
+  bool isPersonalRecord(WorkoutSession workout, WorkoutSet set) =>
+      isPersonalRecordSet(
+        set,
+        _exercises
+            .history(workout.currentExercise.exercise.id)
+            .before(workout.startedAt),
+      );
 
   /// Marks the next pending set of the current exercise as done and moves
   /// on to the next unfinished exercise once every set is logged.

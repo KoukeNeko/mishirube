@@ -77,7 +77,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
                   label: '動作進度',
                 ),
                 StatBlock(
-                  value: '${workout.personalRecords}',
+                  value: '${store.workoutReview(workout).records}',
                   label: '個人紀錄',
                   valueColor: AppColors.training,
                 ),

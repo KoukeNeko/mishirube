@@ -3,24 +3,9 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../domain/domain.dart';
+import '../../backend/engines/workout_review.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
-
-/// One line in the summary: an exercise and its best completed set.
-class _ExerciseResult {
-  const _ExerciseResult({
-    required this.name,
-    required this.sets,
-    required this.topSet,
-    required this.isPersonalRecord,
-  });
-
-  final String name;
-  final int sets;
-  final String topSet;
-  final bool isPersonalRecord;
-}
 
 class WorkoutSummaryScreen extends StatelessWidget {
   const WorkoutSummaryScreen({super.key, this.workoutId});
@@ -34,31 +19,40 @@ class WorkoutSummaryScreen extends StatelessWidget {
     final workout = workoutId == null
         ? store.lastFinishedWorkout
         : store.workoutById(workoutId!);
-    final results = workout == null
-        ? _plannedResults(store.routine)
-        : _actualResults(workout);
-    final duration = workout == null
-        ? '58:02'
-        : formatClock(workout.elapsedAt(workout.finishedAt!));
-    final timeRange = workout == null
-        ? '19:43 – 20:41'
-        : '${formatTimeOfDay(workout.startedAt)} – '
-              '${formatTimeOfDay(workout.finishedAt!)}';
-    final totalSets = results.fold(0, (sum, result) => sum + result.sets);
-    final records = results.where((result) => result.isPersonalRecord).length;
+    final footer = PrimaryButton(
+      label: '回到今天',
+      onPressed: () => returnToTab(context, HomeTab.today),
+    );
+    if (workout == null) {
+      return DetailPage(
+        appBar: PageAppBar(title: '訓練'),
+        footer: footer,
+        children: [
+          Gutter(
+            child: const EmptyStateCard(
+              icon: Icons.fitness_center,
+              title: '沒有完成的訓練',
+            ),
+          ),
+        ],
+      );
+    }
+    final finishedAt = workout.finishedAt!;
+    final review = store.workoutReview(workout);
+    final records = [
+      for (final item in review.exercises)
+        if (item.record != null) item,
+    ];
 
     return DetailPage(
       appBar: PageAppBar(
-        title: workout?.routineName ?? store.routine.name,
-        subtitle: workout == null
-            ? timeRange
-            : '${workout.startedAt.month} 月 ${workout.startedAt.day} 日 · '
-                  '$timeRange',
+        title: workout.routineName,
+        subtitle:
+            '${workout.startedAt.month} 月 ${workout.startedAt.day} 日 · '
+            '${formatTimeOfDay(workout.startedAt)} – '
+            '${formatTimeOfDay(finishedAt)}',
       ),
-      footer: PrimaryButton(
-        label: '回到今天',
-        onPressed: () => returnToTab(context, HomeTab.today),
-      ),
+      footer: footer,
       children: [
         Gutter(
           child: AppCard(
@@ -67,80 +61,99 @@ class WorkoutSummaryScreen extends StatelessWidget {
               children: [
                 StatRow(
                   stats: [
-                    StatBlock(value: duration, label: '時長'),
-                    StatBlock(value: '$totalSets', label: '總組數'),
                     StatBlock(
-                      value: '$records',
+                      value: formatClock(workout.elapsedAt(finishedAt)),
+                      label: '時長',
+                    ),
+                    StatBlock(value: '${review.sets}', label: '總組數'),
+                    StatBlock(
+                      value: formatAmount(review.volumeKg.roundToDouble()),
+                      unit: 'kg',
+                      label: '總量',
+                    ),
+                    StatBlock(
+                      value: '${review.records}',
                       label: '個人紀錄',
                       valueColor: AppColors.training,
                     ),
                   ],
                 ),
-                if (records > 0) ...const [
-                  Divider(height: AppSpacing.xxl),
-                  Text(
-                    '槓鈴深蹲 100 kg × 5，估計最大重量從 114 kg 升到 117 kg。',
-                    style: AppTextStyles.body,
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  TagWrap(labels: ['Epley 估計，非實測']),
+                if (_volumeChange(review) case final change?) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  TagWrap(labels: [change]),
                 ],
               ],
             ),
           ),
         ),
+        if (records.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('個人紀錄')),
+          for (final item in records) Gutter(child: _RecordRow(item: item)),
+        ],
         Gutter(child: const SectionLabel('動作')),
-        for (final result in results) Gutter(child: _ResultRow(result: result)),
+        for (final item in review.exercises)
+          Gutter(child: _ResultRow(item: item)),
       ],
     );
   }
 
-  List<_ExerciseResult> _actualResults(WorkoutSession workout) => [
-    for (final exercise in workout.exercises)
-      if (exercise.completedSets > 0)
-        _ExerciseResult(
-          name: exercise.exercise.name,
-          sets: exercise.completedSets,
-          topSet: _topSetLabel(exercise.sets.where((set) => set.isDone)),
-          isPersonalRecord: exercise.hasPersonalRecord,
-        ),
-  ];
+  /// The total against the same template's last time, when there was one.
+  static String? _volumeChange(WorkoutReview review) {
+    final previous = review.previousVolumeKg;
+    if (previous == null || previous == 0) return null;
+    final change = ((review.volumeKg - previous) / previous * 100).round();
+    return switch (change) {
+      0 => '總量與上次相同',
+      > 0 => '總量比上次 +$change%',
+      _ => '總量比上次 $change%',
+    };
+  }
+}
 
-  List<_ExerciseResult> _plannedResults(Routine routine) => [
-    for (final planned in routine.exercises)
-      _ExerciseResult(
-        name: planned.exercise.name,
-        sets: planned.sets,
-        topSet: '${formatWeight(planned.targetWeightKg)} kg × ${planned.reps}',
-        isPersonalRecord: planned.exercise.id == 'back-squat',
+class _RecordRow extends StatelessWidget {
+  const _RecordRow({required this.item});
+
+  final ExerciseReview item;
+
+  @override
+  Widget build(BuildContext context) {
+    final record = item.record!;
+    return NavCard(
+      leading: const Icon(
+        Icons.emoji_events_outlined,
+        color: AppColors.training,
       ),
-  ];
-
-  String _topSetLabel(Iterable<WorkoutSet> sets) {
-    final best = sets.reduce((a, b) => a.weightKg >= b.weightKg ? a : b);
-    return '${formatWeight(best.weightKg)} kg × ${best.reps}';
+      title: item.exercise.name,
+      trailing: Text(
+        '${formatWeight(record.weightKg)} kg × ${record.reps}',
+        style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
+      ),
+    );
   }
 }
 
 class _ResultRow extends StatelessWidget {
-  const _ResultRow({required this.result});
+  const _ResultRow({required this.item});
 
-  final _ExerciseResult result;
+  final ExerciseReview item;
 
   @override
   Widget build(BuildContext context) {
+    final best = item.best;
     return NavCard(
       leading: const AccentBar(color: AppColors.training, height: 32),
-      title: result.name,
-      subtitle: '${result.sets} 組',
+      title: item.exercise.name,
+      subtitle:
+          '${item.sets} 組 · ${formatAmount(item.volumeKg.roundToDouble())} kg',
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            result.topSet,
-            style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
-          ),
-          if (result.isPersonalRecord) ...const [
+          if (best != null)
+            Text(
+              '${formatWeight(best.weightKg)} kg × ${best.reps}',
+              style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
+            ),
+          if (item.record != null) ...const [
             SizedBox(width: AppSpacing.xs),
             TagChip(label: 'PR', tone: TagTone.solidTraining),
           ],

@@ -13,6 +13,7 @@ import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
+import 'package:mishirube/backend/engines/workout_review.dart';
 import 'package:mishirube/domain/domain.dart';
 
 import 'support/harness.dart';
@@ -823,6 +824,83 @@ void main() {
     });
   });
 
+  group('workout review', () {
+    WorkoutSet done(double kg, int reps, {SetType type = SetType.working}) =>
+        WorkoutSet(
+          weightKg: kg,
+          reps: reps,
+          previousWeightKg: kg,
+          previousReps: reps,
+          type: type,
+          isDone: true,
+        );
+    final earlier = [
+      ExerciseHistoryEntry(
+        date: DateTime(2026, 9, 16),
+        weightKg: 100,
+        reps: 5,
+        oneRepMaxKg: estimateOneRepMax(100, 5),
+      ),
+    ];
+
+    test('a record is heavier, or more reps at a weight already lifted', () {
+      expect(isPersonalRecordSet(done(102.5, 1), earlier), isTrue);
+      expect(isPersonalRecordSet(done(100, 6), earlier), isTrue);
+      expect(isPersonalRecordSet(done(100, 5), earlier), isFalse);
+      expect(isPersonalRecordSet(done(90, 8), earlier), isFalse);
+    });
+
+    test('a first session, a warm-up or an unfinished set is no record', () {
+      expect(isPersonalRecordSet(done(100, 5), const []), isFalse);
+      expect(
+        isPersonalRecordSet(done(120, 1, type: SetType.warmup), earlier),
+        isFalse,
+      );
+      final pending = WorkoutSet(
+        weightKg: 120,
+        reps: 1,
+        previousWeightKg: 100,
+        previousReps: 5,
+      );
+      expect(isPersonalRecordSet(pending, earlier), isFalse);
+    });
+
+    test('totals, the best record set and last time of the template', () {
+      const squat = ExerciseDefinition(
+        id: 'squat',
+        name: '深蹲',
+        equipment: Equipment.barbell,
+        primaryMuscles: [MuscleGroup.quads],
+        pattern: MovementPattern.squat,
+      );
+      WorkoutSession session(List<WorkoutSet> sets) => WorkoutSession(
+        id: 'w',
+        routineName: '下肢',
+        startedAt: DateTime(2026, 9, 20),
+        exercises: [ExerciseSession(exercise: squat, sets: sets)],
+      );
+      final review = reviewWorkout(
+        session([
+          done(60, 5, type: SetType.warmup),
+          done(100, 6),
+          done(102.5, 3),
+        ]),
+        earlier: {'squat': earlier},
+        previous: session([done(100, 5), done(100, 5)]),
+      );
+
+      expect(review.sets, 3);
+      expect(review.volumeKg, 100 * 6 + 102.5 * 3, reason: 'no warm-up');
+      expect(review.previousVolumeKg, 1000);
+      expect(review.records, 1);
+      expect(
+        review.exercises.single.record!.reps,
+        6,
+        reason: '100 × 6 estimates higher than 102.5 × 3',
+      );
+    });
+  });
+
   group('muscle load', () {
     ExerciseDefinition of(String id, List<MuscleGroup> primary) =>
         ExerciseDefinition(
@@ -832,7 +910,6 @@ void main() {
           primaryMuscles: primary,
           secondaryMuscles: const [MuscleGroup.core],
           pattern: MovementPattern.squat,
-          trackingType: TrackingType.weightReps,
         );
 
     test('a set counts for each primary muscle, not the secondary ones', () {

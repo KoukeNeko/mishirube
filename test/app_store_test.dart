@@ -44,11 +44,12 @@ void main() {
       expect(store.activeWorkout!.completedSets, squatSets);
     });
 
-    test('a heavier target than last time counts as a personal record', () {
+    test('a set heavier than any before it counts as a personal record', () {
       store.startWorkout();
-      store.completeNextSet();
+      final set = store.completeNextSet()!;
 
-      expect(store.activeWorkout!.personalRecords, 1);
+      expect(store.isPersonalRecord(set), isTrue);
+      expect(store.workoutReview(store.activeWorkout!).records, 1);
     });
 
     test('finishWorkout records duration and moves Today to evening', () {

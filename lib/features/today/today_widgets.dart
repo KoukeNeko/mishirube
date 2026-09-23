@@ -559,7 +559,9 @@ class CompletedWorkoutCard extends StatelessWidget {
                 label: '動作',
               ),
               StatBlock(
-                value: '${session?.personalRecords ?? 1}',
+                value: session == null
+                    ? '1'
+                    : '${AppStoreScope.of(context).workoutReview(session).records}',
                 label: '個人紀錄',
                 valueColor: AppColors.training,
               ),

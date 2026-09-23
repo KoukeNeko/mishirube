@@ -36,7 +36,6 @@ class ActiveWorkoutScreen extends StatelessWidget {
   void _completeSet(BuildContext context, WorkoutSession workout) {
     final store = AppStoreScope.read(context);
     final exercise = workout.currentExercise;
-    final completedSetNumber = (exercise.nextSetIndex ?? 0) + 1;
     final completedSet = store.completeNextSet();
     if (completedSet == null) return;
     pushPage(
@@ -44,8 +43,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
       RestTimerScreen(
         exerciseName: exercise.exercise.name,
         completedSet: completedSet,
-        isPersonalRecord:
-            exercise.isPersonalRecordCandidate && completedSetNumber == 1,
+        isPersonalRecord: store.isPersonalRecord(completedSet),
       ),
     );
   }
@@ -100,8 +98,14 @@ class ActiveWorkoutScreen extends StatelessWidget {
             ),
           ),
           children: [
-            Gutter(child: _SuggestionCard(exercise: exercise)),
-            Gutter(child: const _SuggestionTags()),
+            if (store.exerciseHistory(exercise.exercise)
+                case ExerciseHistory(last: final last?) && final history)
+              Gutter(
+                child: _LastTime(
+                  last: last,
+                  oneRepMaxKg: history.estimatedOneRepMaxKg,
+                ),
+              ),
             Gutter(child: const _SetTypeHeader()),
             for (var i = 0; i < exercise.sets.length; i++)
               Gutter(
@@ -305,39 +309,34 @@ class _LiveTitle extends StatelessWidget {
   }
 }
 
-class _SuggestionCard extends StatelessWidget {
-  const _SuggestionCard({required this.exercise});
+/// The exercise as it went last time, from the records: what the sets
+/// on this page are measured against.
+class _LastTime extends StatelessWidget {
+  const _LastTime({required this.last, required this.oneRepMaxKg});
 
-  final ExerciseSession exercise;
-
-  @override
-  Widget build(BuildContext context) {
-    final firstSet = exercise.sets.first;
-    return InfoBanner(
-      message:
-          '上次 9 月 16 日做了 ${formatWeight(firstSet.previousWeightKg)} kg × '
-          '${firstSet.previousReps}${firstSet.rir == null ? '' : '，RIR ${firstSet.rir}'}。'
-          '建議這次 ${formatWeight(firstSet.weightKg)} kg × ${firstSet.reps}。',
-    );
-  }
-}
-
-class _SuggestionTags extends StatelessWidget {
-  const _SuggestionTags();
+  final ExerciseHistoryEntry last;
+  final double? oneRepMaxKg;
 
   @override
   Widget build(BuildContext context) {
+    final date = last.date;
+    final estimate = oneRepMaxKg;
     return Wrap(
       spacing: AppSpacing.xs,
       runSpacing: AppSpacing.xs,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        const TagChip(label: '線性進階 +2.5 kg', tone: TagTone.training),
-        const TagChip(label: '估計最大重量 114 kg'),
-        ChipButton(
-          label: '依據',
-          tone: TagTone.training,
-          onTap: () => showToast(context, '依上次重量、RIR 與線性進階規則計算。'),
+        Text(
+          '上次 ${date.month} 月 ${date.day} 日 · '
+          '${formatWeight(last.weightKg)} kg × ${last.reps}'
+          '${last.rir == null ? '' : ' · RIR ${last.rir}'}',
+          style: AppTextStyles.caption,
         ),
+        if (estimate != null)
+          TagChip(
+            label: '估計最大重量 ${estimate.round()} kg',
+            tone: TagTone.training,
+          ),
       ],
     );
   }

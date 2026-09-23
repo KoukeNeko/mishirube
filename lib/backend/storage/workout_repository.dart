@@ -1,6 +1,6 @@
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
-import '../engines/training_metrics.dart';
+import '../engines/workout_review.dart';
 import 'database.dart';
 import 'exercise_repository.dart';
 import 'timeline_source.dart';
@@ -29,6 +29,22 @@ class WorkoutRepository {
     final rows = _db.select(
       "SELECT id FROM workouts WHERE status = 'completed' "
       'AND deleted_at IS NULL ORDER BY finished_at DESC LIMIT 1',
+    );
+    return rows.isEmpty ? null : byId(rows.first['id'], exercises);
+  }
+
+  /// The last finished workout of [routineId] that started before
+  /// [before].
+  WorkoutSession? previousOf(
+    String routineId,
+    DateTime before,
+    ExerciseResolver exercises,
+  ) {
+    final rows = _db.select(
+      "SELECT id FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND routine_id = ? AND started_at < ? '
+      'ORDER BY started_at DESC LIMIT 1',
+      [routineId, before.millisecondsSinceEpoch],
     );
     return rows.isEmpty ? null : byId(rows.first['id'], exercises);
   }
@@ -312,27 +328,21 @@ class WorkoutTimelineSource extends TimelineSource {
       ),
   ];
 
-  /// A heavier set than any earlier finished session of the same exercise.
+  /// The first record the workout set, in the words of its row.
   String? _personalRecord(WorkoutSession workout) {
-    for (final session in workout.exercises) {
-      final best = heaviestSet(session.sets);
-      if (best == null) continue;
-      final rows = _db.select(
-        '''
-        SELECT MAX(s.weight_kg) AS best FROM workout_sets s
-        JOIN workout_exercises we ON we.workout_id = s.workout_id
-          AND we.position = s.exercise_position
-        JOIN workouts w ON w.id = s.workout_id
-        WHERE we.exercise_id = ? AND w.status = 'completed'
-          AND w.deleted_at IS NULL AND w.started_at < ? AND s.is_done = 1
-          AND s.set_type != 'warmup'
-        ''',
-        [session.exercise.id, workout.startedAt.millisecondsSinceEpoch],
-      );
-      final previousBest = (rows.first['best'] as num?)?.toDouble();
-      if (previousBest != null && best.weightKg > previousBest) {
-        return '${session.exercise.name} ${formatWeight(best.weightKg)} kg × '
-            '${best.reps} 為個人紀錄';
+    final review = reviewWorkout(
+      workout,
+      earlier: {
+        for (final session in workout.exercises)
+          session.exercise.id: _exercises
+              .history(session.exercise.id)
+              .before(workout.startedAt),
+      },
+    );
+    for (final item in review.exercises) {
+      if (item.record case final record?) {
+        return '${item.exercise.name} ${formatWeight(record.weightKg)} kg × '
+            '${record.reps} 為個人紀錄';
       }
     }
     return null;
