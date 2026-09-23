@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -22,6 +21,7 @@ import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -337,12 +337,12 @@ void main() {
         labelReader: _FakeReader([_line('熱量 120 大卡', 0.1, 0.1)]),
       )..setProvider(AiProviderKind.appleOnDevice),
     );
-    final picked = <ImageSource>[];
+    final cameras = <String>[];
     await pumpScreen(
       tester,
       FoodEditScreen(
-        pickPhoto: (source) async {
-          picked.add(source);
+        takePhoto: (title) async {
+          cameras.add(title);
           return '/label.jpg';
         },
       ),
@@ -352,10 +352,12 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('從相簿選營養標示'));
+    await tester.tap(
+      find.descendant(of: find.byType(AppDialog), matching: find.text('營養標示')),
+    );
     await tester.pumpAndSettle();
 
-    expect(picked, [ImageSource.gallery]);
+    expect(cameras, ['營養標示'], reason: 'the camera opens for a label');
     expect(find.textContaining('請對照包裝核對'), findsOneWidget);
     expect(find.text('燕麥奶'), findsOneWidget, reason: 'the name, filled');
     await tester.dragUntilVisible(
@@ -408,7 +410,9 @@ void main() {
     Future<void> scanFood(WidgetTester tester, {String note = ''}) async {
       await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('拍食物'));
+      await tester.tap(
+        find.descendant(of: find.byType(AppDialog), matching: find.text('食物')),
+      );
       await tester.pumpAndSettle();
       if (note.isNotEmpty) {
         await tester.enterText(find.byType(TextField).last, note);
@@ -418,7 +422,7 @@ void main() {
     }
 
     FoodEditScreen screen({bool logsOnce = false}) =>
-        FoodEditScreen(logsOnce: logsOnce, pickPhoto: (_) async => '/meal.jpg');
+        FoodEditScreen(logsOnce: logsOnce, takePhoto: (_) async => '/meal.jpg');
 
     testWidgets('fills a quick record, which logs the estimate', (
       tester,

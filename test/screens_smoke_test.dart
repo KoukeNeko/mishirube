@@ -26,6 +26,7 @@ import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_library_screen.dart';
+import 'package:mishirube/features/nutrition/camera_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
@@ -302,6 +303,14 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'food search (empty)': ((_) => const FoodSearchScreen(), _noSetup),
   'food search': ((_) => const FoodSearchScreen(), _withFood),
   'quick record': ((_) => const FoodEditScreen(logsOnce: true), _noSetup),
+  'camera': (
+    (_) => CameraScreen(
+      title: '食物',
+      pickFromLibrary: () async => null,
+      findCameras: () async => const [],
+    ),
+    _noSetup,
+  ),
   'food edit (new)': ((_) => const FoodEditScreen(), _noSetup),
   'portion': (
     (store) =>
@@ -323,6 +332,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
 const _screensWithoutAppBar = {
   // Full-screen countdown; any chrome would compete with the timer.
   'rest timer',
+  // A viewfinder: a header over the preview would cover what is framed.
+  'camera',
 };
 
 /// Every screen at each window it must survive; the phone's cases keep

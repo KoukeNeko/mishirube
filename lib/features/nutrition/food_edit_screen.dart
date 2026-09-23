@@ -9,6 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
+import 'camera_screen.dart';
 import 'describe_meal_screen.dart';
 import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
@@ -23,7 +24,7 @@ class FoodEditScreen extends StatefulWidget {
     this.editing,
     this.initialName = '',
     this.sizeOf,
-    this.pickPhoto,
+    this.takePhoto,
     this.logsOnce = false,
   });
 
@@ -37,9 +38,10 @@ class FoodEditScreen extends StatefulWidget {
   /// scaled up, because the shot count changes too.
   final FoodItem? sizeOf;
 
-  /// Where a label photo comes from; the system picker unless a test
-  /// hands one in. Returns the photo's path, or null when cancelled.
-  final Future<String?> Function(ImageSource source)? pickPhoto;
+  /// Takes the photo for a scan titled [title] — 食物 or 營養標示 — and
+  /// returns its path, or null when cancelled: the app's camera, with the
+  /// library beside the shutter, unless a test hands one in.
+  final Future<String?> Function(String title)? takePhoto;
 
   /// 快速記錄: the same form, logged as one serving eaten now and, unless
   /// 存入食物庫 is switched on, not kept as a food. For the things nobody
@@ -198,6 +200,21 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     imageQuality: 85,
   ))?.path;
 
+  /// The app's camera page for [scan], whose library button picks at the
+  /// size that scan needs: a label's small print needs more than a plate
+  /// does, and past about 1600 px a model scales a photo down anyway.
+  Future<String?> Function(String title) _takeWithCamera(_Scan scan) =>
+      (title) => pushModalPage<String>(
+        context,
+        CameraScreen(
+          title: title,
+          pickFromLibrary: () => _pickWithSystemPicker(
+            ImageSource.gallery,
+            maxSide: scan == _Scan.food ? 1568 : 2400,
+          ),
+        ),
+      );
+
   /// A food photo or a nutrition label, from the camera or the library,
   /// read into the form. Nothing is saved: the user checks every number
   /// here and saves as usual.
@@ -207,48 +224,34 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       await pushPage<void>(context, const AiSettingsScreen());
       return;
     }
-    void pick(_Scan scan, ImageSource source) =>
-        Navigator.of(context).pop((scan, source));
-    final choice = await showAppDialog<(_Scan, ImageSource)>(
+    final scan = await showAppDialog<_Scan>(
       context,
       AppDialog(
         title: '掃描',
         isChoiceList: true,
         actions: [
           DialogAction(
-            icon: Icons.photo_camera_outlined,
-            label: '拍食物',
-            onTap: () => pick(_Scan.food, ImageSource.camera),
-          ),
-          DialogAction(
-            icon: Icons.photo_library_outlined,
-            label: '從相簿選食物照片',
-            onTap: () => pick(_Scan.food, ImageSource.gallery),
+            icon: Icons.restaurant_outlined,
+            label: '食物',
+            detail: '估算營養',
+            onTap: () => Navigator.of(context).pop(_Scan.food),
           ),
           DialogAction(
             icon: Icons.document_scanner_outlined,
-            label: '拍營養標示',
-            onTap: () => pick(_Scan.label, ImageSource.camera),
-          ),
-          DialogAction(
-            icon: Icons.photo_library_outlined,
-            label: '從相簿選營養標示',
-            onTap: () => pick(_Scan.label, ImageSource.gallery),
+            label: '營養標示',
+            detail: '讀取標示數字',
+            onTap: () => Navigator.of(context).pop(_Scan.label),
           ),
           DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
         ],
       ),
     );
-    if (choice == null || !mounted) return;
-    final (scan, source) = choice;
-    final path =
-        await (widget.pickPhoto ??
-            (source) => _pickWithSystemPicker(
-              source,
-              // A label's small print needs more than a plate does; past
-              // about 1600 px a model scales a photo down anyway.
-              maxSide: scan == _Scan.food ? 1568 : 2400,
-            ))(source);
+    if (scan == null || !mounted) return;
+    final title = switch (scan) {
+      _Scan.food => '食物',
+      _Scan.label => '營養標示',
+    };
+    final path = await (widget.takePhoto ?? _takeWithCamera(scan))(title);
     if (path == null || !mounted) return;
     switch (scan) {
       case _Scan.label:
