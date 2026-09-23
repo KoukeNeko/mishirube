@@ -110,9 +110,9 @@ class _ProgressionSectionState extends State<ProgressionSection> {
           (planned, suggestion),
     ];
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    return Column(
+    return PageSection(
+      label: '下次的建議',
       children: [
-        Gutter(child: const SectionLabel('下次的建議')),
         for (final (planned, suggestion) in suggestions)
           Gutter(
             child: ProgressionCard(

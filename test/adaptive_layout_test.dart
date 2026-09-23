@@ -265,6 +265,43 @@ void main() {
     }
   });
 
+  testWidgets('a section label sits the page spacing above its card', (
+    tester,
+  ) async {
+    double gapUnder(String label) {
+      final labelRect = tester.getRect(
+        find.ancestor(
+          of: find.text(label),
+          matching: find.byType(SectionLabel),
+        ),
+      );
+      final card = find
+          .byType(GroupedCard)
+          .evaluate()
+          .map((element) => tester.getRect(find.byWidget(element.widget)));
+      return card
+          .where((rect) => rect.top >= labelRect.bottom)
+          .map((rect) => rect.top - labelRect.bottom)
+          .reduce((a, b) => a < b ? a : b);
+    }
+
+    await pumpScreen(tester, const MeScreen(), store: _store());
+    expect(
+      gapUnder('功能'),
+      pageItemSpacing,
+      reason: 'label and card as page elements',
+    );
+    await disposeTree(tester);
+
+    await pumpScreen(tester, const PrivacyScreen(), store: _store());
+    expect(
+      gapUnder('儲存'),
+      pageItemSpacing,
+      reason: 'label and card in a PageSection',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('key-value rows end every value on the same edge', (
     tester,
   ) async {

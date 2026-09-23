@@ -81,10 +81,9 @@ class _Facts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return PageSection(
+      label: title,
       children: [
-        Gutter(child: SectionLabel(title)),
         Gutter(
           child: GroupedCard(
             children: [

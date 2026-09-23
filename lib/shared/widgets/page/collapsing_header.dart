@@ -19,6 +19,10 @@ const _largeBottomPadding = 4.0;
 /// Breathing room between the (collapsed) bar and the first card; matches
 /// the prototype's title-to-card rhythm.
 const _contentTopGap = AppSpacing.md;
+
+/// The gap between a page's elements, and between a section's label and
+/// its items ([PageSection]).
+const pageItemSpacing = AppSpacing.sm;
 const _snapDuration = Duration(milliseconds: 220);
 const _subtitleGap = 2.0;
 const _subtitleMaxLines = 2;
@@ -670,13 +674,11 @@ class CollapsingScrollView extends StatefulWidget {
     super.key,
     required this.header,
     required this.children,
-    this.spacing = AppSpacing.sm,
     this.bottomPadding = AppSpacing.xxl,
   });
 
   final CollapsingHeaderDelegate header;
   final List<Widget> children;
-  final double spacing;
   final double bottomPadding;
 
   @override
@@ -753,7 +755,8 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
                 ),
                 sliver: SliverList.separated(
                   itemCount: widget.children.length,
-                  separatorBuilder: (_, _) => SizedBox(height: widget.spacing),
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: pageItemSpacing),
                   itemBuilder: (_, index) => widget.children[index],
                 ),
               ),

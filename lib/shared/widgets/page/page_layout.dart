@@ -314,3 +314,33 @@ class SectionLabel extends StatelessWidget {
     );
   }
 }
+
+/// A section of a page as one widget: its label, then its items, spaced
+/// as the page spaces its own elements. For a section built by a class
+/// of its own; a page that writes its sections inline puts the label and
+/// the items straight into its children, which the page spaces the same.
+/// Items keep to the column with [Gutter], as page elements do.
+class PageSection extends StatelessWidget {
+  const PageSection({
+    super.key,
+    required this.label,
+    this.trailing,
+    required this.children,
+  });
+
+  final String label;
+  final Widget? trailing;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: pageItemSpacing,
+      children: [
+        Gutter(child: SectionLabel(label, trailing: trailing)),
+        ...children,
+      ],
+    );
+  }
+}

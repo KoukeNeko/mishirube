@@ -111,6 +111,10 @@ In particular, do not create a parallel version of:
 - toasts: `showToast` / `ToastScope.read(context).showUndo` – never
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
+- page sections: a `SectionLabel` and its items as the page's own
+  children, which the page spaces by `pageItemSpacing`; a section built as
+  one widget is a `PageSection`. Never put a `SectionLabel` and its items
+  in a plain `Column`, which drops that spacing;
 - list rows: `NavRow` (in a `GroupedCard`) or `NavCard` (an item on its
   own card) – leading marker, title with an optional mark, subtitle, a
   quieter detail line, and a trailing value or control. Do not lay out a
