@@ -1,3 +1,4 @@
+import ActivityKit
 import Flutter
 import HealthKit
 import Photos
@@ -821,14 +822,44 @@ enum RestNotice {
           center.removePendingNotificationRequests(withIdentifiers: [identifier])
           center.add(request)
         }
+        if #available(iOS 16.2, *) {
+          showActivity(
+            endsAt: Date(timeIntervalSince1970: endsAt / 1000),
+            title: arguments["restingTitle"] as? String ?? "",
+            body: content.body)
+        }
         result(nil)
       case "cancel":
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
         center.removeDeliveredNotifications(withIdentifiers: [identifier])
+        if #available(iOS 16.2, *) { endActivities() }
         result(nil)
       default:
         result(FlutterMethodNotImplemented)
       }
+    }
+  }
+}
+
+@available(iOS 16.2, *)
+extension RestNotice {
+  /// The rest on the lock screen and in the Dynamic Island, counting
+  /// down: one activity, updated when the rest is lengthened.
+  static func showActivity(endsAt: Date, title: String, body: String) {
+    guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+    let state = RestAttributes.ContentState(
+      endsAt: endsAt, startedAt: Date(), title: title, body: body)
+    let content = ActivityContent(state: state, staleDate: endsAt)
+    if let running = Activity<RestAttributes>.activities.first {
+      Task { await running.update(content) }
+    } else {
+      _ = try? Activity.request(attributes: RestAttributes(), content: content)
+    }
+  }
+
+  static func endActivities() {
+    for activity in Activity<RestAttributes>.activities {
+      Task { await activity.end(nil, dismissalPolicy: .immediate) }
     }
   }
 }
