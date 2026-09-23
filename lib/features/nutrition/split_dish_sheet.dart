@@ -81,12 +81,7 @@ class _SplitDishSheet extends StatelessWidget {
             children: [
               Icon(Icons.undo, size: 18, color: AppColors.textSecondary),
               SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  '這是資料結構的變更，不是顯示方式。存檔後 30 秒內可以復原。',
-                  style: AppTextStyles.caption,
-                ),
-              ),
+              Expanded(child: Text('30 秒內可以復原。', style: AppTextStyles.caption)),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),

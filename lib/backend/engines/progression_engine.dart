@@ -138,7 +138,7 @@ String _reasonFor(
 }) {
   final reserve = last.rir == null ? '' : '，最後一組還留 ${last.rir} 下';
   return '上次 ${_sets(last)} 做滿了 ${planned.sets} × ${planned.reps}$reserve，'
-      '可以加 ${formatWeight(added)} 公斤。';
+      '可以加 ${formatWeight(added)} kg。';
 }
 
 /// How an attempt reads in a reason: `3 × 5`.

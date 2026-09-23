@@ -100,10 +100,8 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
           _Field(label: '蛋白質', unit: 'g', field: _protein),
           _Field(label: '碳水', unit: 'g', field: _carb),
           _Field(label: '脂肪', unit: 'g', field: _fat),
-          const SizedBox(height: AppSpacing.sm),
-          Text('留空的欄位不會被當成 0，而是沒有資料。', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.lg),
-          Text('這是哪一餐（可不選）', style: AppTextStyles.caption),
+          Text('餐次（選填）', style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
           MealTypePicker(
             selected: _mealType,

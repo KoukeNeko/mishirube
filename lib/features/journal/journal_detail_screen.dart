@@ -92,14 +92,9 @@ class JournalDetailScreen extends StatelessWidget {
         Gutter(
           child: GroupedCard(
             children: [
-              NavRow(
-                title: '修改',
-                subtitle: '時間不會改變，這筆紀錄仍留在同一天',
-                onTap: () => pushPage(context, view.editor),
-              ),
+              NavRow(title: '編輯', onTap: () => pushPage(context, view.editor)),
               NavRow(
                 title: '刪除這筆紀錄',
-                subtitle: '可以在提示中復原',
                 onTap: () => _delete(context, view.title),
               ),
             ],
@@ -188,5 +183,5 @@ String? _sinceLast(BodyWeight weight, List<BodyWeight> recent) {
   final change = weight.weightKg - earlier.weightKg;
   final sign = change > 0 ? '+' : (change < 0 ? '−' : '±');
   return '較上次 $sign${formatWeight(change.abs())} kg'
-      '（${earlier.measuredAt.month}/${earlier.measuredAt.day}）';
+      '（${earlier.measuredAt.month} 月 ${earlier.measuredAt.day} 日）';
 }

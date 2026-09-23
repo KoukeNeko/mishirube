@@ -221,7 +221,7 @@ class _PortionScreenState extends State<PortionScreen> {
                 KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),
                 KeyValueRow(label: '脂肪', value: _grams(portion.fatGrams)),
                 if (portion.fibreGrams != null)
-                  KeyValueRow(label: '膳食纖維', value: _grams(portion.fibreGrams)),
+                  KeyValueRow(label: '纖維', value: _grams(portion.fibreGrams)),
                 // Everything else the food holds. A brand drink often
                 // knows its caffeine and nothing else, and a screen that
                 // showed only the five would show it as four dashes.
@@ -232,7 +232,7 @@ class _PortionScreenState extends State<PortionScreen> {
                     value: nutrient.format(amount),
                   ),
                 if (portion.millilitres case final volume?)
-                  KeyValueRow(label: '液體', value: '$volume mL'),
+                  KeyValueRow(label: '容量', value: '$volume mL'),
               ],
             ),
           ),
@@ -267,7 +267,7 @@ class _PortionScreenState extends State<PortionScreen> {
 
 /// ` · 查核 2026/9/21`, or nothing when the figure has no date. A figure
 /// nobody can date is a figure nobody can check.
-String _checked(DateTime? at) => at == null ? '' : ' · 查核 ${formatDate(at)}';
+String _checked(DateTime? at) => at == null ? '' : ' · 查證 ${formatDate(at)}';
 
 /// `31 g`, or a dash when the food has no figure for it.
 String _grams(int? amount) => amount == null ? '—' : '$amount g';

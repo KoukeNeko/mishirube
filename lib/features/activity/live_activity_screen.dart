@@ -23,7 +23,7 @@ class LiveActivityScreen extends StatelessWidget {
   void _discard(BuildContext context) {
     AppStoreScope.read(context).discardActivity();
     Navigator.of(context).pop();
-    showToast(context, '已放棄這次運動，沒有存成紀錄');
+    showToast(context, '已放棄這次運動');
   }
 
   @override
@@ -78,10 +78,7 @@ class LiveActivityScreen extends StatelessWidget {
           ),
         ),
         Gutter(
-          child: const Text(
-            '暫停的時間不算進這次運動。距離與強度可以在結束後補上。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('暫停的時間不算進這次運動。', style: AppTextStyles.caption),
         ),
         Gutter(
           child: Center(

@@ -20,12 +20,12 @@ class ExportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '匯出', subtitle: '檔案存在這台裝置'),
+      appBar: const PageAppBar(title: '匯出'),
       children: [
         Gutter(
           child: NavCard(
             title: '完整封存（JSON）',
-            subtitle: '帶 schema 版本，可完整還原',
+            subtitle: '可完整還原',
             onTap: () => _export(
               context,
               (backend) async =>

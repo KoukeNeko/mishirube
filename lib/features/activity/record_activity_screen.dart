@@ -157,13 +157,13 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     final metres = _distanceMetres;
     if (text.isNotEmpty &&
         (metres == null || metres < 0 || metres > _maxDistanceKm * 1000)) {
-      setState(() => _error = '距離請輸入 0 – ${_maxDistanceKm.round()} 公里之間。');
+      setState(() => _error = '距離請輸入 0 – ${_maxDistanceKm.round()} km 之間。');
       return;
     }
     final climb = _elevationMetres;
     if (_elevation.text.trim().isNotEmpty &&
         (climb == null || climb < 0 || climb > _maxElevationM)) {
-      setState(() => _error = '爬升請輸入 0 – ${_maxElevationM.round()} 公尺之間。');
+      setState(() => _error = '爬升請輸入 0 – ${_maxElevationM.round()} m 之間。');
       return;
     }
     final store = AppStoreScope.read(context);
@@ -211,10 +211,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       distanceMeters: _distanceMetres,
     ).pace;
     return DetailPage(
-      appBar: PageAppBar(
-        title: widget.activity == null ? '記錄運動' : '編輯運動',
-        subtitle: widget.activity == null ? '事後補記' : '修正已經記下的內容',
-      ),
+      appBar: PageAppBar(title: widget.activity == null ? '記錄運動' : '編輯運動'),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(
@@ -337,10 +334,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           ),
         ),
         Gutter(
-          child: const Text(
-            '1 很輕鬆、10 拼盡全力。這是你的主觀感受，沒有標準答案。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('1 很輕鬆、10 拼盡全力。', style: AppTextStyles.caption),
         ),
         Gutter(child: const SectionLabel('備註（選填）')),
         Gutter(

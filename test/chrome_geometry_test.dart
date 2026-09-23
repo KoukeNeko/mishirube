@@ -127,8 +127,8 @@ void main() {
 
       final header = tester.getRect(_header);
       expect(header.height, phoneTopInset + toolbar.height);
-      // The first item is the local-first banner.
-      final firstItem = tester.getRect(find.byType(InfoBanner).first);
+      // The first item is the first section's label.
+      final firstItem = tester.getRect(find.byType(SectionLabel).first);
       expect(firstItem.top - header.bottom, 16);
       await disposeTree(tester);
     },

@@ -88,11 +88,7 @@ class SearchFieldButton extends StatelessWidget {
 }
 
 class SearchField extends StatelessWidget {
-  const SearchField({
-    super.key,
-    required this.controller,
-    this.hint = '搜尋動作、別名或器材⋯⋯',
-  });
+  const SearchField({super.key, required this.controller, required this.hint});
 
   final TextEditingController controller;
   final String hint;

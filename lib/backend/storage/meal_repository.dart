@@ -433,7 +433,7 @@ class MealTimelineSource extends TimelineSource {
             ).isBefore(endOfYesterday),
           ),
         ))
-          day: '飲食紀錄不完整',
+          day: '有未記錄的餐',
     };
   }
 

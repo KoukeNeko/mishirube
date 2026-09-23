@@ -195,7 +195,7 @@ class _LogScreenState extends State<LogScreen> {
           child: EmptyStateCard(
             icon: Icons.event_busy_outlined,
             title: '${_month.month} 月沒有紀錄',
-            message: '換一個月份看看，或從「+」新增一筆紀錄。',
+            message: '從「+」新增紀錄。',
           ),
         )
       else if (days.isEmpty)
@@ -244,9 +244,6 @@ class _LogScreenState extends State<LogScreen> {
               trailing: summary,
             ),
           ),
-      Gutter(
-        child: const Text('尚未發生的日期不顯示 0 或 --。', style: AppTextStyles.caption),
-      ),
     ];
   }
 }

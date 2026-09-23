@@ -27,8 +27,8 @@ class OnboardingScreen extends StatelessWidget {
       appBar: isEditing
           ? const PageAppBar(title: '模組')
           : const PageAppBar(
-              title: '你想用它做什麼？',
-              subtitle: '選幾個都可以。只有你選的模組會被啟用，之後在「我的」隨時能改。',
+              title: '模組',
+              subtitle: '可複選，之後在「我的 > 模組」修改。',
               leading: AppBarLeading.none,
             ),
       footer: BottomActionBar(

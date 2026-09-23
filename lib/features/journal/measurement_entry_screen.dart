@@ -65,7 +65,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       if (value == null || value < _minCm || value > _maxCm) {
         setState(
           () => _error =
-              '${site.label}請輸入 ${_minCm.round()} – ${_maxCm.round()} 公分之間。',
+              '${site.label}請輸入 ${_minCm.round()} – ${_maxCm.round()} cm 之間。',
         );
         return;
       }
@@ -114,7 +114,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: widget.editing?.site.label ?? '圍度',
-        subtitle: widget.editing == null ? '填你有量的部位就好' : '修改這筆紀錄',
+        subtitle: widget.editing == null ? '填你有量的部位就好' : null,
       ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
@@ -130,13 +130,6 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             ],
           ),
         ),
-        if (widget.editing == null)
-          Gutter(
-            child: const Text(
-              '空白的部位不會被記錄，也不會被當成沒有變化。',
-              style: AppTextStyles.caption,
-            ),
-          ),
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

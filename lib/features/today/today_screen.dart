@@ -25,7 +25,7 @@ class TodayScreen extends StatelessWidget {
     final phaseLabel = isWorkoutActive ? '19:42' : store.phase.label;
     return CollapsingPage(
       title: '今天',
-      subtitle: '9 月 19 日・週六・$phaseLabel',
+      subtitle: '9 月 19 日（週六）· $phaseLabel',
       leading: const GoalEntryButton(),
       actions: [
         // Mock-only: the date button walks through the day's scenarios.
@@ -129,8 +129,7 @@ class TodayScreen extends StatelessWidget {
       Gutter(
         child: NextActionCard(
           title: '記錄晚餐',
-          message: '訓練後還沒有任何飲食紀錄',
-          buttonLabel: '記錄晚餐',
+          message: '訓練後還沒有記錄任何一餐',
           onTap: () => pushPage(context, const FoodSearchScreen()),
         ),
       ),

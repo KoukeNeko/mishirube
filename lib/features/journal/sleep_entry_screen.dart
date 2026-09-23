@@ -63,10 +63,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(
-        title: '睡眠',
-        subtitle: widget.editing == null ? '手動補記' : '修改這筆紀錄',
-      ),
+      appBar: PageAppBar(title: '睡眠'),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(
@@ -93,7 +90,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
             ),
           ),
         ),
-        Gutter(child: const SectionLabel('品質（可略過）')),
+        Gutter(child: const SectionLabel('品質（選填）')),
         Gutter(
           child: ChipWrap(
             options: const [1, 2, 3, 4, 5],
@@ -104,12 +101,6 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
             // valid answer.
             onTap: (score) =>
                 setState(() => _score = _score == score ? null : score),
-          ),
-        ),
-        Gutter(
-          child: const Text(
-            '沒有評分也可以，趨勢只會用到有紀錄的夜晚。',
-            style: AppTextStyles.caption,
           ),
         ),
       ],

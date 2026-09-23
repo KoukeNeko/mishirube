@@ -28,7 +28,7 @@ class AiProposalScreen extends StatelessWidget {
 
   void _accept(BuildContext context) {
     AppStoreScope.read(context).applyAiProposal();
-    showToast(context, '已套用到「下肢 A」，已完成的訓練紀錄沒有被改動', kind: ToastKind.success);
+    showToast(context, '已套用到「下肢 A」', kind: ToastKind.success);
     Navigator.of(context).pop();
   }
 
@@ -71,7 +71,7 @@ class AiProposalScreen extends StatelessWidget {
                 Text('理由', style: AppTextStyles.overline),
                 SizedBox(height: AppSpacing.xs),
                 Text(
-                  '每週有效組數從 12 降到 8，依你設定的「肌力維持」目標，'
+                  '每週工作組數從 12 降到 8，依你設定的「肌力維持」目標，'
                   '訓練引擎建議的區間是 10 – 12 組。',
                   style: AppTextStyles.body,
                 ),
@@ -82,7 +82,6 @@ class AiProposalScreen extends StatelessWidget {
                   children: [
                     TagChip(label: '送出的資料：近 4 週訓練紀錄'),
                     TagChip(label: '模型：自架端點'),
-                    TagChip(label: '不會改到訓練紀錄', tone: TagTone.training),
                   ],
                 ),
               ],

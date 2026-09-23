@@ -39,6 +39,7 @@ class DialogAction {
     this.tone = DialogTone.normal,
     this.icon,
     this.detail,
+    this.isSelected = false,
   });
 
   final String label;
@@ -52,6 +53,10 @@ class DialogAction {
   /// A quieter second line under the label, for choices that differ in
   /// more than their name.
   final String? detail;
+
+  /// Marks the current answer in a list of choices with a check, so the
+  /// choice is not told by colour alone.
+  final bool isSelected;
 
   Color get _color => switch (tone) {
     DialogTone.primary => AppColors.training,
@@ -239,7 +244,7 @@ class _ActionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = action._color;
-    return DecoratedBox(
+    final row = DecoratedBox(
       decoration: BoxDecoration(
         border: isCentered
             ? null
@@ -294,12 +299,17 @@ class _ActionRow extends StatelessWidget {
                           ),
                         ),
                 ),
+                if (action.isSelected) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  Icon(Icons.check, size: _iconSize, color: color),
+                ],
               ],
             ),
           ),
         ),
       ),
     );
+    return action.isSelected ? Semantics(selected: true, child: row) : row;
   }
 }
 

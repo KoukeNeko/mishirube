@@ -1684,7 +1684,7 @@ void main() {
       expect(today.entries.map((e) => e.title), ['早餐', '體重 72.4 kg']);
 
       final yesterday = september.days[1];
-      expect(yesterday.warning, '飲食紀錄不完整');
+      expect(yesterday.warning, '有未記錄的餐');
       expect(yesterday.entries.first.title, '精力 3 / 5');
 
       expect(september.dots[16], [
@@ -1711,7 +1711,7 @@ void main() {
           .entries
           .first;
       expect(entry.category, RecordCategory.training);
-      expect(entry.detail, '4 組 · 58 分 · 槓鈴深蹲 100 kg × 5 為新紀錄');
+      expect(entry.detail, '4 組 · 58 分 · 槓鈴深蹲 100 kg × 5 為個人紀錄');
     });
   });
 

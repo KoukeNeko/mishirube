@@ -137,9 +137,8 @@ class ActiveWorkoutScreen extends StatelessWidget {
         ),
       ),
       footer: BottomActionBar(
-        caption: '離線也會立刻存進這台裝置',
         child: isWorkoutDone
-            ? PrimaryButton(label: '結束並查看摘要', onPressed: () => _finish(context))
+            ? PrimaryButton(label: '結束並儲存', onPressed: () => _finish(context))
             : PrimaryButton(
                 label: '完成這一組',
                 onPressed: () => _completeSet(context, workout),
@@ -297,7 +296,7 @@ class _SuggestionCard extends StatelessWidget {
     final firstSet = exercise.sets.first;
     return InfoBanner(
       message:
-          '上次 9/16 做了 ${formatWeight(firstSet.previousWeightKg)} kg × '
+          '上次 9 月 16 日做了 ${formatWeight(firstSet.previousWeightKg)} kg × '
           '${firstSet.previousReps}${firstSet.rir == null ? '' : '，RIR ${firstSet.rir}'}。'
           '建議這次 ${formatWeight(firstSet.weightKg)} kg × ${firstSet.reps}。',
     );
@@ -316,9 +315,9 @@ class _SuggestionTags extends StatelessWidget {
         const TagChip(label: '線性進階 +2.5 kg', tone: TagTone.training),
         const TagChip(label: '估計最大重量 114 kg'),
         ChipButton(
-          label: '這個建議怎麼來的',
+          label: '依據',
           tone: TagTone.training,
-          onTap: () => showToast(context, '由訓練引擎 v0.4 依上次重量、RIR 與線性進階規則計算。'),
+          onTap: () => showToast(context, '依上次重量、RIR 與線性進階規則計算。'),
         ),
       ],
     );
@@ -371,7 +370,7 @@ Future<void> _editNotes(BuildContext context) async {
   );
   if (notes == null || !context.mounted) return;
   store.setWorkoutNotes(notes.trim());
-  showToast(context, notes.trim().isEmpty ? '已清除備註' : '已存入備註');
+  showToast(context, notes.trim().isEmpty ? '已清除備註' : '已更新備註');
 }
 
 /// Adds a set and says what it starts at, since the weight is a default.

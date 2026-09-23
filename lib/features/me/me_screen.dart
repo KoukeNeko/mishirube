@@ -22,14 +22,7 @@ class MeScreen extends StatelessWidget {
     return CollapsingPage(
       title: '我的',
       children: [
-        Gutter(
-          child: const InfoBanner(
-            tone: CardTone.training,
-            icon: Icons.shield_outlined,
-            message: '紀錄只存在這台裝置。沒有帳號，也沒有伺服器。',
-          ),
-        ),
-        Gutter(child: const SectionLabel('產品怎麼為我工作')),
+        Gutter(child: const SectionLabel('功能')),
         Gutter(
           child: GroupedCard(
             children: [

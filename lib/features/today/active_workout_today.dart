@@ -54,7 +54,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
             ProgressLine(progress: progress),
             const SizedBox(height: AppSpacing.md),
             PrimaryButton(
-              label: '返回訓練',
+              label: '回到訓練',
               onPressed: () => pushPage(context, const ActiveWorkoutScreen()),
             ),
           ],
@@ -66,7 +66,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('本次到目前', style: AppTextStyles.overline),
+            const Text('本次', style: AppTextStyles.overline),
             const SizedBox(height: AppSpacing.sm),
             StatRow(
               stats: [
@@ -78,7 +78,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
                 ),
                 StatBlock(
                   value: '${workout.personalRecords}',
-                  label: '新的個人紀錄',
+                  label: '個人紀錄',
                   valueColor: AppColors.training,
                 ),
               ],
@@ -111,6 +111,5 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         trailing: '6 小時 52 分',
       ),
     ),
-    Gutter(child: const Text('訓練結束前，洞察與建議暫停顯示。', style: AppTextStyles.caption)),
   ];
 }

@@ -72,8 +72,8 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           Gutter(
             child: const EmptyStateCard(
               icon: Icons.no_meals_outlined,
-              title: '這一天沒有飲食紀錄',
-              message: '沒有記錄不代表沒有吃。這一天的數字是空的，不是零。',
+              title: '這一天沒有記錄任何一餐',
+              message: '這一天的數字是空的，不是零。',
             ),
           ),
         for (final meal in meals)
@@ -87,7 +87,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
             ),
           ),
         if (summariseFluid(meals) case final fluid when fluid.hasRecords) ...[
-          Gutter(child: const SectionLabel('液體')),
+          Gutter(child: const SectionLabel('飲品')),
           Gutter(child: _FluidLogged(fluid: fluid)),
         ],
         if (store.estimatedCaffeineMg case final caffeine when caffeine >= 1)
@@ -222,8 +222,6 @@ class _DishRow extends StatelessWidget {
                 tone: TagTone.nutrition,
                 onTap: onSplit,
               ),
-              const SizedBox(width: AppSpacing.sm),
-              const Text('展開只改變顯示', style: AppTextStyles.caption),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -303,7 +301,7 @@ class _NutrientTotals extends StatelessWidget {
         ),
         if (partial.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
-          Text('「至少」代表這一天有幾餐沒有記錄這項營養素，不是它們等於 0。', style: AppTextStyles.caption),
+          Text('「至少」：有幾餐沒有記錄這項營養素。', style: AppTextStyles.caption),
         ],
       ],
     );
@@ -337,7 +335,7 @@ class _FluidLogged extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              '${fluid.drinkCount} 筆以毫升記錄，只計入記錄到的。',
+              '${fluid.drinkCount} 筆',
               textAlign: TextAlign.right,
               style: AppTextStyles.caption,
             ),
@@ -377,8 +375,7 @@ class _CaffeineEstimate extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '依半衰期 $caffeineHalfLifeHours 小時推算，不是量測值。'
-            '每個人的代謝速度差異很大。',
+            '依半衰期 $caffeineHalfLifeHours 小時推算，不是量測值。',
             style: AppTextStyles.caption,
           ),
         ],

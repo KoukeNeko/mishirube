@@ -46,11 +46,8 @@ class GoalScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('建立自己的活動節奏', style: AppTextStyles.cardTitle),
-            const SizedBox(height: AppSpacing.xs),
             const Text(
-              '設定一週想要有幾個運動日，之後這裡會用你的紀錄顯示每週進度。'
-              '訓練與運動都算，同一天做幾件事都算一天。',
+              '設定一週想要有幾個運動日。訓練與運動都算，同一天做幾件事都算一個運動日。',
               style: AppTextStyles.body,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -122,14 +119,14 @@ class GoalScreen extends StatelessWidget {
   }
 
   static String _headline(WeekProgress week) {
-    if (week.isPaused) return '目標暫停中';
+    if (week.isPaused) return '已暫停';
     if (week.isMet) return '本週目標已完成';
     return '本週運動';
   }
 
   static String _detail(WeekProgress week) {
     if (week.isPaused) return '這一週不會累積，也不會中斷連續達標';
-    if (week.isMet) return '${week.activeDays} 個運動日 · 休息也是訓練的一部分';
+    if (week.isMet) return '${week.activeDays} 個運動日';
     return '還差 ${week.remaining} 個運動日';
   }
 }
@@ -155,7 +152,7 @@ class _StreakCard extends StatelessWidget {
             Text(
               streak.previous > 0
                   ? '上次連續達標 ${streak.previous} 週，最佳 ${streak.best} 週'
-                  : '達成第一週的目標之後，這裡會開始累積',
+                  : '達成一週目標後開始累積',
               style: AppTextStyles.caption,
             ),
           ],
@@ -322,8 +319,8 @@ class _WeekResult extends StatelessWidget {
     };
     return Semantics(
       label: week.isPaused
-          ? '這週暫停'
-          : '這週 ${week.activeDays} / ${week.targetDays} 個運動日',
+          ? '已暫停'
+          : '${week.activeDays} / ${week.targetDays} 個運動日',
       excludeSemantics: true,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

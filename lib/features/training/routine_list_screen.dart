@@ -12,7 +12,7 @@ class RoutineListScreen extends StatelessWidget {
   Future<void> _create(BuildContext context) async {
     final name = await showTextDialog(
       context,
-      title: '新增訓練',
+      title: '新增訓練模板',
       hint: '例如：上肢 B',
       confirmLabel: '建立',
     );
@@ -26,17 +26,16 @@ class RoutineListScreen extends StatelessWidget {
     final store = AppStoreScope.of(context);
     final selected = store.routine;
     return DetailPage(
-      appBar: const PageAppBar(title: '所有訓練', subtitle: '選一份作為接下來的訓練'),
+      appBar: const PageAppBar(title: '訓練模板', subtitle: '選一份作為接下來的訓練'),
       children: [
-        Gutter(child: const SectionLabel('訓練模板')),
         if (store.routines.isEmpty)
           Gutter(
             child: EmptyStateCard(
               icon: Icons.list_alt_outlined,
               title: '還沒有訓練模板',
-              message: '模板是計畫，不是紀錄——建立或刪除它都不會動到練過的紀錄。',
+              message: '模板是計畫，不是紀錄。',
               action: PrimaryButton(
-                label: '新增訓練',
+                label: '新增訓練模板',
                 onPressed: () => _create(context),
               ),
             ),
@@ -66,12 +65,9 @@ class RoutineListScreen extends StatelessWidget {
             ),
           ),
         Gutter(
-          child: DashedActionCard(label: '新增訓練', onTap: () => _create(context)),
-        ),
-        Gutter(
-          child: const Text(
-            '刪除一份訓練不會動到已完成的訓練紀錄。',
-            style: AppTextStyles.caption,
+          child: DashedActionCard(
+            label: '新增訓練模板',
+            onTap: () => _create(context),
           ),
         ),
       ],

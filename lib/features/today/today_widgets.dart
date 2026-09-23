@@ -494,13 +494,11 @@ class NextActionCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    required this.buttonLabel,
     required this.onTap,
   });
 
   final String title;
   final String message;
-  final String buttonLabel;
   final VoidCallback onTap;
 
   @override
@@ -516,11 +514,7 @@ class NextActionCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxs),
           Text(message, style: AppTextStyles.caption.copyWith(fontSize: 14)),
           const SizedBox(height: AppSpacing.md),
-          NutritionButton(
-            label: buttonLabel,
-            icon: Icons.photo_camera_outlined,
-            onPressed: onTap,
-          ),
+          NutritionButton(label: '搜尋', icon: Icons.search, onPressed: onTap),
         ],
       ),
     );
@@ -573,7 +567,7 @@ class CompletedWorkoutCard extends StatelessWidget {
               ),
               StatBlock(
                 value: '${session?.personalRecords ?? 1}',
-                label: '新紀錄',
+                label: '個人紀錄',
                 valueColor: AppColors.training,
               ),
             ],

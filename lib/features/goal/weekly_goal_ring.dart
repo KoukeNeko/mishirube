@@ -33,7 +33,7 @@ class WeeklyGoalRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = target <= 0 ? 0.0 : (value / target).clamp(0.0, 1.0);
     return Semantics(
-      label: isPaused ? '本週目標已暫停' : '本週 $value / $target 個運動日',
+      label: isPaused ? '本週已暫停' : '本週 $value / $target 個運動日',
       excludeSemantics: true,
       child: SizedBox.square(
         dimension: size,

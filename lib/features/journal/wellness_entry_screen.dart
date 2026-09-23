@@ -57,8 +57,8 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
   Widget build(BuildContext context) {
     return DetailPage(
       appBar: widget.editing == null
-          ? const PageAppBar(title: '今天的狀態', subtitle: '心情、精力與症狀')
-          : PageAppBar(title: _kind.label, subtitle: '修改這筆紀錄'),
+          ? const PageAppBar(title: '心情、精力、症狀')
+          : PageAppBar(title: _kind.label),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         if (widget.editing == null)
@@ -89,15 +89,9 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
             onTap: (score) => setState(() => _score = score),
           ),
         ),
-        Gutter(child: const SectionLabel('備註（可略過）')),
+        Gutter(child: const SectionLabel('備註（選填）')),
         Gutter(
           child: AppTextField(controller: _note, hint: '例如：久坐一整天，下背有點緊'),
-        ),
-        Gutter(
-          child: const Text(
-            '狀態紀錄用來對照訓練與飲食，不會被評價成好壞。',
-            style: AppTextStyles.caption,
-          ),
         ),
       ],
     );

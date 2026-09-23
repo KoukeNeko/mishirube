@@ -122,12 +122,6 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
             ),
           ),
         ),
-        Gutter(
-          child: const Text(
-            '條件之間可以自由組合。肌群只是快捷方式，不是唯一的篩選維度。',
-            style: AppTextStyles.caption,
-          ),
-        ),
       ],
     );
   }

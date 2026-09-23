@@ -332,7 +332,7 @@ class WorkoutTimelineSource extends TimelineSource {
       final previousBest = (rows.first['best'] as num?)?.toDouble();
       if (previousBest != null && best.weightKg > previousBest) {
         return '${session.exercise.name} ${formatWeight(best.weightKg)} kg × '
-            '${best.reps} 為新紀錄';
+            '${best.reps} 為個人紀錄';
       }
     }
     return null;

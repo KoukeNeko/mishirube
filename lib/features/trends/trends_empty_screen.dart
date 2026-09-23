@@ -41,11 +41,8 @@ class TrendsEmptyScreen extends StatelessWidget {
           child: const _ReadyMetric(
             title: '飲食完整天數',
             value: '1/3',
-            caption: '另外 2 天只有部分餐點，不算入平均',
+            caption: '另外 2 天只記錄了部分的餐，不算入平均',
           ),
-        ),
-        Gutter(
-          child: const InfoBanner(message: '資料不夠時只會說「無法可靠判斷」，不會給一個看起來篤定的數字。'),
         ),
       ],
     );

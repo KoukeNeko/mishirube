@@ -109,7 +109,7 @@ void main() {
     final store = AppStore(clock: clock.now);
     await tester.pumpWidget(MishirubeApp(store: store));
 
-    expect(find.text('你想用它做什麼？'), findsWidgets);
+    expect(find.text('模組'), findsWidgets);
     await _tapText(tester, '繼續');
 
     expect(find.text('今天'), findsWidgets);
@@ -119,7 +119,7 @@ void main() {
 
     await _tapText(tester, '完成這一組');
     expect(find.text('休息中'), findsOneWidget);
-    expect(find.text('新紀錄'), findsOneWidget);
+    expect(find.text('個人紀錄'), findsOneWidget);
 
     await _tapText(tester, '跳過休息');
     expect(store.activeWorkout!.completedSets, 1);
@@ -638,11 +638,11 @@ void main() {
     await pumpScreen(tester, const RoutineDetailScreen(), store: store);
     final before = store.routine.name;
 
-    await tester.tap(find.bySemanticsLabel('所有訓練'));
+    await tester.tap(find.bySemanticsLabel('所有訓練模板'));
     await tester.pumpAndSettle();
     expect(find.text(before), findsWidgets);
 
-    await _tapText(tester, '新增訓練');
+    await _tapText(tester, '新增訓練模板');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, '上肢 B');
     await tester.tap(find.text('建立'));
@@ -877,9 +877,9 @@ void main() {
     await _openFromHost(tester, const FoodSearchScreen(), store);
     final before = store.todayKcal;
 
-    expect(find.text('還沒有存過東西'), findsOneWidget);
+    expect(find.text('還沒有存過食物'), findsOneWidget);
 
-    await _tapText(tester, '新增食物或飲品');
+    await _tapText(tester, '新增食物');
     await tester.enterText(find.byType(AppTextField).first, '雞胸肉');
     // The serving amount sits beside the unit chips.
     await tester.enterText(find.byType(AppTextField).at(2), '100');
@@ -909,7 +909,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await _openFromHost(tester, const FoodSearchScreen(), store);
 
-    await _tapText(tester, '新增食物或飲品');
+    await _tapText(tester, '新增食物');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(AppTextField).first, '無糖紅茶');
     await tester.enterText(find.byType(AppTextField).at(2), '600');
@@ -950,13 +950,12 @@ void main() {
         of: find.byType(FoodRow),
         matching: find.text(food),
       );
-      // Lazy lists build a row only once it is near the screen.
-      if (rows.evaluate().isEmpty) {
-        await tester.dragUntilVisible(
-          rows,
-          find.byType(CustomScrollView).first,
-          _scrollStep,
-        );
+      // Lazy lists build a row only once it is near the screen. The food
+      // can come into view under two sections at once, which
+      // dragUntilVisible refuses, so scroll by hand.
+      while (rows.evaluate().isEmpty) {
+        await tester.drag(find.byType(CustomScrollView).first, _scrollStep);
+        await tester.pump();
       }
       final row = rows.first;
       await Scrollable.ensureVisible(tester.element(row), alignment: 0.5);
@@ -1053,7 +1052,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('手動輸入'), findsOneWidget, reason: 'where it came from');
 
-    await _tapText(tester, '修改');
+    await _tapText(tester, '編輯');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '80.4');
     await _tapText(tester, '儲存');
@@ -1182,7 +1181,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(
-      find.text('回去挑選'),
+      find.text('繼續選擇'),
       findsOneWidget,
       reason: 'emptying the plate is not the same as leaving it',
     );
@@ -1197,7 +1196,7 @@ void main() {
     await tester.tap(find.byTooltip('移除「星巴克 那堤 Tall」'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('回去挑選'));
+    await tester.tap(find.text('繼續選擇'));
     await tester.pumpAndSettle();
     expect(find.text('摩卡'), findsOneWidget, reason: 'back on the menu');
     expect(find.text('記錄 1 項'), findsNothing);
@@ -1339,7 +1338,7 @@ void main() {
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
     final before = store.todayMeals.length;
 
-    await _tapText(tester, '新增食物或飲品');
+    await _tapText(tester, '新增食物');
     await tester.enterText(find.byType(AppTextField).first, '燕麥');
     await tester.enterText(find.byType(AppTextField).at(2), '40');
     await _enterBeside(tester, '熱量', '150');
@@ -1361,7 +1360,7 @@ void main() {
     final before = store.todayKcal;
     final saved = store.searchFoods('').length;
 
-    await _tapText(tester, '快速記錄一次');
+    await _tapText(tester, '快速記錄');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(AppTextField).first, '同事帶的蛋糕');
     await _enterBeside(tester, '熱量', '320');

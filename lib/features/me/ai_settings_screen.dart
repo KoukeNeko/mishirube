@@ -127,7 +127,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
           title: '在瀏覽器登入',
           message:
               '到 ${prompt.verificationUri} 輸入代碼 ${prompt.userCode}，'
-              '用你的公司或學校帳號登入。完成後這裡會自己接上。',
+              '用你的公司或學校帳號登入。完成後自動連接。',
           actions: [
             DialogAction(
               label: '複製代碼',
@@ -189,7 +189,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
         actions: [
           DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
           DialogAction(
-            label: '撤回',
+            label: '撤回同意',
             tone: DialogTone.destructive,
             onTap: () {
               store.setCloudConsent(false);
@@ -277,7 +277,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                           subtitle: _isSigningIn
                               ? '等待你在瀏覽器完成登入…'
                               : hasKey
-                              ? '點一下重新登入'
+                              ? '重新登入'
                               : '用公司或學校帳號登入',
                           onTap: _isSigningIn || store.aiClientId.isEmpty
                               ? null
@@ -302,8 +302,8 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                         ),
                       if (store.hasCloudConsent)
                         NavRow(
-                          title: '已同意送出文字',
-                          subtitle: '撤回',
+                          title: '撤回同意',
+                          subtitle: '目前已同意送出文字',
                           onTap: _revokeConsent,
                         ),
                     ],
@@ -403,6 +403,6 @@ String aiFailureMessage(AiFailure failure) => switch (failure) {
   AiFailure.rateLimited => '請求太頻繁或額度用完，稍後再試。',
   AiFailure.network => '連不上網路，稍後再試。',
   AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
-  AiFailure.unreadable => '看不懂 AI 的回答，再試一次。',
+  AiFailure.unreadable => 'AI 的回覆無法解讀，再試一次。',
   AiFailure.noText => '照片裡讀不到文字，換一張清楚的正面照片。',
 };

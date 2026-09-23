@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
-import '../../backend/engines/training_metrics.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_proposal_screen.dart';
 
@@ -20,7 +19,7 @@ class InsightDetailScreen extends StatelessWidget {
     final report = store.volumeReport(exerciseId: exerciseId);
     if (report == null) {
       return const DetailPage(
-        appBar: PageAppBar(title: '訓練量', subtitle: '洞察'),
+        appBar: PageAppBar(title: '訓練量', subtitle: '值得注意'),
         children: [Gutter(child: InfoBanner(message: '這段期間還沒有足夠的訓練紀錄可以說明。'))],
       );
     }
@@ -31,16 +30,16 @@ class InsightDetailScreen extends StatelessWidget {
     return DetailPage(
       appBar: PageAppBar(
         title: '${report.exercise.name}的訓練量',
-        subtitle: '洞察 · 近 $weeks 週',
+        subtitle: '值得注意 · 近 $weeks 週',
       ),
       children: [
         Gutter(
           child: _Section(
-            label: '結論',
+            label: '值得注意',
             child: Text(
               report.insight?.statement ??
-                  '每週有效組數維持在 $last 組，估計最大重量 '
-                      '${estimate == null ? '尚無法估計' : '約 ${estimate.round()} 公斤'}。',
+                  '每週工作組數維持在 $last 組，估計最大重量 '
+                      '${estimate == null ? '尚無法估計' : '約 ${estimate.round()} kg'}。',
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 20,
@@ -57,7 +56,7 @@ class InsightDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '每週有效組數（不含熱身組），取自 ${report.sessionCount} 次訓練紀錄。',
+                  '每週工作組數，取自 ${report.sessionCount} 次訓練紀錄。',
                   style: AppTextStyles.body,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -73,7 +72,7 @@ class InsightDetailScreen extends StatelessWidget {
               labels: [
                 '${report.sessionCount} 次訓練皆有紀錄',
                 '重量與次數為手動輸入',
-                if (estimate != null) '最大重量為 Epley 公式估計，非實測',
+                if (estimate != null) 'Epley 估計，非實測',
               ],
             ),
           ),
@@ -107,7 +106,7 @@ class InsightDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   last < first
-                      ? '要維持肌力、減少疲勞，目前的組數合理。要繼續進步，每週組數拉回 $first 組左右。'
+                      ? '每週組數比這段期間開始時少。要繼續進步，拉回 $first 組左右。'
                       : '目前的組數穩定。要繼續進步，小幅增加每週組數或重量。',
                   style: AppTextStyles.body,
                 ),
@@ -121,13 +120,7 @@ class InsightDetailScreen extends StatelessWidget {
             ),
           ),
         ),
-        Gutter(
-          child: Text(
-            '由訓練引擎 v$trainingMetricsVersion 計算，同樣的資料得到同樣的結果。'
-            '這是訓練紀錄的描述，不是醫療建議。',
-            style: AppTextStyles.caption,
-          ),
-        ),
+        Gutter(child: Text('這是訓練紀錄的描述，不是醫療建議。', style: AppTextStyles.caption)),
         Gutter(
           child: LinkText(
             label: '查看這段期間的原始紀錄',

@@ -112,7 +112,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
         Gutter(
           child: AppTextField(controller: _name, hint: '例如：午餐'),
         ),
-        Gutter(child: const SectionLabel('這是哪一餐（可不選）')),
+        Gutter(child: const SectionLabel('餐次（選填）')),
         Gutter(
           // No suggestion here: the user already had their chance to
           // label it, and an offer on a past meal would be the app
@@ -131,7 +131,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
           child: GroupedCard(
             children: [
               _MacroRow(label: '蛋白質', controller: _protein),
-              _MacroRow(label: '碳水化合物', controller: _carbs),
+              _MacroRow(label: '碳水', controller: _carbs),
               _MacroRow(label: '脂肪', controller: _fat),
               _MacroRow(label: '纖維', controller: _fibre),
             ],

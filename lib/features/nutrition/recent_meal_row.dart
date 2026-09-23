@@ -68,7 +68,7 @@ class RecentMealRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           SquareIconButton(
             icon: meal.meal.isFavorite ? Icons.star : Icons.star_border,
-            tooltip: meal.meal.isFavorite ? '從常用移除' : '加入常用',
+            tooltip: meal.meal.isFavorite ? '取消收藏' : '加入收藏',
             color: meal.meal.isFavorite
                 ? AppColors.nutrition
                 : AppColors.textSecondary,

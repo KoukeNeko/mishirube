@@ -130,7 +130,7 @@ class _HomeShellState extends State<HomeShell> {
           case ActiveActivity():
             store.discardActivity();
         }
-        showToast(context, '已放棄這次$label，沒有存成紀錄');
+        showToast(context, '已放棄這次$label');
       case _FinishChoice.finish:
         switch (session) {
           case ActiveWorkout():

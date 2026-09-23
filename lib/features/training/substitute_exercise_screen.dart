@@ -103,12 +103,6 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
                   '沒有可靠的重量換算：保留組數、次數與 RIR，重量重新設定。',
             ),
           ),
-        Gutter(
-          child: const Text(
-            '已完成的訓練紀錄不會被改寫，修改模板只影響之後的訓練。',
-            style: AppTextStyles.caption,
-          ),
-        ),
       ],
     );
   }

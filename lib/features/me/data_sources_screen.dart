@@ -25,7 +25,7 @@ class DataSourcesScreen extends StatelessWidget {
     final imports = store.imports;
     final catalogues = store.catalogues;
     return DetailPage(
-      appBar: const PageAppBar(title: '資料來源', subtitle: '每筆紀錄都記得它從哪裡來'),
+      appBar: const PageAppBar(title: '資料來源'),
       children: [
         Gutter(child: const SectionLabel('你輸入的')),
         Gutter(
@@ -38,7 +38,7 @@ class DataSourcesScreen extends StatelessWidget {
           ),
           Gutter(
             child: const Text(
-              '第一次開啟時放進來的範例，讓畫面不是空的。它們不是你的紀錄。',
+              '第一次開啟時放進來的範例，不是你的紀錄。',
               style: AppTextStyles.caption,
             ),
           ),
@@ -167,7 +167,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
         message: '每次打開 App 讀取最近 30 天。中斷連接後紀錄保留。',
         actions: [
           DialogAction(
-            label: '立即同步',
+            label: '立即讀取',
             onTap: () {
               Navigator.of(context).pop();
               _run(store.syncHealth);
@@ -221,9 +221,9 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                     subtitle: switch ((_isWorking, store.isHealthConnected)) {
                       (true, _) => '讀取中…',
                       (_, false) => '允許讀取',
-                      (_, true) when store.healthSyncFailed => '上次自動同步失敗',
+                      (_, true) when store.healthSyncFailed => '上次自動讀取失敗',
                       (_, true) when synced != null =>
-                        '上次同步 ${formatDate(synced)} '
+                        '上次讀取 ${formatDate(synced)} '
                             '${formatTimeOfDay(synced)}',
                       (_, true) => '已連接',
                     },

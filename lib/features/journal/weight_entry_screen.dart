@@ -56,7 +56,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   void _save() {
     final kilograms = double.tryParse(_weight.text.trim());
     if (kilograms == null || kilograms < _minKg || kilograms > _maxKg) {
-      setState(() => _error = '請輸入 $_minKg – $_maxKg 之間的公斤數。');
+      setState(() => _error = '請輸入 $_minKg – $_maxKg kg 之間的數值。');
       return;
     }
     final store = AppStoreScope.read(context);
@@ -88,10 +88,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(
-        title: '體重',
-        subtitle: widget.editing == null ? '手動輸入' : '修改這筆紀錄',
-      ),
+      appBar: PageAppBar(title: '體重'),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(
@@ -134,12 +131,6 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
           ),
         if (_lastLabel case final label?)
           Gutter(child: Text(label, style: AppTextStyles.caption)),
-        Gutter(
-          child: const Text(
-            '體重每天會有波動，趨勢看的是一段時間的方向，不是單日數字。',
-            style: AppTextStyles.caption,
-          ),
-        ),
       ],
     );
   }

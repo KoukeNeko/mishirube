@@ -301,7 +301,7 @@ void main() {
       );
 
       final insight = weightTrendInsight(trend, dayCount: 28)!;
-      expect(insight.statement, contains('每週約 0.4 公斤的速度下降'));
+      expect(insight.statement, contains('每週約 0.4 kg 的速度下降'));
       expect(insight.evidence, contains('資料不完整，只有 4 / 28 天有紀錄'));
     });
 

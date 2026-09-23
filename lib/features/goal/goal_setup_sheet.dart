@@ -53,7 +53,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
             onTap: () => Navigator.of(context).pop(const Duration(days: 7)),
           ),
           DialogAction(
-            label: '直到我恢復',
+            label: '直到手動恢復',
             onTap: () => Navigator.of(context).pop(),
           ),
         ],
@@ -87,14 +87,13 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
             onTap: (days) => setState(() => _days = days),
           ),
         ),
-        Gutter(
-          child: Text(
-            overview.weeks.any((week) => week.activeDays > 0)
-                ? '過去四週平均：每週 ${overview.suggestedDays} 天'
-                : '先從容易維持的目標開始，之後隨時可以調整。',
-            style: AppTextStyles.caption,
+        if (overview.weeks.any((week) => week.activeDays > 0))
+          Gutter(
+            child: Text(
+              '過去四週平均：每週 ${overview.suggestedDays} 天',
+              style: AppTextStyles.caption,
+            ),
           ),
-        ),
         if (overview.hasGoal) ...[
           Gutter(child: const SectionLabel('從什麼時候開始')),
           Gutter(
@@ -102,13 +101,13 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
               children: [
                 RadioRow(
                   title: '下週起',
-                  subtitle: '這週仍用原本的目標計算',
+                  subtitle: '本週仍用原本的目標計算',
                   isSelected: !_applyThisWeek,
                   onTap: () => setState(() => _applyThisWeek = false),
                 ),
                 RadioRow(
                   title: '本週就套用',
-                  subtitle: '重新計算這一週',
+                  subtitle: '重新計算本週',
                   isSelected: _applyThisWeek,
                   onTap: () => setState(() => _applyThisWeek = true),
                 ),
@@ -116,14 +115,14 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
             ),
           ),
         ],
-        Gutter(child: const SectionLabel('休息')),
+        Gutter(child: const SectionLabel('暫停或關閉')),
         Gutter(
           child: GroupedCard(
             children: [
               if (overview.isPaused)
                 NavRow(
                   title: '恢復每週目標',
-                  subtitle: '目前暫停中',
+                  subtitle: '已暫停',
                   onTap: () {
                     store.resumeGoal();
                     Navigator.of(context).pop();
@@ -134,7 +133,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                 NavRow(title: '暫停每週目標', subtitle: '生病、受傷或旅行時', onTap: _pause),
               NavRow(
                 title: '關閉每週目標',
-                subtitle: '紀錄照記，只是不再顯示目標與連續達標',
+                subtitle: '不再顯示目標與連續達標，紀錄不受影響',
                 onTap: () {
                   store.setGoalEnabled(false);
                   Navigator.of(context).pop();
@@ -142,12 +141,6 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
                 },
               ),
             ],
-          ),
-        ),
-        Gutter(
-          child: const Text(
-            '休息也是訓練的一部分。暫停的那幾週不會被當成失敗。',
-            style: AppTextStyles.caption,
           ),
         ),
       ],

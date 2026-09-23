@@ -209,7 +209,7 @@ abstract final class DemoRoutines {
     name: '下肢 A',
     programName: '12 週肌力計畫',
     estimatedMinutes: 52,
-    lastCompletedLabel: '上次 9/16 完成',
+    lastCompletedLabel: '上次 9 月 16 日完成',
     exercises: [
       PlannedExercise(
         exercise: DemoExercises.backSquat,

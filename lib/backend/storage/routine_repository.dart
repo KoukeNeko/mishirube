@@ -77,7 +77,7 @@ class RoutineRepository {
     final last = rows.first['last'] as int?;
     if (last == null) return '還沒完成過';
     final date = DateTime.fromMillisecondsSinceEpoch(last);
-    return '上次 ${date.month}/${date.day} 完成';
+    return '上次 ${date.month} 月 ${date.day} 日完成';
   }
 
   /// Replaces the stored plan with [routine]. [action] names the change in

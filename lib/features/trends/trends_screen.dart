@@ -41,7 +41,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     final activity = store.activitySummary(window: _range.window);
     return CollapsingPage(
       title: '趨勢',
-      subtitle: '${_date(overview.from)} – ${_date(overview.to)}・訓練與身體變化',
+      subtitle: '${_date(overview.from)} – ${_date(overview.to)}',
       compactBar: CompactBarBehavior.none,
       // The range drives every chart below, so it stays pinned.
       pinned: Gutter(
@@ -54,12 +54,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
       ),
       children: [
         if (overview.insights.isEmpty)
-          Gutter(child: const InfoBanner(message: '紀錄還不夠多，累積之後這裡會說明看得出什麼。'))
+          Gutter(child: const InfoBanner(message: '紀錄還不夠多。'))
         else
           for (final insight in overview.insights)
             Gutter(
               child: InsightCard(
-                title: '結論',
                 insight: insight,
                 onTap: insight == volume?.insight
                     ? () => pushPage(
@@ -84,11 +83,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
             style: AppTextStyles.caption,
           ),
         ),
-        Gutter(child: const SectionLabel('看得更細')),
+        Gutter(child: const SectionLabel('詳細圖表')),
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '訓練的詳細圖表',
+            title: '訓練',
             showChevron: true,
             onTap: () => pushPage(
               context,
@@ -99,7 +98,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
         Gutter(
           child: AccentRow(
             color: AppColors.nutrition,
-            title: '飲食的詳細圖表',
+            title: '飲食',
             showChevron: true,
             onTap: () => pushPage(context, const DailyNutritionScreen()),
           ),
@@ -107,7 +106,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
         Gutter(
           child: AccentRow(
             color: AppColors.body,
-            title: '身體的詳細圖表',
+            title: '身體',
             showChevron: true,
             onTap: () => pushPage(context, const TrendsEmptyScreen()),
           ),
@@ -116,7 +115,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
     );
   }
 
-  static String _date(DateTime day) => '${day.month} / ${day.day}';
+  static String _date(DateTime day) => '${day.month} 月 ${day.day} 日';
 }
 
 class _SummaryGrid extends StatelessWidget {
@@ -202,7 +201,7 @@ class _SummaryGrid extends StatelessWidget {
                 value: foodDays == 0
                     ? '—'
                     : '${overview.foodDaysComplete}/$foodDays',
-                caption: foodDays == 0 ? '尚未記錄飲食' : '其餘只有部分餐點',
+                caption: foodDays == 0 ? '尚未記錄飲食' : '其餘天數只記錄了部分的餐',
               ),
             ),
           ],
@@ -218,8 +217,8 @@ String _activityCaption(ActivitySummary activity) {
   if (!activity.hasRecords) return '尚未記錄運動';
   final minutes = activity.minutesThisWeek;
   final typical = activity.typicalWeeklyMinutes;
-  if (typical == null) return '$minutes 分鐘';
-  return '$minutes 分鐘 · 平常 $typical 分';
+  if (typical == null) return '$minutes 分';
+  return '$minutes 分 · 平常 $typical 分';
 }
 
 class _SummaryTile extends StatelessWidget {

@@ -279,7 +279,9 @@ class _SearchRow extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Row(
         children: [
-          Expanded(child: SearchField(controller: controller)),
+          Expanded(
+            child: SearchField(controller: controller, hint: '搜尋動作、別名或器材…'),
+          ),
           const SizedBox(width: AppSpacing.sm),
           Badge(
             isLabelVisible: filterCount > 0,
@@ -566,9 +568,6 @@ class _NoResults extends StatelessWidget {
         DashedActionCard(
           label: query.isEmpty ? '建立自訂動作' : '建立「$query」',
           onTap: onCreate,
-        ),
-        const Center(
-          child: Text('搜尋支援中文、英文與別名。離線也能找。', style: AppTextStyles.caption),
         ),
       ],
     );

@@ -30,7 +30,7 @@ Insight? weightTrendInsight(MeasurementTrend trend, {required int dayCount}) {
   final direction = perWeek < 0 ? '下降' : '上升';
   final statement = size < _steadyWeightKgPerWeek
       ? '體重在這段期間大致持平，沒有明顯變化。'
-      : '體重以每週約 ${size.toStringAsFixed(1)} 公斤的速度$direction。';
+      : '體重以每週約 ${size.toStringAsFixed(1)} kg 的速度$direction。';
   return Insight(
     statement: statement,
     evidence: [
@@ -54,7 +54,7 @@ Insight? weeklyTrainingInsight(
       : '本週已完成 $thisWeek 次訓練，距離每週 $goalPerWeek 次還差 ${goalPerWeek - thisWeek} 次。';
   return Insight(
     statement: statement,
-    evidence: ['依據 本週訓練紀錄', '每週目標 $goalPerWeek 次'],
+    evidence: ['依據本週訓練紀錄', '每週目標 $goalPerWeek 次'],
   );
 }
 

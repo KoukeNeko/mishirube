@@ -73,7 +73,7 @@ void main() {
     await _pumpApp(tester);
     final semantics = tester.ensureSemantics();
 
-    expect(find.text('9 月 19 日・週六・早上'), findsOneWidget);
+    expect(find.text('9 月 19 日（週六）· 早上'), findsOneWidget);
     expect(_opacityOf(tester, _largeTitle), 1);
     expect(
       _headerGlass,
@@ -149,7 +149,7 @@ void main() {
 
     expect(tester.getRect(_largeTitle).left, AppSpacing.screenGutter);
     expect(
-      tester.getRect(find.text('9 月 19 日・週六・早上')).left,
+      tester.getRect(find.text('9 月 19 日（週六）· 早上')).left,
       AppSpacing.screenGutter,
     );
     await disposeTree(tester);

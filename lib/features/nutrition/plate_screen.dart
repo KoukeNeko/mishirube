@@ -102,7 +102,7 @@ class _PlateScreenState extends State<PlateScreen> {
       ),
       footer: plate.isEmpty
           ? SecondaryButton(
-              label: '回去挑選',
+              label: '繼續選擇',
               onPressed: () => Navigator.of(context).pop(),
             )
           : PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: _log),
@@ -145,7 +145,7 @@ class _PlateScreenState extends State<PlateScreen> {
           ),
         Gutter(
           child: Text(
-            plate.isEmpty ? '這一餐目前沒有東西。' : '點一項可以改份量，往左滑可以移除。',
+            plate.isEmpty ? '這一餐沒有項目。' : '點一項可以改份量，往左滑可以移除。',
             style: AppTextStyles.caption,
           ),
         ),

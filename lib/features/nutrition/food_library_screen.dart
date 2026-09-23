@@ -100,7 +100,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
               if (food.isBuiltIn) food.brand,
           }.toList();
     return PageScaffold(
-      appBar: const PageAppBar(title: '食物庫', subtitle: '自己的食物與內建品牌'),
+      appBar: const PageAppBar(title: '食物庫'),
       pinned: Gutter(
         child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
       ),

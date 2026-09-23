@@ -39,12 +39,12 @@ enum DayPhase {
 }
 
 enum AppModule {
-  nutrition('記錄飲食', '一餐、料理、成分與營養'),
-  weight('管理體重', '體重趨勢與攝取的關係'),
-  training('重量訓練', '動作、訓練、計畫與訓練紀錄'),
+  nutrition('飲食', '一餐、料理、成分與營養'),
+  weight('體重', '體重與圍度'),
+  training('訓練', '動作、訓練模板與訓練紀錄'),
   activity('運動', '跑步、健走、騎車、球類、瑜伽'),
-  sleep('改善睡眠', '睡眠時間與品質'),
-  wellness('觀察身體狀況', '心情、精力與症狀日誌'),
+  sleep('睡眠', '睡眠時間與品質'),
+  wellness('心情、精力、症狀', '一天的狀態日誌'),
   notes('筆記', '和任何一天或一筆紀錄關聯');
 
   const AppModule(this.title, this.description);

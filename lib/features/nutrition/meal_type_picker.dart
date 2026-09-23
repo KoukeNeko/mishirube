@@ -76,19 +76,20 @@ Future<(MealType?,)?> showMealTypeDialog(
   context,
   AppDialog(
     title: '這是哪一餐',
-    message: '可以不指定。時間已經記下了，餐次只是你怎麼稱呼它。',
     isChoiceList: true,
     actions: [
       for (final type in MealType.values)
         DialogAction(
           icon: mealTypeIcon(type),
-          label: type == selected ? '${type.label} ✓' : type.label,
+          label: type.label,
+          isSelected: type == selected,
           tone: type == selected ? DialogTone.primary : DialogTone.normal,
           onTap: () => Navigator.of(context).pop((type,)),
         ),
       DialogAction(
         icon: Icons.schedule,
-        label: selected == null ? '不指定 ✓' : '不指定',
+        label: '不指定',
+        isSelected: selected == null,
         tone: selected == null ? DialogTone.primary : DialogTone.normal,
         onTap: () => Navigator.of(context).pop((null,)),
       ),

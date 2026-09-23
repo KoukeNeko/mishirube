@@ -57,7 +57,7 @@ class ActivityDetailScreen extends StatelessWidget {
                   valueColor: AppColors.activity,
                 ),
                 if (activity.distanceMeters case final metres?)
-                  StatBlock(value: formatWeight(metres / 1000), label: '公里'),
+                  StatBlock(value: formatWeight(metres / 1000), label: 'km'),
                 if (activity.elevationGainMeters case final climb?)
                   StatBlock(value: '${climb.round()}', label: '爬升 m'),
                 if (pace != null)
@@ -88,11 +88,7 @@ class ActivityDetailScreen extends StatelessWidget {
                   RecordActivityScreen(activity: activity),
                 ),
               ),
-              NavRow(
-                title: '刪除這筆紀錄',
-                subtitle: '可以在提示中復原',
-                onTap: () => _delete(context, activity),
-              ),
+              NavRow(title: '刪除這筆紀錄', onTap: () => _delete(context, activity)),
             ],
           ),
         ),

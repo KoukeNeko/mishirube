@@ -276,10 +276,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
-    AppStoreScope.read(
-      context,
-    ).setMealFavorite(recent.meal, isFavorite: isFavorite);
-    showToast(context, isFavorite ? '已加入常用' : '已從常用移除');
+    AppStoreScope.read(context)
+        .setMealFavorite(recent.meal, isFavorite: isFavorite);
+    showToast(context, isFavorite ? '已加入收藏' : '已取消收藏');
   }
 
   @override
@@ -289,7 +288,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     return PageScaffold(
       appBar: PageAppBar(
         title: _mealType?.label ?? '飲食',
-        subtitle: '吃的和喝的',
         actions: [
           HeaderAction(
             icon: Icons.expand_more,
@@ -302,7 +300,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       // Searching is the main job here, so the field stays pinned under
       // the bar the way the log's view switch does.
       pinned: Gutter(
-        child: SearchField(controller: _query, hint: '搜尋，或打品牌名稱'),
+        child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
       ),
       pinnedHeight: measurePinnedSearchHeight(),
       footer: switch (_plateBar()) {
@@ -365,7 +363,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         // AI to draft. Photo and barcode join them when they are real.
         Gutter(
           child: ButtonPair(
-            secondary: SecondaryButton(label: '快速記錄一次', onPressed: _quickAdd),
+            secondary: SecondaryButton(label: '快速記錄', onPressed: _quickAdd),
             primary: SecondaryButton(
               label: '用一句話記錄',
               icon: Icons.auto_awesome_outlined,
@@ -383,9 +381,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: '還沒有存過東西',
-              message: '把常吃常喝的存起來，下次直接點一下就記好了。',
-              action: PrimaryButton(label: '新增食物或飲品', onPressed: _create),
+              title: '還沒有存過食物',
+              action: PrimaryButton(label: '新增食物', onPressed: _create),
             ),
           ),
       ],
@@ -396,7 +393,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (recent.isEmpty && store.recentMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '還沒有最近吃過的東西。')),
+          Gutter(child: const InfoBanner(message: '還沒有最近吃過的食物。')),
       ],
       _Scope.starred => [
         ..._section('收藏的食物', starred),
@@ -405,7 +402,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (starred.isEmpty && store.favoriteMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '在食物的份量頁按右上的星號，它就會出現在這裡。')),
+          Gutter(child: const InfoBanner(message: '在份量頁按星號收藏。')),
       ],
       _Scope.own => [
         ..._section('自己的', own.toList()),
@@ -414,8 +411,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
               title: '還沒有自己存的食物',
-              message: '存起來的食物只在這台裝置。',
-              action: PrimaryButton(label: '新增食物或飲品', onPressed: _create),
+              action: PrimaryButton(label: '新增食物', onPressed: _create),
             ),
           ),
       ],
@@ -465,8 +461,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           child: EmptyStateCard(
             icon: Icons.search_off,
             title: '沒有符合的項目',
-            message: '這裡只找你自己存過的和內建的品牌，還沒有共用的食物資料庫。',
-            action: PrimaryButton(label: '新增食物或飲品', onPressed: _create),
+            message: '只搜尋自己的食物與內建品牌。',
+            action: PrimaryButton(label: '新增食物', onPressed: _create),
           ),
         )
       else
@@ -474,7 +470,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           child: Row(
             children: [
               const Text('找不到？', style: AppTextStyles.caption),
-              LinkText(label: '新增食物或飲品', onTap: _create),
+              LinkText(label: '新增食物', onTap: _create),
             ],
           ),
         ),

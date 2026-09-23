@@ -29,7 +29,7 @@ class PrivacyScreen extends StatelessWidget {
           child: const InfoBanner(
             tone: CardTone.training,
             icon: Icons.shield_outlined,
-            message: '紀錄只存在這台裝置。沒有帳號，沒有伺服器，也沒有人看得到。',
+            message: '紀錄存在這台裝置。沒有帳號，也沒有伺服器。',
           ),
         ),
         const _Section(
@@ -92,7 +92,7 @@ class PrivacyScreen extends StatelessWidget {
 String _useOf(HealthDataKind kind) => switch (kind) {
   HealthDataKind.sleep => '記成睡眠紀錄',
   HealthDataKind.weight => '記成體重',
-  HealthDataKind.waist => '記成腰圍量測',
+  HealthDataKind.waist => '記成腰圍',
   HealthDataKind.workouts => '記成運動紀錄',
   HealthDataKind.water => '記成喝水',
 };

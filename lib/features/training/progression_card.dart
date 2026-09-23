@@ -132,12 +132,6 @@ class _ProgressionSectionState extends State<ProgressionSection> {
               onSkip: () => setState(() => _answered.add(planned.exercise.id)),
             ),
           ),
-        Gutter(
-          child: const Text(
-            '只看你自己的紀錄：做滿計畫的組數與次數就加一階，連續沒做滿才退一階。',
-            style: AppTextStyles.caption,
-          ),
-        ),
       ],
     );
   }

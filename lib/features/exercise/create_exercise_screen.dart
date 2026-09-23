@@ -129,10 +129,10 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: _editing == null ? '建立自訂動作' : '編輯動作',
-        subtitle: _editing == null ? '只需要四個欄位' : '${_editing!.source.label}動作',
+        subtitle: _editing == null ? null : '${_editing!.source.label}動作',
       ),
       footer: PrimaryButton(
-        label: _editing == null ? '建立並加入' : '儲存變更',
+        label: _editing == null ? '建立並加入' : '儲存',
         onPressed: _name.isEmpty ? null : _submit,
       ),
       children: [
@@ -161,10 +161,7 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
           ),
         ),
         Gutter(
-          child: const Text(
-            '追蹤方式決定歷史怎麼解讀。要改成不相容的方式，必須建立新動作。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('建立後不能改成不相容的追蹤方式。', style: AppTextStyles.caption),
         ),
         Gutter(child: const SectionLabel('主要肌群或動作模式')),
         Gutter(

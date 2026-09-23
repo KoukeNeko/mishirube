@@ -380,7 +380,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: isNew ? '新增食物' : '編輯食物',
-        subtitle: '只存在這台裝置',
         actions: [
           if (isNew && !_isSize)
             HeaderAction(
@@ -404,7 +403,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             )
           : PrimaryButton(
-              label: isNew ? '儲存' : '儲存變更',
+              label: '儲存',
               onPressed: _canSave ? () => _save(logNow: false) : null,
             ),
       children: [
@@ -455,11 +454,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             ),
         ],
-        Gutter(child: const SectionLabel('品牌（沒有就留空）')),
+        Gutter(child: const SectionLabel('品牌（選填）')),
         Gutter(
           child: AppTextField(controller: _brand, hint: '例如：大成'),
         ),
-        Gutter(child: const SectionLabel('這是吃的還是喝的')),
+        Gutter(child: const SectionLabel('食物或飲品')),
         Gutter(
           child: ChipWrap(
             options: ConsumptionKind.values,
@@ -469,12 +468,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ),
         Gutter(
-          child: const Text(
-            '只有標成飲品的才會算進當日液體。湯用毫升記，但它不是飲品。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('只有飲品會算進當日飲品總量，湯不算。', style: AppTextStyles.caption),
         ),
-        Gutter(child: const SectionLabel('一份是多少')),
+        Gutter(child: const SectionLabel('份量')),
         Gutter(
           child: Row(
             children: [
@@ -508,11 +504,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           child: Text(
             _servingUnit.isMeasured
                 ? '記錄時可改份數，或直接填 ${_servingUnit.label}。'
-                : '「份」不是度量，不會換算成公克或毫升。',
+                : '「份」不是度量，不會換算成 g 或 mL。',
             style: AppTextStyles.caption,
           ),
         ),
-        Gutter(child: const SectionLabel('這一份叫什麼（可留空）')),
+        Gutter(child: const SectionLabel('份量名稱（選填）')),
         Gutter(
           child: AppTextField(controller: _serving, hint: '例如：一片'),
         ),
@@ -534,13 +530,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           Gutter(
             child: SecondaryButton(label: '新增杯型', onPressed: _addSize),
           ),
-          Gutter(
-            child: const Text(
-              '每個杯型有自己的數字，大杯不是小杯放大：星巴克美式短杯 98 mg、'
-              '中杯 195 mg，容量只差 1.5 倍。',
-              style: AppTextStyles.caption,
-            ),
-          ),
         ],
         Gutter(child: const SectionLabel('每份營養')),
         Gutter(
@@ -556,7 +545,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           child: _NumberField(label: '脂肪', unit: 'g', field: _fat),
         ),
         Gutter(
-          child: _NumberField(label: '膳食纖維', unit: 'g', field: _fibre),
+          child: _NumberField(label: '纖維', unit: 'g', field: _fibre),
         ),
         for (final nutrient in _labelNutrients)
           Gutter(child: _nutrientField(nutrient)),
@@ -575,10 +564,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
           ),
         Gutter(
-          child: const Text(
-            '留空代表沒有資料，不是 0。包裝上印的 0 g 也只代表低於標示門檻。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('留空代表沒有資料，不是 0。', style: AppTextStyles.caption),
         ),
         Gutter(child: const SectionLabel('咖啡因')),
         Gutter(

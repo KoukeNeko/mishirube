@@ -185,7 +185,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
           Gutter(
             child: Text(
               '數字是 ${draft.provider.label}（${draft.model}）的估計。'
-              '點一項可以改熱量，往左滑可以移除；按下記錄才會存。',
+              '點一項可以改熱量，往左滑可以移除。',
               style: AppTextStyles.caption,
             ),
           ),

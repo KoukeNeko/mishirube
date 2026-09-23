@@ -20,7 +20,7 @@ class MuscleLoadCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (load.isEmpty) {
-      return const InfoBanner(message: '還沒有完成的訓練組數，練過之後這裡會列出各肌群的每週組數。');
+      return const InfoBanner(message: '還沒有完成的工作組。');
     }
     final most = load.first.$2;
     final store = AppStoreScope.of(context);

@@ -71,7 +71,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
                     StatBlock(value: '$totalSets', label: '總組數'),
                     StatBlock(
                       value: '$records',
-                      label: '新紀錄',
+                      label: '個人紀錄',
                       valueColor: AppColors.training,
                     ),
                   ],
@@ -83,7 +83,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
                     style: AppTextStyles.body,
                   ),
                   SizedBox(height: AppSpacing.sm),
-                  TagWrap(labels: ['Epley 公式估計', '非實測']),
+                  TagWrap(labels: ['Epley 估計，非實測']),
                 ],
               ],
             ),

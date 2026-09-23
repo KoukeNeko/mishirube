@@ -70,11 +70,10 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
         Gutter(
           child: InfoBanner(
             message: [
-              '依品牌官網逐筆轉錄，唯讀，不能修改。',
+              '依品牌官網逐筆轉錄，唯讀。',
               if (menu.any((food) => food.valueType == NutrientValueType.max))
                 '數字是品牌依規定公布的最高值，實際可能較低。',
               if (record?.checkedAt case final at?) '查證於 ${formatDate(at)}。',
-              '杯型各自有官方數值，不是按比例換算。',
             ].join(''),
           ),
         ),
@@ -87,10 +86,7 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
           Gutter(child: widget.rowFor(food, _refresh)),
         ],
         Gutter(
-          child: const Text(
-            '收藏某個杯型：進到那一杯的份量頁，按右上的星號。',
-            style: AppTextStyles.caption,
-          ),
+          child: const Text('在杯型的份量頁按星號收藏。', style: AppTextStyles.caption),
         ),
       ],
     );

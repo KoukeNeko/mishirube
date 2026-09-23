@@ -49,7 +49,7 @@ Future<void> showQuickLogMenu(
 }) {
   final route = RawDialogRoute<void>(
     barrierDismissible: true,
-    barrierLabel: '關閉快速記錄',
+    barrierLabel: '關閉新增紀錄',
     // The recessed app carries the dimming.
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),

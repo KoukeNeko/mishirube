@@ -49,7 +49,7 @@ void main() {
 
     _expectFooterReachesBottomEdge(tester, '繼續');
     expect(
-      tester.getRect(find.text('你想用它做什麼？').first).top,
+      tester.getRect(find.text('模組').first).top,
       greaterThanOrEqualTo(phoneTopInset),
     );
     await disposeTree(tester);

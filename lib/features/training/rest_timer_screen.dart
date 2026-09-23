@@ -220,7 +220,7 @@ class _JustCompletedCard extends StatelessWidget {
               ),
               if (isPersonalRecord) ...[
                 const SizedBox(width: AppSpacing.sm),
-                const TagChip(label: '新紀錄', tone: TagTone.solidTraining),
+                const TagChip(label: '個人紀錄', tone: TagTone.solidTraining),
               ],
             ],
           ),

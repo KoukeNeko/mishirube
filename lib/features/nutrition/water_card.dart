@@ -45,7 +45,8 @@ class WaterCard extends StatelessWidget {
           for (final (name, millilitres) in _presets)
             DialogAction(
               icon: Icons.water_drop_outlined,
-              label: millilitres == current ? '$name ✓' : name,
+              label: name,
+              isSelected: millilitres == current,
               detail: '$millilitres mL',
               tone: millilitres == current
                   ? DialogTone.primary
@@ -57,16 +58,16 @@ class WaterCard extends StatelessWidget {
             ),
           DialogAction(
             icon: Icons.edit_outlined,
-            label: isPreset ? '自訂' : '自訂 ✓',
+            label: '自訂',
+            isSelected: !isPreset,
             detail: isPreset ? null : '$current mL',
             tone: isPreset ? DialogTone.normal : DialogTone.primary,
             onTap: () async {
               Navigator.of(context).pop();
               final typed = await showTextDialog(
                 context,
-                title: '一次記多少毫升',
+                title: '一次記多少 mL',
                 initial: '$current',
-                confirmLabel: '好',
               );
               final millilitres = int.tryParse(typed?.trim() ?? '');
               if (millilitres != null && millilitres > 0) {
