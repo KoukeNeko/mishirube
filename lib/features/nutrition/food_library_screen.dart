@@ -8,6 +8,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'food_edit_screen.dart';
+import 'portion_screen.dart';
 
 /// Every food the app knows, for looking after rather than logging: the
 /// user's own, to add and correct, and the chains that ship with the
@@ -71,7 +72,17 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     ),
   );
 
-  /// A shipped drink is read-only, so its row says what it has.
+  /// A shipped drink is read-only: it opens on its figures, after the cup
+  /// when it comes in sizes, with nothing to add it to.
+  Future<void> _openCatalogueFood(FoodItem food) async {
+    final sizes = AppStoreScope.read(context).sizesOf(food.id);
+    final chosen = sizes.isEmpty
+        ? food
+        : await pickCupSize(context, food, sizes);
+    if (chosen == null || !mounted) return;
+    await pushPage<void>(context, PortionScreen(food: chosen, canAdd: false));
+  }
+
   Widget _catalogueRow(FoodItem food) {
     final sizes = AppStoreScope.read(context).sizesOf(food.id).length;
     return AppCard(
@@ -82,6 +93,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
             ? '$sizes 種杯型'
             : '一份 ${food.servingDescription} · '
                   '${formatKcalOrDash(food.kcal)} kcal',
+        onTap: () => _openCatalogueFood(food),
       ),
     );
   }

@@ -24,15 +24,69 @@ Future<FoodPortion?> showPortionScreen(
   PortionScreen(food: food, servings: servings),
 );
 
+/// Which cup of [food]: one row each, with its volume and the figure the
+/// chain actually published, in the app's own dialog rather than a system
+/// sheet. Null when the user backed out.
+Future<FoodItem?> pickCupSize(
+  BuildContext context,
+  FoodItem food,
+  List<FoodItem> sizes,
+) => showAppDialog<FoodItem>(
+  context,
+  AppDialog(
+    title: food.name,
+    message: food.brand.isEmpty ? null : food.brand,
+    isChoiceList: true,
+    actions: [
+      for (final (index, size) in sizes.indexed)
+        DialogAction(
+          icon: _cupIcons[index.clamp(0, _cupIcons.length - 1)],
+          label: size.sizeName,
+          detail: _sizeDetail(size),
+          onTap: () => Navigator.of(context).pop(size),
+        ),
+    ],
+  ),
+);
+
+/// A cup per size, smallest first; sizes past the last share it.
+const _cupIcons = [
+  Icons.coffee_outlined,
+  Icons.local_cafe_outlined,
+  Icons.local_drink_outlined,
+];
+
+/// `354 ml · 咖啡因 150 mg`: the volume, then whichever figure the size
+/// has — energy when it was published, caffeine when that is all there is.
+String _sizeDetail(FoodItem size) {
+  final caffeine = size.nutrients[Nutrient.caffeine];
+  return [
+    size.servingDescription,
+    if (size.kcal != null)
+      '${formatKcal(size.kcal!)} kcal'
+    else if (caffeine != null)
+      '咖啡因 ${formatAmount(caffeine)} mg',
+  ].join(' · ');
+}
+
 /// How much of a food is being logged, and everything that comes to.
 ///
 /// A whole page rather than a sheet: a drink can carry a dozen figures
 /// once brand data is involved, and a half-height sheet either hides
 /// them or makes the page scroll behind the keyboard.
 class PortionScreen extends StatefulWidget {
-  const PortionScreen({super.key, required this.food, this.servings = 1});
+  const PortionScreen({
+    super.key,
+    required this.food,
+    this.servings = 1,
+    this.canAdd = true,
+  });
 
   final FoodItem food;
+
+  /// False when the food is only being looked at, from the food library:
+  /// there is no plate to add it to.
+  final bool canAdd;
 
   /// Where the portion starts.
   final double servings;
@@ -166,12 +220,14 @@ class _PortionScreenState extends State<PortionScreen> {
             ),
         ],
       ),
-      footer: PrimaryButton(
-        label: '加入 ${portion.label}',
-        onPressed: portion.servings > 0
-            ? () => Navigator.of(context).pop(portion)
-            : null,
-      ),
+      footer: widget.canAdd
+          ? PrimaryButton(
+              label: '加入 ${portion.label}',
+              onPressed: portion.servings > 0
+                  ? () => Navigator.of(context).pop(portion)
+                  : null,
+            )
+          : null,
       children: [
         Gutter(
           child: Row(

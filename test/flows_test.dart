@@ -23,6 +23,7 @@ import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
+import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -1252,6 +1253,14 @@ void main() {
     await tester.tap(find.text('星巴克'));
     await tester.pumpAndSettle();
     expect(find.text('那堤'), findsOneWidget);
+
+    // A drink opens on its figures, after its cup, with nothing to add to.
+    await tester.tap(find.text('那堤'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tall'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PortionScreen), findsOneWidget);
+    expect(find.textContaining('加入'), findsNothing);
     await disposeTree(tester);
   });
 

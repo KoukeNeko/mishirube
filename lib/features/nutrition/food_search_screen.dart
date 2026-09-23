@@ -143,7 +143,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final sizes = AppStoreScope.read(context).sizesOf(food.id);
     // A size carries its own figures, so the one chosen is what gets
     // logged — not the food scaled up to it.
-    final chosen = sizes.isEmpty ? food : await _pickSize(food, sizes);
+    final chosen = sizes.isEmpty
+        ? food
+        : await pickCupSize(context, food, sizes);
     if (chosen == null || !mounted) return;
     final portion = await showPortionScreen(
       context,
@@ -221,28 +223,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       },
     );
   }
-
-  /// Which cup: one row each, with its volume and the figure the chain
-  /// actually published, in the app's own dialog rather than a system
-  /// sheet.
-  Future<FoodItem?> _pickSize(FoodItem food, List<FoodItem> sizes) =>
-      showAppDialog<FoodItem>(
-        context,
-        AppDialog(
-          title: food.name,
-          message: food.brand.isEmpty ? null : food.brand,
-          isChoiceList: true,
-          actions: [
-            for (final (index, size) in sizes.indexed)
-              DialogAction(
-                icon: _cupIcons[index.clamp(0, _cupIcons.length - 1)],
-                label: size.sizeName,
-                detail: _sizeDetail(size),
-                onTap: () => Navigator.of(context).pop(size),
-              ),
-          ],
-        ),
-      );
 
   /// A meal drafted by the AI and confirmed on its own page; once it is
   /// logged, this page closes too and offers the undo, as a plate does.
@@ -512,24 +492,4 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     onAdd: () => _logAgain(meal),
     onToggleFavorite: () => _toggleFavorite(meal),
   );
-}
-
-/// A cup per size, smallest first; sizes past the last share it.
-const _cupIcons = [
-  Icons.coffee_outlined,
-  Icons.local_cafe_outlined,
-  Icons.local_drink_outlined,
-];
-
-/// `354 ml · 咖啡因 150 mg`: the volume, then whichever figure the size
-/// has — energy when it was published, caffeine when that is all there is.
-String _sizeDetail(FoodItem size) {
-  final caffeine = size.nutrients[Nutrient.caffeine];
-  return [
-    size.servingDescription,
-    if (size.kcal != null)
-      '${formatKcal(size.kcal!)} kcal'
-    else if (caffeine != null)
-      '咖啡因 ${formatAmount(caffeine)} mg',
-  ].join(' · ');
 }
