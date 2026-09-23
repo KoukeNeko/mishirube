@@ -518,19 +518,31 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         ],
         Gutter(child: const SectionLabel('每份營養')),
         Gutter(
-          child: _NumberField(label: '熱量', unit: 'kcal', field: _kcal),
+          child: _NumberField(
+            label: MacroLabel.energy,
+            unit: 'kcal',
+            field: _kcal,
+          ),
         ),
         Gutter(
-          child: _NumberField(label: '蛋白質', unit: 'g', field: _protein),
+          child: _NumberField(
+            label: MacroLabel.protein,
+            unit: 'g',
+            field: _protein,
+          ),
         ),
         Gutter(
-          child: _NumberField(label: '碳水', unit: 'g', field: _carb),
+          child: _NumberField(label: MacroLabel.carb, unit: 'g', field: _carb),
         ),
         Gutter(
-          child: _NumberField(label: '脂肪', unit: 'g', field: _fat),
+          child: _NumberField(label: MacroLabel.fat, unit: 'g', field: _fat),
         ),
         Gutter(
-          child: _NumberField(label: '纖維', unit: 'g', field: _fibre),
+          child: _NumberField(
+            label: MacroLabel.fibre,
+            unit: 'g',
+            field: _fibre,
+          ),
         ),
         for (final nutrient in _labelNutrients)
           Gutter(child: _nutrientField(nutrient)),

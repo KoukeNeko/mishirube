@@ -486,6 +486,16 @@ enum NutrientUnit {
   final String label;
 }
 
+/// What the figures every food and meal carries are called on screen: in
+/// full, as the nutrition label prints them.
+abstract final class MacroLabel {
+  static const energy = '熱量';
+  static const protein = '蛋白質';
+  static const carb = '碳水化合物';
+  static const fat = '脂肪';
+  static const fibre = '膳食纖維';
+}
+
 /// The nutrients this app can hold beyond the five it counts everywhere.
 ///
 /// Energy, protein, carbohydrate, fat and fibre are not here: they are

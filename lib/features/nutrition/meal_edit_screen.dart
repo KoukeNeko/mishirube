@@ -122,7 +122,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
             onChanged: (type) => setState(() => _mealType = type),
           ),
         ),
-        Gutter(child: const SectionLabel('熱量')),
+        Gutter(child: const SectionLabel(MacroLabel.energy)),
         Gutter(
           child: _NumberField(controller: _kcal, unit: 'kcal'),
         ),
@@ -130,10 +130,10 @@ class _MealEditScreenState extends State<MealEditScreen> {
         Gutter(
           child: GroupedCard(
             children: [
-              _MacroRow(label: '蛋白質', controller: _protein),
-              _MacroRow(label: '碳水', controller: _carbs),
-              _MacroRow(label: '脂肪', controller: _fat),
-              _MacroRow(label: '纖維', controller: _fibre),
+              _MacroRow(label: MacroLabel.protein, controller: _protein),
+              _MacroRow(label: MacroLabel.carb, controller: _carbs),
+              _MacroRow(label: MacroLabel.fat, controller: _fat),
+              _MacroRow(label: MacroLabel.fibre, controller: _fibre),
             ],
           ),
         ),

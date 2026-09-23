@@ -156,5 +156,6 @@ String? _energyWarning(
   final estimate = 4 * protein + 4 * carb + 9 * fat;
   final gap = (kcal - estimate).abs();
   if (gap <= 10 || gap <= 0.15 * kcal) return null;
-  return '熱量和蛋白質、碳水、脂肪算起來差得多，請核對這幾格。';
+  return '${MacroLabel.energy}和${MacroLabel.protein}、${MacroLabel.carb}、'
+      '${MacroLabel.fat}算起來差得多，請核對這幾格。';
 }

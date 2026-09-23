@@ -270,14 +270,26 @@ class _PortionScreenState extends State<PortionScreen> {
             child: Column(
               children: [
                 KeyValueRow(
-                  label: '熱量',
+                  label: MacroLabel.energy,
                   value: '${formatKcalOrDash(portion.kcal)} kcal',
                 ),
-                KeyValueRow(label: '蛋白質', value: _grams(portion.proteinGrams)),
-                KeyValueRow(label: '碳水', value: _grams(portion.carbGrams)),
-                KeyValueRow(label: '脂肪', value: _grams(portion.fatGrams)),
+                KeyValueRow(
+                  label: MacroLabel.protein,
+                  value: _grams(portion.proteinGrams),
+                ),
+                KeyValueRow(
+                  label: MacroLabel.carb,
+                  value: _grams(portion.carbGrams),
+                ),
+                KeyValueRow(
+                  label: MacroLabel.fat,
+                  value: _grams(portion.fatGrams),
+                ),
                 if (portion.fibreGrams != null)
-                  KeyValueRow(label: '纖維', value: _grams(portion.fibreGrams)),
+                  KeyValueRow(
+                    label: MacroLabel.fibre,
+                    value: _grams(portion.fibreGrams),
+                  ),
                 // Everything else the food holds. A brand drink often
                 // knows its caffeine and nothing else, and a screen that
                 // showed only the five would show it as four dashes.

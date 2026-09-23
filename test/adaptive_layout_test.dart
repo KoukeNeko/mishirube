@@ -302,6 +302,22 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the nutrients of the day show their full names on a phone', (
+    tester,
+  ) async {
+    final store = _store()..cyclePhase();
+    await pumpScreen(tester, const TodayScreen(), store: store, window: phone);
+    final line = tester.getSize(find.text('蛋白質')).height;
+    for (final name in ['碳水化合物', '膳食纖維']) {
+      expect(
+        tester.getSize(find.text(name)).height,
+        line,
+        reason: '$name fits on one line',
+      );
+    }
+    await disposeTree(tester);
+  });
+
   testWidgets('key-value rows end every value on the same edge', (
     tester,
   ) async {

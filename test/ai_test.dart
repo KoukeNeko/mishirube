@@ -181,7 +181,7 @@ void main() {
       final offEnergy = parse(
         '{"kcal":500,"protein_g":3,"carb_g":18,"fat_g":4}',
       );
-      expect(offEnergy.warnings.single, contains('蛋白質、碳水、脂肪'));
+      expect(offEnergy.warnings.single, contains('蛋白質、碳水化合物、脂肪'));
     });
 
     test('the photo is read on the phone and only its text is sent', () async {

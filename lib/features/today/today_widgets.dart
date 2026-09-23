@@ -380,37 +380,37 @@ class IntakeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              _MacroTile(
-                label: '蛋白質',
-                grams: summary.proteinGrams,
-                missing: summary.mealsWithoutProtein,
-                records: summary.recordCount,
+          // Two by two: the names are written in full, and four across a
+          // phone leaves too little room for 碳水化合物.
+          for (final (index, pair) in [
+            [
+              (
+                MacroLabel.protein,
+                summary.proteinGrams,
+                summary.mealsWithoutProtein,
               ),
-              const SizedBox(width: AppSpacing.xs),
-              _MacroTile(
-                label: '碳水',
-                grams: summary.carbGrams,
-                missing: summary.mealsWithoutCarb,
-                records: summary.recordCount,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              _MacroTile(
-                label: '脂肪',
-                grams: summary.fatGrams,
-                missing: summary.mealsWithoutFat,
-                records: summary.recordCount,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              _MacroTile(
-                label: '纖維',
-                grams: summary.fibreGrams,
-                missing: summary.mealsWithoutFibre,
-                records: summary.recordCount,
-              ),
+              (MacroLabel.carb, summary.carbGrams, summary.mealsWithoutCarb),
             ],
-          ),
+            [
+              (MacroLabel.fat, summary.fatGrams, summary.mealsWithoutFat),
+              (MacroLabel.fibre, summary.fibreGrams, summary.mealsWithoutFibre),
+            ],
+          ].indexed) ...[
+            if (index > 0) const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                for (final (i, (label, grams, missing)) in pair.indexed) ...[
+                  if (i > 0) const SizedBox(width: AppSpacing.xs),
+                  _MacroTile(
+                    label: label,
+                    grams: grams,
+                    missing: missing,
+                    records: summary.recordCount,
+                  ),
+                ],
+              ],
+            ),
+          ],
           if (_leftOut(summary) case final note?) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(note, style: AppTextStyles.caption),
@@ -428,16 +428,16 @@ class IntakeCard extends StatelessWidget {
   }
 }
 
-/// `蛋白質、碳水有 1 筆紀錄沒有數字，未計入。`, or null when every
+/// `蛋白質、碳水化合物有紀錄沒有數字，未計入。`, or null when every
 /// total is complete. A total that some records lacked is only what the
 /// others add up to, and the tile would not say so on its own.
 String? _leftOut(DaySummary summary) {
   bool partial(int missing) => missing > 0 && missing < summary.recordCount;
   final macros = [
-    if (partial(summary.mealsWithoutProtein)) '蛋白質',
-    if (partial(summary.mealsWithoutCarb)) '碳水',
-    if (partial(summary.mealsWithoutFat)) '脂肪',
-    if (partial(summary.mealsWithoutFibre)) '纖維',
+    if (partial(summary.mealsWithoutProtein)) MacroLabel.protein,
+    if (partial(summary.mealsWithoutCarb)) MacroLabel.carb,
+    if (partial(summary.mealsWithoutFat)) MacroLabel.fat,
+    if (partial(summary.mealsWithoutFibre)) MacroLabel.fibre,
   ];
   if (macros.isEmpty) return null;
   return '${macros.join('、')}有紀錄沒有數字，未計入。';

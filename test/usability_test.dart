@@ -113,7 +113,7 @@ void main() {
 
     await reveal(tester, find.text('蛋白質'));
     expect(
-      find.textContaining('蛋白質、碳水、脂肪、纖維有紀錄沒有數字，未計入'),
+      find.textContaining('蛋白質、碳水化合物、脂肪、膳食纖維有紀錄沒有數字，未計入'),
       findsOneWidget,
       reason:
           'a bar with only its energy printed adds nothing to the '
