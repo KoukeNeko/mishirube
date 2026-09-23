@@ -265,6 +265,18 @@ void main() {
     }
   });
 
+  testWidgets('key-value rows end every value on the same edge', (
+    tester,
+  ) async {
+    await pumpScreen(tester, const PrivacyScreen(), store: _store());
+    final rights = {
+      for (final value in ['只在這台裝置', '可復原', '清除所有紀錄'])
+        tester.getRect(find.text(value)).right,
+    };
+    expect(rights, hasLength(1), reason: 'values align to the trailing edge');
+    await disposeTree(tester);
+  });
+
   testWidgets('a footer button keeps to the readable width', (tester) async {
     await pumpScreen(
       tester,

@@ -321,23 +321,30 @@ class KeyValueRow extends StatelessWidget {
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm + 2,
       ),
-      child: Row(
-        children: [
-          // Either side wraps rather than push the other past the edge.
-          Flexible(child: Text(label, style: AppTextStyles.caption)),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
+      // The label keeps its width, up to half the row, and the value gets
+      // the rest against the trailing edge; either wraps rather than push
+      // the other past the edge.
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: constraints.maxWidth / 2),
+              child: Text(label, style: AppTextStyles.caption),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                value,
+                textAlign: TextAlign.end,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
