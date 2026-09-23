@@ -33,7 +33,9 @@ const foodLabelInstructions = '''
 - kcal_per_100 是「每100公克／毫升」那一欄的熱量，只用來核對；沒有那一欄就填 null。
 - serving_amount 是「每一份量」的數字，serving_unit 是它的單位（公克是 g，毫升是 ml）。
 - 鈉的單位是毫克（mg）；如果標示寫的是公克，換成毫克。
-- 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。
+- 數字照標示寫，保留小數點，例如 6.7、274.4，不要四捨五入。
+- 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。標示上沒有的列（例如沒有膳食纖維那一列）填 null，不要填 0。
+- 照片可能歪斜，一行文字裡的數字可能屬於上一列或下一列。照營養素的順序對齊：每一欄由上到下依序是熱量、蛋白質、脂肪、飽和脂肪、反式脂肪、碳水化合物、糖、鈉；飽和脂肪與反式脂肪不會大於脂肪，糖不會大於碳水化合物。
 - 看不到或不確定的欄位填 null，不要猜。
 - 辨識錯字要照上下文判斷，例如把字母 O 當成 0；但無法判斷就填 null。''';
 
@@ -122,11 +124,11 @@ FoodLabelDraft parseFoodLabel(
     brand: text('brand'),
     servingAmount: unit == null ? null : serving,
     servingUnit: serving == null ? null : unit,
-    kcal: kcal?.round(),
-    proteinGrams: protein?.round(),
-    fatGrams: fat?.round(),
-    carbGrams: carb?.round(),
-    fibreGrams: partOf('fibre_g', carb)?.round(),
+    kcal: kcal,
+    proteinGrams: protein,
+    fatGrams: fat,
+    carbGrams: carb,
+    fibreGrams: partOf('fibre_g', carb),
     nutrients: {
       Nutrient.saturatedFat: ?partOf('saturated_fat_g', fat),
       Nutrient.transFat: ?partOf('trans_fat_g', fat),

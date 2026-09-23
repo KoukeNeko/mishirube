@@ -48,7 +48,7 @@ class _FakeDrafter implements MealDrafter {
   final labels = <String>[];
   String labelAnswer =
       '{"name":"燕麥奶","serving_amount":200,"serving_unit":"ml",'
-      '"kcal":120,"protein_g":2,"fat_g":5,"saturated_fat_g":0.5,'
+      '"kcal":120,"protein_g":2.4,"fat_g":5,"saturated_fat_g":0.5,'
       '"carb_g":16,"sugar_g":7,"sodium_mg":95}';
 
   @override
@@ -168,7 +168,7 @@ void main() {
       );
       expect(draft.servingAmount, 30);
       expect(draft.kcal, 150);
-      expect(draft.proteinGrams, 3);
+      expect(draft.proteinGrams, 3.2, reason: 'the label\'s decimals stay');
       expect(draft.nutrients[Nutrient.sodium], 1200);
       expect(draft.nutrients[Nutrient.sugar], isNull, reason: 'not a figure');
     });
@@ -342,6 +342,16 @@ void main() {
       const Offset(0, -200),
     );
     expect(find.text('120'), findsOneWidget, reason: 'the calories, filled');
+    await tester.dragUntilVisible(
+      find.text('2.4'),
+      find.byType(CustomScrollView).first,
+      const Offset(0, -200),
+    );
+    expect(
+      find.text('2.4'),
+      findsOneWidget,
+      reason: "the protein as the label printed it, not rounded to 2",
+    );
     expect(
       store.backend.nutrition.searchFoods('').length,
       foods,

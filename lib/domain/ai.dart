@@ -205,11 +205,14 @@ class FoodLabelDraft {
   /// The label's 每一份量, in grams or millilitres.
   final double? servingAmount;
   final ServingUnit? servingUnit;
-  final int? kcal;
-  final int? proteinGrams;
-  final int? carbGrams;
-  final int? fatGrams;
-  final int? fibreGrams;
+
+  /// Per serving, as the label prints them, decimals included: the form
+  /// shows what the label said.
+  final double? kcal;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
+  final double? fibreGrams;
 
   /// Saturated and trans fat, sugar, sodium and caffeine, per serving.
   final Nutrients nutrients;
