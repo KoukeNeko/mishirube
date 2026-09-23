@@ -3,6 +3,7 @@ import '../engines/insight_engine.dart';
 import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
 import '../engines/trend_engine.dart';
+import '../engines/workout_review.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
 import '../storage/journal_repository.dart';
@@ -136,6 +137,13 @@ class InsightsService {
         if (_exercises.byId(id) case final exercise?) (exercise, sets),
     ], weeks: (window.inDays / DateTime.daysPerWeek).ceil());
   }
+
+  /// Every exercise's bests, the most recently set first.
+  List<ExerciseBests> personalRecords() => [
+    for (final exercise in _exercises.all())
+      if (exercise.recordCount > 0)
+        ?bestsOf(exercise, _exercises.history(exercise.id)),
+  ]..sort((a, b) => b.latest.compareTo(a.latest));
 
   /// Volume for one exercise, or for the most trained one when [exerciseId]
   /// is null.

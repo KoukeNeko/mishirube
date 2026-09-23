@@ -1,6 +1,7 @@
 import '../../app/view_model.dart';
 import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 
 /// Which body the muscle map is drawn on. It is a choice of drawing,
@@ -31,6 +32,9 @@ class TrendsViewModel extends ViewModel {
     String? exerciseId,
     Duration window = const Duration(days: 28),
   }) => backend.insights.volumeReport(exerciseId: exerciseId, window: window);
+
+  /// Each exercise's heaviest set and best estimated max.
+  List<ExerciseBests> personalRecords() => backend.insights.personalRecords();
 
   /// Exercise other than training over [window].
   ActivitySummary activity(Duration window) =>

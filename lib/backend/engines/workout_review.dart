@@ -112,3 +112,53 @@ WorkoutSet? _record(List<WorkoutSet> sets, List<ExerciseHistoryEntry> earlier) {
   }
   return record;
 }
+
+/// The best an exercise has come to across its finished sessions.
+class ExerciseBests {
+  const ExerciseBests({
+    required this.exercise,
+    required this.heaviest,
+    required this.bestEstimate,
+  });
+
+  final ExerciseDefinition exercise;
+
+  /// The session with the heaviest counted set; the earliest on a tie,
+  /// since that is when it was first lifted.
+  final ExerciseHistoryEntry heaviest;
+
+  /// The session with the highest estimated max; null when no set gave
+  /// an estimate.
+  final ExerciseHistoryEntry? bestEstimate;
+
+  /// When the latest of the two was set.
+  DateTime get latest {
+    final estimate = bestEstimate;
+    return estimate == null || heaviest.date.isAfter(estimate.date)
+        ? heaviest.date
+        : estimate.date;
+  }
+}
+
+/// [exercise]'s bests in [history]; null with no finished session.
+ExerciseBests? bestsOf(ExerciseDefinition exercise, ExerciseHistory history) {
+  ExerciseHistoryEntry? heaviest;
+  ExerciseHistoryEntry? bestEstimate;
+  // Oldest first, so a later equal lift does not take the date.
+  for (final entry in history.recent.reversed) {
+    if (heaviest == null || entry.weightKg > heaviest.weightKg) {
+      heaviest = entry;
+    }
+    final estimate = entry.oneRepMaxKg;
+    if (estimate != null &&
+        (bestEstimate == null || estimate > bestEstimate.oneRepMaxKg!)) {
+      bestEstimate = entry;
+    }
+  }
+  if (heaviest == null) return null;
+  return ExerciseBests(
+    exercise: exercise,
+    heaviest: heaviest,
+    bestEstimate: bestEstimate,
+  );
+}

@@ -842,6 +842,42 @@ void main() {
     });
   });
 
+  group('personal records', () {
+    test('the heaviest lift keeps the day it was first made', () {
+      const squat = ExerciseDefinition(
+        id: 'squat',
+        name: '深蹲',
+        equipment: Equipment.barbell,
+        primaryMuscles: [MuscleGroup.quads],
+        pattern: MovementPattern.squat,
+      );
+      ExerciseHistoryEntry entry(int day, double kg, int reps) =>
+          ExerciseHistoryEntry(
+            date: DateTime(2026, 9, day),
+            weightKg: kg,
+            reps: reps,
+            oneRepMaxKg: estimateOneRepMax(kg, reps),
+          );
+      final bests = bestsOf(
+        squat,
+        ExerciseHistory(
+          // Newest first, as the history is kept.
+          recent: [entry(20, 100, 5), entry(16, 90, 10), entry(12, 100, 3)],
+          sessionCount: 3,
+        ),
+      )!;
+
+      expect(bests.heaviest.date.day, 12);
+      expect(bests.bestEstimate!.date.day, 16, reason: '90 × 10 is 120');
+      expect(bests.latest.day, 16);
+      expect(
+        bestsOf(squat, ExerciseHistory.empty),
+        isNull,
+        reason: 'no session, nothing to show',
+      );
+    });
+  });
+
   group('workout review', () {
     WorkoutSet done(double kg, int reps, {SetType type = SetType.working}) =>
         WorkoutSet(

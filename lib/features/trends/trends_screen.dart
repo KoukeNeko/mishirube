@@ -11,6 +11,7 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'insight_detail_screen.dart';
 import 'muscle_load_card.dart';
+import 'personal_records_screen.dart';
 import 'trends_view_model.dart';
 import 'trends_empty_screen.dart';
 
@@ -101,6 +102,14 @@ class _TrendsScreenState extends State<TrendsScreen> {
               context,
               InsightDetailScreen(exerciseId: volume?.exercise.id),
             ),
+          ),
+        ),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.training,
+            title: '個人紀錄',
+            showChevron: true,
+            onTap: () => pushPage(context, const PersonalRecordsScreen()),
           ),
         ),
         Gutter(
