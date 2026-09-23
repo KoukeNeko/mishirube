@@ -634,6 +634,12 @@ final List<String> _migrations = [
   -- prints different figures for the same drink in each country.
   ALTER TABLE foods ADD COLUMN country TEXT NOT NULL DEFAULT '';
   ''',
+  '''
+  -- An exercise done in turn with the one after it (a superset). Null
+  -- for no, so an archive written before this restores as it was.
+  ALTER TABLE routine_exercises ADD COLUMN joins_next INTEGER;
+  ALTER TABLE workout_exercises ADD COLUMN joins_next INTEGER;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

@@ -59,6 +59,7 @@ class TrainingService {
     return ExerciseSession(
       exercise: planned.exercise,
       isPersonalRecordCandidate: planned.targetWeightKg > previousWeight,
+      joinsNext: planned.joinsNext,
       sets: List.generate(
         planned.sets,
         (_) => WorkoutSet(
@@ -100,14 +101,15 @@ class TrainingService {
     );
   }
 
-  /// Whether [set] of the current exercise beats every earlier session.
-  bool isPersonalRecord(WorkoutSession workout, WorkoutSet set) =>
-      isPersonalRecordSet(
-        set,
-        _exercises
-            .history(workout.currentExercise.exercise.id)
-            .before(workout.startedAt),
-      );
+  /// Whether [set] of [exercise] beats every earlier session of it.
+  bool isPersonalRecord(
+    WorkoutSession workout,
+    ExerciseDefinition exercise,
+    WorkoutSet set,
+  ) => isPersonalRecordSet(
+    set,
+    _exercises.history(exercise.id).before(workout.startedAt),
+  );
 
   /// Marks the next pending set of the current exercise as done and moves
   /// on to the next unfinished exercise once every set is logged.
@@ -116,9 +118,19 @@ class TrainingService {
     final setIndex = exercise.nextSetIndex;
     if (setIndex == null) return null;
     final completed = exercise.sets[setIndex]..isDone = true;
-    if (exercise.isComplete) {
-      final next = workout.exercises.indexWhere((item) => !item.isComplete);
-      if (next >= 0) workout.currentExerciseIndex = next;
+    // Round the superset: the next of its exercises with a set left,
+    // starting after this one; this one again when it is alone.
+    final current = workout.currentExerciseIndex;
+    final superset = workout.supersetOf(current);
+    final next = [
+      ...superset.where((i) => i > current),
+      ...superset.where((i) => i <= current),
+    ].where((i) => !workout.exercises[i].isComplete).firstOrNull;
+    if (next != null) {
+      workout.currentExerciseIndex = next;
+    } else {
+      final after = workout.exercises.indexWhere((item) => !item.isComplete);
+      if (after >= 0) workout.currentExerciseIndex = after;
     }
     _workouts.save(workout, action: 'complete_set');
     return completed;
@@ -322,6 +334,16 @@ class TrainingService {
 
   /// Moves an exercise within the template; the order is the order they
   /// are meant to be done in.
+  /// Makes the planned exercise at [index] a superset with the one after
+  /// it, or ends that.
+  Routine setJoinsNext(Routine routine, int index, {required bool joins}) {
+    final exercises = [...routine.exercises];
+    exercises[index] = exercises[index].copyWith(joinsNext: joins);
+    final updated = routine.copyWith(exercises: exercises);
+    _routines.save(updated, action: joins ? 'join_superset' : 'leave_superset');
+    return updated;
+  }
+
   Routine reorderRoutine(Routine routine, int from, int to) {
     if (from == to) return routine;
     final exercises = [...routine.exercises];

@@ -59,16 +59,24 @@ class ActiveWorkoutScreen extends StatelessWidget {
 
   void _completeSet(BuildContext context, WorkoutSession workout) {
     final store = AppStoreScope.read(context);
-    final exercise = workout.currentExercise;
+    final index = workout.currentExerciseIndex;
+    final exercise = workout.currentExercise.exercise;
     final completedSet = store.completeNextSet();
     if (completedSet == null) return;
-    store.startRest(exercise.exercise);
+    final isRecord = store.isPersonalRecord(exercise, completedSet);
+    // Mid-superset the page has already moved to the next exercise: no
+    // rest until the round is done.
+    if (!workout.restsAfter(index)) {
+      if (isRecord) _sayRecord(context, completedSet);
+      return;
+    }
+    store.startRest(exercise);
     pushPage(
       context,
       RestTimerScreen(
-        exerciseName: exercise.exercise.name,
+        exerciseName: exercise.name,
         completedSet: completedSet,
-        isPersonalRecord: store.isPersonalRecord(completedSet),
+        isPersonalRecord: isRecord,
       ),
     );
   }
@@ -191,19 +199,24 @@ class ActiveWorkoutScreen extends StatelessWidget {
   /// on the page, and says at once when it was a record.
   void _toggleSet(BuildContext context, int index) {
     final store = AppStoreScope.read(context);
-    final exercise = store.activeWorkout!.currentExercise;
+    final workout = store.activeWorkout!;
+    final exercise = workout.currentExercise;
     store.toggleSet(index);
     final set = exercise.sets[index];
     if (!set.isDone) return;
-    store.startRest(exercise.exercise);
-    if (store.isPersonalRecord(set)) {
-      showToast(
-        context,
-        '個人紀錄 · ${formatWeight(set.weightKg)} kg × ${set.reps}',
-        kind: ToastKind.success,
-      );
+    if (workout.restsAfter(workout.currentExerciseIndex)) {
+      store.startRest(exercise.exercise);
+    }
+    if (store.isPersonalRecord(exercise.exercise, set)) {
+      _sayRecord(context, set);
     }
   }
+
+  static void _sayRecord(BuildContext context, WorkoutSet set) => showToast(
+    context,
+    '個人紀錄 · ${formatWeight(set.weightKg)} kg × ${set.reps}',
+    kind: ToastKind.success,
+  );
 
   /// A working set's number among the working sets, since warm-ups come
   /// first; null for any other kind of set.
@@ -346,7 +359,8 @@ class _WorkoutHero extends StatelessWidget {
                   ),
                   Flexible(
                     child: Text(
-                      '動作 ${workout.currentExerciseIndex + 1} / ${workout.exercises.length}',
+                      '動作 ${workout.currentExerciseIndex + 1} / ${workout.exercises.length}'
+                      '${workout.supersetOf(workout.currentExerciseIndex).length > 1 ? ' · 超級組' : ''}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.caption,

@@ -369,11 +369,12 @@ class AppStore extends ChangeNotifier {
     return true;
   }
 
-  /// Whether [set] of the running workout's current exercise beats every
+  /// Whether [set] of [exercise] in the running workout beats every
   /// earlier session of it.
-  bool isPersonalRecord(WorkoutSet set) {
+  bool isPersonalRecord(ExerciseDefinition exercise, WorkoutSet set) {
     final workout = activeWorkout;
-    return workout != null && _backend.training.isPersonalRecord(workout, set);
+    return workout != null &&
+        _backend.training.isPersonalRecord(workout, exercise, set);
   }
 
   /// Marks the next pending set of the current exercise as done.
@@ -503,6 +504,13 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Moves an exercise within the template.
+  /// Makes the planned exercise at [index] a superset with the next one,
+  /// or ends that.
+  void setJoinsNext(int index, {required bool joins}) {
+    _routine = _backend.training.setJoinsNext(_routine, index, joins: joins);
+    notifyListeners();
+  }
+
   void moveRoutineExercise(int from, int to) {
     _routine = _backend.training.reorderRoutine(_routine, from, to);
     notifyListeners();

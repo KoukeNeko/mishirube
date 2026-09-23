@@ -119,6 +119,7 @@ class WorkoutRepository {
             ExerciseSession(
               exercise: exercises(exercise['exercise_id']),
               isPersonalRecordCandidate: exercise['is_pr_candidate'] == 1,
+              joinsNext: exercise['joins_next'] == 1,
               sets: [
                 for (final set in sets)
                   if (set['exercise_position'] == exercise['position'])
@@ -212,13 +213,15 @@ class WorkoutRepository {
       for (final (position, exercise) in workout.exercises.indexed) {
         _db.execute(
           'INSERT INTO workout_exercises (workout_id, position, exercise_id, '
-          'exercise_name, is_pr_candidate) VALUES (?, ?, ?, ?, ?)',
+          'exercise_name, is_pr_candidate, joins_next) '
+          'VALUES (?, ?, ?, ?, ?, ?)',
           [
             workout.id,
             position,
             exercise.exercise.id,
             exercise.exercise.name,
             exercise.isPersonalRecordCandidate ? 1 : 0,
+            exercise.joinsNext ? 1 : null,
           ],
         );
         for (final (setPosition, set) in exercise.sets.indexed) {

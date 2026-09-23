@@ -36,6 +36,7 @@ class RoutineRepository {
             targetWeightKg: (row['target_weight_kg'] as num).toDouble(),
             progressionLabel: row['progression_label'],
             isUnilateral: row['is_unilateral'] == 1,
+            joinsNext: row['joins_next'] == 1,
           ),
       ],
     );
@@ -127,7 +128,7 @@ class RoutineRepository {
         _db.execute(
           'INSERT INTO routine_exercises (routine_id, position, exercise_id, '
           'sets, reps, rir, target_weight_kg, progression_label, '
-          'is_unilateral) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_unilateral, joins_next) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             routine.id,
             position,
@@ -138,6 +139,7 @@ class RoutineRepository {
             planned.targetWeightKg,
             planned.progressionLabel,
             planned.isUnilateral ? 1 : 0,
+            planned.joinsNext ? 1 : null,
           ],
         );
       }

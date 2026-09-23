@@ -2435,6 +2435,8 @@ void main() {
   group('canonical archive', () {
     test('export → restore into an empty store → export is lossless', () {
       final source = AppStore(clock: clock.now, isOnboarded: true)
+        // A superset, in the template and the workout started from it.
+        ..setJoinsNext(0, joins: true)
         ..startWorkout()
         ..completeNextSet()
         ..confirmLunch();
@@ -2478,6 +2480,10 @@ void main() {
       final roundTripped = exportArchive(target.db);
 
       expect(roundTripped, archive);
+      expect(
+        (archive['data'] as Map)['workoutExercises'].first['joinsNext'],
+        isTrue,
+      );
       final restoredStore = AppStore(clock: clock.now, backend: target);
       expect(restoredStore.activeWorkout!.completedSets, 1);
       expect(restoredStore.todayMeals, hasLength(2));

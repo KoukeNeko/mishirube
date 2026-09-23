@@ -49,7 +49,8 @@ void main() {
       store.startWorkout();
       final set = store.completeNextSet()!;
 
-      expect(store.isPersonalRecord(set), isTrue);
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      expect(store.isPersonalRecord(squat, set), isTrue);
       expect(store.workoutReview(store.activeWorkout!).records, 1);
     });
 
@@ -86,6 +87,26 @@ void main() {
       clock.advance(const Duration(minutes: 40));
       store.finishWorkout();
       expect(store.expectedMinutes(store.routine), 40);
+    });
+
+    test('a superset takes a set of each before the rest', () {
+      store.setJoinsNext(0, joins: true);
+      store.startWorkout();
+      final workout = store.activeWorkout!;
+      expect(workout.supersetOf(0), [0, 1]);
+
+      store.completeNextSet();
+      expect(workout.currentExerciseIndex, 1, reason: 'on to its partner');
+      expect(workout.restsAfter(0), isFalse);
+
+      store.completeNextSet();
+      expect(workout.currentExerciseIndex, 0, reason: 'round again');
+      expect(workout.restsAfter(1), isTrue);
+      expect(
+        store.backend.training.active()!.exercises.first.joinsNext,
+        isTrue,
+        reason: 'kept with the workout',
+      );
     });
 
     test('replaceCurrentExercise keeps the prescribed sets', () {

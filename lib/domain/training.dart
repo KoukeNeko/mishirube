@@ -130,6 +130,7 @@ class PlannedExercise {
     required this.progressionLabel,
     this.rir,
     this.isUnilateral = false,
+    this.joinsNext = false,
   });
 
   final ExerciseDefinition exercise;
@@ -140,10 +141,15 @@ class PlannedExercise {
   final int? rir;
   final bool isUnilateral;
 
+  /// Done in turn with the exercise after it, a set of each before the
+  /// rest: a superset. A run of these is one superset.
+  final bool joinsNext;
+
   PlannedExercise copyWith({
     int? sets,
     ExerciseDefinition? exercise,
     double? targetWeightKg,
+    bool? joinsNext,
   }) => PlannedExercise(
     exercise: exercise ?? this.exercise,
     sets: sets ?? this.sets,
@@ -152,6 +158,7 @@ class PlannedExercise {
     progressionLabel: progressionLabel,
     rir: rir,
     isUnilateral: isUnilateral,
+    joinsNext: joinsNext ?? this.joinsNext,
   );
 }
 
@@ -242,11 +249,16 @@ class ExerciseSession {
     required this.exercise,
     required this.sets,
     this.isPersonalRecordCandidate = false,
+    this.joinsNext = false,
   });
 
   final ExerciseDefinition exercise;
   final List<WorkoutSet> sets;
   final bool isPersonalRecordCandidate;
+
+  /// Done in turn with the exercise after it; see
+  /// [PlannedExercise.joinsNext].
+  bool joinsNext;
 
   int get completedSets => sets.where((set) => set.isDone).length;
   bool get isComplete => completedSets == sets.length;
@@ -283,6 +295,28 @@ class WorkoutSession {
   bool get isPaused => pausedAt != null;
 
   ExerciseSession get currentExercise => exercises[currentExerciseIndex];
+
+  /// The exercises done in turn with the one at [index], in order: just
+  /// that one when it is in no superset.
+  List<int> supersetOf(int index) {
+    var first = index;
+    while (first > 0 && exercises[first - 1].joinsNext) {
+      first--;
+    }
+    var last = index;
+    while (last < exercises.length - 1 && exercises[last].joinsNext) {
+      last++;
+    }
+    return [for (var i = first; i <= last; i++) i];
+  }
+
+  /// Whether a set of the exercise at [index] is followed by a rest: it
+  /// is, unless a later exercise of its superset still has a set to do
+  /// this round.
+  bool restsAfter(int index) =>
+      supersetOf(index)
+          .where((other) => other > index)
+          .every((other) => exercises[other].nextSetIndex == null);
 
   int get completedSets =>
       exercises.fold(0, (sum, item) => sum + item.completedSets);

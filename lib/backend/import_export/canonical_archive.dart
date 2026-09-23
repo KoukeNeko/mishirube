@@ -118,6 +118,7 @@ const _tables = [
     _Column('target_weight_kg', _Kind.real),
     _Column('progression_label', _Kind.text),
     _Column('is_unilateral', _Kind.boolean),
+    _Column('joins_next', _Kind.boolean, isNullable: true),
   ], orderBy: 'routine_id, position'),
   _Table('workouts', 'workouts', [
     _Column('id', _Kind.text),
@@ -140,6 +141,7 @@ const _tables = [
     _Column('exercise_id', _Kind.text),
     _Column('exercise_name', _Kind.text),
     _Column('is_pr_candidate', _Kind.boolean),
+    _Column('joins_next', _Kind.boolean, isNullable: true),
   ], orderBy: 'workout_id, position'),
   _Table('workoutSets', 'workout_sets', [
     _Column('workout_id', _Kind.text),

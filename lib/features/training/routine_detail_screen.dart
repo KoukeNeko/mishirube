@@ -140,6 +140,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               onMove: (offset) =>
                   store.moveRoutineExercise(index, index + offset),
               onRemove: () => _remove(store, routine, index),
+              isInSuperset:
+                  planned.joinsNext ||
+                  (index > 0 && routine.exercises[index - 1].joinsNext),
+              onJoinNext: (joins) => store.setJoinsNext(index, joins: joins),
             ),
           ),
         Gutter(
@@ -189,6 +193,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
 enum _PlanEdit {
   up('上移'),
   down('下移'),
+  join('與下一個組成超級組'),
+  leave('解除超級組'),
   remove('移除');
 
   const _PlanEdit(this.label);
@@ -204,12 +210,20 @@ class _PlannedExerciseCard extends StatelessWidget {
     required this.canMoveDown,
     required this.onMove,
     required this.onRemove,
+    required this.isInSuperset,
+    required this.onJoinNext,
   });
 
   final PlannedExercise planned;
   final bool isEditing;
   final bool canMoveUp;
   final bool canMoveDown;
+
+  /// Done in turn with the exercise before or after it.
+  final bool isInSuperset;
+
+  /// Joins the exercise with the next one, or leaves that superset.
+  final ValueChanged<bool> onJoinNext;
 
   /// Moves the exercise by the given offset in the plan.
   final ValueChanged<int> onMove;
@@ -259,13 +273,17 @@ class _PlannedExerciseCard extends StatelessWidget {
                 color: AppColors.training,
               ),
               const SizedBox(width: AppSpacing.xs),
-              Text(
-                planned.progressionLabel,
-                style: const TextStyle(
-                  color: AppColors.training,
-                  fontWeight: FontWeight.w700,
+              Expanded(
+                child: Text(
+                  planned.progressionLabel,
+                  style: const TextStyle(
+                    color: AppColors.training,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
+              if (isInSuperset)
+                const TagChip(label: '超級組', tone: TagTone.training),
             ],
           ),
           if (isEditing) ...[
@@ -274,6 +292,8 @@ class _PlannedExerciseCard extends StatelessWidget {
               options: [
                 if (canMoveUp) _PlanEdit.up,
                 if (canMoveDown) _PlanEdit.down,
+                if (canMoveDown)
+                  planned.joinsNext ? _PlanEdit.leave : _PlanEdit.join,
                 _PlanEdit.remove,
               ],
               labelOf: (edit) => edit.label,
@@ -281,6 +301,8 @@ class _PlannedExerciseCard extends StatelessWidget {
               onTap: (edit) => switch (edit) {
                 _PlanEdit.up => onMove(-1),
                 _PlanEdit.down => onMove(1),
+                _PlanEdit.join => onJoinNext(true),
+                _PlanEdit.leave => onJoinNext(false),
                 _PlanEdit.remove => onRemove(),
               },
             ),

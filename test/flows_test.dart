@@ -790,6 +790,24 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('two planned exercises are joined into a superset', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+
+    await _tapText(tester, '編輯');
+    await _tapText(tester, '與下一個組成超級組');
+    expect(store.routine.exercises.first.joinsNext, isTrue);
+    expect(find.widgetWithText(TagChip, '超級組'), findsNWidgets(2));
+
+    await _tapText(tester, '解除超級組');
+    expect(store.routine.exercises.first.joinsNext, isFalse);
+    expect(find.widgetWithText(TagChip, '超級組'), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('a suggestion says why, and only changes the plan if taken', (
     tester,
   ) async {

@@ -329,6 +329,12 @@
               },
               "isUnilateral": {
                 "type": "boolean"
+              },
+              "joinsNext": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
               }
             }
           }
@@ -471,6 +477,12 @@
               },
               "isPrCandidate": {
                 "type": "boolean"
+              },
+              "joinsNext": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
               }
             }
           }
