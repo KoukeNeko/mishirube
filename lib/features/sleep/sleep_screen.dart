@@ -11,6 +11,7 @@ import '../../shared/widgets/widgets.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
 import 'sleep_stage_chart.dart';
+import 'sleep_view_model.dart';
 
 /// One day's sleep: the night, what each stage took, what was measured
 /// overnight, the day's naps, how nights have gone lately, and which
@@ -29,51 +30,49 @@ class SleepScreen extends StatefulWidget {
 }
 
 class _SleepScreenState extends State<SleepScreen> {
-  late DateTime _day = _dayOf(widget.day ?? AppStoreScope.read(context).now());
+  late final _model = SleepViewModel(
+    AppStoreScope.read(context).backend,
+    day: widget.day,
+  );
 
-  static DateTime _dayOf(DateTime time) =>
-      DateTime(time.year, time.month, time.day);
+  @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
+  }
 
-  void _step(int days) =>
-      setState(() => _day = DateTime(_day.year, _day.month, _day.day + days));
-
-  Future<void> _delete(SleepRecord record) async {
-    final store = AppStoreScope.read(context);
+  void _delete(SleepRecord record) {
     final toast = ToastScope.read(context);
     final id = record.entry.id;
-    store.deleteJournalEntry(id);
+    _model.delete(id);
     toast.showUndo(
       '已刪除${record.entry.kind.label}',
-      onUndo: () => store.restoreJournalEntry(id),
+      onUndo: () => _model.restore(id),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final today = _dayOf(store.now());
-    final sleeps = store.sleepOn(_day);
-    final night = sleeps
-        .where((record) => record.entry.kind == SleepKind.night)
-        .firstOrNull;
-    final naps = [
-      for (final record in sleeps)
-        if (record.entry.kind == SleepKind.nap) record,
-    ];
+  Widget build(BuildContext context) =>
+      ListenableBuilder(listenable: _model, builder: (context, _) => _page());
+
+  Widget _page() {
+    final day = _model.day;
+    final night = _model.night;
+    final naps = _model.naps;
     return DetailPage(
       appBar: PageAppBar(
         title: '睡眠',
-        subtitle: '${_day.month} 月 ${_day.day} 日（週${weekdayLabel(_day)}）',
+        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
         actions: [
           HeaderAction(
             icon: Icons.chevron_left,
             semanticLabel: '前一天',
-            onTap: () => _step(-1),
+            onTap: () => _model.step(-1),
           ),
           HeaderAction(
             icon: Icons.chevron_right,
             semanticLabel: '後一天',
-            onTap: _day.isBefore(today) ? () => _step(1) : null,
+            onTap: _model.canGoForward ? () => _model.step(1) : null,
           ),
         ],
       ),
@@ -120,7 +119,7 @@ class _SleepScreenState extends State<SleepScreen> {
                 ),
             ],
           ),
-        _History(day: _day),
+        _History(model: _model),
         if (night != null) ..._sources(night),
         if (night != null)
           PageSection(
@@ -262,7 +261,7 @@ class _SleepScreenState extends State<SleepScreen> {
                       showChevron: false,
                       onTap: source.source == shown?.source
                           ? null
-                          : () => store.chooseSleepSource(
+                          : () => _model.chooseSource(
                               record.entry.id,
                               source.source,
                             ),
@@ -366,9 +365,9 @@ enum _Range {
 /// average, and when they usually began and ended. Naps are not nights
 /// and time in bed is not sleep, so neither is counted.
 class _History extends StatefulWidget {
-  const _History({required this.day});
+  const _History({required this.model});
 
-  final DateTime day;
+  final SleepViewModel model;
 
   @override
   State<_History> createState() => _HistoryState();
@@ -379,13 +378,9 @@ class _HistoryState extends State<_History> {
 
   @override
   Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final end = widget.day.add(const Duration(days: 1));
+    final end = widget.model.day.add(const Duration(days: 1));
     final start = end.subtract(Duration(days: _range.days));
-    final nights = [
-      for (final night in store.sleepNights(start, end))
-        if (night.measure == SleepMeasure.asleep) night,
-    ];
+    final nights = widget.model.nightsAsleep(_range.days);
     return PageSection(
       label: '趨勢',
       children: [

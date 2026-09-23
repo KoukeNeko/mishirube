@@ -142,17 +142,27 @@ In particular, do not create a parallel version of:
   measuring, never by counting characters. A dialog that asks for one
   line of text is `showTextDialog`, which owns the controller. Do not use
   `AlertDialog` or `showDialog`;
-- state: `AppStore` via `AppStoreScope` (`ChangeNotifier` +
-  `InheritedNotifier`). Do not add Provider, Riverpod, Bloc or similar.
+- state: a feature's screen owns a `ViewModel` (`lib/app/view_model.dart`,
+  a `ChangeNotifier` over `Backend`) in `features/<area>/<area>_view_model.dart`,
+  creates it in its `State`, disposes it with itself and rebuilds with
+  `ListenableBuilder`; widgets below it get the view model passed in. A
+  view model rebuilds on `AppDatabase.changes`, which fires after every
+  committed write, so screens never tell each other what changed.
+  `AppStore` via `AppStoreScope` holds only state of the app as a whole
+  (onboarding, modules, the selected tab, the running session) and the
+  features not yet moved to a view model; do not add feature state to it.
+  Do not add Provider, Riverpod, Bloc or similar.
 
 ## Backend rules
 
-- Keep to the layers: screens talk to `AppStore`, `AppStore` talks to the
-  services in `application/`, and only those (plus import/export and the
-  seed) talk to `storage/`. Engines take domain values and return values;
+- Keep to the layers: screens talk to their view model (or `AppStore`),
+  those talk to the services in `application/`, and only the services
+  (plus import/export and the seed) talk to `storage/`. Engines take domain values and return values;
   they never read the database.
-- The database is the source of truth. `AppStore` keeps what screens show
-  in memory and writes every change through a service in the same call; do
+- The database is the source of truth. A view model or `AppStore` reads
+  what a screen shows from the services and writes every change through a
+  service in the same call. Do not keep a second copy of stored records in
+  memory: at most cache a read until the next `AppDatabase.changes`. Do
   not keep state that must survive a restart only in memory.
 - Every write runs in `AppDatabase.transaction` and records an
   `audit_events` row in that transaction. Never hard delete a record:

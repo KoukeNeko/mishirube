@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'schema.dart';
@@ -92,6 +93,12 @@ class AppDatabase {
   final Database _db;
   final DateTime Function() _clock;
   final _random = Random.secure();
+  final _changes = _Changes();
+
+  /// Fires after every committed write, whoever made it: a view model
+  /// listens here so a meal logged on one screen shows on the next
+  /// without the two knowing about each other.
+  Listenable get changes => _changes;
 
   /// Where the previous, unreadable file was moved to; null on a normal
   /// open.
@@ -138,6 +145,7 @@ class AppDatabase {
     try {
       final result = action();
       _db.execute('COMMIT');
+      _changes.notify();
       return result;
     } catch (_) {
       _db.execute('ROLLBACK');
@@ -216,5 +224,12 @@ class AppDatabase {
     });
   }
 
-  void close() => _db.close();
+  void close() {
+    _changes.dispose();
+    _db.close();
+  }
+}
+
+class _Changes extends ChangeNotifier {
+  void notify() => notifyListeners();
 }

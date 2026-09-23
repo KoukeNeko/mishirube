@@ -11,7 +11,6 @@ import '../backend/engines/progression_engine.dart';
 import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/application/provenance_service.dart';
-import '../backend/application/sleep_service.dart';
 import '../backend/backend.dart';
 import '../backend/engines/caffeine.dart';
 import '../backend/health/health_source.dart';
@@ -108,7 +107,15 @@ class AppStore extends ChangeNotifier {
       _ => null,
     };
     _lastFinishedWorkout = _backend.training.lastFinished();
-    _todayMeals.addAll(_backend.nutrition.mealsOn(now()));
+    _backend.db.changes.addListener(_onRecordsChanged);
+  }
+
+  /// A write from a feature's view model, which this store does not see
+  /// made: what it keeps in memory is read again, and the screens still
+  /// reading from here are rebuilt.
+  void _onRecordsChanged() {
+    _todayMealsRead = null;
+    notifyListeners();
   }
 
   static const _aiProposalSquatSets = 5;
@@ -144,7 +151,19 @@ class AppStore extends ChangeNotifier {
   late Routine _routine;
   ActiveSession? _session;
   WorkoutSession? _lastFinishedWorkout;
-  final List<MealEvent> _todayMeals = [];
+  /// Today's meals as last read, and the day they were read for; read
+  /// again after any write and when the day turns.
+  (DateTime, List<MealEvent>)? _todayMealsRead;
+
+  List<MealEvent> get _todayMeals {
+    final today = now();
+    final day = DateTime(today.year, today.month, today.day);
+    final read = _todayMealsRead;
+    if (read != null && read.$1 == day) return read.$2;
+    final meals = _backend.nutrition.mealsOn(today);
+    _todayMealsRead = (day, meals);
+    return meals;
+  }
   List<ExerciseDefinition> _exercises = const [];
   Map<String, ExerciseDefinition> _exercisesById = const {};
   bool _hasSyncConflict = true;
@@ -315,9 +334,6 @@ class AppStore extends ChangeNotifier {
   /// Saves a correction to a meal.
   void updateMeal(MealEvent previous, MealEvent corrected) {
     _backend.nutrition.edit(previous, corrected);
-    final index = _todayMeals.indexWhere((item) => item.id == corrected.id);
-    if (index >= 0) _todayMeals[index] = corrected;
-    notifyListeners();
   }
 
   /// Starred meals, for logging again without going looking.
@@ -326,11 +342,6 @@ class AppStore extends ChangeNotifier {
   /// Stars or unstars a meal.
   void setMealFavorite(MealEvent meal, {required bool isFavorite}) {
     _backend.nutrition.setFavorite(meal, isFavorite: isFavorite);
-    final index = _todayMeals.indexWhere((item) => item.id == meal.id);
-    if (index >= 0) {
-      _todayMeals[index] = _todayMeals[index].copyWith(isFavorite: isFavorite);
-    }
-    notifyListeners();
   }
 
   /// Records for the log; [month] is its first day.
@@ -350,6 +361,7 @@ class AppStore extends ChangeNotifier {
 
   @override
   void dispose() {
+    _backend.db.changes.removeListener(_onRecordsChanged);
     if (_ownsBackend) _backend.close();
     super.dispose();
   }
@@ -627,11 +639,9 @@ class AppStore extends ChangeNotifier {
   void _ensureLunchLogged() {
     if (isLunchLogged) return;
     final today = now();
-    _todayMeals.add(
-      _backend.nutrition.logMeal(
-        DemoNutrition.lunch,
-        eatenAt: DateTime(today.year, today.month, today.day, 12, 35),
-      ),
+    _backend.nutrition.logMeal(
+      DemoNutrition.lunch,
+      eatenAt: DateTime(today.year, today.month, today.day, 12, 35),
     );
   }
 
@@ -639,7 +649,7 @@ class AppStore extends ChangeNotifier {
   WorkoutSession? workoutById(String id) =>
       _backend.storage.workouts.byId(id, _exercise);
 
-  /// Meals eaten on [day]; today's come from what is already in memory.
+  /// Meals eaten on [day].
   List<MealEvent> mealsOn(DateTime day) =>
       _isToday(day) ? todayMeals : _backend.nutrition.mealsOn(day);
 
@@ -658,7 +668,6 @@ class AppStore extends ChangeNotifier {
   /// Logs [meal] as eaten now.
   MealEvent logMeal(MealEvent meal) {
     final logged = _backend.nutrition.logMeal(meal, eatenAt: now());
-    _todayMeals.add(logged);
     notifyListeners();
     return logged;
   }
@@ -666,7 +675,6 @@ class AppStore extends ChangeNotifier {
   /// Logs a meal eaten before all over again.
   MealEvent copyMeal(MealEvent meal) {
     final logged = _backend.nutrition.copy(meal);
-    _todayMeals.add(logged);
     notifyListeners();
     return logged;
   }
@@ -823,14 +831,12 @@ class AppStore extends ChangeNotifier {
       items,
       mealType: mealType,
     );
-    _todayMeals.addAll(logged);
     notifyListeners();
     return logged;
   }
 
   MealEvent logWater([int? millilitres]) {
     final logged = _backend.nutrition.logWater(millilitres ?? glassMillilitres);
-    _todayMeals.add(logged);
     notifyListeners();
     return logged;
   }
@@ -868,7 +874,6 @@ class AppStore extends ChangeNotifier {
   /// Logs a portion of a saved food as a meal eaten now.
   MealEvent logPortion(FoodPortion portion, {MealType? mealType}) {
     final logged = _backend.nutrition.logPortion(portion, mealType: mealType);
-    _todayMeals.add(logged);
     notifyListeners();
     return logged;
   }
@@ -879,7 +884,6 @@ class AppStore extends ChangeNotifier {
     MealType? mealType,
   }) {
     final logged = _backend.nutrition.logPortions(portions, mealType: mealType);
-    _todayMeals.addAll(logged);
     notifyListeners();
     return logged;
   }
@@ -887,17 +891,11 @@ class AppStore extends ChangeNotifier {
   /// Takes logged meals back out; [restoreMeals] puts them back.
   void deleteMeals(List<MealEvent> meals) {
     _backend.nutrition.deleteMeals(meals.map((meal) => meal.id));
-    final ids = {for (final meal in meals) meal.id};
-    _todayMeals.removeWhere((meal) => ids.contains(meal.id));
     notifyListeners();
   }
 
   void restoreMeals(List<MealEvent> meals) {
     _backend.nutrition.restoreMeals(meals.map((meal) => meal.id));
-    _todayMeals
-      ..clear()
-      ..addAll(_backend.nutrition.mealsOn(now()));
-    notifyListeners();
   }
 
   /// Saved foods eaten recently, each once, with its last portion.
@@ -916,10 +914,7 @@ class AppStore extends ChangeNotifier {
       day: date,
     );
     if (exploded == null) return null;
-    final (meal, snapshot) = exploded;
-    if (_isToday(date)) _todayMeals[snapshot.mealIndex] = meal;
-    notifyListeners();
-    return snapshot;
+    return exploded.$2;
   }
 
   void undoSplit(DishSplitSnapshot snapshot) {
@@ -927,10 +922,6 @@ class AppStore extends ChangeNotifier {
       snapshot,
       current: mealsOn(snapshot.day)[snapshot.mealIndex],
     );
-    if (_isToday(snapshot.day)) {
-      _todayMeals[snapshot.mealIndex] = snapshot.meal;
-    }
-    notifyListeners();
   }
 
   bool _isToday(DateTime day) {
@@ -947,19 +938,6 @@ class AppStore extends ChangeNotifier {
   /// Nights logged in the last few weeks, oldest first.
   List<SleepEntry> get recentSleep =>
       _backend.journal.recentSleep(const Duration(days: 28));
-
-  /// The sleeps logged against [day]: its night first, then its naps.
-  List<SleepRecord> sleepOn(DateTime day) => _backend.sleep.day(day);
-
-  /// Nights (not naps) that ended in `[start, end)`, oldest first.
-  List<SleepEntry> sleepNights(DateTime start, DateTime end) =>
-      _backend.sleep.nights(start, end);
-
-  /// Shows a sleep from another source that recorded it.
-  void chooseSleepSource(String id, String source) {
-    _backend.sleep.chooseSource(id, source);
-    notifyListeners();
-  }
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);
@@ -1202,13 +1180,7 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Water read in may be today's, and today's meals are kept in memory.
-  void _reloadAfterImport() {
-    _todayMeals
-      ..clear()
-      ..addAll(_backend.nutrition.mealsOn(now()));
-    notifyListeners();
-  }
+  void _reloadAfterImport() => notifyListeners();
 
   /// Records a night's sleep.
   void recordSleep(Duration slept, {int? score, String note = ''}) {

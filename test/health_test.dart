@@ -408,7 +408,7 @@ void main() {
       final store = storeWith(health);
       await store.connectHealth();
 
-      final night = store.sleepOn(clock.now()).single;
+      final night = store.backend.sleep.day(clock.now()).single;
       expect(night.entry.sourceName, 'Apple Watch');
       expect(night.entry.duration, const Duration(minutes: 460));
       expect(night.hasStages, isTrue);
@@ -420,9 +420,9 @@ void main() {
 
       // Picked by hand, the ring stays picked when the platform is read
       // again.
-      store.chooseSleepSource(night.entry.id, 'ring');
+      store.backend.sleep.chooseSource(night.entry.id, 'ring');
       await store.syncHealth();
-      final shown = store.sleepOn(clock.now()).single;
+      final shown = store.backend.sleep.day(clock.now()).single;
       expect(shown.entry.sourceName, 'Oura');
       expect(shown.entry.duration, const Duration(minutes: 460));
       expect(shown.hasStages, isFalse, reason: 'the ring did not stage it');
@@ -440,7 +440,9 @@ void main() {
       final store = storeWith(health);
       await store.connectHealth();
 
-      final kinds = [for (final sleep in store.sleepOn(wake)) sleep.entry.kind];
+      final kinds = [
+        for (final sleep in store.backend.sleep.day(wake)) sleep.entry.kind,
+      ];
       expect(kinds, [SleepKind.night, SleepKind.nap]);
     });
 

@@ -129,7 +129,12 @@ void main() {
       expect(lunchAfter.dishes.first.isComposite, isFalse);
 
       store.undoSplit(snapshot);
-      expect(store.todayMeals.last, same(lunchBefore));
+      // Read back from the database, so compared by what it holds.
+      expect(
+        [for (final dish in store.todayMeals.last.dishes) dish.name],
+        [for (final dish in lunchBefore.dishes) dish.name],
+      );
+      expect(store.todayMeals.last.dishes.first.isComposite, isTrue);
     });
 
     test('splitDish ignores dishes without components', () {
