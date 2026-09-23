@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/workout_review.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
@@ -84,6 +85,15 @@ class WorkoutSummaryScreen extends StatelessWidget {
                 ],
               ],
             ),
+          ),
+        ),
+        Gutter(child: const SectionLabel('這次的負荷')),
+        Gutter(
+          child: ChipWrap(
+            options: Workload.values,
+            labelOf: (workload) => workload.label,
+            isSelected: (workload) => workload == workout.workload,
+            onTap: (workload) => store.rateWorkout(workout, workload),
           ),
         ),
         if (records.isNotEmpty) ...[

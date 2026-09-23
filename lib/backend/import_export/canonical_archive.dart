@@ -132,6 +132,7 @@ const _tables = [
     _Column('current_exercise', _Kind.integer),
     _Column('notes', _Kind.text, isNullable: true),
     _Column('fingerprint', _Kind.text, isNullable: true),
+    _Column('workload', _Kind.text, isNullable: true),
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),

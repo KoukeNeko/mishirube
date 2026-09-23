@@ -217,6 +217,19 @@ enum SetType {
   String get kindLabel => label.replaceAll('組', '');
 }
 
+/// How a finished workout felt, as the lifter rates it afterwards. It
+/// feeds the next suggestion: after a workout that was too much, the
+/// weight is not raised.
+enum Workload {
+  tooLight('太輕'),
+  right('剛好'),
+  tooHard('太吃力');
+
+  const Workload(this.label);
+
+  final String label;
+}
+
 /// The actual side of training: what was really lifted today.
 class WorkoutSet {
   WorkoutSet({
@@ -285,6 +298,9 @@ class WorkoutSession {
 
   /// What the user wrote about this workout.
   String? notes;
+
+  /// How it felt, once rated; null until then.
+  Workload? workload;
   final DateTime startedAt;
   final List<ExerciseSession> exercises;
   int currentExerciseIndex = 0;

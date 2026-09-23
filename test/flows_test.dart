@@ -138,6 +138,12 @@ void main() {
     );
     await _tapText(tester, '結束並儲存');
     expect(find.text('回到今天'), findsOneWidget);
+    await _tapText(tester, '太吃力');
+    expect(
+      store.backend.training.lastFinished()!.workload,
+      Workload.tooHard,
+      reason: 'the rating is kept with the workout',
+    );
     expect(store.lastFinishedWorkout, isNotNull);
 
     await _tapText(tester, '回到今天');

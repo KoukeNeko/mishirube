@@ -212,6 +212,12 @@ class AppStore extends ChangeNotifier {
   List<(MuscleGroup, int)> get weekMuscleSets =>
       _backend.insights.muscleLoad(window: const Duration(days: 7));
 
+  /// Records how a finished workout felt; the next suggestions read it.
+  void rateWorkout(WorkoutSession workout, Workload workload) {
+    _backend.training.rate(workout, workload);
+    notifyListeners();
+  }
+
   /// [workout] against what came before it.
   WorkoutReview workoutReview(WorkoutSession workout) =>
       _backend.training.review(workout);

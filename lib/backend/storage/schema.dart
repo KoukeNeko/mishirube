@@ -640,6 +640,11 @@ final List<String> _migrations = [
   ALTER TABLE routine_exercises ADD COLUMN joins_next INTEGER;
   ALTER TABLE workout_exercises ADD COLUMN joins_next INTEGER;
   ''',
+  '''
+  -- How a finished workout felt (tooLight, right, tooHard); null until
+  -- the lifter rates it.
+  ALTER TABLE workouts ADD COLUMN workload TEXT;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

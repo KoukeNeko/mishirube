@@ -131,8 +131,22 @@ class WorkoutRepository {
       ..currentExerciseIndex = row['current_exercise']
       ..finishedAt = _time(row['finished_at'])
       ..pausedAt = _time(row['paused_at'])
-      ..pausedTotal = Duration(milliseconds: row['paused_total_ms']);
+      ..pausedTotal = Duration(milliseconds: row['paused_total_ms'])
+      ..workload = switch (row['workload']) {
+        final String name => Workload.values.byName(name),
+        _ => null,
+      };
   }
+
+  /// How each rated finished workout felt, by when it started.
+  Map<DateTime, Workload> workloads() => {
+    for (final row in _db.select(
+      "SELECT started_at, workload FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND workload IS NOT NULL',
+    ))
+      DateTime.fromMillisecondsSinceEpoch(row['started_at']): Workload.values
+          .byName(row['workload']),
+  };
 
   /// Abandons a running workout. The row stays with status `cancelled`,
   /// so nothing counts it as training done, but the audit trail still
@@ -174,13 +188,14 @@ class WorkoutRepository {
         workout.pausedTotal.inMilliseconds,
         workout.currentExerciseIndex,
         workout.notes,
+        workout.workload?.name,
       ];
       if (exists) {
         _db.execute(
           'UPDATE workouts SET routine_id = ?, name = ?, status = ?, '
           'started_at = ?, finished_at = ?, paused_at = ?, '
           'paused_total_ms = ?, current_exercise = ?, notes = ?, '
-          'updated_at = ?, '
+          'workload = ?, updated_at = ?, '
           'revision = revision + 1 WHERE id = ?',
           [...values, now, workout.id],
         );
@@ -194,9 +209,9 @@ class WorkoutRepository {
         _db.execute(
           'INSERT INTO workouts (routine_id, name, status, started_at, '
           'finished_at, paused_at, paused_total_ms, current_exercise, notes, '
-          'id, created_at, updated_at, source, import_batch_id, fingerprint, '
-          'local_day, utc_offset_minutes) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'workload, id, created_at, updated_at, source, import_batch_id, '
+          'fingerprint, local_day, utc_offset_minutes) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             ...values,
             workout.id,

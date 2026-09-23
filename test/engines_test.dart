@@ -816,6 +816,7 @@ void main() {
       int sets = 3,
       double weightKg = 90,
       int? rir = 2,
+      Workload? workload,
     }) {
       day = day.subtract(const Duration(days: 3));
       return ExerciseAttempt(
@@ -824,6 +825,7 @@ void main() {
         reps: reps,
         workingSets: sets,
         rir: rir,
+        workload: workload,
       );
     }
 
@@ -840,6 +842,17 @@ void main() {
       expect(suggestion.move, ProgressionMove.increase);
       expect(suggestion.targetWeightKg, 92.5);
       expect(suggestion.reason, contains('可以加'));
+    });
+
+    test('a workout rated too hard is not followed by more weight', () {
+      final suggestion = suggestProgression(
+        planned: plan,
+        recent: [attempt(reps: 5, workload: Workload.tooHard)],
+      )!;
+
+      expect(suggestion.move, ProgressionMove.hold);
+      expect(suggestion.targetWeightKg, 90);
+      expect(suggestion.reason, contains('太吃力'));
     });
 
     test('meeting it at the limit repeats the weight', () {

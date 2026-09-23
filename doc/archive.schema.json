@@ -408,6 +408,12 @@
                   "null"
                 ]
               },
+              "workload": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",

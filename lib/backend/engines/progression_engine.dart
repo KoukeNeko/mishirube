@@ -4,7 +4,7 @@ import 'training_metrics.dart';
 
 /// Bumped whenever a rule below changes, so a stored or exported result
 /// can say which version produced it.
-const progressionEngineVersion = 1;
+const progressionEngineVersion = 2;
 
 /// Sessions whose reps must fall short before the weight comes down.
 /// One bad day is a bad day; two in a row is the weight. Doing fewer
@@ -41,6 +41,7 @@ class ExerciseAttempt {
     required this.reps,
     required this.workingSets,
     this.rir,
+    this.workload,
   });
 
   final DateTime date;
@@ -48,6 +49,9 @@ class ExerciseAttempt {
   final int reps;
   final int workingSets;
   final int? rir;
+
+  /// How the workout it was part of felt, when that was rated.
+  final Workload? workload;
 }
 
 /// What to do with an exercise next time, and why. The reason is part of
@@ -88,8 +92,11 @@ ProgressionSuggestion? suggestProgression({
   final last = recent.first;
   final met = _met(last, planned);
   final rested = last.rir == null || last.rir! >= readyRir;
+  // The lifter's own word outweighs the numbers: a workout rated too
+  // much is not followed by more weight.
+  final wasTooHard = last.workload == Workload.tooHard;
 
-  if (met && rested) {
+  if (met && rested && !wasTooHard) {
     return ProgressionSuggestion(
       move: ProgressionMove.increase,
       targetWeightKg: last.weightKg + step,
@@ -123,6 +130,7 @@ ProgressionSuggestion? suggestProgression({
         '上次 ${_sets(last)}，未做到 ${planned.reps} 下，先維持同重量。',
       _ when last.workingSets < planned.sets =>
         '上次只做了 ${last.workingSets} 組，先把 ${planned.sets} 組做滿再加重。',
+      _ when wasTooHard => '上次做滿了，但那次訓練評為太吃力，先維持同重量。',
       _ => '上次做滿了，但最後一組已經接近極限（RIR ${last.rir}），先維持同重量。',
     },
   );

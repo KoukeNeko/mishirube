@@ -4,7 +4,7 @@ trend: 1
 insight: 1
 substitution: 1
 exercise search: 1
-progression: 1
+progression: 2
 
 # trends over 28 days
 weight: 7 points, per week -0.35

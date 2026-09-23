@@ -305,6 +305,12 @@ class TrainingService {
     _workouts.save(workout, action: 'finish');
   }
 
+  /// Records how a finished workout felt.
+  void rate(WorkoutSession workout, Workload workload) {
+    workout.workload = workload;
+    _workouts.save(workout, action: 'rate');
+  }
+
   /// Adds [exercises] to the template. Editing a template never rewrites a
   /// finished workout.
   Routine addToRoutine(
@@ -375,6 +381,7 @@ class TrainingService {
       for (final (date, sets) in _exercises.sessionSetCounts(exerciseId))
         date: sets,
     };
+    final workloads = _workouts.workloads();
     return [
       for (final entry in _exercises.history(exerciseId).recent)
         ExerciseAttempt(
@@ -383,6 +390,7 @@ class TrainingService {
           reps: entry.reps,
           rir: entry.rir,
           workingSets: setsByDay[entry.date] ?? 0,
+          workload: workloads[entry.date],
         ),
     ];
   }
