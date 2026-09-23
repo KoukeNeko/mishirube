@@ -197,6 +197,10 @@ class AppStore extends ChangeNotifier {
   /// The exercise catalog with usage derived from finished workouts.
   List<ExerciseDefinition> get exercises => List.unmodifiable(_exercises);
 
+  /// The current template's last few finished workouts, newest first.
+  List<WorkoutSession> get recentRoutineWorkouts =>
+      _backend.training.recentOf(_routine);
+
   /// [workout] against what came before it.
   WorkoutReview workoutReview(WorkoutSession workout) =>
       _backend.training.review(workout);

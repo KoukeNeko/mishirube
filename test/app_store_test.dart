@@ -63,6 +63,10 @@ void main() {
       expect(
         finished.elapsedAt(finished.finishedAt!),
         const Duration(minutes: 58, seconds: 2),
+      );      expect(
+        store.recentRoutineWorkouts.first.id,
+        finished.id,
+        reason: 'the template lists what was really done, newest first',
       );
     });
 

@@ -33,6 +33,21 @@ class WorkoutRepository {
     return rows.isEmpty ? null : byId(rows.first['id'], exercises);
   }
 
+  /// The last [limit] finished workouts of [routineId], newest first.
+  List<WorkoutSession> recentOf(
+    String routineId,
+    int limit,
+    ExerciseResolver exercises,
+  ) => [
+    for (final row in _db.select(
+      "SELECT id FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND routine_id = ? '
+      'ORDER BY started_at DESC LIMIT ?',
+      [routineId, limit],
+    ))
+      byId(row['id'], exercises)!,
+  ];
+
   /// The last finished workout of [routineId] that started before
   /// [before].
   WorkoutSession? previousOf(

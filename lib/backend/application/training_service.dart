@@ -69,6 +69,10 @@ class TrainingService {
     );
   }
 
+  /// The template's last [limit] finished workouts, newest first.
+  List<WorkoutSession> recentOf(Routine routine, {int limit = 3}) =>
+      _workouts.recentOf(routine.id, limit, _exercise);
+
   /// [workout] against what came before it, finished or still running.
   WorkoutReview review(WorkoutSession workout) {
     final routineId = workout.routineId;

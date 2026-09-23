@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
@@ -157,23 +158,27 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             ),
           ),
         if (!_isEditing) ProgressionSection(routine: routine),
-        Gutter(child: const SectionLabel('最近實際完成')),
-        Gutter(
-          child: AccentRow(
-            color: AppColors.training,
-            title: '9 月 16 日',
-            subtitle: '16 組 · 54 分',
-            showChevron: true,
-            onTap: () => pushPage(context, const WorkoutSummaryScreen()),
-          ),
-        ),
-        Gutter(
-          child: const AccentRow(
-            color: AppColors.training,
-            title: '9 月 12 日',
-            subtitle: '16 組 · 57 分',
-          ),
-        ),
+        if (store.recentRoutineWorkouts case final recent
+            when recent.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('最近實際完成')),
+          for (final workout in recent)
+            Gutter(
+              child: AccentRow(
+                color: AppColors.training,
+                title:
+                    '${workout.startedAt.month} 月 ${workout.startedAt.day} 日'
+                    '（週${weekdayLabel(workout.startedAt)}）',
+                subtitle:
+                    '${workout.completedSets} 組 · '
+                    '${workout.elapsedAt(workout.finishedAt!).inMinutes} 分',
+                showChevron: true,
+                onTap: () => pushPage(
+                  context,
+                  WorkoutSummaryScreen(workoutId: workout.id),
+                ),
+              ),
+            ),
+        ],
       ],
     );
   }
