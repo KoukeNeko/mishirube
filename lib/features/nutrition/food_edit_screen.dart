@@ -504,15 +504,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           Gutter(child: const SectionLabel('杯型')),
           for (final size in _sizes)
             Gutter(
-              child: AppCard(
-                padding: EdgeInsets.zero,
-                child: NavRow(
-                  title: size.sizeName,
-                  subtitle:
-                      '${size.servingDescription} · '
-                      '${formatKcalOrDash(size.kcal)} kcal',
-                  onTap: () => _editSize(size),
-                ),
+              child: NavCard(
+                title: size.sizeName,
+                subtitle:
+                    '${size.servingDescription} · '
+                    '${formatKcalOrDash(size.kcal)} kcal',
+                onTap: () => _editSize(size),
               ),
             ),
           Gutter(

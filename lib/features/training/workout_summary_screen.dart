@@ -129,21 +129,13 @@ class _ResultRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      radius: AppRadius.small + 4,
-      child: Row(
+    return NavCard(
+      leading: const AccentBar(color: AppColors.training, height: 32),
+      title: result.name,
+      subtitle: '${result.sets} 組',
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const AccentBar(color: AppColors.training, height: 32),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(result.name, style: AppTextStyles.itemTitle),
-                Text('${result.sets} 組', style: AppTextStyles.caption),
-              ],
-            ),
-          ),
           Text(
             result.topSet,
             style: AppTextStyles.bigNumber.copyWith(fontSize: 20),

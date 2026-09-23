@@ -319,17 +319,13 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         // opened from ＋, not from the day, and the question before
         // logging is often whether breakfast is in yet.
         Gutter(
-          child: AppCard(
-            padding: EdgeInsets.zero,
-            child: NavRow(
-              title: '今天',
-              subtitle: switch (store.todaySummary) {
-                DaySummary(recordCount: 0) => '沒有紀錄',
-                final day =>
-                  '${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal',
-              },
-              onTap: () => pushPage(context, const DailyNutritionScreen()),
-            ),
+          child: NavCard(
+            title: '今天',
+            subtitle: switch (store.todaySummary) {
+              DaySummary(recordCount: 0) => '沒有紀錄',
+              final day => '${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal',
+            },
+            onTap: () => pushPage(context, const DailyNutritionScreen()),
           ),
         ),
         // Water gets a card of its own: it is the most repeated record
@@ -426,13 +422,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     return [
       for (final brand in brands)
         Gutter(
-          child: AppCard(
-            padding: EdgeInsets.zero,
-            child: NavRow(
-              title: '$brand · 查看完整菜單',
-              subtitle: '${store.menuOf(brand).length} 款 · 官方資料',
-              onTap: () => _openBrand(brand),
-            ),
+          child: NavCard(
+            title: '$brand · 查看完整菜單',
+            subtitle: '${store.menuOf(brand).length} 款 · 官方資料',
+            onTap: () => _openBrand(brand),
           ),
         ),
       for (final food in foods) Gutter(child: _row(food)),
@@ -470,17 +463,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       Gutter(child: const SectionLabel('連鎖品牌')),
       for (final catalogue in catalogues)
         Gutter(
-          child: AppCard(
-            padding: EdgeInsets.zero,
-            child: NavRow(
-              title: catalogue.brand,
-              subtitle: [
-                '${catalogue.products} 款',
-                '官方資料',
-                if (catalogue.checkedAt case final at?) '查證 ${formatDate(at)}',
-              ].join(' · '),
-              onTap: () => _openBrand(catalogue.brand),
-            ),
+          child: NavCard(
+            title: catalogue.brand,
+            subtitle: [
+              '${catalogue.products} 款',
+              '官方資料',
+              if (catalogue.checkedAt case final at?) '查證 ${formatDate(at)}',
+            ].join(' · '),
+            onTap: () => _openBrand(catalogue.brand),
           ),
         ),
     ],

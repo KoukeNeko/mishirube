@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
-import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 
 /// First-run module picker; also reused from「我的 → 模組」for editing.
@@ -66,28 +65,13 @@ class _ModuleTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       checked: isEnabled,
-      child: AppCard(
+      child: NavCard(
         tone: isEnabled ? CardTone.training : CardTone.neutral,
+        leading: CheckSquare(isChecked: isEnabled),
+        title: module.title,
+        subtitle: module.description,
         onTap: onTap,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.md,
-        ),
-        child: Row(
-          children: [
-            CheckSquare(isChecked: isEnabled),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(module.title, style: AppTextStyles.itemTitle),
-                  Text(module.description, style: AppTextStyles.caption),
-                ],
-              ),
-            ),
-          ],
-        ),
+        showChevron: false,
       ),
     );
   }

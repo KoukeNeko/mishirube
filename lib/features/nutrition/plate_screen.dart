@@ -116,37 +116,25 @@ class _PlateScreenState extends State<PlateScreen> {
               label: '移除',
               semanticLabel: '移除「${portion.food.displayName}」',
               onAction: () => _remove(index),
-              child: AppCard(
-                padding: EdgeInsets.zero,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: NavRow(
-                        title: portion.food.displayName,
-                        subtitle:
-                            '${portion.label} · '
-                            '${formatKcalOrDash(portion.kcal)} kcal',
-                        onTap: () => _change(index),
-                      ),
-                    ),
-                    if (_isEditing) ...[
-                      SquareIconButton(
+              child: NavCard(
+                title: portion.food.displayName,
+                subtitle:
+                    '${portion.label} · '
+                    '${formatKcalOrDash(portion.kcal)} kcal',
+                trailing: _isEditing
+                    ? SquareIconButton(
                         icon: Icons.delete_outline,
                         color: AppColors.destructive,
                         tooltip: '移除「${portion.food.displayName}」',
                         onPressed: () => _remove(index),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                    ],
-                  ],
-                ),
+                      )
+                    : null,
+                onTap: () => _change(index),
               ),
             ),
           ),
         if (plate.isEmpty)
-          Gutter(
-            child: const Text('這一餐沒有項目。', style: AppTextStyles.caption),
-          ),
+          Gutter(child: const Text('這一餐沒有項目。', style: AppTextStyles.caption)),
       ],
     );
   }

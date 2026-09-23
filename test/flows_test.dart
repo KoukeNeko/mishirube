@@ -579,6 +579,19 @@ void main() {
 
     await tester.enterText(find.byType(TextField), '深蹲');
     await tester.pump();
+    final row = find
+        .ancestor(of: find.text('槓鈴深蹲'), matching: find.byType(NavRow))
+        .first;
+    expect(
+      tester.widget<NavRow>(row).leading,
+      isNull,
+      reason: 'nothing to select, so no selection box',
+    );
+    expect(
+      find.descendant(of: row, matching: find.byIcon(Icons.chevron_right)),
+      findsOneWidget,
+      reason: 'the row opens the exercise',
+    );
     await tester.tap(
       find
           .ancestor(of: find.text('槓鈴深蹲'), matching: find.byType(AppCard))

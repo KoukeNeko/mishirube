@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import 'cards.dart';
 
-/// Settings-style row: title, subtitle and a chevron.
+/// The app's list row: an optional leading marker, a title, up to two
+/// lines under it, and a trailing value or control. A row that opens
+/// something ends in a chevron; one that does not, or whose tap does
+/// something else (select, toggle), does not.
 class NavRow extends StatelessWidget {
   const NavRow({
     super.key,
     required this.title,
+    this.titleTrailing,
     this.subtitle,
-    this.onTap,
+    this.detail,
     this.leading,
+    this.trailing,
+    this.onTap,
+    this.showChevron,
   });
 
   final String title;
+
+  /// A small mark after the title, such as a favourite's star.
+  final Widget? titleTrailing;
   final String? subtitle;
-  final VoidCallback? onTap;
+
+  /// A quieter third line: when it was last done, where it comes from.
+  final String? detail;
   final Widget? leading;
+
+  /// A value or control at the end of the row.
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  /// Whether the row ends in a chevron; by default when it opens
+  /// something and has nothing else at its end.
+  final bool? showChevron;
+
+  bool get _showsChevron => showChevron ?? (onTap != null && trailing == null);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.md,
-        ),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           children: [
             if (leading != null) ...[
@@ -36,15 +56,38 @@ class NavRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.itemTitle),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(title, style: AppTextStyles.itemTitle),
+                      ),
+                      if (titleTrailing != null) ...[
+                        const SizedBox(width: AppSpacing.xxs),
+                        titleTrailing!,
+                      ],
+                    ],
+                  ),
                   if (subtitle != null) ...[
                     const SizedBox(height: AppSpacing.xxs),
                     Text(subtitle!, style: AppTextStyles.caption),
                   ],
+                  if (detail != null)
+                    Text(
+                      detail!,
+                      style: AppTextStyles.caption.copyWith(
+                        fontSize: 12,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+            if (trailing != null) ...[
+              const SizedBox(width: AppSpacing.xs),
+              trailing!,
+            ],
+            if (_showsChevron)
+              const Icon(Icons.chevron_right, color: AppColors.textTertiary),
           ],
         ),
       ),
@@ -73,45 +116,21 @@ class AccentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.small + 4),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
-            children: [
-              AccentBar(color: color, height: subtitle == null ? 20 : 34),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTextStyles.itemTitle),
-                    if (subtitle != null)
-                      Text(subtitle!, style: AppTextStyles.caption),
-                  ],
-                ),
+    return NavCard(
+      leading: AccentBar(color: color, height: subtitle == null ? 20 : 34),
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing == null
+          ? null
+          : Text(
+              trailing!,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 15,
               ),
-              if (trailing != null)
-                Text(
-                  trailing!,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 15,
-                  ),
-                ),
-              if (showChevron)
-                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
-            ],
-          ),
-        ),
-      ),
+            ),
+      onTap: onTap,
+      showChevron: showChevron,
     );
   }
 }
@@ -152,24 +171,13 @@ class CheckRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => onChanged(!isChecked),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.md,
-        ),
-        child: Row(
-          children: [
-            Text(title, style: AppTextStyles.itemTitle),
-            if (badge != null) ...[
-              const SizedBox(width: AppSpacing.xs),
-              badge!,
-            ],
-            const Spacer(),
-            CheckSquare(isChecked: isChecked),
-          ],
-        ),
+    return Semantics(
+      checked: isChecked,
+      child: NavRow(
+        title: title,
+        titleTrailing: badge,
+        trailing: CheckSquare(isChecked: isChecked),
+        onTap: () => onChanged(!isChecked),
       ),
     );
   }
@@ -223,35 +231,15 @@ class RadioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: isSelected ? AppColors.trainingSurface : AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.small + 4),
-        side: BorderSide(
-          color: isSelected ? AppColors.trainingOutline : Colors.transparent,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
+    return Semantics(
+      selected: isSelected,
+      child: NavCard(
+        tone: isSelected ? CardTone.training : CardTone.neutral,
+        leading: RadioDot(isSelected: isSelected),
+        title: title,
+        subtitle: subtitle,
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              RadioDot(isSelected: isSelected),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTextStyles.itemTitle),
-                    Text(subtitle, style: AppTextStyles.caption),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        showChevron: false,
       ),
     );
   }
@@ -316,21 +304,50 @@ class KeyValueRow extends StatelessWidget {
   }
 }
 
-/// A single [NavRow] on its own card.
+/// A [NavRow] on its own card: the item of a list whose items stand
+/// apart, such as foods, exercises and templates.
 class NavCard extends StatelessWidget {
-  const NavCard({super.key, required this.title, this.subtitle, this.onTap});
+  const NavCard({
+    super.key,
+    required this.title,
+    this.titleTrailing,
+    this.subtitle,
+    this.detail,
+    this.leading,
+    this.trailing,
+    this.onTap,
+    this.showChevron,
+    this.tone = CardTone.neutral,
+  });
 
   final String title;
+  final Widget? titleTrailing;
   final String? subtitle;
+  final String? detail;
+  final Widget? leading;
+  final Widget? trailing;
   final VoidCallback? onTap;
+  final bool? showChevron;
+
+  /// [CardTone.training] marks a chosen item.
+  final CardTone tone;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.small + 4),
-      clipBehavior: Clip.antiAlias,
-      child: NavRow(title: title, subtitle: subtitle, onTap: onTap),
+    return AppCard(
+      tone: tone,
+      padding: EdgeInsets.zero,
+      radius: AppRadius.small + 4,
+      child: NavRow(
+        title: title,
+        titleTrailing: titleTrailing,
+        subtitle: subtitle,
+        detail: detail,
+        leading: leading,
+        trailing: trailing,
+        onTap: onTap,
+        showChevron: showChevron,
+      ),
     );
   }
 }

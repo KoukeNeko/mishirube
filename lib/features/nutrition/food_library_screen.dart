@@ -61,15 +61,12 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     ),
   );
 
-  Widget _ownRow(FoodItem food) => AppCard(
-    padding: EdgeInsets.zero,
-    child: NavRow(
-      title: food.displayName,
-      subtitle:
-          '一份 ${food.servingDescription} · '
-          '${formatKcalOrDash(food.kcal)} kcal',
-      onTap: () => _edit(food),
-    ),
+  Widget _ownRow(FoodItem food) => NavCard(
+    title: food.displayName,
+    subtitle:
+        '一份 ${food.servingDescription} · '
+        '${formatKcalOrDash(food.kcal)} kcal',
+    onTap: () => _edit(food),
   );
 
   /// A shipped drink is read-only: it opens on its figures, after the cup
@@ -85,16 +82,13 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
 
   Widget _catalogueRow(FoodItem food) {
     final sizes = AppStoreScope.read(context).sizesOf(food.id).length;
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: NavRow(
-        title: food.name,
-        subtitle: sizes > 0
-            ? '$sizes 種杯型'
-            : '一份 ${food.servingDescription} · '
-                  '${formatKcalOrDash(food.kcal)} kcal',
-        onTap: () => _openCatalogueFood(food),
-      ),
+    return NavCard(
+      title: food.name,
+      subtitle: sizes > 0
+          ? '$sizes 種杯型'
+          : '一份 ${food.servingDescription} · '
+                '${formatKcalOrDash(food.kcal)} kcal',
+      onTap: () => _openCatalogueFood(food),
     );
   }
 
@@ -134,13 +128,10 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
           Gutter(child: const SectionLabel('內建品牌')),
           for (final brand in brands)
             Gutter(
-              child: AppCard(
-                padding: EdgeInsets.zero,
-                child: NavRow(
-                  title: brand,
-                  subtitle: '${store.menuOf(brand).length} 款 · 官方資料，唯讀',
-                  onTap: () => _openBrand(brand),
-                ),
+              child: NavCard(
+                title: brand,
+                subtitle: '${store.menuOf(brand).length} 款 · 官方資料，唯讀',
+                onTap: () => _openBrand(brand),
               ),
             ),
         ],

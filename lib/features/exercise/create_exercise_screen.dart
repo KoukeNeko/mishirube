@@ -214,27 +214,11 @@ class _DuplicateWarning extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           for (final exercise in candidates) ...[
-            AppCard(
-              tone: CardTone.neutral,
-              radius: AppRadius.small,
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(exercise.name, style: AppTextStyles.itemTitle),
-                        Text(
-                          '${exercise.source.label} · ${exercise.recordCount} 筆紀錄',
-                          style: AppTextStyles.caption,
-                        ),
-                      ],
-                    ),
-                  ),
-                  LinkText(label: '使用這個', onTap: () => onUse(exercise)),
-                ],
-              ),
+            NavCard(
+              title: exercise.name,
+              subtitle:
+                  '${exercise.source.label} · ${exercise.recordCount} 筆紀錄',
+              trailing: LinkText(label: '使用這個', onTap: () => onUse(exercise)),
             ),
             const SizedBox(height: AppSpacing.xs),
           ],

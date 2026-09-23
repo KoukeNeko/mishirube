@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
-import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 
 /// Every training template, so the one trained from next is a choice
@@ -41,26 +40,16 @@ class RoutineListScreen extends StatelessWidget {
           ),
         for (final routine in store.routines)
           Gutter(
-            child: AppCard(
-              padding: EdgeInsets.zero,
-              child: NavRow(
-                title: routine.name,
-                subtitle:
-                    '${routine.exercises.length} 個動作 · '
-                    '${routine.lastCompletedLabel}',
-                leading: Icon(
-                  routine.id == selected.id
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  color: routine.id == selected.id
-                      ? AppColors.training
-                      : AppColors.textTertiary,
-                ),
-                onTap: () {
-                  store.selectRoutine(routine);
-                  Navigator.of(context).pop();
-                },
-              ),
+            child: RadioRow(
+              title: routine.name,
+              subtitle:
+                  '${routine.exercises.length} 個動作 · '
+                  '${routine.lastCompletedLabel}',
+              isSelected: routine.id == selected.id,
+              onTap: () {
+                store.selectRoutine(routine);
+                Navigator.of(context).pop();
+              },
             ),
           ),
         Gutter(

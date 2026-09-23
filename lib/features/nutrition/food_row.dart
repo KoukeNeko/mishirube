@@ -39,16 +39,13 @@ class FoodRow extends StatelessWidget {
     ].join(' · ');
     return Semantics(
       selected: isOnPlate,
-      child: AppCard(
-        padding: EdgeInsets.zero,
+      child: NavCard(
+        title: food.sizeName.isEmpty
+            ? food.name
+            : '${food.name} ${food.sizeName}',
+        subtitle: [if (source.isNotEmpty) source, adds].join('\n'),
+        onTap: onTap,
         tone: isOnPlate ? CardTone.nutrition : CardTone.neutral,
-        child: NavRow(
-          title: food.sizeName.isEmpty
-              ? food.name
-              : '${food.name} ${food.sizeName}',
-          subtitle: [if (source.isNotEmpty) source, adds].join('\n'),
-          onTap: onTap,
-        ),
       ),
     );
   }

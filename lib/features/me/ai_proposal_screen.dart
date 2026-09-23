@@ -115,39 +115,28 @@ class _ChangeRow extends StatelessWidget {
         AppColors.textSecondary,
       ),
     };
-    return AppCard(
+    return NavCard(
       tone: tone,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              symbol,
-              style: TextStyle(
-                color: color,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+      leading: SizedBox(
+        width: 16,
+        child: Text(
+          symbol,
+          style: TextStyle(
+            color: color,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(change.exercise, style: AppTextStyles.itemTitle),
-                Text(change.prescription, style: AppTextStyles.caption),
-              ],
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-            ),
-          ),
-        ],
+        ),
+      ),
+      title: change.exercise,
+      subtitle: change.prescription,
+      trailing: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w800,
+          fontSize: 13,
+        ),
       ),
     );
   }

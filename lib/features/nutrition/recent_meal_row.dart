@@ -42,25 +42,12 @@ class RecentMealRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.sm,
-        AppSpacing.sm,
-      ),
-      radius: AppRadius.small + 4,
-      child: Row(
+    return NavCard(
+      title: meal.label,
+      subtitle: when,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(meal.label, style: AppTextStyles.itemTitle),
-                Text(when, style: AppTextStyles.caption),
-              ],
-            ),
-          ),
           Text(
             formatKcalOrDash(meal.meal.kcal),
             style: AppTextStyles.bigNumber.copyWith(fontSize: 20),

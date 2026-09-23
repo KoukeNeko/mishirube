@@ -111,6 +111,15 @@ In particular, do not create a parallel version of:
 - toasts: `showToast` / `ToastScope.read(context).showUndo` – never
   `SnackBar` or `ScaffoldMessenger`;
 - floating footers: `BottomActionBar`;
+- list rows: `NavRow` (in a `GroupedCard`) or `NavCard` (an item on its
+  own card) – leading marker, title with an optional mark, subtitle, a
+  quieter detail line, and a trailing value or control. Do not lay out a
+  title-and-subtitle row by hand. The chevron means "opens a page": a row
+  whose tap selects or toggles sets `showChevron: false`. Selection
+  markers follow what is being chosen: `RadioDot` (or `RadioRow`) for one,
+  `CheckSquare` (or `CheckRow`) for several, and a numbered badge only
+  where the order is the answer (the exercise picker). A list that picks
+  nothing shows no marker at all;
 - pill-shaped controls (header actions, chips, segmented controls): build
   on `Pill` / `pillHeight` so they keep one height, fill and label style.
   A chip that does something on tap is a `ChipButton`, never a `TagChip`

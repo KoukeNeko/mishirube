@@ -170,15 +170,12 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
                 label: '移除',
                 semanticLabel: '移除「${item.name}」',
                 onAction: () => _remove(index),
-                child: AppCard(
-                  padding: EdgeInsets.zero,
-                  child: NavRow(
-                    title: item.name,
-                    subtitle:
-                        '${item.amount} · '
-                        '${formatKcalOrDash(item.kcal)} kcal',
-                    onTap: () => _editKcal(index),
-                  ),
+                child: NavCard(
+                  title: item.name,
+                  subtitle:
+                      '${item.amount} · '
+                      '${formatKcalOrDash(item.kcal)} kcal',
+                  onTap: () => _editKcal(index),
                 ),
               ),
             ),

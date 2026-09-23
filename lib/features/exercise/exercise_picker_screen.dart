@@ -232,20 +232,28 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
           else ...[
             for (final exercise in exercises)
               Gutter(
-                child: _ExerciseTile(
-                  exercise: exercise,
-                  order: _selected.indexOf(exercise) + 1,
-                  // Browsing has nothing to select, so a tap goes where
-                  // the info button would have gone.
-                  onTap: switch (widget.purpose) {
-                    PickerPurpose.browse => () => _openDetail(exercise),
-                    PickerPurpose.single => () => Navigator.of(
-                      context,
-                    ).pop([exercise]),
-                    _ => () => _toggle(exercise),
-                  },
-                  onInfo: () => _openDetail(exercise),
-                ),
+                // Browsing has nothing to select, so a tap opens the
+                // exercise; only picking several has an order to show.
+                child: switch (widget.purpose) {
+                  PickerPurpose.browse => _ExerciseTile(
+                    exercise: exercise,
+                    order: null,
+                    onTap: () => _openDetail(exercise),
+                    onInfo: null,
+                  ),
+                  PickerPurpose.single => _ExerciseTile(
+                    exercise: exercise,
+                    order: null,
+                    onTap: () => Navigator.of(context).pop([exercise]),
+                    onInfo: () => _openDetail(exercise),
+                  ),
+                  _ => _ExerciseTile(
+                    exercise: exercise,
+                    order: _selected.indexOf(exercise) + 1,
+                    onTap: () => _toggle(exercise),
+                    onInfo: () => _openDetail(exercise),
+                  ),
+                },
               ),
             Gutter(
               child: DashedActionCard(
@@ -368,71 +376,43 @@ class _ExerciseTile extends StatelessWidget {
     required this.onInfo,
   });
 
-  /// 1-based position in the selection, or 0 when not selected.
-  final int order;
+  /// 1-based position in the selection, 0 when not selected, or null when
+  /// the picker selects nothing to put in order (browsing, one pick).
+  final int? order;
   final ExerciseDefinition exercise;
   final VoidCallback onTap;
-  final VoidCallback onInfo;
+
+  /// Opens the exercise's page; null when a tap already does.
+  final VoidCallback? onInfo;
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = order > 0;
-    final lastUsed = exercise.lastPerformance == null
-        ? '沒有紀錄'
-        : '${exercise.lastPerformance} · ${exercise.lastUsedDaysAgo} 天前';
+    final order = this.order;
+    final isSelected = order != null && order > 0;
     return Semantics(
-      selected: isSelected,
-      child: AppCard(
+      selected: order == null ? null : isSelected,
+      child: NavCard(
         tone: isSelected ? CardTone.training : CardTone.neutral,
-        onTap: onTap,
-        child: Row(
-          children: [
-            _OrderBadge(order: order),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          exercise.name,
-                          style: AppTextStyles.itemTitle,
-                        ),
-                      ),
-                      if (exercise.isFavorite) ...const [
-                        SizedBox(width: AppSpacing.xxs),
-                        Icon(
-                          Icons.star_border,
-                          size: 16,
-                          color: AppColors.warning,
-                        ),
-                      ],
-                    ],
-                  ),
-                  Text(
-                    '${exercise.equipment.label} · ${exercise.muscleSummary}',
-                    style: AppTextStyles.caption,
-                  ),
-                  Text(
-                    lastUsed,
-                    style: AppTextStyles.caption.copyWith(
-                      fontSize: 12,
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
-                ],
+        leading: order == null ? null : _OrderBadge(order: order),
+        title: exercise.name,
+        titleTrailing: exercise.isFavorite
+            ? const Icon(Icons.star_border, size: 16, color: AppColors.warning)
+            : null,
+        subtitle: '${exercise.equipment.label} · ${exercise.muscleSummary}',
+        detail: exercise.lastPerformance == null
+            ? '沒有紀錄'
+            : '${exercise.lastPerformance} · ${exercise.lastUsedDaysAgo} 天前',
+        trailing: onInfo == null
+            ? null
+            : SquareIconButton(
+                icon: Icons.info_outline,
+                tooltip: '${exercise.name}說明',
+                size: 40,
+                onPressed: onInfo!,
               ),
-            ),
-            SquareIconButton(
-              icon: Icons.info_outline,
-              tooltip: '${exercise.name}說明',
-              size: 40,
-              onPressed: onInfo,
-            ),
-          ],
-        ),
+        onTap: onTap,
+        // Choosing is what a tap does here, not opening a page.
+        showChevron: onInfo == null,
       ),
     );
   }
