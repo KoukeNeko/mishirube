@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
@@ -45,9 +43,8 @@ const _axisHeight = 24.0;
 const _minLabelSpacing = 44.0;
 
 /// A night's stages across the time it covers: a hypnogram, one row per
-/// stage, each stretch a block where it happened and a line where the
-/// night moved from one stage to the next. The stage names sit in their
-/// rows.
+/// stage, each stretch a block where it happened. The stage names sit in
+/// their rows.
 ///
 /// Touching and sliding along it, or a pointer over it, reads out the
 /// stretch at that moment: its stage, when it began and ended, and how
@@ -210,7 +207,6 @@ class _HypnogramPainter extends CustomPainter {
     double rowTop(int row) => row * _rowHeight;
     double blockTop(int row) => rowTop(row) + _labelBand;
     const blockHeight = _rowHeight - _labelBand - _blockInset;
-    double rowCentre(int row) => blockTop(row) + blockHeight / 2;
 
     // Row dividers.
     final divider = Paint()
@@ -230,36 +226,7 @@ class _HypnogramPainter extends CustomPainter {
         ..dispose();
     }
 
-    // Where the night moved from one stage to the next.
     final sorted = [...stages]..sort((a, b) => a.start.compareTo(b.start));
-    for (var i = 1; i < sorted.length; i++) {
-      final previous = sorted[i - 1];
-      final next = sorted[i];
-      final from = _rowOf(previous.stage);
-      final to = _rowOf(next.stage);
-      if (from < 0 || to < 0 || from == to) continue;
-      if (next.start.difference(previous.end).inMinutes.abs() > 1) continue;
-      final lineX = x(next.start);
-      final top = rowCentre(from < to ? from : to);
-      final bottom = rowCentre(from < to ? to : from);
-      final (topColor, bottomColor) = from < to
-          ? (sleepStageColor(previous.stage), sleepStageColor(next.stage))
-          : (sleepStageColor(next.stage), sleepStageColor(previous.stage));
-      canvas.drawLine(
-        Offset(lineX, top),
-        Offset(lineX, bottom),
-        Paint()
-          ..strokeWidth = 1.5
-          ..shader = ui.Gradient.linear(
-            Offset(lineX, top),
-            Offset(lineX, bottom),
-            [
-              topColor.withValues(alpha: 0.6),
-              bottomColor.withValues(alpha: 0.6),
-            ],
-          ),
-      );
-    }
 
     // The stretches themselves.
     for (final stage in sorted) {
