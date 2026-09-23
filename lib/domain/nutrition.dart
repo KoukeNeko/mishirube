@@ -322,6 +322,7 @@ class FoodItem {
     this.searchTerms = '',
     this.isCupCapacity = false,
     this.series = '',
+    this.country = '',
     this.caffeineBasis = CaffeineBasis.serving,
   });
 
@@ -335,6 +336,11 @@ class FoodItem {
   /// The maker's own line the food belongs to, when it names one:
   /// 7-ELEVEN sells CITY CAFE and CITY TEA, and both have a 拿鐵.
   final String series;
+
+  /// Where the maker sells it, as an ISO 3166-1 code (`TW`, `JP`): the
+  /// same chain prints different figures for the same drink in each
+  /// country. Empty for a food the user made.
+  final String country;
 
   /// What the user calls one serving: `一碗`, `一片`, `一罐`. Optional,
   /// and separate from how much that is — what you call it and how much
@@ -450,9 +456,11 @@ class FoodItem {
     String? searchTerms,
     bool? isCupCapacity,
     String? series,
+    String? country,
     CaffeineBasis? caffeineBasis,
   }) => FoodItem(
     series: series ?? this.series,
+    country: country ?? this.country,
     caffeineBasis: caffeineBasis ?? this.caffeineBasis,
     searchTerms: searchTerms ?? this.searchTerms,
     isCupCapacity: isCupCapacity ?? this.isCupCapacity,

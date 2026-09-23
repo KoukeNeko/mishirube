@@ -1085,6 +1085,7 @@ void main() {
       // cup carrying its own figures.
       final parsed = parseCatalogue({
         'brand': '星巴克',
+        'market': 'tw',
         'sourceUrl': 'https://example.invalid/tw/menu',
         'checkedAt': '2026-09-21',
         'valueType': 'declared',
@@ -1156,6 +1157,11 @@ void main() {
         );
         for (final food in parsed) {
           expect(food.brand, isNotEmpty);
+          expect(
+            food.country,
+            matches(RegExp(r'^[A-Z]{2}$')),
+            reason: 'a chain publishes figures for one country',
+          );
           expect(food.sourceUrl, startsWith('https://'));
           expect(
             food.isCupCapacity,
@@ -1200,6 +1206,7 @@ void main() {
       addTearDown(backend.close);
       final parsed = parseCatalogue({
         'brand': '7-ELEVEN',
+        'market': 'tw',
         'sourceUrl': 'https://example.invalid/ingredient.pdf',
         'checkedAt': '2026-09-21',
         'valueType': 'max',
@@ -1259,6 +1266,7 @@ void main() {
       List<FoodItem> line(String series, List<Map<String, dynamic>> drinks) =>
           parseCatalogue({
             'brand': '7-ELEVEN',
+            'market': 'tw',
             'series': series,
             'sourceUrl': 'https://example.invalid/ingredient.pdf',
             'checkedAt': '2026-09-21',
@@ -1323,6 +1331,22 @@ void main() {
       );
       expect(mug.isCupCapacity, isFalse);
       expect(mug.servingDescription, '一杯');
+      expect(mug.country, 'TW', reason: 'kept when stored and read back');
+      foods.save(
+        const FoodItem(
+          id: 'jp-latte',
+          name: 'カフェラテ',
+          brand: '7-ELEVEN',
+          country: 'JP',
+        ),
+        source: ChangeSource.catalogue,
+      );
+      expect(
+        store.catalogues.map((record) => (record.country, record.products)),
+        [('JP', 1), ('TW', 3)],
+        reason: 'one chain in two countries is two sets of figures',
+      );
+      foods.retireCatalogue({for (final food in shipped) food.id});
       final pearls = store.backend.nutrition.menuOf('7-ELEVEN')[1];
       expect(pearls.kind, ConsumptionKind.food);
       expect(store.backend.nutrition.sizesOf(pearls.id), isEmpty);
@@ -2145,6 +2169,7 @@ void main() {
       final backend = Backend.inMemory(clock: FakeClock().now);
       final parsed = parseCatalogue({
         'brand': '星巴克',
+        'market': 'tw',
         'brandAliases': ['Starbucks'],
         'sourceUrl': 'https://example.com',
         'checkedAt': '2026-09-21',

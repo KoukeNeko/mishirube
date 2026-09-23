@@ -177,6 +177,7 @@ const _tables = [
     _Column('search_terms', _Kind.text),
     _Column('is_cup_capacity', _Kind.boolean),
     _Column('series', _Kind.text),
+    _Column('country', _Kind.text),
     _Column('caffeine_basis', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),

@@ -1203,6 +1203,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     for (final food in parseCatalogue({
       'brand': '星巴克',
+      'market': 'tw',
       'sourceUrl': 'https://example.com',
       'checkedAt': '2026-09-21',
       'valueType': 'declared',
@@ -1318,6 +1319,7 @@ void main() {
     );
     for (final food in parseCatalogue({
       'brand': '星巴克',
+      'market': 'tw',
       'sourceUrl': 'https://example.com',
       'checkedAt': '2026-09-21',
       'valueType': 'declared',

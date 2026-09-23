@@ -569,6 +569,7 @@
               "searchTerms",
               "isCupCapacity",
               "series",
+              "country",
               "caffeineBasis",
               "createdAt",
               "updatedAt",
@@ -656,6 +657,9 @@
                 "type": "boolean"
               },
               "series": {
+                "type": "string"
+              },
+              "country": {
                 "type": "string"
               },
               "caffeineBasis": {

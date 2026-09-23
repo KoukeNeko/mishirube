@@ -55,6 +55,8 @@ Future<void> loadCatalogue(FoodRepository foods) async {
 List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
   final brand = file['brand']! as String;
   final series = file['series'] as String? ?? '';
+  // The country the chain's figures are published for.
+  final country = (file['market']! as String).toUpperCase();
   // Other spellings of the brand, and the line's own name, so
   // 'starbucks latte' finds 星巴克's and 'city cafe' finds 7-ELEVEN's.
   final searchTerms = [
@@ -90,6 +92,7 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
             name: drink['name']! as String,
             brand: brand,
             series: series,
+            country: country,
             searchTerms: searchTerms,
             isCupCapacity: volumeIsCup && millilitres != null,
             kind: ConsumptionKind.values.byName(

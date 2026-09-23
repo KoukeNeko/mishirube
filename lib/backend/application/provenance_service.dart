@@ -136,14 +136,15 @@ class ProvenanceService {
   /// The brand data shipped with the app, one entry per brand.
   List<CatalogueRecord> catalogues() => [
     for (final row in _db.select(
-      'SELECT brand, COUNT(*) AS items, '
+      'SELECT brand, country, COUNT(*) AS items, '
       'SUM(parent_id IS NULL) AS products, MAX(checked_at) AS checked '
       'FROM foods '
-      "WHERE source = 'catalogue' AND deleted_at IS NULL GROUP BY brand "
-      'ORDER BY brand',
+      "WHERE source = 'catalogue' AND deleted_at IS NULL "
+      'GROUP BY brand, country ORDER BY brand, country',
     ))
       CatalogueRecord(
         brand: row['brand']! as String,
+        country: row['country']! as String,
         products: row['products']! as int,
         sizes: (row['items']! as int) - (row['products']! as int),
         checkedAt: switch (row['checked'] as int?) {
@@ -177,12 +178,17 @@ class ImportRecord {
 class CatalogueRecord {
   const CatalogueRecord({
     required this.brand,
+    required this.country,
     required this.products,
     required this.sizes,
     required this.checkedAt,
   });
 
   final String brand;
+
+  /// Where that data applies, as an ISO 3166-1 code: a chain's figures
+  /// are one country's.
+  final String country;
   final int products;
 
   /// Cup sizes across those products; each is its own read-only entry.

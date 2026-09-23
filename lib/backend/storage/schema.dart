@@ -629,6 +629,11 @@ final List<String> _migrations = [
   CREATE INDEX sleep_readings_sleep ON sleep_readings(sleep_id)
     WHERE deleted_at IS NULL;
   ''',
+  '''
+  -- The country a shipped food is sold in (ISO 3166-1, TW): one chain
+  -- prints different figures for the same drink in each country.
+  ALTER TABLE foods ADD COLUMN country TEXT NOT NULL DEFAULT '';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
