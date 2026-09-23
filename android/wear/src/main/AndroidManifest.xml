@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.type.watch"/>
+    <application
+        android:label="MISHIRUBE"
+        android:icon="@android:drawable/ic_menu_today"
+        android:theme="@android:style/Theme.DeviceDefault">
+        <!-- Shows the phone's workout; nothing to do without the phone. -->
+        <meta-data android:name="com.google.android.wearable.standalone" android:value="false"/>
+        <activity android:name=".WorkoutActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

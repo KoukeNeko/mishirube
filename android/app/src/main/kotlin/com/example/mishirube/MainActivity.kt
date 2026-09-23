@@ -10,6 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 // goes through an activity result.
 class MainActivity : FlutterFragmentActivity() {
     private var health: HealthConnectBridge? = null
+    private var wear: WearBridge? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -20,6 +21,10 @@ class MainActivity : FlutterFragmentActivity() {
         val labels = LabelReaderBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/ocr")
             .setMethodCallHandler(labels::handle)
+        val watchChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/watch")
+        val watch = WearBridge(this, watchChannel)
+        watchChannel.setMethodCallHandler(watch::handle)
+        wear = watch
         val rest = RestNoticeBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/rest_notice")
             .setMethodCallHandler(rest::handle)
@@ -39,6 +44,11 @@ class MainActivity : FlutterFragmentActivity() {
                 }
                 result.success(null)
             }
+    }
+
+    override fun onDestroy() {
+        wear?.close()
+        super.onDestroy()
     }
 
     // Health Connect's permission screens open the app again to have it

@@ -53,4 +53,6 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0")
     // Bundled, so reading a label works offline on first use.
     implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
+    // The workout on a paired Wear OS watch (android/wear).
+    implementation("com.google.android.gms:play-services-wearable:19.0.0")
 }

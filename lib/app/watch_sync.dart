@@ -8,9 +8,11 @@ import 'app_store.dart';
 const _channel = MethodChannel('mishirube/watch');
 
 /// Keeps a paired watch showing the running workout: the exercise, the
-/// set to do and the rest (`WatchBridge` in `ios/Runner/AppDelegate.swift`,
-/// the app in `ios/MishirubeWatch/`). A set logged on the watch comes
-/// back here and is logged as from the workout page.
+/// set to do and the rest. Apple Watch through `WatchBridge` in
+/// `ios/Runner/AppDelegate.swift` (the app in `ios/MishirubeWatch/`),
+/// Wear OS through `WearBridge.kt` (the app in `android/wear/`). A set
+/// logged on the watch comes back here and is logged as from the
+/// workout page.
 class WatchSync extends StatefulWidget {
   const WatchSync({super.key, required this.child});
 
@@ -77,7 +79,7 @@ class _WatchSyncState extends State<WatchSync> {
     try {
       await _channel.invokeMethod<void>('update', state);
     } on MissingPluginException {
-      // Android, a Mac or a test: no watch to keep up.
+      // A Mac or a test: no watch to keep up.
     }
   }
 
