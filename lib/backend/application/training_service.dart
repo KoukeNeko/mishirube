@@ -144,6 +144,39 @@ class TrainingService {
     return set;
   }
 
+  /// Warms up for the exercise being done: the whole ramp to its working
+  /// weight when it has no warm-up yet, one more warm-up set otherwise.
+  /// They go ahead of the next set to do.
+  List<WorkoutSet> addWarmups(WorkoutSession workout) {
+    final exercise = workout.currentExercise;
+    final working = exercise.sets
+        .where((set) => set.type == SetType.working)
+        .firstOrNull;
+    final ramp = working == null
+        ? const <(double, int)>[]
+        : warmupRamp(working.weightKg, exercise.exercise.equipment);
+    if (ramp.isEmpty ||
+        exercise.sets.any((set) => set.type == SetType.warmup)) {
+      return [addSet(workout, SetType.warmup)];
+    }
+    final sets = [
+      for (final (kg, reps) in ramp)
+        WorkoutSet(
+          weightKg: kg,
+          reps: reps,
+          previousWeightKg: working!.previousWeightKg,
+          previousReps: working.previousReps,
+          type: SetType.warmup,
+        ),
+    ];
+    exercise.sets.insertAll(
+      exercise.nextSetIndex ?? exercise.sets.length,
+      sets,
+    );
+    _workouts.save(workout, action: 'add_warmups');
+    return sets;
+  }
+
   /// Saves what the user wrote about the workout.
   void setNotes(WorkoutSession workout, String notes) {
     workout.notes = notes.isEmpty ? null : notes;

@@ -514,11 +514,12 @@ class _SetTypeHeader extends StatelessWidget {
           semanticLabel: '加入一組工作組',
           onTap: () => _addSet(context, SetType.working),
         ),
-        for (final type in const [
-          SetType.warmup,
-          SetType.drop,
-          SetType.failure,
-        ])
+        ChipButton(
+          label: SetType.warmup.kindLabel,
+          semanticLabel: '加入熱身組',
+          onTap: () => _addWarmups(context),
+        ),
+        for (final type in const [SetType.drop, SetType.failure])
           ChipButton(
             label: type.kindLabel,
             semanticLabel: '加入一組${type.kindLabel}',
@@ -543,6 +544,21 @@ Future<void> _editNotes(BuildContext context) async {
   if (notes == null || !context.mounted) return;
   store.setWorkoutNotes(notes.trim());
   showToast(context, notes.trim().isEmpty ? '已清除備註' : '已更新備註');
+}
+
+/// Adds the warm-ups and says how many, since they appear above the
+/// sets in view.
+void _addWarmups(BuildContext context) {
+  final sets = AppStoreScope.read(context).addWarmups();
+  if (sets.isEmpty) return;
+  showToast(
+    context,
+    sets.length == 1
+        ? '已加入一組熱身 · ${formatWeight(sets.single.weightKg)} kg'
+        : '已加入 ${sets.length} 組熱身 · '
+              '${sets.map((set) => formatWeight(set.weightKg)).join('、')} kg',
+    kind: ToastKind.success,
+  );
 }
 
 /// Adds a set and says what it starts at, since the weight is a default.

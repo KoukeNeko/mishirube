@@ -18,6 +18,26 @@ const plateStepKg = 2.5;
 const warmupShare = 0.6;
 const dropShare = 0.8;
 
+/// A warm-up ramp: shares of the working weight, each with fewer reps
+/// than the last, so the working set is reached without tiring for it.
+const _rampSteps = [(0.4, 5), (0.6, 3), (0.8, 1)];
+
+/// The warm-up sets before a working set of [workingKg], lightest first,
+/// as weight and reps: an empty bar first for a barbell, then the ramp,
+/// rounded to the plates. A step that rounds to the one before it, or to
+/// the working weight, is left out.
+List<(double, int)> warmupRamp(double workingKg, Equipment equipment) {
+  final isBarbell = equipment == Equipment.barbell;
+  final ramp = <(double, int)>[if (isBarbell && workingKg > barKg) (barKg, 10)];
+  for (final (share, reps) in _rampSteps) {
+    final kg = roundToPlate(workingKg * share);
+    if (kg >= workingKg || (isBarbell && kg <= barKg)) continue;
+    if (ramp.isNotEmpty && kg <= ramp.last.$1) continue;
+    ramp.add((kg, reps));
+  }
+  return ramp;
+}
+
 /// An Olympic bar, and the plates a gym has, heaviest first.
 const barKg = 20.0;
 const platesKg = [25.0, 20.0, 15.0, 10.0, 5.0, 2.5, 1.25];

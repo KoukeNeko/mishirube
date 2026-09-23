@@ -392,6 +392,15 @@ class AppStore extends ChangeNotifier {
     return set;
   }
 
+  /// Warm-up sets for the current exercise, as many as it needs.
+  List<WorkoutSet> addWarmups() {
+    final workout = activeWorkout;
+    if (workout == null) return const [];
+    final sets = _backend.training.addWarmups(workout);
+    notifyListeners();
+    return sets;
+  }
+
   void toggleSet(int setIndex) {
     final workout = activeWorkout;
     if (workout == null) return;

@@ -746,6 +746,40 @@ void main() {
       );
     });
 
+    test('a warm-up ramp climbs to the working weight in plates', () {
+      expect(warmupRamp(100, Equipment.barbell), [
+        (20, 10),
+        (40, 5),
+        (60, 3),
+        (80, 1),
+      ]);
+      expect(
+        warmupRamp(40, Equipment.barbell),
+        [(20, 10), (22.5, 3), (30, 1)],
+        reason: '40% is under the bar, so it is dropped',
+      );
+      expect(warmupRamp(20, Equipment.barbell), isEmpty);
+      expect(
+        warmupRamp(30, Equipment.dumbbell),
+        [(10, 5), (17.5, 3), (22.5, 1)],
+        reason: 'no bar to start from',
+      );
+    });
+
+    test('the warm-up chip adds the ramp once, then one set at a time', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+        ..startWorkout();
+      addTearDown(store.dispose);
+      final sets = store.activeWorkout!.currentExercise.sets;
+      final working = sets.first.weightKg;
+
+      final ramp = store.addWarmups();
+      expect(ramp, isNotEmpty);
+      expect(sets.take(ramp.length), ramp, reason: 'ahead of the work');
+      expect(ramp.every((set) => set.weightKg < working), isTrue);
+      expect(store.addWarmups(), hasLength(1));
+    });
+
     test('added sets start from the working sets, not a warm-up', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true)
         ..startWorkout();
