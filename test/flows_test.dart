@@ -140,6 +140,44 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a set is changed or taken off where it is listed', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final semantics = tester.ensureSemantics();
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _tapText(tester, '開始訓練');
+    final sets = store.activeWorkout!.currentExercise.sets;
+    final count = sets.length;
+    final weight = sets.first.weightKg;
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('增加 2.5 kg'));
+    await tester.tap(find.byTooltip('多 1 次'));
+    await tester.tap(find.widgetWithText(SelectChip, '2'));
+    await tester.pump();
+    await _tapText(tester, '儲存');
+    final edited = store.activeWorkout!.currentExercise.sets.first;
+    expect(edited.weightKg, weight + 2.5);
+    expect(edited.reps, sets.first.reps);
+    expect(edited.rir, 2);
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')));
+    await tester.pumpAndSettle();
+    await _tapText(tester, '刪除這一組');
+    expect(store.activeWorkout!.currentExercise.sets, hasLength(count - 1));
+    expect(
+      store.backend.training.active()!.currentExercise.sets,
+      hasLength(count - 1),
+      reason: 'kept, not only on screen',
+    );
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+    await disposeTree(tester);
+  });
+
   testWidgets('a logged dish splits into its parts and comes back', (
     tester,
   ) async {

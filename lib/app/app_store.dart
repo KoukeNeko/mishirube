@@ -343,6 +343,31 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void editSet(
+    int setIndex, {
+    required double weightKg,
+    required int reps,
+    required int? rir,
+  }) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.editSet(
+      workout,
+      setIndex,
+      weightKg: weightKg,
+      reps: reps,
+      rir: rir,
+    );
+    notifyListeners();
+  }
+
+  void removeSet(int setIndex) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.removeSet(workout, setIndex);
+    notifyListeners();
+  }
+
   void selectExercise(int index) {
     final workout = activeWorkout;
     if (workout == null) return;

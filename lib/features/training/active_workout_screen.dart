@@ -10,6 +10,7 @@ import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'rest_timer_screen.dart';
+import 'set_editor_dialog.dart';
 import 'substitute_exercise_screen.dart';
 import 'workout_summary_screen.dart';
 
@@ -109,6 +110,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
                   set: exercise.sets[i],
                   isCurrent: i == exercise.nextSetIndex,
                   onToggle: () => store.toggleSet(i),
+                  onEdit: () => _editSet(context, i, exercise.sets[i]),
                 ),
               ),
             Gutter(
@@ -145,6 +147,23 @@ class ActiveWorkoutScreen extends StatelessWidget {
               ),
       ),
     );
+  }
+
+  Future<void> _editSet(BuildContext context, int index, WorkoutSet set) async {
+    final store = AppStoreScope.read(context);
+    final edit = await showSetEditor(
+      context,
+      title: set.type == SetType.working ? '第 ${index + 1} 組' : set.type.label,
+      set: set,
+    );
+    switch (edit) {
+      case SetChanged(:final weightKg, :final reps, :final rir):
+        store.editSet(index, weightKg: weightKg, reps: reps, rir: rir);
+      case SetRemoved():
+        store.removeSet(index);
+      case null:
+        break;
+    }
   }
 
   void _showExerciseList(BuildContext context, WorkoutSession workout) {
@@ -390,6 +409,7 @@ class _SetRow extends StatelessWidget {
     required this.set,
     required this.isCurrent,
     required this.onToggle,
+    required this.onEdit,
   });
 
   static const _checkSize = 40.0;
@@ -398,6 +418,7 @@ class _SetRow extends StatelessWidget {
   final WorkoutSet set;
   final bool isCurrent;
   final VoidCallback onToggle;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -432,25 +453,33 @@ class _SetRow extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(fontSize: 11, height: 1.3),
           ),
           Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: Row(
-                children: [
-                  ValueWithUnit(
-                    value: formatWeight(set.weightKg),
-                    unit: 'kg',
-                    style: numberStyle,
+            child: Semantics(
+              button: true,
+              label: '編輯第 $number 組',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onEdit,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    children: [
+                      ValueWithUnit(
+                        value: formatWeight(set.weightKg),
+                        unit: 'kg',
+                        style: numberStyle,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      ValueWithUnit(
+                        value: '${set.reps}',
+                        unit: '次',
+                        style: numberStyle,
+                      ),
+                      if (set.isDone && set.rir != null)
+                        Text('  RIR ${set.rir}', style: AppTextStyles.caption),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  ValueWithUnit(
-                    value: '${set.reps}',
-                    unit: '次',
-                    style: numberStyle,
-                  ),
-                  if (set.isDone && set.rir != null)
-                    Text('  RIR ${set.rir}', style: AppTextStyles.caption),
-                ],
+                ),
               ),
             ),
           ),

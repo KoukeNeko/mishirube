@@ -113,6 +113,40 @@ class TrainingService {
     _workouts.save(workout, action: set.isDone ? 'complete_set' : 'reopen_set');
   }
 
+  /// Rewrites what one set of the current exercise was: the weight, the
+  /// reps and how many were left in reserve. Its type, last time's
+  /// numbers and whether it is done stay as they are.
+  void editSet(
+    WorkoutSession workout,
+    int setIndex, {
+    required double weightKg,
+    required int reps,
+    required int? rir,
+  }) {
+    final sets = workout.currentExercise.sets;
+    final set = sets[setIndex];
+    sets[setIndex] = WorkoutSet(
+      weightKg: weightKg,
+      reps: reps,
+      rir: rir,
+      rpe: set.rpe,
+      type: set.type,
+      previousWeightKg: set.previousWeightKg,
+      previousReps: set.previousReps,
+      durationSeconds: set.durationSeconds,
+      distanceMeters: set.distanceMeters,
+      isDone: set.isDone,
+    );
+    _workouts.save(workout, action: 'edit_set');
+  }
+
+  /// Takes a set off the current exercise, done or not. The workout's
+  /// earlier states stay in the audit trail.
+  void removeSet(WorkoutSession workout, int setIndex) {
+    workout.currentExercise.sets.removeAt(setIndex);
+    _workouts.save(workout, action: 'remove_set');
+  }
+
   void selectExercise(WorkoutSession workout, int index) {
     workout.currentExerciseIndex = index.clamp(0, workout.exercises.length - 1);
     _workouts.save(workout, action: 'select_exercise');
