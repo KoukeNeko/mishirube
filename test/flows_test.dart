@@ -453,6 +453,28 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('demo data is switched off and on from 我的', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const MeScreen(), store: store);
+
+    await _tapText(tester, '顯示示範資料');
+    await tester.pumpAndSettle();
+    expect(store.showsDemo, isFalse);
+    expect(store.demoRecordCounts, isEmpty);
+    expect(
+      find.text('顯示示範資料'),
+      findsOneWidget,
+      reason: 'the switch stays, to bring it back',
+    );
+
+    await _tapText(tester, '顯示示範資料');
+    await tester.pumpAndSettle();
+    expect(store.showsDemo, isTrue);
+    expect(store.demoRecordCounts, isNotEmpty);
+    await disposeTree(tester);
+  });
+
   testWidgets('pausing and turning off the goal are switches', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)

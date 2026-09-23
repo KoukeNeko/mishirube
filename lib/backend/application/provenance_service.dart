@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/domain.dart';
 import '../storage/database.dart';
 
@@ -21,6 +23,73 @@ class ProvenanceService {
     'wellness_entries': RecordCategory.wellness,
     'notes': RecordCategory.wellness,
   };
+
+  /// The demo records hidden by [setShowsDemo], per table, as JSON; empty
+  /// or absent while they show.
+  static const _hiddenDemoKey = 'demo.hidden';
+
+  /// Whether the demo records show alongside the user's own.
+  bool get showsDemo => (_db.setting(_hiddenDemoKey) ?? '').isEmpty;
+
+  /// Whether there is any demo content to show or hide.
+  bool get hasDemo => !showsDemo || recordCounts(ChangeSource.seed).isNotEmpty;
+
+  /// Hides every demo record still showing, or shows again exactly the
+  /// ones it hid. Hiding is a tombstone like any delete, audited, so
+  /// nothing is lost; a demo record the user deleted before stays
+  /// deleted, since it is not among the hidden.
+  void setShowsDemo(bool shows) {
+    if (shows == showsDemo) return;
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      if (shows) {
+        final hidden = jsonDecode(_db.setting(_hiddenDemoKey)!) as Map;
+        for (final MapEntry(key: table, value: ids) in hidden.entries) {
+          if (!_recordTables.containsKey(table)) continue;
+          for (final id in (ids as List).cast<String>()) {
+            _setDeleted(table as String, id, null, now, 'show_demo');
+          }
+        }
+        _db.setSetting(_hiddenDemoKey, '');
+        return;
+      }
+      final hidden = <String, List<String>>{};
+      for (final table in _recordTables.keys) {
+        final ids = [
+          for (final row in _db.select(
+            'SELECT id FROM $table WHERE deleted_at IS NULL AND source = ?',
+            [ChangeSource.seed.name],
+          ))
+            row['id']! as String,
+        ];
+        for (final id in ids) {
+          _setDeleted(table, id, now, now, 'hide_demo');
+        }
+        if (ids.isNotEmpty) hidden[table] = ids;
+      }
+      _db.setSetting(_hiddenDemoKey, jsonEncode(hidden));
+    });
+  }
+
+  void _setDeleted(
+    String table,
+    String id,
+    int? deletedAt,
+    int now,
+    String action,
+  ) {
+    _db.execute(
+      'UPDATE $table SET deleted_at = ?, updated_at = ?, '
+      'revision = revision + 1 WHERE id = ?',
+      [deletedAt, now, id],
+    );
+    _db.audit(
+      entityType: table,
+      entityId: id,
+      action: action,
+      source: ChangeSource.seed,
+    );
+  }
 
   /// Live records per category written by [source].
   Map<RecordCategory, int> recordCounts(ChangeSource source) {

@@ -2338,6 +2338,75 @@ void main() {
     });
   });
 
+  group('demo data', () {
+    test('hides and shows again, and survives a restart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      final demo = store.demoRecordCounts;
+      expect(demo, isNotEmpty);
+      expect(store.hasDemo, isTrue);
+      final meals = store.backend.nutrition.mealsOn(clock.now()).length;
+      final exercises = store.exercises.length;
+
+      store.setShowsDemo(false);
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.showsDemo, isFalse);
+      expect(reopened.demoRecordCounts, isEmpty);
+      expect(reopened.backend.nutrition.mealsOn(clock.now()), isEmpty);
+      expect(reopened.hasDemo, isTrue, reason: 'the switch stays to undo it');
+      expect(
+        reopened.exercises,
+        hasLength(exercises),
+        reason: 'the exercise library is not demo data',
+      );
+
+      reopened.setShowsDemo(true);
+      expect(reopened.demoRecordCounts, demo);
+      expect(
+        reopened.backend.nutrition.mealsOn(clock.now()),
+        hasLength(meals),
+      );
+    });
+
+    test('a demo record deleted before stays deleted', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final meal = store.backend.nutrition.mealsOn(clock.now()).first;
+      store.backend.nutrition.deleteMeals([meal.id]);
+      final meals = store.backend.nutrition.mealsOn(clock.now()).length;
+
+      store
+        ..setShowsDemo(false)
+        ..setShowsDemo(true);
+
+      expect(store.backend.nutrition.mealsOn(clock.now()), hasLength(meals));
+      expect(
+        store.backend.nutrition
+            .mealsOn(clock.now())
+            .map((restored) => restored.id),
+        isNot(contains(meal.id)),
+      );
+    });
+
+    test('hiding is audited like any delete', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final records = store.demoRecordCounts.values.fold(0, (a, b) => a + b);
+
+      store.setShowsDemo(false);
+
+      final audited = store.backend.db.select(
+        "SELECT COUNT(*) AS n FROM audit_events WHERE action = 'hide_demo'",
+      ).single['n'];
+      expect(audited, records);
+    });
+  });
+
   group('canonical archive', () {
     test('export → restore into an empty store → export is lossless', () {
       final source = AppStore(clock: clock.now, isOnboarded: true)

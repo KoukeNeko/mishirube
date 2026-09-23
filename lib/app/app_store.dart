@@ -248,6 +248,13 @@ class AppStore extends ChangeNotifier {
   Map<RecordCategory, int> get demoRecordCounts =>
       _backend.provenance.recordCounts(ChangeSource.seed);
 
+  /// Whether the demo records show; switched in 我的.
+  bool get showsDemo => _backend.provenance.showsDemo;
+
+  bool get hasDemo => _backend.provenance.hasDemo;
+
+  void setShowsDemo(bool shows) => _backend.provenance.setShowsDemo(shows);
+
   List<ImportRecord> get imports => _backend.provenance.imports();
 
   List<CatalogueRecord> get catalogues => _backend.provenance.catalogues();

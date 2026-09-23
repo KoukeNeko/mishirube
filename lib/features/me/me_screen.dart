@@ -87,6 +87,12 @@ class MeScreen extends StatelessWidget {
                 subtitle: '手動輸入、匯入與內建目錄',
                 onTap: () => pushPage(context, const DataSourcesScreen()),
               ),
+              if (store.hasDemo)
+                SwitchRow(
+                  title: '顯示示範資料',
+                  value: store.showsDemo,
+                  onChanged: store.setShowsDemo,
+                ),
               NavRow(
                 title: '匯出',
                 subtitle: '完整封存 JSON · CSV 檢視',
