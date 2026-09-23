@@ -38,13 +38,24 @@ Future<SetEdit?> showSetEditor(
   BuildContext context, {
   required String title,
   required WorkoutSet set,
-}) => showAppDialog<SetEdit>(context, _SetEditor(title: title, set: set));
+  required Equipment equipment,
+}) => showAppDialog<SetEdit>(
+  context,
+  _SetEditor(title: title, set: set, equipment: equipment),
+);
 
 class _SetEditor extends StatefulWidget {
-  const _SetEditor({required this.title, required this.set});
+  const _SetEditor({
+    required this.title,
+    required this.set,
+    required this.equipment,
+  });
 
   final String title;
   final WorkoutSet set;
+
+  /// A barbell's weight is also read as the plates to load.
+  final Equipment equipment;
 
   @override
   State<_SetEditor> createState() => _SetEditorState();
@@ -93,7 +104,17 @@ class _SetEditorState extends State<_SetEditor> {
             increaseLabel: '增加 ${formatWeight(plateStepKg)} kg',
             onDecrease: () => _stepWeight(-plateStepKg),
             onIncrease: () => _stepWeight(plateStepKg),
+            onChanged: () => setState(() {}),
           ),
+          if (widget.equipment == Equipment.barbell)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xxs),
+              child: Text(
+                _platesLabel(_weightKg),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.caption,
+              ),
+            ),
           const SizedBox(height: AppSpacing.sm),
           _Stepper(
             controller: _reps,
@@ -103,6 +124,7 @@ class _SetEditorState extends State<_SetEditor> {
             increaseLabel: '多 1 次',
             onDecrease: () => _stepReps(-1),
             onIncrease: () => _stepReps(1),
+            onChanged: () => setState(() {}),
           ),
           const SizedBox(height: AppSpacing.md),
           const Text('RIR', style: AppTextStyles.overline),
@@ -144,6 +166,13 @@ class _SetEditorState extends State<_SetEditor> {
   }
 }
 
+/// What to load on each side of a 20 kg bar.
+String _platesLabel(double totalKg) => switch (platesPerSide(totalKg)) {
+  null => '槓片湊不出這個重量',
+  [] => '空槓',
+  final plates => '每邊 ${plates.map(formatWeight).join(' + ')}',
+};
+
 /// A number with a step down and a step up beside it; the number itself
 /// can be typed over.
 class _Stepper extends StatelessWidget {
@@ -155,6 +184,7 @@ class _Stepper extends StatelessWidget {
     required this.increaseLabel,
     required this.onDecrease,
     required this.onIncrease,
+    required this.onChanged,
   });
 
   final TextEditingController controller;
@@ -164,6 +194,7 @@ class _Stepper extends StatelessWidget {
   final String increaseLabel;
   final VoidCallback onDecrease;
   final VoidCallback onIncrease;
+  final VoidCallback onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +214,7 @@ class _Stepper extends StatelessWidget {
               IntrinsicWidth(
                 child: TextField(
                   controller: controller,
+                  onChanged: (_) => onChanged(),
                   onTapOutside: dismissKeyboardOnTapOutside,
                   textAlign: TextAlign.end,
                   keyboardType: TextInputType.numberWithOptions(

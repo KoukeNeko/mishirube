@@ -824,6 +824,19 @@ void main() {
     });
   });
 
+  group('plates', () {
+    test('the heaviest plates first, per side of a 20 kg bar', () {
+      expect(platesPerSide(100), [25, 15]);
+      expect(platesPerSide(62.5), [20, 1.25]);
+      expect(platesPerSide(20), isEmpty, reason: 'the bare bar');
+    });
+
+    test('a weight the plates cannot make says so', () {
+      expect(platesPerSide(15), isNull);
+      expect(platesPerSide(21), isNull);
+    });
+  });
+
   group('workout review', () {
     WorkoutSet done(double kg, int reps, {SetType type = SetType.working}) =>
         WorkoutSet(

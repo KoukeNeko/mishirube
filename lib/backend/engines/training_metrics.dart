@@ -18,6 +18,25 @@ const plateStepKg = 2.5;
 const warmupShare = 0.6;
 const dropShare = 0.8;
 
+/// An Olympic bar, and the plates a gym has, heaviest first.
+const barKg = 20.0;
+const platesKg = [25.0, 20.0, 15.0, 10.0, 5.0, 2.5, 1.25];
+
+/// The plates on each side of the bar for [totalKg], heaviest first:
+/// empty for the bare bar, null when the plates cannot make it exactly.
+List<double>? platesPerSide(double totalKg) {
+  var side = (totalKg - barKg) / 2;
+  if (side < 0) return null;
+  final plates = <double>[];
+  for (final plate in platesKg) {
+    while (side >= plate - 1e-9) {
+      plates.add(plate);
+      side -= plate;
+    }
+  }
+  return side.abs() < 1e-9 ? plates : null;
+}
+
 /// Rest before the next set when nothing else is said: a movement that
 /// loads several joints needs longer to recover for than one that
 /// isolates a muscle. Starting points to lengthen or cut short.

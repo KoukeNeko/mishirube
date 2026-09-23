@@ -164,6 +164,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
       context,
       title: set.type == SetType.working ? '第 ${index + 1} 組' : set.type.label,
       set: set,
+      equipment: store.activeWorkout!.currentExercise.exercise.equipment,
     );
     switch (edit) {
       case SetChanged(:final weightKg, :final reps, :final rir):

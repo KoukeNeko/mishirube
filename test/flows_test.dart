@@ -183,6 +183,7 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')));
     await tester.pumpAndSettle();
+    expect(find.textContaining('每邊'), findsOneWidget, reason: 'a barbell');
     await tester.tap(find.byTooltip('增加 2.5 kg'));
     await tester.tap(find.byTooltip('多 1 次'));
     await tester.tap(find.widgetWithText(SelectChip, '2'));
