@@ -232,6 +232,11 @@ class _HistoryCard extends StatelessWidget {
 
   final ExerciseHistory history;
 
+  /// Each session's estimated max, oldest first, for the trend line.
+  List<double> get _estimates => [
+    for (final entry in history.recent.reversed) ?entry.oneRepMaxKg,
+  ];
+
   @override
   Widget build(BuildContext context) {
     final estimate = history.estimatedOneRepMaxKg;
@@ -259,6 +264,14 @@ class _HistoryCard extends StatelessWidget {
               ),
             ],
           ),
+          if (_estimates case final estimates when estimates.length > 1) ...[
+            const SizedBox(height: AppSpacing.md),
+            Semantics(
+              label: '估計最大重量走勢，${estimates.length} 次訓練',
+              excludeSemantics: true,
+              child: Sparkline(values: estimates, color: AppColors.training),
+            ),
+          ],
           const Divider(height: AppSpacing.xl),
           for (final entry in history.recent.take(_recentCount))
             Padding(
