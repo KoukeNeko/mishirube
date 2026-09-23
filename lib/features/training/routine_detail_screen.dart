@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/training_metrics.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -24,6 +25,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   /// Editing shows the controls that change the plan's shape, so a tap
   /// while browsing cannot reorder or remove anything.
   bool _isEditing = false;
+
+  /// Muscles still sore today; each exercise working one gets a set
+  /// fewer when the workout starts. Kept for the visit only.
+  final _sore = <MuscleGroup>{};
 
   Future<void> _addExercises(BuildContext context, Routine routine) async {
     final store = AppStoreScope.read(context);
@@ -117,11 +122,29 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         label: isWorkoutActive ? '回到訓練' : '開始訓練',
         icon: Icons.play_arrow_outlined,
         onPressed: () {
-          store.startWorkout();
+          store.startWorkout(sore: _sore);
           replaceWithPage(context, const ActiveWorkoutScreen());
         },
       ),
       children: [
+        if (!_isEditing && !isWorkoutActive) ...[
+          Gutter(child: const SectionLabel('今天酸痛的肌群')),
+          Gutter(
+            child: ChipWrap(
+              options: {
+                for (final planned in routine.exercises)
+                  ...planned.exercise.primaryMuscles,
+              }.toList(),
+              labelOf: (muscle) => muscle.label,
+              isSelected: _sore.contains,
+              onTap: (muscle) => setState(
+                () => _sore.contains(muscle)
+                    ? _sore.remove(muscle)
+                    : _sore.add(muscle),
+              ),
+            ),
+          ),
+        ],
         Gutter(
           child: SectionLabel(
             '計畫的動作',
@@ -140,6 +163,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               onMove: (offset) =>
                   store.moveRoutineExercise(index, index + offset),
               onRemove: () => _remove(store, routine, index),
+              isLighter:
+                  !_isEditing &&
+                  worksSoreMuscle(planned, _sore) &&
+                  setsWhenSore(planned.sets) < planned.sets,
               isInSuperset:
                   planned.joinsNext ||
                   (index > 0 && routine.exercises[index - 1].joinsNext),
@@ -212,7 +239,11 @@ class _PlannedExerciseCard extends StatelessWidget {
     required this.onRemove,
     required this.isInSuperset,
     required this.onJoinNext,
+    required this.isLighter,
   });
+
+  /// A muscle it works is sore today: a set fewer when started.
+  final bool isLighter;
 
   final PlannedExercise planned;
   final bool isEditing;
@@ -282,8 +313,11 @@ class _PlannedExerciseCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isInSuperset)
+              if (isLighter) const TagChip(label: '今天少 1 組'),
+              if (isInSuperset) ...[
+                const SizedBox(width: AppSpacing.xs),
                 const TagChip(label: '超級組', tone: TagTone.training),
+              ],
             ],
           ),
           if (isEditing) ...[

@@ -37,13 +37,22 @@ class TrainingService {
   ExerciseDefinition _exercise(String id) => _exercises.byId(id)!;
 
   /// Starts [routine], carrying last time's numbers into each exercise.
-  WorkoutSession start(Routine routine) {
+  /// An exercise that works a muscle in [sore] gets a set fewer today;
+  /// the template itself is left as it is.
+  WorkoutSession start(Routine routine, {Set<MuscleGroup> sore = const {}}) {
     final workout = WorkoutSession(
       id: _db.newId(),
       routineId: routine.id,
       routineName: routine.name,
       startedAt: _db.now(),
-      exercises: [for (final planned in routine.exercises) plan(planned)],
+      exercises: [
+        for (final planned in routine.exercises)
+          plan(
+            worksSoreMuscle(planned, sore)
+                ? planned.copyWith(sets: setsWhenSore(planned.sets))
+                : planned,
+          ),
+      ],
     );
     _workouts.save(workout, action: 'start');
     return workout;

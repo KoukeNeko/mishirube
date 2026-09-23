@@ -18,6 +18,15 @@ const plateStepKg = 2.5;
 const warmupShare = 0.6;
 const dropShare = 0.8;
 
+/// Working sets planned for an exercise on a day one of its muscles is
+/// still sore: one fewer, never none. Recovery is read from the lifter,
+/// not guessed from the records.
+int setsWhenSore(int sets) => sets > 1 ? sets - 1 : sets;
+
+/// Whether [planned] works a muscle in [sore].
+bool worksSoreMuscle(PlannedExercise planned, Set<MuscleGroup> sore) =>
+    planned.exercise.primaryMuscles.any(sore.contains);
+
 /// Time to do one set, the rest after it aside.
 const setWorkTime = Duration(seconds: 40);
 

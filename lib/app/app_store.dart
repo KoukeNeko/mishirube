@@ -327,10 +327,12 @@ class AppStore extends ChangeNotifier {
 
   /// Starts (or picks up) today's workout. Refuses while exercise is
   /// being timed: ending someone's run for them is not ours to do.
-  bool startWorkout() {
+  ///
+  /// Muscles in [sore] get a set fewer on each exercise that works them.
+  bool startWorkout({Set<MuscleGroup> sore = const {}}) {
     if (_session case ActiveActivity()) return false;
     _session = ActiveWorkout(
-      activeWorkout ?? _backend.training.start(_routine),
+      activeWorkout ?? _backend.training.start(_routine, sore: sore),
     );
     notifyListeners();
     return true;

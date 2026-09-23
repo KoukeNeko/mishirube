@@ -796,6 +796,17 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a sore muscle is marked before starting', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    final first = store.routine.exercises.first;
+
+    await _tapText(tester, first.exercise.primaryMuscles.first.label);
+    expect(find.text('今天少 1 組'), findsWidgets);
+    await disposeTree(tester);
+  });
+
   testWidgets('two planned exercises are joined into a superset', (
     tester,
   ) async {

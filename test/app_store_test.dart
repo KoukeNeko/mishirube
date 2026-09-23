@@ -89,6 +89,22 @@ void main() {
       expect(store.expectedMinutes(store.routine), 40);
     });
 
+    test('a sore muscle takes a set off its exercises today only', () {
+      final first = store.routine.exercises.first;
+      final muscle = first.exercise.primaryMuscles.first;
+      store.startWorkout(sore: {muscle});
+
+      expect(
+        store.activeWorkout!.exercises.first.sets,
+        hasLength(first.sets - 1),
+      );
+      expect(
+        store.routine.exercises.first.sets,
+        first.sets,
+        reason: 'the template is left as it is',
+      );
+    });
+
     test('a superset takes a set of each before the rest', () {
       store.setJoinsNext(0, joins: true);
       store.startWorkout();
