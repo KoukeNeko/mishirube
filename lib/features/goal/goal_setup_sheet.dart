@@ -39,9 +39,11 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     );
   }
 
+  /// Asks how long to pause for; backing out of the dialog leaves the
+  /// goal running.
   Future<void> _pause() async {
     final store = AppStoreScope.read(context);
-    final choice = await showAppDialog<Duration?>(
+    final choice = await showAppDialog<(Duration?,)>(
       context,
       AppDialog(
         title: '暫停每週目標',
@@ -50,19 +52,18 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
           DialogAction(
             label: '暫停本週',
             tone: DialogTone.primary,
-            onTap: () => Navigator.of(context).pop(const Duration(days: 7)),
+            onTap: () => Navigator.of(context).pop((const Duration(days: 7),)),
           ),
           DialogAction(
             label: '直到手動恢復',
-            onTap: () => Navigator.of(context).pop(),
+            onTap: () => Navigator.of(context).pop((null,)),
           ),
         ],
       ),
     );
-    if (!mounted) return;
-    store.pauseGoal(until: choice == null ? null : store.now().add(choice));
-    Navigator.of(context).pop();
-    showToast(context, '已暫停每週目標');
+    if (choice == null || !mounted) return;
+    final (duration,) = choice;
+    store.pauseGoal(until: duration == null ? null : store.now().add(duration));
   }
 
   @override
@@ -115,34 +116,27 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
             ),
           ),
         ],
-        Gutter(child: const SectionLabel('暫停或關閉')),
-        Gutter(
-          child: GroupedCard(
-            children: [
-              if (overview.isPaused)
-                NavRow(
-                  title: '恢復每週目標',
-                  subtitle: '已暫停',
-                  onTap: () {
-                    store.resumeGoal();
-                    Navigator.of(context).pop();
-                    showToast(context, '已恢復每週目標');
-                  },
-                )
-              else
-                NavRow(title: '暫停每週目標', onTap: _pause),
-              NavRow(
-                title: '關閉每週目標',
-                subtitle: '不再顯示目標與連續達標，紀錄不受影響',
-                onTap: () {
-                  store.setGoalEnabled(false);
-                  Navigator.of(context).pop();
-                  showToast(context, '已關閉每週目標');
-                },
-              ),
-            ],
+        if (overview.hasGoal) ...[
+          Gutter(child: const SectionLabel('暫停或關閉')),
+          Gutter(
+            child: GroupedCard(
+              children: [
+                if (store.isGoalEnabled)
+                  SwitchRow(
+                    title: '暫停每週目標',
+                    value: overview.isPaused,
+                    onChanged: (pause) => pause ? _pause() : store.resumeGoal(),
+                  ),
+                SwitchRow(
+                  title: '每週目標',
+                  subtitle: '關閉時隱藏目標與連續達標',
+                  value: store.isGoalEnabled,
+                  onChanged: store.setGoalEnabled,
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

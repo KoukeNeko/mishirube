@@ -119,7 +119,8 @@ In particular, do not create a parallel version of:
   markers follow what is being chosen: `RadioDot` (or `RadioRow`) for one,
   `CheckSquare` (or `CheckRow`) for several, and a numbered badge only
   where the order is the answer (the exercise picker). A list that picks
-  nothing shows no marker at all;
+  nothing shows no marker at all. A setting that is on or off is a
+  `SwitchRow`, changed in place, not a row that opens or closes a page;
 - pill-shaped controls (header actions, chips, segmented controls): build
   on `Pill` / `pillHeight` so they keep one height, fill and label style.
   A chip that does something on tap is a `ChipButton`, never a `TagChip`

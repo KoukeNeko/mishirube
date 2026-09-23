@@ -78,9 +78,13 @@ class GoalRepository {
       ),
   ];
 
-  /// The pause still running, if any.
+  /// The pause in force now, if any: one with no end yet, or one set to
+  /// end later ("this week only").
   GoalPause? openPause() {
-    final open = pauses().where((pause) => pause.endedAt == null);
+    final now = _db.now();
+    final open = pauses().where(
+      (pause) => pause.endedAt == null || pause.endedAt!.isAfter(now),
+    );
     return open.isEmpty ? null : open.last;
   }
 

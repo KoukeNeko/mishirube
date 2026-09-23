@@ -154,6 +154,41 @@ class AccentBar extends StatelessWidget {
   }
 }
 
+/// A setting that is on or off. The switch is the answer, so the whole
+/// row flips it and there is no chevron.
+class SwitchRow extends StatelessWidget {
+  const SwitchRow({
+    super.key,
+    required this.title,
+    this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String? subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    // One element for a screen reader: the title and the switch's state.
+    return MergeSemantics(
+      child: NavRow(
+        title: title,
+        subtitle: subtitle,
+        trailing: Switch.adaptive(
+          value: value,
+          onChanged: onChanged,
+          activeTrackColor: AppColors.training,
+        ),
+        onTap: () => onChanged(!value),
+        showChevron: false,
+      ),
+    );
+  }
+}
+
 /// Square checkbox row used by permission and module lists.
 class CheckRow extends StatelessWidget {
   const CheckRow({

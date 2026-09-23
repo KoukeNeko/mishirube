@@ -19,6 +19,7 @@ import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/goal/goal_entry_button.dart';
+import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
@@ -446,6 +447,48 @@ void main() {
     await tester.pump(_pageTransition);
     expect(store.activeSession, isA<ActiveActivity>());
     expect(find.textContaining('先結束運動'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('pausing and turning off the goal are switches', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..setWeeklyGoal(3, applyThisWeek: true);
+    await pumpScreen(
+      tester,
+      GoalSetupScreen(overview: store.goalOverview),
+      store: store,
+    );
+    Finder switchOf(String title) => find.descendant(
+      of: find.ancestor(of: find.text(title), matching: find.byType(NavRow)),
+      matching: find.byType(Switch),
+    );
+
+    // Backing out of how long to pause leaves the goal running.
+    await _tapText(tester, '暫停每週目標');
+    expect(find.text('暫停本週'), findsOneWidget);
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
+    expect(store.goalOverview.isPaused, isFalse);
+
+    await _tapText(tester, '暫停每週目標');
+    await _tapText(tester, '暫停本週');
+    await tester.pumpAndSettle();
+    expect(store.goalOverview.isPaused, isTrue);
+    expect(tester.widget<Switch>(switchOf('暫停每週目標')).value, isTrue);
+
+    await tester.tap(switchOf('暫停每週目標'));
+    await tester.pumpAndSettle();
+    expect(store.goalOverview.isPaused, isFalse, reason: 'switched off');
+
+    await tester.tap(switchOf('每週目標'));
+    await tester.pumpAndSettle();
+    expect(store.isGoalEnabled, isFalse);
+    expect(
+      find.text('暫停每週目標'),
+      findsNothing,
+      reason: 'nothing to pause once the goal is off',
+    );
     await disposeTree(tester);
   });
 
