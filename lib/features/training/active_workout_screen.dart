@@ -173,27 +173,37 @@ class ActiveWorkoutScreen extends StatelessWidget {
   void _showExerciseList(BuildContext context, WorkoutSession workout) {
     showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          children: [
-            for (var i = 0; i < workout.exercises.length; i++)
-              ListTile(
-                title: Text(workout.exercises[i].exercise.name),
-                subtitle: Text(
-                  '${workout.exercises[i].completedSets} / '
-                  '${workout.exercises[i].sets.length} 組',
-                ),
-                selected: i == workout.currentExerciseIndex,
-                selectedColor: AppColors.training,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.card),
+        ),
+      ),
+      builder: (sheetContext) => ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenGutter,
+          AppSpacing.screenGutter,
+          AppSpacing.screenGutter,
+          AppSpacing.screenGutter + MediaQuery.paddingOf(sheetContext).bottom,
+        ),
+        children: [
+          const SectionLabel('動作'),
+          for (final (i, item) in workout.exercises.indexed)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: RadioRow(
+                title: item.exercise.name,
+                subtitle: '${item.completedSets} / ${item.sets.length} 組',
+                isSelected: i == workout.currentExerciseIndex,
                 onTap: () {
                   AppStoreScope.read(context).selectExercise(i);
                   Navigator.of(sheetContext).pop();
                 },
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
