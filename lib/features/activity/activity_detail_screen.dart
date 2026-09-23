@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'activity_view_model.dart';
 import 'record_activity_screen.dart';
 
 /// One logged session: what it was, and the two things anyone wants to do
@@ -15,20 +16,26 @@ class ActivityDetailScreen extends StatelessWidget {
 
   final String activityId;
 
-  void _delete(BuildContext context, ActivitySession activity) {
-    final store = AppStoreScope.read(context);
+  void _delete(
+    BuildContext context,
+    ActivityViewModel model,
+    ActivitySession activity,
+  ) {
     final toast = ToastScope.read(context);
-    store.deleteActivity(activity.id);
+    model.delete(activity.id);
     Navigator.of(context).pop();
     toast.showUndo(
       '已刪除${activity.type.label}',
-      onUndo: () => store.restoreActivity(activity.id),
+      onUndo: () => model.restore(activity.id),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    final activity = AppStoreScope.of(context).activityById(activityId);
+  Widget build(BuildContext context) =>
+      ViewModelBuilder(create: ActivityViewModel.new, builder: _page);
+
+  Widget _page(BuildContext context, ActivityViewModel model) {
+    final activity = model.byId(activityId);
     if (activity == null) {
       // The record is gone (undo not taken); the screen closes itself
       // rather than showing an empty shell.
@@ -88,7 +95,10 @@ class ActivityDetailScreen extends StatelessWidget {
                   RecordActivityScreen(activity: activity),
                 ),
               ),
-              NavRow(title: '刪除這筆紀錄', onTap: () => _delete(context, activity)),
+              NavRow(
+                title: '刪除這筆紀錄',
+                onTap: () => _delete(context, model, activity),
+              ),
             ],
           ),
         ),

@@ -437,13 +437,13 @@ void main() {
       addTearDown(store.dispose);
       final before = store.backend.goal.overview().thisWeek.activeDays;
 
-      store
-        ..logActivity(
+      store.backend.activity
+        ..log(
           type: ActivityTypes.running,
           startedAt: clock.now(),
           duration: const Duration(minutes: 30),
         )
-        ..logActivity(
+        ..log(
           type: ActivityTypes.cycling,
           startedAt: clock.now().subtract(const Duration(hours: 3)),
           duration: const Duration(minutes: 40),
@@ -467,7 +467,7 @@ void main() {
 
       // Fill that week in, as if catching up on records.
       for (var i = 0; i < short.targetDays - short.activeDays; i++) {
-        store.logActivity(
+        store.backend.activity.log(
           type: ActivityTypes.walking,
           startedAt: short.start.add(Duration(days: i, hours: 9)),
           duration: const Duration(minutes: 30),
@@ -1433,7 +1433,7 @@ void main() {
         backend: backend,
       );
       final startedAt = clock.now().subtract(const Duration(minutes: 40));
-      store.logActivity(
+      store.backend.activity.log(
         type: ActivityTypes.running,
         startedAt: startedAt,
         duration: const Duration(minutes: 40),
@@ -1468,14 +1468,14 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      final logged = store.logActivity(
+      final logged = store.backend.activity.log(
         type: ActivityTypes.running,
         startedAt: clock.now().subtract(const Duration(minutes: 30)),
         duration: const Duration(minutes: 30),
         distanceMeters: 5000,
       );
 
-      store.updateActivity(
+      store.backend.activity.edit(
         ActivitySession(
           id: logged.id,
           type: ActivityTypes.cycling,
@@ -1487,21 +1487,21 @@ void main() {
       final corrected = AppStore(
         clock: clock.now,
         backend: backend,
-      ).activityById(logged.id)!;
+      ).backend.activity.byId(logged.id)!;
       expect(corrected.type, ActivityTypes.cycling);
       expect(corrected.duration, const Duration(minutes: 55));
 
-      store.deleteActivity(logged.id);
-      expect(store.activityById(logged.id), isNull);
+      store.backend.activity.delete(logged.id);
+      expect(store.backend.activity.byId(logged.id), isNull);
       expect(
         store.activitiesOn(clock.now()).map((session) => session.id),
         isNot(contains(logged.id)),
       );
 
-      store.restoreActivity(logged.id);
-      expect(store.activityById(logged.id), isNotNull);
+      store.backend.activity.restore(logged.id);
+      expect(store.backend.activity.byId(logged.id), isNotNull);
       expect(
-        AppStore(clock: clock.now, backend: backend).activityById(logged.id),
+        AppStore(clock: clock.now, backend: backend).backend.activity.byId(logged.id),
         isNotNull,
         reason: 'the undo is written through, not only held in memory',
       );
@@ -1539,7 +1539,7 @@ void main() {
         AppStore(
           clock: clock.now,
           backend: backend,
-        ).activityById(finished.id)?.duration,
+        ).backend.activity.byId(finished.id)?.duration,
         const Duration(minutes: 12),
         reason: 'the paused five minutes are not exercise',
       );
@@ -1593,7 +1593,7 @@ void main() {
         reason: 'three finished weeks are enough for a normal week',
       );
       final workouts = store.backend.insights.trends().workoutsThisWeek;
-      store.logActivity(
+      store.backend.activity.log(
         type: ActivityTypes.swimming,
         startedAt: clock.now().subtract(const Duration(minutes: 45)),
         duration: const Duration(minutes: 45),
@@ -1610,13 +1610,13 @@ void main() {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      expect(store.recentActivityTypes.first, ActivityTypes.cycling);
+      expect(store.backend.activity.recentTypes().first, ActivityTypes.cycling);
       expect(
-        store.startingActivityDuration(ActivityTypes.running),
+        store.backend.activity.startingDuration(ActivityTypes.running),
         const Duration(minutes: 32),
       );
       expect(
-        store.startingActivityDuration(ActivityTypes.badminton),
+        store.backend.activity.startingDuration(ActivityTypes.badminton),
         defaultActivityDuration,
         reason: 'nothing logged before, so a round half hour',
       );

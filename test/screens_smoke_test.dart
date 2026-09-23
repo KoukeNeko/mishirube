@@ -150,7 +150,7 @@ void _withoutRoutines(AppStore store) {
 void _withGoal(AppStore store) =>
     store.backend.goal.setGoal(3, applyThisWeek: true);
 
-void _withActivity(AppStore store) => store.logActivity(
+void _withActivity(AppStore store) => store.backend.activity.log(
   type: ActivityTypes.running,
   startedAt: store.now().subtract(const Duration(minutes: 30)),
   duration: const Duration(minutes: 30),

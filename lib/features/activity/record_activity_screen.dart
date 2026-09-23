@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'activity_type_picker.dart';
+import 'activity_view_model.dart';
 import 'live_activity_screen.dart';
 
 /// Round numbers cover most of what people log after the fact.
@@ -32,6 +33,7 @@ class RecordActivityScreen extends StatefulWidget {
 }
 
 class _RecordActivityScreenState extends State<RecordActivityScreen> {
+  late final ActivityViewModel _activities;
   late ActivityType _type;
   late DateTime _startedAt;
   late int _minutes;
@@ -45,6 +47,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   void initState() {
     super.initState();
     final store = AppStoreScope.read(context);
+    _activities = ActivityViewModel(store.backend);
     if (widget.activity case final activity?) {
       _type = activity.type;
       _minutes = activity.duration.inMinutes;
@@ -59,8 +62,8 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       }
       return;
     }
-    _type = store.recentActivityTypes.firstOrNull ?? ActivityTypes.running;
-    _minutes = store.startingActivityDuration(_type).inMinutes;
+    _type = _activities.recentTypes.firstOrNull ?? ActivityTypes.running;
+    _minutes = _activities.startingDuration(_type).inMinutes;
     _startedAt = store.now().subtract(Duration(minutes: _minutes));
   }
 
@@ -69,6 +72,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     _elevation.dispose();
     _distance.dispose();
     _note.dispose();
+    _activities.dispose();
     super.dispose();
   }
 
@@ -93,9 +97,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       // Correcting a session keeps its length; a new one takes the
       // length that type usually runs to.
       if (widget.activity == null) {
-        _minutes = AppStoreScope.read(context)
-            .startingActivityDuration(type)
-            .inMinutes;
+        _minutes = _activities.startingDuration(type).inMinutes;
       }
       if (!type.tracksDistance) _distance.clear();
       if (!type.tracksElevation) _elevation.clear();
@@ -166,10 +168,9 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       setState(() => _error = '爬升請輸入 0 – ${_maxElevationM.round()} m 之間。');
       return;
     }
-    final store = AppStoreScope.read(context);
     final edited = widget.activity;
     if (edited == null) {
-      store.logActivity(
+      _activities.log(
         type: _type,
         startedAt: _startedAt,
         duration: Duration(minutes: _minutes),
@@ -179,7 +180,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
         note: _note.text.trim(),
       );
     } else {
-      store.updateActivity(
+      _activities.update(
         ActivitySession(
           id: edited.id,
           type: _type,

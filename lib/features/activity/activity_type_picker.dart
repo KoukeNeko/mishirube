@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
+import '../../app/view_model.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'activity_view_model.dart';
 
 /// Picks the kind of exercise. Recently used first, then the handful most
 /// people log, then everything by group: over time a person uses a few
@@ -14,8 +15,12 @@ class ActivityTypePicker extends StatelessWidget {
   final ActivityType? selected;
 
   @override
-  Widget build(BuildContext context) {
-    final recent = AppStoreScope.of(context).recentActivityTypes;
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: ActivityViewModel.new,
+    builder: (context, activity) => _page(context, activity.recentTypes),
+  );
+
+  Widget _page(BuildContext context, List<ActivityType> recent) {
     return DetailPage(
       appBar: PageAppBar(title: '選擇運動'),
       children: [

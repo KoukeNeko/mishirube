@@ -852,36 +852,6 @@ class AppStore extends ChangeNotifier {
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);
 
-  /// The kinds of exercise used recently, newest first.
-  List<ActivityType> get recentActivityTypes => _backend.activity.recentTypes();
-
-  /// Where the duration field starts for [type].
-  Duration startingActivityDuration(ActivityType type) =>
-      _backend.activity.startingDuration(type);
-
-  /// Records a session of general exercise.
-  ActivitySession logActivity({
-    required ActivityType type,
-    required DateTime startedAt,
-    required Duration duration,
-    double? distanceMeters,
-    double? elevationGainMeters,
-    int? effort,
-    String note = '',
-  }) {
-    final activity = _backend.activity.log(
-      type: type,
-      startedAt: startedAt,
-      duration: duration,
-      distanceMeters: distanceMeters,
-      elevationGainMeters: elevationGainMeters,
-      effort: effort,
-      note: note,
-    );
-    notifyListeners();
-    return activity;
-  }
-
   /// Starts timing [type] from now. Refuses while a workout is running,
   /// rather than quietly ending it.
   bool startActivity(ActivityType type) {
@@ -918,26 +888,6 @@ class AppStore extends ChangeNotifier {
     if (live == null) return;
     _backend.activity.discard(live);
     _session = null;
-    notifyListeners();
-  }
-
-  /// A logged session, or null once it has been removed.
-  ActivitySession? activityById(String id) => _backend.activity.byId(id);
-
-  /// Saves a correction to a session already logged.
-  void updateActivity(ActivitySession activity) {
-    _backend.activity.edit(activity);
-    notifyListeners();
-  }
-
-  /// Removes a session; [restoreActivity] takes it back.
-  void deleteActivity(String id) {
-    _backend.activity.delete(id);
-    notifyListeners();
-  }
-
-  void restoreActivity(String id) {
-    _backend.activity.restore(id);
     notifyListeners();
   }
 
