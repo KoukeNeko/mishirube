@@ -722,8 +722,13 @@ void main() {
       final working = workout.currentExercise.sets.first.weightKg;
 
       final warmup = store.addSet(SetType.warmup)!;
+      expect(
+        workout.currentExercise.sets.first,
+        warmup,
+        reason: 'a warm-up comes before the work it prepares for',
+      );
       store
-        ..toggleSet(workout.currentExercise.sets.length - 1)
+        ..completeNextSet()
         ..completeNextSet();
 
       expect(warmup.weightKg, startingWeight(working, SetType.warmup));
@@ -734,7 +739,7 @@ void main() {
             .byId(workout.id, (id) => store.exercises.first)!
             .currentExercise
             .sets
-            .last
+            .first
             .type,
         SetType.warmup,
         reason: 'the set type survives a restart',

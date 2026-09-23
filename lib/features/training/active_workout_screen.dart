@@ -115,11 +115,16 @@ class ActiveWorkoutScreen extends StatelessWidget {
             for (var i = 0; i < exercise.sets.length; i++)
               Gutter(
                 child: _SetRow(
-                  number: i + 1,
+                  ordinal: _ordinal(exercise.sets, i),
                   set: exercise.sets[i],
                   isCurrent: i == exercise.nextSetIndex,
                   onToggle: () => store.toggleSet(i),
-                  onEdit: () => _editSet(context, i, exercise.sets[i]),
+                  onEdit: () => _editSet(
+                    context,
+                    i,
+                    exercise.sets[i],
+                    _setName(exercise.sets[i], _ordinal(exercise.sets, i)),
+                  ),
                 ),
               ),
             Gutter(
@@ -158,11 +163,26 @@ class ActiveWorkoutScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _editSet(BuildContext context, int index, WorkoutSet set) async {
+  /// A working set's number among the working sets, since warm-ups come
+  /// first; null for any other kind of set.
+  static int? _ordinal(List<WorkoutSet> sets, int index) {
+    if (sets[index].type != SetType.working) return null;
+    return sets
+        .take(index + 1)
+        .where((item) => item.type == SetType.working)
+        .length;
+  }
+
+  Future<void> _editSet(
+    BuildContext context,
+    int index,
+    WorkoutSet set,
+    String name,
+  ) async {
     final store = AppStoreScope.read(context);
     final edit = await showSetEditor(
       context,
-      title: set.type == SetType.working ? '第 ${index + 1} 組' : set.type.label,
+      title: name,
       set: set,
       equipment: store.activeWorkout!.currentExercise.exercise.equipment,
     );
@@ -391,6 +411,10 @@ class _RestBannerState extends State<_RestBanner> {
   }
 }
 
+/// `第 2 組`, or the kind of set it is: `熱身組`.
+String _setName(WorkoutSet set, int? ordinal) =>
+    ordinal == null ? set.type.label : '第 $ordinal 組';
+
 /// The exercise as it went last time, from the records: what the sets
 /// on this page are measured against.
 class _LastTime extends StatelessWidget {
@@ -486,7 +510,7 @@ void _addSet(BuildContext context, SetType type) {
 
 class _SetRow extends StatelessWidget {
   const _SetRow({
-    required this.number,
+    required this.ordinal,
     required this.set,
     required this.isCurrent,
     required this.onToggle,
@@ -495,7 +519,9 @@ class _SetRow extends StatelessWidget {
 
   static const _checkSize = 40.0;
 
-  final int number;
+  /// Its number among the working sets; null for a warm-up, drop or
+  /// failure set, which is shown by its kind.
+  final int? ordinal;
   final WorkoutSet set;
   final bool isCurrent;
   final VoidCallback onToggle;
@@ -503,6 +529,7 @@ class _SetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = _setName(set, ordinal);
     final isUpcoming = !set.isDone && !isCurrent;
     final numberStyle = AppTextStyles.bigNumber.copyWith(
       fontSize: 28,
@@ -520,7 +547,7 @@ class _SetRow extends StatelessWidget {
           SizedBox(
             width: 24,
             child: set.type == SetType.working
-                ? Text('$number', style: AppTextStyles.itemTitle)
+                ? Text('$ordinal', style: AppTextStyles.itemTitle)
                 : Text(
                     set.type.label.characters.first,
                     style: AppTextStyles.itemTitle.copyWith(
@@ -536,7 +563,7 @@ class _SetRow extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label: '編輯第 $number 組',
+              label: '編輯$name',
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onEdit,
@@ -566,7 +593,7 @@ class _SetRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Semantics(
-            label: '第 $number 組完成',
+            label: '$name完成',
             checked: set.isDone,
             child: GestureDetector(
               onTap: onToggle,
