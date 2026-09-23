@@ -33,6 +33,7 @@ void main() {
     await pump(tester);
     final chart = tester.getRect(find.byType(CustomPaint).last);
     expect(find.textContaining('深層 ·'), findsNothing);
+    expect(find.text('整晚 · 02:00–06:00 · 4:00'), findsOneWidget);
 
     // Three eighths of the night: inside the deep stretch.
     await tester.tapAt(
@@ -52,6 +53,7 @@ void main() {
     await tester.tapAt(const Offset(5, 5));
     await tester.pump();
     expect(find.textContaining('REM ·'), findsNothing);
+    expect(find.textContaining('整晚 ·'), findsOneWidget);
   });
 
   testWidgets('each stage row is tall enough to read a short stretch', (

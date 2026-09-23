@@ -105,7 +105,9 @@ class _SleepStageChartState extends State<SleepStageChart> {
           children: [
             SizedBox(
               height: 22,
-              child: at == null ? null : _Readout(at: at, stretch: reading),
+              child: at == null
+                  ? _NightReadout(start: start, end: end)
+                  : _Readout(at: at, stretch: reading),
             ),
             const SizedBox(height: AppSpacing.xs),
             LayoutBuilder(
@@ -143,6 +145,29 @@ class _SleepStageChartState extends State<SleepStageChart> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// What the readout line says with nothing picked: the whole night the
+/// chart covers, in the same form as a stretch, and quieter.
+class _NightReadout extends StatelessWidget {
+  const _NightReadout({required this.start, required this.end});
+
+  final DateTime start;
+  final DateTime end;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '整晚 · ${formatTimeOfDay(start)}–${formatTimeOfDay(end)}'
+      ' · ${formatHoursMinutes(end.difference(start))}',
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: AppTextStyles.itemTitle.copyWith(
+        color: AppColors.textSecondary,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );
   }
