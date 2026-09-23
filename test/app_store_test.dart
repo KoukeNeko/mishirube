@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
@@ -68,6 +69,23 @@ void main() {
         finished.id,
         reason: 'the template lists what was really done, newest first',
       );
+    });
+
+    test('a template takes as long as its recent workouts did', () {
+      store
+        ..createRoutine('上肢')
+        ..addExercises([DemoExercises.hipThrust]);
+      final planned = plannedDuration(store.routine.exercises);
+      expect(
+        store.expectedMinutes(store.routine),
+        (planned.inSeconds / 60).round(),
+        reason: 'no workout yet, so the plan is the estimate',
+      );
+
+      store.startWorkout();
+      clock.advance(const Duration(minutes: 40));
+      store.finishWorkout();
+      expect(store.expectedMinutes(store.routine), 40);
     });
 
     test('replaceCurrentExercise keeps the prescribed sets', () {

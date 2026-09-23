@@ -48,6 +48,21 @@ class WorkoutRepository {
       byId(row['id'], exercises)!,
   ];
 
+  /// How long the last [limit] finished workouts of [routineId] took on
+  /// average, pauses left out; null before there is one.
+  Duration? averageLengthOf(String routineId, int limit) {
+    final ms =
+        _db.select(
+              'SELECT AVG(finished_at - started_at - paused_total_ms) AS ms '
+              'FROM (SELECT finished_at, started_at, paused_total_ms '
+              "FROM workouts WHERE routine_id = ? AND status = 'completed' "
+              'AND deleted_at IS NULL ORDER BY started_at DESC LIMIT ?)',
+              [routineId, limit],
+            ).first['ms']
+            as num?;
+    return ms == null ? null : Duration(milliseconds: ms.round());
+  }
+
   /// The last finished workout of [routineId] that started before
   /// [before].
   WorkoutSession? previousOf(

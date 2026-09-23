@@ -7,6 +7,9 @@ import '../engines/workout_review.dart';
 import '../storage/routine_repository.dart';
 import '../storage/workout_repository.dart';
 
+/// How many of a template's last workouts its length is judged from.
+const _recentForLength = 5;
+
 /// Defaults for an exercise added on the fly, until the user edits it.
 const _addedSets = 3;
 
@@ -68,6 +71,13 @@ class TrainingService {
       ),
     );
   }
+
+  /// How long [routine] takes: what its recent workouts took, or, before
+  /// there are any, its sets and rests as planned. Worked out on each
+  /// read, so it follows every edit to the plan.
+  Duration expectedLength(Routine routine) =>
+      _workouts.averageLengthOf(routine.id, _recentForLength) ??
+      plannedDuration(routine.exercises);
 
   /// The template's last [limit] finished workouts, newest first.
   List<WorkoutSession> recentOf(Routine routine, {int limit = 3}) =>

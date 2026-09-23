@@ -198,6 +198,12 @@ class AppStore extends ChangeNotifier {
   /// The exercise catalog with usage derived from finished workouts.
   List<ExerciseDefinition> get exercises => List.unmodifiable(_exercises);
 
+  /// How long [routine] takes, in whole minutes.
+  int expectedMinutes(Routine routine) =>
+      (_backend.training.expectedLength(routine).inSeconds /
+              Duration.secondsPerMinute)
+          .round();
+
   /// The current template's last few finished workouts, newest first.
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_routine);

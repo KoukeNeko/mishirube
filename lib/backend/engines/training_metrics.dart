@@ -18,6 +18,16 @@ const plateStepKg = 2.5;
 const warmupShare = 0.6;
 const dropShare = 0.8;
 
+/// Time to do one set, the rest after it aside.
+const setWorkTime = Duration(seconds: 40);
+
+/// How long [exercises] take as planned: each set and the rest after it.
+Duration plannedDuration(List<PlannedExercise> exercises) => exercises.fold(
+  Duration.zero,
+  (sum, planned) =>
+      sum + (setWorkTime + restAfter(planned.exercise)) * planned.sets,
+);
+
 /// A warm-up ramp: shares of the working weight, each with fewer reps
 /// than the last, so the working set is reached without tiring for it.
 const _rampSteps = [(0.4, 5), (0.6, 3), (0.8, 1)];

@@ -144,7 +144,8 @@ class NextWorkoutCard extends StatelessWidget {
           CardEyebrow(
             label: '接下來',
             color: AppColors.training,
-            trailing: '約 ${routine.estimatedMinutes} 分',
+            trailing:
+                '約 ${AppStoreScope.of(context).expectedMinutes(routine)} 分',
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(routine.name, style: AppTextStyles.cardTitle),

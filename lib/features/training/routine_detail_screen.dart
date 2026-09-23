@@ -97,7 +97,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: routine.name,
-        subtitle: '訓練模板 · ${routine.programName}',
+        subtitle:
+            '訓練模板 · ${routine.programName} · 約 ${store.expectedMinutes(routine)} 分',
         actions: [
           HeaderAction(
             icon: Icons.list_alt_outlined,
