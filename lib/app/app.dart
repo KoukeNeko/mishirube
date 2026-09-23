@@ -7,6 +7,7 @@ import '../features/shell/home_shell.dart';
 import '../shared/toast/toast_host.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
+import 'rest_notice.dart';
 import 'theme.dart';
 
 class MishirubeApp extends StatefulWidget {
@@ -64,7 +65,9 @@ class _MishirubeAppState extends State<MishirubeApp> {
         builder: (_, child) => AnnotatedRegion<SystemUiOverlayStyle>(
           value: appSystemOverlayStyle,
           child: WindowControlsScope(
-            child: ToastHost(child: child ?? const SizedBox.shrink()),
+            child: RestNotice(
+              child: ToastHost(child: child ?? const SizedBox.shrink()),
+            ),
           ),
         ),
         home: const _RootGate(),

@@ -20,6 +20,9 @@ class MainActivity : FlutterFragmentActivity() {
         val labels = LabelReaderBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/ocr")
             .setMethodCallHandler(labels::handle)
+        val rest = RestNoticeBridge(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/rest_notice")
+            .setMethodCallHandler(rest::handle)
         // Keeps the screen on while a workout page is open
         // (lib/shared/screen_awake.dart).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/screen_awake")

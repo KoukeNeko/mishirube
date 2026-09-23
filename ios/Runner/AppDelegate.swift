@@ -3,6 +3,7 @@ import HealthKit
 import Photos
 import ImageIO
 import UIKit
+import UserNotifications
 import Vision
 
 #if canImport(FoundationModels)
@@ -31,6 +32,9 @@ import Vision
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PhotoLibrary") {
       PhotoLibrary.register(with: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RestNotice") {
+      RestNotice.register(with: registrar.messenger())
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ScreenAwake") {
       ScreenAwake.register(with: registrar.messenger())
@@ -779,6 +783,51 @@ enum LabelReader {
         } catch {
           continuation.resume(throwing: error)
         }
+      }
+    }
+  }
+}
+
+/// The end of the rest between sets as a notification
+/// (`lib/app/rest_notice.dart`), so it is heard with the device locked.
+/// Permission is asked the first time a rest starts; declining leaves
+/// the rest shown in the app only.
+enum RestNotice {
+  static let identifier = "rest"
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/rest_notice", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      let center = UNUserNotificationCenter.current()
+      switch call.method {
+      case "schedule":
+        guard let arguments = call.arguments as? [String: Any],
+          let endsAt = arguments["endsAt"] as? Double
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = arguments["endedTitle"] as? String ?? ""
+        content.body = arguments["body"] as? String ?? ""
+        content.sound = .default
+        let seconds = max(1, endsAt / 1000 - Date().timeIntervalSince1970)
+        let request = UNNotificationRequest(
+          identifier: identifier, content: content,
+          trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false))
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+          guard granted else { return }
+          center.removePendingNotificationRequests(withIdentifiers: [identifier])
+          center.add(request)
+        }
+        result(nil)
+      case "cancel":
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.removeDeliveredNotifications(withIdentifiers: [identifier])
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
       }
     }
   }

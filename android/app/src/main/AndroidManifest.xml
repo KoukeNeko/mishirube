@@ -3,6 +3,8 @@
     <!-- The camera plugin asks for the microphone for video; the app only
          takes photos. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove"/>
+    <!-- The rest between sets, counting down in the notification shade. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Health Connect, read only. -->
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>
     <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
