@@ -2,12 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import '../backend/application/activity_service.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
-import '../backend/application/insights_service.dart';
 import '../backend/application/nutrition_service.dart';
 import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
@@ -53,18 +51,6 @@ enum AppModule {
 }
 
 enum HomeTab { today, log, trends, me }
-
-/// Which body the muscle map is drawn on. It is a choice of drawing,
-/// not a statement about the user: the same records are shaded either
-/// way, and nothing else in the app reads it.
-enum MuscleFigure {
-  male('男性'),
-  female('女性');
-
-  const MuscleFigure(this.label);
-
-  final String label;
-}
 
 class AppStore extends ChangeNotifier {
   /// [backend] defaults to a seeded in-memory store (tests, previews); the
@@ -122,7 +108,6 @@ class AppStore extends ChangeNotifier {
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
   static const _selectedRoutineKey = 'selected_routine';
-  static const _muscleFigureKey = 'muscle_figure';
   static const _glassKey = 'glass_millilitres';
 
   /// What one glass is, until the user says otherwise.
@@ -228,16 +213,6 @@ class AppStore extends ChangeNotifier {
   /// Insights for the Today screen, derived from the records.
   List<Insight> get todayInsights => _backend.insights.today();
 
-  /// Everything the Trends screen shows over [window].
-  TrendsOverview trends({Duration window = const Duration(days: 28)}) =>
-      _backend.insights.trends(window: window);
-
-  /// Training volume for one exercise, or for the most trained one.
-  VolumeReport? volumeReport({
-    String? exerciseId,
-    Duration window = const Duration(days: 28),
-  }) => _backend.insights.volumeReport(exerciseId: exerciseId, window: window);
-
   /// Folds a duplicate exercise into the one it duplicates. The records
   /// move with it; the plan is reloaded because it may name either.
   void mergeExercise({
@@ -263,24 +238,6 @@ class AppStore extends ChangeNotifier {
     _routine = _backend.training.applySuggestion(_routine, planned, suggestion);
     notifyListeners();
   }
-
-  /// Which body the muscle map draws. Defaults to the male figure only
-  /// because one of the two has to be first.
-  MuscleFigure get muscleFigure => MuscleFigure.values.firstWhere(
-    (figure) => figure.name == _backend.db.setting(_muscleFigureKey),
-    orElse: () => MuscleFigure.male,
-  );
-
-  void setMuscleFigure(MuscleFigure figure) {
-    _backend.db.setSetting(_muscleFigureKey, figure.name);
-    notifyListeners();
-  }
-
-  /// Working sets per muscle per week, for seeing what is being trained
-  /// and what is being left out.
-  List<(MuscleGroup, int)> muscleLoad({
-    Duration window = const Duration(days: 28),
-  }) => _backend.insights.muscleLoad(window: window);
 
   /// Where the previous database file was moved to when it could not be
   /// read, or null on a normal start. The app says so rather than
@@ -919,11 +876,6 @@ class AppStore extends ChangeNotifier {
   /// Where the duration field starts for [type].
   Duration startingActivityDuration(ActivityType type) =>
       _backend.activity.startingDuration(type);
-
-  /// Exercise over the last few weeks, for the trends card.
-  ActivitySummary activitySummary({
-    Duration window = const Duration(days: 28),
-  }) => _backend.activity.summary(window: window);
 
   /// Records a session of general exercise.
   ActivitySession logActivity({

@@ -11,6 +11,7 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'insight_detail_screen.dart';
 import 'muscle_load_card.dart';
+import 'trends_view_model.dart';
 import 'trends_empty_screen.dart';
 
 enum _TrendRange {
@@ -33,13 +34,22 @@ class TrendsScreen extends StatefulWidget {
 
 class _TrendsScreenState extends State<TrendsScreen> {
   _TrendRange _range = _TrendRange.fourWeeks;
+  late final _model = TrendsViewModel(AppStoreScope.read(context).backend);
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final overview = store.trends(window: _range.window);
-    final volume = store.volumeReport(window: _range.window);
-    final activity = store.activitySummary(window: _range.window);
+  void dispose() {
+    _model.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ListenableBuilder(listenable: _model, builder: (context, _) => _page());
+
+  Widget _page() {
+    final overview = _model.overview(_range.window);
+    final volume = _model.volumeReport(window: _range.window);
+    final activity = _model.activity(_range.window);
     return CollapsingPage(
       title: '趨勢',
       subtitle: '${_date(overview.from)} – ${_date(overview.to)}',
@@ -75,7 +85,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
         ),
         Gutter(child: const SectionLabel('肌群訓練量')),
         Gutter(
-          child: MuscleLoadCard(load: store.muscleLoad(window: _range.window)),
+          child: MuscleLoadCard(
+            load: _model.muscleLoad(_range.window),
+            figure: _model.muscleFigure,
+            onFigure: _model.setMuscleFigure,
+          ),
         ),
         Gutter(child: const SectionLabel('詳細圖表')),
         Gutter(

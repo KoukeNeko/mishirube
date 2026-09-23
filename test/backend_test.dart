@@ -1548,14 +1548,14 @@ void main() {
     test('a discarded session leaves no record behind', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
-      final before = store.activitySummary().sessions;
+      final before = store.backend.activity.summary().sessions;
 
       store.startActivity(ActivityTypes.swimming);
       clock.advance(const Duration(minutes: 20));
       store.discardActivity();
 
       expect(store.activeSession, isNull);
-      expect(store.activitySummary().sessions, before);
+      expect(store.backend.activity.summary().sessions, before);
       expect(store.startActivity(ActivityTypes.swimming), isTrue);
     });
 
@@ -1582,7 +1582,7 @@ void main() {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      final summary = store.activitySummary();
+      final summary = store.backend.activity.summary();
       expect(summary.hasRecords, isTrue);
       expect(summary.thisWeek, 2, reason: 'the two sessions since Monday');
       expect(summary.weekly, hasLength(4));
@@ -1592,15 +1592,15 @@ void main() {
         isNotNull,
         reason: 'three finished weeks are enough for a normal week',
       );
-      final workouts = store.trends().workoutsThisWeek;
+      final workouts = store.backend.insights.trends().workoutsThisWeek;
       store.logActivity(
         type: ActivityTypes.swimming,
         startedAt: clock.now().subtract(const Duration(minutes: 45)),
         duration: const Duration(minutes: 45),
       );
-      expect(store.activitySummary().thisWeek, summary.thisWeek + 1);
+      expect(store.backend.activity.summary().thisWeek, summary.thisWeek + 1);
       expect(
-        store.trends().workoutsThisWeek,
+        store.backend.insights.trends().workoutsThisWeek,
         workouts,
         reason: 'a swim is not a workout',
       );
@@ -1862,7 +1862,7 @@ void main() {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      final load = store.muscleLoad();
+      final load = store.backend.insights.muscleLoad();
       expect(load, isNotEmpty);
       expect(
         load.first.$1,
@@ -1881,7 +1881,7 @@ void main() {
         ..startWorkout();
       addTearDown(store.dispose);
       final before = {
-        for (final (muscle, sets) in store.muscleLoad()) muscle: sets,
+        for (final (muscle, sets) in store.backend.insights.muscleLoad()) muscle: sets,
       };
 
       for (var i = 0; i < 6; i++) {
@@ -1891,7 +1891,7 @@ void main() {
       store.finishWorkout();
 
       final after = {
-        for (final (muscle, sets) in store.muscleLoad()) muscle: sets,
+        for (final (muscle, sets) in store.backend.insights.muscleLoad()) muscle: sets,
       };
       expect(
         after[MuscleGroup.quads],

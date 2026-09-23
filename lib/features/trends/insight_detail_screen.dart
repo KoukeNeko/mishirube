@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
+import '../../app/view_model.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_proposal_screen.dart';
+import 'trends_view_model.dart';
 
 /// Explains one insight: conclusion, evidence, data quality and next step.
 class InsightDetailScreen extends StatelessWidget {
@@ -14,9 +16,14 @@ class InsightDetailScreen extends StatelessWidget {
   final String? exerciseId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: TrendsViewModel.new,
+    builder: (context, trends) => _page(context, trends),
+  );
+
+  Widget _page(BuildContext context, TrendsViewModel trends) {
     final store = AppStoreScope.of(context);
-    final report = store.volumeReport(exerciseId: exerciseId);
+    final report = trends.volumeReport(exerciseId: exerciseId);
     if (report == null) {
       return const DetailPage(
         appBar: PageAppBar(title: '訓練量', subtitle: '值得注意'),

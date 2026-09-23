@@ -27,6 +27,7 @@ import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -549,20 +550,22 @@ void main() {
     )..selectTab(HomeTab.trends);
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
-    expect(
-      store.muscleFigure,
-      MuscleFigure.male,
-      reason: 'one has to be first',
-    );
+    MuscleFigure figureIn(Backend backend) {
+      final trends = TrendsViewModel(backend);
+      final figure = trends.muscleFigure;
+      trends.dispose();
+      return figure;
+    }
+
+    expect(figureIn(backend), MuscleFigure.male, reason: 'one has to be first');
 
     await _tapText(tester, MuscleFigure.female.label);
     await tester.pumpAndSettle();
 
-    expect(store.muscleFigure, MuscleFigure.female);
     expect(
-      AppStore(clock: FakeClock().now, backend: backend).muscleFigure,
+      figureIn(backend),
       MuscleFigure.female,
-      reason: 'the choice of drawing survives a restart',
+      reason: 'the choice of drawing is stored, so it survives a restart',
     );
     await disposeTree(tester);
   });

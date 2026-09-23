@@ -385,7 +385,7 @@ void main() {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      final overview = store.trends();
+      final overview = store.backend.insights.trends();
 
       expect(overview.weight.values, isNotEmpty);
       expect(overview.weight.changePerWeek, isNotNull);
@@ -403,7 +403,7 @@ void main() {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      final report = store.volumeReport()!;
+      final report = store.backend.insights.volumeReport()!;
 
       expect(report.weeklySets, hasLength(4));
       expect(report.sessionCount, greaterThanOrEqualTo(4));
@@ -425,12 +425,12 @@ void main() {
         store.backend.db.execute('DELETE FROM $table');
       }
 
-      final overview = store.trends();
+      final overview = store.backend.insights.trends();
 
       expect(overview.insights, isEmpty);
       expect(overview.weight.latest, isNull);
       expect(overview.foodDaysTracked, 0);
-      expect(store.volumeReport(), isNull);
+      expect(store.backend.insights.volumeReport(), isNull);
     });
   });
 
@@ -439,7 +439,7 @@ void main() {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);
       expect(
-        store.trends().averageSleep,
+        store.backend.insights.trends().averageSleep,
         isNull,
         reason: 'no nights logged yet, which is not zero sleep',
       );
@@ -448,7 +448,7 @@ void main() {
         ..recordSleep(const Duration(hours: 7, minutes: 30), score: 4)
         ..recordSleep(const Duration(hours: 6, minutes: 30));
 
-      expect(store.trends().averageSleep, const Duration(hours: 7));
+      expect(store.backend.insights.trends().averageSleep, const Duration(hours: 7));
       final today = store.monthRecords(DateTime(2026, 9)).days.first;
       expect(today.entries.map((entry) => entry.title), contains('睡眠 7:30'));
       expect(
@@ -676,12 +676,12 @@ void main() {
         ..completeNextSet();
       addTearDown(store.dispose);
       final id = store.activeWorkout!.id;
-      final before = store.trends().workoutsThisWeek;
+      final before = store.backend.insights.trends().workoutsThisWeek;
 
       store.discardWorkout();
 
       expect(store.activeWorkout, isNull);
-      expect(store.trends().workoutsThisWeek, before);
+      expect(store.backend.insights.trends().workoutsThisWeek, before);
       expect(
         store.backend.storage.workouts.byId(id, (id) => store.exercises.first),
         isNotNull,

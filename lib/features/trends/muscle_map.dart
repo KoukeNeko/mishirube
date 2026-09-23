@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:path_parsing/path_parsing.dart';
 
-import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import 'trends_view_model.dart';
 import 'muscle_map_paths.dart';
 
 /// Where the colour scale tops out. It is a drawing limit, not a

@@ -8,8 +8,8 @@
 
 import 'dart:ui' show Size;
 
-import '../../app/app_store.dart';
 import '../../domain/domain.dart';
+import 'trends_view_model.dart';
 
 /// The space the paths below are drawn in.
 const muscleFigureSize = Size(1024, 1536);

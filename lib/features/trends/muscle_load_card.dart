@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
+import 'trends_view_model.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
@@ -13,9 +13,18 @@ const _labelWidth = 56.0;
 /// the shape of the list: what is getting the work, and what is missing
 /// from it.
 class MuscleLoadCard extends StatelessWidget {
-  const MuscleLoadCard({super.key, required this.load});
+  const MuscleLoadCard({
+    super.key,
+    required this.load,
+    required this.figure,
+    required this.onFigure,
+  });
 
   final List<(MuscleGroup, int)> load;
+
+  /// Which body the map is drawn on, and changing it.
+  final MuscleFigure figure;
+  final ValueChanged<MuscleFigure> onFigure;
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +32,15 @@ class MuscleLoadCard extends StatelessWidget {
       return const InfoBanner(message: '沒有工作組紀錄。');
     }
     final most = load.first.$2;
-    final store = AppStoreScope.of(context);
     return AppCard(
       child: Column(
         children: [
           MuscleMap(
             setsByMuscle: {for (final (m, sets) in load) m: sets},
-            figure: store.muscleFigure,
+            figure: figure,
           ),
           const SizedBox(height: AppSpacing.sm),
-          const _FigureChoice(),
+          _FigureChoice(selected: figure, onSelect: onFigure),
           const SizedBox(height: AppSpacing.sm),
           const _Legend(),
           const Divider(height: AppSpacing.xl),
@@ -127,11 +135,13 @@ class _Legend extends StatelessWidget {
 /// Which body the figure is drawn on. It changes nothing about the
 /// numbers, so it sits with the drawing rather than in settings.
 class _FigureChoice extends StatelessWidget {
-  const _FigureChoice();
+  const _FigureChoice({required this.selected, required this.onSelect});
+
+  final MuscleFigure selected;
+  final ValueChanged<MuscleFigure> onSelect;
 
   @override
   Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -140,9 +150,9 @@ class _FigureChoice extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs),
           SelectChip(
             label: figure.label,
-            isSelected: store.muscleFigure == figure,
+            isSelected: selected == figure,
             showsSelectionAsOutline: true,
-            onTap: () => store.setMuscleFigure(figure),
+            onTap: () => onSelect(figure),
           ),
         ],
       ],
