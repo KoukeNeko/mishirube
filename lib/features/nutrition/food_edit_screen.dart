@@ -52,32 +52,17 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late final _brand = TextEditingController(
     text: widget.editing?.brand ?? widget.sizeOf?.brand ?? '',
   );
-  late final _serving = TextEditingController(
-    text: widget.editing?.servingLabel ?? '',
-  );
   late final _servingAmount = TextEditingController(
     text: formatAmount(widget.editing?.servingAmount ?? 1),
   );
   late ServingUnit _servingUnit =
       widget.editing?.servingUnit ?? ServingUnit.gram;
 
-  /// Caffeine is typed either per 100 g/ml, the way bottled drinks print
-  /// it, or as the total in one serving. The food keeps it per serving.
-  late CaffeineBasis _caffeineBasis =
-      widget.editing?.caffeineBasis ?? CaffeineBasis.per100;
-  late final _caffeine = TextEditingController(
-    text: switch ((
-      widget.editing,
-      widget.editing?.nutrients[Nutrient.caffeine],
-    )) {
-      (final food?, final perServing?) => formatAmount(
-        food.caffeineBasis == CaffeineBasis.per100
-            ? perServing / food.servingAmount * 100
-            : perServing,
-      ),
-      _ => '',
-    },
-  );
+  /// A label prints its figures for one serving, per 100 g or ml, or
+  /// both; they are typed from whichever column is there. The food keeps
+  /// them per serving.
+  late CaffeineBasis _basis =
+      widget.editing?.caffeineBasis ?? CaffeineBasis.serving;
 
   /// Eaten or drunk. Prefilled from the unit because that is right more
   /// often than not, but shown and changeable, because the unit does not
@@ -85,40 +70,34 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late ConsumptionKind _kind =
       widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
 
-  late final _kcal = _number(widget.editing?.kcal);
-  late final _protein = _number(widget.editing?.proteinGrams);
-  late final _carb = _number(widget.editing?.carbGrams);
-  late final _fat = _number(widget.editing?.fatGrams);
-  late final _fibre = _number(widget.editing?.fibreGrams);
+  late final _kcal = _figure(widget.editing?.kcal);
+  late final _protein = _figure(widget.editing?.proteinGrams);
+  late final _carb = _figure(widget.editing?.carbGrams);
+  late final _fat = _figure(widget.editing?.fatGrams);
+  late final _fibre = _figure(widget.editing?.fibreGrams);
 
-  /// One field per nutrient, created only for the ones on screen. A field
-  /// left empty stays out of the food: unknown is not zero.
+  /// One field per nutrient. A field left empty stays out of the food:
+  /// unknown is not zero.
   late final _extra = {
     for (final nutrient in Nutrient.values)
-      nutrient: TextEditingController(
-        text: switch (widget.editing?.nutrients[nutrient]) {
-          final amount? => formatAmount(amount),
-          null => '',
-        },
-      ),
+      nutrient: _figure(widget.editing?.nutrients[nutrient]),
   };
 
-  /// Nutrients beyond the label's own stay folded away until asked for.
-  late bool _showsEveryNutrient =
-      widget.editing?.nutrients.keys.any(_isBeyondLabel) ?? false;
-
-  /// Caffeine has its own field below the label's nutrients.
-  static bool _isBeyondLabel(Nutrient nutrient) =>
-      !_labelNutrients.contains(nutrient) && nutrient != Nutrient.caffeine;
-
-  static TextEditingController _number(int? value) =>
-      TextEditingController(text: value == null ? '' : '$value');
+  /// A stored per-serving figure, shown in the column it was typed from.
+  TextEditingController _figure(num? perServing) {
+    final food = widget.editing;
+    if (perServing == null || food == null) return TextEditingController();
+    final shown = food.caffeineBasis == CaffeineBasis.per100
+        ? perServing / food.servingAmount * 100
+        : perServing.toDouble();
+    return TextEditingController(text: formatAmount(shown));
+  }
 
   @override
   void initState() {
     super.initState();
     _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
-    for (final controller in [_name, _sizeName, _servingAmount, _caffeine]) {
+    for (final controller in [_name, _sizeName, _servingAmount]) {
       controller.addListener(() => setState(() {}));
     }
   }
@@ -129,9 +108,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _name,
       _sizeName,
       _brand,
-      _serving,
       _servingAmount,
-      _caffeine,
       _kcal,
       _protein,
       _carb,
@@ -160,14 +137,14 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   double get _amount => double.tryParse(_servingAmount.text.trim()) ?? 0;
 
   /// Per 100 only makes sense for grams or millilitres.
-  CaffeineBasis get _effectiveCaffeineBasis =>
-      _servingUnit.isMeasured ? _caffeineBasis : CaffeineBasis.serving;
+  CaffeineBasis get _effectiveBasis =>
+      _servingUnit.isMeasured ? _basis : CaffeineBasis.serving;
 
-  /// The typed caffeine in one serving, or null when none was typed.
-  double? get _caffeinePerServing {
-    final typed = double.tryParse(_caffeine.text.trim());
-    if (typed == null) return null;
-    return _effectiveCaffeineBasis == CaffeineBasis.per100
+  /// What [field] comes to in one serving, or null when it is empty.
+  double? _perServing(TextEditingController field) {
+    final typed = double.tryParse(field.text.trim());
+    if (typed == null || typed < 0) return null;
+    return _effectiveBasis == CaffeineBasis.per100
         ? typed * _amount / 100
         : typed;
   }
@@ -271,6 +248,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         if (wasSuggested) _kind = _kindForUnit;
       }
       put(_servingAmount, draft.servingAmount);
+      // A draft is read off the per-serving column.
+      _basis = CaffeineBasis.serving;
       put(_kcal, draft.kcal);
       put(_protein, draft.proteinGrams);
       put(_carb, draft.carbGrams);
@@ -278,13 +257,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       put(_fibre, draft.fibreGrams);
       for (final MapEntry(key: nutrient, value: amount)
           in draft.nutrients.entries) {
-        if (nutrient == Nutrient.caffeine) {
-          // A label states its figures per serving.
-          _caffeineBasis = CaffeineBasis.serving;
-          put(_caffeine, amount);
-        } else {
-          put(_extra[nutrient]!, amount);
-        }
+        put(_extra[nutrient]!, amount);
       }
       _scanned = draft;
     });
@@ -300,15 +273,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       id: widget.editing?.id ?? _nutrition.newFoodId(),
       name: _name.text.trim(),
       brand: _brand.text.trim(),
-      servingLabel: _serving.text.trim(),
+      // No longer asked for; an older food keeps the one it had.
+      servingLabel: widget.editing?.servingLabel ?? '',
       servingAmount: _amount,
       servingUnit: _servingUnit,
-      caffeineBasis: _effectiveCaffeineBasis,
-      kcal: _valueOf(_kcal),
-      proteinGrams: _valueOf(_protein),
-      carbGrams: _valueOf(_carb),
-      fatGrams: _valueOf(_fat),
-      fibreGrams: _valueOf(_fibre),
+      caffeineBasis: _effectiveBasis,
+      kcal: _perServing(_kcal)?.round(),
+      proteinGrams: _perServing(_protein)?.round(),
+      carbGrams: _perServing(_carb)?.round(),
+      fatGrams: _perServing(_fat)?.round(),
+      fibreGrams: _perServing(_fibre)?.round(),
       nutrients: _typedNutrients(),
       parentId: widget.sizeOf?.id ?? widget.editing?.parentId,
       sizeName: _sizeName.text.trim(),
@@ -329,23 +303,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// Only the nutrients with a number in them. An empty field leaves the
   /// nutrient out of the food entirely, because not written down is not
   /// the same as zero.
-  Nutrients _typedNutrients() {
-    final nutrients = <Nutrient, double>{};
-    for (final MapEntry(key: nutrient, value: field) in _extra.entries) {
-      if (nutrient == Nutrient.caffeine) continue;
-      final amount = double.tryParse(field.text.trim());
-      if (amount != null) nutrients[nutrient] = amount;
-    }
-    if (_caffeinePerServing case final caffeine?) {
-      nutrients[Nutrient.caffeine] = caffeine;
-    }
-    return nutrients;
-  }
-
-  /// An empty field stays empty. The app does not put a number where the
-  /// user did not.
-  static int? _valueOf(TextEditingController controller) =>
-      int.tryParse(controller.text.trim());
+  Nutrients _typedNutrients() => {
+    for (final MapEntry(key: nutrient, value: field) in _extra.entries)
+      nutrient: ?_perServing(field),
+  };
 
   /// The cups this brand already uses. A shop's sizes are a fixed set,
   /// so the second drink from it should offer the same ones.
@@ -504,10 +465,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             }),
           ),
         ),
-        Gutter(child: const SectionLabel('份量名稱（選填）')),
-        Gutter(
-          child: AppTextField(controller: _serving, hint: '例如：一片'),
-        ),
         if (!_isSize && widget.editing != null) ...[
           Gutter(child: const SectionLabel('杯型')),
           for (final size in _sizes)
@@ -524,7 +481,19 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: SecondaryButton(label: '新增杯型', onPressed: _addSize),
           ),
         ],
-        Gutter(child: const SectionLabel('每份營養')),
+        Gutter(child: const SectionLabel('營養標示')),
+        if (_servingUnit.isMeasured)
+          Gutter(
+            child: ChipWrap(
+              options: CaffeineBasis.values,
+              labelOf: (basis) => switch (basis) {
+                CaffeineBasis.per100 => '每 100 ${_servingUnit.label}',
+                CaffeineBasis.serving => '一份總共',
+              },
+              isSelected: (basis) => basis == _basis,
+              onTap: (basis) => setState(() => _basis = basis),
+            ),
+          ),
         Gutter(
           child: _NumberField(
             label: MacroLabel.energy,
@@ -554,45 +523,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         ),
         for (final nutrient in _labelNutrients)
           Gutter(child: _nutrientField(nutrient)),
-        if (_showsEveryNutrient)
-          for (final nutrient in Nutrient.values)
-            if (_isBeyondLabel(nutrient))
-              Gutter(child: _nutrientField(nutrient)),
-        // Separate from the `if` above on purpose: an `else` in a
-        // collection-if binds to the nearest `if`, which put the button
-        // inside the loop and left the collapsed form with no way out.
-        if (!_showsEveryNutrient)
-          Gutter(
-            child: SecondaryButton(
-              label: '顯示其他營養素',
-              onPressed: () => setState(() => _showsEveryNutrient = true),
-            ),
-          ),
-        Gutter(child: const SectionLabel('咖啡因')),
-        Gutter(
-          child: _NumberField(label: '含量', unit: 'mg', field: _caffeine),
-        ),
-        if (_servingUnit.isMeasured)
-          Gutter(
-            child: ChipWrap(
-              options: CaffeineBasis.values,
-              labelOf: (basis) => switch (basis) {
-                CaffeineBasis.per100 => '每 100 ${_servingUnit.label}',
-                CaffeineBasis.serving => '一份總共',
-              },
-              isSelected: (basis) => basis == _caffeineBasis,
-              onTap: (basis) => setState(() => _caffeineBasis = basis),
-            ),
-          ),
-        if (_effectiveCaffeineBasis == CaffeineBasis.per100 &&
-            _caffeinePerServing != null)
-          Gutter(
-            child: Text(
-              '一份 ${formatAmount(_amount)} ${_servingUnit.label} 是 '
-              '${formatAmount(_caffeinePerServing!)} mg',
-              style: AppTextStyles.caption,
-            ),
-          ),
+        for (final nutrient in Nutrient.values)
+          if (!_labelNutrients.contains(nutrient))
+            Gutter(child: _nutrientField(nutrient)),
       ],
     );
   }
@@ -600,7 +533,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
 /// What Taiwan's packaging law makes every label print, beyond the five
 /// the form asks for first. These are the ones a user can actually copy
-/// off the back of a packet, so they are the ones shown without asking.
+/// off the back of a packet, so they come before the rest.
 const _labelNutrients = [
   Nutrient.saturatedFat,
   Nutrient.transFat,

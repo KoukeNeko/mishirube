@@ -971,7 +971,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('caffeine per 100 ml comes to the bottle', (tester) async {
+  testWidgets('a label typed per 100 ml comes to the bottle', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await _openFromHost(tester, const FoodSearchScreen(), store);
 
@@ -983,15 +983,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('ml'));
     await tester.pumpAndSettle();
-    // Bottled drinks print caffeine per 100 ml; that is where it starts.
-    await _enterBeside(tester, '含量', '20');
+    // Bottled drinks print their label per 100 ml.
+    await _tapText(tester, '每 100 ml');
+    await tester.pumpAndSettle();
+    await _enterBeside(tester, '咖啡因', '20');
+    await _enterBeside(tester, '糖', '4.5');
     await tester.pump();
-    expect(find.text('一份 600 ml 是 120 mg'), findsOneWidget);
 
     await _tapText(tester, '只建立');
     await tester.pumpAndSettle();
     final saved = store.backend.nutrition.searchFoods('無糖紅茶').single;
     expect(saved.nutrients[Nutrient.caffeine], 120);
+    expect(saved.nutrients[Nutrient.sugar], 27, reason: 'the whole label');
     expect(saved.caffeineBasis, CaffeineBasis.per100);
     await disposeTree(tester);
   });
@@ -1053,21 +1056,12 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the nutrients beyond the label are one tap away', (
+  testWidgets('every nutrient is on the form without asking', (
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const FoodEditScreen(), store: store);
 
-    expect(
-      find.text('鈣'),
-      findsNothing,
-      reason: 'a packet has four extra lines, not twenty-three',
-    );
-    await _tapText(tester, '顯示其他營養素');
-    await tester.pumpAndSettle();
-
-    expect(find.text('顯示其他營養素'), findsNothing);
     await tester.dragUntilVisible(
       find.text('鈣'),
       find.byType(CustomScrollView).hitTestable().first,

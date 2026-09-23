@@ -227,9 +227,11 @@ enum ConsumptionKind {
   final String label;
 }
 
-/// How a caffeine figure was typed: per 100 g or ml, or the total in
-/// one serving. The food keeps it per serving either way; this is only
-/// so the form can show it back as it was typed.
+/// Which column of the label the figures were typed from: per 100 g or
+/// ml, or one serving. Named for caffeine, the first figure typed this
+/// way; it covers the whole label now. The food keeps every figure per
+/// serving either way; this is only so the form can show them back as
+/// they were typed.
 enum CaffeineBasis { serving, per100 }
 
 /// What kind of quantity a unit measures.
@@ -392,7 +394,7 @@ class FoodItem {
   /// other spellings (`Starbucks STARBUCKS` for 星巴克). Not shown.
   final String searchTerms;
 
-  /// How the caffeine figure was typed.
+  /// Which label column the figures were typed from.
   final CaffeineBasis caffeineBasis;
 
   /// Shipped with the app, and read-only.

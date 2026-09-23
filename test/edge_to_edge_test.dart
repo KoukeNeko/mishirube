@@ -90,7 +90,7 @@ void main() {
   ) async {
     // A form long enough to scroll, with a footer over its end.
     await pumpScreen(tester, const FoodEditScreen(), store: _store());
-    const last = '一份總共';
+    const last = '生物素';
 
     await tester.dragUntilVisible(
       find.text(last),

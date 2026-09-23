@@ -158,6 +158,21 @@ void main() {
       );
     });
 
+    test('a figure sent as text off the label is still read', () {
+      final draft = parseFoodLabel(
+        '{"serving_amount":"30","serving_unit":"g","kcal":"150 大卡",'
+        '"protein_g":"3.2公克","fat_g":8,"sodium_mg":"1,200毫克",'
+        '"sugar_g":"不明"}',
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      );
+      expect(draft.servingAmount, 30);
+      expect(draft.kcal, 150);
+      expect(draft.proteinGrams, 3);
+      expect(draft.nutrients[Nutrient.sodium], 1200);
+      expect(draft.nutrients[Nutrient.sugar], isNull, reason: 'not a figure');
+    });
+
     test('swapped columns and energy that does not add up are flagged', () {
       FoodLabelDraft parse(String json) => parseFoodLabel(
         json,

@@ -7,15 +7,33 @@ import '../../domain/domain.dart';
 /// table row per line.
 const foodLabelInstructions = '''
 你會拿到一張台灣食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。
-把它整理成 JSON，不要任何說明文字，格式：
+台灣的營養標示長這樣（每 100 那一欄有時是「每日參考值百分比」，有時兩欄都有）：
+營養標示
+每一份量 30 公克
+本包裝含 3 份
+              每份        每100公克
+熱量          150 大卡    500 大卡
+蛋白質        3.2 公克    10.7 公克
+脂肪          8.1 公克    27.0 公克
+　飽和脂肪    3.5 公克    11.7 公克
+　反式脂肪    0 公克      0 公克
+碳水化合物    16.3 公克   54.3 公克
+　糖          5.0 公克    16.7 公克
+鈉            120 毫克    400 毫克
+膳食纖維      1.2 公克    4.0 公克
+飽和脂肪、反式脂肪算在脂肪裡，糖、膳食纖維算在碳水化合物裡，所以它們在下一行縮排。
+「熱量」也可能寫成「能量」；「碳水化合物」可能寫成「醣類」；飲料的份量單位是毫升。
+把它整理成 JSON，不要任何說明文字，數字只填數字本身、不要加單位，格式：
 {"name":"品名","brand":"品牌","serving_amount":數字,"serving_unit":"g 或 ml",
 "kcal":數字,"kcal_per_100":數字,"protein_g":數字,"fat_g":數字,"saturated_fat_g":數字,"trans_fat_g":數字,
 "carb_g":數字,"sugar_g":數字,"sodium_mg":數字,"fibre_g":數字,"caffeine_mg":數字}
 規則：
 - 一律用「每份」那一欄，不要用「每100公克」或「每100毫升」那一欄。只有每100一欄時，數字照填，serving_amount 填 100。
+- 「每日參考值百分比」那一欄是百分比，不是份量，不要填進任何欄位。
 - kcal_per_100 是「每100公克／毫升」那一欄的熱量，只用來核對；沒有那一欄就填 null。
 - serving_amount 是「每一份量」的數字，serving_unit 是它的單位（公克是 g，毫升是 ml）。
 - 鈉的單位是毫克（mg）；如果標示寫的是公克，換成毫克。
+- 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。
 - 看不到或不確定的欄位填 null，不要猜。
 - 辨識錯字要照上下文判斷，例如把字母 O 當成 0；但無法判斷就填 null。''';
 
@@ -61,9 +79,8 @@ FoodLabelDraft parseFoodLabel(
   }
   final fields = decoded;
 
-  double? figure(String key) => switch (fields[key]) {
-    final num value when value >= 0 && value <= _limits[key]! =>
-      value.toDouble(),
+  double? figure(String key) => switch (_number(fields[key])) {
+    final value? when value >= 0 && value <= _limits[key]! => value,
     _ => null,
   };
   String? text(String key) => switch (fields[key]) {
@@ -77,8 +94,8 @@ FoodLabelDraft parseFoodLabel(
     final part? when whole == null || part <= whole => part,
     _ => null,
   };
-  final serving = switch (fields['serving_amount']) {
-    final num value when value > 0 && value <= 5000 => value.toDouble(),
+  final serving = switch (_number(fields['serving_amount'])) {
+    final value? when value > 0 && value <= 5000 => value,
     _ => null,
   };
   final unit = switch (text('serving_unit')?.toLowerCase()) {
@@ -122,6 +139,19 @@ FoodLabelDraft parseFoodLabel(
   if (draft.isEmpty) throw AiException(AiFailure.unreadable, answer);
   return draft;
 }
+
+/// A figure as a model sends it: usually a number, sometimes the text
+/// off the label with its unit still on (`"3.2"`, `"1,200毫克"`).
+double? _number(Object? value) => switch (value) {
+  final num number => number.toDouble(),
+  final String text => double.tryParse(
+    RegExp(r'^\s*(\d+(\.\d+)?)')
+            .firstMatch(text.replaceAll(',', ''))
+            ?.group(1) ??
+        '',
+  ),
+  _ => null,
+};
 
 /// Whether the per-serving figures might come from the per-100 column.
 ///
