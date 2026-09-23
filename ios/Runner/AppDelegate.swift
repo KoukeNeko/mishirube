@@ -32,6 +32,9 @@ import Vision
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PhotoLibrary") {
       PhotoLibrary.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ScreenAwake") {
+      ScreenAwake.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
       WindowControls.register(with: registrar.messenger())
     }
@@ -777,6 +780,24 @@ enum LabelReader {
           continuation.resume(throwing: error)
         }
       }
+    }
+  }
+}
+
+/// Keeps the screen on while a workout page is open
+/// (`lib/shared/screen_awake.dart`): the set being logged should still be
+/// there between sets.
+enum ScreenAwake {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/screen_awake", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "keepOn", let isOn = call.arguments as? Bool else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      UIApplication.shared.isIdleTimerDisabled = isOn
+      result(nil)
     }
   }
 }

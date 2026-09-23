@@ -9,6 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/haptics.dart';
 import '../../shared/motion.dart';
+import '../../shared/screen_awake.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
@@ -92,93 +93,96 @@ class ActiveWorkoutScreen extends StatelessWidget {
     final media = MediaQuery.of(context);
     // Uses the shared collapsing app bar in its branded variant: a green
     // live hero instead of a large title.
-    return EdgeToEdgeScaffold(
-      // Measured below the Scaffold so text uses Material's line height.
-      body: Builder(
-        builder: (context) => CollapsingScrollView(
-          header: CollapsingHeaderDelegate(
-            toolbar: ToolbarMetrics.of(context),
-            topInset: media.padding.top,
-            largeHeight: _WorkoutHero.measureHeight(context),
-            solidColor: AppColors.trainingSurface,
-            isHighContrast: media.highContrast,
-            reduceMotion: prefersReducedMotion(context),
-            leading: const AppBarBackButton(
-              icon: Icons.keyboard_arrow_down,
-              tooltip: '收合',
+    // Between sets the device sits on a bench; it should not lock.
+    return ScreenAwake(
+      child: EdgeToEdgeScaffold(
+        // Measured below the Scaffold so text uses Material's line height.
+        body: Builder(
+          builder: (context) => CollapsingScrollView(
+            header: CollapsingHeaderDelegate(
+              toolbar: ToolbarMetrics.of(context),
+              topInset: media.padding.top,
+              largeHeight: _WorkoutHero.measureHeight(context),
+              solidColor: AppColors.trainingSurface,
+              isHighContrast: media.highContrast,
+              reduceMotion: prefersReducedMotion(context),
+              leading: const AppBarBackButton(
+                icon: Icons.keyboard_arrow_down,
+                tooltip: '收合',
+              ),
+              actions: [
+                HeaderAction(
+                  icon: Icons.stop_rounded,
+                  label: '結束',
+                  semanticLabel: '結束訓練',
+                  onTap: () => _end(context, workout),
+                ),
+              ],
+              compactTitle: _LiveTitle(workout: workout),
+              large: _WorkoutHero(
+                workout: workout,
+                onPickExercise: () => _showExerciseList(context, workout),
+              ),
             ),
-            actions: [
-              HeaderAction(
-                icon: Icons.stop_rounded,
-                label: '結束',
-                semanticLabel: '結束訓練',
-                onTap: () => _end(context, workout),
+            children: [
+              if (store.restEndsAt != null) Gutter(child: const _RestBanner()),
+              if (store.exerciseHistory(exercise.exercise)
+                  case ExerciseHistory(last: final last?) && final history)
+                Gutter(
+                  child: _LastTime(
+                    last: last,
+                    oneRepMaxKg: history.estimatedOneRepMaxKg,
+                  ),
+                ),
+              Gutter(child: const _SetTypeHeader()),
+              for (var i = 0; i < exercise.sets.length; i++)
+                Gutter(
+                  child: _SetRow(
+                    ordinal: _ordinal(exercise.sets, i),
+                    set: exercise.sets[i],
+                    isCurrent: i == exercise.nextSetIndex,
+                    onToggle: () => store.toggleSet(i),
+                    onEdit: () => _editSet(
+                      context,
+                      i,
+                      exercise.sets[i],
+                      _setName(exercise.sets[i], _ordinal(exercise.sets, i)),
+                    ),
+                  ),
+                ),
+              Gutter(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DashedActionCard(
+                        label: '加入動作',
+                        onTap: () => _addExercises(context),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: SecondaryButton(
+                        label: '替換這個動作',
+                        icon: Icons.swap_horiz,
+                        isCompact: true,
+                        onPressed: () =>
+                            pushPage(context, const SubstituteExerciseScreen()),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-            compactTitle: _LiveTitle(workout: workout),
-            large: _WorkoutHero(
-              workout: workout,
-              onPickExercise: () => _showExerciseList(context, workout),
-            ),
           ),
-          children: [
-            if (store.restEndsAt != null) Gutter(child: const _RestBanner()),
-            if (store.exerciseHistory(exercise.exercise)
-                case ExerciseHistory(last: final last?) && final history)
-              Gutter(
-                child: _LastTime(
-                  last: last,
-                  oneRepMaxKg: history.estimatedOneRepMaxKg,
-                ),
-              ),
-            Gutter(child: const _SetTypeHeader()),
-            for (var i = 0; i < exercise.sets.length; i++)
-              Gutter(
-                child: _SetRow(
-                  ordinal: _ordinal(exercise.sets, i),
-                  set: exercise.sets[i],
-                  isCurrent: i == exercise.nextSetIndex,
-                  onToggle: () => store.toggleSet(i),
-                  onEdit: () => _editSet(
-                    context,
-                    i,
-                    exercise.sets[i],
-                    _setName(exercise.sets[i], _ordinal(exercise.sets, i)),
-                  ),
-                ),
-              ),
-            Gutter(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DashedActionCard(
-                      label: '加入動作',
-                      onTap: () => _addExercises(context),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: SecondaryButton(
-                      label: '替換這個動作',
-                      icon: Icons.swap_horiz,
-                      isCompact: true,
-                      onPressed: () =>
-                          pushPage(context, const SubstituteExerciseScreen()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
-      ),
-      footer: BottomActionBar(
-        child: isWorkoutDone
-            ? PrimaryButton(label: '結束並儲存', onPressed: () => _finish(context))
-            : PrimaryButton(
-                label: '完成這一組',
-                onPressed: () => _completeSet(context, workout),
-              ),
+        footer: BottomActionBar(
+          child: isWorkoutDone
+              ? PrimaryButton(label: '結束並儲存', onPressed: () => _finish(context))
+              : PrimaryButton(
+                  label: '完成這一組',
+                  onPressed: () => _completeSet(context, workout),
+                ),
+        ),
       ),
     );
   }
