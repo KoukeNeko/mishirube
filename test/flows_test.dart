@@ -140,6 +140,35 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a rest keeps counting on the workout page and ends there', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _tapText(tester, '開始訓練');
+    await _tapText(tester, '完成這一組');
+    expect(find.text('休息中'), findsOneWidget);
+    expect(find.text('2:00'), findsOneWidget, reason: 'a squat rests longer');
+
+    await tester.tap(find.byTooltip('返回'));
+    await tester.pumpAndSettle();
+    expect(find.text('休息 2:00'), findsOneWidget);
+
+    clock.advance(const Duration(minutes: 1));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('休息 1:00'), findsOneWidget);
+
+    clock.advance(const Duration(minutes: 1));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+    expect(find.textContaining('休息 '), findsNothing);
+    expect(store.restEndsAt, isNull);
+    expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
   testWidgets('a set is changed or taken off where it is listed', (
     tester,
   ) async {

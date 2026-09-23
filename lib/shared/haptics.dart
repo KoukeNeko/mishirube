@@ -11,6 +11,9 @@ abstract final class AppHaptics {
   /// A photo taken: firmer than a tap, like a camera's shutter.
   static void shutter() => HapticFeedback.mediumImpact();
 
+  /// A timer ran out: the strongest of the set, felt through a pocket.
+  static void alert() => HapticFeedback.heavyImpact();
+
   /// The chosen option changed (tabs, chips, segments). iOS ticks; Android
   /// selection controls stay silent, as Material's do.
   static void selection(BuildContext context) {

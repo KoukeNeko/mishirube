@@ -18,6 +18,17 @@ const plateStepKg = 2.5;
 const warmupShare = 0.6;
 const dropShare = 0.8;
 
+/// Rest before the next set when nothing else is said: a movement that
+/// loads several joints needs longer to recover for than one that
+/// isolates a muscle. Starting points to lengthen or cut short.
+const compoundRest = Duration(minutes: 2);
+const isolationRest = Duration(seconds: 90);
+
+Duration restAfter(ExerciseDefinition exercise) =>
+    exercise.pattern == MovementPattern.isolation
+    ? isolationRest
+    : compoundRest;
+
 /// Rounds [kilograms] down to something loadable on a bar, never below
 /// one step.
 double roundToPlate(double kilograms, {double step = plateStepKg}) {

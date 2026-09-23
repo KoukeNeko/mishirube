@@ -57,6 +57,13 @@ void _noSetup(AppStore store) {}
 
 void _withWorkout(AppStore store) => store.startWorkout();
 
+void _resting(AppStore store) {
+  store
+    ..startWorkout()
+    ..completeNextSet()
+    ..startRest(store.activeWorkout!.currentExercise.exercise);
+}
+
 /// Last night from a watch, with stages, overnight readings, a second
 /// source and a nap, so the sleep page draws every section.
 void _withStagedNight(AppStore store) {
@@ -232,13 +239,14 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withGoal,
   ),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
+  'active workout (resting)': ((_) => const ActiveWorkoutScreen(), _resting),
   'rest timer': (
     (store) => RestTimerScreen(
       exerciseName: '槓鈴深蹲',
       completedSet: store.activeWorkout!.currentExercise.sets.first,
       isPersonalRecord: true,
     ),
-    _withWorkout,
+    _resting,
   ),
   'workout summary (sample)': ((_) => const WorkoutSummaryScreen(), _noSetup),
   'substitute exercise': (

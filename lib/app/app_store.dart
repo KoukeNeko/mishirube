@@ -6,6 +6,7 @@ import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
+import '../backend/engines/training_metrics.dart';
 import '../backend/engines/workout_review.dart';
 import '../backend/application/provenance_service.dart';
 import '../backend/backend.dart';
@@ -319,6 +320,45 @@ class AppStore extends ChangeNotifier {
     return true;
   }
 
+  /// When the rest between sets ends, and how long it was set for; null
+  /// when nobody is resting. Not stored: a rest does not outlive the app.
+  DateTime? _restEndsAt;
+  Duration _restLength = Duration.zero;
+
+  DateTime? get restEndsAt => _restEndsAt;
+  Duration get restLength => _restLength;
+
+  /// Starts the rest after a set of [exercise].
+  void startRest(ExerciseDefinition exercise) {
+    _restLength = restAfter(exercise);
+    _restEndsAt = now().add(_restLength);
+    notifyListeners();
+  }
+
+  void extendRest(Duration by) {
+    final endsAt = _restEndsAt;
+    if (endsAt == null) return;
+    _restLength += by;
+    _restEndsAt = endsAt.add(by);
+    notifyListeners();
+  }
+
+  void skipRest() {
+    if (_restEndsAt == null) return;
+    _restEndsAt = null;
+    notifyListeners();
+  }
+
+  /// Ends the rest once its time is up. True only for the call that
+  /// ended it, so whichever clock notices first gives the one signal.
+  bool settleRest() {
+    final endsAt = _restEndsAt;
+    if (endsAt == null || now().isBefore(endsAt)) return false;
+    _restEndsAt = null;
+    notifyListeners();
+    return true;
+  }
+
   /// Whether [set] of the running workout's current exercise beats every
   /// earlier session of it.
   bool isPersonalRecord(WorkoutSet set) {
@@ -561,6 +601,7 @@ class AppStore extends ChangeNotifier {
     if (workout == null) return;
     _backend.training.discard(workout);
     _session = null;
+    _restEndsAt = null;
     notifyListeners();
   }
 
@@ -570,6 +611,7 @@ class AppStore extends ChangeNotifier {
     _backend.training.finish(workout);
     _lastFinishedWorkout = workout;
     _session = null;
+    _restEndsAt = null;
     _phase = DayPhase.evening;
     _ensureLunchLogged();
     _routine = _backend.training.routine(_routine.id, _exercisesById)!;

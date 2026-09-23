@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
@@ -5,6 +7,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../../shared/haptics.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
@@ -38,6 +41,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
     final exercise = workout.currentExercise;
     final completedSet = store.completeNextSet();
     if (completedSet == null) return;
+    store.startRest(exercise.exercise);
     pushPage(
       context,
       RestTimerScreen(
@@ -98,6 +102,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
             ),
           ),
           children: [
+            if (store.restEndsAt != null) Gutter(child: const _RestBanner()),
             if (store.exerciseHistory(exercise.exercise)
                 case ExerciseHistory(last: final last?) && final history)
               Gutter(
@@ -314,6 +319,72 @@ class _LiveTitle extends StatelessWidget {
         style: compactTitleStyle.copyWith(
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
+      ),
+    );
+  }
+}
+
+/// The rest still running after its page was left: the time left, and
+/// the two answers to it.
+class _RestBanner extends StatefulWidget {
+  const _RestBanner();
+
+  @override
+  State<_RestBanner> createState() => _RestBannerState();
+}
+
+class _RestBannerState extends State<_RestBanner> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _onTick() {
+    if (AppStoreScope.read(context).settleRest()) {
+      AppHaptics.alert();
+    } else {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final store = AppStoreScope.of(context);
+    final endsAt = store.restEndsAt;
+    if (endsAt == null) return const SizedBox.shrink();
+    final remaining = endsAt.difference(store.now());
+    return AppCard(
+      tone: CardTone.training,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '休息 ${formatClock(remaining.isNegative ? Duration.zero : remaining)}',
+              style: AppTextStyles.cardTitle.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          ChipButton(
+            label: '+30 秒',
+            onTap: () => store.extendRest(const Duration(seconds: 30)),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          ChipButton(
+            label: '跳過',
+            tone: TagTone.training,
+            onTap: store.skipRest,
+          ),
+        ],
       ),
     );
   }

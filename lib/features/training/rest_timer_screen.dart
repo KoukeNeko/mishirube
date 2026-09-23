@@ -6,14 +6,16 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../../shared/haptics.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../shared/window_layout.dart';
 
-const _defaultRest = Duration(seconds: 90);
 const _restExtension = Duration(seconds: 30);
 const _tick = Duration(seconds: 1);
 
+/// The rest between sets, counted down from the store's end time: it
+/// keeps running when this page is left, and the workout page shows it.
 class RestTimerScreen extends StatefulWidget {
   const RestTimerScreen({
     super.key,
@@ -31,8 +33,6 @@ class RestTimerScreen extends StatefulWidget {
 }
 
 class _RestTimerScreenState extends State<RestTimerScreen> {
-  Duration _total = _defaultRest;
-  Duration _remaining = _defaultRest;
   Timer? _timer;
 
   @override
@@ -48,27 +48,37 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
   }
 
   void _onTick() {
-    if (_remaining <= _tick) {
-      _endRest();
-      return;
+    final store = AppStoreScope.read(context);
+    if (store.settleRest()) AppHaptics.alert();
+    if (store.restEndsAt == null) {
+      _close();
+    } else {
+      setState(() {});
     }
-    setState(() => _remaining -= _tick);
   }
 
-  void _extend() => setState(() {
-    _remaining += _restExtension;
-    _total += _restExtension;
-  });
+  void _skip() {
+    AppStoreScope.read(context).skipRest();
+    _close();
+  }
 
-  void _endRest() {
+  void _close() {
     _timer?.cancel();
     if (mounted) Navigator.of(context).maybePop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final workout = AppStoreScope.of(context).activeWorkout;
-    final elapsedFraction = 1 - _remaining.inSeconds / _total.inSeconds;
+    final store = AppStoreScope.of(context);
+    final workout = store.activeWorkout;
+    final endsAt = store.restEndsAt;
+    final remaining = endsAt == null
+        ? Duration.zero
+        : endsAt.difference(store.now());
+    final total = store.restLength;
+    final elapsedFraction = total == Duration.zero
+        ? 1.0
+        : (1 - remaining.inMilliseconds / total.inMilliseconds).clamp(0.0, 1.0);
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) => Padding(
@@ -99,7 +109,9 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
                           ),
                         ),
                         Text(
-                          formatClock(_remaining),
+                          formatClock(
+                            remaining.isNegative ? Duration.zero : remaining,
+                          ),
                           style: AppTextStyles.hugeNumber.copyWith(
                             fontSize: 112,
                           ),
@@ -129,11 +141,11 @@ class _RestTimerScreenState extends State<RestTimerScreen> {
                           child: ButtonPair(
                             secondary: SecondaryButton(
                               label: '+30 秒',
-                              onPressed: _extend,
+                              onPressed: () => store.extendRest(_restExtension),
                             ),
                             primary: PrimaryButton(
                               label: '跳過休息',
-                              onPressed: _endRest,
+                              onPressed: _skip,
                             ),
                           ),
                         ),
