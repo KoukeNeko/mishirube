@@ -116,16 +116,23 @@ class TrainingService {
 
   /// Adds one more set to the exercise being done. A warm-up or drop set
   /// starts at a share of the working weight, rounded to the plates, for
-  /// the user to adjust. A warm-up is the next set to do, ahead of the
-  /// work it prepares for; any other set goes last.
+  /// the user to adjust; a working set repeats the last one. A warm-up is
+  /// the next set to do, ahead of the work it prepares for; any other set
+  /// goes last.
   WorkoutSet addSet(WorkoutSession workout, SetType type) {
     final exercise = workout.currentExercise;
-    final working = exercise.sets.isEmpty ? 0.0 : exercise.sets.first.weightKg;
+    // The last working set is what the others are measured from; one
+    // more working set repeats it.
+    final reference =
+        exercise.sets.where((set) => set.type == SetType.working).lastOrNull ??
+        exercise.sets.lastOrNull;
+    final working = reference?.weightKg ?? 0.0;
     final set = WorkoutSet(
       weightKg: startingWeight(working, type),
-      reps: exercise.sets.isEmpty ? 0 : exercise.sets.first.reps,
-      previousWeightKg: working,
-      previousReps: exercise.sets.isEmpty ? 0 : exercise.sets.first.reps,
+      reps: reference?.reps ?? 0,
+      rir: type == SetType.working ? reference?.rir : null,
+      previousWeightKg: reference?.previousWeightKg ?? working,
+      previousReps: reference?.previousReps ?? 0,
       type: type,
     );
     if (type == SetType.warmup) {

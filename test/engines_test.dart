@@ -745,6 +745,26 @@ void main() {
         reason: 'the set type survives a restart',
       );
     });
+
+    test('added sets start from the working sets, not a warm-up', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+        ..startWorkout();
+      addTearDown(store.dispose);
+      final sets = store.activeWorkout!.currentExercise.sets;
+      final working = sets.last;
+
+      store.addSet(SetType.warmup);
+      final drop = store.addSet(SetType.drop)!;
+      final extra = store.addSet(SetType.working)!;
+
+      expect(drop.weightKg, startingWeight(working.weightKg, SetType.drop));
+      expect(sets.last, extra);
+      expect(
+        (extra.weightKg, extra.reps),
+        (working.weightKg, working.reps),
+        reason: 'one more working set repeats the last',
+      );
+    });
   });
 
   group('progression engine', () {

@@ -490,6 +490,12 @@ class _SetTypeHeader extends StatelessWidget {
           semanticLabel: '為這次訓練寫備註',
           onTap: () => _editNotes(context),
         ),
+        ChipButton(
+          label: '加一組',
+          tone: TagTone.training,
+          semanticLabel: '加入一組工作組',
+          onTap: () => _addSet(context, SetType.working),
+        ),
         for (final type in const [
           SetType.warmup,
           SetType.drop,
@@ -527,7 +533,8 @@ void _addSet(BuildContext context, SetType type) {
   if (set == null) return;
   showToast(
     context,
-    '已加入一組${type.kindLabel} · ${formatWeight(set.weightKg)} kg',
+    '已加入一組${type == SetType.working ? '' : type.kindLabel} · '
+    '${formatWeight(set.weightKg)} kg',
     kind: ToastKind.success,
   );
 }
