@@ -1,6 +1,7 @@
 import '../../app/view_model.dart';
 import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/trend_engine.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 
@@ -32,6 +33,14 @@ class TrendsViewModel extends ViewModel {
     String? exerciseId,
     Duration window = const Duration(days: 28),
   }) => backend.insights.volumeReport(exerciseId: exerciseId, window: window);
+
+  /// Working sets per muscle in each of the last eight weeks.
+  List<(MuscleGroup, List<WeeklyBar>)> muscleWeeks() =>
+      backend.insights.muscleWeeks();
+
+  /// Every trained exercise with its history, most recent first.
+  List<(ExerciseDefinition, ExerciseHistory)> exerciseHistories() =>
+      backend.insights.exerciseHistories();
 
   /// Each exercise's heaviest set and best estimated max.
   List<ExerciseBests> personalRecords() => backend.insights.personalRecords();

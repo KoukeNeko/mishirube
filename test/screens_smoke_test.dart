@@ -44,7 +44,9 @@ import 'package:mishirube/features/training/routine_list_screen.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
+import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/personal_records_screen.dart';
 import 'package:mishirube/features/trends/trends_empty_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -250,6 +252,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _resting,
   ),
   'personal records': ((_) => const PersonalRecordsScreen(), _noSetup),
+  'muscle trends': ((_) => const MuscleTrendsScreen(), _noSetup),
+  'exercise trends': ((_) => const ExerciseTrendsScreen(), _noSetup),
   'workout summary (sample)': ((_) => const WorkoutSummaryScreen(), _noSetup),
   'substitute exercise': (
     (_) => const SubstituteExerciseScreen(),

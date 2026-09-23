@@ -896,6 +896,41 @@ void main() {
     });
   });
 
+  group('muscle weeks', () {
+    test('sets land on the primary muscles, week by week', () {
+      final now = DateTime(2026, 9, 24);
+      const squat = ExerciseDefinition(
+        id: 'squat',
+        name: '深蹲',
+        equipment: Equipment.barbell,
+        primaryMuscles: [MuscleGroup.quads, MuscleGroup.glutes],
+        secondaryMuscles: [MuscleGroup.hamstrings],
+        pattern: MovementPattern.squat,
+      );
+      const curl = ExerciseDefinition(
+        id: 'curl',
+        name: '彎舉',
+        equipment: Equipment.dumbbell,
+        primaryMuscles: [MuscleGroup.arms],
+        pattern: MovementPattern.isolation,
+      );
+      final weeks = weeklySetsPerMuscle(
+        [
+          (squat, [(now, 4), (now.subtract(const Duration(days: 7)), 3)]),
+          (curl, [(now.subtract(const Duration(days: 60)), 3)]),
+        ],
+        now: now,
+        weeks: 4,
+      );
+
+      expect(weeks.map((entry) => entry.$1), [
+        MuscleGroup.quads,
+        MuscleGroup.glutes,
+      ], reason: 'secondary work and weeks outside the span do not count');
+      expect(weeks.first.$2.map((bar) => bar.$2), [0, 0, 3, 4]);
+    });
+  });
+
   group('personal records', () {
     test('the heaviest lift keeps the day it was first made', () {
       const squat = ExerciseDefinition(

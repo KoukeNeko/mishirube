@@ -10,7 +10,9 @@ import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'insight_detail_screen.dart';
+import 'exercise_trends_screen.dart';
 import 'muscle_load_card.dart';
+import 'muscle_trends_screen.dart';
 import 'personal_records_screen.dart';
 import 'trends_view_model.dart';
 import 'trends_empty_screen.dart';
@@ -84,7 +86,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
         Gutter(
           child: _SummaryGrid(overview: overview, activity: activity),
         ),
-        Gutter(child: const SectionLabel('肌群訓練量')),
+        Gutter(child: const SectionLabel('肌群')),
         Gutter(
           child: MuscleLoadCard(
             load: _model.muscleLoad(_range.window),
@@ -92,16 +94,22 @@ class _TrendsScreenState extends State<TrendsScreen> {
             onFigure: _model.setMuscleFigure,
           ),
         ),
-        Gutter(child: const SectionLabel('詳細圖表')),
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '訓練',
+            title: '每週組數',
+            subtitle: '近 8 週',
             showChevron: true,
-            onTap: () => pushPage(
-              context,
-              InsightDetailScreen(exerciseId: volume?.exercise.id),
-            ),
+            onTap: () => pushPage(context, const MuscleTrendsScreen()),
+          ),
+        ),
+        Gutter(child: const SectionLabel('動作')),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.training,
+            title: '估計最大重量',
+            showChevron: true,
+            onTap: () => pushPage(context, const ExerciseTrendsScreen()),
           ),
         ),
         Gutter(
@@ -112,6 +120,18 @@ class _TrendsScreenState extends State<TrendsScreen> {
             onTap: () => pushPage(context, const PersonalRecordsScreen()),
           ),
         ),
+        Gutter(
+          child: AccentRow(
+            color: AppColors.training,
+            title: '訓練量',
+            showChevron: true,
+            onTap: () => pushPage(
+              context,
+              InsightDetailScreen(exerciseId: volume?.exercise.id),
+            ),
+          ),
+        ),
+        Gutter(child: const SectionLabel('其他')),
         Gutter(
           child: AccentRow(
             color: AppColors.nutrition,

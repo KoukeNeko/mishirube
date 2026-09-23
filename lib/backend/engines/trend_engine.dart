@@ -147,3 +147,29 @@ DateTime _startOfWeek(DateTime day) {
 }
 
 String _label(DateTime day) => '${day.month}/${day.day}';
+
+/// Working sets per muscle in each of the last [weeks] weeks, oldest
+/// first, from each exercise's sessions: when, and how many working sets.
+/// A set counts for the exercise's primary muscles only, as in
+/// `setsByMuscle`. Muscles with no set in the whole span are left out;
+/// the rest come most trained first.
+List<(MuscleGroup, List<WeeklyBar>)> weeklySetsPerMuscle(
+  Iterable<(ExerciseDefinition, List<(DateTime, int)>)> sessions, {
+  required DateTime now,
+  required int weeks,
+}) {
+  final byMuscle = <MuscleGroup, List<(DateTime, int)>>{};
+  for (final (exercise, done) in sessions) {
+    for (final muscle in exercise.primaryMuscles) {
+      (byMuscle[muscle] ??= []).addAll(done);
+    }
+  }
+  final out = [
+    for (final MapEntry(key: muscle, value: done) in byMuscle.entries)
+      if (weeklySums(done, now: now, weeks: weeks) case final bars
+          when bars.any((bar) => bar.$2 > 0))
+        (muscle, bars),
+  ];
+  int total(List<WeeklyBar> bars) => bars.fold(0, (sum, bar) => sum + bar.$2);
+  return out..sort((a, b) => total(b.$2).compareTo(total(a.$2)));
+}

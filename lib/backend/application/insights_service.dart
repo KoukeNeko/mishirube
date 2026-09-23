@@ -138,6 +138,25 @@ class InsightsService {
     ], weeks: (window.inDays / DateTime.daysPerWeek).ceil());
   }
 
+  /// Working sets per muscle in each of the last [weeks] weeks.
+  List<(MuscleGroup, List<WeeklyBar>)> muscleWeeks({int weeks = 8}) =>
+      weeklySetsPerMuscle(
+        [
+          for (final exercise in _exercises.all())
+            if (exercise.recordCount > 0)
+              (exercise, _exercises.sessionSetCounts(exercise.id)),
+        ],
+        now: _db.now(),
+        weeks: weeks,
+      );
+
+  /// Every exercise that has been trained, with its history, the most
+  /// recently trained first.
+  List<(ExerciseDefinition, ExerciseHistory)> exerciseHistories() => [
+    for (final exercise in _exercises.all())
+      if (exercise.recordCount > 0) (exercise, _exercises.history(exercise.id)),
+  ]..sort((a, b) => b.$2.last!.date.compareTo(a.$2.last!.date));
+
   /// Every exercise's bests, the most recently set first.
   List<ExerciseBests> personalRecords() => [
     for (final exercise in _exercises.all())
