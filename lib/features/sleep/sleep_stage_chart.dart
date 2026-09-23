@@ -95,45 +95,54 @@ class _SleepStageChartState extends State<SleepStageChart> {
     return Semantics(
       label: '睡眠階段圖，${formatTimeOfDay(start)} 到 ${formatTimeOfDay(end)}',
       excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 22,
-            child: at == null ? null : _Readout(at: at, stretch: reading),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              return MouseRegion(
-                onHover: (event) =>
-                    _readAt(event.localPosition.dx, width, isTouch: false),
-                onExit: (_) => setState(() => _at = null),
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTapDown: (details) =>
-                      _readAt(details.localPosition.dx, width),
-                  onHorizontalDragStart: (details) =>
-                      _readAt(details.localPosition.dx, width),
-                  onHorizontalDragUpdate: (details) =>
-                      _readAt(details.localPosition.dx, width),
-                  child: CustomPaint(
-                    size: Size(width, _rows.length * _rowHeight + _axisHeight),
-                    painter: _HypnogramPainter(
-                      stages: widget.stages,
-                      start: start,
-                      end: end,
-                      at: at,
-                      reading: reading,
-                      labelStyle: AppTextStyles.caption,
+      // A tap anywhere else puts the reading away.
+      child: TapRegion(
+        onTapOutside: (_) {
+          if (_at != null) setState(() => _at = null);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 22,
+              child: at == null ? null : _Readout(at: at, stretch: reading),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                return MouseRegion(
+                  onHover: (event) =>
+                      _readAt(event.localPosition.dx, width, isTouch: false),
+                  onExit: (_) => setState(() => _at = null),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapDown: (details) =>
+                        _readAt(details.localPosition.dx, width),
+                    onHorizontalDragStart: (details) =>
+                        _readAt(details.localPosition.dx, width),
+                    onHorizontalDragUpdate: (details) =>
+                        _readAt(details.localPosition.dx, width),
+                    child: CustomPaint(
+                      size: Size(
+                        width,
+                        _rows.length * _rowHeight + _axisHeight,
+                      ),
+                      painter: _HypnogramPainter(
+                        stages: widget.stages,
+                        start: start,
+                        end: end,
+                        at: at,
+                        reading: reading,
+                        labelStyle: AppTextStyles.caption,
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

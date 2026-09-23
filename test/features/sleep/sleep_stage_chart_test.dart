@@ -47,6 +47,11 @@ void main() {
     );
     await tester.pump();
     expect(find.textContaining('REM · 04:00–05:00'), findsOneWidget);
+
+    // Anywhere else on the page puts the reading away.
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pump();
+    expect(find.textContaining('REM ·'), findsNothing);
   });
 
   testWidgets('each stage row is tall enough to read a short stretch', (
