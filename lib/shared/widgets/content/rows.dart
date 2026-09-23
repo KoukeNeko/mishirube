@@ -288,14 +288,18 @@ class KeyValueRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(label, style: AppTextStyles.caption),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
+          // Either side wraps rather than push the other past the edge.
+          Flexible(child: Text(label, style: AppTextStyles.caption)),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
             ),
           ),
         ],

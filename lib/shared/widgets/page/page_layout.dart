@@ -25,26 +25,6 @@ class Gutter extends StatelessWidget {
   }
 }
 
-/// Holds a paragraph to [readableMaxWidth] in a wide column, on its
-/// leading edge so it still lines up with the cards around it. For prose
-/// only: cards, lists and charts use the whole column.
-class ReadableWidth extends StatelessWidget {
-  const ReadableWidth({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: readableMaxWidth),
-        child: child,
-      ),
-    );
-  }
-}
-
 enum AppBarLeading { back, none }
 
 /// The chevron reads as a back control at this size; the pill's default

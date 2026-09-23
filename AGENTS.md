@@ -193,8 +193,9 @@ In particular, do not create a parallel version of:
 - Every pane has the same side margin, the `AppSpacing.screenGutter`
   `Gutter` adds, and the content column is never capped or centred:
   cards, lists and charts use the pane's width, as a split view's detail
-  column does on iPad. Only prose (`ReadableWidth`) and footer buttons keep
-  to `readableMaxWidth`. A wide pane shows more, not more margin: a group
+  column does on iPad. Only footer buttons and the rest timer keep to
+  `readableMaxWidth`, as would a paragraph of prose if a page had one.
+  A wide pane shows more, not more margin: a group
   of tiles adds columns when it has room (the trends summary), measured
   with `LayoutBuilder`, never by device or orientation.
 - Card content sits `AppSpacing.md` in from the card's edge, the
