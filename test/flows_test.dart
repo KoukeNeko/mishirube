@@ -191,6 +191,25 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('ticking a set rests on the page and names a record', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final semantics = tester.ensureSemantics();
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _tapText(tester, '開始訓練');
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')));
+    await tester.pump();
+    expect(find.text('休息 2:00'), findsOneWidget);
+    expect(find.textContaining('個人紀錄 ·'), findsOneWidget);
+    expect(find.text('休息中'), findsNothing, reason: 'no page to leave');
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+    await disposeTree(tester);
+  });
+
   testWidgets('a set is changed or taken off where it is listed', (
     tester,
   ) async {

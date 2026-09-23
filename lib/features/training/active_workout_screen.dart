@@ -141,7 +141,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
                     ordinal: _ordinal(exercise.sets, i),
                     set: exercise.sets[i],
                     isCurrent: i == exercise.nextSetIndex,
-                    onToggle: () => store.toggleSet(i),
+                    onToggle: () => _toggleSet(context, i),
                     onEdit: () => _editSet(
                       context,
                       i,
@@ -185,6 +185,24 @@ class ActiveWorkoutScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Ticks a set off, or back on. A set ticked done starts the rest here,
+  /// on the page, and says at once when it was a record.
+  void _toggleSet(BuildContext context, int index) {
+    final store = AppStoreScope.read(context);
+    final exercise = store.activeWorkout!.currentExercise;
+    store.toggleSet(index);
+    final set = exercise.sets[index];
+    if (!set.isDone) return;
+    store.startRest(exercise.exercise);
+    if (store.isPersonalRecord(set)) {
+      showToast(
+        context,
+        '個人紀錄 · ${formatWeight(set.weightKg)} kg × ${set.reps}',
+        kind: ToastKind.success,
+      );
+    }
   }
 
   /// A working set's number among the working sets, since warm-ups come
