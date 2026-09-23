@@ -111,13 +111,14 @@ void main() {
       final workout = store.activeWorkout!;
       expect(workout.supersetOf(0), [0, 1]);
 
-      store.completeNextSet();
+      // Logged as from the workout page or the watch.
+      expect(store.logNextSet()!.rests, isFalse);
       expect(workout.currentExerciseIndex, 1, reason: 'on to its partner');
-      expect(workout.restsAfter(0), isFalse);
+      expect(store.restEndsAt, isNull);
 
-      store.completeNextSet();
+      expect(store.logNextSet()!.rests, isTrue);
       expect(workout.currentExerciseIndex, 0, reason: 'round again');
-      expect(workout.restsAfter(1), isTrue);
+      expect(store.restEndsAt, isNotNull);
       expect(
         store.backend.training.active()!.exercises.first.joinsNext,
         isTrue,

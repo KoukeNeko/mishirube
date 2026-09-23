@@ -394,6 +394,21 @@ class AppStore extends ChangeNotifier {
     return completed;
   }
 
+  /// Logs the next set, from the workout page or the watch, and starts
+  /// the rest after it unless the superset goes on to its next exercise.
+  /// Null when there is no set left to log.
+  ({WorkoutSet set, ExerciseDefinition exercise, bool rests})? logNextSet() {
+    final workout = activeWorkout;
+    if (workout == null) return null;
+    final index = workout.currentExerciseIndex;
+    final exercise = workout.currentExercise.exercise;
+    final set = completeNextSet();
+    if (set == null) return null;
+    final rests = workout.restsAfter(index);
+    if (rests) startRest(exercise);
+    return (set: set, exercise: exercise, rests: rests);
+  }
+
   /// Saves a note on the running workout.
   void setWorkoutNotes(String notes) {
     final workout = activeWorkout;

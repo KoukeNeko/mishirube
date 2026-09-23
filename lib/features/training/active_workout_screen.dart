@@ -57,25 +57,22 @@ class ActiveWorkoutScreen extends StatelessWidget {
     }
   }
 
-  void _completeSet(BuildContext context, WorkoutSession workout) {
+  void _completeSet(BuildContext context) {
     final store = AppStoreScope.read(context);
-    final index = workout.currentExerciseIndex;
-    final exercise = workout.currentExercise.exercise;
-    final completedSet = store.completeNextSet();
-    if (completedSet == null) return;
-    final isRecord = store.isPersonalRecord(exercise, completedSet);
+    final logged = store.logNextSet();
+    if (logged == null) return;
+    final isRecord = store.isPersonalRecord(logged.exercise, logged.set);
     // Mid-superset the page has already moved to the next exercise: no
     // rest until the round is done.
-    if (!workout.restsAfter(index)) {
-      if (isRecord) _sayRecord(context, completedSet);
+    if (!logged.rests) {
+      if (isRecord) _sayRecord(context, logged.set);
       return;
     }
-    store.startRest(exercise);
     pushPage(
       context,
       RestTimerScreen(
-        exerciseName: exercise.name,
-        completedSet: completedSet,
+        exerciseName: logged.exercise.name,
+        completedSet: logged.set,
         isPersonalRecord: isRecord,
       ),
     );
@@ -188,7 +185,7 @@ class ActiveWorkoutScreen extends StatelessWidget {
               ? PrimaryButton(label: '結束並儲存', onPressed: () => _finish(context))
               : PrimaryButton(
                   label: '完成這一組',
-                  onPressed: () => _completeSet(context, workout),
+                  onPressed: () => _completeSet(context),
                 ),
         ),
       ),

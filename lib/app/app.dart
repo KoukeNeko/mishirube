@@ -8,6 +8,7 @@ import '../shared/toast/toast_host.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'rest_notice.dart';
+import 'watch_sync.dart';
 import 'theme.dart';
 
 class MishirubeApp extends StatefulWidget {
@@ -66,7 +67,9 @@ class _MishirubeAppState extends State<MishirubeApp> {
           value: appSystemOverlayStyle,
           child: WindowControlsScope(
             child: RestNotice(
-              child: ToastHost(child: child ?? const SizedBox.shrink()),
+              child: WatchSync(
+                child: ToastHost(child: child ?? const SizedBox.shrink()),
+              ),
             ),
           ),
         ),

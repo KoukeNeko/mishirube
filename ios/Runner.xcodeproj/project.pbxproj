@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		065993A5ACD5851565FA6A5F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F291B0277AF3C4124D6965D3 /* Foundation.framework */; };
+		0A7AE5355C8A6AFE5C9CFF27 /* MishirubeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73423A129803507192A067E8 /* MishirubeWatchApp.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2486F5B65378F62113DB9EF4 /* RestAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9006A0A48DCE2772FF2906D2 /* RestAttributes.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3AF3C01479E7BF3C13DEA7A7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53007A6B2D32FBAEC97F4EC5 /* WidgetKit.framework */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		654AE6CB2155F61CB4AD370E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4011592DD0175A01806AB35 /* Foundation.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
@@ -22,6 +24,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		9E701AE0BC612BDD1ED7D09F /* MishirubeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D5419B73C4386D9441F84BF9 /* RestActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECED69CFA868023773AABE5A /* RestActivityBundle.swift */; };
 		F45CA4BC1C0ED4B143D6652B /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDFC8E2E5D772FE2E09DD94E /* ActivityKit.framework */; };
 /* End PBXBuildFile section */
@@ -41,9 +44,27 @@
 			remoteGlobalIDString = 4EA804A85BFA706F93A6E381;
 			remoteInfo = RestActivity;
 		};
+		CAE9C43AB81E675E842C2502 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 223E1236B916B6700169558C;
+			remoteInfo = MishirubeWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		0DC0B374F4E5421E1A3408BF /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				9E701AE0BC612BDD1ED7D09F /* MishirubeWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1ABE0380CF816DDA4B2803A1 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -75,6 +96,7 @@
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		53007A6B2D32FBAEC97F4EC5 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
 		6E105A04DB990933152B2582 /* RestActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RestActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		73423A129803507192A067E8 /* MishirubeWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MishirubeWatchApp.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -89,13 +111,24 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A91D41942A6DA890E549CA01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MishirubeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BFBA4494FA634C34297200D5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECED69CFA868023773AABE5A /* RestActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestActivityBundle.swift; sourceTree = "<group>"; };
 		EDFC8E2E5D772FE2E09DD94E /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/ActivityKit.framework; sourceTree = DEVELOPER_DIR; };
 		F212590B6C06191684129584 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F291B0277AF3C4124D6965D3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		F4011592DD0175A01806AB35 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS11.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		29924E487CF926A3F218288F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				654AE6CB2155F61CB4AD370E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EB1CF9000F007C117D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,6 +170,16 @@
 			path = RunnerTests;
 			sourceTree = "<group>";
 		};
+		9122B126AD7A5F2F3B97D6F3 /* MishirubeWatch */ = {
+			isa = PBXGroup;
+			children = (
+				73423A129803507192A067E8 /* MishirubeWatchApp.swift */,
+				BFBA4494FA634C34297200D5 /* Info.plist */,
+			);
+			name = MishirubeWatch;
+			path = MishirubeWatch;
+			sourceTree = "<group>";
+		};
 		9740EEB11CF90186004384FC /* Flutter */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +201,7 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				ADADB2CF616CC928413B7883 /* Frameworks */,
 				ECF71590A85A7CDDC51ABB15 /* RestActivity */,
+				9122B126AD7A5F2F3B97D6F3 /* MishirubeWatch */,
 			);
 			sourceTree = "<group>";
 		};
@@ -167,6 +211,7 @@
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				6E105A04DB990933152B2582 /* RestActivity.appex */,
+				BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -191,8 +236,17 @@
 			isa = PBXGroup;
 			children = (
 				269F7CED7CCDE91E925A2424 /* iOS */,
+				DCCA2B4660CF33DB097C315D /* watchOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DCCA2B4660CF33DB097C315D /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				F4011592DD0175A01806AB35 /* Foundation.framework */,
+			);
+			name = watchOS;
 			sourceTree = "<group>";
 		};
 		ECF71590A85A7CDDC51ABB15 /* RestActivity */ = {
@@ -209,6 +263,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		223E1236B916B6700169558C /* MishirubeWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A8190FD7FDCDE6F2A7AF4F2 /* Build configuration list for PBXNativeTarget "MishirubeWatch" */;
+			buildPhases = (
+				E47EB555C6F60F0941FEE33E /* Sources */,
+				29924E487CF926A3F218288F /* Frameworks */,
+				9C45C37B9E9FFA462FA1B437 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MishirubeWatch;
+			productName = MishirubeWatch;
+			productReference = BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		331C8080294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */;
@@ -253,12 +324,14 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				1ABE0380CF816DDA4B2803A1 /* Embed Foundation Extensions */,
+				0DC0B374F4E5421E1A3408BF /* Embed Watch Content */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				E24FE4C0914EC00DFDA62435 /* PBXTargetDependency */,
+				49A7A8609F8748688887FBB0 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -307,6 +380,7 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				4EA804A85BFA706F93A6E381 /* RestActivity */,
+				223E1236B916B6700169558C /* MishirubeWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -334,6 +408,13 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9C45C37B9E9FFA462FA1B437 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +483,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E47EB555C6F60F0941FEE33E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A7AE5355C8A6AFE5C9CFF27 /* MishirubeWatchApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -409,6 +498,12 @@
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
+		};
+		49A7A8609F8748688887FBB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MishirubeWatch;
+			target = 223E1236B916B6700169558C /* MishirubeWatch */;
+			targetProxy = CAE9C43AB81E675E842C2502 /* PBXContainerItemProxy */;
 		};
 		E24FE4C0914EC00DFDA62435 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -746,6 +841,33 @@
 			};
 			name = Release;
 		};
+		9C988DA59F556759D65FE897 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 33832Z66QU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MishirubeWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.doeshing.mishirube.watchkitapp;
+				PRODUCT_NAME = Mishirube;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		9D6C7B0A662B507BA4793808 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
@@ -768,6 +890,59 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
+		BCC10556B0EB86C55AAF8EF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 33832Z66QU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MishirubeWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.doeshing.mishirube.watchkitapp;
+				PRODUCT_NAME = Mishirube;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		CFAFF75192E6A318F0D4C354 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = 33832Z66QU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MishirubeWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.doeshing.mishirube.watchkitapp;
+				PRODUCT_NAME = Mishirube;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Profile;
 		};
@@ -804,6 +979,16 @@
 				331C8088294A63A400263BE5 /* Debug */,
 				331C8089294A63A400263BE5 /* Release */,
 				331C808A294A63A400263BE5 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4A8190FD7FDCDE6F2A7AF4F2 /* Build configuration list for PBXNativeTarget "MishirubeWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C988DA59F556759D65FE897 /* Release */,
+				BCC10556B0EB86C55AAF8EF7 /* Debug */,
+				CFAFF75192E6A318F0D4C354 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

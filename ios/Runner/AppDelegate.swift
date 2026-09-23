@@ -6,6 +6,7 @@ import ImageIO
 import UIKit
 import UserNotifications
 import Vision
+import WatchConnectivity
 
 #if canImport(FoundationModels)
   import FoundationModels
@@ -33,6 +34,9 @@ import Vision
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PhotoLibrary") {
       PhotoLibrary.register(with: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WatchBridge") {
+      WatchBridge.shared.register(with: registrar.messenger())
     }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RestNotice") {
       RestNotice.register(with: registrar.messenger())
@@ -787,6 +791,56 @@ enum LabelReader {
       }
     }
   }
+}
+
+/// The running workout on a paired Apple Watch (`lib/app/watch_sync.dart`,
+/// the app in `MishirubeWatch/`): the phone sends what to show, and the
+/// watch asks the phone to log the next set.
+final class WatchBridge: NSObject, WCSessionDelegate {
+  static let shared = WatchBridge()
+  private var channel: FlutterMethodChannel?
+
+  func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: "mishirube/watch", binaryMessenger: messenger)
+    self.channel = channel
+    if WCSession.isSupported() {
+      WCSession.default.delegate = self
+      WCSession.default.activate()
+    }
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "update" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      // The context holds property-list values only: nulls are left out.
+      let state = (call.arguments as? [String: Any] ?? [:]).filter { !($0.value is NSNull) }
+      let session = WCSession.default
+      if WCSession.isSupported(), session.activationState == .activated, session.isPaired,
+        session.isWatchAppInstalled
+      {
+        try? session.updateApplicationContext(state)
+      }
+      result(nil)
+    }
+  }
+
+  func session(
+    _ session: WCSession, didReceiveMessage message: [String: Any],
+    replyHandler: @escaping ([String: Any]) -> Void
+  ) {
+    guard message["action"] as? String == "logNextSet" else { return replyHandler([:]) }
+    DispatchQueue.main.async {
+      self.channel?.invokeMethod("logNextSet", arguments: nil)
+      replyHandler([:])
+    }
+  }
+
+  func session(
+    _ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState,
+    error: Error?
+  ) {}
+  func sessionDidBecomeInactive(_ session: WCSession) {}
+  func sessionDidDeactivate(_ session: WCSession) { session.activate() }
 }
 
 /// The end of the rest between sets as a notification
