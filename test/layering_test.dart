@@ -30,11 +30,13 @@ void main() {
       );
     });
 
-    test('screens go through the store, not the database', () {
+    test('screens go through their view model, not the database', () {
       expect(
         _importsMatching('lib/features', RegExp(r"import '.*backend/storage/")),
         isEmpty,
-        reason: 'screens talk to AppStore; AppStore talks to the services',
+        reason:
+            'screens talk to their view model or AppStore, which talk to '
+            'the services',
       );
     });
 

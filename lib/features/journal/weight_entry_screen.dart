@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'journal_view_model.dart';
 
 /// Plausible bounds for a body weight in kilograms; outside them it is a
 /// typo rather than a measurement.
@@ -25,6 +26,7 @@ class WeightEntryScreen extends StatefulWidget {
 }
 
 class _WeightEntryScreenState extends State<WeightEntryScreen> {
+  late final JournalViewModel _journal;
   late final TextEditingController _weight;
   late final String? _lastLabel;
   String? _error;
@@ -32,9 +34,9 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   @override
   void initState() {
     super.initState();
-    final store = AppStoreScope.read(context);
+    _journal = JournalViewModel(AppStoreScope.read(context).backend);
     final editing = widget.editing;
-    final previous = store.recentWeights.lastOrNull;
+    final previous = _journal.recentWeights.lastOrNull;
     _weight = TextEditingController(
       text: switch (editing ?? previous) {
         final weight? => formatWeight(weight.weightKg),
@@ -49,6 +51,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
 
   @override
   void dispose() {
+    _journal.dispose();
     _weight.dispose();
     super.dispose();
   }
@@ -59,12 +62,11 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
       setState(() => _error = '請輸入 $_minKg – $_maxKg kg 之間的數值。');
       return;
     }
-    final store = AppStoreScope.read(context);
     final editing = widget.editing;
     if (editing == null) {
-      store.recordWeight(kilograms, note: _note);
+      _journal.recordWeight(kilograms, note: _note);
     } else {
-      store.updateWeight(
+      _journal.updateWeight(
         BodyWeight(
           id: editing.id,
           measuredAt: editing.measuredAt,

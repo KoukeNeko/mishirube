@@ -197,7 +197,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'weight detail': (
     (store) {
-      final weight = store.recentWeights.last;
+      final weight = store.backend.journal.recentWeights(const Duration(days: 28)).last;
       return JournalDetailScreen(id: weight.id, at: weight.measuredAt);
     },
     _noSetup,

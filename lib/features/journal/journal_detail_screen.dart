@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
+import '../../app/view_model.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
@@ -11,6 +11,7 @@ import 'note_entry_screen.dart';
 import 'sleep_entry_screen.dart';
 import 'wellness_entry_screen.dart';
 import 'weight_entry_screen.dart';
+import 'journal_view_model.dart';
 
 /// One weight, tape measurement, night, check-in or note from the log.
 ///
@@ -26,18 +27,21 @@ class JournalDetailScreen extends StatelessWidget {
   /// When it was taken, on the clock the person was living by.
   final DateTime at;
 
-  void _delete(BuildContext context, String what) {
-    final store = AppStoreScope.read(context);
+  void _delete(BuildContext context, JournalViewModel journal, String what) {
     final toast = ToastScope.read(context);
-    store.deleteJournalEntry(id);
+    journal.delete(id);
     Navigator.of(context).pop();
-    toast.showUndo('已刪除$what', onUndo: () => store.restoreJournalEntry(id));
+    toast.showUndo('已刪除$what', onUndo: () => journal.restore(id));
   }
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final entry = store.journalEntry(id);
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: JournalViewModel.new,
+    builder: (context, journal) => _page(context, journal),
+  );
+
+  Widget _page(BuildContext context, JournalViewModel journal) {
+    final entry = journal.entry(id);
     final when =
         '${at.month} 月 ${at.day} 日（週${weekdayLabel(at)}）· '
         '${formatTimeOfDay(at)}';
@@ -47,7 +51,7 @@ class JournalDetailScreen extends StatelessWidget {
         children: [Gutter(child: InfoBanner(message: '這筆紀錄已經刪除。'))],
       );
     }
-    final view = _viewOf(entry, store);
+    final view = _viewOf(entry, journal);
     return DetailPage(
       appBar: PageAppBar(title: view.title, subtitle: when),
       children: [
@@ -84,7 +88,7 @@ class JournalDetailScreen extends StatelessWidget {
         Gutter(
           child: GroupedCard(
             children: [
-              KeyValueRow(label: '來源', value: store.journalSourceLabel(id)),
+              KeyValueRow(label: '來源', value: journal.sourceLabel(id)),
             ],
           ),
         ),
@@ -95,7 +99,7 @@ class JournalDetailScreen extends StatelessWidget {
               NavRow(title: '編輯', onTap: () => pushPage(context, view.editor)),
               NavRow(
                 title: '刪除這筆紀錄',
-                onTap: () => _delete(context, view.title),
+                onTap: () => _delete(context, journal, view.title),
               ),
             ],
           ),
@@ -130,14 +134,14 @@ class _View {
   final Widget editor;
 }
 
-_View _viewOf(Object entry, AppStore store) => switch (entry) {
+_View _viewOf(Object entry, JournalViewModel journal) => switch (entry) {
   BodyWeight weight => _View(
     title: '體重',
     value: formatWeight(weight.weightKg),
     unit: 'kg',
     color: AppColors.body,
     note: weight.note == '手動輸入' ? '' : weight.note,
-    context: _sinceLast(weight, store.recentWeights),
+    context: _sinceLast(weight, journal.recentWeights),
     editor: WeightEntryScreen(editing: weight),
   ),
   BodyMeasurement measurement => _View(

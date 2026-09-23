@@ -272,16 +272,6 @@ class AppStore extends ChangeNotifier {
     _backend.nutrition.setFavorite(meal, isFavorite: isFavorite);
   }
 
-  /// Records for the log; [month] is its first day.
-  MonthRecords monthRecords(DateTime month) => _backend.timeline.month(month);
-
-  /// The first month the log can go back to.
-  DateTime get earliestRecordMonth {
-    final today = now();
-    return _backend.timeline.earliestMonth() ??
-        DateTime(today.year, today.month);
-  }
-
   /// Today's food totals and how complete the day's log is.
   DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
 
@@ -859,14 +849,6 @@ class AppStore extends ChangeNotifier {
         day.day == today.day;
   }
 
-  /// Body weights measured in the last few weeks, oldest first.
-  List<BodyWeight> get recentWeights =>
-      _backend.journal.recentWeights(const Duration(days: 28));
-
-  /// Nights logged in the last few weeks, oldest first.
-  List<SleepEntry> get recentSleep =>
-      _backend.journal.recentSleep(const Duration(days: 28));
-
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);
 
@@ -959,86 +941,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// A journal record — a weight, a tape measurement, a night or a
-  /// check-in — or null once it is deleted.
-  Object? journalEntry(String id) => _backend.journal.entry(id);
-
-  /// Where a journal record came from, in the words the screen shows.
-  String journalSourceLabel(String id) =>
-      switch (_backend.journal.sourceOf(id)) {
-        ChangeSource.local => '手動輸入',
-        ChangeSource.seed => '示範資料',
-        ChangeSource.strongImport || ChangeSource.archiveImport => '匯入',
-        ChangeSource.aiDraft => 'AI 草稿（已確認）',
-        ChangeSource.catalogue => '內建目錄',
-        ChangeSource.healthKit => 'Apple 健康',
-        ChangeSource.healthConnect => 'Health Connect',
-        null => '不明',
-      };
-
-  void updateWeight(BodyWeight weight) {
-    _backend.journal.updateWeight(weight);
-    notifyListeners();
-  }
-
-  void updateMeasurement(BodyMeasurement measurement) {
-    _backend.journal.updateMeasurement(measurement);
-    notifyListeners();
-  }
-
-  void updateSleep(SleepEntry entry) {
-    _backend.journal.updateSleep(entry);
-    notifyListeners();
-  }
-
-  void updateWellness(WellnessEntry entry) {
-    _backend.journal.updateWellness(entry);
-    notifyListeners();
-  }
-
-  /// Writes a note about today.
-  void recordNote(String text) {
-    _backend.journal.recordNote(text);
-    notifyListeners();
-  }
-
-  void updateNote(Note note) {
-    _backend.journal.updateNote(note);
-    notifyListeners();
-  }
-
-  /// Removes a journal record; [restoreJournalEntry] takes it back.
-  void deleteJournalEntry(String id) {
-    _backend.journal.delete(id);
-    notifyListeners();
-  }
-
-  void restoreJournalEntry(String id) {
-    _backend.journal.restore(id);
-    notifyListeners();
-  }
-
-  /// Records a body weight measured now.
-  void recordWeight(double kilograms, {String note = ''}) {
-    _backend.journal.recordWeight(kilograms, note: note);
-    notifyListeners();
-  }
-
-  /// Records one tape measurement.
-  void recordMeasurement(
-    MeasurementSite site,
-    double centimetres, {
-    String note = '',
-  }) {
-    _backend.journal.recordMeasurement(site, centimetres, note: note);
-    notifyListeners();
-  }
-
-  /// The last measurement of each site, for prefilling and for showing
-  /// what has been tracked at all.
-  Map<MeasurementSite, BodyMeasurement> get latestMeasurements =>
-      _backend.journal.latestMeasurements();
-
   /// The health platform on this device: Apple Health or Health Connect.
   String get healthSourceName => _health.source.name;
 
@@ -1104,18 +1006,6 @@ class AppStore extends ChangeNotifier {
   }
 
   void _reloadAfterImport() => notifyListeners();
-
-  /// Records a night's sleep.
-  void recordSleep(Duration slept, {int? score, String note = ''}) {
-    _backend.journal.recordSleep(slept, score: score, note: note);
-    notifyListeners();
-  }
-
-  /// Records a 1–5 wellness check-in.
-  void recordWellness(WellnessKind kind, int score, {String note = ''}) {
-    _backend.journal.recordWellness(kind, score, note: note);
-    notifyListeners();
-  }
 
   /// Accepts the AI's routine proposal: it changes the template only, and
   /// the audit log records that the change came from an AI draft.

@@ -224,7 +224,7 @@ void main() {
     test('a finished workout can be opened again by its id', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
-      final september = store.monthRecords(DateTime(2026, 9));
+      final september = store.backend.timeline.month(DateTime(2026, 9));
       final training = september.days
           .expand((day) => day.entries)
           .firstWhere((entry) => entry.category == RecordCategory.training);
@@ -309,7 +309,7 @@ void main() {
       );
       final deleted = store.routine;
       final workouts = store
-          .monthRecords(DateTime(2026, 9))
+          .backend.timeline.month(DateTime(2026, 9))
           .days
           .expand((day) => day.entries)
           .where((entry) => entry.category == RecordCategory.training)
@@ -324,7 +324,7 @@ void main() {
       );
       expect(
         store
-            .monthRecords(DateTime(2026, 9))
+            .backend.timeline.month(DateTime(2026, 9))
             .days
             .expand((day) => day.entries)
             .where((entry) => entry.category == RecordCategory.training)
@@ -1450,7 +1450,7 @@ void main() {
       expect(today.single.pace, const Duration(minutes: 6, seconds: 15));
 
       final entries = reopened
-          .monthRecords(DateTime(2026, 9))
+          .backend.timeline.month(DateTime(2026, 9))
           .days
           .first
           .entries;
@@ -1676,7 +1676,7 @@ void main() {
     test('the timeline merges domains and flags incomplete food days', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
-      final september = store.monthRecords(DateTime(2026, 9));
+      final september = store.backend.timeline.month(DateTime(2026, 9));
 
       final today = september.days.first;
       expect(today.label, '今天 · 9 月 19 日（週六）');
@@ -1705,7 +1705,7 @@ void main() {
       store.finishWorkout();
 
       final entry = store
-          .monthRecords(DateTime(2026, 9))
+          .backend.timeline.month(DateTime(2026, 9))
           .days
           .first
           .entries
@@ -1766,7 +1766,7 @@ void main() {
         reason: 'the duplicate is no longer offered',
       );
       expect(
-        reopened.monthRecords(DateTime(2026, 9)).days.first.entries,
+        reopened.backend.timeline.month(DateTime(2026, 9)).days.first.entries,
         isNotEmpty,
         reason: 'the workout itself is untouched',
       );
@@ -1784,11 +1784,11 @@ void main() {
       );
 
       store
-        ..recordMeasurement(MeasurementSite.waist, 81.5)
-        ..recordMeasurement(MeasurementSite.arm, 34);
+        ..backend.journal.recordMeasurement(MeasurementSite.waist, 81.5)
+        ..backend.journal.recordMeasurement(MeasurementSite.arm, 34);
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      final latest = reopened.latestMeasurements;
+      final latest = reopened.backend.journal.latestMeasurements();
       expect(latest.keys, {MeasurementSite.waist, MeasurementSite.arm});
       expect(latest[MeasurementSite.waist]!.centimetres, 81.5);
       expect(
@@ -1797,7 +1797,7 @@ void main() {
         reason: 'a site that was not measured has no figure, not a zero',
       );
 
-      final today = reopened.monthRecords(DateTime(2026, 9)).days.first;
+      final today = reopened.backend.timeline.month(DateTime(2026, 9)).days.first;
       expect(
         today.entries.where((e) => e.title.startsWith('腰圍')),
         hasLength(1),
@@ -1813,12 +1813,12 @@ void main() {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
 
-      store.recordMeasurement(MeasurementSite.waist, 82);
+      store.backend.journal.recordMeasurement(MeasurementSite.waist, 82);
       clock.advance(const Duration(days: 7));
-      store.recordMeasurement(MeasurementSite.waist, 80.5);
+      store.backend.journal.recordMeasurement(MeasurementSite.waist, 80.5);
 
       expect(
-        store.latestMeasurements[MeasurementSite.waist]!.centimetres,
+        store.backend.journal.latestMeasurements()[MeasurementSite.waist]!.centimetres,
         80.5,
       );
     });
@@ -2115,9 +2115,9 @@ void main() {
   group('notes', () {
     test('a day note sits in the log on its day and round-trips', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-      store.recordNote('晚上聚餐，吃得比平常多');
+      store.backend.journal.recordNote('晚上聚餐，吃得比平常多');
 
-      final today = store.monthRecords(store.now()).days.first;
+      final today = store.backend.timeline.month(store.now()).days.first;
       final row = today.entries.firstWhere((entry) => entry.title == '筆記');
       expect(row.detail, '晚上聚餐，吃得比平常多');
       expect(row.category, RecordCategory.wellness);
@@ -2136,9 +2136,9 @@ void main() {
 
     test('a note is not a summary of the day', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-      store.recordNote('頭痛');
+      store.backend.journal.recordNote('頭痛');
       final summaries =
-          store.monthRecords(store.now()).summaries[store.now().day] ?? {};
+          store.backend.timeline.month(store.now()).summaries[store.now().day] ?? {};
       expect(
         summaries[RecordCategory.wellness] ?? '',
         isNot(contains('頭痛')),
@@ -2154,7 +2154,7 @@ void main() {
       expect(demoWeights, greaterThan(0), reason: 'the seed is demo data');
       expect(store.typedRecordCounts, isEmpty, reason: 'nothing typed yet');
 
-      store.recordWeight(80.1);
+      store.backend.journal.recordWeight(80.1);
       expect(store.typedRecordCounts[RecordCategory.body], 1);
       expect(
         store.demoRecordCounts[RecordCategory.body],

@@ -220,8 +220,9 @@ void main() {
     );
 
     List<SleepEntry> imported(AppStore store) => [
-      for (final night in store.recentSleep)
-        if (store.journalSourceLabel(night.id) == 'Apple 健康') night,
+      for (final night in store.backend.journal.recentSleep(const Duration(days: 28)))
+        if (store.backend.journal.sourceOf(night.id) == ChangeSource.healthKit)
+          night,
     ];
 
     test(
@@ -277,7 +278,7 @@ void main() {
         final other = storeWith(_FakeHealth([lastNight]));
         await other.connectHealth();
         final night = imported(other).single;
-        other.deleteJournalEntry(night.id);
+        other.backend.journal.delete(night.id);
         await other.syncHealth();
         expect(imported(other), isEmpty);
       },
@@ -313,7 +314,7 @@ void main() {
         HealthDataKind.water: 1,
         HealthDataKind.overnight: 0,
       });
-      expect(store.recentWeights.last.weightKg, 71.4);
+      expect(store.backend.journal.recentWeights(const Duration(days: 28)).last.weightKg, 71.4);
       final run = store
           .activitiesOn(at)
           .firstWhere((session) => session.id == 'healthkit-workout-r1');
@@ -341,12 +342,12 @@ void main() {
         weightRows: [HealthWeight(id: 'w1', at: at, kg: 71.4)],
       )..granted = {HealthDataKind.sleep};
       final store = storeWith(health);
-      final weighings = store.recentWeights.length;
+      final weighings = store.backend.journal.recentWeights(const Duration(days: 28)).length;
 
       final result = await store.connectHealth();
 
       expect(result!.added.keys, [HealthDataKind.sleep]);
-      expect(store.recentWeights, hasLength(weighings), reason: 'not read');
+      expect(store.backend.journal.recentWeights(const Duration(days: 28)), hasLength(weighings), reason: 'not read');
       expect(result.denied, {
         HealthDataKind.weight,
         HealthDataKind.waist,

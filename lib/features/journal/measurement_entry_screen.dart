@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'journal_view_model.dart';
 
 /// A tape measurement is plausible between these; outside them it is a
 /// typo rather than a body.
@@ -26,6 +27,7 @@ class MeasurementEntryScreen extends StatefulWidget {
 }
 
 class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
+  late final JournalViewModel _journal;
   late final _fields = {
     for (final site in _sites)
       site: TextEditingController(
@@ -45,11 +47,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   @override
   void initState() {
     super.initState();
-    _previous = AppStoreScope.read(context).latestMeasurements;
+    _journal = JournalViewModel(AppStoreScope.read(context).backend);
+    _previous = _journal.latestMeasurements;
   }
 
   @override
   void dispose() {
+    _journal.dispose();
     for (final controller in _fields.values) {
       controller.dispose();
     }
@@ -75,11 +79,10 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       setState(() => _error = '至少填一個部位。');
       return;
     }
-    final store = AppStoreScope.read(context);
     final editing = widget.editing;
     if (editing != null) {
       final value = entered[editing.site]!;
-      store.updateMeasurement(
+      _journal.updateMeasurement(
         BodyMeasurement(
           id: editing.id,
           measuredAt: editing.measuredAt,
@@ -97,7 +100,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       return;
     }
     for (final MapEntry(key: site, value: value) in entered.entries) {
-      store.recordMeasurement(site, value);
+      _journal.recordMeasurement(site, value);
     }
     Navigator.of(context).pop();
     showToast(
@@ -112,9 +115,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(
-        title: widget.editing?.site.label ?? '圍度',
-      ),
+      appBar: PageAppBar(title: widget.editing?.site.label ?? '圍度'),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
         Gutter(

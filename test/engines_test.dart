@@ -445,11 +445,11 @@ void main() {
       );
 
       store
-        ..recordSleep(const Duration(hours: 7, minutes: 30), score: 4)
-        ..recordSleep(const Duration(hours: 6, minutes: 30));
+        ..backend.journal.recordSleep(const Duration(hours: 7, minutes: 30), score: 4)
+        ..backend.journal.recordSleep(const Duration(hours: 6, minutes: 30));
 
       expect(store.backend.insights.trends().averageSleep, const Duration(hours: 7));
-      final today = store.monthRecords(DateTime(2026, 9)).days.first;
+      final today = store.backend.timeline.month(DateTime(2026, 9)).days.first;
       expect(today.entries.map((entry) => entry.title), contains('睡眠 7:30'));
       expect(
         today.entries.firstWhere((entry) => entry.title == '睡眠 7:30').detail,
@@ -459,11 +459,11 @@ void main() {
 
     test('a weight and a check-in are stored and read back', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-        ..recordWeight(71.8, note: '早晨空腹')
-        ..recordWellness(WellnessKind.energy, 4, note: '睡得好');
+        ..backend.journal.recordWeight(71.8, note: '早晨空腹')
+        ..backend.journal.recordWellness(WellnessKind.energy, 4, note: '睡得好');
       addTearDown(store.dispose);
 
-      final today = store.monthRecords(DateTime(2026, 9)).days.first;
+      final today = store.backend.timeline.month(DateTime(2026, 9)).days.first;
       expect(
         today.entries.map((entry) => entry.title),
         containsAll(['體重 71.8 kg', '精力 4 / 5']),

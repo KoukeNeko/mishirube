@@ -11,6 +11,7 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
+import 'log_view_model.dart';
 
 enum _LogView { timeline, calendar }
 
@@ -54,7 +55,15 @@ class _LogScreenState extends State<LogScreen> {
   late DateTime _month;
   late int _selectedDay;
 
-  DateTime get _today => AppStoreScope.read(context).now();
+  late final _log = LogViewModel(AppStoreScope.read(context).backend);
+
+  DateTime get _today => _log.now();
+
+  @override
+  void dispose() {
+    _log.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -104,7 +113,7 @@ class _LogScreenState extends State<LogScreen> {
       context,
       anchor: box.localToGlobal(Offset.zero) & box.size,
       selected: _month,
-      earliest: AppStoreScope.read(context).earliestRecordMonth,
+      earliest: _log.earliestMonth,
       latest: DateTime(_today.year, _today.month),
       onChanged: _setMonth,
     );
@@ -121,9 +130,7 @@ class _LogScreenState extends State<LogScreen> {
         activityId: id,
       ),
       // A sleep opens on its day's sleep page, stages and all.
-      RecordCategory.wellness
-          when id != null &&
-              AppStoreScope.read(context).journalEntry(id) is SleepEntry =>
+      RecordCategory.wellness when id != null && _log.isSleep(id) =>
         SleepScreen(day: entry.at),
       RecordCategory.body || RecordCategory.wellness when id != null =>
         JournalDetailScreen(id: id, at: entry.at),
@@ -135,8 +142,11 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final records = AppStoreScope.of(context).monthRecords(_month);
+  Widget build(BuildContext context) =>
+      ListenableBuilder(listenable: _log, builder: (context, _) => _page());
+
+  Widget _page() {
+    final records = _log.month(_month);
     return CollapsingPage(
       title: '紀錄',
       subtitle: '${_month.year} 年 ${_month.month} 月',

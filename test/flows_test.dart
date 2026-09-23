@@ -1108,7 +1108,7 @@ void main() {
 
   testWidgets('a night in the log opens its sleep page', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    store.recordSleep(const Duration(hours: 7), score: 4);
+    store.backend.journal.recordSleep(const Duration(hours: 7), score: 4);
     await pumpScreen(tester, const LogScreen(), store: store);
 
     await _tapText(tester, '睡眠 7:00');
@@ -1129,7 +1129,7 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    store.recordWeight(81.2);
+    store.backend.journal.recordWeight(81.2);
     await pumpScreen(tester, const LogScreen(), store: store);
 
     await _tapText(tester, '體重 81.2 kg');

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'journal_view_model.dart';
 
 /// Writing down something about today, in the user's own words.
 ///
@@ -19,23 +20,31 @@ class NoteEntryScreen extends StatefulWidget {
 }
 
 class _NoteEntryScreenState extends State<NoteEntryScreen> {
+  late final JournalViewModel _journal;
+
+  @override
+  void initState() {
+    super.initState();
+    _journal = JournalViewModel(AppStoreScope.read(context).backend);
+  }
+
   late final _text = TextEditingController(text: widget.editing?.text ?? '')
     ..addListener(() => setState(() {}));
 
   @override
   void dispose() {
+    _journal.dispose();
     _text.dispose();
     super.dispose();
   }
 
   void _save() {
     final text = _text.text.trim();
-    final store = AppStoreScope.read(context);
     final editing = widget.editing;
     if (editing == null) {
-      store.recordNote(text);
+      _journal.recordNote(text);
     } else {
-      store.updateNote(
+      _journal.updateNote(
         Note(id: editing.id, notedAt: editing.notedAt, text: text),
       );
     }

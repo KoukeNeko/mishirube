@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'journal_view_model.dart';
 
 /// The range a night is logged in, in 15-minute steps.
 const _minMinutes = 180;
@@ -26,20 +27,32 @@ class SleepEntryScreen extends StatefulWidget {
 }
 
 class _SleepEntryScreenState extends State<SleepEntryScreen> {
+  late final JournalViewModel _journal;
+
+  @override
+  void initState() {
+    super.initState();
+    _journal = JournalViewModel(AppStoreScope.read(context).backend);
+  }
+
+  @override
+  void dispose() {
+    _journal.dispose();
+    super.dispose();
+  }
+
   late int _minutes =
       (widget.editing ?? _lastNight)?.duration.inMinutes ?? _defaultMinutes;
   late int? _score = widget.editing?.score;
 
-  SleepEntry? get _lastNight =>
-      AppStoreScope.read(context).recentSleep.lastOrNull;
+  SleepEntry? get _lastNight => _journal.recentSleep.lastOrNull;
 
   void _save() {
-    final store = AppStoreScope.read(context);
     final editing = widget.editing;
     if (editing == null) {
-      store.recordSleep(Duration(minutes: _minutes), score: _score);
+      _journal.recordSleep(Duration(minutes: _minutes), score: _score);
     } else {
-      store.updateSleep(
+      _journal.updateSleep(
         SleepEntry(
           id: editing.id,
           sleptAt: editing.sleptAt,

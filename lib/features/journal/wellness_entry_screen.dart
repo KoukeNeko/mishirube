@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import 'journal_view_model.dart';
 
 /// Logging how the day felt: one of the kinds, a 1–5 rating and a note.
 /// It is a log, not a score to improve: nothing here is graded.
@@ -19,23 +20,31 @@ class WellnessEntryScreen extends StatefulWidget {
 }
 
 class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
+  late final JournalViewModel _journal;
+
+  @override
+  void initState() {
+    super.initState();
+    _journal = JournalViewModel(AppStoreScope.read(context).backend);
+  }
+
   late WellnessKind _kind = widget.editing?.kind ?? WellnessKind.energy;
   late int _score = widget.editing?.score ?? 3;
   late final _note = TextEditingController(text: widget.editing?.note ?? '');
 
   @override
   void dispose() {
+    _journal.dispose();
     _note.dispose();
     super.dispose();
   }
 
   void _save() {
-    final store = AppStoreScope.read(context);
     final editing = widget.editing;
     if (editing == null) {
-      store.recordWellness(_kind, _score, note: _note.text.trim());
+      _journal.recordWellness(_kind, _score, note: _note.text.trim());
     } else {
-      store.updateWellness(
+      _journal.updateWellness(
         WellnessEntry(
           id: editing.id,
           recordedAt: editing.recordedAt,
