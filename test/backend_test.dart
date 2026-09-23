@@ -413,29 +413,29 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      expect(store.isGoalEnabled, isFalse, reason: 'nothing set by default');
-      expect(store.goalOverview.hasGoal, isFalse);
+      expect(store.backend.goal.isEnabled, isFalse, reason: 'nothing set by default');
+      expect(store.backend.goal.overview().hasGoal, isFalse);
 
-      store.setWeeklyGoal(4, applyThisWeek: true);
-      store.pauseGoal();
+      store.backend.goal.setGoal(4, applyThisWeek: true);
+      store.backend.goal.pause();
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      expect(reopened.isGoalEnabled, isTrue);
-      expect(reopened.goalOverview.thisWeek.targetDays, 4);
-      expect(reopened.goalOverview.isPaused, isTrue);
+      expect(reopened.backend.goal.isEnabled, isTrue);
+      expect(reopened.backend.goal.overview().thisWeek.targetDays, 4);
+      expect(reopened.backend.goal.overview().isPaused, isTrue);
 
-      reopened.resumeGoal();
+      reopened.backend.goal.resume();
       expect(
-        AppStore(clock: clock.now, backend: backend).goalOverview.isPaused,
+        AppStore(clock: clock.now, backend: backend).backend.goal.overview().isPaused,
         isFalse,
       );
     });
 
     test('a day with a workout and a run counts once', () {
       final store = AppStore(clock: clock.now, isOnboarded: true)
-        ..setWeeklyGoal(5, applyThisWeek: true);
+        ..backend.goal.setGoal(5, applyThisWeek: true);
       addTearDown(store.dispose);
-      final before = store.goalOverview.thisWeek.activeDays;
+      final before = store.backend.goal.overview().thisWeek.activeDays;
 
       store
         ..logActivity(
@@ -450,7 +450,7 @@ void main() {
         );
 
       expect(
-        store.goalOverview.thisWeek.activeDays,
+        store.backend.goal.overview().thisWeek.activeDays,
         before + 1,
         reason: 'two records on one day are still one active day',
       );
@@ -458,12 +458,12 @@ void main() {
 
     test('a late record brings the week, and the run, back', () {
       final store = AppStore(clock: clock.now, isOnboarded: true)
-        ..setWeeklyGoal(3, applyThisWeek: true);
+        ..backend.goal.setGoal(3, applyThisWeek: true);
       addTearDown(store.dispose);
-      final short = store.goalOverview.weeks.lastWhere(
+      final short = store.backend.goal.overview().weeks.lastWhere(
         (week) => !week.isCurrent && !week.isMet && !week.isPaused,
       );
-      final before = store.goalOverview.streak;
+      final before = store.backend.goal.overview().streak;
 
       // Fill that week in, as if catching up on records.
       for (var i = 0; i < short.targetDays - short.activeDays; i++) {
@@ -474,7 +474,7 @@ void main() {
         );
       }
 
-      final after = store.goalOverview;
+      final after = store.backend.goal.overview();
       final filled = after.weeks.firstWhere(
         (week) => week.start == short.start,
       );

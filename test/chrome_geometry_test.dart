@@ -414,7 +414,7 @@ void main() {
   testWidgets('both ends of the toolbar keep the same gutter', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-      ..setWeeklyGoal(3, applyThisWeek: true);
+      ..backend.goal.setGoal(3, applyThisWeek: true);
     await pumpScreen(tester, const GoalScreen(), store: store);
 
     final back = tester.getRect(find.bySemanticsLabel('返回').hitTestable());

@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../backend/application/goal_service.dart';
 import '../../backend/engines/streak_engine.dart';
 import '../../shared/widgets/widgets.dart';
+import 'goal_view_model.dart';
 
 /// Setting the weekly goal, pausing it, or turning it off. Nothing here
 /// is decided for the user: the app suggests from what they have
@@ -19,6 +20,14 @@ class GoalSetupScreen extends StatefulWidget {
 }
 
 class _GoalSetupScreenState extends State<GoalSetupScreen> {
+  late final _goal = GoalViewModel(AppStoreScope.read(context).backend);
+
+  @override
+  void dispose() {
+    _goal.dispose();
+    super.dispose();
+  }
+
   late int _days = widget.overview.hasGoal
       ? widget.overview.thisWeek.targetDays
       : widget.overview.suggestedDays;
@@ -29,8 +38,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   late bool _applyThisWeek = !widget.overview.hasGoal;
 
   void _save() {
-    AppStoreScope.read(context)
-        .setWeeklyGoal(_days, applyThisWeek: _applyThisWeek);
+    _goal.setGoal(_days, applyThisWeek: _applyThisWeek);
     Navigator.of(context).pop();
     showToast(
       context,
@@ -42,7 +50,6 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
   /// Asks how long to pause for; backing out of the dialog leaves the
   /// goal running.
   Future<void> _pause() async {
-    final store = AppStoreScope.read(context);
     final choice = await showAppDialog<(Duration?,)>(
       context,
       AppDialog(
@@ -63,13 +70,15 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     );
     if (choice == null || !mounted) return;
     final (duration,) = choice;
-    store.pauseGoal(until: duration == null ? null : store.now().add(duration));
+    _goal.pause(until: duration == null ? null : _goal.now().add(duration));
   }
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final overview = store.goalOverview;
+  Widget build(BuildContext context) =>
+      ListenableBuilder(listenable: _goal, builder: (context, _) => _page());
+
+  Widget _page() {
+    final overview = _goal.overview;
     return DetailPage(
       appBar: PageAppBar(
         title: overview.hasGoal ? '每週目標' : '設定每週目標',
@@ -121,17 +130,17 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
           Gutter(
             child: GroupedCard(
               children: [
-                if (store.isGoalEnabled)
+                if (_goal.isEnabled)
                   SwitchRow(
                     title: '暫停每週目標',
                     value: overview.isPaused,
-                    onChanged: (pause) => pause ? _pause() : store.resumeGoal(),
+                    onChanged: (pause) => pause ? _pause() : _goal.resume(),
                   ),
                 SwitchRow(
                   title: '每週目標',
                   subtitle: '關閉時隱藏目標與連續達標',
-                  value: store.isGoalEnabled,
-                  onChanged: store.setGoalEnabled,
+                  value: _goal.isEnabled,
+                  onChanged: _goal.setEnabled,
                 ),
               ],
             ),

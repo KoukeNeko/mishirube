@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../app/view_model.dart';
 import '../../app/theme.dart';
 import '../../shared/haptics.dart';
 import 'goal_screen.dart';
+import 'goal_view_model.dart';
 import 'weekly_goal_ring.dart';
 
 const _ringSize = 34.0;
@@ -17,10 +18,14 @@ class GoalEntryButton extends StatelessWidget {
   const GoalEntryButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    if (!store.isGoalEnabled) return const SizedBox.shrink();
-    final week = store.goalOverview.thisWeek;
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: GoalViewModel.new,
+    builder: (context, goal) => _button(context, goal),
+  );
+
+  Widget _button(BuildContext context, GoalViewModel goal) {
+    if (!goal.isEnabled) return const SizedBox.shrink();
+    final week = goal.overview.thisWeek;
     return Semantics(
       button: true,
       label: week.isPaused

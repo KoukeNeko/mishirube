@@ -454,10 +454,10 @@ void main() {
   testWidgets('pausing and turning off the goal are switches', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-      ..setWeeklyGoal(3, applyThisWeek: true);
+      ..backend.goal.setGoal(3, applyThisWeek: true);
     await pumpScreen(
       tester,
-      GoalSetupScreen(overview: store.goalOverview),
+      GoalSetupScreen(overview: store.backend.goal.overview()),
       store: store,
     );
     Finder switchOf(String title) => find.descendant(
@@ -470,21 +470,25 @@ void main() {
     expect(find.text('暫停本週'), findsOneWidget);
     await tester.tapAt(const Offset(4, 4));
     await tester.pumpAndSettle();
-    expect(store.goalOverview.isPaused, isFalse);
+    expect(store.backend.goal.overview().isPaused, isFalse);
 
     await _tapText(tester, '暫停每週目標');
     await _tapText(tester, '暫停本週');
     await tester.pumpAndSettle();
-    expect(store.goalOverview.isPaused, isTrue);
+    expect(store.backend.goal.overview().isPaused, isTrue);
     expect(tester.widget<Switch>(switchOf('暫停每週目標')).value, isTrue);
 
     await tester.tap(switchOf('暫停每週目標'));
     await tester.pumpAndSettle();
-    expect(store.goalOverview.isPaused, isFalse, reason: 'switched off');
+    expect(
+      store.backend.goal.overview().isPaused,
+      isFalse,
+      reason: 'switched off',
+    );
 
     await tester.tap(switchOf('每週目標'));
     await tester.pumpAndSettle();
-    expect(store.isGoalEnabled, isFalse);
+    expect(store.backend.goal.isEnabled, isFalse);
     expect(
       find.text('暫停每週目標'),
       findsNothing,
@@ -518,7 +522,7 @@ void main() {
     await tester.tap(find.text('儲存'));
     await tester.pumpAndSettle();
 
-    expect(store.goalOverview.thisWeek.targetDays, 4);
+    expect(store.backend.goal.overview().thisWeek.targetDays, 4);
     expect(find.textContaining('本週'), findsWidgets);
 
     // Back out of the goal page to the shell.

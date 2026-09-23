@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 
 import '../backend/application/activity_service.dart';
 import '../backend/application/ai_service.dart';
-import '../backend/application/goal_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/progression_engine.dart';
@@ -151,6 +150,7 @@ class AppStore extends ChangeNotifier {
   late Routine _routine;
   ActiveSession? _session;
   WorkoutSession? _lastFinishedWorkout;
+
   /// Today's meals as last read, and the day they were read for; read
   /// again after any write and when the day turns.
   (DateTime, List<MealEvent>)? _todayMealsRead;
@@ -164,6 +164,7 @@ class AppStore extends ChangeNotifier {
     _todayMealsRead = (day, meals);
     return meals;
   }
+
   List<ExerciseDefinition> _exercises = const [];
   Map<String, ExerciseDefinition> _exercisesById = const {};
   bool _hasSyncConflict = true;
@@ -236,36 +237,6 @@ class AppStore extends ChangeNotifier {
     String? exerciseId,
     Duration window = const Duration(days: 28),
   }) => _backend.insights.volumeReport(exerciseId: exerciseId, window: window);
-
-  /// The weekly goal, the weeks measured against it, and the run of
-  /// weeks met, all derived from the records.
-  GoalOverview get goalOverview => _backend.goal.overview();
-
-  bool get isGoalEnabled => _backend.goal.isEnabled;
-
-  /// Sets how many days a week to move. From next week unless the user
-  /// asks for it to count now; earlier weeks keep their own goal.
-  void setWeeklyGoal(int days, {bool applyThisWeek = false}) {
-    _backend.goal.setGoal(days, applyThisWeek: applyThisWeek);
-    notifyListeners();
-  }
-
-  /// Stops the goal applying until [until], or until picked up again.
-  void pauseGoal({DateTime? until}) {
-    _backend.goal.pause(until: until);
-    notifyListeners();
-  }
-
-  void resumeGoal() {
-    _backend.goal.resume();
-    notifyListeners();
-  }
-
-  /// Turning the goal off hides it; the records and the trends stay.
-  void setGoalEnabled(bool value) {
-    _backend.goal.setEnabled(value);
-    notifyListeners();
-  }
 
   /// Folds a duplicate exercise into the one it duplicates. The records
   /// move with it; the plan is reloaded because it may name either.

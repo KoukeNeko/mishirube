@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../app/view_model.dart';
 import '../../app/theme.dart';
 import '../../backend/application/goal_service.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'goal_setup_sheet.dart';
+import 'goal_view_model.dart';
 import 'weekly_goal_ring.dart';
 
 /// This week's rhythm, the run of weeks met, and the month behind it.
@@ -16,10 +17,14 @@ class GoalScreen extends StatelessWidget {
   const GoalScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final store = AppStoreScope.of(context);
-    final overview = store.goalOverview;
-    final today = store.now();
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: GoalViewModel.new,
+    builder: (context, goal) => _page(context, goal),
+  );
+
+  Widget _page(BuildContext context, GoalViewModel goal) {
+    final overview = goal.overview;
+    final today = goal.now();
     return DetailPage(
       appBar: PageAppBar(
         title: '每週目標',
@@ -46,10 +51,7 @@ class GoalScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '每週要有幾個運動日。',
-              style: AppTextStyles.body,
-            ),
+            const Text('每週要有幾個運動日。', style: AppTextStyles.body),
             const SizedBox(height: AppSpacing.md),
             PrimaryButton(
               label: '設定每週目標',

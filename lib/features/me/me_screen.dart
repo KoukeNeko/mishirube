@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../goal/goal_screen.dart';
+import '../goal/goal_view_model.dart';
 import '../nutrition/food_library_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import 'ai_settings_screen.dart';
@@ -16,7 +18,12 @@ class MeScreen extends StatelessWidget {
   const MeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ViewModelBuilder(
+    create: GoalViewModel.new,
+    builder: (context, goal) => _page(context, goal),
+  );
+
+  Widget _page(BuildContext context, GoalViewModel goal) {
     final store = AppStoreScope.of(context);
     final moduleNames = store.enabledModules.map((m) => m.title).join('、');
     return CollapsingPage(
@@ -28,7 +35,7 @@ class MeScreen extends StatelessWidget {
             children: [
               NavRow(
                 title: '每週目標',
-                subtitle: _goalSummary(store),
+                subtitle: _goalSummary(goal),
                 onTap: () => pushPage(context, const GoalScreen()),
               ),
               NavRow(
@@ -100,9 +107,9 @@ class MeScreen extends StatelessWidget {
 
 /// What the row says without opening the page: the goal, or that there
 /// is not one yet.
-String _goalSummary(AppStore store) {
-  if (!store.isGoalEnabled) return '未設定';
-  final overview = store.goalOverview;
+String _goalSummary(GoalViewModel goal) {
+  if (!goal.isEnabled) return '未設定';
+  final overview = goal.overview;
   if (overview.isPaused) return '已暫停';
   final week = overview.thisWeek;
   return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';

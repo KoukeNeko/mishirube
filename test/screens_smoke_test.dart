@@ -147,7 +147,8 @@ void _withoutRoutines(AppStore store) {
   }
 }
 
-void _withGoal(AppStore store) => store.setWeeklyGoal(3, applyThisWeek: true);
+void _withGoal(AppStore store) =>
+    store.backend.goal.setGoal(3, applyThisWeek: true);
 
 void _withActivity(AppStore store) => store.logActivity(
   type: ActivityTypes.running,
@@ -210,7 +211,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'goal (not set up)': ((_) => const GoalScreen(), _noSetup),
   'goal': ((_) => const GoalScreen(), _withGoal),
   'goal setup': (
-    (store) => GoalSetupScreen(overview: store.goalOverview),
+    (store) => GoalSetupScreen(overview: store.backend.goal.overview()),
     _withGoal,
   ),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
