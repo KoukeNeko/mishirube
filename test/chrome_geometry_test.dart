@@ -364,7 +364,7 @@ void main() {
     );
     expect(
       tester.getSemantics(chip),
-      matchesSemantics(label: '加入一組熱身', isButton: true, hasTapAction: true),
+      matchesSemantics(label: '加入熱身組', isButton: true, hasTapAction: true),
     );
     handle.dispose();
     await disposeTree(tester);
