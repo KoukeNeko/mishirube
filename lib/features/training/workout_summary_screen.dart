@@ -90,11 +90,29 @@ class WorkoutSummaryScreen extends StatelessWidget {
           Gutter(child: const SectionLabel('個人紀錄')),
           for (final item in records) Gutter(child: _RecordRow(item: item)),
         ],
+        if (_weekSets(store, review) case final labels
+            when labels.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('近 7 天肌群組數')),
+          Gutter(child: TagWrap(labels: labels)),
+        ],
         Gutter(child: const SectionLabel('動作')),
         for (final item in review.exercises)
           Gutter(child: _ResultRow(item: item)),
+        if (review.exercises.any((item) => item.oneRepMaxKg != null))
+          Gutter(child: const TagWrap(labels: ['Epley 估計，非實測'])),
       ],
     );
+  }
+
+  /// The week's working sets for each muscle this workout trained.
+  static List<String> _weekSets(AppStore store, WorkoutReview review) {
+    final trained = {
+      for (final item in review.exercises) ...item.exercise.primaryMuscles,
+    };
+    return [
+      for (final (muscle, sets) in store.weekMuscleSets)
+        if (trained.contains(muscle)) '${muscle.label} $sets 組',
+    ];
   }
 
   /// The total against the same template's last time, when there was one.
@@ -137,6 +155,16 @@ class _ResultRow extends StatelessWidget {
 
   final ExerciseReview item;
 
+  /// The estimated max against last time's, or alone the first time.
+  static String? _estimateLine(ExerciseReview item) {
+    final now = item.oneRepMaxKg;
+    if (now == null) return null;
+    final before = item.previousOneRepMaxKg;
+    return before == null
+        ? '估計最大重量 ${now.round()} kg'
+        : '估計最大重量 ${before.round()} → ${now.round()} kg';
+  }
+
   @override
   Widget build(BuildContext context) {
     final best = item.best;
@@ -145,6 +173,7 @@ class _ResultRow extends StatelessWidget {
       title: item.exercise.name,
       subtitle:
           '${item.sets} 組 · ${formatAmount(item.volumeKg.roundToDouble())} kg',
+      detail: _estimateLine(item),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

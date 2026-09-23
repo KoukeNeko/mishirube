@@ -202,6 +202,10 @@ class AppStore extends ChangeNotifier {
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_routine);
 
+  /// Working sets per muscle over the last seven days.
+  List<(MuscleGroup, int)> get weekMuscleSets =>
+      _backend.insights.muscleLoad(window: const Duration(days: 7));
+
   /// [workout] against what came before it.
   WorkoutReview workoutReview(WorkoutSession workout) =>
       _backend.training.review(workout);

@@ -1006,6 +1006,12 @@ void main() {
         6,
         reason: '100 × 6 estimates higher than 102.5 × 3',
       );
+      expect(review.exercises.single.oneRepMaxKg, 120);
+      expect(
+        review.exercises.single.previousOneRepMaxKg,
+        estimateOneRepMax(100, 5),
+        reason: 'measured against the session before',
+      );
     });
   });
 
