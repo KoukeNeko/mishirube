@@ -252,6 +252,22 @@ void main() {
     final store = _store();
     await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
     final rail = tester.getRect(find.byType(SideNavigation));
+    final tabsGlass = tester.getRect(
+      find
+          .ancestor(
+            of: find.descendant(
+              of: find.byType(SideNavigation),
+              matching: find.text('紀錄'),
+            ),
+            matching: find.byType(ChromeSurface),
+          )
+          .first,
+    );
+    expect(
+      tabsGlass.bottom,
+      tablet.size.height - tablet.padding.bottom - ChromeMetrics.gap,
+      reason: "the tabs' glass runs down the window",
+    );
 
     for (final tab in HomeTab.values) {
       store.selectTab(tab);

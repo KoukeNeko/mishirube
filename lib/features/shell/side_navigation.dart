@@ -24,6 +24,12 @@ const _sidebarTabHeight = 44.0;
 /// Height of a tab in the rail, with its name under the icon.
 const _railTabHeight = 56.0;
 
+/// Corner radius of every piece of glass here, so the「+」, the session
+/// and the tabs' pane read as one set. The lens sits inside the pane,
+/// concentric with it.
+const _radius = AppRadius.card;
+const _lensRadius = _radius - ChromeMetrics.lensInset;
+
 /// Height of the record button and the running session under it.
 const _actionHeight = 48.0;
 const _sessionHeight = 40.0;
@@ -71,65 +77,71 @@ class SideNavigation extends StatelessWidget {
         ? ToolbarMetrics.of(context).height
         : 0.0;
     final session = this.session;
-    // The full height of the window, its background behind the glass.
-    return SizedBox(
-      height: double.infinity,
-      child: ColoredBox(
-        color: AppColors.background,
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: padding.top + controls,
-            bottom: padding.bottom,
-            left: isLtr ? padding.left : 0,
-            right: isLtr ? 0 : padding.right,
-          ),
-          child: SizedBox(
-            width: isExtended ? sidebarWidth : railWidth,
-            // A phone on its side is short: the column scrolls rather than
-            // cutting off its last tab.
-            child: SingleChildScrollView(
+    final tabs = ChromeSurface(
+      refracts: true,
+      radius: _radius,
+      child: Padding(
+        padding: const EdgeInsets.all(ChromeMetrics.lensInset),
+        child: Column(
+          children: [
+            for (final spec in homeTabs)
+              _SideTab(
+                spec: spec,
+                isExtended: isExtended,
+                isSelected: spec.tab == selected,
+                onTap: () {
+                  if (spec.tab != selected) AppHaptics.selection(context);
+                  onSelect(spec.tab);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+    return ColoredBox(
+      color: AppColors.background,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: padding.top + controls,
+          bottom: padding.bottom,
+          left: isLtr ? padding.left : 0,
+          right: isLtr ? 0 : padding.right,
+        ),
+        child: SizedBox(
+          width: isExtended ? sidebarWidth : railWidth,
+          height: double.infinity,
+          // The tabs' glass runs to the bottom of the window. A phone on
+          // its side is too short for that: the column scrolls rather than
+          // cutting off its last tab.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
               padding: const EdgeInsets.all(_gap),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _RecordButton(
-                    isExtended: isExtended,
-                    controller: recordMenu,
-                    onOpen: onOpen,
-                  ),
-                  if (session != null) ...[
-                    const SizedBox(height: _gap),
-                    _SessionButton(
-                      isExtended: isExtended,
-                      session: session,
-                      onOpen: onOpenSession,
-                    ),
-                  ],
-                  const SizedBox(height: _gap),
-                  ChromeSurface(
-                    refracts: true,
-                    radius: AppRadius.card,
-                    child: Padding(
-                      padding: const EdgeInsets.all(ChromeMetrics.lensInset),
-                      child: Column(
-                        children: [
-                          for (final spec in homeTabs)
-                            _SideTab(
-                              spec: spec,
-                              isExtended: isExtended,
-                              isSelected: spec.tab == selected,
-                              onTap: () {
-                                if (spec.tab != selected) {
-                                  AppHaptics.selection(context);
-                                }
-                                onSelect(spec.tab);
-                              },
-                            ),
-                        ],
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - _gap * 2,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _RecordButton(
+                        isExtended: isExtended,
+                        controller: recordMenu,
+                        onOpen: onOpen,
                       ),
-                    ),
+                      if (session != null) ...[
+                        const SizedBox(height: _gap),
+                        _SessionButton(
+                          isExtended: isExtended,
+                          session: session,
+                          onOpen: onOpenSession,
+                        ),
+                      ],
+                      const SizedBox(height: _gap),
+                      Expanded(child: tabs),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -210,7 +222,10 @@ class _SideTabState extends State<_SideTab> {
               duration: ChromeMetrics.pressDuration,
               height: widget.isExtended ? _sidebarTabHeight : _railTabHeight,
               decoration: ShapeDecoration(
-                shape: StadiumBorder(
+                shape: RoundedRectangleBorder(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(_lensRadius),
+                  ),
                   side: BorderSide(
                     color: Colors.white.withValues(
                       alpha: isSelected ? ChromeMetrics.lensBorderOpacity : 0,
@@ -321,6 +336,7 @@ class _RecordButton extends StatelessWidget {
               child: SizedBox(
                 height: _actionHeight,
                 child: CenterActionSurface(
+                  radius: _radius,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: toggle,
@@ -396,6 +412,7 @@ class _SessionButton extends StatelessWidget {
             child: SizedBox(
               height: _sessionHeight,
               child: ChromeSurface(
+                radius: _radius,
                 tint: isActivity
                     ? AppColors.activitySurface
                     : AppColors.trainingSurface,

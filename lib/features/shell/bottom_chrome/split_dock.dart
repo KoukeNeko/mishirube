@@ -619,12 +619,19 @@ class _CenterAction extends StatelessWidget {
 /// light. The quick-log menu's × wears the same, since it stands in for
 /// 「+」while the menu is open.
 class CenterActionSurface extends StatelessWidget {
-  const CenterActionSurface({super.key, required this.child});
+  const CenterActionSurface({
+    super.key,
+    required this.child,
+    this.radius = AppRadius.chip,
+  });
 
   /// Colour of what sits on the surface: the「+」, ×, and workout timer.
   static const foreground = AppColors.onTraining;
 
   final Widget child;
+
+  /// A capsule in the dock; the side navigation matches its own glass.
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -633,6 +640,7 @@ class CenterActionSurface extends StatelessWidget {
       tint: AppColors.training,
       tintOpacity: 0.7,
       borderColor: AppColors.training,
+      radius: radius,
       child: child,
     );
   }
