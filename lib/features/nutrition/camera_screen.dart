@@ -259,25 +259,42 @@ class _CameraScreenState extends State<CameraScreen>
 }
 
 /// The round button that takes the photo: a ring around the app's
-/// green, dimmed while there is no camera to take it with.
-class _Shutter extends StatelessWidget {
+/// green, dimmed while there is no camera to take it with. Only the green
+/// answers a press, shrinking inside the ring that stays put.
+class _Shutter extends StatefulWidget {
   const _Shutter({required this.onPressed});
 
   final VoidCallback? onPressed;
 
+  @override
+  State<_Shutter> createState() => _ShutterState();
+}
+
+class _ShutterState extends State<_Shutter> {
   static const _size = 76.0;
+  static const _pressedScale = 0.86;
+
+  bool _isPressed = false;
+
+  void _setPressed(bool isPressed) {
+    if (widget.onPressed == null || _isPressed == isPressed) return;
+    setState(() => _isPressed = isPressed);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final onPressed = this.onPressed;
+    final onPressed = widget.onPressed;
     return Semantics(
       button: true,
       enabled: onPressed != null,
       label: '拍照',
       onTap: onPressed,
       excludeSemantics: true,
-      child: PressScale(
-        pressedScale: ChromeMetrics.actionPressedScale,
+      // The raw pointer, so the green reacts before the tap is decided.
+      child: Listener(
+        onPointerDown: (_) => _setPressed(true),
+        onPointerUp: (_) => _setPressed(false),
+        onPointerCancel: (_) => _setPressed(false),
         child: GestureDetector(
           onTap: onPressed,
           child: Opacity(
@@ -292,10 +309,17 @@ class _Shutter extends StatelessWidget {
                   BorderSide(color: AppColors.textPrimary, width: 3),
                 ),
               ),
-              child: const DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.training,
+              child: AnimatedScale(
+                scale: _isPressed && !prefersReducedMotion(context)
+                    ? _pressedScale
+                    : 1,
+                duration: ChromeMetrics.pressDuration,
+                curve: Curves.easeOut,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.training,
+                  ),
                 ),
               ),
             ),
