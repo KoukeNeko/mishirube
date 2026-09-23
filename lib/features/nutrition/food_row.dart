@@ -62,5 +62,5 @@ String addsLastPortion(FoodPortion portion) =>
 /// a cup when it comes in sizes.
 String addsFirstPortion(FoodItem food, {required int sizeCount}) {
   if (sizeCount > 0) return '$sizeCount 種杯型';
-  return '一份 ${food.servingDescription} · ${kcalOf(food, food.kcal)}';
+  return '一份 ${food.servingDescription} · ${kcalOf(food, food.kcal?.round())}';
 }

@@ -536,6 +536,41 @@ void main() {
       );
     });
 
+    test("a label's decimals are kept, and a meal rounds once", () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      store.backend.nutrition.saveFood(
+        FoodItem(
+          id: store.backend.nutrition.newFoodId(),
+          name: '吐司',
+          servingAmount: 100,
+          servingUnit: ServingUnit.gram,
+          kcal: 274.4,
+          proteinGrams: 6.7,
+          carbGrams: 48.4,
+          fatGrams: 6.0,
+        ),
+      );
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      final stored = reopened.backend.nutrition.searchFoods('吐司').single;
+      expect(stored.kcal, 274.4);
+      expect(stored.proteinGrams, 6.7);
+      expect(stored.carbGrams, 48.4);
+
+      // 6.7 × 1.5 is 10.05: rounded from the exact figure, not from 7.
+      final logged = reopened.backend.nutrition.logPortion(
+        FoodPortion(stored, 1.5),
+      );
+      expect(logged.proteinGrams, 10);
+      expect(logged.kcal, 412, reason: '274.4 × 1.5 = 411.6');
+    });
+
     test('a different portion is worked out, not retyped', () {
       final backend = openFile();
       addTearDown(backend.close);
@@ -2000,7 +2035,7 @@ void main() {
   });
 
   group('logging several foods at once', () {
-    FoodItem food(String id, String name, {int kcal = 100}) => FoodItem(
+    FoodItem food(String id, String name, {double kcal = 100}) => FoodItem(
       id: id,
       name: name,
       kcal: kcal,
@@ -2300,7 +2335,7 @@ void main() {
             servingAmount: 100,
             servingUnit: ServingUnit.gram,
             kcal: 165,
-            proteinGrams: 31,
+            proteinGrams: 31.4,
             carbGrams: 0,
             fatGrams: 4,
             nutrients: const {Nutrient.sodium: 74},
@@ -2381,8 +2416,9 @@ void main() {
               as Map<String, Object?>;
       expect(foods['required'], contains('id'));
       expect(foods['required'], isNot(contains('kcal')));
+      // A label prints 274.4 kcal, so a food's figures are numbers.
       expect(((foods['properties']! as Map)['kcal']! as Map)['type'], [
-        'integer',
+        'number',
         'null',
       ]);
       expect(

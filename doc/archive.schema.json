@@ -596,31 +596,31 @@
               },
               "kcal": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "proteinG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "carbG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "fatG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "fibreG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },

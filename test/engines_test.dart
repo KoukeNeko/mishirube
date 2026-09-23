@@ -1093,7 +1093,7 @@ void main() {
   });
 
   test('a plate total names what it left out instead of marking it', () {
-    FoodPortion one(int? kcal, NutrientValueType type) => FoodPortion(
+    FoodPortion one(double? kcal, NutrientValueType type) => FoodPortion(
       FoodItem(id: '$kcal$type', name: 'x', kcal: kcal, valueType: type),
       1,
     );

@@ -291,11 +291,13 @@ class FoodRepository {
       servingLabel: row['serving_label']! as String,
       servingAmount: (row['serving_amount']! as num).toDouble(),
       servingUnit: ServingUnit.values.byName(row['serving_unit']! as String),
-      kcal: row['kcal'] as int?,
-      proteinGrams: row['protein_g'] as int?,
-      carbGrams: row['carb_g'] as int?,
-      fatGrams: row['fat_g'] as int?,
-      fibreGrams: row['fibre_g'] as int?,
+      // The columns were made for whole numbers; SQLite keeps a decimal
+      // written to them as it is.
+      kcal: (row['kcal'] as num?)?.toDouble(),
+      proteinGrams: (row['protein_g'] as num?)?.toDouble(),
+      carbGrams: (row['carb_g'] as num?)?.toDouble(),
+      fatGrams: (row['fat_g'] as num?)?.toDouble(),
+      fibreGrams: (row['fibre_g'] as num?)?.toDouble(),
       nutrients: readNutrients(_db, 'food_nutrients', 'food_id', id),
       parentId: row['parent_id'] as String?,
       sizeName: row['size_name']! as String,

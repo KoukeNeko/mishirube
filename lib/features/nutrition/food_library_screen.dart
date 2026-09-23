@@ -69,7 +69,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     title: food.displayName,
     subtitle:
         '一份 ${food.servingDescription} · '
-        '${formatKcalOrDash(food.kcal)} kcal',
+        '${formatKcalOrDash(food.kcal?.round())} kcal',
     onTap: () => _edit(food),
   );
 
@@ -91,7 +91,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
       subtitle: sizes > 0
           ? '$sizes 種杯型'
           : '一份 ${food.servingDescription} · '
-                '${formatKcalOrDash(food.kcal)} kcal',
+                '${formatKcalOrDash(food.kcal?.round())} kcal',
       onTap: () => _openCatalogueFood(food),
     );
   }

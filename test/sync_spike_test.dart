@@ -32,7 +32,7 @@ void main() {
     return (clients.first, clients.last);
   }
 
-  FoodItem food(String id, String name, {int kcal = 100}) =>
+  FoodItem food(String id, String name, {double kcal = 100}) =>
       FoodItem(id: id, name: name, kind: ConsumptionKind.food, kcal: kcal);
 
   test('restoring one client onto another discards the other entirely', () {

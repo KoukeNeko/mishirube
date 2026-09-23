@@ -355,16 +355,17 @@ class FoodItem {
     return servingUnit.isMeasured ? '$servingLabel · $measured' : servingLabel;
   }
 
-  /// Per serving, as the user entered them. Null is a figure nobody
-  /// wrote down — a food whose label was never read is not a food with
-  /// no calories in it.
-  final int? kcal;
-  final int? proteinGrams;
-  final int? carbGrams;
-  final int? fatGrams;
+  /// Per serving, as the user entered them, decimals included: a label
+  /// prints 6.7 g. Null is a figure nobody wrote down — a food whose
+  /// label was never read is not a food with no calories in it. A meal
+  /// logged from the food rounds once, when it is logged.
+  final double? kcal;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
 
   /// Fibre, part of the carbohydrate above; see [MealEvent.fibreGrams].
-  final int? fibreGrams;
+  final double? fibreGrams;
 
   /// Everything else known about one serving. Absent means unknown.
   final Nutrients nutrients;
@@ -433,11 +434,11 @@ class FoodItem {
     String? servingLabel,
     double? servingAmount,
     ServingUnit? servingUnit,
-    int? kcal,
-    int? proteinGrams,
-    int? carbGrams,
-    int? fatGrams,
-    int? fibreGrams,
+    double? kcal,
+    double? proteinGrams,
+    double? carbGrams,
+    double? fatGrams,
+    double? fibreGrams,
     Nutrients? nutrients,
     String? parentId,
     String? sizeName,

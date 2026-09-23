@@ -76,6 +76,6 @@ class FoodPortion {
       ? '${formatAmount(amount)} ${food.servingUnit.label}'
       : '${formatAmount(servings)} ${ServingUnit.serving.label}';
 
-  int? _scaled(int? perServing) =>
+  int? _scaled(double? perServing) =>
       perServing == null ? null : (perServing * servings).round();
 }

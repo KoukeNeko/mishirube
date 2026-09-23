@@ -107,7 +107,7 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
             valueType: valueType,
             sourceUrl: drink['sourceUrl'] as String? ?? sourceUrl,
             checkedAt: checkedAt,
-            kcal: _wholeKcal(figures['kcal'] as num?, valueType),
+            kcal: _wholeKcal(figures['kcal'] as num?, valueType)?.toDouble(),
             // A size with no published figure holds none: an absent
             // nutrient is nobody having written it down, not a zero.
             nutrients: {

@@ -64,7 +64,7 @@ String _sizeDetail(FoodItem size) {
   return [
     size.servingDescription,
     if (size.kcal != null)
-      '${formatKcal(size.kcal!)} kcal'
+      '${formatKcal(size.kcal!.round())} kcal'
     else if (caffeine != null)
       '咖啡因 ${formatAmount(caffeine)} mg',
   ].join(' · ');

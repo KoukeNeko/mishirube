@@ -1005,7 +1005,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     for (final (id, name, kcal) in [('rice', '白飯', 130), ('egg', '蛋', 70)]) {
       final food = store.backend.nutrition.saveFood(
-        FoodItem(id: id, name: name, kcal: kcal),
+        FoodItem(id: id, name: name, kcal: kcal.toDouble()),
       );
       store.backend.nutrition.logPortion(FoodPortion(food, 1));
     }
