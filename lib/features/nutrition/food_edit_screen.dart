@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
@@ -188,32 +187,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// model's guess, not what a packet declares.
   NutrientValueType? _valueType;
 
-  static Future<String?> _pickWithSystemPicker(
-    ImageSource source, {
-    double maxSide = 2400,
-  }) async => (await ImagePicker().pickImage(
-    source: source,
-    maxWidth: maxSide,
-    maxHeight: maxSide,
-    // Re-encoded as JPEG at this size: plenty for a model, a fraction of
-    // what the camera takes.
-    imageQuality: 85,
-  ))?.path;
-
   /// The app's camera page for [scan], whose library button picks at the
   /// size that scan needs: a label's small print needs more than a plate
-  /// does, and past about 1600 px a model scales a photo down anyway.
+  /// does.
   Future<String?> Function(String title) _takeWithCamera(_Scan scan) =>
-      (title) => pushModalPage<String>(
-        context,
-        CameraScreen(
-          title: title,
-          pickFromLibrary: () => _pickWithSystemPicker(
-            ImageSource.gallery,
-            maxSide: scan == _Scan.food ? 1568 : 2400,
-          ),
-        ),
-      );
+      (title) =>
+          takePhoto(context, title, maxSide: scan == _Scan.food ? 1568 : 2400);
 
   /// A food photo or a nutrition label, from the camera or the library,
   /// read into the form. Nothing is saved: the user checks every number
@@ -758,10 +737,18 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ),
         Gutter(
-          child: NumberFieldRow(label: MacroLabel.carb, unit: 'g', controller: _carb),
+          child: NumberFieldRow(
+            label: MacroLabel.carb,
+            unit: 'g',
+            controller: _carb,
+          ),
         ),
         Gutter(
-          child: NumberFieldRow(label: MacroLabel.fat, unit: 'g', controller: _fat),
+          child: NumberFieldRow(
+            label: MacroLabel.fat,
+            unit: 'g',
+            controller: _fat,
+          ),
         ),
         Gutter(
           child: NumberFieldRow(

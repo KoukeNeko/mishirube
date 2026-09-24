@@ -435,6 +435,7 @@ void main() {
       await tester.pumpWidget(MishirubeApp(store: store));
       await tester.pumpAndSettle();
       expect(find.byType(PrivacyScreen), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('只讀，不寫入'), 200);
       expect(find.text('只讀，不寫入'), findsOneWidget);
       await disposeTree(tester);
     });

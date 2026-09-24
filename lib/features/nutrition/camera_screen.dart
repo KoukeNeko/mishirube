@@ -1,13 +1,41 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../app/theme.dart';
 import '../../shared/haptics.dart';
 import '../../shared/photo_library.dart';
+import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
 import '../shell/bottom_chrome/chrome_metrics.dart';
 import '../shell/bottom_chrome/press_feedback.dart';
+
+/// A photo from the app's camera, titled [title], or from the library by
+/// its button, scaled so its longer side is at most [maxSide]: small
+/// print needs more than a plate does, and past about 1600 px a model
+/// scales a photo down anyway. The path, or null when none was taken.
+Future<String?> takePhoto(
+  BuildContext context,
+  String title, {
+  double maxSide = 2400,
+}) => pushModalPage<String>(
+  context,
+  CameraScreen(
+    title: title,
+    pickFromLibrary: () => pickPhoto(ImageSource.gallery, maxSide: maxSide),
+  ),
+);
+
+/// A photo from the system picker, re-encoded as a JPEG at [maxSide]:
+/// plenty for reading, a fraction of what the camera takes.
+Future<String?> pickPhoto(ImageSource source, {double maxSide = 2400}) async =>
+    (await ImagePicker().pickImage(
+      source: source,
+      maxWidth: maxSide,
+      maxHeight: maxSide,
+      imageQuality: 85,
+    ))?.path;
 
 /// A viewfinder for a food or a nutrition label: the shutter, and beside
 /// it the library for a photo already taken. Pops with the photo's path,

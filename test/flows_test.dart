@@ -10,6 +10,10 @@ import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/features/journal/measurement_entry_screen.dart';
+import 'package:mishirube/backend/ai/secret_store.dart';
+import 'package:mishirube/backend/ai/label_reader.dart';
+import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
@@ -840,6 +844,71 @@ void main() {
       isNull,
     );
     expect(find.text('沒有紀錄'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a photo of the scale fills the body composition form', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: const {},
+        labelReader: _Lines(['體脂率  18.2 %', '骨骼肌量  33.1 kg', '體重 72.4 kg']),
+      ),
+    );
+    await pumpScreen(
+      tester,
+      BodyReadingEntryScreen(takePhoto: (_) async => '/scale.jpg'),
+      store: store,
+    );
+
+    await tester.tap(find.bySemanticsLabel('拍照讀取身體組成'));
+    await tester.pumpAndSettle();
+    expect(find.text('照片讀到 2 項，請核對'), findsOneWidget);
+    expect(store.backend.journal.latestBodyReadings(), isEmpty, reason: 'not yet');
+
+    await _tapText(tester, '儲存');
+    expect(
+      store.backend.journal.latestBodyReadings()[BodyMetric.skeletalMuscle]?.value,
+      33.1,
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a photo of measurements fills the girth form', (tester) async {
+    usePhoneViewport(tester);
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: const {},
+        labelReader: _Lines(['腰圍 82.5 cm', '臀圍 96 cm']),
+      ),
+    );
+    await pumpScreen(
+      tester,
+      MeasurementEntryScreen(takePhoto: (_) async => '/tape.jpg'),
+      store: store,
+    );
+
+    await tester.tap(find.bySemanticsLabel('拍照讀取圍度'));
+    await tester.pumpAndSettle();
+    await _tapText(tester, '儲存');
+    expect(
+      store.backend.journal.latestMeasurements()[MeasurementSite.waist]?.centimetres,
+      82.5,
+    );
     await disposeTree(tester);
   });
 
@@ -1817,4 +1886,17 @@ void main() {
     expect(store.todayMeals.last.kcal, isNull);
     await disposeTree(tester);
   });
+}
+
+/// A photo's text, one printed row per line, stacked down the page.
+class _Lines implements LabelReader {
+  _Lines(this.rows);
+
+  final List<String> rows;
+
+  @override
+  Future<List<TextLine>> readText(String imagePath) async => [
+    for (final (index, row) in rows.indexed)
+      TextLine(text: row, left: 0, top: index * 40.0, width: 200, height: 30),
+  ];
 }

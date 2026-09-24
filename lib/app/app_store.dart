@@ -793,6 +793,11 @@ class AppStore extends ChangeNotifier {
   /// [AiException].
   Future<MealDraft> draftMeal(String description) => _ai.draftMeal(description);
 
+  /// The text in a photo, read on the device. Throws [AiException] when
+  /// the device cannot read it.
+  Future<String> readPhotoText(String imagePath) =>
+      _ai.readPhotoText(imagePath);
+
   /// A food drafted from a photo of its nutrition label; nothing is
   /// saved. Throws [AiException].
   Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>

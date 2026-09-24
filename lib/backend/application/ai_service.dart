@@ -215,6 +215,11 @@ class AiService {
     _ => const [],
   };
 
+  /// The text in a photo, read on the phone, one printed row per line.
+  /// Nothing is sent anywhere and no provider is needed.
+  Future<String> readPhotoText(String imagePath) async =>
+      labelTextFrom(await labelReader.readText(imagePath));
+
   /// A food drafted from a photo of its nutrition label. The photo is
   /// read on the phone; the chosen model only ever gets the text, put
   /// back into the label's rows. Throws [AiException]; [AiFailure.noText]
