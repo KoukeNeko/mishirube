@@ -13,14 +13,26 @@ const muscleMapTopOfScale = 15;
 /// The steps the legend prints under the figures.
 const muscleMapLegendStops = [0, 5, 10, muscleMapTopOfScale];
 
+/// The sets a drawn [muscle] is shaded by: its own, and those credited to
+/// its whole region without saying which part.
+int setsShownOn(MuscleGroup muscle, Map<MuscleGroup, int> setsByMuscle) =>
+    (setsByMuscle[muscle] ?? 0) +
+    setsByMuscle.entries
+        .where(
+          (entry) =>
+              entry.key.isGeneral &&
+              entry.key != muscle &&
+              entry.key.region == muscle.region,
+        )
+        .fold(0, (sum, entry) => sum + entry.value);
+
 /// Front and back figures, shaded by how many working sets each muscle
 /// got. The shading answers "where did the work go"; the numbers beside
 /// it answer "how much", and neither claims to know about fatigue.
 ///
-/// The drawing is finer than the records: a shoulder is three surfaces
-/// here, but the app only knows one number for shoulders, so all three
-/// take the same colour. The figure never implies a detail the data
-/// does not have.
+/// Each drawn muscle is one muscle group. Sets credited to a whole region
+/// — 「手臂」 on an exercise the user made — colour every muscle in it: the
+/// figure never implies a detail the records do not have.
 class MuscleMap extends StatelessWidget {
   const MuscleMap({
     super.key,
@@ -162,7 +174,7 @@ class _FigurePainter extends CustomPainter {
           // body-coloured rather than reading as "nothing done".
           ..color = group == null
               ? _bodyFill
-              : muscleShade(setsByMuscle[group] ?? 0),
+              : muscleShade(setsShownOn(group, setsByMuscle)),
       );
     }
     canvas.restore();

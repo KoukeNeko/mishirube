@@ -661,6 +661,13 @@ final List<String> _migrations = [
   );
   CREATE INDEX body_readings_at ON body_readings(metric, measured_at);
   ''',
+  '''
+  -- How an exercise's two sides work, the movement it is a version of,
+  -- and its demonstration frames (asset paths, as JSON).
+  ALTER TABLE exercises ADD COLUMN laterality TEXT NOT NULL DEFAULT 'bilateral';
+  ALTER TABLE exercises ADD COLUMN family TEXT NOT NULL DEFAULT '';
+  ALTER TABLE exercises ADD COLUMN frames TEXT NOT NULL DEFAULT '[]';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

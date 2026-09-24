@@ -119,6 +119,9 @@
               "isFavorite",
               "isHidden",
               "isInHomeGym",
+              "laterality",
+              "family",
+              "frames",
               "createdAt",
               "updatedAt",
               "revision",
@@ -166,6 +169,15 @@
               },
               "isInHomeGym": {
                 "type": "boolean"
+              },
+              "laterality": {
+                "type": "string"
+              },
+              "family": {
+                "type": "string"
+              },
+              "frames": {
+                "type": "array"
               },
               "createdAt": {
                 "type": "string",

@@ -8,6 +8,8 @@ import 'backend/application/ai_service.dart';
 import 'backend/backend.dart';
 import 'backend/health/health_source.dart';
 import 'backend/seed/catalogue.dart';
+import 'backend/seed/exercise_catalogue.dart';
+import 'backend/seed/seed.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +20,10 @@ Future<void> main() async {
   // update brings the corrections with it. It is safe to replace because
   // it is read-only, and meals logged from it kept their own numbers.
   await loadCatalogue(backend.storage.foods);
+  // The demo goes in first, so the library then takes over the exercises
+  // the demo also names instead of the demo overwriting them.
+  seedDemoData(backend, DateTime.now());
+  await loadExerciseCatalogue(backend.db, backend.storage.exercises);
   final store = AppStore(
     backend: backend,
     ai: AiService.onDevice(backend.db),

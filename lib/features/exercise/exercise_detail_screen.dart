@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../app/view_model.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../app/navigation.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'exercise_picker_screen.dart';
+import '../trends/muscle_map.dart';
+import '../trends/trends_view_model.dart';
 import 'create_exercise_screen.dart';
+import 'exercise_demo.dart';
 
 /// Asks for the names this user wants to find [exercise] by.
 Future<void> _editAliases(
@@ -102,7 +106,58 @@ class ExerciseDetailScreen extends StatelessWidget {
             )
           : null,
       children: [
+        if (exercise.frames.isNotEmpty) ...[
+          Gutter(
+            child: AppCard(
+              child: ExerciseDemo(name: exercise.name, frames: exercise.frames),
+            ),
+          ),
+          Gutter(child: const ExerciseDemoCredit()),
+        ],
         Gutter(child: _SpecCard(exercise: exercise)),
+        Gutter(
+          child: AppCard(
+            child: Column(
+              children: [
+                ViewModelBuilder(
+                  create: TrendsViewModel.new,
+                  builder: (context, trends) => MuscleMap(
+                    figure: trends.muscleFigure,
+                    // The strongest shade for what it trains, a light one
+                    // for what helps.
+                    setsByMuscle: {
+                      for (final muscle in exercise.secondaryMuscles)
+                        muscle: _helpingShade,
+                      for (final muscle in exercise.primaryMuscles)
+                        muscle: muscleMapTopOfScale,
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                const TagWrap(labels: ['深色：主要肌群', '淺色：次要肌群']),
+              ],
+            ),
+          ),
+        ),
+        if (_sameMovement(store, exercise) case final others
+            when others.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('同一動作的其他做法')),
+          Gutter(
+            child: GroupedCard(
+              children: [
+                for (final other in others)
+                  NavRow(
+                    title: other.name,
+                    subtitle: other.equipment.label,
+                    onTap: () => pushModalPage<void>(
+                      context,
+                      ExerciseDetailScreen(exercise: other),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
         if (exercise.cues.isNotEmpty) ...[
           Gutter(child: const SectionLabel('重點提示')),
           Gutter(child: _CueList(cues: exercise.cues)),
@@ -169,6 +224,24 @@ class ExerciseDetailScreen extends StatelessWidget {
   }
 }
 
+/// Shade for a muscle that helps rather than leads.
+const _helpingShade = 5;
+
+/// Other versions of the same movement — a dumbbell press beside the
+/// barbell one — that are shown in pickers.
+List<ExerciseDefinition> _sameMovement(
+  AppStore store,
+  ExerciseDefinition exercise,
+) => exercise.family.isEmpty
+    ? const []
+    : [
+        for (final other in store.exercises)
+          if (other.family == exercise.family &&
+              other.id != exercise.id &&
+              !other.isHidden)
+            other,
+      ];
+
 class _SpecCard extends StatelessWidget {
   const _SpecCard({required this.exercise});
 
@@ -177,12 +250,17 @@ class _SpecCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final secondary = exercise.secondaryMuscles.map((m) => m.label).join('、');
+    final regions = {
+      for (final muscle in exercise.primaryMuscles) muscle.region.label,
+    }.join('、');
     return GroupedCard(
       children: [
-        KeyValueRow(label: '器材', value: exercise.equipment.label),
+        KeyValueRow(label: '部位', value: regions),
         KeyValueRow(label: '主要肌群', value: exercise.muscleSummary),
         if (secondary.isNotEmpty) KeyValueRow(label: '次要肌群', value: secondary),
+        KeyValueRow(label: '器材', value: exercise.equipment.label),
         KeyValueRow(label: '動作模式', value: exercise.pattern.label),
+        KeyValueRow(label: '左右', value: exercise.laterality.label),
         KeyValueRow(label: '追蹤方式', value: exercise.trackingType.label),
       ],
     );

@@ -19,31 +19,84 @@ enum ExerciseSource {
   final String label;
 }
 
-enum MuscleGroup {
+/// Where on the body a muscle group is: what a filter or a body map
+/// groups by.
+enum BodyRegion {
   chest('胸'),
-  back('背'),
   shoulders('肩'),
-  quads('股四頭'),
-  glutes('臀'),
-  hamstrings('腿後'),
+  back('背'),
   arms('手臂'),
   core('核心'),
-  calves('小腿'),
-  spinalErectors('豎脊肌');
+  legs('腿臀');
 
-  const MuscleGroup(this.label);
+  const BodyRegion(this.label);
 
   final String label;
+}
+
+/// A muscle group as training counts it: fine enough to tell the front
+/// of the shoulder from the back, no finer than a set can be credited to.
+///
+/// The four general ones — back, shoulders, arms, core — name a region
+/// without saying which part of it. The built-in library never uses
+/// them; an exercise the user made or imported may.
+enum MuscleGroup {
+  chest('胸', BodyRegion.chest),
+  frontDelts('三角肌前束', BodyRegion.shoulders),
+  sideDelts('三角肌中束', BodyRegion.shoulders),
+  rearDelts('三角肌後束', BodyRegion.shoulders),
+  biceps('二頭肌', BodyRegion.arms),
+  triceps('三頭肌', BodyRegion.arms),
+  forearms('前臂', BodyRegion.arms),
+  traps('斜方肌', BodyRegion.back),
+  lats('背闊肌', BodyRegion.back),
+  upperBack('上背', BodyRegion.back),
+  spinalErectors('豎脊肌', BodyRegion.back),
+  abs('腹直肌', BodyRegion.core),
+  obliques('腹斜肌', BodyRegion.core),
+  glutes('臀', BodyRegion.legs),
+  quads('股四頭', BodyRegion.legs),
+  hamstrings('腿後', BodyRegion.legs),
+  adductors('內收肌', BodyRegion.legs),
+  abductors('外展肌', BodyRegion.legs),
+  calves('小腿', BodyRegion.legs),
+  back('背', BodyRegion.back),
+  shoulders('肩', BodyRegion.shoulders),
+  arms('手臂', BodyRegion.arms),
+  core('核心', BodyRegion.core);
+
+  const MuscleGroup(this.label, this.region);
+
+  final String label;
+  final BodyRegion region;
+
+  /// A whole region rather than a muscle in it.
+  bool get isGeneral =>
+      this == back || this == shoulders || this == arms || this == core;
+
+  /// Whether choosing this finds an exercise that trains [other]: the same
+  /// muscle, or either one being the whole region the other is in — 背
+  /// finds the lats, and the lats find an exercise marked only 背.
+  bool covers(MuscleGroup other) =>
+      this == other ||
+      (region == other.region && (isGeneral || other.isGeneral));
 }
 
 enum Equipment {
   barbell('槓鈴'),
   dumbbell('啞鈴'),
-  cable('纜繩'),
+  cable('滑輪'),
   machine('機械'),
+  smithMachine('史密斯機'),
   kettlebell('壺鈴'),
+  ezBar('EZ 槓'),
+  trapBar('六角槓'),
+  landmine('地雷管'),
+  plate('槓片'),
+  band('彈力帶'),
   bodyweight('徒手'),
-  smithMachine('史密斯機');
+  cardio('有氧器材'),
+  other('其他');
 
   const Equipment(this.label);
 
@@ -53,14 +106,35 @@ enum Equipment {
 enum MovementPattern {
   squat('深蹲'),
   hinge('髖伸'),
+  lunge('弓步與單腳'),
   horizontalPush('水平推'),
   horizontalPull('水平拉'),
   verticalPush('垂直推'),
   verticalPull('垂直拉'),
-  unilateral('單側'),
-  isolation('單關節');
+  isolation('單關節'),
+  core('核心'),
+  carry('搬運'),
+  conditioning('體能'),
+
+  /// Kept for exercises made before lunges had their own pattern.
+  unilateral('單側');
 
   const MovementPattern(this.label);
+
+  final String label;
+}
+
+/// How the two sides work.
+enum Laterality {
+  bilateral('雙側'),
+
+  /// One side at a time, the set done for each.
+  unilateral('單側'),
+
+  /// Left and right in turn within the set.
+  alternating('左右交替');
+
+  const Laterality(this.label);
 
   final String label;
 }
@@ -84,6 +158,9 @@ class ExerciseDefinition {
     this.lastUsedDaysAgo,
     this.recordCount = 0,
     this.cues = const [],
+    this.laterality = Laterality.bilateral,
+    this.family = '',
+    this.frames = const [],
   });
 
   final String id;
@@ -107,6 +184,16 @@ class ExerciseDefinition {
   final int? lastUsedDaysAgo;
   final int recordCount;
   final List<String> cues;
+  final Laterality laterality;
+
+  /// The movement it is a version of — `bench-press` for a barbell,
+  /// dumbbell or machine press — so a swap stays the same movement.
+  /// Empty when nobody said.
+  final String family;
+
+  /// Its demonstration, as the poses of one repetition in order; empty
+  /// when there is none.
+  final List<String> frames;
 
   String get muscleSummary => primaryMuscles.map((m) => m.label).join('、');
 

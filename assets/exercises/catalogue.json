@@ -1,0 +1,6882 @@
+{
+ "source": "https://github.com/bryllim/workout-guide",
+ "frameLicense": "CC BY-SA 4.0",
+ "exercises": [
+  {
+   "id": "bench-press",
+   "name": "槓鈴臥推",
+   "aliases": [
+    "Bench Press",
+    "平板臥推",
+    "臥推"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "bench-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/bench-press-1.webp",
+    "assets/exercises/frames/bench-press-2.webp",
+    "assets/exercises/frames/bench-press-3.webp"
+   ]
+  },
+  {
+   "id": "incline-bench-press",
+   "name": "上斜槓鈴臥推",
+   "aliases": [
+    "Incline Bench Press",
+    "上斜臥推",
+    "上胸"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "triceps"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "incline-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/incline-bench-press-1.webp",
+    "assets/exercises/frames/incline-bench-press-2.webp",
+    "assets/exercises/frames/incline-bench-press-3.webp"
+   ]
+  },
+  {
+   "id": "incline-dumbbell-press",
+   "name": "上斜啞鈴臥推",
+   "aliases": [
+    "Incline Dumbbell Press",
+    "上斜啞鈴推胸",
+    "上胸"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "triceps"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "incline-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/incline-dumbbell-press-1.webp",
+    "assets/exercises/frames/incline-dumbbell-press-2.webp",
+    "assets/exercises/frames/incline-dumbbell-press-3.webp"
+   ]
+  },
+  {
+   "id": "db-bench",
+   "name": "啞鈴臥推",
+   "aliases": [
+    "Dumbbell Bench Press",
+    "啞鈴推胸"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "bench-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/db-bench-1.webp",
+    "assets/exercises/frames/db-bench-2.webp",
+    "assets/exercises/frames/db-bench-3.webp"
+   ]
+  },
+  {
+   "id": "decline-bench-press",
+   "name": "下斜槓鈴臥推",
+   "aliases": [
+    "Decline Bench Press",
+    "下斜臥推",
+    "下胸"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "decline-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/decline-bench-press-1.webp",
+    "assets/exercises/frames/decline-bench-press-2.webp",
+    "assets/exercises/frames/decline-bench-press-3.webp"
+   ]
+  },
+  {
+   "id": "decline-dumbbell-press",
+   "name": "下斜啞鈴臥推",
+   "aliases": [
+    "Decline Dumbbell Press",
+    "下胸"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "decline-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/decline-dumbbell-press-1.webp",
+    "assets/exercises/frames/decline-dumbbell-press-2.webp",
+    "assets/exercises/frames/decline-dumbbell-press-3.webp"
+   ]
+  },
+  {
+   "id": "machine-chest-press",
+   "name": "坐姿推胸機",
+   "aliases": [
+    "Machine Chest Press",
+    "機械推胸"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "bench-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/machine-chest-press-1.webp",
+    "assets/exercises/frames/machine-chest-press-2.webp",
+    "assets/exercises/frames/machine-chest-press-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-bench-press",
+   "name": "史密斯臥推",
+   "aliases": [
+    "Smith Machine Bench Press"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "bench-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-bench-press-1.webp",
+    "assets/exercises/frames/smith-machine-bench-press-2.webp",
+    "assets/exercises/frames/smith-machine-bench-press-3.webp"
+   ]
+  },
+  {
+   "id": "pec-deck",
+   "name": "蝴蝶機夾胸",
+   "aliases": [
+    "Pec Deck",
+    "夾胸機",
+    "蝴蝶機"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "chest-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/pec-deck-1.webp",
+    "assets/exercises/frames/pec-deck-2.webp",
+    "assets/exercises/frames/pec-deck-3.webp"
+   ]
+  },
+  {
+   "id": "cable-fly",
+   "name": "滑輪夾胸",
+   "aliases": [
+    "Cable Fly",
+    "繩索飛鳥",
+    "纜繩夾胸"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "chest-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-fly-1.webp",
+    "assets/exercises/frames/cable-fly-2.webp",
+    "assets/exercises/frames/cable-fly-3.webp"
+   ]
+  },
+  {
+   "id": "incline-cable-fly",
+   "name": "上斜滑輪夾胸",
+   "aliases": [
+    "Incline Cable Fly",
+    "上胸"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "chest-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/incline-cable-fly-1.webp",
+    "assets/exercises/frames/incline-cable-fly-2.webp",
+    "assets/exercises/frames/incline-cable-fly-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-fly",
+   "name": "啞鈴飛鳥",
+   "aliases": [
+    "Dumbbell Fly",
+    "啞鈴夾胸"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "chest-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-fly-1.webp",
+    "assets/exercises/frames/dumbbell-fly-2.webp",
+    "assets/exercises/frames/dumbbell-fly-3.webp"
+   ]
+  },
+  {
+   "id": "push-up",
+   "name": "伏地挺身",
+   "aliases": [
+    "Push-up",
+    "俯地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/push-up-1.webp",
+    "assets/exercises/frames/push-up-2.webp",
+    "assets/exercises/frames/push-up-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-push-up",
+   "name": "負重伏地挺身",
+   "aliases": [
+    "Weighted Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-push-up-1.webp",
+    "assets/exercises/frames/weighted-push-up-2.webp",
+    "assets/exercises/frames/weighted-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "incline-push-up",
+   "name": "上斜伏地挺身",
+   "aliases": [
+    "Incline Push-up",
+    "扶高伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/incline-push-up-1.webp",
+    "assets/exercises/frames/incline-push-up-2.webp",
+    "assets/exercises/frames/incline-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "knee-push-up",
+   "name": "跪姿伏地挺身",
+   "aliases": [
+    "Knee Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/knee-push-up-1.webp",
+    "assets/exercises/frames/knee-push-up-2.webp",
+    "assets/exercises/frames/knee-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "wide-push-up",
+   "name": "寬距伏地挺身",
+   "aliases": [
+    "Wide Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "triceps",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/wide-push-up-1.webp",
+    "assets/exercises/frames/wide-push-up-2.webp",
+    "assets/exercises/frames/wide-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "decline-push-up",
+   "name": "下斜伏地挺身",
+   "aliases": [
+    "Decline Push-up",
+    "腳抬高伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "triceps",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/decline-push-up-1.webp",
+    "assets/exercises/frames/decline-push-up-2.webp",
+    "assets/exercises/frames/decline-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "archer-push-up",
+   "name": "弓箭手伏地挺身",
+   "aliases": [
+    "Archer Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "alternating",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/archer-push-up-1.webp",
+    "assets/exercises/frames/archer-push-up-2.webp",
+    "assets/exercises/frames/archer-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "typewriter-push-up",
+   "name": "打字機伏地挺身",
+   "aliases": [
+    "Typewriter Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "alternating",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/typewriter-push-up-1.webp",
+    "assets/exercises/frames/typewriter-push-up-2.webp",
+    "assets/exercises/frames/typewriter-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "explosive-push-up",
+   "name": "爆發式伏地挺身",
+   "aliases": [
+    "Explosive Push-up",
+    "擊掌伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/explosive-push-up-1.webp",
+    "assets/exercises/frames/explosive-push-up-2.webp",
+    "assets/exercises/frames/explosive-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "hindu-push-up",
+   "name": "印度伏地挺身",
+   "aliases": [
+    "Hindu Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "triceps",
+    "abs"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/hindu-push-up-1.webp",
+    "assets/exercises/frames/hindu-push-up-2.webp",
+    "assets/exercises/frames/hindu-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "wall-push-up",
+   "name": "扶牆伏地挺身",
+   "aliases": [
+    "Wall Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/wall-push-up-1.webp",
+    "assets/exercises/frames/wall-push-up-2.webp",
+    "assets/exercises/frames/wall-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "chest-dip",
+   "name": "胸部雙槓撐體",
+   "aliases": [
+    "Chest Dip",
+    "雙槓撐體",
+    "胸"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "frontDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/chest-dip-1.webp",
+    "assets/exercises/frames/chest-dip-2.webp",
+    "assets/exercises/frames/chest-dip-3.webp"
+   ]
+  },
+  {
+   "id": "seal-jack",
+   "name": "海豹開合跳",
+   "aliases": [
+    "Seal Jack"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "chest"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "jumping-jack",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/seal-jack-1.webp",
+    "assets/exercises/frames/seal-jack-2.webp",
+    "assets/exercises/frames/seal-jack-3.webp"
+   ]
+  },
+  {
+   "id": "ohp",
+   "name": "槓鈴肩推",
+   "aliases": [
+    "Overhead Press",
+    "站姿肩推",
+    "軍式推舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/ohp-1.webp",
+    "assets/exercises/frames/ohp-2.webp",
+    "assets/exercises/frames/ohp-3.webp"
+   ]
+  },
+  {
+   "id": "seated-dumbbell-press",
+   "name": "坐姿啞鈴肩推",
+   "aliases": [
+    "Dumbbell Seated Shoulder Press"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/seated-dumbbell-press-1.webp",
+    "assets/exercises/frames/seated-dumbbell-press-2.webp",
+    "assets/exercises/frames/seated-dumbbell-press-3.webp"
+   ]
+  },
+  {
+   "id": "standing-dumbbell-press",
+   "name": "站姿啞鈴肩推",
+   "aliases": [
+    "Standing Dumbbell Press"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps",
+    "abs"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/standing-dumbbell-press-1.webp",
+    "assets/exercises/frames/standing-dumbbell-press-2.webp",
+    "assets/exercises/frames/standing-dumbbell-press-3.webp"
+   ]
+  },
+  {
+   "id": "arnold-press",
+   "name": "阿諾推舉",
+   "aliases": [
+    "Arnold Press"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/arnold-press-1.webp",
+    "assets/exercises/frames/arnold-press-2.webp",
+    "assets/exercises/frames/arnold-press-3.webp"
+   ]
+  },
+  {
+   "id": "machine-shoulder-press",
+   "name": "坐姿推肩機",
+   "aliases": [
+    "Machine Shoulder Press",
+    "機械肩推"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/machine-shoulder-press-1.webp",
+    "assets/exercises/frames/machine-shoulder-press-2.webp",
+    "assets/exercises/frames/machine-shoulder-press-3.webp"
+   ]
+  },
+  {
+   "id": "push-press",
+   "name": "借力推",
+   "aliases": [
+    "Push Press",
+    "推舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "triceps",
+    "quads"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "overhead-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/push-press-1.webp",
+    "assets/exercises/frames/push-press-2.webp",
+    "assets/exercises/frames/push-press-3.webp"
+   ]
+  },
+  {
+   "id": "landmine-press",
+   "name": "地雷管推舉",
+   "aliases": [
+    "Landmine Press"
+   ],
+   "equipment": "landmine",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "triceps"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "unilateral",
+   "family": "landmine-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/landmine-press-1.webp",
+    "assets/exercises/frames/landmine-press-2.webp",
+    "assets/exercises/frames/landmine-press-3.webp"
+   ]
+  },
+  {
+   "id": "pike-push-up",
+   "name": "屈體伏地挺身",
+   "aliases": [
+    "Pike Push-up",
+    "派克伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "sideDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "handstand-push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/pike-push-up-1.webp",
+    "assets/exercises/frames/pike-push-up-2.webp",
+    "assets/exercises/frames/pike-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "feet-elevated-pike-push-up",
+   "name": "腳抬高屈體伏地挺身",
+   "aliases": [
+    "Feet-Elevated Pike Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "sideDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "handstand-push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/feet-elevated-pike-push-up-1.webp",
+    "assets/exercises/frames/feet-elevated-pike-push-up-2.webp",
+    "assets/exercises/frames/feet-elevated-pike-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "wall-handstand-push-up",
+   "name": "靠牆倒立推",
+   "aliases": [
+    "Wall Handstand Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "sideDelts",
+    "abs"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "handstand-push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/wall-handstand-push-up-1.webp",
+    "assets/exercises/frames/wall-handstand-push-up-2.webp",
+    "assets/exercises/frames/wall-handstand-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "handstand-push-up",
+   "name": "倒立推",
+   "aliases": [
+    "Handstand Push-up",
+    "倒立伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "sideDelts",
+    "abs"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "handstand-push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/handstand-push-up-1.webp",
+    "assets/exercises/frames/handstand-push-up-2.webp",
+    "assets/exercises/frames/handstand-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "wall-walk",
+   "name": "靠牆倒立行走",
+   "aliases": [
+    "Wall Walk"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "abs",
+    "triceps"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "handstand-push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/wall-walk-1.webp",
+    "assets/exercises/frames/wall-walk-2.webp",
+    "assets/exercises/frames/wall-walk-3.webp"
+   ]
+  },
+  {
+   "id": "lateral-raise",
+   "name": "啞鈴側平舉",
+   "aliases": [
+    "Lateral Raise",
+    "側平舉"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "sideDelts"
+   ],
+   "secondaryMuscles": [
+    "traps"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "lateral-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/lateral-raise-1.webp",
+    "assets/exercises/frames/lateral-raise-2.webp",
+    "assets/exercises/frames/lateral-raise-3.webp"
+   ]
+  },
+  {
+   "id": "cable-lateral-raise",
+   "name": "滑輪側平舉",
+   "aliases": [
+    "Cable Lateral Raise",
+    "繩索側平舉"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "sideDelts"
+   ],
+   "secondaryMuscles": [
+    "traps"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "lateral-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-lateral-raise-1.webp",
+    "assets/exercises/frames/cable-lateral-raise-2.webp",
+    "assets/exercises/frames/cable-lateral-raise-3.webp"
+   ]
+  },
+  {
+   "id": "machine-lateral-raise",
+   "name": "側平舉機",
+   "aliases": [
+    "Machine Lateral Raise",
+    "機械側平舉"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "sideDelts"
+   ],
+   "secondaryMuscles": [
+    "traps"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "lateral-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/machine-lateral-raise-1.webp",
+    "assets/exercises/frames/machine-lateral-raise-2.webp",
+    "assets/exercises/frames/machine-lateral-raise-3.webp"
+   ]
+  },
+  {
+   "id": "front-raise",
+   "name": "啞鈴前平舉",
+   "aliases": [
+    "Front Raise",
+    "前平舉"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "chest"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "front-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/front-raise-1.webp",
+    "assets/exercises/frames/front-raise-2.webp",
+    "assets/exercises/frames/front-raise-3.webp"
+   ]
+  },
+  {
+   "id": "cable-front-raise",
+   "name": "滑輪前平舉",
+   "aliases": [
+    "Cable Front Raise"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "chest"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "front-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-front-raise-1.webp",
+    "assets/exercises/frames/cable-front-raise-2.webp",
+    "assets/exercises/frames/cable-front-raise-3.webp"
+   ]
+  },
+  {
+   "id": "plate-front-raise",
+   "name": "槓片前平舉",
+   "aliases": [
+    "Plate Front Raise"
+   ],
+   "equipment": "plate",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "chest"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "front-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/plate-front-raise-1.webp",
+    "assets/exercises/frames/plate-front-raise-2.webp",
+    "assets/exercises/frames/plate-front-raise-3.webp"
+   ]
+  },
+  {
+   "id": "rear-delt-fly",
+   "name": "啞鈴反向飛鳥",
+   "aliases": [
+    "Rear Delt Fly",
+    "後三角飛鳥"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "rear-delt-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/rear-delt-fly-1.webp",
+    "assets/exercises/frames/rear-delt-fly-2.webp",
+    "assets/exercises/frames/rear-delt-fly-3.webp"
+   ]
+  },
+  {
+   "id": "bent-over-rear-delt-raise",
+   "name": "俯身後三角平舉",
+   "aliases": [
+    "Bent-Over Rear Delt Raise"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "rear-delt-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/bent-over-rear-delt-raise-1.webp",
+    "assets/exercises/frames/bent-over-rear-delt-raise-2.webp",
+    "assets/exercises/frames/bent-over-rear-delt-raise-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-pec-deck",
+   "name": "反向蝴蝶機",
+   "aliases": [
+    "Reverse Pec Deck",
+    "反向夾胸",
+    "後三角機"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "rear-delt-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/reverse-pec-deck-1.webp",
+    "assets/exercises/frames/reverse-pec-deck-2.webp",
+    "assets/exercises/frames/reverse-pec-deck-3.webp"
+   ]
+  },
+  {
+   "id": "cable-rear-delt-fly",
+   "name": "滑輪反向飛鳥",
+   "aliases": [
+    "Cable Rear Delt Fly"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "rear-delt-fly",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-rear-delt-fly-1.webp",
+    "assets/exercises/frames/cable-rear-delt-fly-2.webp",
+    "assets/exercises/frames/cable-rear-delt-fly-3.webp"
+   ]
+  },
+  {
+   "id": "face-pull",
+   "name": "滑輪面拉",
+   "aliases": [
+    "Face Pull",
+    "臉拉",
+    "面拉"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "traps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "face-pull",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/face-pull-1.webp",
+    "assets/exercises/frames/face-pull-2.webp",
+    "assets/exercises/frames/face-pull-3.webp"
+   ]
+  },
+  {
+   "id": "banded-face-pull",
+   "name": "彈力帶面拉",
+   "aliases": [
+    "Banded Face Pull"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "traps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "face-pull",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-face-pull-1.webp",
+    "assets/exercises/frames/banded-face-pull-2.webp",
+    "assets/exercises/frames/banded-face-pull-3.webp"
+   ]
+  },
+  {
+   "id": "band-pull-apart",
+   "name": "彈力帶拉開",
+   "aliases": [
+    "Band Pull-Apart"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "rearDelts"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "face-pull",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/band-pull-apart-1.webp",
+    "assets/exercises/frames/band-pull-apart-2.webp",
+    "assets/exercises/frames/band-pull-apart-3.webp"
+   ]
+  },
+  {
+   "id": "upright-row",
+   "name": "槓鈴直立划船",
+   "aliases": [
+    "Upright Row",
+    "直立划船"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "sideDelts"
+   ],
+   "secondaryMuscles": [
+    "traps",
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "upright-row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/upright-row-1.webp",
+    "assets/exercises/frames/upright-row-2.webp",
+    "assets/exercises/frames/upright-row-3.webp"
+   ]
+  },
+  {
+   "id": "battle-ropes",
+   "name": "戰繩",
+   "aliases": [
+    "Battle Ropes"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "frontDelts"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "battle-ropes",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/battle-ropes-1.webp",
+    "assets/exercises/frames/battle-ropes-2.webp",
+    "assets/exercises/frames/battle-ropes-3.webp"
+   ]
+  },
+  {
+   "id": "deadlift",
+   "name": "傳統硬舉",
+   "aliases": [
+    "Deadlift",
+    "硬舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "spinalErectors",
+    "upperBack",
+    "forearms"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/deadlift-1.webp",
+    "assets/exercises/frames/deadlift-2.webp",
+    "assets/exercises/frames/deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "sumo-deadlift",
+   "name": "相撲硬舉",
+   "aliases": [
+    "Sumo Deadlift"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "adductors",
+    "hamstrings",
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/sumo-deadlift-1.webp",
+    "assets/exercises/frames/sumo-deadlift-2.webp",
+    "assets/exercises/frames/sumo-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "trap-bar-deadlift",
+   "name": "六角槓硬舉",
+   "aliases": [
+    "Trap Bar Deadlift",
+    "六角槓"
+   ],
+   "equipment": "trapBar",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings",
+    "spinalErectors",
+    "forearms"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/trap-bar-deadlift-1.webp",
+    "assets/exercises/frames/trap-bar-deadlift-2.webp",
+    "assets/exercises/frames/trap-bar-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-sumo-deadlift",
+   "name": "啞鈴相撲硬舉",
+   "aliases": [
+    "Dumbbell Sumo Deadlift"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "adductors",
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-sumo-deadlift-1.webp",
+    "assets/exercises/frames/dumbbell-sumo-deadlift-2.webp",
+    "assets/exercises/frames/dumbbell-sumo-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "rack-pull",
+   "name": "架上拉",
+   "aliases": [
+    "Rack Pull",
+    "局部硬舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "spinalErectors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings",
+    "traps"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/rack-pull-1.webp",
+    "assets/exercises/frames/rack-pull-2.webp",
+    "assets/exercises/frames/rack-pull-3.webp"
+   ]
+  },
+  {
+   "id": "barbell-row",
+   "name": "槓鈴划船",
+   "aliases": [
+    "Barbell Row",
+    "俯身槓鈴划船"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/barbell-row-1.webp",
+    "assets/exercises/frames/barbell-row-2.webp",
+    "assets/exercises/frames/barbell-row-3.webp"
+   ]
+  },
+  {
+   "id": "pendlay-row",
+   "name": "潘德雷划船",
+   "aliases": [
+    "Pendlay Row"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/pendlay-row-1.webp",
+    "assets/exercises/frames/pendlay-row-2.webp",
+    "assets/exercises/frames/pendlay-row-3.webp"
+   ]
+  },
+  {
+   "id": "t-bar-row",
+   "name": "T 槓划船",
+   "aliases": [
+    "T-Bar Row",
+    "T槓划船"
+   ],
+   "equipment": "landmine",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/t-bar-row-1.webp",
+    "assets/exercises/frames/t-bar-row-2.webp",
+    "assets/exercises/frames/t-bar-row-3.webp"
+   ]
+  },
+  {
+   "id": "meadows-row",
+   "name": "梅多斯划船",
+   "aliases": [
+    "Meadows Row"
+   ],
+   "equipment": "landmine",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "unilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/meadows-row-1.webp",
+    "assets/exercises/frames/meadows-row-2.webp",
+    "assets/exercises/frames/meadows-row-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-bent-over-row",
+   "name": "俯身啞鈴划船",
+   "aliases": [
+    "Dumbbell Bent Over Row"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-bent-over-row-1.webp",
+    "assets/exercises/frames/dumbbell-bent-over-row-2.webp",
+    "assets/exercises/frames/dumbbell-bent-over-row-3.webp"
+   ]
+  },
+  {
+   "id": "one-arm-dumbbell-row",
+   "name": "單臂啞鈴划船",
+   "aliases": [
+    "One-Arm Dumbbell Row",
+    "啞鈴單手划船"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "unilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/one-arm-dumbbell-row-1.webp",
+    "assets/exercises/frames/one-arm-dumbbell-row-2.webp",
+    "assets/exercises/frames/one-arm-dumbbell-row-3.webp"
+   ]
+  },
+  {
+   "id": "chest-supported-row",
+   "name": "胸靠划船",
+   "aliases": [
+    "Chest Supported Row",
+    "趴姿划船"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "lats",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/chest-supported-row-1.webp",
+    "assets/exercises/frames/chest-supported-row-2.webp",
+    "assets/exercises/frames/chest-supported-row-3.webp"
+   ]
+  },
+  {
+   "id": "seated-row",
+   "name": "坐姿滑輪划船",
+   "aliases": [
+    "Seated Cable Row",
+    "坐姿划船"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/seated-row-1.webp",
+    "assets/exercises/frames/seated-row-2.webp",
+    "assets/exercises/frames/seated-row-3.webp"
+   ]
+  },
+  {
+   "id": "single-arm-cable-row",
+   "name": "單臂滑輪划船",
+   "aliases": [
+    "Single-Arm Cable Row"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "rearDelts",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "unilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/single-arm-cable-row-1.webp",
+    "assets/exercises/frames/single-arm-cable-row-2.webp",
+    "assets/exercises/frames/single-arm-cable-row-3.webp"
+   ]
+  },
+  {
+   "id": "machine-row",
+   "name": "坐姿划船機",
+   "aliases": [
+    "Machine Row",
+    "機械划船"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/machine-row-1.webp",
+    "assets/exercises/frames/machine-row-2.webp",
+    "assets/exercises/frames/machine-row-3.webp"
+   ]
+  },
+  {
+   "id": "inverted-row",
+   "name": "反向划船",
+   "aliases": [
+    "Inverted Row",
+    "澳洲式引體向上"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "lats",
+    "biceps",
+    "abs"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/inverted-row-1.webp",
+    "assets/exercises/frames/inverted-row-2.webp",
+    "assets/exercises/frames/inverted-row-3.webp"
+   ]
+  },
+  {
+   "id": "doorway-row",
+   "name": "門框划船",
+   "aliases": [
+    "Doorway Row"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "lats",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/doorway-row-1.webp",
+    "assets/exercises/frames/doorway-row-2.webp",
+    "assets/exercises/frames/doorway-row-3.webp"
+   ]
+  },
+  {
+   "id": "towel-row",
+   "name": "毛巾划船",
+   "aliases": [
+    "Towel Row"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "lats",
+    "biceps",
+    "forearms"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/towel-row-1.webp",
+    "assets/exercises/frames/towel-row-2.webp",
+    "assets/exercises/frames/towel-row-3.webp"
+   ]
+  },
+  {
+   "id": "banded-row",
+   "name": "彈力帶划船",
+   "aliases": [
+    "Banded Row"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "biceps"
+   ],
+   "pattern": "horizontalPull",
+   "laterality": "bilateral",
+   "family": "row",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-row-1.webp",
+    "assets/exercises/frames/banded-row-2.webp",
+    "assets/exercises/frames/banded-row-3.webp"
+   ]
+  },
+  {
+   "id": "lat-pulldown",
+   "name": "滑輪下拉",
+   "aliases": [
+    "Lat Pulldown",
+    "高位下拉",
+    "背闊下拉"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pulldown",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/lat-pulldown-1.webp",
+    "assets/exercises/frames/lat-pulldown-2.webp",
+    "assets/exercises/frames/lat-pulldown-3.webp"
+   ]
+  },
+  {
+   "id": "close-grip-lat-pulldown",
+   "name": "窄握滑輪下拉",
+   "aliases": [
+    "Close-Grip Lat Pulldown"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pulldown",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/close-grip-lat-pulldown-1.webp",
+    "assets/exercises/frames/close-grip-lat-pulldown-2.webp",
+    "assets/exercises/frames/close-grip-lat-pulldown-3.webp"
+   ]
+  },
+  {
+   "id": "wide-grip-lat-pulldown",
+   "name": "寬握滑輪下拉",
+   "aliases": [
+    "Wide-Grip Lat Pulldown"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pulldown",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/wide-grip-lat-pulldown-1.webp",
+    "assets/exercises/frames/wide-grip-lat-pulldown-2.webp",
+    "assets/exercises/frames/wide-grip-lat-pulldown-3.webp"
+   ]
+  },
+  {
+   "id": "banded-lat-pulldown",
+   "name": "彈力帶下拉",
+   "aliases": [
+    "Banded Lat Pulldown"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pulldown",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-lat-pulldown-1.webp",
+    "assets/exercises/frames/banded-lat-pulldown-2.webp",
+    "assets/exercises/frames/banded-lat-pulldown-3.webp"
+   ]
+  },
+  {
+   "id": "straight-arm-pulldown",
+   "name": "直臂下拉",
+   "aliases": [
+    "Straight-Arm Pulldown",
+    "滑輪直臂下壓"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "triceps"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "pullover",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/straight-arm-pulldown-1.webp",
+    "assets/exercises/frames/straight-arm-pulldown-2.webp",
+    "assets/exercises/frames/straight-arm-pulldown-3.webp"
+   ]
+  },
+  {
+   "id": "pull-up",
+   "name": "引體向上",
+   "aliases": [
+    "Pull-up",
+    "正手引體向上"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/pull-up-1.webp",
+    "assets/exercises/frames/pull-up-2.webp",
+    "assets/exercises/frames/pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-pull-up",
+   "name": "負重引體向上",
+   "aliases": [
+    "Weighted Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-pull-up-1.webp",
+    "assets/exercises/frames/weighted-pull-up-2.webp",
+    "assets/exercises/frames/weighted-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "assisted-pull-up",
+   "name": "輔助引體向上",
+   "aliases": [
+    "Assisted Pull-up",
+    "輔助機"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/assisted-pull-up-1.webp",
+    "assets/exercises/frames/assisted-pull-up-2.webp",
+    "assets/exercises/frames/assisted-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "neutral-grip-pull-up",
+   "name": "對握引體向上",
+   "aliases": [
+    "Neutral-Grip Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/neutral-grip-pull-up-1.webp",
+    "assets/exercises/frames/neutral-grip-pull-up-2.webp",
+    "assets/exercises/frames/neutral-grip-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "negative-pull-up",
+   "name": "離心引體向上",
+   "aliases": [
+    "Negative Pull-up",
+    "負向引體向上"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/negative-pull-up-1.webp",
+    "assets/exercises/frames/negative-pull-up-2.webp",
+    "assets/exercises/frames/negative-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "commando-pull-up",
+   "name": "突擊隊引體向上",
+   "aliases": [
+    "Commando Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "abs"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "alternating",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/commando-pull-up-1.webp",
+    "assets/exercises/frames/commando-pull-up-2.webp",
+    "assets/exercises/frames/commando-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "l-sit-pull-up",
+   "name": "L 坐引體向上",
+   "aliases": [
+    "L-Sit Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "abs"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/l-sit-pull-up-1.webp",
+    "assets/exercises/frames/l-sit-pull-up-2.webp",
+    "assets/exercises/frames/l-sit-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "towel-pull-up",
+   "name": "毛巾引體向上",
+   "aliases": [
+    "Towel Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps",
+    "forearms"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/towel-pull-up-1.webp",
+    "assets/exercises/frames/towel-pull-up-2.webp",
+    "assets/exercises/frames/towel-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "scapular-pull-up",
+   "name": "肩胛引體向上",
+   "aliases": [
+    "Scapular Pull-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "pull-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/scapular-pull-up-1.webp",
+    "assets/exercises/frames/scapular-pull-up-2.webp",
+    "assets/exercises/frames/scapular-pull-up-3.webp"
+   ]
+  },
+  {
+   "id": "chin-up",
+   "name": "反手引體向上",
+   "aliases": [
+    "Chin-up",
+    "反握引體向上"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "chin-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/chin-up-1.webp",
+    "assets/exercises/frames/chin-up-2.webp",
+    "assets/exercises/frames/chin-up-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-chin-up",
+   "name": "負重反手引體向上",
+   "aliases": [
+    "Weighted Chin-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "chin-up",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-chin-up-1.webp",
+    "assets/exercises/frames/weighted-chin-up-2.webp",
+    "assets/exercises/frames/weighted-chin-up-3.webp"
+   ]
+  },
+  {
+   "id": "assisted-chin-up",
+   "name": "輔助反手引體向上",
+   "aliases": [
+    "Assisted Chin-up"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "verticalPull",
+   "laterality": "bilateral",
+   "family": "chin-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/assisted-chin-up-1.webp",
+    "assets/exercises/frames/assisted-chin-up-2.webp",
+    "assets/exercises/frames/assisted-chin-up-3.webp"
+   ]
+  },
+  {
+   "id": "dead-hang",
+   "name": "懸吊",
+   "aliases": [
+    "Dead Hang",
+    "被動懸吊"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "forearms"
+   ],
+   "secondaryMuscles": [
+    "lats"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "hang",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/dead-hang-1.webp",
+    "assets/exercises/frames/dead-hang-2.webp",
+    "assets/exercises/frames/dead-hang-3.webp"
+   ]
+  },
+  {
+   "id": "active-hang",
+   "name": "主動懸吊",
+   "aliases": [
+    "Active Hang"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "upperBack",
+    "forearms"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "hang",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/active-hang-1.webp",
+    "assets/exercises/frames/active-hang-2.webp",
+    "assets/exercises/frames/active-hang-3.webp"
+   ]
+  },
+  {
+   "id": "shrug",
+   "name": "槓鈴聳肩",
+   "aliases": [
+    "Barbell Shrug",
+    "聳肩"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "traps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "shrug",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/shrug-1.webp",
+    "assets/exercises/frames/shrug-2.webp",
+    "assets/exercises/frames/shrug-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-shrug",
+   "name": "啞鈴聳肩",
+   "aliases": [
+    "Dumbbell Shrug"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "traps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "shrug",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-shrug-1.webp",
+    "assets/exercises/frames/dumbbell-shrug-2.webp",
+    "assets/exercises/frames/dumbbell-shrug-3.webp"
+   ]
+  },
+  {
+   "id": "back-extension",
+   "name": "背伸展",
+   "aliases": [
+    "Back Extension",
+    "羅馬椅挺身",
+    "山羊挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "spinalErectors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "back-extension",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/back-extension-1.webp",
+    "assets/exercises/frames/back-extension-2.webp",
+    "assets/exercises/frames/back-extension-3.webp"
+   ]
+  },
+  {
+   "id": "glute-focused-back-extension",
+   "name": "臀部主導背伸展",
+   "aliases": [
+    "Glute-Focused Back Extension"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "back-extension",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/glute-focused-back-extension-1.webp",
+    "assets/exercises/frames/glute-focused-back-extension-2.webp",
+    "assets/exercises/frames/glute-focused-back-extension-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-hyperextension",
+   "name": "反向背伸展",
+   "aliases": [
+    "Reverse Hyperextension"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "back-extension",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/reverse-hyperextension-1.webp",
+    "assets/exercises/frames/reverse-hyperextension-2.webp",
+    "assets/exercises/frames/reverse-hyperextension-3.webp"
+   ]
+  },
+  {
+   "id": "superman",
+   "name": "超人式",
+   "aliases": [
+    "Superman"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "spinalErectors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "upperBack"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "superman",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/superman-1.webp",
+    "assets/exercises/frames/superman-2.webp",
+    "assets/exercises/frames/superman-3.webp"
+   ]
+  },
+  {
+   "id": "superman-hold",
+   "name": "超人式靜止",
+   "aliases": [
+    "Superman Hold"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "spinalErectors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "upperBack"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "superman",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/superman-hold-1.webp",
+    "assets/exercises/frames/superman-hold-2.webp",
+    "assets/exercises/frames/superman-hold-3.webp"
+   ]
+  },
+  {
+   "id": "prone-y-raise",
+   "name": "俯臥 Y 字上舉",
+   "aliases": [
+    "Prone Y Raise",
+    "Y字舉"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "rearDelts",
+    "traps"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "prone-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/prone-y-raise-1.webp",
+    "assets/exercises/frames/prone-y-raise-2.webp",
+    "assets/exercises/frames/prone-y-raise-3.webp"
+   ]
+  },
+  {
+   "id": "prone-t-raise",
+   "name": "俯臥 T 字上舉",
+   "aliases": [
+    "Prone T Raise",
+    "T字舉"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "rearDelts"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "prone-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/prone-t-raise-1.webp",
+    "assets/exercises/frames/prone-t-raise-2.webp",
+    "assets/exercises/frames/prone-t-raise-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-snow-angel",
+   "name": "反向雪天使",
+   "aliases": [
+    "Reverse Snow Angel"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "rearDelts",
+    "spinalErectors"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "prone-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/reverse-snow-angel-1.webp",
+    "assets/exercises/frames/reverse-snow-angel-2.webp",
+    "assets/exercises/frames/reverse-snow-angel-3.webp"
+   ]
+  },
+  {
+   "id": "scapular-push-up",
+   "name": "肩胛伏地挺身",
+   "aliases": [
+    "Scapular Push-up"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "upperBack"
+   ],
+   "secondaryMuscles": [
+    "chest"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/scapular-push-up-1.webp",
+    "assets/exercises/frames/scapular-push-up-2.webp",
+    "assets/exercises/frames/scapular-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "back-squat",
+   "name": "槓鈴深蹲",
+   "aliases": [
+    "Squat",
+    "深蹲",
+    "背蹲"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors",
+    "spinalErectors",
+    "abs"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/back-squat-1.webp",
+    "assets/exercises/frames/back-squat-2.webp",
+    "assets/exercises/frames/back-squat-3.webp"
+   ]
+  },
+  {
+   "id": "front-squat",
+   "name": "前蹲",
+   "aliases": [
+    "Front Squat",
+    "槓鈴前蹲舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "abs"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/front-squat-1.webp",
+    "assets/exercises/frames/front-squat-2.webp",
+    "assets/exercises/frames/front-squat-3.webp"
+   ]
+  },
+  {
+   "id": "hack-squat",
+   "name": "哈克深蹲",
+   "aliases": [
+    "Hack Squat"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/hack-squat-1.webp",
+    "assets/exercises/frames/hack-squat-2.webp",
+    "assets/exercises/frames/hack-squat-3.webp"
+   ]
+  },
+  {
+   "id": "smith-squat",
+   "name": "史密斯深蹲",
+   "aliases": [
+    "Smith Machine Squat"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-squat-1.webp",
+    "assets/exercises/frames/smith-squat-2.webp",
+    "assets/exercises/frames/smith-squat-3.webp"
+   ]
+  },
+  {
+   "id": "goblet-squat",
+   "name": "高腳杯深蹲",
+   "aliases": [
+    "Goblet Squat"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/goblet-squat-1.webp",
+    "assets/exercises/frames/goblet-squat-2.webp",
+    "assets/exercises/frames/goblet-squat-3.webp"
+   ]
+  },
+  {
+   "id": "heel-elevated-goblet-squat",
+   "name": "墊腳跟高腳杯深蹲",
+   "aliases": [
+    "Heel-Elevated Goblet Squat"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/heel-elevated-goblet-squat-1.webp",
+    "assets/exercises/frames/heel-elevated-goblet-squat-2.webp",
+    "assets/exercises/frames/heel-elevated-goblet-squat-3.webp"
+   ]
+  },
+  {
+   "id": "belt-squat",
+   "name": "腰帶深蹲",
+   "aliases": [
+    "Belt Squat"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/belt-squat-1.webp",
+    "assets/exercises/frames/belt-squat-2.webp",
+    "assets/exercises/frames/belt-squat-3.webp"
+   ]
+  },
+  {
+   "id": "landmine-squat",
+   "name": "地雷管深蹲",
+   "aliases": [
+    "Landmine Squat"
+   ],
+   "equipment": "landmine",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "abs"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/landmine-squat-1.webp",
+    "assets/exercises/frames/landmine-squat-2.webp",
+    "assets/exercises/frames/landmine-squat-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-sumo-squat",
+   "name": "啞鈴相撲深蹲",
+   "aliases": [
+    "Dumbbell Sumo Squat"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes",
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "hamstrings"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-sumo-squat-1.webp",
+    "assets/exercises/frames/dumbbell-sumo-squat-2.webp",
+    "assets/exercises/frames/dumbbell-sumo-squat-3.webp"
+   ]
+  },
+  {
+   "id": "bodyweight-squat",
+   "name": "徒手深蹲",
+   "aliases": [
+    "Bodyweight Squat",
+    "空蹲"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/bodyweight-squat-1.webp",
+    "assets/exercises/frames/bodyweight-squat-2.webp",
+    "assets/exercises/frames/bodyweight-squat-3.webp"
+   ]
+  },
+  {
+   "id": "banded-squat",
+   "name": "彈力帶深蹲",
+   "aliases": [
+    "Banded Squat"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "abductors"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-squat-1.webp",
+    "assets/exercises/frames/banded-squat-2.webp",
+    "assets/exercises/frames/banded-squat-3.webp"
+   ]
+  },
+  {
+   "id": "jump-squat",
+   "name": "深蹲跳",
+   "aliases": [
+    "Jump Squat",
+    "跳躍深蹲"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/jump-squat-1.webp",
+    "assets/exercises/frames/jump-squat-2.webp",
+    "assets/exercises/frames/jump-squat-3.webp"
+   ]
+  },
+  {
+   "id": "wall-sit",
+   "name": "靠牆蹲",
+   "aliases": [
+    "Wall Sit"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "squat",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/wall-sit-1.webp",
+    "assets/exercises/frames/wall-sit-2.webp",
+    "assets/exercises/frames/wall-sit-3.webp"
+   ]
+  },
+  {
+   "id": "leg-press",
+   "name": "腿推",
+   "aliases": [
+    "Leg Press",
+    "腿部推蹬",
+    "倒蹬"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "pattern": "squat",
+   "laterality": "bilateral",
+   "family": "leg-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/leg-press-1.webp",
+    "assets/exercises/frames/leg-press-2.webp",
+    "assets/exercises/frames/leg-press-3.webp"
+   ]
+  },
+  {
+   "id": "leg-extension",
+   "name": "腿伸展",
+   "aliases": [
+    "Leg Extension",
+    "坐姿腿伸展"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-extension",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/leg-extension-1.webp",
+    "assets/exercises/frames/leg-extension-2.webp",
+    "assets/exercises/frames/leg-extension-3.webp"
+   ]
+  },
+  {
+   "id": "sissy-squat",
+   "name": "西斯深蹲",
+   "aliases": [
+    "Sissy Squat"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-extension",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/sissy-squat-1.webp",
+    "assets/exercises/frames/sissy-squat-2.webp",
+    "assets/exercises/frames/sissy-squat-3.webp"
+   ]
+  },
+  {
+   "id": "pistol-squat",
+   "name": "單腳深蹲",
+   "aliases": [
+    "Pistol Squat",
+    "手槍蹲"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/pistol-squat-1.webp",
+    "assets/exercises/frames/pistol-squat-2.webp",
+    "assets/exercises/frames/pistol-squat-3.webp"
+   ]
+  },
+  {
+   "id": "assisted-pistol-squat",
+   "name": "輔助單腳深蹲",
+   "aliases": [
+    "Assisted Pistol Squat"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/assisted-pistol-squat-1.webp",
+    "assets/exercises/frames/assisted-pistol-squat-2.webp",
+    "assets/exercises/frames/assisted-pistol-squat-3.webp"
+   ]
+  },
+  {
+   "id": "shrimp-squat",
+   "name": "蝦式深蹲",
+   "aliases": [
+    "Shrimp Squat"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/shrimp-squat-1.webp",
+    "assets/exercises/frames/shrimp-squat-2.webp",
+    "assets/exercises/frames/shrimp-squat-3.webp"
+   ]
+  },
+  {
+   "id": "skater-squat",
+   "name": "溜冰者深蹲",
+   "aliases": [
+    "Skater Squat"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/skater-squat-1.webp",
+    "assets/exercises/frames/skater-squat-2.webp",
+    "assets/exercises/frames/skater-squat-3.webp"
+   ]
+  },
+  {
+   "id": "single-leg-box-squat",
+   "name": "單腳箱上蹲",
+   "aliases": [
+    "Single-Leg Box Squat"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/single-leg-box-squat-1.webp",
+    "assets/exercises/frames/single-leg-box-squat-2.webp",
+    "assets/exercises/frames/single-leg-box-squat-3.webp"
+   ]
+  },
+  {
+   "id": "step-down",
+   "name": "下台階",
+   "aliases": [
+    "Step-Down"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "single-leg-squat",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/step-down-1.webp",
+    "assets/exercises/frames/step-down-2.webp",
+    "assets/exercises/frames/step-down-3.webp"
+   ]
+  },
+  {
+   "id": "cossack-squat",
+   "name": "哥薩克深蹲",
+   "aliases": [
+    "Cossack Squat",
+    "側蹲"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads",
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lateral-lunge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/cossack-squat-1.webp",
+    "assets/exercises/frames/cossack-squat-2.webp",
+    "assets/exercises/frames/cossack-squat-3.webp"
+   ]
+  },
+  {
+   "id": "bulgarian-split-squat",
+   "name": "保加利亞分腿蹲",
+   "aliases": [
+    "Bulgarian Split Squat",
+    "後腳抬高分腿蹲"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "split-squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/bulgarian-split-squat-1.webp",
+    "assets/exercises/frames/bulgarian-split-squat-2.webp",
+    "assets/exercises/frames/bulgarian-split-squat-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-bulgarian-split-squat",
+   "name": "史密斯保加利亞分腿蹲",
+   "aliases": [
+    "Smith Machine Bulgarian Split Squat"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "split-squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-bulgarian-split-squat-1.webp",
+    "assets/exercises/frames/smith-machine-bulgarian-split-squat-2.webp",
+    "assets/exercises/frames/smith-machine-bulgarian-split-squat-3.webp"
+   ]
+  },
+  {
+   "id": "split-squat",
+   "name": "分腿蹲",
+   "aliases": [
+    "Split Squat"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "split-squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/split-squat-1.webp",
+    "assets/exercises/frames/split-squat-2.webp",
+    "assets/exercises/frames/split-squat-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-split-squat",
+   "name": "史密斯分腿蹲",
+   "aliases": [
+    "Smith Machine Split Squat"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "split-squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-split-squat-1.webp",
+    "assets/exercises/frames/smith-machine-split-squat-2.webp",
+    "assets/exercises/frames/smith-machine-split-squat-3.webp"
+   ]
+  },
+  {
+   "id": "front-foot-elevated-split-squat",
+   "name": "前腳抬高分腿蹲",
+   "aliases": [
+    "Front-Foot Elevated Split Squat"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "split-squat",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/front-foot-elevated-split-squat-1.webp",
+    "assets/exercises/frames/front-foot-elevated-split-squat-2.webp",
+    "assets/exercises/frames/front-foot-elevated-split-squat-3.webp"
+   ]
+  },
+  {
+   "id": "walking-lunge",
+   "name": "行走弓步",
+   "aliases": [
+    "Walking Lunge",
+    "弓箭步走"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "adductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/walking-lunge-1.webp",
+    "assets/exercises/frames/walking-lunge-2.webp",
+    "assets/exercises/frames/walking-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "forward-lunge",
+   "name": "前弓步",
+   "aliases": [
+    "Forward Lunge",
+    "弓箭步"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lunge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/forward-lunge-1.webp",
+    "assets/exercises/frames/forward-lunge-2.webp",
+    "assets/exercises/frames/forward-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-lunge",
+   "name": "後弓步",
+   "aliases": [
+    "Reverse Lunge",
+    "後跨步蹲"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/reverse-lunge-1.webp",
+    "assets/exercises/frames/reverse-lunge-2.webp",
+    "assets/exercises/frames/reverse-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-reverse-lunge",
+   "name": "史密斯後弓步",
+   "aliases": [
+    "Smith Machine Reverse Lunge"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-reverse-lunge-1.webp",
+    "assets/exercises/frames/smith-machine-reverse-lunge-2.webp",
+    "assets/exercises/frames/smith-machine-reverse-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "deficit-reverse-lunge",
+   "name": "墊高後弓步",
+   "aliases": [
+    "Deficit Reverse Lunge"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "hamstrings"
+   ],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/deficit-reverse-lunge-1.webp",
+    "assets/exercises/frames/deficit-reverse-lunge-2.webp",
+    "assets/exercises/frames/deficit-reverse-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "lateral-lunge",
+   "name": "側弓步",
+   "aliases": [
+    "Lateral Lunge"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads",
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lateral-lunge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/lateral-lunge-1.webp",
+    "assets/exercises/frames/lateral-lunge-2.webp",
+    "assets/exercises/frames/lateral-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-lateral-lunge",
+   "name": "啞鈴側弓步",
+   "aliases": [
+    "Dumbbell Lateral Lunge"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lateral-lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-lateral-lunge-1.webp",
+    "assets/exercises/frames/dumbbell-lateral-lunge-2.webp",
+    "assets/exercises/frames/dumbbell-lateral-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "curtsy-lunge",
+   "name": "交叉後弓步",
+   "aliases": [
+    "Curtsy Lunge",
+    "屈膝禮弓步"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "abductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lunge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/curtsy-lunge-1.webp",
+    "assets/exercises/frames/curtsy-lunge-2.webp",
+    "assets/exercises/frames/curtsy-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-curtsy-lunge",
+   "name": "啞鈴交叉後弓步",
+   "aliases": [
+    "Dumbbell Curtsy Lunge"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "abductors"
+   ],
+   "pattern": "lunge",
+   "laterality": "alternating",
+   "family": "lunge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-curtsy-lunge-1.webp",
+    "assets/exercises/frames/dumbbell-curtsy-lunge-2.webp",
+    "assets/exercises/frames/dumbbell-curtsy-lunge-3.webp"
+   ]
+  },
+  {
+   "id": "step-up",
+   "name": "登階",
+   "aliases": [
+    "Step-Up",
+    "上台階"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "quads",
+    "glutes"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "lunge",
+   "laterality": "unilateral",
+   "family": "step-up",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/step-up-1.webp",
+    "assets/exercises/frames/step-up-2.webp",
+    "assets/exercises/frames/step-up-3.webp"
+   ]
+  },
+  {
+   "id": "rdl",
+   "name": "羅馬尼亞硬舉",
+   "aliases": [
+    "Romanian Deadlift",
+    "RDL",
+    "直腿硬舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/rdl-1.webp",
+    "assets/exercises/frames/rdl-2.webp",
+    "assets/exercises/frames/rdl-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-romanian-deadlift",
+   "name": "啞鈴羅馬尼亞硬舉",
+   "aliases": [
+    "Dumbbell Romanian Deadlift"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-romanian-deadlift-1.webp",
+    "assets/exercises/frames/dumbbell-romanian-deadlift-2.webp",
+    "assets/exercises/frames/dumbbell-romanian-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "kettlebell-romanian-deadlift",
+   "name": "壺鈴羅馬尼亞硬舉",
+   "aliases": [
+    "Kettlebell Romanian Deadlift"
+   ],
+   "equipment": "kettlebell",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/kettlebell-romanian-deadlift-1.webp",
+    "assets/exercises/frames/kettlebell-romanian-deadlift-2.webp",
+    "assets/exercises/frames/kettlebell-romanian-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-romanian-deadlift",
+   "name": "史密斯羅馬尼亞硬舉",
+   "aliases": [
+    "Smith Machine Romanian Deadlift"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-romanian-deadlift-1.webp",
+    "assets/exercises/frames/smith-machine-romanian-deadlift-2.webp",
+    "assets/exercises/frames/smith-machine-romanian-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "landmine-romanian-deadlift",
+   "name": "地雷管羅馬尼亞硬舉",
+   "aliases": [
+    "Landmine Romanian Deadlift"
+   ],
+   "equipment": "landmine",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/landmine-romanian-deadlift-1.webp",
+    "assets/exercises/frames/landmine-romanian-deadlift-2.webp",
+    "assets/exercises/frames/landmine-romanian-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "single-leg-romanian-deadlift",
+   "name": "單腳羅馬尼亞硬舉",
+   "aliases": [
+    "Single-Leg Romanian Deadlift"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "hamstrings",
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "abductors"
+   ],
+   "pattern": "hinge",
+   "laterality": "unilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/single-leg-romanian-deadlift-1.webp",
+    "assets/exercises/frames/single-leg-romanian-deadlift-2.webp",
+    "assets/exercises/frames/single-leg-romanian-deadlift-3.webp"
+   ]
+  },
+  {
+   "id": "good-morning",
+   "name": "早安體前屈",
+   "aliases": [
+    "Good Morning",
+    "早安式"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "romanian-deadlift",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/good-morning-1.webp",
+    "assets/exercises/frames/good-morning-2.webp",
+    "assets/exercises/frames/good-morning-3.webp"
+   ]
+  },
+  {
+   "id": "cable-pull-through",
+   "name": "滑輪髖伸",
+   "aliases": [
+    "Cable Pull-Through",
+    "繩索後拉",
+    "Pull",
+    "Through"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "spinalErectors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-hinge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-pull-through-1.webp",
+    "assets/exercises/frames/cable-pull-through-2.webp",
+    "assets/exercises/frames/cable-pull-through-3.webp"
+   ]
+  },
+  {
+   "id": "kb-swing",
+   "name": "壺鈴擺盪",
+   "aliases": [
+    "Kettlebell Swing"
+   ],
+   "equipment": "kettlebell",
+   "primaryMuscles": [
+    "glutes",
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "spinalErectors",
+    "abs"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-hinge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/kb-swing-1.webp",
+    "assets/exercises/frames/kb-swing-2.webp",
+    "assets/exercises/frames/kb-swing-3.webp"
+   ]
+  },
+  {
+   "id": "hip-airplane",
+   "name": "髖關節飛機",
+   "aliases": [
+    "Hip Airplane"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "abductors",
+    "hamstrings"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "hip-hinge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/hip-airplane-1.webp",
+    "assets/exercises/frames/hip-airplane-2.webp",
+    "assets/exercises/frames/hip-airplane-3.webp"
+   ]
+  },
+  {
+   "id": "leg-curl",
+   "name": "腿彎舉",
+   "aliases": [
+    "Leg Curl",
+    "俯臥腿彎舉"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "calves"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/leg-curl-1.webp",
+    "assets/exercises/frames/leg-curl-2.webp",
+    "assets/exercises/frames/leg-curl-3.webp"
+   ]
+  },
+  {
+   "id": "lying-leg-curl",
+   "name": "俯臥腿彎舉機",
+   "aliases": [
+    "Lying Leg Curl"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "calves"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/lying-leg-curl-1.webp",
+    "assets/exercises/frames/lying-leg-curl-2.webp",
+    "assets/exercises/frames/lying-leg-curl-3.webp"
+   ]
+  },
+  {
+   "id": "seated-leg-curl",
+   "name": "坐姿腿彎舉",
+   "aliases": [
+    "Seated Leg Curl"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "calves"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/seated-leg-curl-1.webp",
+    "assets/exercises/frames/seated-leg-curl-2.webp",
+    "assets/exercises/frames/seated-leg-curl-3.webp"
+   ]
+  },
+  {
+   "id": "nordic-hamstring-curl",
+   "name": "北歐腿彎舉",
+   "aliases": [
+    "Nordic Hamstring Curl",
+    "北歐式"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/nordic-hamstring-curl-1.webp",
+    "assets/exercises/frames/nordic-hamstring-curl-2.webp",
+    "assets/exercises/frames/nordic-hamstring-curl-3.webp"
+   ]
+  },
+  {
+   "id": "towel-hamstring-curl",
+   "name": "毛巾腿彎舉",
+   "aliases": [
+    "Towel Hamstring Curl"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/towel-hamstring-curl-1.webp",
+    "assets/exercises/frames/towel-hamstring-curl-2.webp",
+    "assets/exercises/frames/towel-hamstring-curl-3.webp"
+   ]
+  },
+  {
+   "id": "stability-ball-hamstring-curl",
+   "name": "瑜伽球腿彎舉",
+   "aliases": [
+    "Stability Ball Hamstring Curl",
+    "抗力球腿彎舉"
+   ],
+   "equipment": "other",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/stability-ball-hamstring-curl-1.webp",
+    "assets/exercises/frames/stability-ball-hamstring-curl-2.webp",
+    "assets/exercises/frames/stability-ball-hamstring-curl-3.webp"
+   ]
+  },
+  {
+   "id": "lying-hamstring-walkout",
+   "name": "臀橋腳跟走出",
+   "aliases": [
+    "Lying Hamstring Walkout"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "hamstrings"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "leg-curl",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/lying-hamstring-walkout-1.webp",
+    "assets/exercises/frames/lying-hamstring-walkout-2.webp",
+    "assets/exercises/frames/lying-hamstring-walkout-3.webp"
+   ]
+  },
+  {
+   "id": "hip-thrust",
+   "name": "槓鈴臀推",
+   "aliases": [
+    "Hip Thrust",
+    "臀推"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-thrust",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/hip-thrust-1.webp",
+    "assets/exercises/frames/hip-thrust-2.webp",
+    "assets/exercises/frames/hip-thrust-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-hip-thrust",
+   "name": "啞鈴臀推",
+   "aliases": [
+    "Dumbbell Hip Thrust"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-thrust",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-hip-thrust-1.webp",
+    "assets/exercises/frames/dumbbell-hip-thrust-2.webp",
+    "assets/exercises/frames/dumbbell-hip-thrust-3.webp"
+   ]
+  },
+  {
+   "id": "smith-machine-hip-thrust",
+   "name": "史密斯臀推",
+   "aliases": [
+    "Smith Machine Hip Thrust"
+   ],
+   "equipment": "smithMachine",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-thrust",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/smith-machine-hip-thrust-1.webp",
+    "assets/exercises/frames/smith-machine-hip-thrust-2.webp",
+    "assets/exercises/frames/smith-machine-hip-thrust-3.webp"
+   ]
+  },
+  {
+   "id": "banded-hip-thrust",
+   "name": "彈力帶臀推",
+   "aliases": [
+    "Banded Hip Thrust"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "abductors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "hip-thrust",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-hip-thrust-1.webp",
+    "assets/exercises/frames/banded-hip-thrust-2.webp",
+    "assets/exercises/frames/banded-hip-thrust-3.webp"
+   ]
+  },
+  {
+   "id": "glute-bridge",
+   "name": "臀橋",
+   "aliases": [
+    "Glute Bridge"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/glute-bridge-1.webp",
+    "assets/exercises/frames/glute-bridge-2.webp",
+    "assets/exercises/frames/glute-bridge-3.webp"
+   ]
+  },
+  {
+   "id": "barbell-glute-bridge",
+   "name": "槓鈴臀橋",
+   "aliases": [
+    "Barbell Glute Bridge"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/barbell-glute-bridge-1.webp",
+    "assets/exercises/frames/barbell-glute-bridge-2.webp",
+    "assets/exercises/frames/barbell-glute-bridge-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-glute-bridge",
+   "name": "啞鈴臀橋",
+   "aliases": [
+    "Dumbbell Glute Bridge"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-glute-bridge-1.webp",
+    "assets/exercises/frames/dumbbell-glute-bridge-2.webp",
+    "assets/exercises/frames/dumbbell-glute-bridge-3.webp"
+   ]
+  },
+  {
+   "id": "single-leg-glute-bridge",
+   "name": "單腳臀橋",
+   "aliases": [
+    "Single-Leg Glute Bridge"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "hinge",
+   "laterality": "unilateral",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/single-leg-glute-bridge-1.webp",
+    "assets/exercises/frames/single-leg-glute-bridge-2.webp",
+    "assets/exercises/frames/single-leg-glute-bridge-3.webp"
+   ]
+  },
+  {
+   "id": "glute-bridge-march",
+   "name": "臀橋踏步",
+   "aliases": [
+    "Glute Bridge March"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "abs"
+   ],
+   "pattern": "hinge",
+   "laterality": "alternating",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/glute-bridge-march-1.webp",
+    "assets/exercises/frames/glute-bridge-march-2.webp",
+    "assets/exercises/frames/glute-bridge-march-3.webp"
+   ]
+  },
+  {
+   "id": "banded-glute-bridge",
+   "name": "彈力帶臀橋",
+   "aliases": [
+    "Banded Glute Bridge"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "abductors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-glute-bridge-1.webp",
+    "assets/exercises/frames/banded-glute-bridge-2.webp",
+    "assets/exercises/frames/banded-glute-bridge-3.webp"
+   ]
+  },
+  {
+   "id": "frog-pump",
+   "name": "青蛙臀橋",
+   "aliases": [
+    "Frog Pump"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "adductors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/frog-pump-1.webp",
+    "assets/exercises/frames/frog-pump-2.webp",
+    "assets/exercises/frames/frog-pump-3.webp"
+   ]
+  },
+  {
+   "id": "banded-frog-pump",
+   "name": "彈力帶青蛙臀橋",
+   "aliases": [
+    "Banded Frog Pump"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "abductors"
+   ],
+   "pattern": "hinge",
+   "laterality": "bilateral",
+   "family": "glute-bridge",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-frog-pump-1.webp",
+    "assets/exercises/frames/banded-frog-pump-2.webp",
+    "assets/exercises/frames/banded-frog-pump-3.webp"
+   ]
+  },
+  {
+   "id": "cable-kickback",
+   "name": "滑輪後踢",
+   "aliases": [
+    "Cable Kickback",
+    "繩索後踢腿"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "kickback",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-kickback-1.webp",
+    "assets/exercises/frames/cable-kickback-2.webp",
+    "assets/exercises/frames/cable-kickback-3.webp"
+   ]
+  },
+  {
+   "id": "machine-glute-kickback",
+   "name": "後踢腿機",
+   "aliases": [
+    "Machine Glute Kickback",
+    "臀部後踢機"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "kickback",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/machine-glute-kickback-1.webp",
+    "assets/exercises/frames/machine-glute-kickback-2.webp",
+    "assets/exercises/frames/machine-glute-kickback-3.webp"
+   ]
+  },
+  {
+   "id": "donkey-kick",
+   "name": "驢踢",
+   "aliases": [
+    "Donkey Kick",
+    "跪姿後踢腿"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "kickback",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/donkey-kick-1.webp",
+    "assets/exercises/frames/donkey-kick-2.webp",
+    "assets/exercises/frames/donkey-kick-3.webp"
+   ]
+  },
+  {
+   "id": "banded-donkey-kick",
+   "name": "彈力帶驢踢",
+   "aliases": [
+    "Banded Donkey Kick"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "kickback",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-donkey-kick-1.webp",
+    "assets/exercises/frames/banded-donkey-kick-2.webp",
+    "assets/exercises/frames/banded-donkey-kick-3.webp"
+   ]
+  },
+  {
+   "id": "banded-kickback",
+   "name": "彈力帶後踢",
+   "aliases": [
+    "Banded Kickback"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "hamstrings"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "kickback",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-kickback-1.webp",
+    "assets/exercises/frames/banded-kickback-2.webp",
+    "assets/exercises/frames/banded-kickback-3.webp"
+   ]
+  },
+  {
+   "id": "hip-abduction-machine",
+   "name": "髖外展機",
+   "aliases": [
+    "Hip Abduction Machine",
+    "坐姿外展機",
+    "臀中"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "hip-abduction",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/hip-abduction-machine-1.webp",
+    "assets/exercises/frames/hip-abduction-machine-2.webp",
+    "assets/exercises/frames/hip-abduction-machine-3.webp"
+   ]
+  },
+  {
+   "id": "cable-standing-hip-abduction",
+   "name": "滑輪站姿髖外展",
+   "aliases": [
+    "Cable Standing Hip Abduction"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-standing-hip-abduction-1.webp",
+    "assets/exercises/frames/cable-standing-hip-abduction-2.webp",
+    "assets/exercises/frames/cable-standing-hip-abduction-3.webp"
+   ]
+  },
+  {
+   "id": "banded-standing-hip-abduction",
+   "name": "彈力帶站姿髖外展",
+   "aliases": [
+    "Banded Standing Hip Abduction"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-standing-hip-abduction-1.webp",
+    "assets/exercises/frames/banded-standing-hip-abduction-2.webp",
+    "assets/exercises/frames/banded-standing-hip-abduction-3.webp"
+   ]
+  },
+  {
+   "id": "banded-seated-hip-abduction",
+   "name": "彈力帶坐姿髖外展",
+   "aliases": [
+    "Banded Seated Hip Abduction"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-seated-hip-abduction-1.webp",
+    "assets/exercises/frames/banded-seated-hip-abduction-2.webp",
+    "assets/exercises/frames/banded-seated-hip-abduction-3.webp"
+   ]
+  },
+  {
+   "id": "side-lying-hip-abduction",
+   "name": "側躺抬腿",
+   "aliases": [
+    "Side-Lying Hip Abduction",
+    "側臥髖外展"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/side-lying-hip-abduction-1.webp",
+    "assets/exercises/frames/side-lying-hip-abduction-2.webp",
+    "assets/exercises/frames/side-lying-hip-abduction-3.webp"
+   ]
+  },
+  {
+   "id": "side-lying-leg-raise",
+   "name": "側臥抬腿",
+   "aliases": [
+    "Side-Lying Leg Raise"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/side-lying-leg-raise-1.webp",
+    "assets/exercises/frames/side-lying-leg-raise-2.webp",
+    "assets/exercises/frames/side-lying-leg-raise-3.webp"
+   ]
+  },
+  {
+   "id": "clamshell",
+   "name": "蚌殼式",
+   "aliases": [
+    "Clamshell"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/clamshell-1.webp",
+    "assets/exercises/frames/clamshell-2.webp",
+    "assets/exercises/frames/clamshell-3.webp"
+   ]
+  },
+  {
+   "id": "banded-clamshell",
+   "name": "彈力帶蚌殼式",
+   "aliases": [
+    "Banded Clamshell"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-clamshell-1.webp",
+    "assets/exercises/frames/banded-clamshell-2.webp",
+    "assets/exercises/frames/banded-clamshell-3.webp"
+   ]
+  },
+  {
+   "id": "fire-hydrant",
+   "name": "消防栓",
+   "aliases": [
+    "Fire Hydrant"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/fire-hydrant-1.webp",
+    "assets/exercises/frames/fire-hydrant-2.webp",
+    "assets/exercises/frames/fire-hydrant-3.webp"
+   ]
+  },
+  {
+   "id": "banded-fire-hydrant",
+   "name": "彈力帶消防栓",
+   "aliases": [
+    "Banded Fire Hydrant"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-fire-hydrant-1.webp",
+    "assets/exercises/frames/banded-fire-hydrant-2.webp",
+    "assets/exercises/frames/banded-fire-hydrant-3.webp"
+   ]
+  },
+  {
+   "id": "banded-lateral-walk",
+   "name": "彈力帶側走",
+   "aliases": [
+    "Banded Lateral Walk",
+    "怪獸走"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "quads"
+   ],
+   "pattern": "isolation",
+   "laterality": "alternating",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-lateral-walk-1.webp",
+    "assets/exercises/frames/banded-lateral-walk-2.webp",
+    "assets/exercises/frames/banded-lateral-walk-3.webp"
+   ]
+  },
+  {
+   "id": "banded-monster-walk",
+   "name": "彈力帶怪獸走",
+   "aliases": [
+    "Banded Monster Walk"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abductors"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "quads"
+   ],
+   "pattern": "isolation",
+   "laterality": "alternating",
+   "family": "hip-abduction",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-monster-walk-1.webp",
+    "assets/exercises/frames/banded-monster-walk-2.webp",
+    "assets/exercises/frames/banded-monster-walk-3.webp"
+   ]
+  },
+  {
+   "id": "hip-adduction-machine",
+   "name": "髖內收機",
+   "aliases": [
+    "Hip Adduction Machine",
+    "坐姿內收機",
+    "大腿內側"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "adductors"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "hip-adduction",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/hip-adduction-machine-1.webp",
+    "assets/exercises/frames/hip-adduction-machine-2.webp",
+    "assets/exercises/frames/hip-adduction-machine-3.webp"
+   ]
+  },
+  {
+   "id": "cable-standing-hip-adduction",
+   "name": "滑輪站姿髖內收",
+   "aliases": [
+    "Cable Standing Hip Adduction"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "hip-adduction",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-standing-hip-adduction-1.webp",
+    "assets/exercises/frames/cable-standing-hip-adduction-2.webp",
+    "assets/exercises/frames/cable-standing-hip-adduction-3.webp"
+   ]
+  },
+  {
+   "id": "copenhagen-plank",
+   "name": "哥本哈根棒式",
+   "aliases": [
+    "Copenhagen Plank"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "adductors"
+   ],
+   "secondaryMuscles": [
+    "obliques",
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "hip-adduction",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/copenhagen-plank-1.webp",
+    "assets/exercises/frames/copenhagen-plank-2.webp",
+    "assets/exercises/frames/copenhagen-plank-3.webp"
+   ]
+  },
+  {
+   "id": "standing-calf-raise",
+   "name": "站姿提踵",
+   "aliases": [
+    "Standing Calf Raise",
+    "站姿小腿上提"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "calf-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/standing-calf-raise-1.webp",
+    "assets/exercises/frames/standing-calf-raise-2.webp",
+    "assets/exercises/frames/standing-calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "seated-calf-raise",
+   "name": "坐姿提踵",
+   "aliases": [
+    "Seated Calf Raise",
+    "坐姿小腿上提"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "calf-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/seated-calf-raise-1.webp",
+    "assets/exercises/frames/seated-calf-raise-2.webp",
+    "assets/exercises/frames/seated-calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "donkey-calf-raise",
+   "name": "驢式提踵",
+   "aliases": [
+    "Donkey Calf Raise"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "calf-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/donkey-calf-raise-1.webp",
+    "assets/exercises/frames/donkey-calf-raise-2.webp",
+    "assets/exercises/frames/donkey-calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "leg-press-calf-raise",
+   "name": "腿推機提踵",
+   "aliases": [
+    "Leg Press Calf Raise"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "calf-raise",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/leg-press-calf-raise-1.webp",
+    "assets/exercises/frames/leg-press-calf-raise-2.webp",
+    "assets/exercises/frames/leg-press-calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "calf-raise",
+   "name": "徒手提踵",
+   "aliases": [
+    "Calf Raise",
+    "墊腳尖"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "calf-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/calf-raise-1.webp",
+    "assets/exercises/frames/calf-raise-2.webp",
+    "assets/exercises/frames/calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "single-leg-calf-raise",
+   "name": "單腳提踵",
+   "aliases": [
+    "Single-Leg Calf Raise"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "calf-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/single-leg-calf-raise-1.webp",
+    "assets/exercises/frames/single-leg-calf-raise-2.webp",
+    "assets/exercises/frames/single-leg-calf-raise-3.webp"
+   ]
+  },
+  {
+   "id": "bicep-curl",
+   "name": "啞鈴彎舉",
+   "aliases": [
+    "Bicep Curl",
+    "二頭彎舉"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/bicep-curl-1.webp",
+    "assets/exercises/frames/bicep-curl-2.webp",
+    "assets/exercises/frames/bicep-curl-3.webp"
+   ]
+  },
+  {
+   "id": "hammer-curl",
+   "name": "錘式彎舉",
+   "aliases": [
+    "Hammer Curl"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "hammer-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/hammer-curl-1.webp",
+    "assets/exercises/frames/hammer-curl-2.webp",
+    "assets/exercises/frames/hammer-curl-3.webp"
+   ]
+  },
+  {
+   "id": "rope-hammer-curl",
+   "name": "繩索錘式彎舉",
+   "aliases": [
+    "Rope Hammer Curl"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "hammer-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/rope-hammer-curl-1.webp",
+    "assets/exercises/frames/rope-hammer-curl-2.webp",
+    "assets/exercises/frames/rope-hammer-curl-3.webp"
+   ]
+  },
+  {
+   "id": "preacher-curl",
+   "name": "牧師椅彎舉",
+   "aliases": [
+    "Preacher Curl",
+    "斜板彎舉"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/preacher-curl-1.webp",
+    "assets/exercises/frames/preacher-curl-2.webp",
+    "assets/exercises/frames/preacher-curl-3.webp"
+   ]
+  },
+  {
+   "id": "cable-curl",
+   "name": "滑輪彎舉",
+   "aliases": [
+    "Cable Curl",
+    "繩索彎舉"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-curl-1.webp",
+    "assets/exercises/frames/cable-curl-2.webp",
+    "assets/exercises/frames/cable-curl-3.webp"
+   ]
+  },
+  {
+   "id": "incline-dumbbell-curl",
+   "name": "上斜啞鈴彎舉",
+   "aliases": [
+    "Incline Dumbbell Curl"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/incline-dumbbell-curl-1.webp",
+    "assets/exercises/frames/incline-dumbbell-curl-2.webp",
+    "assets/exercises/frames/incline-dumbbell-curl-3.webp"
+   ]
+  },
+  {
+   "id": "concentration-curl",
+   "name": "集中彎舉",
+   "aliases": [
+    "Concentration Curl"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/concentration-curl-1.webp",
+    "assets/exercises/frames/concentration-curl-2.webp",
+    "assets/exercises/frames/concentration-curl-3.webp"
+   ]
+  },
+  {
+   "id": "ez-bar-curl",
+   "name": "EZ 槓彎舉",
+   "aliases": [
+    "EZ-Bar Curl",
+    "曲槓彎舉"
+   ],
+   "equipment": "ezBar",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/ez-bar-curl-1.webp",
+    "assets/exercises/frames/ez-bar-curl-2.webp",
+    "assets/exercises/frames/ez-bar-curl-3.webp"
+   ]
+  },
+  {
+   "id": "spider-curl",
+   "name": "蜘蛛彎舉",
+   "aliases": [
+    "Spider Curl"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/spider-curl-1.webp",
+    "assets/exercises/frames/spider-curl-2.webp",
+    "assets/exercises/frames/spider-curl-3.webp"
+   ]
+  },
+  {
+   "id": "drag-curl",
+   "name": "拖曳彎舉",
+   "aliases": [
+    "Drag Curl"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "biceps"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/drag-curl-1.webp",
+    "assets/exercises/frames/drag-curl-2.webp",
+    "assets/exercises/frames/drag-curl-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-curl",
+   "name": "反握彎舉",
+   "aliases": [
+    "Reverse Curl"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "forearms"
+   ],
+   "secondaryMuscles": [
+    "biceps"
+   ],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "reverse-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/reverse-curl-1.webp",
+    "assets/exercises/frames/reverse-curl-2.webp",
+    "assets/exercises/frames/reverse-curl-3.webp"
+   ]
+  },
+  {
+   "id": "wrist-curl",
+   "name": "腕屈",
+   "aliases": [
+    "Wrist Curl",
+    "手腕彎舉"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "forearms"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "wrist-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/wrist-curl-1.webp",
+    "assets/exercises/frames/wrist-curl-2.webp",
+    "assets/exercises/frames/wrist-curl-3.webp"
+   ]
+  },
+  {
+   "id": "wrist-extension",
+   "name": "腕伸",
+   "aliases": [
+    "Wrist Extension",
+    "反握手腕彎舉"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "forearms"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "wrist-curl",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/wrist-extension-1.webp",
+    "assets/exercises/frames/wrist-extension-2.webp",
+    "assets/exercises/frames/wrist-extension-3.webp"
+   ]
+  },
+  {
+   "id": "farmer-carry",
+   "name": "農夫走路",
+   "aliases": [
+    "Farmer Carry",
+    "農夫行走"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "forearms"
+   ],
+   "secondaryMuscles": [
+    "traps",
+    "abs",
+    "obliques"
+   ],
+   "pattern": "carry",
+   "laterality": "bilateral",
+   "family": "carry",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/farmer-carry-1.webp",
+    "assets/exercises/frames/farmer-carry-2.webp",
+    "assets/exercises/frames/farmer-carry-3.webp"
+   ]
+  },
+  {
+   "id": "tricep-pushdown",
+   "name": "滑輪三頭下壓",
+   "aliases": [
+    "Tricep Pushdown",
+    "三頭下壓"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "triceps-pushdown",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/tricep-pushdown-1.webp",
+    "assets/exercises/frames/tricep-pushdown-2.webp",
+    "assets/exercises/frames/tricep-pushdown-3.webp"
+   ]
+  },
+  {
+   "id": "rope-tricep-pushdown",
+   "name": "繩索三頭下壓",
+   "aliases": [
+    "Rope Tricep Pushdown"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "triceps-pushdown",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/rope-tricep-pushdown-1.webp",
+    "assets/exercises/frames/rope-tricep-pushdown-2.webp",
+    "assets/exercises/frames/rope-tricep-pushdown-3.webp"
+   ]
+  },
+  {
+   "id": "overhead-tricep-extension",
+   "name": "滑輪過頭三頭伸展",
+   "aliases": [
+    "Overhead Tricep Extension"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "overhead-triceps",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/overhead-tricep-extension-1.webp",
+    "assets/exercises/frames/overhead-tricep-extension-2.webp",
+    "assets/exercises/frames/overhead-tricep-extension-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-overhead-tricep-extension",
+   "name": "啞鈴過頭三頭伸展",
+   "aliases": [
+    "Dumbbell Overhead Tricep Extension"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "overhead-triceps",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-overhead-tricep-extension-1.webp",
+    "assets/exercises/frames/dumbbell-overhead-tricep-extension-2.webp",
+    "assets/exercises/frames/dumbbell-overhead-tricep-extension-3.webp"
+   ]
+  },
+  {
+   "id": "single-arm-dumbbell-tricep-extension",
+   "name": "單臂啞鈴過頭三頭伸展",
+   "aliases": [
+    "Single Arm Dumbbell Tricep Extension"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "unilateral",
+   "family": "overhead-triceps",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/single-arm-dumbbell-tricep-extension-1.webp",
+    "assets/exercises/frames/single-arm-dumbbell-tricep-extension-2.webp",
+    "assets/exercises/frames/single-arm-dumbbell-tricep-extension-3.webp"
+   ]
+  },
+  {
+   "id": "skull-crusher",
+   "name": "仰臥三頭伸展",
+   "aliases": [
+    "Skull Crusher",
+    "碎顱者"
+   ],
+   "equipment": "ezBar",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "skull-crusher",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/skull-crusher-1.webp",
+    "assets/exercises/frames/skull-crusher-2.webp",
+    "assets/exercises/frames/skull-crusher-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-skull-crusher",
+   "name": "啞鈴仰臥三頭伸展",
+   "aliases": [
+    "Two Dumbbell Skullcrusher"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "skull-crusher",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-skull-crusher-1.webp",
+    "assets/exercises/frames/dumbbell-skull-crusher-2.webp",
+    "assets/exercises/frames/dumbbell-skull-crusher-3.webp"
+   ]
+  },
+  {
+   "id": "single-dumbbell-skullcrusher",
+   "name": "單啞鈴仰臥三頭伸展",
+   "aliases": [
+    "Single Dumbbell Skullcrusher"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "skull-crusher",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/single-dumbbell-skullcrusher-1.webp",
+    "assets/exercises/frames/single-dumbbell-skullcrusher-2.webp",
+    "assets/exercises/frames/single-dumbbell-skullcrusher-3.webp"
+   ]
+  },
+  {
+   "id": "tricep-kickback",
+   "name": "啞鈴三頭後伸",
+   "aliases": [
+    "Tricep Kickback",
+    "三頭後踢"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "isolation",
+   "laterality": "bilateral",
+   "family": "triceps-kickback",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/tricep-kickback-1.webp",
+    "assets/exercises/frames/tricep-kickback-2.webp",
+    "assets/exercises/frames/tricep-kickback-3.webp"
+   ]
+  },
+  {
+   "id": "close-grip-bench-press",
+   "name": "窄握臥推",
+   "aliases": [
+    "Close-Grip Bench Press"
+   ],
+   "equipment": "barbell",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "bench-press",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/close-grip-bench-press-1.webp",
+    "assets/exercises/frames/close-grip-bench-press-2.webp",
+    "assets/exercises/frames/close-grip-bench-press-3.webp"
+   ]
+  },
+  {
+   "id": "diamond-push-up",
+   "name": "鑽石伏地挺身",
+   "aliases": [
+    "Diamond Push-up",
+    "窄距伏地挺身"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts"
+   ],
+   "pattern": "horizontalPush",
+   "laterality": "bilateral",
+   "family": "push-up",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/diamond-push-up-1.webp",
+    "assets/exercises/frames/diamond-push-up-2.webp",
+    "assets/exercises/frames/diamond-push-up-3.webp"
+   ]
+  },
+  {
+   "id": "dip",
+   "name": "雙槓撐體",
+   "aliases": [
+    "Dip",
+    "撐體"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/dip-1.webp",
+    "assets/exercises/frames/dip-2.webp",
+    "assets/exercises/frames/dip-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-dip",
+   "name": "負重雙槓撐體",
+   "aliases": [
+    "Weighted Dip"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-dip-1.webp",
+    "assets/exercises/frames/weighted-dip-2.webp",
+    "assets/exercises/frames/weighted-dip-3.webp"
+   ]
+  },
+  {
+   "id": "assisted-dip",
+   "name": "輔助雙槓撐體",
+   "aliases": [
+    "Assisted Dip"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "chest"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/assisted-dip-1.webp",
+    "assets/exercises/frames/assisted-dip-2.webp",
+    "assets/exercises/frames/assisted-dip-3.webp"
+   ]
+  },
+  {
+   "id": "bench-dip",
+   "name": "板凳撐體",
+   "aliases": [
+    "Bench Dip",
+    "椅子撐體"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/bench-dip-1.webp",
+    "assets/exercises/frames/bench-dip-2.webp",
+    "assets/exercises/frames/bench-dip-3.webp"
+   ]
+  },
+  {
+   "id": "chair-dip",
+   "name": "椅子撐體",
+   "aliases": [
+    "Chair Dip"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "verticalPush",
+   "laterality": "bilateral",
+   "family": "dip",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/chair-dip-1.webp",
+    "assets/exercises/frames/chair-dip-2.webp",
+    "assets/exercises/frames/chair-dip-3.webp"
+   ]
+  },
+  {
+   "id": "crab-walk",
+   "name": "螃蟹走",
+   "aliases": [
+    "Crab Walk"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "triceps"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "abs"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "crawl",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/crab-walk-1.webp",
+    "assets/exercises/frames/crab-walk-2.webp",
+    "assets/exercises/frames/crab-walk-3.webp"
+   ]
+  },
+  {
+   "id": "plank",
+   "name": "棒式",
+   "aliases": [
+    "Plank",
+    "平板支撐"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "obliques",
+    "frontDelts"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "plank",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/plank-1.webp",
+    "assets/exercises/frames/plank-2.webp",
+    "assets/exercises/frames/plank-3.webp"
+   ]
+  },
+  {
+   "id": "side-plank",
+   "name": "側棒式",
+   "aliases": [
+    "Side Plank",
+    "側平板支撐"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs",
+    "abductors"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "side-plank",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/side-plank-1.webp",
+    "assets/exercises/frames/side-plank-2.webp",
+    "assets/exercises/frames/side-plank-3.webp"
+   ]
+  },
+  {
+   "id": "side-plank-hip-dip",
+   "name": "側棒式髖下沉",
+   "aliases": [
+    "Side Plank Hip Dip"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "side-plank",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/side-plank-hip-dip-1.webp",
+    "assets/exercises/frames/side-plank-hip-dip-2.webp",
+    "assets/exercises/frames/side-plank-hip-dip-3.webp"
+   ]
+  },
+  {
+   "id": "plank-shoulder-tap",
+   "name": "棒式拍肩",
+   "aliases": [
+    "Plank Shoulder Tap"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "obliques",
+    "frontDelts"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "plank",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/plank-shoulder-tap-1.webp",
+    "assets/exercises/frames/plank-shoulder-tap-2.webp",
+    "assets/exercises/frames/plank-shoulder-tap-3.webp"
+   ]
+  },
+  {
+   "id": "push-up-shoulder-tap",
+   "name": "伏地挺身拍肩",
+   "aliases": [
+    "Push-up Shoulder Tap"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts",
+    "triceps"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "plank",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/push-up-shoulder-tap-1.webp",
+    "assets/exercises/frames/push-up-shoulder-tap-2.webp",
+    "assets/exercises/frames/push-up-shoulder-tap-3.webp"
+   ]
+  },
+  {
+   "id": "plank-jack",
+   "name": "棒式開合跳",
+   "aliases": [
+    "Plank Jack"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "plank",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/plank-jack-1.webp",
+    "assets/exercises/frames/plank-jack-2.webp",
+    "assets/exercises/frames/plank-jack-3.webp"
+   ]
+  },
+  {
+   "id": "bear-plank",
+   "name": "熊式棒式",
+   "aliases": [
+    "Bear Plank"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "frontDelts"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "plank",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/bear-plank-1.webp",
+    "assets/exercises/frames/bear-plank-2.webp",
+    "assets/exercises/frames/bear-plank-3.webp"
+   ]
+  },
+  {
+   "id": "bear-crawl",
+   "name": "熊爬",
+   "aliases": [
+    "Bear Crawl"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "quads"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "crawl",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/bear-crawl-1.webp",
+    "assets/exercises/frames/bear-crawl-2.webp",
+    "assets/exercises/frames/bear-crawl-3.webp"
+   ]
+  },
+  {
+   "id": "hollow-body-hold",
+   "name": "空心支撐",
+   "aliases": [
+    "Hollow Body Hold"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "hollow-body",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/hollow-body-hold-1.webp",
+    "assets/exercises/frames/hollow-body-hold-2.webp",
+    "assets/exercises/frames/hollow-body-hold-3.webp"
+   ]
+  },
+  {
+   "id": "hollow-rock",
+   "name": "空心搖擺",
+   "aliases": [
+    "Hollow Rock"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "hollow-body",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/hollow-rock-1.webp",
+    "assets/exercises/frames/hollow-rock-2.webp",
+    "assets/exercises/frames/hollow-rock-3.webp"
+   ]
+  },
+  {
+   "id": "l-sit-hold",
+   "name": "L 坐",
+   "aliases": [
+    "L-Sit Hold"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "triceps"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "hollow-body",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/l-sit-hold-1.webp",
+    "assets/exercises/frames/l-sit-hold-2.webp",
+    "assets/exercises/frames/l-sit-hold-3.webp"
+   ]
+  },
+  {
+   "id": "dead-bug",
+   "name": "死蟲式",
+   "aliases": [
+    "Dead Bug"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "obliques"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "dead-bug",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/dead-bug-1.webp",
+    "assets/exercises/frames/dead-bug-2.webp",
+    "assets/exercises/frames/dead-bug-3.webp"
+   ]
+  },
+  {
+   "id": "banded-dead-bug",
+   "name": "彈力帶死蟲式",
+   "aliases": [
+    "Banded Dead Bug"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "obliques"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "dead-bug",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-dead-bug-1.webp",
+    "assets/exercises/frames/banded-dead-bug-2.webp",
+    "assets/exercises/frames/banded-dead-bug-3.webp"
+   ]
+  },
+  {
+   "id": "bird-dog",
+   "name": "鳥狗式",
+   "aliases": [
+    "Bird Dog"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "spinalErectors"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "bird-dog",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/bird-dog-1.webp",
+    "assets/exercises/frames/bird-dog-2.webp",
+    "assets/exercises/frames/bird-dog-3.webp"
+   ]
+  },
+  {
+   "id": "crunch",
+   "name": "捲腹",
+   "aliases": [
+    "Crunch",
+    "仰臥捲腹"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/crunch-1.webp",
+    "assets/exercises/frames/crunch-2.webp",
+    "assets/exercises/frames/crunch-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-crunch",
+   "name": "負重捲腹",
+   "aliases": [
+    "Weighted Crunch"
+   ],
+   "equipment": "plate",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-crunch-1.webp",
+    "assets/exercises/frames/weighted-crunch-2.webp",
+    "assets/exercises/frames/weighted-crunch-3.webp"
+   ]
+  },
+  {
+   "id": "cable-crunch",
+   "name": "滑輪捲腹",
+   "aliases": [
+    "Cable Crunch",
+    "跪姿繩索捲腹"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-crunch-1.webp",
+    "assets/exercises/frames/cable-crunch-2.webp",
+    "assets/exercises/frames/cable-crunch-3.webp"
+   ]
+  },
+  {
+   "id": "reverse-crunch",
+   "name": "反向捲腹",
+   "aliases": [
+    "Reverse Crunch"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/reverse-crunch-1.webp",
+    "assets/exercises/frames/reverse-crunch-2.webp",
+    "assets/exercises/frames/reverse-crunch-3.webp"
+   ]
+  },
+  {
+   "id": "bicycle-crunch",
+   "name": "腳踏車捲腹",
+   "aliases": [
+    "Bicycle Crunch"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "obliques"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/bicycle-crunch-1.webp",
+    "assets/exercises/frames/bicycle-crunch-2.webp",
+    "assets/exercises/frames/bicycle-crunch-3.webp"
+   ]
+  },
+  {
+   "id": "decline-sit-up",
+   "name": "下斜仰臥起坐",
+   "aliases": [
+    "Decline Sit-Up",
+    "仰臥起坐"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/decline-sit-up-1.webp",
+    "assets/exercises/frames/decline-sit-up-2.webp",
+    "assets/exercises/frames/decline-sit-up-3.webp"
+   ]
+  },
+  {
+   "id": "toe-touch",
+   "name": "仰臥觸腳尖",
+   "aliases": [
+    "Toe Touch"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/toe-touch-1.webp",
+    "assets/exercises/frames/toe-touch-2.webp",
+    "assets/exercises/frames/toe-touch-3.webp"
+   ]
+  },
+  {
+   "id": "heel-tap",
+   "name": "仰臥觸腳跟",
+   "aliases": [
+    "Heel Tap"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/heel-tap-1.webp",
+    "assets/exercises/frames/heel-tap-2.webp",
+    "assets/exercises/frames/heel-tap-3.webp"
+   ]
+  },
+  {
+   "id": "v-up",
+   "name": "V 字起身",
+   "aliases": [
+    "V-Up",
+    "V字捲腹"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crunch",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/v-up-1.webp",
+    "assets/exercises/frames/v-up-2.webp",
+    "assets/exercises/frames/v-up-3.webp"
+   ]
+  },
+  {
+   "id": "seated-knee-tuck",
+   "name": "坐姿收腿",
+   "aliases": [
+    "Seated Knee Tuck"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/seated-knee-tuck-1.webp",
+    "assets/exercises/frames/seated-knee-tuck-2.webp",
+    "assets/exercises/frames/seated-knee-tuck-3.webp"
+   ]
+  },
+  {
+   "id": "hanging-leg-raise",
+   "name": "懸垂舉腿",
+   "aliases": [
+    "Hanging Leg Raise",
+    "懸吊抬腿"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/hanging-leg-raise-1.webp",
+    "assets/exercises/frames/hanging-leg-raise-2.webp",
+    "assets/exercises/frames/hanging-leg-raise-3.webp"
+   ]
+  },
+  {
+   "id": "hanging-knee-raise",
+   "name": "懸垂屈膝舉腿",
+   "aliases": [
+    "Hanging Knee Raise"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "forearms"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/hanging-knee-raise-1.webp",
+    "assets/exercises/frames/hanging-knee-raise-2.webp",
+    "assets/exercises/frames/hanging-knee-raise-3.webp"
+   ]
+  },
+  {
+   "id": "captains-chair-knee-raise",
+   "name": "艦長椅抬膝",
+   "aliases": [
+    "Captain's Chair Knee Raise",
+    "羅馬椅抬膝"
+   ],
+   "equipment": "machine",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/captains-chair-knee-raise-1.webp",
+    "assets/exercises/frames/captains-chair-knee-raise-2.webp",
+    "assets/exercises/frames/captains-chair-knee-raise-3.webp"
+   ]
+  },
+  {
+   "id": "lying-leg-raise",
+   "name": "仰臥抬腿",
+   "aliases": [
+    "Lying Leg Raise"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/lying-leg-raise-1.webp",
+    "assets/exercises/frames/lying-leg-raise-2.webp",
+    "assets/exercises/frames/lying-leg-raise-3.webp"
+   ]
+  },
+  {
+   "id": "flutter-kick",
+   "name": "交替踢腿",
+   "aliases": [
+    "Flutter Kick",
+    "仰臥剪刀腳"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "leg-raise",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/flutter-kick-1.webp",
+    "assets/exercises/frames/flutter-kick-2.webp",
+    "assets/exercises/frames/flutter-kick-3.webp"
+   ]
+  },
+  {
+   "id": "dragon-flag",
+   "name": "龍旗",
+   "aliases": [
+    "Dragon Flag"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "lats"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "leg-raise",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/dragon-flag-1.webp",
+    "assets/exercises/frames/dragon-flag-2.webp",
+    "assets/exercises/frames/dragon-flag-3.webp"
+   ]
+  },
+  {
+   "id": "ab-wheel",
+   "name": "健腹輪",
+   "aliases": [
+    "Ab Wheel Rollout",
+    "滾輪"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "lats"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "rollout",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/ab-wheel-1.webp",
+    "assets/exercises/frames/ab-wheel-2.webp",
+    "assets/exercises/frames/ab-wheel-3.webp"
+   ]
+  },
+  {
+   "id": "russian-twist",
+   "name": "俄羅斯轉體",
+   "aliases": [
+    "Russian Twist"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "rotation",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/russian-twist-1.webp",
+    "assets/exercises/frames/russian-twist-2.webp",
+    "assets/exercises/frames/russian-twist-3.webp"
+   ]
+  },
+  {
+   "id": "weighted-russian-twist",
+   "name": "負重俄羅斯轉體",
+   "aliases": [
+    "Weighted Russian Twist"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "alternating",
+   "family": "rotation",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/weighted-russian-twist-1.webp",
+    "assets/exercises/frames/weighted-russian-twist-2.webp",
+    "assets/exercises/frames/weighted-russian-twist-3.webp"
+   ]
+  },
+  {
+   "id": "cable-woodchop",
+   "name": "滑輪伐木",
+   "aliases": [
+    "Cable Woodchop",
+    "繩索伐木"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "rotation",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/cable-woodchop-1.webp",
+    "assets/exercises/frames/cable-woodchop-2.webp",
+    "assets/exercises/frames/cable-woodchop-3.webp"
+   ]
+  },
+  {
+   "id": "banded-woodchop",
+   "name": "彈力帶伐木",
+   "aliases": [
+    "Banded Woodchop"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "rotation",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-woodchop-1.webp",
+    "assets/exercises/frames/banded-woodchop-2.webp",
+    "assets/exercises/frames/banded-woodchop-3.webp"
+   ]
+  },
+  {
+   "id": "pallof-press",
+   "name": "Pallof 抗旋轉推",
+   "aliases": [
+    "Pallof Press",
+    "抗旋轉推"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "anti-rotation",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/pallof-press-1.webp",
+    "assets/exercises/frames/pallof-press-2.webp",
+    "assets/exercises/frames/pallof-press-3.webp"
+   ]
+  },
+  {
+   "id": "half-kneeling-pallof-press",
+   "name": "半跪姿 Pallof 推",
+   "aliases": [
+    "Half-Kneeling Pallof Press"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs",
+    "glutes"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "anti-rotation",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/half-kneeling-pallof-press-1.webp",
+    "assets/exercises/frames/half-kneeling-pallof-press-2.webp",
+    "assets/exercises/frames/half-kneeling-pallof-press-3.webp"
+   ]
+  },
+  {
+   "id": "cable-pallof-hold",
+   "name": "Pallof 靜止",
+   "aliases": [
+    "Cable Pallof Hold"
+   ],
+   "equipment": "cable",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "anti-rotation",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/cable-pallof-hold-1.webp",
+    "assets/exercises/frames/cable-pallof-hold-2.webp",
+    "assets/exercises/frames/cable-pallof-hold-3.webp"
+   ]
+  },
+  {
+   "id": "banded-pallof-press",
+   "name": "彈力帶 Pallof 推",
+   "aliases": [
+    "Banded Pallof Press"
+   ],
+   "equipment": "band",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "anti-rotation",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/banded-pallof-press-1.webp",
+    "assets/exercises/frames/banded-pallof-press-2.webp",
+    "assets/exercises/frames/banded-pallof-press-3.webp"
+   ]
+  },
+  {
+   "id": "dumbbell-side-bend",
+   "name": "啞鈴側彎",
+   "aliases": [
+    "Dumbbell Side Bend"
+   ],
+   "equipment": "dumbbell",
+   "primaryMuscles": [
+    "obliques"
+   ],
+   "secondaryMuscles": [],
+   "pattern": "core",
+   "laterality": "unilateral",
+   "family": "side-bend",
+   "trackingType": "weightReps",
+   "frames": [
+    "assets/exercises/frames/dumbbell-side-bend-1.webp",
+    "assets/exercises/frames/dumbbell-side-bend-2.webp",
+    "assets/exercises/frames/dumbbell-side-bend-3.webp"
+   ]
+  },
+  {
+   "id": "inchworm",
+   "name": "尺蠖爬",
+   "aliases": [
+    "Inchworm"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "hamstrings"
+   ],
+   "pattern": "core",
+   "laterality": "bilateral",
+   "family": "crawl",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/inchworm-1.webp",
+    "assets/exercises/frames/inchworm-2.webp",
+    "assets/exercises/frames/inchworm-3.webp"
+   ]
+  },
+  {
+   "id": "mountain-climber",
+   "name": "登山者",
+   "aliases": [
+    "Mountain Climber"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "frontDelts",
+    "quads"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "mountain-climber",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/mountain-climber-1.webp",
+    "assets/exercises/frames/mountain-climber-2.webp",
+    "assets/exercises/frames/mountain-climber-3.webp"
+   ]
+  },
+  {
+   "id": "burpee",
+   "name": "波比跳",
+   "aliases": [
+    "Burpee",
+    "波比"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "chest",
+    "frontDelts",
+    "abs"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "burpee",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/burpee-1.webp",
+    "assets/exercises/frames/burpee-2.webp",
+    "assets/exercises/frames/burpee-3.webp"
+   ]
+  },
+  {
+   "id": "half-burpee",
+   "name": "半波比",
+   "aliases": [
+    "Half Burpee"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "burpee",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/half-burpee-1.webp",
+    "assets/exercises/frames/half-burpee-2.webp",
+    "assets/exercises/frames/half-burpee-3.webp"
+   ]
+  },
+  {
+   "id": "squat-thrust",
+   "name": "深蹲推",
+   "aliases": [
+    "Squat Thrust"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "abs"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "burpee",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/squat-thrust-1.webp",
+    "assets/exercises/frames/squat-thrust-2.webp",
+    "assets/exercises/frames/squat-thrust-3.webp"
+   ]
+  },
+  {
+   "id": "sprawl",
+   "name": "防摔撲地",
+   "aliases": [
+    "Sprawl"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "abs",
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "burpee",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/sprawl-1.webp",
+    "assets/exercises/frames/sprawl-2.webp",
+    "assets/exercises/frames/sprawl-3.webp"
+   ]
+  },
+  {
+   "id": "high-knees",
+   "name": "高抬腿",
+   "aliases": [
+    "High Knees"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "abs"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "high-knees",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/high-knees-1.webp",
+    "assets/exercises/frames/high-knees-2.webp",
+    "assets/exercises/frames/high-knees-3.webp"
+   ]
+  },
+  {
+   "id": "jumping-jack",
+   "name": "開合跳",
+   "aliases": [
+    "Jumping Jack"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "sideDelts",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "jumping-jack",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/jumping-jack-1.webp",
+    "assets/exercises/frames/jumping-jack-2.webp",
+    "assets/exercises/frames/jumping-jack-3.webp"
+   ]
+  },
+  {
+   "id": "skater-hop",
+   "name": "溜冰者跳",
+   "aliases": [
+    "Skater Hop"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "skater-hop",
+   "trackingType": "reps",
+   "frames": [
+    "assets/exercises/frames/skater-hop-1.webp",
+    "assets/exercises/frames/skater-hop-2.webp",
+    "assets/exercises/frames/skater-hop-3.webp"
+   ]
+  },
+  {
+   "id": "lateral-shuffle",
+   "name": "側向滑步",
+   "aliases": [
+    "Lateral Shuffle"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "shuffle",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/lateral-shuffle-1.webp",
+    "assets/exercises/frames/lateral-shuffle-2.webp",
+    "assets/exercises/frames/lateral-shuffle-3.webp"
+   ]
+  },
+  {
+   "id": "fast-feet",
+   "name": "快速小碎步",
+   "aliases": [
+    "Fast Feet"
+   ],
+   "equipment": "bodyweight",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [
+    "quads"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "shuffle",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/fast-feet-1.webp",
+    "assets/exercises/frames/fast-feet-2.webp",
+    "assets/exercises/frames/fast-feet-3.webp"
+   ]
+  },
+  {
+   "id": "jump-rope",
+   "name": "跳繩",
+   "aliases": [
+    "Jump Rope"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "calves"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "jump-rope",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/jump-rope-1.webp",
+    "assets/exercises/frames/jump-rope-2.webp",
+    "assets/exercises/frames/jump-rope-3.webp"
+   ]
+  },
+  {
+   "id": "running",
+   "name": "跑步",
+   "aliases": [
+    "Running"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "hamstrings",
+    "calves",
+    "glutes"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "running",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/running-1.webp",
+    "assets/exercises/frames/running-2.webp",
+    "assets/exercises/frames/running-3.webp"
+   ]
+  },
+  {
+   "id": "treadmill-incline-walk",
+   "name": "跑步機爬坡走",
+   "aliases": [
+    "Treadmill Incline Walk",
+    "坡度走"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "glutes"
+   ],
+   "secondaryMuscles": [
+    "calves",
+    "hamstrings"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "walking",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/treadmill-incline-walk-1.webp",
+    "assets/exercises/frames/treadmill-incline-walk-2.webp",
+    "assets/exercises/frames/treadmill-incline-walk-3.webp"
+   ]
+  },
+  {
+   "id": "walking",
+   "name": "健走",
+   "aliases": [
+    "Walking",
+    "走路"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "calves",
+    "glutes"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "walking",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/walking-1.webp",
+    "assets/exercises/frames/walking-2.webp",
+    "assets/exercises/frames/walking-3.webp"
+   ]
+  },
+  {
+   "id": "hiking",
+   "name": "健行",
+   "aliases": [
+    "Hiking",
+    "登山"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "walking",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/hiking-1.webp",
+    "assets/exercises/frames/hiking-2.webp",
+    "assets/exercises/frames/hiking-3.webp"
+   ]
+  },
+  {
+   "id": "cycling",
+   "name": "飛輪",
+   "aliases": [
+    "Cycling",
+    "腳踏車",
+    "騎車"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "cycling",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/cycling-1.webp",
+    "assets/exercises/frames/cycling-2.webp",
+    "assets/exercises/frames/cycling-3.webp"
+   ]
+  },
+  {
+   "id": "assault-bike",
+   "name": "風扇車",
+   "aliases": [
+    "Assault Bike",
+    "風阻單車"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "cycling",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/assault-bike-1.webp",
+    "assets/exercises/frames/assault-bike-2.webp",
+    "assets/exercises/frames/assault-bike-3.webp"
+   ]
+  },
+  {
+   "id": "elliptical",
+   "name": "滑步機",
+   "aliases": [
+    "Elliptical",
+    "橢圓機"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "elliptical",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/elliptical-1.webp",
+    "assets/exercises/frames/elliptical-2.webp",
+    "assets/exercises/frames/elliptical-3.webp"
+   ]
+  },
+  {
+   "id": "stair-climber",
+   "name": "爬梯機",
+   "aliases": [
+    "Stair Climber"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "quads"
+   ],
+   "secondaryMuscles": [
+    "glutes",
+    "calves"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "stair-climber",
+   "trackingType": "duration",
+   "frames": [
+    "assets/exercises/frames/stair-climber-1.webp",
+    "assets/exercises/frames/stair-climber-2.webp",
+    "assets/exercises/frames/stair-climber-3.webp"
+   ]
+  },
+  {
+   "id": "rowing",
+   "name": "划船機",
+   "aliases": [
+    "Rowing"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "quads",
+    "upperBack"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "rowing",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/rowing-1.webp",
+    "assets/exercises/frames/rowing-2.webp",
+    "assets/exercises/frames/rowing-3.webp"
+   ]
+  },
+  {
+   "id": "skierg",
+   "name": "滑雪機",
+   "aliases": [
+    "SkiErg",
+    "SkiErg"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "triceps",
+    "abs"
+   ],
+   "pattern": "conditioning",
+   "laterality": "bilateral",
+   "family": "skierg",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/skierg-1.webp",
+    "assets/exercises/frames/skierg-2.webp",
+    "assets/exercises/frames/skierg-3.webp"
+   ]
+  },
+  {
+   "id": "swimming",
+   "name": "游泳",
+   "aliases": [
+    "Swimming"
+   ],
+   "equipment": "cardio",
+   "primaryMuscles": [
+    "lats"
+   ],
+   "secondaryMuscles": [
+    "frontDelts"
+   ],
+   "pattern": "conditioning",
+   "laterality": "alternating",
+   "family": "swimming",
+   "trackingType": "distance",
+   "frames": [
+    "assets/exercises/frames/swimming-1.webp",
+    "assets/exercises/frames/swimming-2.webp",
+    "assets/exercises/frames/swimming-3.webp"
+   ]
+  }
+ ]
+}

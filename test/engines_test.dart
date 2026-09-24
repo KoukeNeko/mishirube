@@ -1081,10 +1081,10 @@ void main() {
       ]);
 
       expect(load, [
-        (MuscleGroup.quads, 6),
         (MuscleGroup.glutes, 6),
+        (MuscleGroup.quads, 6),
         (MuscleGroup.arms, 4),
-      ]);
+      ], reason: 'a tie keeps the order muscles are listed in');
       expect(
         load.map((entry) => entry.$1),
         isNot(contains(MuscleGroup.core)),

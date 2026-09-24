@@ -5,26 +5,6 @@ import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 
-const _muscleShortcuts = [
-  MuscleGroup.chest,
-  MuscleGroup.back,
-  MuscleGroup.shoulders,
-  MuscleGroup.quads,
-  MuscleGroup.glutes,
-  MuscleGroup.hamstrings,
-  MuscleGroup.arms,
-  MuscleGroup.core,
-];
-
-const _equipmentOptions = [
-  Equipment.barbell,
-  Equipment.dumbbell,
-  Equipment.cable,
-  Equipment.machine,
-  Equipment.kettlebell,
-  Equipment.bodyweight,
-];
-
 /// Full-screen filter; pops with the new [ExerciseFilter].
 class ExerciseFilterScreen extends StatefulWidget {
   const ExerciseFilterScreen({super.key, required this.initial});
@@ -65,21 +45,30 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
             ).withWidth(120),
           ),
         ),
-        Gutter(
-          child: _FilterGroup(
-            title: '主要肌群',
-            options: _muscleShortcuts,
-            labelOf: (muscle) => muscle.label,
-            selected: _filter.muscles,
-            onToggle: (muscle) => _update(
-              _filter.copyWith(muscles: toggled(_filter.muscles, muscle)),
+        // One row a region: the region as a whole first where there is
+        // one, then each muscle in it.
+        for (final region in BodyRegion.values)
+          Gutter(
+            child: _FilterGroup(
+              title: region.label,
+              options: [
+                for (final muscle in MuscleGroup.values)
+                  if (muscle.region == region && muscle.isGeneral) muscle,
+                for (final muscle in MuscleGroup.values)
+                  if (muscle.region == region && !muscle.isGeneral) muscle,
+              ],
+              labelOf: (muscle) =>
+                  muscle.isGeneral ? '整個${muscle.label}' : muscle.label,
+              selected: _filter.muscles,
+              onToggle: (muscle) => _update(
+                _filter.copyWith(muscles: toggled(_filter.muscles, muscle)),
+              ),
             ),
           ),
-        ),
         Gutter(
           child: _FilterGroup(
             title: '器材',
-            options: _equipmentOptions,
+            options: Equipment.values,
             labelOf: (item) => item.label,
             selected: _filter.equipment,
             onToggle: (item) => _update(

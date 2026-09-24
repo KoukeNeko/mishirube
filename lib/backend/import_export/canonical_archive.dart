@@ -93,6 +93,9 @@ const _tables = [
     _Column('is_favorite', _Kind.boolean),
     _Column('is_hidden', _Kind.boolean),
     _Column('is_in_home_gym', _Kind.boolean),
+    _Column('laterality', _Kind.text),
+    _Column('family', _Kind.text),
+    _Column('frames', _Kind.json),
     ..._entity,
   ], orderBy: 'id'),
   _Table('externalExerciseNames', 'external_exercise_names', [

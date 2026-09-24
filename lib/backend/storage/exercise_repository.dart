@@ -160,6 +160,9 @@ class ExerciseRepository {
         exercise.isFavorite ? 1 : 0,
         exercise.isHidden ? 1 : 0,
         exercise.isInHomeGym ? 1 : 0,
+        exercise.laterality.name,
+        exercise.family,
+        jsonEncode(exercise.frames),
       ];
       if (exists) {
         _db.execute(
@@ -167,19 +170,29 @@ class ExerciseRepository {
           'equipment = ?, '
           'primary_muscles = ?, secondary_muscles = ?, pattern = ?, '
           'tracking_type = ?, ownership = ?, cues = ?, is_favorite = ?, '
-          'is_hidden = ?, is_in_home_gym = ?, updated_at = ?, '
+          'is_hidden = ?, is_in_home_gym = ?, laterality = ?, family = ?, '
+          'frames = ?, updated_at = ?, '
           'revision = revision + 1 '
           'WHERE id = ?',
           [...values, now, exercise.id],
         );
+        // The shipped library takes over an exercise it names: it is the
+        // library's from then on, not demo data the demo switch hides.
+        if (source == ChangeSource.catalogue) {
+          _db.execute(
+            'UPDATE exercises SET source = ?, deleted_at = NULL WHERE id = ?',
+            [source.name, exercise.id],
+          );
+        }
       } else {
         _db.execute(
           'INSERT INTO exercises (name, aliases, personal_aliases, '
           'equipment, primary_muscles, '
           'secondary_muscles, pattern, tracking_type, ownership, cues, '
-          'is_favorite, is_hidden, is_in_home_gym, id, created_at, '
-          'updated_at, source, import_batch_id) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_favorite, is_hidden, is_in_home_gym, laterality, family, '
+          'frames, id, created_at, updated_at, source, import_batch_id) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
+          '?)',
           [...values, exercise.id, now, now, source.name, importBatchId],
         );
       }
@@ -331,6 +344,9 @@ class ExerciseRepository {
       isFavorite: row['is_favorite'] == 1,
       isHidden: row['is_hidden'] == 1,
       isInHomeGym: row['is_in_home_gym'] == 1,
+      laterality: Laterality.values.byName(row['laterality']),
+      family: row['family'],
+      frames: _strings(row['frames']),
       recordCount: history.sessionCount,
       lastPerformance: last == null
           ? null

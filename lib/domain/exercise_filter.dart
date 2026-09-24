@@ -40,14 +40,14 @@ class ExerciseFilter {
   ].join(' · ');
 
   bool matches(ExerciseDefinition exercise) =>
-      _allows(muscles, exercise.primaryMuscles) &&
+      (muscles.isEmpty ||
+          exercise.primaryMuscles.any(
+            (muscle) => muscles.any((chosen) => chosen.covers(muscle)),
+          )) &&
       _allowsOne(equipment, exercise.equipment) &&
       _allowsOne(patterns, exercise.pattern) &&
       _allowsOne(trackingTypes, exercise.trackingType) &&
       _allowsOne(sources, exercise.source);
-
-  bool _allows<T>(Set<T> accepted, List<T> values) =>
-      accepted.isEmpty || values.any(accepted.contains);
 
   bool _allowsOne<T>(Set<T> accepted, T value) =>
       accepted.isEmpty || accepted.contains(value);
