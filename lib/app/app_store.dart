@@ -197,16 +197,21 @@ class AppStore extends ChangeNotifier {
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_routine);
 
-  /// The latest weighing and how the trend moved over the last week;
-  /// null for what there are no weighings for.
-  ({BodyWeight? latest, double? weekChange}) get weightSummary {
+  /// The latest weighing, the trend over the last week and how far it
+  /// moved; null for what there are no weighings for.
+  ({BodyWeight? latest, List<double> weekTrend, double? weekChange})
+  get weightSummary {
     final weights = _backend.journal.recentWeights(const Duration(days: 14));
     final from = now().subtract(const Duration(days: 7));
     final week = [
       for (final point in trendOf(weights))
         if (!point.$1.isBefore(from)) point,
     ];
-    return (latest: weights.lastOrNull, weekChange: trendChange(week));
+    return (
+      latest: weights.lastOrNull,
+      weekTrend: [for (final (_, _, trend) in week) trend],
+      weekChange: trendChange(week),
+    );
   }
 
   /// The latest night, if it ended today or yesterday.

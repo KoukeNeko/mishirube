@@ -148,8 +148,8 @@ class TodayScreen extends StatelessWidget {
     ];
   }
 
-  /// A tile for each figure an enabled module keeps, as a grid that adds
-  /// columns when it has room.
+  /// A tile for each figure an enabled module keeps, side by side at one
+  /// height.
   List<Widget> _glance(
     BuildContext context,
     AppStore store,
@@ -157,17 +157,27 @@ class TodayScreen extends StatelessWidget {
     Set<AppModule> modules,
   ) {
     final water = today.water;
+    final night = store.lastNight;
+    final sleepGoal = today.sleepGoal;
     final tiles = [
       if (modules.contains(AppModule.sleep))
         QuickStatTile(
           category: '睡眠',
           color: AppColors.wellness,
-          value: switch (store.lastNight) {
-            final night? => formatHoursMinutes(night.entry.duration),
-            null => '—',
-          },
-          caption: switch (store.lastNight) {
-            null => '沒有紀錄',
+          value: night == null
+              ? null
+              : formatHoursMinutes(night.entry.duration),
+          visual: night != null && sleepGoal != null
+              ? ProgressLine(
+                  progress:
+                      night.entry.duration.inMinutes / sleepGoal.inMinutes,
+                  color: AppColors.wellness,
+                  height: 4,
+                )
+              : null,
+          caption: switch (night) {
+            null => null,
+            _ when sleepGoal != null => '目標 ${formatHoursMinutes(sleepGoal)}',
             final night when night.isTypedIn => '手動輸入',
             final night =>
               night.entry.sourceName.isEmpty
@@ -182,34 +192,26 @@ class TodayScreen extends StatelessWidget {
           category: '喝水',
           color: AppColors.nutrition,
           value: water.times == 0
-              ? '—'
+              ? null
               : formatAmount(water.millilitres.toDouble()),
-          unit: water.times == 0 ? null : 'mL',
-          caption: water.times == 0 ? '沒有紀錄' : '${water.times} 次',
+          unit: 'mL',
+          caption: water.times == 0 ? null : '${water.times} 次',
           onTap: () => pushPage(context, const DailyNutritionScreen()),
         ),
     ];
     if (tiles.isEmpty) return const [];
     return [
       Gutter(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            const minTileWidth = 104.0;
-            final columns = (constraints.maxWidth / minTileWidth).floor().clamp(
-              1,
-              tiles.length,
-            );
-            final width =
-                (constraints.maxWidth - AppSpacing.xs * (columns - 1)) /
-                columns;
-            return Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: [
-                for (final tile in tiles) SizedBox(width: width, child: tile),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, tile) in tiles.indexed) ...[
+                if (i > 0) const SizedBox(width: AppSpacing.xs),
+                Expanded(child: tile),
               ],
-            );
-          },
+            ],
+          ),
         ),
       ),
     ];
@@ -242,38 +244,47 @@ class TodayScreen extends StatelessWidget {
     ];
   }
 
-  /// Every record of today across the app, oldest first; nothing at all
-  /// on a day without any.
+  /// The latest records of today across the app, oldest first, and the
+  /// way to the rest in 紀錄; nothing at all on a day without any.
   List<Widget> _records(BuildContext context, TodayViewModel today) {
-    final records = today.records;
-    if (records.isEmpty) return const [];
+    const shown = 4;
+    final all = today.records;
+    if (all.isEmpty) return const [];
+    final records = all.skip(all.length > shown ? all.length - shown : 0);
     return [
-      PageSection(
-        label: TodaySection.records.label,
-        children: [
-          Gutter(
-            child: GroupedCard(
-              children: [
-                for (final entry in records)
-                  NavRow(
-                    leading: AccentBar(color: entry.category.color, height: 28),
-                    title: entry.title,
-                    subtitle: [
-                      entry.timeLabel,
-                      if (entry.detail.isNotEmpty) entry.detail,
-                    ].join(' · '),
-                    onTap: switch (timelineDestination(
-                      entry,
-                      isSleep: today.isSleep,
-                    )) {
-                      final page? => () => pushPage(context, page),
-                      null => null,
-                    },
-                  ),
-              ],
-            ),
-          ),
-        ],
+      Gutter(
+        child: SectionLabel(
+          TodaySection.records.label,
+          trailing: all.length > shown
+              ? LinkText(
+                  label: '全部 ${all.length} 筆',
+                  onTap: () =>
+                      AppStoreScope.read(context).selectTab(HomeTab.log),
+                )
+              : null,
+        ),
+      ),
+      Gutter(
+        child: GroupedCard(
+          children: [
+            for (final entry in records)
+              NavRow(
+                leading: AccentBar(color: entry.category.color, height: 28),
+                title: entry.title,
+                subtitle: [
+                  entry.timeLabel,
+                  if (entry.detail.isNotEmpty) entry.detail,
+                ].join(' · '),
+                onTap: switch (timelineDestination(
+                  entry,
+                  isSleep: today.isSleep,
+                )) {
+                  final page? => () => pushPage(context, page),
+                  null => null,
+                },
+              ),
+          ],
+        ),
       ),
     ];
   }
@@ -285,14 +296,17 @@ class _WeightTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final (:latest, :weekChange) = store.weightSummary;
+    final (:latest, :weekTrend, :weekChange) = store.weightSummary;
     return QuickStatTile(
       category: '體重',
       color: AppColors.body,
-      value: latest == null ? '—' : formatWeight(latest.weightKg),
-      unit: latest == null ? null : 'kg',
+      value: latest == null ? null : formatWeight(latest.weightKg),
+      unit: 'kg',
+      visual: weekTrend.length < 2
+          ? null
+          : Sparkline(values: weekTrend, color: AppColors.body, height: 20),
       caption: switch ((latest, weekChange)) {
-        (null, _) => '沒有紀錄',
+        (null, _) => null,
         (_, final change?) =>
           '7 日 ${change < 0 ? '−' : '+'}${formatWeight((change.abs() * 10).round() / 10)}',
         _ => '${latest!.measuredAt.month}/${latest.measuredAt.day}',

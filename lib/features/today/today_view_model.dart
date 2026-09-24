@@ -58,6 +58,9 @@ class TodayViewModel extends ViewModel {
     _ => null,
   };
 
+  /// How long a night the user aims for, when they have set it.
+  Duration? get sleepGoal => backend.sleep.goal;
+
   /// Water drunk today.
   WaterLogged get water => summariseWater(backend.nutrition.mealsOn(_today));
 

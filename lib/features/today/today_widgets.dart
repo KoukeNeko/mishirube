@@ -7,7 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 
-const _weekDotSize = 34.0;
+const _weekDotSize = 28.0;
 
 /// The week, Monday to Sunday: a check on each day something was trained
 /// or done, today marked with its date, days to come left open.
@@ -28,10 +28,7 @@ class WeekStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.md,
-      ),
+      padding: const EdgeInsets.all(AppSpacing.sm),
       child: Row(
         children: [
           for (final (day, isActive) in days)
@@ -102,11 +99,13 @@ class _WeekDot extends StatelessWidget {
               '${day.day}',
               style: const TextStyle(
                 color: AppColors.onTraining,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
+                fontFeatures: [FontFeature.tabularFigures()],
               ),
             )
           : isActive
-          ? const Icon(Icons.check, size: 18, color: AppColors.training)
+          ? const Icon(Icons.check, size: 16, color: AppColors.training)
           : null,
     );
   }
@@ -171,8 +170,8 @@ class NextWorkoutCard extends StatelessWidget {
             trailing:
                 '約 ${AppStoreScope.of(context).expectedMinutes(routine)} 分',
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(routine.name, style: AppTextStyles.cardTitle),
+          const SizedBox(height: AppSpacing.xs),
+          Text(routine.name, style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.xxs),
           Text(
             '${routine.lastCompletedLabel} · ${routine.exercises.length} 個動作'
@@ -191,44 +190,70 @@ class NextWorkoutCard extends StatelessWidget {
   }
 }
 
+/// One of the day's figures: its category, the value or 沒有紀錄, and
+/// underneath an optional small picture of it and a caption. Tiles in a
+/// row are stretched to one height, so the pictures and captions line up.
 class QuickStatTile extends StatelessWidget {
   const QuickStatTile({
     super.key,
     required this.category,
     required this.color,
     required this.value,
-    required this.caption,
     this.unit,
+    this.caption,
+    this.visual,
     this.onTap,
   });
 
   final String category;
   final Color color;
-  final String value;
+
+  /// Null when nothing is recorded.
+  final String? value;
   final String? unit;
-  final String caption;
+  final String? caption;
+
+  /// A progress line or sparkline, drawn in [color].
+  final Widget? visual;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final value = this.value;
     return AppCard(
       onTap: onTap,
+      padding: const EdgeInsets.all(AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CategoryLabel(label: category, color: color),
           const SizedBox(height: AppSpacing.xs),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: ValueWithUnit(value: value, unit: unit),
-          ),
-          Text(
-            caption,
-            style: AppTextStyles.caption.copyWith(fontSize: 11),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          if (value == null)
+            const Text('沒有紀錄', style: AppTextStyles.caption)
+          else
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: ValueWithUnit(
+                value: value,
+                unit: unit,
+                style: AppTextStyles.bigNumber.copyWith(fontSize: 26),
+              ),
+            ),
+          const Spacer(),
+          if (visual case final visual?) ...[
+            const SizedBox(height: AppSpacing.xs),
+            visual,
+          ],
+          if (caption case final caption?) ...[
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              caption,
+              style: AppTextStyles.caption.copyWith(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );
@@ -250,8 +275,8 @@ class NextMealCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const CardEyebrow(label: '下一步', color: AppColors.nutrition),
-          const SizedBox(height: AppSpacing.sm),
-          Text('記錄${mealType.label}', style: AppTextStyles.cardTitle),
+          const SizedBox(height: AppSpacing.xs),
+          Text(mealType.label, style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.md),
           NutritionButton(
             label: '記錄${mealType.label}',
@@ -286,13 +311,13 @@ class IntakeCard extends StatelessWidget {
                 const TagChip(label: '含估計值', tone: TagTone.nutrition),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           Text.rich(
             TextSpan(
               children: [
                 TextSpan(
                   text: '~${formatKcal(store.todayKcal)}',
-                  style: AppTextStyles.hugeNumber,
+                  style: AppTextStyles.bigNumber,
                 ),
                 TextSpan(
                   text: ' kcal · ${summary.mealCount} 餐',
@@ -301,38 +326,54 @@ class IntakeCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
-          // Two by two: the names are written in full, and four across a
-          // phone leaves too little room for 碳水化合物.
-          for (final (index, pair) in [
-            [
-              (
-                MacroLabel.protein,
-                summary.proteinGrams,
-                summary.mealsWithoutProtein,
-              ),
-              (MacroLabel.carb, summary.carbGrams, summary.mealsWithoutCarb),
-            ],
-            [
-              (MacroLabel.fat, summary.fatGrams, summary.mealsWithoutFat),
-              (MacroLabel.fibre, summary.fibreGrams, summary.mealsWithoutFibre),
-            ],
-          ].indexed) ...[
-            if (index > 0) const SizedBox(height: AppSpacing.xs),
-            Row(
-              children: [
-                for (final (i, (label, grams, missing)) in pair.indexed) ...[
-                  if (i > 0) const SizedBox(width: AppSpacing.xs),
-                  _MacroTile(
-                    label: label,
-                    grams: grams,
-                    missing: missing,
-                    records: summary.recordCount,
-                  ),
+          const SizedBox(height: AppSpacing.sm),
+          // Four across when the names fit, else two by two: they are
+          // written in full, and 碳水化合物 needs the room.
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const minMacroWidth = 72.0;
+              final columns =
+                  constraints.maxWidth >= 4 * minMacroWidth + 3 * AppSpacing.xs
+                  ? 4
+                  : 2;
+              final width =
+                  (constraints.maxWidth - AppSpacing.xs * (columns - 1)) /
+                  columns;
+              return Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  for (final (label, grams, missing) in [
+                    (
+                      MacroLabel.protein,
+                      summary.proteinGrams,
+                      summary.mealsWithoutProtein,
+                    ),
+                    (
+                      MacroLabel.carb,
+                      summary.carbGrams,
+                      summary.mealsWithoutCarb,
+                    ),
+                    (MacroLabel.fat, summary.fatGrams, summary.mealsWithoutFat),
+                    (
+                      MacroLabel.fibre,
+                      summary.fibreGrams,
+                      summary.mealsWithoutFibre,
+                    ),
+                  ])
+                    SizedBox(
+                      width: width,
+                      child: _MacroTotal(
+                        label: label,
+                        grams: grams,
+                        missing: missing,
+                        records: summary.recordCount,
+                      ),
+                    ),
                 ],
-              ],
-            ),
-          ],
+              );
+            },
+          ),
           if (_leftOut(summary) case final note?) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(note, style: AppTextStyles.caption),
@@ -360,9 +401,9 @@ String? _leftOut(DaySummary summary) {
 
 /// One macro's day total: what the records that carried the figure add
 /// up to, or `—` when none did. Records without it are named under the
-/// tiles rather than marked on the number.
-class _MacroTile extends StatelessWidget {
-  const _MacroTile({
+/// totals rather than marked on the number.
+class _MacroTotal extends StatelessWidget {
+  const _MacroTotal({
     required this.label,
     required this.grams,
     required this.missing,
@@ -376,27 +417,19 @@ class _MacroTile extends StatelessWidget {
   final int missing;
   final int records;
 
-  String get _value => missing == records && records > 0 ? '—' : '$grams';
-
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: AppCard(
-        tone: CardTone.raised,
-        radius: AppRadius.small,
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: StatBlock(
-          value: _value,
-          unit: missing == records && records > 0 ? null : 'g',
-          label: label,
-          valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-        ),
-      ),
+    final isUnknown = missing == records && records > 0;
+    return StatBlock(
+      value: isUnknown ? '—' : '$grams',
+      unit: isUnknown ? null : 'g',
+      label: label,
+      valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 20),
     );
   }
 }
 
-/// Generic nutrition "接下來" card with one big orange button.
+/// Today's finished workout, once there is nothing left to start.
 class CompletedWorkoutCard extends StatelessWidget {
   const CompletedWorkoutCard({
     super.key,
