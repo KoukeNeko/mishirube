@@ -148,3 +148,65 @@ class AppTextField extends StatelessWidget {
     );
   }
 }
+
+/// A number to fill in, as one row: what it is, with an optional quieter
+/// line under it, a full field to type in, and its unit. Every row of a
+/// form of figures has this shape — a nutrition label, a body
+/// composition scale's reading, tape measurements — so each is as easy
+/// to hit as the next.
+class NumberFieldRow extends StatelessWidget {
+  const NumberFieldRow({
+    super.key,
+    required this.label,
+    required this.unit,
+    required this.controller,
+    this.caption,
+    this.fieldKey,
+  });
+
+  final String label;
+  final String unit;
+  final TextEditingController controller;
+
+  /// Context for the figure, such as the last one recorded.
+  final String? caption;
+
+  /// For finding the field itself, in tests.
+  final Key? fieldKey;
+
+  static const _fieldWidth = 120.0;
+  static const _unitWidth = 40.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final caption = this.caption;
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: AppTextStyles.body),
+              if (caption != null) Text(caption, style: AppTextStyles.caption),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: _fieldWidth,
+          child: AppTextField(
+            key: fieldKey,
+            controller: controller,
+            // Not `0`: an empty field is a figure nobody wrote down.
+            hint: '—',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        SizedBox(
+          width: _unitWidth,
+          child: Text(unit, style: AppTextStyles.caption),
+        ),
+      ],
+    );
+  }
+}

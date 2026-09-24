@@ -540,10 +540,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     if (mounted) setState(() {});
   }
 
-  Widget _nutrientField(Nutrient nutrient) => _NumberField(
+  Widget _nutrientField(Nutrient nutrient) => NumberFieldRow(
     label: nutrient.label,
     unit: nutrient.unit.label,
-    field: _extra[nutrient]!,
+    controller: _extra[nutrient]!,
   );
 
   @override
@@ -744,30 +744,30 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
           ),
         Gutter(
-          child: _NumberField(
+          child: NumberFieldRow(
             label: MacroLabel.energy,
             unit: 'kcal',
-            field: _kcal,
+            controller: _kcal,
           ),
         ),
         Gutter(
-          child: _NumberField(
+          child: NumberFieldRow(
             label: MacroLabel.protein,
             unit: 'g',
-            field: _protein,
+            controller: _protein,
           ),
         ),
         Gutter(
-          child: _NumberField(label: MacroLabel.carb, unit: 'g', field: _carb),
+          child: NumberFieldRow(label: MacroLabel.carb, unit: 'g', controller: _carb),
         ),
         Gutter(
-          child: _NumberField(label: MacroLabel.fat, unit: 'g', field: _fat),
+          child: NumberFieldRow(label: MacroLabel.fat, unit: 'g', controller: _fat),
         ),
         Gutter(
-          child: _NumberField(
+          child: NumberFieldRow(
             label: MacroLabel.fibre,
             unit: 'g',
-            field: _fibre,
+            controller: _fibre,
           ),
         ),
         for (final nutrient in _labelNutrients)
@@ -789,40 +789,6 @@ const _labelNutrients = [
   Nutrient.sugar,
   Nutrient.sodium,
 ];
-
-/// One nutrient's row: what it is, the number, and its unit. Every row
-/// is the same shape, because on a label they are all just nutrients.
-class _NumberField extends StatelessWidget {
-  const _NumberField({
-    required this.label,
-    required this.unit,
-    required this.field,
-  });
-
-  final String label;
-  final String unit;
-  final TextEditingController field;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: AppTextStyles.body)),
-        SizedBox(
-          width: 120,
-          child: AppTextField(
-            controller: field,
-            // Not `0`: an empty field is a figure nobody wrote down.
-            hint: '—',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        SizedBox(width: 36, child: Text(unit, style: AppTextStyles.caption)),
-      ],
-    );
-  }
-}
 
 /// What a scan reads.
 enum _Scan { label, food }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../app/app_store.dart';
-import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -128,18 +126,21 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
       ),
       footer: PrimaryButton(label: '儲存', onPressed: _save),
       children: [
-        Gutter(
-          child: GroupedCard(
-            children: [
-              for (final metric in metrics)
-                _MetricRow(
-                  metric: metric,
-                  controller: _fields[metric]!,
-                  previous: _previous[metric],
-                ),
-            ],
+        for (final metric in metrics)
+          Gutter(
+            child: NumberFieldRow(
+              fieldKey: ValueKey('body-${metric.name}'),
+              label: metric.label,
+              unit: metric.unit,
+              controller: _fields[metric]!,
+              caption: switch (_previous[metric]) {
+                final last? =>
+                  '上次 ${formatAmount(last.value)} ${metric.unit} · '
+                      '${last.measuredAt.month}/${last.measuredAt.day}',
+                null => null,
+              },
+            ),
           ),
-        ),
         if (metrics.any((metric) => metric.isEstimated))
           Gutter(child: const TagWrap(labels: ['照體脂計顯示填寫'])),
         if (_error case final error?)
@@ -147,74 +148,6 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
             child: InfoBanner(tone: CardTone.warning, message: error),
           ),
       ],
-    );
-  }
-}
-
-class _MetricRow extends StatelessWidget {
-  const _MetricRow({
-    required this.metric,
-    required this.controller,
-    required this.previous,
-  });
-
-  final BodyMetric metric;
-  final TextEditingController controller;
-  final BodyReading? previous;
-
-  @override
-  Widget build(BuildContext context) {
-    final last = previous;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(metric.label, style: AppTextStyles.body),
-                if (last != null)
-                  Text(
-                    '上次 ${formatAmount(last.value)} ${metric.unit} · '
-                    '${last.measuredAt.month}/${last.measuredAt.day}',
-                    style: AppTextStyles.caption,
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 72,
-            child: TextField(
-              onTapOutside: dismissKeyboardOnTapOutside,
-              key: ValueKey('body-${metric.name}'),
-              controller: controller,
-              textAlign: TextAlign.end,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-              ],
-              style: AppTextStyles.itemTitle,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-                hintText: last == null ? '—' : formatAmount(last.value),
-                hintStyle: const TextStyle(color: AppColors.textTertiary),
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          SizedBox(
-            width: 32,
-            child: Text(metric.unit, style: AppTextStyles.caption),
-          ),
-        ],
-      ),
     );
   }
 }
