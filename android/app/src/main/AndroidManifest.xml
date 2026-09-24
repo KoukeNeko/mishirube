@@ -4,6 +4,8 @@
          takes photos. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove"/>
     <!-- The rest between sets, counting down in the notification shade. -->
+    <!-- Map tiles for a workout's route (RouteMap.kt). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Health Connect, read only. -->
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>

@@ -14,6 +14,9 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        org.maplibre.android.MapLibre.getInstance(this)
+        flutterEngine.platformViewsController.registry
+            .registerViewFactory("mishirube/route_map", RouteMapFactory())
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/healthconnect")
         val bridge = HealthConnectBridge(this, channel, privacyRequested = asksForPrivacy(intent))
         channel.setMethodCallHandler(bridge::handle)

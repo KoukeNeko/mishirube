@@ -103,6 +103,9 @@ class _FakeHealth implements HealthSource {
     DateTime from,
     DateTime to,
   ) async => activityRows;
+
+  @override
+  Future<ActivityDetail?> activityDetail(String platformId) async => null;
 }
 
 SleepSample _asleep(DateTime start, DateTime end) =>

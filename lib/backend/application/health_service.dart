@@ -104,6 +104,14 @@ class HealthService {
 
   bool get isConnected => _db.setting(_connectedKey) == 'true';
 
+  /// What the platform recorded during [session], when it was read from
+  /// this platform; null for one logged in the app or no longer there.
+  Future<ActivityDetail?> detailOf(ActivitySession session) async {
+    final prefix = '${source.idPrefix}-workout-';
+    if (!session.id.startsWith(prefix)) return null;
+    return source.activityDetail(session.id.substring(prefix.length));
+  }
+
   DateTime? get lastSync => switch (_db.setting(_syncedKey)) {
     final ms? => DateTime.fromMillisecondsSinceEpoch(int.parse(ms)),
     null => null,

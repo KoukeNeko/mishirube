@@ -56,6 +56,10 @@ abstract interface class HealthSource {
   /// ones as hourly totals, measured ones as daily averages, both from
   /// the platform's own statistics so a phone and a watch count once.
   Future<List<ActivitySample>> activitySamples(DateTime from, DateTime to);
+
+  /// Everything the platform recorded during the workout it calls
+  /// [platformId]; null when it no longer has it.
+  Future<ActivityDetail?> activityDetail(String platformId);
 }
 
 /// A platform reached through a method channel. Apple Health
@@ -273,6 +277,15 @@ class PlatformHealthSource implements HealthSource {
   ];
 
   @override
+  Future<ActivityDetail?> activityDetail(String platformId) async {
+    final row = await _channel.invokeMapMethod<Object?, Object?>(
+      'workoutDetail',
+      {'id': platformId},
+    );
+    return row == null ? null : parseActivityDetail(row);
+  }
+
+  @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
     DateTime to,
@@ -344,4 +357,71 @@ class NoHealthSource implements HealthSource {
     DateTime from,
     DateTime to,
   ) async => const [];
+  @override
+  Future<ActivityDetail?> activityDetail(String platformId) async => null;
+}
+
+/// A workout's detail as both platform bridges send it. Anything
+/// missing or malformed is left out rather than failing the page.
+ActivityDetail parseActivityDetail(Map<Object?, Object?> row) {
+  double? number(Object? value) => (value as num?)?.toDouble();
+  Duration offset(Object? ms) => Duration(milliseconds: (ms! as num).round());
+  List<SeriesPoint> points(Object? rows) => [
+    for (final point in (rows as List?) ?? const [])
+      if (point is List && point.length >= 2)
+        (at: offset(point[0]), value: (point[1] as num).toDouble()),
+  ];
+  final figures = (row['figures'] as Map?) ?? const {};
+  final seriesRows = (row['series'] as Map?) ?? const {};
+  final seriesByName = ActivitySeries.values.asNameMap();
+  final route = [
+    for (final point in (row['route'] as List?) ?? const [])
+      if (point is List && point.length >= 5)
+        (
+          latitude: (point[0] as num).toDouble(),
+          longitude: (point[1] as num).toDouble(),
+          altitude: (point[2] as num).toDouble(),
+          at: offset(point[3]),
+          speed: (point[4] as num).toDouble(),
+        ),
+  ];
+  return ActivityDetail(
+    activeDuration: row['activeMs'] == null ? null : offset(row['activeMs']),
+    device: row['device'] as String?,
+    place: row['place'] as String?,
+    isIndoor: row['indoor'] as bool?,
+    temperatureCelsius: number(row['temperature']),
+    humidityPercent: number(row['humidity']),
+    elevationGainMeters: number(row['elevationGain']),
+    activeKcal: number(figures['activeEnergy']),
+    totalKcal: number(figures['totalEnergy']),
+    distanceMeters: number(figures['distance']),
+    steps: number(figures['steps']),
+    swimmingStrokes: number(figures['swimmingStrokes']),
+    lapLengthMeters: number(row['lapLength']),
+    series: {
+      for (final MapEntry(:key, :value) in seriesRows.entries)
+        if (seriesByName[key] case final series?)
+          if (points(value) case final found when found.isNotEmpty)
+            series: found,
+      if (route.any((point) => point.altitude != 0))
+        ActivitySeries.altitude: [
+          for (final point in route) (at: point.at, value: point.altitude),
+        ],
+    },
+    recovery: points(seriesRows['recovery']),
+    route: route,
+    intervals: [
+      for (final interval in (row['laps'] as List?) ?? const [])
+        if (interval is List && interval.length >= 3)
+          ActivityInterval(
+            isLap: interval[0] == 'lap',
+            start: offset(interval[1]),
+            end: offset(interval[2]),
+          ),
+    ],
+    effort: number(row['effort']),
+    estimatedEffort: number(row['estimatedEffort']),
+    age: row['age'] as int?,
+  );
 }

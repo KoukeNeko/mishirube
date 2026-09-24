@@ -878,6 +878,10 @@ class AppStore extends ChangeNotifier {
 
   DateTime? get lastHealthSync => _health.lastSync;
 
+  /// What the health platform recorded during [session], read now.
+  Future<ActivityDetail?> activityDetail(ActivitySession session) =>
+      _health.detailOf(session);
+
   /// Asks for read access to every kind and reads the last month; null
   /// when the platform is missing or the request did not go through.
   Future<HealthImport?> connectHealth() async {

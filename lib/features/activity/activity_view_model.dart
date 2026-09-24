@@ -38,6 +38,18 @@ class ActivityViewModel extends ViewModel {
   /// Saves a correction to a session already logged.
   void update(ActivitySession activity) => backend.activity.edit(activity);
 
+  /// The average resting heart rate over the month before [day], for
+  /// heart rate zones; null without readings.
+  double? restingHeartRateBefore(DateTime day) {
+    final days = backend.activity.daily(
+      ActivityMetric.restingHeartRate,
+      day.subtract(const Duration(days: 30)),
+      day,
+    );
+    if (days.isEmpty) return null;
+    return days.fold(0.0, (sum, day) => sum + day.$2) / days.length;
+  }
+
   /// Removes a session; [restore] takes it back.
   void delete(String id) => backend.activity.delete(id);
 

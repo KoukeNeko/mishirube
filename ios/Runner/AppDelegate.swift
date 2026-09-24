@@ -29,6 +29,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "HealthKitBridge") {
       HealthKitBridge.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RouteMap") {
+      registrar.register(RouteMapFactory(), withId: "mishirube/route_map")
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LabelReader") {
       LabelReader.register(with: registrar.messenger())
     }
@@ -93,6 +96,7 @@ enum HealthKitBridge {
         // A workout's distance lives in these.
         if kinds.contains("workouts") {
           types.formUnion(distanceTypes)
+          types.formUnion(WorkoutDetail.readTypes)
         }
         if kinds.contains("overnight") {
           types.formUnion(overnightTypes.map(\.type))
@@ -112,6 +116,12 @@ enum HealthKitBridge {
             }
           }
         }
+      case "workoutDetail":
+        guard let id = arguments["id"] as? String else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        WorkoutDetail.read(id: id, result: result)
       case "read" where arguments["kind"] as? String == "activity":
         guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
           result(FlutterError(code: "badArguments", message: nil, details: nil))

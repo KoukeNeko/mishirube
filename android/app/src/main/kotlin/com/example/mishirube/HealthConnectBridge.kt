@@ -7,7 +7,15 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.aggregate.AggregateMetric
+import android.location.Geocoder
+import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.ExerciseRoute
+import androidx.health.connect.client.records.ExerciseRouteResult
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
@@ -48,6 +56,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 /**
  * Health Connect, read only, for lib/backend/health/health_source.dart.
@@ -77,6 +88,18 @@ class HealthConnectBridge(
     }
 
     private val client by lazy { HealthConnectClient.getOrCreate(activity) }
+
+    /** Waiting on the user to let the app read another app's route. */
+    private var pendingRoute: ((ExerciseRoute?) -> Unit)? = null
+
+    // Another app's route needs the user's say-so each time, asked from
+    // the page that shows it; registered while the activity is created.
+    private val routeLauncher = activity.registerForActivityResult(
+        ExerciseRouteRequestContract()
+    ) { route ->
+        pendingRoute?.invoke(route)
+        pendingRoute = null
+    }
 
     /** Asks Dart to show the privacy page now. */
     fun showPrivacy() {
@@ -145,6 +168,20 @@ class HealthConnectBridge(
                     }
                 }
             }
+            "workoutDetail" -> {
+                val id = call.argument<String>("id")
+                if (id == null) {
+                    result.error("badArguments", null, null)
+                    return
+                }
+                scope.launch {
+                    try {
+                        result.success(workoutDetail(id))
+                    } catch (error: Exception) {
+                        result.error("failed", error.message, null)
+                    }
+                }
+            }
             "read" -> {
                 val kind = call.argument<String>("kind")
                 val from = call.argument<Number>("from")?.toLong()
@@ -188,7 +225,19 @@ class HealthConnectBridge(
             "sleep" -> listOf(SleepSessionRecord::class)
             "weight" -> listOf(WeightRecord::class)
             // A session's distance is recorded apart from the session.
-            "workouts" -> listOf(ExerciseSessionRecord::class, DistanceRecord::class)
+            // A session's figures are recorded apart from the session.
+            "workouts" -> listOf(
+                ExerciseSessionRecord::class,
+                DistanceRecord::class,
+                HeartRateRecord::class,
+                SpeedRecord::class,
+                PowerRecord::class,
+                CyclingPedalingCadenceRecord::class,
+                ActiveCaloriesBurnedRecord::class,
+                TotalCaloriesBurnedRecord::class,
+                ElevationGainedRecord::class,
+                StepsRecord::class,
+            )
             "water" -> listOf(HydrationRecord::class)
             "overnight" -> overnightTypes
             "body" -> bodyTypes
@@ -482,6 +531,139 @@ class HealthConnectBridge(
         }
         return rows
     }
+
+    /**
+     * Everything recorded during one exercise session, in the shape
+     * lib/backend/health/health_source.dart reads: the session holds
+     * its laps, segments and route; its figures are separate records,
+     * read over its time and totalled by Health Connect.
+     */
+    private suspend fun workoutDetail(id: String): Map<String, Any>? {
+        val session = try {
+            client.readRecord(ExerciseSessionRecord::class, id).record
+        } catch (error: Exception) {
+            return null
+        }
+        val start = session.startTime
+        val end = session.endTime
+        val granted = client.permissionController.getGrantedPermissions()
+        fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
+        fun offset(time: Instant) = (time.toEpochMilli() - start.toEpochMilli()).toDouble()
+        val detail = mutableMapOf<String, Any>(
+            "device" to (session.metadata.device?.model
+                ?: appLabel(session.metadata.dataOrigin.packageName)),
+        )
+
+        val totals = client.aggregate(
+            AggregateRequest(
+                buildSet {
+                    if (allowed(ActiveCaloriesBurnedRecord::class)) {
+                        add(ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL)
+                    }
+                    if (allowed(TotalCaloriesBurnedRecord::class)) {
+                        add(TotalCaloriesBurnedRecord.ENERGY_TOTAL)
+                    }
+                    if (allowed(DistanceRecord::class)) add(DistanceRecord.DISTANCE_TOTAL)
+                    if (allowed(ElevationGainedRecord::class)) {
+                        add(ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
+                    }
+                    if (allowed(StepsRecord::class)) add(StepsRecord.COUNT_TOTAL)
+                },
+                TimeRangeFilter.between(start, end),
+            )
+        )
+        detail["figures"] = buildMap {
+            totals[ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL]?.let {
+                put("activeEnergy", it.inKilocalories)
+            }
+            totals[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.let { put("totalEnergy", it.inKilocalories) }
+            totals[DistanceRecord.DISTANCE_TOTAL]?.let { put("distance", it.inMeters) }
+            totals[StepsRecord.COUNT_TOTAL]?.let { put("steps", it.toDouble()) }
+        }
+        totals[ElevationGainedRecord.ELEVATION_GAINED_TOTAL]?.let {
+            detail["elevationGain"] = it.inMeters
+        }
+
+        val series = mutableMapOf<String, List<List<Double>>>()
+        if (allowed(HeartRateRecord::class)) {
+            series["heartRate"] = readAll(HeartRateRecord::class, start, end)
+                .flatMap { it.samples }
+                .filter { !it.time.isBefore(start) && !it.time.isAfter(end) }
+                .map { listOf(offset(it.time), it.beatsPerMinute.toDouble()) }
+            // What the heart did in the three minutes after.
+            val after = end.plus(Duration.ofMinutes(3))
+            series["recovery"] = readAll(HeartRateRecord::class, end, after)
+                .flatMap { it.samples }
+                .filter { !it.time.isBefore(end) && !it.time.isAfter(after) }
+                .map {
+                    listOf((it.time.toEpochMilli() - end.toEpochMilli()).toDouble(),
+                        it.beatsPerMinute.toDouble())
+                }
+        }
+        if (allowed(SpeedRecord::class)) {
+            series["speed"] = readAll(SpeedRecord::class, start, end)
+                .flatMap { it.samples }
+                .map { listOf(offset(it.time), it.speed.inMetersPerSecond) }
+        }
+        if (allowed(PowerRecord::class)) {
+            series["power"] = readAll(PowerRecord::class, start, end)
+                .flatMap { it.samples }
+                .map { listOf(offset(it.time), it.power.inWatts) }
+        }
+        if (allowed(CyclingPedalingCadenceRecord::class)) {
+            series["cadence"] = readAll(CyclingPedalingCadenceRecord::class, start, end)
+                .flatMap { it.samples }
+                .map { listOf(offset(it.time), it.revolutionsPerMinute) }
+        }
+        detail["series"] = series.filterValues { it.isNotEmpty() }
+
+        val route = when (val result = session.exerciseRouteResult) {
+            is ExerciseRouteResult.Data -> result.exerciseRoute
+            is ExerciseRouteResult.ConsentRequired -> askForRoute(id)
+            else -> null
+        }
+        route?.route?.takeIf { it.size > 1 }?.let { locations ->
+            detail["route"] = locations.zipWithNext().map { (from, to) ->
+                val seconds = (to.time.toEpochMilli() - from.time.toEpochMilli()) / 1000.0
+                val metres = FloatArray(1)
+                android.location.Location.distanceBetween(
+                    from.latitude, from.longitude, to.latitude, to.longitude, metres)
+                listOf(
+                    to.latitude, to.longitude, to.altitude?.inMeters ?: 0.0,
+                    offset(to.time), if (seconds > 0) metres[0] / seconds else 0.0,
+                )
+            }
+            placeOf(locations.first())?.let { detail["place"] = it }
+        }
+
+        detail["laps"] = session.laps.map {
+            listOf("lap", offset(it.startTime), offset(it.endTime))
+        } + session.segments.map {
+            listOf("segment", offset(it.startTime), offset(it.endTime))
+        }
+        return detail
+    }
+
+    /** Asks the user to let the app read the route of session [id]. */
+    private suspend fun askForRoute(id: String): ExerciseRoute? =
+        suspendCancellableCoroutine { continuation ->
+            pendingRoute = { continuation.resume(it) }
+            routeLauncher.launch(id)
+        }
+
+    /** The city a route starts in, and nothing more precise. */
+    private suspend fun placeOf(location: ExerciseRoute.Location): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                @Suppress("DEPRECATION")
+                Geocoder(activity).getFromLocation(location.latitude, location.longitude, 1)
+                    ?.firstOrNull()
+                    ?.let { it.locality ?: it.subAdminArea }
+            } catch (error: java.io.IOException) {
+                // No network or no geocoder: the page goes without a place.
+                null
+            }
+        }
 
     private suspend fun <T : Record> readAll(type: KClass<T>, from: Instant, to: Instant): List<T> {
         val records = mutableListOf<T>()

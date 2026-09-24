@@ -1142,7 +1142,7 @@ void main() {
 
     await tester.tap(find.text('騎自行車').first);
     await tester.pumpAndSettle();
-    expect(find.text('配速 /km'), findsOneWidget);
+    expect(find.text('平均速度'), findsOneWidget, reason: 'a ride reads as speed');
 
     await tester.tap(find.text('編輯內容'));
     await tester.pumpAndSettle();
@@ -1150,7 +1150,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('儲存'));
     await tester.pumpAndSettle();
-    expect(find.text('60'), findsWidgets, reason: 'the detail shows the fix');
+    expect(
+      find.text('1:00:00', findRichText: true),
+      findsOneWidget,
+      reason: 'the detail shows the fix',
+    );
 
     await tester.tap(find.text('刪除這筆紀錄'));
     await tester.pump();
