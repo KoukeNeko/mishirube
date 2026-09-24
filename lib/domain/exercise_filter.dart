@@ -11,11 +11,6 @@ class ExerciseFilter {
     this.sources = const {},
   });
 
-  static const defaultForLowerBody = ExerciseFilter(
-    muscles: {MuscleGroup.quads, MuscleGroup.glutes},
-    equipment: {Equipment.barbell},
-  );
-
   final Set<MuscleGroup> muscles;
   final Set<Equipment> equipment;
   final Set<MovementPattern> patterns;

@@ -300,6 +300,11 @@ void main() {
 
       await _tapText(tester, '下肢 A');
       await _tapText(tester, '加入動作');
+      await tester.tap(find.byTooltip('篩選'));
+      await tester.pumpAndSettle();
+      await _tapText(tester, '槓鈴');
+      await tester.tap(find.textContaining('個動作').last);
+      await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), '史密斯深蹲');
       await tester.pump();
       expect(find.text('沒有符合的動作'), findsOneWidget);

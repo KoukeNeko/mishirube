@@ -73,7 +73,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   final _searchController = TextEditingController();
   final List<ExerciseDefinition> _selected = [];
   _PickerTab _tab = _PickerTab.recent;
-  ExerciseFilter _filter = ExerciseFilter.defaultForLowerBody;
+  ExerciseFilter _filter = const ExerciseFilter();
 
   String get _query => _searchController.text.trim();
 

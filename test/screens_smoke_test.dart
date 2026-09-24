@@ -311,8 +311,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _noSetup,
   ),
   'exercise filter': (
-    (_) =>
-        const ExerciseFilterScreen(initial: ExerciseFilter.defaultForLowerBody),
+    (_) => const ExerciseFilterScreen(
+      initial: ExerciseFilter(
+        muscles: {MuscleGroup.quads, MuscleGroup.glutes},
+        equipment: {Equipment.barbell},
+      ),
+    ),
     _noSetup,
   ),
   'exercise detail': (
