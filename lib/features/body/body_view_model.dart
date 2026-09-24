@@ -2,6 +2,9 @@ import '../../app/view_model.dart';
 import '../../backend/engines/body_metrics.dart';
 import '../../domain/domain.dart';
 
+/// One reading on a body chart, with the record it came from.
+typedef BodyPoint = ({String id, DateTime at, double value});
+
 /// The body page: weight and its trend, height and what follows from it,
 /// what a body composition scale reported, and tape measurements. Every
 /// figure is read from the records; the derived ones are worked out on
@@ -35,28 +38,45 @@ class BodyViewModel extends ViewModel {
   Map<MeasurementSite, BodyMeasurement> get latestMeasurements =>
       backend.journal.latestMeasurements();
 
+  /// Weighings over [window], oldest first.
+  List<BodyPoint> weights(Duration window) => [
+    for (final weight in backend.journal.weightsBetween(
+      _end.subtract(window),
+      _end,
+    ))
+      (id: weight.id, at: weight.measuredAt, value: weight.weightKg),
+  ];
+
   /// Readings of [metric] over [window], oldest first.
-  List<(DateTime, double)> readings(BodyMetric metric, Duration window) => [
+  List<BodyPoint> readings(BodyMetric metric, Duration window) => [
     for (final reading in backend.journal.bodyReadingsBetween(
       metric,
       _end.subtract(window),
       _end,
     ))
-      (reading.measuredAt, reading.value),
+      (id: reading.id, at: reading.measuredAt, value: reading.value),
   ];
 
   /// Tape measurements of [site] over [window], oldest first.
-  List<(DateTime, double)> measurements(
-    MeasurementSite site,
-    Duration window,
-  ) => [
+  List<BodyPoint> measurements(MeasurementSite site, Duration window) => [
     for (final measurement in backend.journal.measurementsBetween(
       _end.subtract(window),
       _end,
     ))
       if (measurement.site == site)
-        (measurement.measuredAt, measurement.centimetres),
+        (
+          id: measurement.id,
+          at: measurement.measuredAt,
+          value: measurement.centimetres,
+        ),
   ];
+
+  /// The record behind a point, for editing it.
+  Object? record(String id) => backend.journal.entry(id);
+
+  void delete(String id) => backend.journal.delete(id);
+
+  void restore(String id) => backend.journal.restore(id);
 
   double? get _height => latestReadings[BodyMetric.height]?.value;
 

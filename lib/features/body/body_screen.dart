@@ -75,6 +75,19 @@ class _BodyScreenState extends State<BodyScreen> {
       tags: [if (metric.isEstimated) '體脂計估計，請用同一台比較'],
       load: (model, window) => model.readings(metric, window),
       addPage: () => BodyReadingEntryScreen(only: metric),
+      editPage: (record) =>
+          BodyReadingEntryScreen(editing: record as BodyReading),
+    ),
+  );
+
+  void _openWeights() => pushModalPage<void>(
+    context,
+    BodyHistoryScreen(
+      title: '體重',
+      unit: 'kg',
+      load: (model, window) => model.weights(window),
+      addPage: () => const WeightEntryScreen(),
+      editPage: (record) => WeightEntryScreen(editing: record as BodyWeight),
     ),
   );
 
@@ -85,6 +98,8 @@ class _BodyScreenState extends State<BodyScreen> {
       unit: 'cm',
       load: (model, window) => model.measurements(site, window),
       addPage: () => const MeasurementEntryScreen(),
+      editPage: (record) =>
+          MeasurementEntryScreen(editing: record as BodyMeasurement),
     ),
   );
 
@@ -178,6 +193,11 @@ class _BodyScreenState extends State<BodyScreen> {
                 ],
               ],
             ),
+          ),
+        ),
+        Gutter(
+          child: GroupedCard(
+            children: [NavRow(title: '所有體重紀錄', onTap: _openWeights)],
           ),
         ),
       ],

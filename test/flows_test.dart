@@ -832,6 +832,14 @@ void main() {
     await _tapText(tester, '骨骼肌');
     expect(find.text('33.1 kg'), findsWidgets);
     expect(find.text('體脂計估計，請用同一台比較'), findsOneWidget);
+
+    await _tapText(tester, '33.1 kg');
+    await _tapText(tester, '刪除這筆紀錄');
+    expect(
+      store.backend.journal.latestBodyReadings()[BodyMetric.skeletalMuscle],
+      isNull,
+    );
+    expect(find.text('沒有紀錄'), findsOneWidget);
     await disposeTree(tester);
   });
 

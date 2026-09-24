@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'body_reading_entry_screen.dart';
 import 'measurement_entry_screen.dart';
 import 'note_entry_screen.dart';
 import 'sleep_entry_screen.dart';
@@ -151,6 +152,15 @@ _View _viewOf(Object entry, JournalViewModel journal) => switch (entry) {
     color: AppColors.body,
     note: measurement.note,
     editor: MeasurementEntryScreen(editing: measurement),
+  ),
+  BodyReading reading => _View(
+    title: reading.metric.label,
+    value: formatAmount(reading.value),
+    unit: reading.metric.unit,
+    color: AppColors.body,
+    note: reading.note,
+    context: reading.metric.isEstimated ? '體脂計估計' : null,
+    editor: BodyReadingEntryScreen(editing: reading),
   ),
   SleepEntry night => _View(
     title: '睡眠',

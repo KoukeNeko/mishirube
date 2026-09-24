@@ -17,6 +17,7 @@ class BodyHistoryScreen extends StatefulWidget {
     required this.unit,
     required this.load,
     required this.addPage,
+    required this.editPage,
     this.tags = const [],
   });
 
@@ -24,11 +25,13 @@ class BodyHistoryScreen extends StatefulWidget {
   final String unit;
 
   /// The readings over a window, oldest first.
-  final List<(DateTime, double)> Function(BodyViewModel model, Duration window)
-  load;
+  final List<BodyPoint> Function(BodyViewModel model, Duration window) load;
 
   /// Where a new reading of the figure is logged.
   final Widget Function() addPage;
+
+  /// Where the record behind a reading is corrected.
+  final Widget Function(Object record) editPage;
 
   /// Short qualifiers, such as that a scale estimated the figure.
   final List<String> tags;
@@ -87,10 +90,10 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
                         '${_range.label} · ${points.length} 筆'
                         '${points.length > 1 ? ' · ${_change(points)}' : ''}',
                     readoutOf: (index) =>
-                        '${bodyDate(points[index].$1)} · '
-                        '${_value(points[index].$2)}',
+                        '${bodyDate(points[index].at)} · '
+                        '${_value(points[index].value)}',
                     builder: (context, selected) => Sparkline(
-                      values: [for (final (_, value) in points) value],
+                      values: [for (final point in points) point.value],
                       color: AppColors.body,
                       height: 96,
                       selected: selected,
@@ -105,10 +108,13 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
             Gutter(
               child: GroupedCard(
                 children: [
-                  for (final (at, value) in points.reversed)
-                    KeyValueRow(
-                      label: '${bodyDate(at)} ${formatTimeOfDay(at)}',
-                      value: _value(value),
+                  for (final point in points.reversed)
+                    NavRow(
+                      title: _value(point.value),
+                      subtitle:
+                          '${bodyDate(point.at)} ${formatTimeOfDay(point.at)}',
+                      showChevron: false,
+                      onTap: () => _manage(model, point),
                     ),
                 ],
               ),
@@ -119,8 +125,41 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
     },
   );
 
-  String _change(List<(DateTime, double)> points) {
-    final change = points.last.$2 - points.first.$2;
+  /// Corrects or removes one reading; a removal can be undone.
+  Future<void> _manage(BodyViewModel model, BodyPoint point) async {
+    final choice = await showAppDialog<bool>(
+      context,
+      AppDialog(
+        title: '${bodyDate(point.at)} ${_value(point.value)}',
+        isChoiceList: true,
+        actions: [
+          DialogAction(
+            label: '編輯',
+            onTap: () => Navigator.of(context).pop(true),
+          ),
+          DialogAction(
+            label: '刪除這筆紀錄',
+            tone: DialogTone.destructive,
+            onTap: () => Navigator.of(context).pop(false),
+          ),
+          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        ],
+      ),
+    );
+    if (choice == null || !mounted) return;
+    if (choice) {
+      if (model.record(point.id) case final record?) {
+        pushModalPage<void>(context, widget.editPage(record));
+      }
+      return;
+    }
+    model.delete(point.id);
+    ToastScope.read(context)
+        .showUndo('已刪除${widget.title}', onUndo: () => model.restore(point.id));
+  }
+
+  String _change(List<BodyPoint> points) {
+    final change = points.last.value - points.first.value;
     return '${change < 0 ? '−' : '+'}${formatAmount(change.abs())} ${widget.unit}';
   }
 }

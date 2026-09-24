@@ -726,6 +726,7 @@ class BodyWeightTimelineSource extends TimelineSource {
     final dates = [
       ?_journal._earliest('body_weights', 'measured_at'),
       ?_journal._earliest('body_measurements', 'measured_at'),
+      ?_journal._earliest('body_readings', 'measured_at'),
     ]..sort();
     return dates.firstOrNull;
   }
@@ -756,7 +757,30 @@ class BodyWeightTimelineSource extends TimelineSource {
           detail: measurement.note,
         ),
       ),
+    for (final (_, at, reading) in _readings(start, end))
+      (
+        at,
+        TimelineEntry(
+          timeLabel: formatTimeOfDay(at),
+          at: at,
+          recordId: reading.id,
+          category: RecordCategory.body,
+          title:
+              '${reading.metric.label} ${formatAmount(reading.value)} '
+              '${reading.metric.unit}',
+          detail: reading.note,
+        ),
+      ),
   ];
+
+  List<(int, DateTime, BodyReading)> _readings(DateTime start, DateTime end) =>
+      _journal._inDays(
+        'body_readings',
+        'measured_at',
+        start,
+        end,
+        _journal._bodyReadingFrom,
+      );
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
