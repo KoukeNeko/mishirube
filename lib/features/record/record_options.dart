@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
+import '../journal/body_reading_entry_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
 import '../journal/note_entry_screen.dart';
@@ -125,6 +126,13 @@ final recordOptions = [
     title: '圍度',
     module: AppModule.weight,
     destination: () => const MeasurementEntryScreen(),
+  ),
+  RecordOption(
+    icon: Icons.accessibility_new,
+    color: AppColors.body,
+    title: '身體組成',
+    module: AppModule.weight,
+    destination: () => const BodyReadingEntryScreen(),
   ),
   RecordOption(
     icon: Icons.description_outlined,
