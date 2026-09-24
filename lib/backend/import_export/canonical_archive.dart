@@ -281,6 +281,15 @@ const _tables = [
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),
+  _Table('bodyReadings', 'body_readings', [
+    _Column('id', _Kind.text),
+    _Column('measured_at', _Kind.time),
+    _Column('metric', _Kind.text),
+    _Column('value', _Kind.real),
+    _Column('note', _Kind.text),
+    ..._lived,
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('sleepEntries', 'sleep_entries', [
     _Column('id', _Kind.text),
     _Column('slept_at', _Kind.time),

@@ -645,6 +645,22 @@ final List<String> _migrations = [
   -- the lifter rates it.
   ALTER TABLE workouts ADD COLUMN workload TEXT;
   ''',
+  '''
+  -- Body figures other than weight and girth (height, body fat, muscle
+  -- and the rest a body composition scale reports), one row per figure
+  -- per reading.
+  CREATE TABLE body_readings (
+    id TEXT PRIMARY KEY,
+    measured_at INTEGER NOT NULL,
+    metric TEXT NOT NULL,
+    value REAL NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    local_day INTEGER,
+    utc_offset_minutes INTEGER,
+    $_entityColumns
+  );
+  CREATE INDEX body_readings_at ON body_readings(metric, measured_at);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

@@ -419,6 +419,69 @@ class JournalRepository {
     note: row['note']! as String,
   );
 
+  void addBodyReading(
+    BodyReading reading, {
+    ChangeSource source = ChangeSource.local,
+  }) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO body_readings (id, measured_at, metric, value, note, '
+        'created_at, updated_at, source, local_day, utc_offset_minutes) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          reading.id,
+          reading.measuredAt.millisecondsSinceEpoch,
+          reading.metric.name,
+          reading.value,
+          reading.note,
+          now,
+          now,
+          source.name,
+          localDayOf(reading.measuredAt),
+          reading.measuredAt.timeZoneOffset.inMinutes,
+        ],
+      );
+      _db.audit(
+        entityType: 'body_reading',
+        entityId: reading.id,
+        action: 'create',
+        source: source,
+      );
+    });
+  }
+
+  /// Readings of [metric] taken in `[start, end)`, oldest first.
+  List<BodyReading> bodyReadingsBetween(
+    BodyMetric metric,
+    DateTime start,
+    DateTime end,
+  ) => [
+    for (final row in _db.select(
+      'SELECT * FROM body_readings WHERE deleted_at IS NULL AND metric = ? '
+      'AND measured_at >= ? AND measured_at < ? ORDER BY measured_at',
+      [metric.name, start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      _bodyReadingFrom(row),
+  ];
+
+  /// The last reading of each metric that has one.
+  Map<BodyMetric, BodyReading> latestBodyReadings() => {
+    for (final row in _db.select(
+      'SELECT * FROM body_readings WHERE deleted_at IS NULL '
+      'ORDER BY measured_at',
+    ))
+      BodyMetric.values.byName(row['metric']! as String): _bodyReadingFrom(row),
+  };
+
+  BodyReading _bodyReadingFrom(Map<String, Object?> row) => BodyReading(
+    id: row['id']! as String,
+    measuredAt: DateTime.fromMillisecondsSinceEpoch(row['measured_at']! as int),
+    metric: BodyMetric.values.byName(row['metric']! as String),
+    value: (row['value']! as num).toDouble(),
+    note: row['note']! as String,
+  );
+
   List<BodyWeight> weightsBetween(DateTime start, DateTime end) => [
     for (final row in _db.select(
       'SELECT * FROM body_weights WHERE deleted_at IS NULL '
@@ -513,6 +576,7 @@ class JournalRepository {
   static const _tables = {
     'body_weights': 'body_weight',
     'body_measurements': 'body_measurement',
+    'body_readings': 'body_reading',
     'sleep_entries': 'sleep_entry',
     'wellness_entries': 'wellness_entry',
     'notes': 'note',
@@ -542,6 +606,7 @@ class JournalRepository {
     return switch (table) {
       'body_weights' => _weightFrom(row),
       'body_measurements' => _measurementFrom(row),
+      'body_readings' => _bodyReadingFrom(row),
       'sleep_entries' => _sleepFrom(row),
       'notes' => _noteFrom(row),
       _ => _wellnessFrom(row),
@@ -560,6 +625,12 @@ class JournalRepository {
     'weight_kg': weight.weightKg,
     'note': weight.note,
   });
+
+  void updateBodyReading(BodyReading reading) => _update(
+    'body_readings',
+    reading.id,
+    {'value': reading.value, 'note': reading.note},
+  );
 
   void updateMeasurement(BodyMeasurement measurement) => _update(
     'body_measurements',

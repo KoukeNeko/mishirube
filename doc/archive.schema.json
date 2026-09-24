@@ -1394,6 +1394,81 @@
             }
           }
         },
+        "bodyReadings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "measuredAt",
+              "metric",
+              "value",
+              "note",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "measuredAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "metric": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              },
+              "note": {
+                "type": "string"
+              },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
         "sleepEntries": {
           "type": "array",
           "items": {

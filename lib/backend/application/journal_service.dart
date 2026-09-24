@@ -40,6 +40,42 @@ class JournalService {
   }
 
   /// The last measurement of each site.
+  /// Readings taken together, as a scale gives them: one row per figure,
+  /// all at [at].
+  List<BodyReading> recordBodyReadings(
+    Map<BodyMetric, double> values, {
+    DateTime? at,
+  }) {
+    final measuredAt = at ?? _db.now();
+    final readings = [
+      for (final MapEntry(key: metric, value: value) in values.entries)
+        BodyReading(
+          id: _db.newId(),
+          measuredAt: measuredAt,
+          metric: metric,
+          value: value,
+        ),
+    ];
+    _db.transaction(() {
+      for (final reading in readings) {
+        _journal.addBodyReading(reading);
+      }
+    });
+    return readings;
+  }
+
+  Map<BodyMetric, BodyReading> latestBodyReadings() =>
+      _journal.latestBodyReadings();
+
+  List<BodyReading> bodyReadingsBetween(
+    BodyMetric metric,
+    DateTime start,
+    DateTime end,
+  ) => _journal.bodyReadingsBetween(metric, start, end);
+
+  void updateBodyReading(BodyReading reading) =>
+      _journal.updateBodyReading(reading);
+
   Map<MeasurementSite, BodyMeasurement> latestMeasurements() =>
       _journal.latestMeasurements();
 

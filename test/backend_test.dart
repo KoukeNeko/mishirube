@@ -2444,6 +2444,10 @@ void main() {
       final split = NutritionViewModel(source.backend);
       addTearDown(split.dispose);
       split.splitDish(mealId: 'lunch', dishIndex: 0, day: clock.now());
+      source.backend.journal.recordBodyReadings({
+        BodyMetric.height: 175,
+        BodyMetric.bodyFat: 18.2,
+      });
       source
         ..backend.nutrition.saveFood(
           FoodItem(
@@ -2480,6 +2484,7 @@ void main() {
       final roundTripped = exportArchive(target.db);
 
       expect(roundTripped, archive);
+      expect((archive['data'] as Map)['bodyReadings'], hasLength(2));
       expect(
         (archive['data'] as Map)['workoutExercises'].first['joinsNext'],
         isTrue,
