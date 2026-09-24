@@ -24,7 +24,10 @@ class TrendsViewModel extends ViewModel {
 
   static const _muscleFigureKey = 'muscle_figure';
 
-  /// Everything the Trends screen shows over [window].
+  /// What changed over the last weeks, across every area.
+  TrendsReport get report => backend.insights.report();
+
+  /// Training figures over [window].
   TrendsOverview overview(Duration window) =>
       backend.insights.trends(window: window);
 

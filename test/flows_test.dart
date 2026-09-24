@@ -709,6 +709,8 @@ void main() {
 
     expect(figureIn(backend), MuscleFigure.male, reason: 'one has to be first');
 
+    await tester.tap(find.widgetWithText(NavRow, '訓練'));
+    await tester.pumpAndSettle();
     await _tapText(tester, MuscleFigure.female.label);
     await tester.pumpAndSettle();
 
@@ -729,7 +731,7 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
 
-    final delta = find.textContaining(RegExp('^[−+]'));
+    final delta = find.textContaining(RegExp('[−+][0-9]'));
     expect(delta, findsWidgets, reason: 'the demo weight is trending');
     for (final text in tester.widgetList<Text>(delta)) {
       expect(

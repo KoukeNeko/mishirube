@@ -91,6 +91,7 @@ class Backend {
       storage.exercises,
       storage.meals,
       storage.journal,
+      storage.activitySamples,
     );
   }
 

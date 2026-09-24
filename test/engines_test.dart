@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/activity_metrics.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
+import 'package:mishirube/backend/engines/trend_findings.dart';
+import 'package:mishirube/backend/ai/trend_writer.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
@@ -171,6 +173,34 @@ void main() {
       expect(usualRangeOf(days), (low: 5500.0, high: 6400.0));
     });
   });
+
+  group('trend findings', () {
+    final today = DateTime(2026, 9, 19, 20);
+
+    /// [value] on each of [days] days ending [endingDaysAgo] before today.
+    List<(DateTime, double)> daily(
+      int days,
+      double value, {
+      int endingDaysAgo = 0,
+    }) => [
+      for (var i = 0; i < days; i++)
+        (
+          DateTime(today.year, today.month, today.day - endingDaysAgo - i, 7),
+          value,
+        ),
+    ];
+
+    test('sleep is compared only with two weeks of nights on each side', () {
+      final longer = [...daily(20, 450), ...daily(20, 410, endingDaysAgo: 28)];
+      expect(
+        sleepFinding(longer, today)!.insight.statement,
+        '近 4 週平均睡眠 7:30，比前 4 週多 40 分。',
+      );
+      final thin = [...daily(10, 450), ...daily(20, 410, endingDaysAgo: 28)];
+      expect(sleepFinding(thin, today), isNull, reason: 'ten nights');
+      final steady = [...daily(20, 420), ...daily(20, 410, endingDaysAgo: 28)];
+      expect(sleepFinding(steady, today), isNull, reason: '10 min is noise');
+    });
 
     test('steps need most days of both stretches and a tenth more', () {
       expect(

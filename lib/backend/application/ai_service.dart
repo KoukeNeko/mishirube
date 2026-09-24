@@ -11,6 +11,7 @@ import '../ai/cloud_drafter.dart';
 import '../ai/food_photo.dart';
 import '../ai/copilot_drafter.dart';
 import '../ai/secret_store.dart';
+import '../ai/trend_writer.dart';
 import '../engines/label_text.dart';
 import '../storage/database.dart';
 
@@ -268,6 +269,19 @@ class AiService {
       ),
       note: note,
     );
+  }
+
+  /// [facts] in a few sentences, by Apple's on-device model when it is
+  /// the provider; null otherwise, or when the answer adds a figure the
+  /// facts do not have. Trend facts are not worth a request to the
+  /// cloud: without the summary the page says the same thing.
+  Future<String?> summarizeTrends(List<String> facts) async {
+    if (facts.isEmpty || provider != AiProviderKind.appleOnDevice) return null;
+    if (drafters[AiProviderKind.appleOnDevice] case final TrendWriter writer) {
+      final answer = await writer.summarizeTrends(facts.join('\n'));
+      return keepsToFacts(answer, facts) ? answer.trim() : null;
+    }
+    return null;
   }
 
   /// The chosen provider's drafter, once the rules allow a request.

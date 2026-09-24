@@ -2,6 +2,7 @@ import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -246,21 +247,32 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the trends summary goes three across when there is room', (
-    tester,
-  ) async {
+  testWidgets('trends puts the long run beside the changes when there is '
+      'room', (tester) async {
     for (final (window, isWide) in [
       (phone, false),
       (const WindowCase('839 × 900', Size(839, 900)), true),
     ]) {
       final store = _store()..selectTab(HomeTab.trends);
       await pumpScreen(tester, const HomeShell(), store: store, window: window);
-      final weight = tester.getRect(find.text('體重').first);
-      final activity = tester.getRect(find.text('每週運動'));
+      final changes = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(TrendsScreen),
+              matching: find.byType(InsightCard),
+            )
+            .first,
+      );
+      final longRun = tester.getRect(
+        find.descendant(
+          of: find.byType(TrendsScreen),
+          matching: find.text('長期走向'),
+        ),
+      );
       expect(
-        activity.top == weight.top,
+        longRun.left >= changes.right,
         isWide,
-        reason: '$window: exercise beside weight only when wide',
+        reason: '$window: side by side only when wide',
       );
       await disposeTree(tester);
     }

@@ -1,9 +1,12 @@
 import '../../domain/domain.dart';
+import '../engines/activity_metrics.dart';
 import '../engines/insight_engine.dart';
 import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
 import '../engines/trend_engine.dart';
+import '../engines/trend_findings.dart';
 import '../engines/workout_review.dart';
+import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
 import '../storage/journal_repository.dart';
@@ -50,6 +53,34 @@ class TrendsOverview {
       weeklyWorkouts.isEmpty ? 0 : weeklyWorkouts.last.$2;
 }
 
+/// What the Trends page says: the changes worth noticing, strongest
+/// first; a relation between two areas when the records support one;
+/// and each area's long-run line.
+class TrendsReport {
+  const TrendsReport({
+    required this.findings,
+    required this.relation,
+    required this.lines,
+  });
+
+  final List<({TrendDomain domain, Insight insight})> findings;
+  final Insight? relation;
+  final List<TrendLine> lines;
+
+  /// Every figure said above, one line each, for a writer to put into
+  /// words without adding any.
+  List<String> get facts => [
+    for (final finding in findings) finding.insight.statement,
+    ?relation?.statement,
+    for (final line in lines)
+      '${line.domain.label}：${line.value}'
+          '${line.change == null ? '' : '，${line.change}'}',
+  ];
+}
+
+/// How many changes the Trends page leads with.
+const _findingCount = 3;
+
 /// One exercise's training volume over a window, with the insight it
 /// supports.
 class VolumeReport {
@@ -78,6 +109,7 @@ class InsightsService {
     this._exercises,
     this._meals,
     this._journal,
+    this._samples,
   );
 
   final AppDatabase _db;
@@ -85,6 +117,7 @@ class InsightsService {
   final ExerciseRepository _exercises;
   final MealRepository _meals;
   final JournalRepository _journal;
+  final ActivitySampleRepository _samples;
 
   /// The most recent insights worth surfacing, strongest first.
   List<Insight> today({Duration window = const Duration(days: 28)}) {
@@ -122,6 +155,91 @@ class InsightsService {
         ?weightTrendInsight(weight, dayCount: window.inDays),
         ?weeklyTrainingInsight(weeklyWorkouts, goalPerWeek: weeklyTrainingGoal),
       ],
+    );
+  }
+
+  /// The changes worth noticing, a relation between sleep and training
+  /// when the records support one, and each area's long-run line, over
+  /// the latest [trendWindowDays] and the stretch before.
+  TrendsReport report() {
+    final now = _db.now();
+    final from = _dayOf(now)
+        .subtract(const Duration(days: trendLineWeeks * DateTime.daysPerWeek));
+    final until = _db.nowInclusive;
+    final nights = [
+      for (final entry in _journal.sleepBetween(from, until))
+        if (entry.kind == SleepKind.night &&
+            entry.measure == SleepMeasure.asleep)
+          (entry.sleptAt, entry.duration.inMinutes.toDouble()),
+    ];
+    final weights = _journal.weightsBetween(from, until);
+    final starts = _workouts.completedStarts(since: from);
+    final steps = dailyValues(
+      _samples.between(ActivityMetric.steps, from, until),
+    );
+    final restingHeartRate = dailyValues(
+      _samples.between(ActivityMetric.restingHeartRate, from, until),
+    );
+    final (completeDays, daysTracked) = _completeFoodDays(from, until, now);
+    final findings = [
+      ?weightFinding(weights, now),
+      ?trainingFinding(starts, now),
+      ?strengthFinding([
+        for (final exercise in _exercises.all())
+          if (exercise.recordCount > 0)
+            (exercise.name, _exercises.history(exercise.id)),
+      ], now),
+      ?sleepFinding(nights, now),
+      ?intakeFinding(completeDays, now),
+      ?stepsFinding(steps, now),
+      ?restingHeartRateFinding(restingHeartRate, now),
+    ]..sort((a, b) => b.strength.compareTo(a.strength));
+    return TrendsReport(
+      findings: [
+        for (final finding in findings.take(_findingCount))
+          (domain: finding.domain, insight: finding.insight),
+      ],
+      relation: sleepAndTrainingInsight({
+        for (final (wokeAt, minutes) in nights) _dayOf(wokeAt): minutes,
+      }, _workouts.completedVolumes(since: from)),
+      lines: [
+        ?bodyLine(weights, now),
+        ?trainingLine(starts, now),
+        ?sleepLine(nights, now),
+        ?nutritionLine(completeDays, daysTracked, now),
+        ?activityLine(steps, now),
+      ],
+    );
+  }
+
+  static DateTime _dayOf(DateTime time) =>
+      DateTime(time.year, time.month, time.day);
+
+  /// Energy eaten on each complete day from [from], and how many days in
+  /// the latest stretch have any food record. Today is never complete:
+  /// it is not over.
+  (List<(DateTime, double)>, int) _completeFoodDays(
+    DateTime from,
+    DateTime until,
+    DateTime now,
+  ) {
+    final byDay = <DateTime, List<MealEvent>>{};
+    for (final (eatenAt, meal) in _meals.between(from, until)) {
+      (byDay[_dayOf(eatenAt)] ??= []).add(meal);
+    }
+    final today = _dayOf(now);
+    final recentStart = today.subtract(
+      const Duration(days: trendWindowDays - 1),
+    );
+    final complete = <(DateTime, double)>[];
+    for (final MapEntry(key: day, value: meals) in byDay.entries) {
+      final summary = summariseDay(meals, isOver: day.isBefore(today));
+      if (summary.isComplete) complete.add((day, summary.kcal.toDouble()));
+    }
+    complete.sort((a, b) => a.$1.compareTo(b.$1));
+    return (
+      complete,
+      byDay.keys.where((day) => !day.isBefore(recentStart)).length,
     );
   }
 

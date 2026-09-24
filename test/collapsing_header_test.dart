@@ -232,16 +232,6 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('trends range control stays pinned', (tester) async {
-    await _pumpApp(tester, tab: HomeTab.trends);
-
-    await _scroll(tester, 600);
-
-    expect(find.text('近 4 週').hitTestable(), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await disposeTree(tester);
-  });
-
   testWidgets('workout hero collapses into a live bar', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
       ..startWorkout();

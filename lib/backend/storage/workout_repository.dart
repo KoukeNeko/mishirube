@@ -89,6 +89,26 @@ class WorkoutRepository {
       DateTime.fromMillisecondsSinceEpoch(row['started_at']),
   ];
 
+  /// Each finished workout since [since], oldest first: when it started,
+  /// its name, and the load moved in its counted sets (done, not
+  /// warm-up), in kg.
+  List<(DateTime, String, double)> completedVolumes({DateTime? since}) => [
+    for (final row in _db.select(
+      "SELECT w.started_at, w.name, "
+      "COALESCE(SUM(CASE WHEN s.is_done = 1 AND s.set_type != 'warmup' "
+      'THEN s.weight_kg * s.reps END), 0) AS volume '
+      'FROM workouts w LEFT JOIN workout_sets s ON s.workout_id = w.id '
+      "WHERE w.status = 'completed' AND w.deleted_at IS NULL "
+      'AND w.started_at >= ? GROUP BY w.id ORDER BY w.started_at',
+      [since?.millisecondsSinceEpoch ?? 0],
+    ))
+      (
+        DateTime.fromMillisecondsSinceEpoch(row['started_at']),
+        row['name'] as String,
+        (row['volume'] as num).toDouble(),
+      ),
+  ];
+
   /// Whether a live workout was already imported with [fingerprint].
   bool hasFingerprint(String fingerprint) => _db.select(
     'SELECT 1 FROM workouts WHERE fingerprint = ? AND deleted_at IS NULL',
