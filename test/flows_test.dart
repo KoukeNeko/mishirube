@@ -818,12 +818,14 @@ void main() {
     await pumpScreen(tester, const SleepEntryScreen(), store: store);
 
     await _tapText(tester, '小睡');
+    await tester.enterText(find.byType(TextField), '午餐後');
     await _tapText(tester, '儲存');
     final nap = store.backend.journal
         .recentSleep(const Duration(days: 1))
         .firstWhere((entry) => entry.kind == SleepKind.nap);
     expect(nap.duration, const Duration(minutes: 30));
     expect(nap.startedAt, clock.now().subtract(const Duration(minutes: 30)));
+    expect(nap.note, '午餐後');
     await disposeTree(tester);
   });
 

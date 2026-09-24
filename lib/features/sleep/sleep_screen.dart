@@ -102,7 +102,12 @@ class _SleepScreenState extends State<SleepScreen> {
           ),
         if (night != null) ...[
           Gutter(
-            child: _Summary(record: night, goal: _model.goal, naps: naps),
+            child: _Summary(
+              record: night,
+              goal: _model.goal,
+              usual: _model.usualNight,
+              naps: naps,
+            ),
           ),
           ..._stages(night),
           ..._continuity(night),
@@ -511,6 +516,7 @@ class _Summary extends StatelessWidget {
   const _Summary({
     required this.record,
     required this.goal,
+    required this.usual,
     required this.naps,
   });
 
@@ -519,8 +525,21 @@ class _Summary extends StatelessWidget {
   /// The night's length is read against it when there is one.
   final Duration? goal;
 
+  /// The average night of the four weeks before.
+  final Duration? usual;
+
   /// The day's naps, which add to the day's sleep but not to the night.
   final List<SleepRecord> naps;
+
+  /// The night against the usual one, when both measure time asleep.
+  String? _againstUsual(SleepEntry entry) {
+    final usual = this.usual;
+    if (usual == null || entry.measure != SleepMeasure.asleep) return null;
+    final gap = entry.duration - usual;
+    if (gap.inMinutes.abs() < 1) return '與近 28 晚平均相同';
+    return '較近 28 晚平均 ${gap.isNegative ? '−' : '+'}'
+        '${formatHoursMinutes(gap.abs())}';
+  }
 
   /// The night against the goal: time in bed is not measured against a
   /// goal for sleep.
@@ -559,6 +578,8 @@ class _Summary extends StatelessWidget {
           ),
           if (_againstGoal(entry) case final line?)
             Text(line, style: AppTextStyles.caption),
+          if (_againstUsual(entry) case final line?)
+            Text(line, style: AppTextStyles.caption),
           if (naps.isNotEmpty)
             Text(
               '含小睡共 ${formatHoursMinutes(naps.fold(entry.duration, (sum, nap) => sum + nap.entry.duration))}',
@@ -567,6 +588,10 @@ class _Summary extends StatelessWidget {
           if (tags.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             TagWrap(labels: tags),
+          ],
+          if (entry.note.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(entry.note, style: AppTextStyles.body),
           ],
         ],
       ),

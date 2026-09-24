@@ -106,4 +106,15 @@ void main() {
     expect(continuity.awakenings, 1);
     expect(continuity.efficiency, closeTo(440 / 480, 0.001));
   });
+
+  test('the usual night is the four weeks before, not the day itself', () {
+    final now = backend.db.now();
+    for (final (days, hours) in [(1, 6), (2, 8), (0, 9)]) {
+      backend.journal.recordSleep(
+        Duration(hours: hours),
+        at: DateTime(now.year, now.month, now.day - days, 7),
+      );
+    }
+    expect(model.usualNight, const Duration(hours: 7));
+  });
 }

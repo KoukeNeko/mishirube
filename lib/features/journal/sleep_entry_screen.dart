@@ -36,6 +36,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
   late DateTime _start;
   late DateTime _end;
   late int? _score = widget.editing?.score;
+  late final _note = TextEditingController(text: widget.editing?.note ?? '');
 
   /// Whether the times are the user's: a new sleep, or one typed in here.
   late bool _ownsTimes;
@@ -58,6 +59,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
 
   @override
   void dispose() {
+    _note.dispose();
     _journal.dispose();
     super.dispose();
   }
@@ -125,6 +127,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
       _journal.recordSleep(
         _length,
         score: _score,
+        note: _note.text.trim(),
         at: _end,
         startedAt: _start,
         kind: _kind,
@@ -136,7 +139,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
           sleptAt: _ownsTimes ? _end : editing.sleptAt,
           duration: _ownsTimes ? _length : editing.duration,
           score: _score,
-          note: editing.note,
+          note: _note.text.trim(),
           startedAt: _ownsTimes ? _start : editing.startedAt,
           kind: _ownsTimes ? _kind : editing.kind,
           measure: editing.measure,
@@ -234,6 +237,14 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
             // valid answer.
             onTap: (score) =>
                 setState(() => _score = _score == score ? null : score),
+          ),
+        ),
+        Gutter(child: const SectionLabel('備註（選填）')),
+        Gutter(
+          child: AppTextField(
+            controller: _note,
+            hint: '例如：睡前喝了咖啡、半夜醒來',
+            maxLines: 3,
           ),
         ),
       ],

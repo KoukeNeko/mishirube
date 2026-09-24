@@ -54,6 +54,21 @@ class SleepViewModel extends ViewModel {
     ];
   }
 
+  /// The average night asleep over the four weeks before the day shown,
+  /// for reading the day's night against; null without one.
+  Duration? get usualNight {
+    final nights = [
+      for (final night in backend.sleep.nights(
+        _day.subtract(const Duration(days: 28)),
+        _day,
+      ))
+        if (night.measure == SleepMeasure.asleep) night,
+    ];
+    if (nights.isEmpty) return null;
+    return nights.fold(Duration.zero, (sum, n) => sum + n.duration) ~/
+        nights.length;
+  }
+
   /// How long a night the user aims for; null until set.
   Duration? get goal => backend.sleep.goal;
 
