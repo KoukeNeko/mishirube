@@ -71,7 +71,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   );
 
   Widget _page(BuildContext context) {
-    final store = AppStoreScope.of(context);
     final day = _day;
     final meals = _nutrition.mealsOn(day);
     final summary = _nutrition.summaryOf(day);
@@ -84,7 +83,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         kcal: summary.kcal,
         mealCount: summary.mealCount,
         mealsWithoutFigures: summary.mealsWithoutFigures,
-        isLunchLogged: store.isLunchLogged,
       ),
       children: [
         if (meals.isEmpty)
@@ -255,7 +253,6 @@ class _DailyTotalBar extends StatelessWidget {
     required this.kcal,
     required this.mealsWithoutFigures,
     required this.mealCount,
-    required this.isLunchLogged,
   });
 
   final int kcal;
@@ -264,11 +261,9 @@ class _DailyTotalBar extends StatelessWidget {
   /// any of them is in the day.
   final int mealsWithoutFigures;
   final int mealCount;
-  final bool isLunchLogged;
 
   @override
   Widget build(BuildContext context) {
-    final pending = isLunchLogged ? '晚餐未記錄' : '午餐、晚餐未記錄';
     final unknown = mealsWithoutFigures == 0
         ? ''
         : ' · $mealsWithoutFigures 餐沒有熱量';
@@ -284,7 +279,7 @@ class _DailyTotalBar extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              '$mealCount 餐 · $pending$unknown',
+              '$mealCount 餐$unknown',
               textAlign: TextAlign.right,
               style: AppTextStyles.caption,
             ),

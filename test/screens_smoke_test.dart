@@ -17,6 +17,7 @@ import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/today/today_layout_screen.dart';
 import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
@@ -137,6 +138,24 @@ void _withStagedNight(AppStore store) {
 }
 
 void _withLunch(AppStore store) => store.confirmLunch();
+
+/// The states Today has to hold up in: as seeded, with the day's records,
+/// after a workout, and with one running.
+final _todayStates = <(String, _StoreSetup)>[
+  ('as seeded', _noSetup),
+  ('with records', (store) {
+    _withLunch(store);
+    _withBody(store);
+    _withStagedNight(store);
+  }),
+  ('after a workout', (store) {
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+  }),
+  ('during a workout', _withWorkout),
+];
 
 /// Weighings over a month, height, a scale's reading and a waist.
 void _withBody(AppStore store) {
@@ -359,6 +378,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
   'body': ((_) => const BodyScreen(), _noSetup),
+  'today layout': ((_) => const TodayLayoutScreen(), _noSetup),
   'body, measured': ((_) => const BodyScreen(), _withBody),
   'body reading entry': ((_) => const BodyReadingEntryScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
@@ -409,14 +429,12 @@ void main() {
   }
 
   for (final window in _windows) {
-    for (final phase in DayPhase.values) {
-      testWidgets(_named('today in $phase renders every tab', window), (
+    for (final (state, setUp) in _todayStates) {
+      testWidgets(_named('today $state renders every tab', window), (
         tester,
       ) async {
         final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-        while (store.phase != phase) {
-          store.cyclePhase();
-        }
+        setUp(store);
         await pumpScreen(
           tester,
           const HomeShell(),

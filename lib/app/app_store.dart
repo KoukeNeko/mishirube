@@ -25,17 +25,6 @@ export '../backend/application/provenance_service.dart'
 export '../backend/application/nutrition_service.dart'
     show DishSplitSnapshot, RecentFood, RecentMeal;
 
-/// Which moment of the mock day the Today screen is showing.
-enum DayPhase {
-  morning('早上'),
-  noon('中午'),
-  evening('20:41');
-
-  const DayPhase(this.label);
-
-  final String label;
-}
-
 enum AppModule {
   nutrition('飲食', '一餐、料理、成分與營養'),
   weight('體重', '體重與圍度'),
@@ -128,7 +117,6 @@ class AppStore extends ChangeNotifier {
     AppModule.sleep,
     AppModule.wellness,
   };
-  DayPhase _phase = DayPhase.morning;
   late Routine _routine;
   ActiveSession? _session;
   WorkoutSession? _lastFinishedWorkout;
@@ -172,7 +160,6 @@ class AppStore extends ChangeNotifier {
   Backend get backend => _backend;
   bool get isOnboarded => _isOnboarded;
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
-  DayPhase get phase => _phase;
   Routine get routine => _routine;
 
   /// Every template, for choosing what to train.
@@ -332,13 +319,6 @@ class AppStore extends ChangeNotifier {
   void completeOnboarding() {
     _isOnboarded = true;
     _backend.db.setSetting(_onboardedKey, 'true');
-    notifyListeners();
-  }
-
-  void cyclePhase() {
-    final nextIndex = (_phase.index + 1) % DayPhase.values.length;
-    _phase = DayPhase.values[nextIndex];
-    if (_phase == DayPhase.evening) _ensureLunchLogged();
     notifyListeners();
   }
 
@@ -679,8 +659,6 @@ class AppStore extends ChangeNotifier {
     _lastFinishedWorkout = workout;
     _session = null;
     _restEndsAt = null;
-    _phase = DayPhase.evening;
-    _ensureLunchLogged();
     _routine = _backend.training.routine(_routine.id, _exercisesById)!;
     _reloadExercises();
     notifyListeners();

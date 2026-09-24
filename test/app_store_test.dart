@@ -55,18 +55,20 @@ void main() {
       expect(store.workoutReview(store.activeWorkout!).records, 1);
     });
 
-    test('finishWorkout records duration and moves Today to evening', () {
+    test('finishWorkout records duration and logs nothing else', () {
       store.startWorkout();
       clock.advance(const Duration(minutes: 58, seconds: 2));
       store.finishWorkout();
 
       final finished = store.lastFinishedWorkout!;
+      final meals = store.todayMeals.length;
       expect(store.activeWorkout, isNull);
-      expect(store.phase, DayPhase.evening);
       expect(
         finished.elapsedAt(finished.finishedAt!),
         const Duration(minutes: 58, seconds: 2),
-      );      expect(
+      );
+      expect(store.todayMeals, hasLength(meals), reason: 'no sample lunch');
+      expect(
         store.recentRoutineWorkouts.first.id,
         finished.id,
         reason: 'the template lists what was really done, newest first',
@@ -230,11 +232,5 @@ void main() {
         isNull,
       );
     });
-  });
-
-  test('cyclePhase walks morning → noon → evening → morning', () {
-    final phases = [for (var i = 0; i < 3; i++) (store..cyclePhase()).phase];
-
-    expect(phases, [DayPhase.noon, DayPhase.evening, DayPhase.morning]);
   });
 }

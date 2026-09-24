@@ -5,13 +5,9 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
-import '../activity/activity_detail_screen.dart';
-import '../journal/journal_detail_screen.dart';
-import '../nutrition/daily_nutrition_screen.dart';
-import '../sleep/sleep_screen.dart';
-import '../training/workout_summary_screen.dart';
 import 'month_calendar.dart';
 import 'log_view_model.dart';
+import 'timeline_destination.dart';
 
 enum _LogView { timeline, calendar }
 
@@ -120,24 +116,7 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   void _openEntry(TimelineEntry entry) {
-    // Exhaustive on purpose: a new kind of record must decide what
-    // opening its row does, rather than silently doing nothing.
-    final id = entry.recordId;
-    final destination = switch (entry.category) {
-      RecordCategory.training => WorkoutSummaryScreen(workoutId: id),
-      RecordCategory.nutrition => DailyNutritionScreen(day: entry.at),
-      RecordCategory.activity when id != null => ActivityDetailScreen(
-        activityId: id,
-      ),
-      // A sleep opens on its day's sleep page, stages and all.
-      RecordCategory.wellness when id != null && _log.isSleep(id) =>
-        SleepScreen(day: entry.at),
-      RecordCategory.body || RecordCategory.wellness when id != null =>
-        JournalDetailScreen(id: id, at: entry.at),
-      // Every source gives its rows an id; a row without one has nothing
-      // behind it to open.
-      _ => null,
-    };
+    final destination = timelineDestination(entry, isSleep: _log.isSleep);
     if (destination != null) pushPage(context, destination);
   }
 

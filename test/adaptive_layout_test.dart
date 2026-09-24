@@ -306,7 +306,7 @@ void main() {
   testWidgets('the nutrients of the day show their full names on a phone', (
     tester,
   ) async {
-    final store = _store()..cyclePhase();
+    final store = _store();
     await pumpScreen(tester, const TodayScreen(), store: store, window: phone);
     final line = tester.getSize(find.text('蛋白質')).height;
     for (final name in ['碳水化合物', '膳食纖維']) {

@@ -46,11 +46,6 @@ void main() {
 
   testWidgets('a drink is a record, not a sitting', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    // The evening card is the one that reports a count; the morning one
-    // offers to record breakfast instead.
-    while (store.phase != DayPhase.evening) {
-      store.cyclePhase();
-    }
     await pumpScreen(tester, const TodayScreen(), store: store);
 
     final meals = store.todaySummary.mealCount;
@@ -91,7 +86,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await reveal(tester, find.textContaining('餐 ·'));
+    await reveal(tester, find.textContaining('$meals 餐'));
     expect(
       find.textContaining('$meals 餐'),
       findsOneWidget,
@@ -106,10 +101,6 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    // The card with the macro tiles is the midday one.
-    while (store.phase != DayPhase.noon) {
-      store.cyclePhase();
-    }
     store.backend.nutrition.logPortion(
       FoodPortion(FoodItem(id: 'bar', name: '能量棒', kcal: 200), 1),
     );

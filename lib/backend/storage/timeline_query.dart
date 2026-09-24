@@ -26,6 +26,15 @@ class TimelineQuery {
     return earliest == null ? null : DateTime(earliest.year, earliest.month);
   }
 
+  /// Every record of [day], oldest first: the day as it went.
+  List<TimelineEntry> day(DateTime day) {
+    final start = DateTime(day.year, day.month, day.day);
+    final end = DateTime(day.year, day.month, day.day + 1);
+    final rows = [for (final source in sources) ...source.entriesIn(start, end)]
+      ..sort((a, b) => a.$1.compareTo(b.$1));
+    return [for (final (_, entry) in rows) entry];
+  }
+
   MonthRecords month(DateTime month) {
     final start = DateTime(month.year, month.month);
     final end = DateTime(month.year, month.month + 1);
