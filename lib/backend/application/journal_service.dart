@@ -60,11 +60,15 @@ class JournalService {
     return entry;
   }
 
+  /// A sleep typed in: how long, and, when the user gives them, when it
+  /// began and ended ([at]) and whether it was the night or a nap.
   SleepEntry recordSleep(
     Duration slept, {
     int? score,
     String note = '',
     DateTime? at,
+    DateTime? startedAt,
+    SleepKind kind = SleepKind.night,
   }) {
     final entry = SleepEntry(
       id: _db.newId(),
@@ -72,6 +76,8 @@ class JournalService {
       duration: slept,
       score: score,
       note: note,
+      startedAt: startedAt,
+      kind: kind,
     );
     _journal.addSleep(entry);
     return entry;
@@ -89,6 +95,11 @@ class JournalService {
   Object? entry(String id) => _journal.byId(id);
 
   ChangeSource? sourceOf(String id) => _journal.sourceOf(id);
+
+  /// Whether a record was typed in here rather than read from a health
+  /// platform, so its times are the user's to change.
+  bool isTypedIn(String id) =>
+      (_journal.sourceOf(id) ?? ChangeSource.local) == ChangeSource.local;
 
   void updateWeight(BodyWeight weight) => _journal.updateWeight(weight);
 

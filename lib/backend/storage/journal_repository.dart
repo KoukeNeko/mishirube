@@ -567,10 +567,17 @@ class JournalRepository {
     {'centimetres': measurement.centimetres, 'note': measurement.note},
   );
 
+  /// Rewrites a sleep. Its times are part of what it records, so unlike
+  /// a weight a corrected sleep can move to another morning.
   void updateSleep(SleepEntry entry) => _update('sleep_entries', entry.id, {
     'duration_minutes': entry.duration.inMinutes,
     'score': entry.score,
     'note': entry.note,
+    'slept_at': entry.sleptAt.millisecondsSinceEpoch,
+    'started_at': entry.startedAt?.millisecondsSinceEpoch,
+    'kind': entry.kind.name,
+    'local_day': localDayOf(entry.sleptAt),
+    'utc_offset_minutes': entry.sleptAt.timeZoneOffset.inMinutes,
   });
 
   void updateWellness(WellnessEntry entry) => _update(

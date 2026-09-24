@@ -33,8 +33,21 @@ class JournalViewModel extends ViewModel {
   void recordMeasurement(MeasurementSite site, double centimetres) =>
       backend.journal.recordMeasurement(site, centimetres);
 
-  void recordSleep(Duration slept, {int? score, String note = ''}) =>
-      backend.journal.recordSleep(slept, score: score, note: note);
+  void recordSleep(
+    Duration slept, {
+    int? score,
+    String note = '',
+    DateTime? at,
+    DateTime? startedAt,
+    SleepKind kind = SleepKind.night,
+  }) => backend.journal.recordSleep(
+    slept,
+    score: score,
+    note: note,
+    at: at,
+    startedAt: startedAt,
+    kind: kind,
+  );
 
   void recordWellness(WellnessKind kind, int score, {String note = ''}) =>
       backend.journal.recordWellness(kind, score, note: note);
@@ -47,6 +60,9 @@ class JournalViewModel extends ViewModel {
       backend.journal.updateMeasurement(measurement);
 
   void updateSleep(SleepEntry entry) => backend.journal.updateSleep(entry);
+
+  /// Whether a record was typed in here, not read from a health platform.
+  bool isTypedIn(String id) => backend.journal.isTypedIn(id);
 
   void updateWellness(WellnessEntry entry) =>
       backend.journal.updateWellness(entry);

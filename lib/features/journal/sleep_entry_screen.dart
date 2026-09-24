@@ -7,19 +7,23 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'journal_view_model.dart';
 
-/// The range a night is logged in, in 15-minute steps.
-const _minMinutes = 180;
-const _maxMinutes = 720;
-const _stepMinutes = 15;
+/// When a night is assumed to begin and end before anything was logged.
+const _defaultBedtime = TimeOfDay(hour: 23, minute: 0);
+const _defaultWake = TimeOfDay(hour: 7, minute: 0);
 
-/// Starting point when nothing was logged before.
-const _defaultMinutes = 450;
+/// A nap assumed before anything else is said: the last half hour.
+const _defaultNap = Duration(minutes: 30);
 
-/// Logging one night: how long, and how it felt if the user says.
+/// Logging one sleep: the night or a nap, when it began and ended, and
+/// how it felt if the user says.
+///
+/// A sleep read from a health platform keeps the platform's times, which
+/// the next read would bring back anyway; only its rating and note are
+/// the user's to change here.
 class SleepEntryScreen extends StatefulWidget {
   const SleepEntryScreen({super.key, this.editing});
 
-  /// A night to correct instead of logging a new one.
+  /// A sleep to correct instead of logging a new one.
   final SleepEntry? editing;
 
   @override
@@ -28,11 +32,28 @@ class SleepEntryScreen extends StatefulWidget {
 
 class _SleepEntryScreenState extends State<SleepEntryScreen> {
   late final JournalViewModel _journal;
+  late SleepKind _kind;
+  late DateTime _start;
+  late DateTime _end;
+  late int? _score = widget.editing?.score;
+
+  /// Whether the times are the user's: a new sleep, or one typed in here.
+  late bool _ownsTimes;
 
   @override
   void initState() {
     super.initState();
-    _journal = JournalViewModel(AppStoreScope.read(context).backend);
+    final store = AppStoreScope.read(context);
+    _journal = JournalViewModel(store.backend);
+    final editing = widget.editing;
+    _ownsTimes = editing == null || _journal.isTypedIn(editing.id);
+    _kind = editing?.kind ?? SleepKind.night;
+    if (editing != null) {
+      _end = editing.sleptAt;
+      _start = editing.startedAt ?? editing.sleptAt.subtract(editing.duration);
+    } else {
+      _setDefaults(store.now());
+    }
   }
 
   @override
@@ -41,68 +62,167 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
     super.dispose();
   }
 
-  late int _minutes =
-      (widget.editing ?? _lastNight)?.duration.inMinutes ?? _defaultMinutes;
-  late int? _score = widget.editing?.score;
+  /// Last night from the default bedtime to the default waking, or, for a
+  /// nap, the half hour before now.
+  void _setDefaults(DateTime now) {
+    if (_kind == SleepKind.nap) {
+      _end = now;
+      _start = now.subtract(_defaultNap);
+      return;
+    }
+    final today = DateTime(now.year, now.month, now.day);
+    var wake = today.add(
+      Duration(hours: _defaultWake.hour, minutes: _defaultWake.minute),
+    );
+    if (wake.isAfter(now)) wake = now;
+    final bed = today
+        .subtract(const Duration(days: 1))
+        .add(
+          Duration(
+            hours: _defaultBedtime.hour,
+            minutes: _defaultBedtime.minute,
+          ),
+        );
+    _start = bed;
+    _end = wake;
+  }
 
-  SleepEntry? get _lastNight => _journal.recentSleep.lastOrNull;
+  Duration get _length => _end.difference(_start);
+
+  bool get _isValid =>
+      _length > Duration.zero &&
+      _length <= const Duration(hours: 24) &&
+      !_end.isAfter(AppStoreScope.read(context).now());
+
+  Future<void> _pick({required bool isStart}) async {
+    final store = AppStoreScope.read(context);
+    final current = isStart ? _start : _end;
+    final date = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(store.now().year - 1),
+      lastDate: store.now(),
+    );
+    if (date == null || !mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (time == null || !mounted) return;
+    final picked = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    setState(() => isStart ? _start = picked : _end = picked);
+  }
 
   void _save() {
     final editing = widget.editing;
     if (editing == null) {
-      _journal.recordSleep(Duration(minutes: _minutes), score: _score);
+      _journal.recordSleep(
+        _length,
+        score: _score,
+        at: _end,
+        startedAt: _start,
+        kind: _kind,
+      );
     } else {
       _journal.updateSleep(
         SleepEntry(
           id: editing.id,
-          sleptAt: editing.sleptAt,
-          duration: Duration(minutes: _minutes),
+          sleptAt: _ownsTimes ? _end : editing.sleptAt,
+          duration: _ownsTimes ? _length : editing.duration,
           score: _score,
           note: editing.note,
+          startedAt: _ownsTimes ? _start : editing.startedAt,
+          kind: _ownsTimes ? _kind : editing.kind,
+          measure: editing.measure,
+          sourceName: editing.sourceName,
         ),
       );
     }
     Navigator.of(context).pop();
     showToast(
       context,
-      '${editing == null ? '已記錄' : '已更新'}睡眠 ${_label(_minutes)}',
+      '${editing == null ? '已記錄' : '已更新'}${_kind.label} '
+      '${formatHoursMinutes(_length)}',
       kind: ToastKind.success,
     );
   }
 
-  static String _label(int minutes) =>
-      formatHoursMinutes(Duration(minutes: minutes));
+  static String _when(DateTime time) =>
+      '${time.month} 月 ${time.day} 日 ${formatTimeOfDay(time)}';
 
   @override
   Widget build(BuildContext context) {
+    final length = _length;
     return DetailPage(
       appBar: PageAppBar(title: '睡眠'),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      footer: PrimaryButton(
+        label: '儲存',
+        onPressed: _isValid || !_ownsTimes ? _save : null,
+      ),
       children: [
-        Gutter(
-          child: AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        if (_ownsTimes) ...[
+          if (widget.editing == null)
+            Gutter(
+              child: SegmentedChoice<SleepKind>(
+                options: SleepKind.values,
+                selected: _kind,
+                labelOf: (kind) => kind.label,
+                selectedColor: AppColors.wellness,
+                onChanged: (kind) => setState(() {
+                  _kind = kind;
+                  _setDefaults(AppStoreScope.read(context).now());
+                }),
+              ),
+            ),
+          Gutter(
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    length > Duration.zero ? formatHoursMinutes(length) : '—',
+                    style: AppTextStyles.hugeNumber.copyWith(
+                      color: AppColors.wellness,
+                    ),
+                  ),
+                  if (!_isValid)
+                    Text(
+                      length <= Duration.zero
+                          ? '起床時間要在入睡之後'
+                          : length > const Duration(hours: 24)
+                          ? '一次睡眠不超過 24 小時'
+                          : '起床時間不能晚於現在',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.destructive,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Gutter(
+            child: GroupedCard(
               children: [
-                const Text('睡了多久', style: AppTextStyles.caption),
-                const SizedBox(height: AppSpacing.xs),
-                Text(_label(_minutes), style: AppTextStyles.hugeNumber),
-                const SizedBox(height: AppSpacing.xs),
-                StepSlider(
-                  value: _minutes.toDouble(),
-                  min: _minMinutes.toDouble(),
-                  max: _maxMinutes.toDouble(),
-                  step: _stepMinutes.toDouble(),
-                  color: AppColors.wellness,
-                  semanticLabel: '睡了多久',
-                  labelOf: (minutes) => _label(minutes.round()),
-                  onChanged: (value) =>
-                      setState(() => _minutes = value.round()),
+                NavRow(
+                  title: '入睡',
+                  subtitle: _when(_start),
+                  onTap: () => _pick(isStart: true),
+                ),
+                NavRow(
+                  title: '起床',
+                  subtitle: _when(_end),
+                  onTap: () => _pick(isStart: false),
                 ),
               ],
             ),
           ),
-        ),
+        ],
         Gutter(child: const SectionLabel('品質（選填）')),
         Gutter(
           child: ChipWrap(

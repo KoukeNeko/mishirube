@@ -14,6 +14,7 @@ import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
+import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
@@ -793,6 +794,22 @@ void main() {
     // nothing to confirm.
     expect(find.text('加入 1 個動作'), findsNothing);
     expect(find.text('加入這個動作'), findsNothing, reason: 'nothing to add to');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a sleep is logged by when it began and ended', (tester) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await pumpScreen(tester, const SleepEntryScreen(), store: store);
+
+    await _tapText(tester, '小睡');
+    await _tapText(tester, '儲存');
+    final nap = store.backend.journal
+        .recentSleep(const Duration(days: 1))
+        .firstWhere((entry) => entry.kind == SleepKind.nap);
+    expect(nap.duration, const Duration(minutes: 30));
+    expect(nap.startedAt, clock.now().subtract(const Duration(minutes: 30)));
     await disposeTree(tester);
   });
 
