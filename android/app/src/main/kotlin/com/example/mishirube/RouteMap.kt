@@ -155,3 +155,122 @@ class RouteMapView(context: Context, args: Map<*, *>) : PlatformView {
         map.onDestroy()
     }
 }
+
+/**
+ * A workout's route as a picture, for lib/features/activity/route_map.dart:
+ * OpenFreeMap's dark map with the route drawn on it. The top of a
+ * workout's page shows this rather than a live map, so Flutter can blur
+ * it and the bar's glass can refract it. Without a network the route is
+ * drawn on the plain background instead.
+ */
+class RouteSnapshotBridge(private val context: Context) {
+    // Held until each finishes: a snapshotter no one holds is collected.
+    private val running = mutableSetOf<org.maplibre.android.snapshotter.MapSnapshotter>()
+
+    fun handle(call: io.flutter.plugin.common.MethodCall, result: io.flutter.plugin.common.MethodChannel.Result) {
+        if (call.method != "snapshot") {
+            result.notImplemented()
+            return
+        }
+        val points = call.argument<List<List<Number>>>("points").orEmpty()
+            .map { point -> point.map { it.toDouble() } }
+            .filter { it.size >= 3 }
+        val width = call.argument<Number>("width")?.toFloat() ?: 0f
+        val height = call.argument<Number>("height")?.toFloat() ?: 0f
+        val scale = call.argument<Number>("scale")?.toFloat() ?: 3f
+        val insets = call.argument<List<Number>>("insets").orEmpty().map { it.toFloat() }
+        if (points.size < 2 || width <= 0f || height <= 0f) {
+            result.success(null)
+            return
+        }
+        val top = (insets.firstOrNull() ?: 0f) + 24f
+        val bottom = (insets.lastOrNull() ?: 0f) + 24f
+        // The route's bounds grown so it sits between the buttons and the
+        // title, in what shows.
+        val lats = points.map { it[0] }
+        val lons = points.map { it[1] }
+        val usableHeight = maxOf(height - top - bottom, 1f)
+        val usableWidth = maxOf(width - 64f, 1f)
+        val latPerPoint = maxOf(lats.max() - lats.min(), 0.0005) / usableHeight
+        val lonPerPoint = maxOf(lons.max() - lons.min(), 0.0005) / usableWidth
+        val region = LatLngBounds.Builder()
+            .include(LatLng(lats.max() + top * latPerPoint, lons.max() + 32 * lonPerPoint))
+            .include(LatLng(lats.min() - bottom * latPerPoint, lons.min() - 32 * lonPerPoint))
+            .build()
+        val options = org.maplibre.android.snapshotter.MapSnapshotter.Options(width.toInt(), height.toInt())
+            .withPixelRatio(scale)
+            .withStyleBuilder(Style.Builder().fromUri(STYLE_URL))
+            .withRegion(region)
+        val snapshotter = org.maplibre.android.snapshotter.MapSnapshotter(context, options)
+        running += snapshotter
+        snapshotter.start(
+            { snapshot ->
+                running -= snapshotter
+                val bitmap = snapshot.bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+                drawRoute(bitmap, points, scale) { snapshot.pixelForLatLng(LatLng(it[0], it[1])) }
+                result.success(png(bitmap))
+            },
+            { _ ->
+                running -= snapshotter
+                // No tiles: the route on the page's own background.
+                val bitmap = android.graphics.Bitmap.createBitmap(
+                    (width * scale).toInt(), (height * scale).toInt(),
+                    android.graphics.Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(Color.rgb(0x0F, 0x11, 0x10))
+                val north = region.latitudeNorth
+                val west = region.longitudeWest
+                val latSpan = north - region.latitudeSouth
+                val lonSpan = region.longitudeEast - west
+                drawRoute(bitmap, points, scale) {
+                    android.graphics.PointF(
+                        ((it[1] - west) / lonSpan * bitmap.width).toFloat(),
+                        ((north - it[0]) / latSpan * bitmap.height).toFloat(),
+                    )
+                }
+                result.success(png(bitmap))
+            },
+        )
+    }
+
+    /** The route coloured by speed, red through yellow to green, and its ends. */
+    private fun drawRoute(
+        bitmap: android.graphics.Bitmap,
+        points: List<List<Double>>,
+        density: Float,
+        pixelOf: (List<Double>) -> android.graphics.PointF,
+    ) {
+        val canvas = android.graphics.Canvas(bitmap)
+        val speeds = points.map { it[2] }
+        val slowest = speeds.min()
+        val range = maxOf(speeds.max() - slowest, 0.1)
+        val line = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            style = android.graphics.Paint.Style.STROKE
+            strokeWidth = 3f * density
+            strokeCap = android.graphics.Paint.Cap.ROUND
+        }
+        val pixels = points.map(pixelOf)
+        for (i in 1 until pixels.size) {
+            val hue = ((speeds[i] - slowest) / range * 120).toFloat()
+            line.color = Color.HSVToColor(floatArrayOf(hue, 0.85f, 0.95f))
+            canvas.drawLine(pixels[i - 1].x, pixels[i - 1].y, pixels[i].x, pixels[i].y, line)
+        }
+        val dot = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        for ((point, color) in listOf(
+            pixels.first() to Color.rgb(52, 199, 89),
+            pixels.last() to Color.rgb(255, 69, 58),
+        )) {
+            dot.style = android.graphics.Paint.Style.FILL
+            dot.color = color
+            canvas.drawCircle(point.x, point.y, 6f * density, dot)
+            dot.style = android.graphics.Paint.Style.STROKE
+            dot.strokeWidth = 1.5f * density
+            dot.color = Color.WHITE
+            canvas.drawCircle(point.x, point.y, 6f * density, dot)
+        }
+    }
+
+    private fun png(bitmap: android.graphics.Bitmap): ByteArray =
+        java.io.ByteArrayOutputStream().also {
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+        }.toByteArray()
+}

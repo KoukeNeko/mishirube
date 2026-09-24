@@ -40,11 +40,17 @@ class AppBarBackButton extends StatelessWidget {
     this.icon = Icons.chevron_left,
     this.tooltip = '返回',
     this.onPressed,
+    this.refracts = true,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
+
+  /// Liquid glass, which reads what is drawn under it. Off over a native
+  /// view (a map), which it cannot read and would draw as black: frost
+  /// then, which blurs it properly.
+  final bool refracts;
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +79,9 @@ class AppBarBackButton extends StatelessWidget {
               // The same floating glass as the trailing actions, so both
               // ends of the bar are made of one material.
               child: ChromeSurface(
-                refracts: true,
-                tint: AppColors.surfaceRaised,
+                refracts: refracts,
+                tint: AppColors.barControl,
+                tintOpacity: barControlTintOpacity,
                 child: Pill(
                   onTap: press,
                   // Going back is not an action to confirm by feel.

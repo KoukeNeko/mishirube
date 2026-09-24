@@ -32,6 +32,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RouteMap") {
       registrar.register(RouteMapFactory(), withId: "mishirube/route_map")
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RouteSnapshot") {
+      RouteSnapshot.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "LabelReader") {
       LabelReader.register(with: registrar.messenger())
     }

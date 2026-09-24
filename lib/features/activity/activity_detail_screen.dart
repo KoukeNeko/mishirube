@@ -49,13 +49,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   /// How far the page has scrolled, for the map behind it.
   final _scrolled = ValueNotifier(0.0);
 
-  /// The bar's glass over the map: none until the page, scrolled past
-  /// the map, runs under the bar, then in over [_glassFade].
-  late final _glass = _ScrolledPast(_scrolled, _mapHeight, _glassFade);
-
   @override
   void dispose() {
-    _glass.dispose();
     _scrolled.dispose();
     super.dispose();
   }
@@ -119,18 +114,16 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           ? AppStoreScope.of(context).healthSourceName
           : null,
     );
-    void openMap() => pushModalPage<void>(
-      context,
-      _RouteMapScreen(title: activity.type.label, detail: detail!),
-    );
+    void openMap() =>
+        pushModalPage<void>(context, _RouteMapScreen(detail: detail!));
     final page = CollapsingScrollView(
       header: CollapsingHeaderDelegate(
         toolbar: toolbar,
         topInset: media.padding.top,
         largeHeight: hasMap ? _mapHeight : 0,
-        // Over the map the bar is only its buttons; the scroll-edge glass
-        // comes as the page runs under them.
-        glassOpacity: hasMap ? _glass : null,
+        // The bar is only its buttons, clear over the map and over the
+        // page alike, as Apple Fitness has it.
+        glassOpacity: const AlwaysStoppedAnimation(0),
         isHighContrast: media.highContrast,
         reduceMotion: prefersReducedMotion(context),
         leading: isDetailPaneRoot(context) ? null : const AppBarBackButton(),
@@ -462,32 +455,14 @@ class _FigureGrid extends StatelessWidget {
 /// How much of the map shows above the title.
 const _mapHeight = 280.0;
 
-/// How far the page scrolls under the bar while its glass comes in.
-const _glassFade = 16.0;
-
-/// 0 until [source] passes [start], then up to 1 over [length].
-class _ScrolledPast extends ValueNotifier<double> {
-  _ScrolledPast(this.source, this.start, this.length) : super(0) {
-    source.addListener(_update);
-  }
-
-  final ValueListenable<double> source;
-  final double start;
-  final double length;
-
-  void _update() => value = ((source.value - start) / length).clamp(0.0, 1.0);
-
-  @override
-  void dispose() {
-    source.removeListener(_update);
-    super.dispose();
-  }
-}
-
 /// How blurred and how dark the map is once the page has scrolled over
 /// it: still there, as a trace.
 const _mapBlur = 18.0;
 const _mapDarkening = 0.7;
+
+/// How much further the page scrolls, once the map is fully blurred, for
+/// what is left of it to fade into the page's own background.
+const _mapFadeOut = 240.0;
 
 const _heroPlaceStyle = AppTextStyles.itemTitle;
 const _heroTitleStyle = AppTextStyles.screenTitle;
@@ -688,7 +663,11 @@ class _MapBackdrop extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        RouteMap(route: route, topInset: topInset, bottomInset: bottomInset),
+        RouteSnapshot(
+          route: route,
+          topInset: topInset,
+          bottomInset: bottomInset,
+        ),
         // Blurs and darkens as the page scrolls over it, leaving a trace of
         // the map behind the figures.
         ValueListenableBuilder(
@@ -696,6 +675,14 @@ class _MapBackdrop extends StatelessWidget {
           builder: (context, offset, _) {
             final progress = (offset / _mapHeight).clamp(0.0, 1.0);
             if (progress == 0) return const SizedBox.shrink();
+            // Darkens with the blur, then, blurred through, slowly the
+            // rest of the way into the page's background.
+            final fadeOut = ((offset - _mapHeight) / _mapFadeOut).clamp(
+              0.0,
+              1.0,
+            );
+            final darkness =
+                progress * _mapDarkening + fadeOut * (1 - _mapDarkening);
             return ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(
@@ -703,9 +690,7 @@ class _MapBackdrop extends StatelessWidget {
                   sigmaY: progress * _mapBlur,
                 ),
                 child: ColoredBox(
-                  color: AppColors.background.withValues(
-                    alpha: progress * _mapDarkening,
-                  ),
+                  color: AppColors.background.withValues(alpha: darkness),
                 ),
               ),
             );
@@ -732,30 +717,36 @@ class _MapBackdrop extends StatelessWidget {
   }
 }
 
-/// The route to pan and zoom.
+/// The route to pan and zoom, filling the window as Apple Fitness's map
+/// does, with only a way back floating over it.
 class _RouteMapScreen extends StatelessWidget {
-  const _RouteMapScreen({required this.title, required this.detail});
+  const _RouteMapScreen({required this.detail});
 
-  static const _height = 520.0;
-
-  final String title;
   final ActivityDetail detail;
 
   @override
   Widget build(BuildContext context) {
-    return DetailPage(
-      appBar: PageAppBar(title: title, subtitle: detail.place),
-      children: [
-        Gutter(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-            child: SizedBox(
-              height: _height,
-              child: RouteMap(route: detail.route, isInteractive: true),
+    final toolbar = ToolbarMetrics.of(context);
+    final top = MediaQuery.paddingOf(context).top;
+    return EdgeToEdgeScaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: RouteMap(
+              route: detail.route,
+              isInteractive: true,
+              topInset: top + toolbar.height,
             ),
           ),
-        ),
-      ],
+          Positioned(
+            top: top + (toolbar.height - toolbar.actionHitSize) / 2,
+            left: AppSpacing.screenGutter - AppSpacing.xs,
+            // Frosted: the map under it is a native view liquid glass
+            // cannot read.
+            child: const AppBarBackButton(refracts: false),
+          ),
+        ],
+      ),
     );
   }
 }

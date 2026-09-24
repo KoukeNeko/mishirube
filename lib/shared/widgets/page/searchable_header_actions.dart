@@ -204,7 +204,8 @@ class _SearchBar extends StatelessWidget {
         // The same glass as the search button it grows from.
         child: ChromeSurface(
           refracts: true,
-          tint: AppColors.surfaceRaised,
+          tint: AppColors.barControl,
+          tintOpacity: barControlTintOpacity,
           // Laid out at full width from the start and revealed by the growing
           // pill, so the field never reflows while it stretches.
           child: OverflowBox(

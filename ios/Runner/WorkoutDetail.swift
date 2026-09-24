@@ -407,3 +407,104 @@ final class RouteMapView: NSObject, FlutterPlatformView, MKMapViewDelegate {
     }
   }
 }
+
+/// A workout's route as a picture, for `lib/features/activity/route_map.dart`:
+/// Apple's dark map with the route drawn on it. The top of a workout's
+/// page shows this rather than a live map, so Flutter can blur it and
+/// the bar's glass can refract it, neither of which works over a native
+/// view.
+enum RouteSnapshot {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: "mishirube/route_map", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "snapshot", let arguments = call.arguments as? [String: Any],
+        let width = arguments["width"] as? Double, let height = arguments["height"] as? Double,
+        width > 0, height > 0
+      else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let points = (arguments["points"] as? [[Double]] ?? []).filter { $0.count >= 3 }
+      let insets = arguments["insets"] as? [Double] ?? [0, 0]
+      let scale = arguments["scale"] as? Double ?? 3
+      snapshot(
+        points: points, size: CGSize(width: width, height: height), scale: CGFloat(scale),
+        top: CGFloat(insets.first ?? 0), bottom: CGFloat(insets.last ?? 0), result: result)
+    }
+  }
+
+  static func snapshot(
+    points: [[Double]], size: CGSize, scale: CGFloat, top: CGFloat, bottom: CGFloat,
+    result: @escaping FlutterResult
+  ) {
+    guard points.count >= 2 else {
+      result(nil)
+      return
+    }
+    let coordinates = points.map { CLLocationCoordinate2D(latitude: $0[0], longitude: $0[1]) }
+    let bounds = MKPolyline(coordinates: coordinates, count: coordinates.count).boundingMapRect
+    // The route centred in what shows between the buttons and the title.
+    let usableWidth = max(size.width - 64, 1)
+    let usableHeight = max(size.height - top - bottom - 48, 1)
+    let pointsPerPixel = max(
+      bounds.size.width / usableWidth, bounds.size.height / usableHeight, 1)
+    let options = MKMapSnapshotter.Options()
+    options.mapRect = MKMapRect(
+      x: bounds.midX - Double(size.width) / 2 * pointsPerPixel,
+      y: bounds.midY - Double(top + 24 + usableHeight / 2) * pointsPerPixel,
+      width: Double(size.width) * pointsPerPixel,
+      height: Double(size.height) * pointsPerPixel)
+    options.size = size
+    options.scale = scale
+    options.traitCollection = UITraitCollection(userInterfaceStyle: .dark)
+    options.pointOfInterestFilter = .excludingAll
+    if #available(iOS 17.0, *) {
+      options.preferredConfiguration = MKStandardMapConfiguration(emphasisStyle: .muted)
+    }
+    MKMapSnapshotter(options: options).start { snapshot, error in
+      guard let snapshot else {
+        result(FlutterError(code: "failed", message: error.map { "\($0)" }, details: nil))
+        return
+      }
+      let image = draw(
+        route: coordinates.map(snapshot.point(for:)), speeds: points.map { $0[2] },
+        on: snapshot.image)
+      guard let png = image.pngData() else {
+        result(nil)
+        return
+      }
+      result(FlutterStandardTypedData(bytes: png))
+    }
+  }
+
+  /// The route on [base]: coloured by speed from red through yellow to
+  /// green, thin, with a green dot at the start and a red one at the end.
+  static func draw(route: [CGPoint], speeds: [Double], on base: UIImage) -> UIImage {
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = base.scale
+    return UIGraphicsImageRenderer(size: base.size, format: format).image { context in
+      base.draw(at: .zero)
+      let slowest = speeds.min() ?? 0
+      let range = max((speeds.max() ?? 0) - slowest, 0.1)
+      let cg = context.cgContext
+      cg.setLineWidth(3)
+      cg.setLineCap(.round)
+      cg.setLineJoin(.round)
+      for i in 1..<route.count {
+        let hue = CGFloat((speeds[i] - slowest) / range) * 0.33
+        cg.setStrokeColor(UIColor(hue: hue, saturation: 0.85, brightness: 0.95, alpha: 1).cgColor)
+        cg.move(to: route[i - 1])
+        cg.addLine(to: route[i])
+        cg.strokePath()
+      }
+      for (point, color) in [(route.first!, UIColor.systemGreen), (route.last!, .systemRed)] {
+        let dot = CGRect(x: point.x - 6, y: point.y - 6, width: 12, height: 12)
+        cg.setFillColor(color.cgColor)
+        cg.fillEllipse(in: dot)
+        cg.setStrokeColor(UIColor.white.cgColor)
+        cg.setLineWidth(1.5)
+        cg.strokeEllipse(in: dot)
+      }
+    }
+  }
+}

@@ -664,7 +664,8 @@ class HeaderAction extends StatelessWidget {
             // pill's own fill cleared so the glass shows.
             child: ChromeSurface(
               refracts: true,
-              tint: AppColors.surfaceRaised,
+              tint: AppColors.barControl,
+              tintOpacity: barControlTintOpacity,
               child: Pill(
                 onTap: onTap,
                 color: Colors.transparent,

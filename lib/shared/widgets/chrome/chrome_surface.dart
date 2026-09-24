@@ -40,6 +40,9 @@ LiquidGlassSettings _dockGlass(Color glassColor) => LiquidGlassSettings(
 /// Tint over liquid glass: light, so the refraction shows.
 const _liquidTintOpacity = 0.35;
 
+/// How much [AppColors.barControl] covers the top bar's buttons.
+const barControlTintOpacity = 0.14;
+
 /// Frosted surface the floating chrome (dock, toasts) is built from. With
 /// "Increase Contrast" on it becomes opaque so labels stay legible.
 class ChromeSurface extends StatelessWidget {

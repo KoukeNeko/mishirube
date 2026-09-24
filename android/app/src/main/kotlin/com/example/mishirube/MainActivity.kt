@@ -17,6 +17,9 @@ class MainActivity : FlutterFragmentActivity() {
         org.maplibre.android.MapLibre.getInstance(this)
         flutterEngine.platformViewsController.registry
             .registerViewFactory("mishirube/route_map", RouteMapFactory())
+        val snapshots = RouteSnapshotBridge(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/route_map")
+            .setMethodCallHandler(snapshots::handle)
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/healthconnect")
         val bridge = HealthConnectBridge(this, channel, privacyRequested = asksForPrivacy(intent))
         channel.setMethodCallHandler(bridge::handle)

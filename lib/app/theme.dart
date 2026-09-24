@@ -6,6 +6,11 @@ abstract final class AppColors {
   static const background = Color(0xFF0F1110);
   static const surface = Color(0xFF1A1C1B);
   static const surfaceRaised = Color(0xFF242726);
+
+  /// The glass of the top bar's buttons (see `barControlTintOpacity`): a
+  /// light veil, as iOS draws them in dark mode, so what lies under them
+  /// (a map, the page) shows through instead of a dark disc.
+  static const barControl = Color(0xFFFFFFFF);
   static const outline = Color(0xFF2C302E);
 
   static const textPrimary = Color(0xFFF2F3F1);
