@@ -97,13 +97,14 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         onTap: () => pushPage(context, const DailyNutritionScreen()),
       ),
     ),
-    Gutter(
-      child: const AccentRow(
-        color: AppColors.body,
-        title: '體重',
-        trailing: '72.4 kg',
+    if (store.weightSummary.latest case final weight?)
+      Gutter(
+        child: AccentRow(
+          color: AppColors.body,
+          title: '體重',
+          trailing: '${formatWeight(weight.weightKg)} kg',
+        ),
       ),
-    ),
     if (store.lastNight case final night?)
       Gutter(
         child: AccentRow(

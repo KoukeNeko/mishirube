@@ -30,6 +30,16 @@ class JournalViewModel extends ViewModel {
   void recordWeight(double kilograms, {String note = ''}) =>
       backend.journal.recordWeight(kilograms, note: note);
 
+  /// The last reading of each body figure other than weight and girth.
+  Map<BodyMetric, BodyReading> get latestBodyReadings =>
+      backend.journal.latestBodyReadings();
+
+  void recordBodyReadings(Map<BodyMetric, double> values) =>
+      backend.journal.recordBodyReadings(values);
+
+  void updateBodyReading(BodyReading reading) =>
+      backend.journal.updateBodyReading(reading);
+
   void recordMeasurement(MeasurementSite site, double centimetres) =>
       backend.journal.recordMeasurement(site, centimetres);
 

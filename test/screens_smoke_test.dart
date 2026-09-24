@@ -16,6 +16,8 @@ import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
+import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
@@ -48,7 +50,6 @@ import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/personal_records_screen.dart';
-import 'package:mishirube/features/trends/trends_empty_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -136,6 +137,26 @@ void _withStagedNight(AppStore store) {
 }
 
 void _withLunch(AppStore store) => store.confirmLunch();
+
+/// Weighings over a month, height, a scale's reading and a waist.
+void _withBody(AppStore store) {
+  final journal = store.backend.journal;
+  for (var day = 30; day >= 0; day -= 2) {
+    journal.recordWeight(
+      72 - day / 30,
+      at: store.now().subtract(Duration(days: day)),
+    );
+  }
+  journal
+    ..recordBodyReadings({
+      BodyMetric.height: 175,
+      BodyMetric.bodyFat: 18.2,
+      BodyMetric.skeletalMuscle: 33.1,
+      BodyMetric.leanMass: 58,
+    })
+    ..recordMeasurement(MeasurementSite.waist, 82)
+    ..recordMeasurement(MeasurementSite.hips, 96);
+}
 
 void _withFood(AppStore store) => store.backend.nutrition.saveFood(
   FoodItem(
@@ -337,7 +358,9 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withFood,
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
-  'trends empty': ((_) => const TrendsEmptyScreen(), _noSetup),
+  'body': ((_) => const BodyScreen(), _noSetup),
+  'body, measured': ((_) => const BodyScreen(), _withBody),
+  'body reading entry': ((_) => const BodyReadingEntryScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
   'export': ((_) => const ExportScreen(), _noSetup),
 };

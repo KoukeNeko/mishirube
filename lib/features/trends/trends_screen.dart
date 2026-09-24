@@ -7,6 +7,7 @@ import '../../backend/application/insights_service.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'insight_detail_screen.dart';
@@ -15,7 +16,6 @@ import 'muscle_load_card.dart';
 import 'muscle_trends_screen.dart';
 import 'personal_records_screen.dart';
 import 'trends_view_model.dart';
-import 'trends_empty_screen.dart';
 
 enum _TrendRange {
   fourWeeks('近 4 週', Duration(days: 28)),
@@ -145,7 +145,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
             color: AppColors.body,
             title: '身體',
             showChevron: true,
-            onTap: () => pushPage(context, const TrendsEmptyScreen()),
+            onTap: () => pushPage(context, const BodyScreen()),
           ),
         ),
       ],

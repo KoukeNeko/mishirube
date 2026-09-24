@@ -13,6 +13,8 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
+import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
@@ -794,6 +796,54 @@ void main() {
     // nothing to confirm.
     expect(find.text('加入 1 個動作'), findsNothing);
     expect(find.text('加入這個動作'), findsNothing, reason: 'nothing to add to');
+    await disposeTree(tester);
+  });
+
+  testWidgets('height and a scale reading give BMI and a history', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.journal.recordWeight(72.4);
+    await pumpScreen(tester, const BodyScreen(), store: store);
+
+    expect(find.text('未設定'), findsOneWidget);
+    await _tapText(tester, '身高');
+    await tester.enterText(find.byKey(const ValueKey('body-height')), '175');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    expect(find.text('23.6 · 健康體重'), findsOneWidget);
+    // Let the toast from saving the height go.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    await _tapText(tester, '記錄身體組成');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('body-bodyFat')), '18.2');
+    await tester.enterText(
+      find.byKey(const ValueKey('body-skeletalMuscle')),
+      '33.1',
+    );
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    expect(store.backend.journal.latestBodyReadings(), hasLength(3));
+    expect(find.text('13.2 kg'), findsOneWidget, reason: 'fat mass');
+
+    await _tapText(tester, '骨骼肌');
+    expect(find.text('33.1 kg'), findsWidgets);
+    expect(find.text('體脂計估計，請用同一台比較'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a figure out of range is refused, not saved', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const BodyReadingEntryScreen(), store: store);
+
+    await tester.enterText(find.byKey(const ValueKey('body-bodyFat')), '182');
+    await _tapText(tester, '儲存');
+    expect(find.textContaining('體脂率請輸入'), findsOneWidget);
+    expect(store.backend.journal.latestBodyReadings(), isEmpty);
     await disposeTree(tester);
   });
 

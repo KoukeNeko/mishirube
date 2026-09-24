@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
+import '../backend/engines/body_metrics.dart';
 import '../backend/engines/progression_engine.dart';
 import '../backend/engines/training_metrics.dart';
 import '../backend/engines/workout_review.dart';
@@ -208,6 +209,18 @@ class AppStore extends ChangeNotifier {
   /// The current template's last few finished workouts, newest first.
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_routine);
+
+  /// The latest weighing and how the trend moved over the last week;
+  /// null for what there are no weighings for.
+  ({BodyWeight? latest, double? weekChange}) get weightSummary {
+    final weights = _backend.journal.recentWeights(const Duration(days: 14));
+    final from = now().subtract(const Duration(days: 7));
+    final week = [
+      for (final point in trendOf(weights))
+        if (!point.$1.isBefore(from)) point,
+    ];
+    return (latest: weights.lastOrNull, weekChange: trendChange(week));
+  }
 
   /// The latest night, if it ended today or yesterday.
   SleepRecord? get lastNight => _backend.sleep.lastNight();

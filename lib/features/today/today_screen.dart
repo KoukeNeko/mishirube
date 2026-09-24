@@ -8,6 +8,7 @@ import '../../shared/widgets/widgets.dart';
 import '../goal/goal_entry_button.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
+import '../body/body_screen.dart';
 import '../sleep/sleep_screen.dart';
 import '../training/active_workout_screen.dart';
 import '../training/routine_detail_screen.dart';
@@ -201,12 +202,20 @@ class _WeightTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const QuickStatTile(
+    final store = AppStoreScope.of(context);
+    final (:latest, :weekChange) = store.weightSummary;
+    return QuickStatTile(
       category: '體重',
       color: AppColors.body,
-      value: '72.4',
-      unit: 'kg',
-      caption: '7 日 −0.3',
+      value: latest == null ? '—' : formatWeight(latest.weightKg),
+      unit: latest == null ? null : 'kg',
+      caption: switch ((latest, weekChange)) {
+        (null, _) => '沒有紀錄',
+        (_, final change?) =>
+          '7 日 ${change < 0 ? '−' : '+'}${formatWeight((change.abs() * 10).round() / 10)}',
+        _ => '${latest!.measuredAt.month}/${latest.measuredAt.day}',
+      },
+      onTap: () => pushPage(context, const BodyScreen()),
     );
   }
 }

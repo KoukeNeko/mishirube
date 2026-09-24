@@ -151,6 +151,14 @@ class JournalService {
   void restore(String id) => _journal.restore(id);
 
   /// Weights measured in the [window] ending now, oldest first.
+  /// Weights measured in `[start, end)`, oldest first.
+  List<BodyWeight> weightsBetween(DateTime start, DateTime end) =>
+      _journal.weightsBetween(start, end);
+
+  /// Tape measurements taken in `[start, end)`, oldest first.
+  List<BodyMeasurement> measurementsBetween(DateTime start, DateTime end) =>
+      _journal.measurementsBetween(start, end);
+
   List<BodyWeight> recentWeights(Duration window) =>
       _journal.weightsBetween(_db.now().subtract(window), _db.nowInclusive);
 
