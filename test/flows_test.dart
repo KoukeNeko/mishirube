@@ -797,6 +797,24 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a night on the trend chart reads out when touched', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.journal.recordSleep(const Duration(hours: 7));
+    await pumpScreen(tester, const SleepScreen(), store: store);
+
+    final chart = find.byType(MiniBarChart);
+    await tester.scrollUntilVisible(chart, 200);
+    expect(find.text('平均 7:00 · 1 晚'), findsOneWidget);
+    await tester.tapAt(tester.getRect(chart).centerRight - const Offset(4, 0));
+    await tester.pump();
+    expect(find.textContaining('· 7:00'), findsOneWidget);
+    expect(find.text('平均 7:00 · 1 晚'), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('a sleep goal is set on the sleep page', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -807,6 +825,8 @@ void main() {
     await _tapText(tester, '睡眠目標');
     await _tapText(tester, '儲存');
     expect(store.backend.sleep.goal, const Duration(hours: 8));
+    // The summary is at the top, above the goal row.
+    await tester.scrollUntilVisible(find.text('目標 8:00 · 少 1:00'), -200);
     expect(find.text('目標 8:00 · 少 1:00'), findsOneWidget);
     await disposeTree(tester);
   });

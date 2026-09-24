@@ -100,8 +100,8 @@ class SleepViewModel extends ViewModel {
   }
 
   /// Each night's average of [measure] over the [days] ending with the
-  /// day shown, oldest first.
-  List<double> nightlyAverages(OvernightMeasure measure, int days) {
+  /// day shown, with its morning, oldest first.
+  List<(DateTime, double)> nightlyAverages(OvernightMeasure measure, int days) {
     final end = _day.add(const Duration(days: 1));
     return backend.sleep.nightlyAverages(
       measure,
@@ -111,13 +111,15 @@ class SleepViewModel extends ViewModel {
   }
 
   /// The usual range of [measure] over the four weeks before the day.
-  ({double low, double high})? baseline(OvernightMeasure measure) => baselineOf(
-    backend.sleep.nightlyAverages(
-      measure,
-      _day.subtract(const Duration(days: 28)),
-      _day,
-    ),
-  );
+  ({double low, double high})? baseline(OvernightMeasure measure) =>
+      baselineOf([
+        for (final (_, value) in backend.sleep.nightlyAverages(
+          measure,
+          _day.subtract(const Duration(days: 28)),
+          _day,
+        ))
+          value,
+      ]);
 
   /// Nights after training, late caffeine or a late meal against nights
   /// without.

@@ -135,16 +135,17 @@ class SleepService {
     );
   }
 
-  /// Each night's average of [measure] over `[start, end)`, oldest
-  /// first: what a night's reading is compared against.
-  List<double> nightlyAverages(
+  /// Each night's average of [measure] over `[start, end)` with the
+  /// morning it belongs to, oldest first: what a night's reading is
+  /// compared against, and its trend.
+  List<(DateTime, double)> nightlyAverages(
     OvernightMeasure measure,
     DateTime start,
     DateTime end,
   ) => [
     for (final night in nights(start, end))
       for (final reading in _journal.sleepReadings(night.id))
-        if (reading.measure == measure) reading.average,
+        if (reading.measure == measure) (night.sleptAt, reading.average),
   ];
 
   /// Nights asleep over the last [_factorWindow] set against what the day

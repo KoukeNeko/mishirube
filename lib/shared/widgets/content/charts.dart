@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 
-/// Minimal bar chart; the last bar is highlighted as "current period".
+/// Minimal bar chart; the last bar is highlighted as "current period",
+/// or the [selected] one while a reading picks it.
 class MiniBarChart extends StatelessWidget {
   const MiniBarChart({
     super.key,
@@ -11,11 +12,13 @@ class MiniBarChart extends StatelessWidget {
     this.showLabels = true,
     this.color = AppColors.training,
     this.dimColor = AppColors.trainingDim,
+    this.selected,
   });
 
   final List<(String, int)> bars;
   final double height;
   final bool showLabels;
+  final int? selected;
 
   /// The last bar's colour, and the others'.
   final Color color;
@@ -38,7 +41,9 @@ class MiniBarChart extends StatelessWidget {
                 Container(
                   height: height * bars[i].$2 / maxValue,
                   decoration: BoxDecoration(
-                    color: i == bars.length - 1 ? color : dimColor,
+                    color: i == (selected ?? bars.length - 1)
+                        ? color
+                        : dimColor,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(3),
                     ),
@@ -57,18 +62,21 @@ class MiniBarChart extends StatelessWidget {
   }
 }
 
-/// Line chart without axes, ending in a dot on the latest value.
+/// Line chart without axes, ending in a dot on the latest value, or
+/// marking the [selected] one while a reading picks it.
 class Sparkline extends StatelessWidget {
   const Sparkline({
     super.key,
     required this.values,
     this.color = AppColors.body,
     this.height = 48,
+    this.selected,
   });
 
   final List<double> values;
   final Color color;
   final double height;
+  final int? selected;
 
   @override
   Widget build(BuildContext context) {
@@ -76,19 +84,28 @@ class Sparkline extends StatelessWidget {
       height: height,
       width: double.infinity,
       child: CustomPaint(
-        painter: _SparklinePainter(values: values, color: color),
+        painter: _SparklinePainter(
+          values: values,
+          color: color,
+          selected: selected,
+        ),
       ),
     );
   }
 }
 
 class _SparklinePainter extends CustomPainter {
-  _SparklinePainter({required this.values, required this.color});
+  _SparklinePainter({
+    required this.values,
+    required this.color,
+    required this.selected,
+  });
 
   static const _endDotRadius = 4.0;
 
   final List<double> values;
   final Color color;
+  final int? selected;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -120,13 +137,25 @@ class _SparklinePainter extends CustomPainter {
           ..strokeJoin = StrokeJoin.round,
       )
       ..drawCircle(
-        pointAt(values.length - 1),
+        pointAt(selected ?? values.length - 1),
         _endDotRadius,
         Paint()..color = color,
       );
+    if (selected case final index?) {
+      final x = pointAt(index).dx;
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        Paint()
+          ..color = color.withValues(alpha: 0.4)
+          ..strokeWidth = 1,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(_SparklinePainter oldDelegate) =>
-      oldDelegate.values != values || oldDelegate.color != color;
+      oldDelegate.values != values ||
+      oldDelegate.color != color ||
+      oldDelegate.selected != selected;
 }

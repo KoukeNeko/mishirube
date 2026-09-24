@@ -16,10 +16,18 @@ const _axisHeight = 20.0;
 /// the ragged edges are how regular bedtimes and wake times are, which a
 /// single number hides.
 class SleepScheduleChart extends StatelessWidget {
-  const SleepScheduleChart({super.key, required this.nights});
+  const SleepScheduleChart({super.key, required this.nights, this.selected});
 
   /// Nights that say when they began, oldest first.
   final List<SleepEntry> nights;
+
+  /// The row being read, drawn full while the others dim.
+  final int? selected;
+
+  /// How tall a row and the gap under it are, for finding the row under
+  /// a finger: rows are thinner when there are many.
+  static double rowExtentFor(int nights) =>
+      (nights > 14 ? 6.0 : 12.0) + _rowGap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +35,7 @@ class SleepScheduleChart extends StatelessWidget {
       for (final night in nights)
         if (night.startedAt != null) night,
     ];
-    final rowHeight = timed.length > 14 ? 6.0 : 12.0;
+    final rowHeight = rowExtentFor(timed.length) - _rowGap;
     return Semantics(
       label: '入睡與起床時間，${timed.length} 晚',
       excludeSemantics: true,
@@ -38,6 +46,7 @@ class SleepScheduleChart extends StatelessWidget {
         ),
         painter: _SchedulePainter(
           nights: timed,
+          selected: selected,
           rowHeight: rowHeight,
           labelStyle: AppTextStyles.caption,
         ),
@@ -49,11 +58,13 @@ class SleepScheduleChart extends StatelessWidget {
 class _SchedulePainter extends CustomPainter {
   _SchedulePainter({
     required this.nights,
+    required this.selected,
     required this.rowHeight,
     required this.labelStyle,
   });
 
   final List<SleepEntry> nights;
+  final int? selected;
   final double rowHeight;
   final TextStyle labelStyle;
 
@@ -65,6 +76,7 @@ class _SchedulePainter extends CustomPainter {
         axisMinutes *
         size.width;
     final bar = Paint()..color = AppColors.wellness;
+    final dim = Paint()..color = AppColors.wellness.withValues(alpha: 0.35);
     final grid = Paint()
       ..color = AppColors.textTertiary.withValues(alpha: 0.3)
       ..strokeWidth = 1;
@@ -91,12 +103,14 @@ class _SchedulePainter extends CustomPainter {
           Rect.fromLTRB(start, top, end < start ? start : end, top + rowHeight),
           Radius.circular(rowHeight / 2),
         ),
-        bar,
+        selected == null || selected == index ? bar : dim,
       );
     }
   }
 
   @override
   bool shouldRepaint(_SchedulePainter old) =>
-      old.nights != nights || old.rowHeight != rowHeight;
+      old.nights != nights ||
+      old.rowHeight != rowHeight ||
+      old.selected != selected;
 }

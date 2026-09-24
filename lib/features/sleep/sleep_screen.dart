@@ -667,22 +667,10 @@ class _HistoryState extends State<_History> {
             ),
           )
         else ...[
-          Gutter(
-            child: AppCard(
-              child: MiniBarChart(
-                bars: _bars(nights, start),
-                height: 64,
-                showLabels: _range == _Range.week,
-                color: AppColors.wellness,
-                dimColor: AppColors.wellness.withValues(alpha: 0.4),
-              ),
-            ),
-          ),
+          Gutter(child: AppCard(child: _lengthChart(nights, start))),
           if (_range != _Range.halfYear &&
               nights.where((night) => night.startedAt != null).length > 1)
-            Gutter(
-              child: AppCard(child: SleepScheduleChart(nights: nights)),
-            ),
+            Gutter(child: AppCard(child: _scheduleChart(nights))),
           Gutter(
             child: GroupedCard(
               children: [
@@ -729,6 +717,54 @@ class _HistoryState extends State<_History> {
     );
   }
 
+  /// Each night's length; reading a bar says its night.
+  Widget _lengthChart(List<SleepEntry> nights, DateTime start) {
+    final bars = _bars(nights, start);
+    final average =
+        nights.fold(Duration.zero, (sum, night) => sum + night.duration) ~/
+        nights.length;
+    return ChartScrubber(
+      count: bars.length,
+      indexAt: ChartScrubber.slots(bars.length),
+      idle: '平均 ${formatHoursMinutes(average)} · ${nights.length} 晚',
+      readoutOf: (index) => bars[index].readout,
+      builder: (context, selected) => MiniBarChart(
+        bars: [for (final bar in bars) (bar.label, bar.minutes)],
+        height: 64,
+        showLabels: _range == _Range.week,
+        color: AppColors.wellness,
+        dimColor: AppColors.wellness.withValues(alpha: 0.4),
+        selected: selected,
+      ),
+    );
+  }
+
+  /// Each night from falling asleep to waking; reading a row says its
+  /// times.
+  Widget _scheduleChart(List<SleepEntry> nights) {
+    final timed = [
+      for (final night in nights)
+        if (night.startedAt != null) night,
+    ];
+    return ChartScrubber(
+      count: timed.length,
+      indexAt: ChartScrubber.rows(
+        timed.length,
+        SleepScheduleChart.rowExtentFor(timed.length),
+      ),
+      idle: '入睡與起床 · ${timed.length} 晚',
+      readoutOf: (index) {
+        final night = timed[index];
+        return '${_date(night.sleptAt)} · '
+            '${formatTimeOfDay(night.startedAt!)}–'
+            '${formatTimeOfDay(night.sleptAt)} · '
+            '${formatHoursMinutes(night.duration)}';
+      },
+      builder: (context, selected) =>
+          SleepScheduleChart(nights: timed, selected: selected),
+    );
+  }
+
   /// Each stage's average a night, over the nights that were staged.
   List<Widget> _stageAverages() {
     final average = widget.model.averageStages(_range.days);
@@ -766,36 +802,35 @@ class _HistoryState extends State<_History> {
             (measure, values),
     ];
     if (rows.isEmpty) return const [];
+    String withUnit(OvernightMeasure measure, double value) =>
+        '${_number(measure, value)}'
+        '${measure.unit.isEmpty ? '' : ' ${measure.unit}'}';
     return [
-      for (final (measure, values) in rows)
+      for (final (measure, readings) in rows)
         Gutter(
           child: AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        measure.label,
-                        style: AppTextStyles.itemTitle,
-                      ),
-                    ),
-                    Text(
-                      '平均 ${_number(measure, values.reduce((a, b) => a + b) / values.length)}'
-                      '${measure.unit.isEmpty ? '' : ' ${measure.unit}'}',
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
+                Text(measure.label, style: AppTextStyles.itemTitle),
+                const SizedBox(height: AppSpacing.xxs),
                 Semantics(
-                  label: '${measure.label}走勢，${values.length} 晚',
-                  excludeSemantics: true,
-                  child: Sparkline(
-                    values: values,
-                    color: AppColors.wellness,
-                    height: 40,
+                  label: '${measure.label}走勢，${readings.length} 晚',
+                  child: ChartScrubber(
+                    count: readings.length,
+                    indexAt: ChartScrubber.points(readings.length),
+                    idle:
+                        '平均 ${withUnit(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length)}'
+                        ' · ${readings.length} 晚',
+                    readoutOf: (index) =>
+                        '${_date(readings[index].$1)} · '
+                        '${withUnit(measure, readings[index].$2)}',
+                    builder: (context, selected) => Sparkline(
+                      values: [for (final (_, value) in readings) value],
+                      color: AppColors.wellness,
+                      height: 40,
+                      selected: selected,
+                    ),
                   ),
                 ),
               ],
@@ -805,9 +840,13 @@ class _HistoryState extends State<_History> {
     ];
   }
 
-  /// One bar a night for a week or a month, one a week for half a year;
-  /// a night without a record is an empty bar, not a zero-hour night.
-  List<(String, int)> _bars(List<SleepEntry> nights, DateTime start) {
+  /// One bar a night for a week or a month, one a week for half a year,
+  /// each with what its reading says; a night without a record is an
+  /// empty bar, not a zero-hour night.
+  List<({String label, int minutes, String readout})> _bars(
+    List<SleepEntry> nights,
+    DateTime start,
+  ) {
     final byDay = {
       for (final night in nights)
         DateTime(night.sleptAt.year, night.sleptAt.month, night.sleptAt.day):
@@ -817,26 +856,46 @@ class _HistoryState extends State<_History> {
       for (var i = 0; i < _range.days; i++)
         DateTime(start.year, start.month, start.day + i),
     ];
+    String length(int minutes) =>
+        formatHoursMinutes(Duration(minutes: minutes));
     if (_range != _Range.halfYear) {
-      return [for (final day in days) (weekdayLabel(day), byDay[day] ?? 0)];
+      return [
+        for (final day in days)
+          (
+            label: weekdayLabel(day),
+            minutes: byDay[day] ?? 0,
+            readout:
+                '${_date(day)} · '
+                '${byDay[day] == null ? '沒有紀錄' : length(byDay[day]!)}',
+          ),
+      ];
     }
     return [
       for (var week = 0; week < days.length; week += DateTime.daysPerWeek)
         () {
+          final first = days[week];
           final minutes = [
             for (final day in days.skip(week).take(DateTime.daysPerWeek))
               ?byDay[day],
           ];
+          final average = minutes.isEmpty
+              ? 0
+              : minutes.reduce((a, b) => a + b) ~/ minutes.length;
           return (
-            '',
-            minutes.isEmpty
-                ? 0
-                : minutes.reduce((a, b) => a + b) ~/ minutes.length,
+            label: '',
+            minutes: average,
+            readout:
+                '${first.month} 月 ${first.day} 日起一週 · '
+                '${minutes.isEmpty ? '沒有紀錄' : '平均 ${length(average)} · ${minutes.length} 晚'}',
           );
         }(),
     ];
   }
 }
+
+/// `9 月 22 日（週一）`.
+String _date(DateTime day) =>
+    '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）';
 
 /// The average time of day of [times], counted from [fromHour] so the
 /// times fall in one unbroken stretch: from noon, 23:30 and 00:30 average
