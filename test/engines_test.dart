@@ -7,6 +7,7 @@ import 'package:mishirube/backend/ai/trend_writer.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
+import 'package:mishirube/backend/engines/program_progress.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
@@ -44,6 +45,57 @@ BodyWeight _weight(DateTime at, double kg) =>
     BodyWeight(id: '$at', measuredAt: at, weightKg: kg);
 
 void main() {
+  group('program progress', () {
+    // A Monday.
+    final start = DateTime(2026, 9, 7, 8);
+    Program program(ProgramSchedule schedule) => Program(
+      id: 'p',
+      name: '課表',
+      schedule: schedule,
+      days: const [
+        ProgramDay(routineId: 'a', weekday: DateTime.monday),
+        ProgramDay(routineId: 'b', weekday: DateTime.wednesday),
+        ProgramDay(routineId: 'c', weekday: DateTime.friday),
+      ],
+      startedAt: start,
+    );
+
+    test('in rotation a missed day waits', () {
+      final rotation = program(ProgramSchedule.rotation);
+      expect(programProgress(rotation, const [], start).nextDay, 0);
+      final records = [
+        ProgramDayRecord(day: 0, at: start, workoutId: 'w1'),
+        ProgramDayRecord(day: 1, at: start.add(const Duration(days: 1))),
+      ];
+      final later = start.add(const Duration(days: 10));
+      expect(programProgress(rotation, records, later).nextDay, 2);
+      expect(
+        programProgress(rotation, [
+          ...records,
+          ProgramDayRecord(day: 2, at: later, workoutId: 'w2'),
+        ], later).nextDay,
+        0,
+        reason: 'after the last day comes the first',
+      );
+    });
+
+    test('on weekdays the next day is the one coming up', () {
+      final weekdays = program(ProgramSchedule.weekdays);
+      final tuesday = start.add(const Duration(days: 1));
+      expect(programProgress(weekdays, const [], tuesday).nextDay, 1);
+      expect(programProgress(weekdays, const [], start).nextDay, 0);
+      expect(
+        programProgress(weekdays, [
+          ProgramDayRecord(day: 0, at: start, workoutId: 'w'),
+        ], start).nextDay,
+        1,
+        reason: "today's day done, Wednesday's is next",
+      );
+      final saturday = start.add(const Duration(days: 5));
+      expect(programProgress(weekdays, const [], saturday).nextDay, 0);
+    });
+  });
+
   final now = FakeClock().now();
 
   group('nutrition summary', () {

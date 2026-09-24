@@ -36,6 +36,7 @@ import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
+import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -991,6 +992,56 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a program is made from a template and Today follows it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const TrainingScreen(), store: store);
+
+    await _tapText(tester, '建立課表');
+    await tester.tap(find.text('5×5'));
+    await tester.pumpAndSettle();
+    await _tapText(tester, '啟用課表');
+
+    final progress = store.programProgress!;
+    expect(progress.program.name, '5×5');
+    expect(store.nextRoutine.name, 'A');
+    expect(find.text('下一次：A'), findsOneWidget);
+
+    await _tapText(tester, '略過這次');
+    expect(store.nextRoutine.name, 'B');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a program built from nothing takes a new workout', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final own = store.routines.first;
+    await pumpScreen(tester, const TrainingScreen(), store: store);
+
+    await _tapText(tester, '建立課表');
+    await tester.tap(find.text('自己建立'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '分化');
+    await tester.tap(find.text('建立'));
+    await tester.pumpAndSettle();
+
+    await _tapText(tester, '新增訓練');
+    await tester.tap(find.text('從「我的訓練」加入'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(own.name).last);
+    await tester.pumpAndSettle();
+
+    final program = store.backend.program.all().single;
+    expect(program.name, '分化');
+    expect(program.days, hasLength(1));
+    expect(program.days.single.routineId, isNot(own.id));
+    await disposeTree(tester);
+  });
+
   testWidgets('a sore muscle is marked before starting', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -1057,19 +1108,17 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a new training template becomes the one to train next', (
-    tester,
-  ) async {
+  testWidgets('a new workout becomes the one to train next', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const RoutineDetailScreen(), store: store);
     final before = store.routine.name;
 
-    await tester.tap(find.bySemanticsLabel('所有訓練模板'));
+    await tester.tap(find.bySemanticsLabel('所有訓練'));
     await tester.pumpAndSettle();
     expect(find.text(before), findsWidgets);
 
-    await _tapText(tester, '新增訓練模板');
+    await _tapText(tester, '新增訓練');
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, '上肢 B');
     await tester.tap(find.text('建立'));

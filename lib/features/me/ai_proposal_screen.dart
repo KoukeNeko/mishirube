@@ -35,7 +35,7 @@ class AiProposalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: 'AI 建議的修改', subtitle: '訓練模板「下肢 A」· 尚未套用'),
+      appBar: const PageAppBar(title: 'AI 建議的修改', subtitle: '訓練「下肢 A」· 尚未套用'),
       footer: ButtonPair(
         secondary: SecondaryButton(
           label: '拒絕',

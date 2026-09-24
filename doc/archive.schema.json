@@ -1333,6 +1333,216 @@
             }
           }
         },
+        "programs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "schedule",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "schedule": {
+                "type": "string"
+              },
+              "startedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "endedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "programDays": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "programId",
+              "position",
+              "routineId"
+            ],
+            "properties": {
+              "programId": {
+                "type": "string"
+              },
+              "position": {
+                "type": "integer"
+              },
+              "routineId": {
+                "type": "string"
+              },
+              "weekday": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "programWorkouts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "workoutId",
+              "programId",
+              "dayPosition",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "workoutId": {
+                "type": "string"
+              },
+              "programId": {
+                "type": "string"
+              },
+              "dayPosition": {
+                "type": "integer"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "programSkips": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "programId",
+              "dayPosition",
+              "skippedAt",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "programId": {
+                "type": "string"
+              },
+              "dayPosition": {
+                "type": "integer"
+              },
+              "skippedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
         "goalPauses": {
           "type": "array",
           "items": {

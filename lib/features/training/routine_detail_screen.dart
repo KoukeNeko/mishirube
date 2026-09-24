@@ -10,10 +10,11 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'progression_card.dart';
-import 'routine_list_screen.dart';
+import 'training_screen.dart';
 import 'workout_summary_screen.dart';
 
-/// A workout template (plan). Editing it never rewrites finished workouts.
+/// A workout's plan (a template). Editing it never rewrites finished
+/// workouts.
 class RoutineDetailScreen extends StatefulWidget {
   const RoutineDetailScreen({super.key});
 
@@ -56,7 +57,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   Future<void> _rename(Routine routine) async {
     final name = await showTextDialog(
       context,
-      title: '模板名稱',
+      title: '訓練名稱',
       initial: routine.name,
     );
     if (name == null || name.trim().isEmpty || !mounted) return;
@@ -74,7 +75,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         message: '已完成的訓練紀錄會保留。',
         actions: [
           DialogAction(
-            label: '刪除這份模板',
+            label: '刪除這個訓練',
             tone: DialogTone.destructive,
             onTap: () => Navigator.of(context).pop(true),
           ),
@@ -84,7 +85,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     );
     if (confirmed != true || !mounted) return;
     if (!store.deleteRoutine(routine)) {
-      showToast(context, '至少要留下一份模板', kind: ToastKind.warning);
+      showToast(context, '至少要留下一個訓練', kind: ToastKind.warning);
       return;
     }
     setState(() => _isEditing = false);
@@ -102,18 +103,17 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: routine.name,
-        subtitle:
-            '訓練模板 · ${routine.programName} · 約 ${store.expectedMinutes(routine)} 分',
+        subtitle: '約 ${store.expectedMinutes(routine)} 分',
         actions: [
           HeaderAction(
             icon: Icons.list_alt_outlined,
-            semanticLabel: '所有訓練模板',
-            onTap: () => pushPage(context, const RoutineListScreen()),
+            semanticLabel: '所有訓練',
+            onTap: () => pushPage(context, const TrainingScreen()),
           ),
           HeaderAction(
             icon: _isEditing ? Icons.check : Icons.edit_outlined,
             label: _isEditing ? '完成' : '編輯',
-            semanticLabel: _isEditing ? '完成編輯' : '編輯這份模板',
+            semanticLabel: _isEditing ? '完成編輯' : '編輯這個訓練',
             onTap: () => setState(() => _isEditing = !_isEditing),
           ),
         ],
@@ -183,7 +183,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
           Gutter(
             child: Center(
               child: LinkText(
-                label: '刪除這份模板',
+                label: '刪除這個訓練',
                 color: AppColors.destructive,
                 onTap: () => _delete(routine),
               ),

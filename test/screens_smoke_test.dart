@@ -43,7 +43,9 @@ import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
 import 'package:mishirube/features/training/rest_timer_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
-import 'package:mishirube/features/training/routine_list_screen.dart';
+import 'package:mishirube/features/training/program_screen.dart';
+import 'package:mishirube/features/training/training_screen.dart';
+import 'package:mishirube/backend/seed/program_templates.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
@@ -253,10 +255,11 @@ void _withFood(AppStore store) => store.backend.nutrition.saveFood(
   ),
 );
 
-void _withoutRoutines(AppStore store) {
-  for (final routine in store.routines) {
-    store.deleteRoutine(routine);
-  }
+void _withProgram(AppStore store) {
+  final program = store.backend.program.createFrom(programTemplates.first);
+  store.backend.program
+    ..start(program)
+    ..skipNext();
 }
 
 void _withGoal(AppStore store) =>
@@ -352,8 +355,17 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
   'routine detail': ((_) => const RoutineDetailScreen(), _noSetup),
-  'routine list': ((_) => const RoutineListScreen(), _noSetup),
-  'routine list (none)': ((_) => const RoutineListScreen(), _withoutRoutines),
+  'training': ((_) => const TrainingScreen(), _noSetup),
+  'training with programs': ((_) => const TrainingScreen(), _withProgram),
+  'program': (
+    (store) => ProgramScreen(programId: store.backend.program.all().first.id),
+    _withProgram,
+  ),
+  'program (empty)': (
+    (store) => ProgramScreen(programId: store.backend.program.create('空的').id),
+    _noSetup,
+  ),
+  'shell / today with a program': ((_) => const HomeShell(), _withProgram),
   'goal (not set up)': ((_) => const GoalScreen(), _noSetup),
   'goal': ((_) => const GoalScreen(), _withGoal),
   'goal setup': (

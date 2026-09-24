@@ -12,7 +12,7 @@ import '../journal/weight_entry_screen.dart';
 import '../journal/wellness_entry_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../nutrition/nutrition_view_model.dart';
-import '../training/routine_detail_screen.dart';
+import '../training/training_screen.dart';
 
 /// One kind of record the user can add from the quick-log entry points.
 class RecordOption {
@@ -63,7 +63,7 @@ final recordOptions = [
     color: AppColors.training,
     title: '訓練',
     module: AppModule.training,
-    destination: () => const RoutineDetailScreen(),
+    destination: () => const TrainingScreen(),
   ),
   RecordOption(
     icon: Icons.directions_run,

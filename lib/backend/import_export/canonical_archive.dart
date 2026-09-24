@@ -276,6 +276,33 @@ const _tables = [
     _Column('value', _Kind.real),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('programs', 'programs', [
+    _Column('id', _Kind.text),
+    _Column('name', _Kind.text),
+    _Column('schedule', _Kind.text),
+    _Column('started_at', _Kind.time, isNullable: true),
+    _Column('ended_at', _Kind.time, isNullable: true),
+    ..._entity,
+  ], orderBy: 'id'),
+  _Table('programDays', 'program_days', [
+    _Column('program_id', _Kind.text),
+    _Column('position', _Kind.integer),
+    _Column('routine_id', _Kind.text),
+    _Column('weekday', _Kind.integer, isNullable: true),
+  ], orderBy: 'program_id, position'),
+  _Table('programWorkouts', 'program_workouts', [
+    _Column('workout_id', _Kind.text),
+    _Column('program_id', _Kind.text),
+    _Column('day_position', _Kind.integer),
+    ..._entity,
+  ], orderBy: 'workout_id'),
+  _Table('programSkips', 'program_skips', [
+    _Column('id', _Kind.text),
+    _Column('program_id', _Kind.text),
+    _Column('day_position', _Kind.integer),
+    _Column('skipped_at', _Kind.time),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('goalPauses', 'goal_pauses', [
     _Column('id', _Kind.text),
     _Column('started_at', _Kind.time),

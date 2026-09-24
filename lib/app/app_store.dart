@@ -28,7 +28,7 @@ export '../backend/application/nutrition_service.dart'
 enum AppModule {
   nutrition('飲食', '一餐、料理、成分與營養'),
   weight('體重', '體重與圍度'),
-  training('訓練', '動作、訓練模板與訓練紀錄'),
+  training('訓練', '動作、訓練、課表與訓練紀錄'),
   activity('運動', '跑步、健走、騎車、球類、瑜伽'),
   sleep('睡眠', '睡眠時間與品質'),
   wellness('心情、精力、症狀', '一天的狀態日誌'),
@@ -161,6 +161,31 @@ class AppStore extends ChangeNotifier {
   bool get isOnboarded => _isOnboarded;
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
   Routine get routine => _routine;
+
+  /// Where the running program stands; null when none runs.
+  ProgramProgress? get programProgress => _backend.program.progress();
+
+  /// What to train next: the running program's next workout, else the
+  /// template last trained or opened.
+  Routine get nextRoutine {
+    if (programProgress case final progress?) {
+      final next = _backend.training.routine(
+        progress.next.routineId,
+        _exercisesById,
+      );
+      if (next != null) return next;
+    }
+    return _routine;
+  }
+
+  /// The user's own templates: every one no program holds.
+  List<Routine> get myRoutines {
+    final inPrograms = _backend.program.routineIdsInPrograms();
+    return [
+      for (final routine in routines)
+        if (!inPrograms.contains(routine.id)) routine,
+    ];
+  }
 
   /// Every template, for choosing what to train.
   List<Routine> get routines => _backend.training.routines(_exercisesById);
@@ -330,12 +355,23 @@ class AppStore extends ChangeNotifier {
   /// Starts (or picks up) today's workout. Refuses while exercise is
   /// being timed: ending someone's run for them is not ours to do.
   ///
-  /// Muscles in [sore] get a set fewer on each exercise that works them.
-  bool startWorkout({Set<MuscleGroup> sore = const {}}) {
+  /// [routine] is the template shown unless given; muscles in [sore]
+  /// get a set fewer on each exercise that works them.
+  bool startWorkout({Routine? routine, Set<MuscleGroup> sore = const {}}) {
     if (_session case ActiveActivity()) return false;
     _session = ActiveWorkout(
-      activeWorkout ?? _backend.training.start(_routine, sore: sore),
+      activeWorkout ??
+          _backend.program.startWorkout(routine ?? _routine, sore: sore),
     );
+    notifyListeners();
+    return true;
+  }
+
+  /// Starts a workout from no template, with [exercises] to begin with.
+  /// Refuses while exercise is being timed, as [startWorkout] does.
+  bool startFreeWorkout(List<ExerciseDefinition> exercises) {
+    if (_session is ActiveSession) return false;
+    _session = ActiveWorkout(_backend.training.startFree(exercises));
     notifyListeners();
     return true;
   }

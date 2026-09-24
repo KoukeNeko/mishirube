@@ -10,8 +10,8 @@ import '../exercise/exercise_detail_screen.dart';
 /// How far a swap reaches. There is no program above the template, so
 /// there is no third option to offer.
 enum _ReplaceScope {
-  todayOnly('只替換今天', '這次訓練用新動作，模板不變'),
-  template('也更新訓練模板', '之後從這份模板開始的訓練都改用新動作');
+  todayOnly('只替換今天', '只有這次用新動作'),
+  template('也更新這個訓練', '之後都改用新動作');
 
   const _ReplaceScope(this.title, this.subtitle);
 

@@ -6,6 +6,7 @@ import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../training/training_screen.dart';
 
 const _weekDotSize = 28.0;
 
@@ -148,12 +149,20 @@ class NextWorkoutCard extends StatelessWidget {
   const NextWorkoutCard({
     super.key,
     required this.routine,
+    this.program,
     required this.onStart,
+    required this.onChange,
     required this.onOpenRoutine,
   });
 
   final Routine routine;
+
+  /// The running program [routine] is the next workout of, if any.
+  final ProgramProgress? program;
   final VoidCallback onStart;
+
+  /// Trains something else this time.
+  final VoidCallback onChange;
   final VoidCallback onOpenRoutine;
 
   @override
@@ -165,7 +174,7 @@ class NextWorkoutCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CardEyebrow(
-            label: '下一步',
+            label: '下一次訓練',
             color: AppColors.training,
             trailing:
                 '約 ${AppStoreScope.of(context).expectedMinutes(routine)} 分',
@@ -178,11 +187,29 @@ class NextWorkoutCard extends StatelessWidget {
             ' · ${routine.totalSets} 組',
             style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
+          if (program case final program?) ...[
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              '${program.program.name} · ${roundLabel(program)}',
+              style: AppTextStyles.caption,
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
-          PrimaryButton(
-            label: '開始訓練',
-            icon: Icons.play_arrow_outlined,
-            onPressed: onStart,
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: PrimaryButton(
+                  label: '開始訓練',
+                  icon: Icons.play_arrow_outlined,
+                  onPressed: onStart,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: SecondaryButton(label: '更換', onPressed: onChange),
+              ),
+            ],
           ),
         ],
       ),

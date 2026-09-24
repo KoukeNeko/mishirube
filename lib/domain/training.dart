@@ -234,13 +234,14 @@ class PlannedExercise {
 
   PlannedExercise copyWith({
     int? sets,
+    int? reps,
     ExerciseDefinition? exercise,
     double? targetWeightKg,
     bool? joinsNext,
   }) => PlannedExercise(
     exercise: exercise ?? this.exercise,
     sets: sets ?? this.sets,
-    reps: reps,
+    reps: reps ?? this.reps,
     targetWeightKg: targetWeightKg ?? this.targetWeightKg,
     progressionLabel: progressionLabel,
     rir: rir,

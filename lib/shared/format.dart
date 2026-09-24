@@ -30,7 +30,10 @@ String formatHoursMinutes(Duration duration) {
 const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 
 /// The weekday of [day] as one character, Monday first.
-String weekdayLabel(DateTime day) => _weekdays[day.weekday - 1];
+String weekdayLabel(DateTime day) => weekdayName(day.weekday);
+
+/// [weekday] (1 is Monday) as one character.
+String weekdayName(int weekday) => _weekdays[weekday - 1];
 
 /// `2026/9/21`.
 String formatDate(DateTime day) => '${day.year}/${day.month}/${day.day}';

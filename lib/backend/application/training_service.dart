@@ -16,6 +16,9 @@ const _addedSets = 3;
 /// What a template the user made themselves belongs to, where a seeded
 /// one names its program.
 const _ownProgramName = '自己的訓練';
+
+/// What a workout started from no routine is called.
+const freeWorkoutName = '自由訓練';
 const _addedReps = 10;
 const _addedWeightKg = 20.0;
 
@@ -53,6 +56,18 @@ class TrainingService {
                 : planned,
           ),
       ],
+    );
+    _workouts.save(workout, action: 'start');
+    return workout;
+  }
+
+  /// Starts a workout from no routine, with [exercises] to begin with.
+  WorkoutSession startFree(List<ExerciseDefinition> exercises) {
+    final workout = WorkoutSession(
+      id: _db.newId(),
+      routineName: freeWorkoutName,
+      startedAt: _db.now(),
+      exercises: [for (final exercise in exercises) plan(planFor(exercise))],
     );
     _workouts.save(workout, action: 'start');
     return workout;
@@ -463,20 +478,28 @@ class TrainingService {
   List<Routine> routines(Map<String, ExerciseDefinition> exercises) =>
       _routines.all(exercises);
 
-  /// A new, empty template. Exercises are added to it afterwards, the
-  /// same way they are added to any other.
-  Routine createRoutine(String name) {
+  /// A new template, empty unless [exercises] are given. Exercises are
+  /// otherwise added afterwards, the same way as to any other.
+  Routine createRoutine(
+    String name, {
+    List<PlannedExercise> exercises = const [],
+  }) {
     final routine = Routine(
       id: _db.newId(),
       name: name,
       programName: _ownProgramName,
       estimatedMinutes: 0,
       lastCompletedLabel: '未完成過',
-      exercises: const [],
+      exercises: exercises,
     );
     _routines.save(routine, action: 'create');
     return routine;
   }
+
+  /// A copy of [routine] under a new id, for a program to hold as its
+  /// own.
+  Routine copyRoutine(Routine routine) =>
+      createRoutine(routine.name, exercises: routine.exercises);
 
   void deleteRoutine(String id) => _routines.remove(id);
 

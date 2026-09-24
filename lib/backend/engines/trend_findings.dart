@@ -349,7 +349,7 @@ Insight? sleepAndTrainingInsight(
     evidence: [
       '${pairs.length} 次訓練',
       '以 ${_duration(median)} 區分睡得較久或較少',
-      '與同一模板的平均相比',
+      '與同一訓練的平均相比',
       '關聯，不代表因果',
     ],
   );

@@ -684,6 +684,41 @@ final List<String> _migrations = [
   CREATE INDEX activity_samples_metric
     ON activity_samples(metric, started_at) WHERE deleted_at IS NULL;
   ''',
+  '''
+  -- Programs: routines trained in turn or on set weekdays. Where a
+  -- program stands is derived from the workouts that trained its days
+  -- and the days the user chose to skip, never stored.
+  CREATE TABLE programs (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    schedule TEXT NOT NULL,
+    started_at INTEGER,
+    ended_at INTEGER,
+    $_entityColumns
+  );
+  CREATE TABLE program_days (
+    program_id TEXT NOT NULL REFERENCES programs(id),
+    position INTEGER NOT NULL,
+    routine_id TEXT NOT NULL REFERENCES routines(id),
+    weekday INTEGER,
+    PRIMARY KEY (program_id, position)
+  );
+  -- A workout started as a program's day.
+  CREATE TABLE program_workouts (
+    workout_id TEXT PRIMARY KEY REFERENCES workouts(id),
+    program_id TEXT NOT NULL REFERENCES programs(id),
+    day_position INTEGER NOT NULL,
+    $_entityColumns
+  );
+  -- A program's day the user chose to skip.
+  CREATE TABLE program_skips (
+    id TEXT PRIMARY KEY,
+    program_id TEXT NOT NULL REFERENCES programs(id),
+    day_position INTEGER NOT NULL,
+    skipped_at INTEGER NOT NULL,
+    $_entityColumns
+  );
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
