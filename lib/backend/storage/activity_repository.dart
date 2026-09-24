@@ -202,6 +202,13 @@ class ActivityRepository {
     });
   }
 
+  /// Where session [id] came from; null when there is no such row.
+  ChangeSource? sourceOf(String id) {
+    final rows = _db.select('SELECT source FROM activities WHERE id = ?', [id]);
+    if (rows.isEmpty) return null;
+    return ChangeSource.values.byName(rows.single['source']! as String);
+  }
+
   ActivitySession? byId(String id) {
     final rows = _db.select(
       'SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL '

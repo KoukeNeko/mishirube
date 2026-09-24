@@ -35,6 +35,10 @@ class ActivityViewModel extends ViewModel {
     note: note,
   );
 
+  /// Whether session [id] came from a health platform and is shown
+  /// read only.
+  bool isFromHealth(String id) => backend.activity.isFromHealth(id);
+
   /// Saves a correction to a session already logged.
   void update(ActivitySession activity) => backend.activity.edit(activity);
 

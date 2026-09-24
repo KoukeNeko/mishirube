@@ -404,6 +404,12 @@ ActivityDetail parseActivityDetail(Map<Object?, Object?> row) {
         if (seriesByName[key] case final series?)
           if (points(value) case final found when found.isNotEmpty)
             series: found,
+      // Without speed samples, the speed GPS measured along the route.
+      if (!seriesRows.containsKey('speed') &&
+          route.any((point) => point.speed > 0))
+        ActivitySeries.speed: [
+          for (final point in route) (at: point.at, value: point.speed),
+        ],
       if (route.any((point) => point.altitude != 0))
         ActivitySeries.altitude: [
           for (final point in route) (at: point.at, value: point.altitude),

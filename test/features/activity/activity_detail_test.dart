@@ -54,8 +54,7 @@ class _Health implements HealthSource {
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async =>
       const [];
   @override
-  Future<List<HealthWater>> water(DateTime from, DateTime to) async =>
-      const [];
+  Future<List<HealthWater>> water(DateTime from, DateTime to) async => const [];
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
@@ -149,6 +148,9 @@ void main() {
     ]) {
       expect(find.text(text), findsWidgets, reason: text);
     }
+    expect(find.text('Apple 健康'), findsOneWidget, reason: 'where it lives');
+    expect(find.text('編輯內容'), findsNothing, reason: 'the platform keeps it');
+    expect(find.text('刪除這筆紀錄'), findsNothing);
     expect(find.text('3', skipOffstage: false), findsWidgets, reason: 'splits');
     await disposeTree(tester);
   });
@@ -174,6 +176,8 @@ void main() {
     expect(find.text('平均配速'), findsOneWidget);
     expect(find.text('6:00 /km', findRichText: true), findsOneWidget);
     expect(find.text('心率'), findsNothing);
+    expect(find.text('編輯內容'), findsOneWidget, reason: 'logged here');
+    expect(find.text('刪除這筆紀錄'), findsOneWidget);
     await disposeTree(tester);
   });
 }

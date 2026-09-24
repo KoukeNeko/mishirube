@@ -56,6 +56,13 @@ class HealthService {
   /// The kinds access was last asked for, so a kind added in an update
   /// is asked for once instead of silently reading nothing.
   static const _askedKey = 'health.asked_kinds';
+
+  /// Bumped whenever a platform starts reading more types under a kind
+  /// it already had (a workout's route, heart rate and running figures
+  /// under workouts): Apple Health never says a read was refused, so
+  /// without asking again those reads would quietly come back empty.
+  static const _accessVersion = 2;
+  static const _askedVersionKey = 'health.asked_version';
   static const _syncedKey = 'health.synced_at';
 
   /// How far back an import reads: far enough to catch a record changed
@@ -93,13 +100,17 @@ class HealthService {
       _askedKey,
       [for (final kind in source.kinds) kind.name].join(','),
     );
+    _db.setSetting(_askedVersionKey, '$_accessVersion');
     return true;
   }
 
-  /// Whether a kind this platform holds was never asked for.
+  /// Whether a kind this platform holds, or a type read under one, was
+  /// never asked for.
   bool get _hasUnaskedKinds {
     final asked = (_db.setting(_askedKey) ?? '').split(',').toSet();
-    return source.kinds.any((kind) => !asked.contains(kind.name));
+    final version = int.tryParse(_db.setting(_askedVersionKey) ?? '') ?? 1;
+    return version < _accessVersion ||
+        source.kinds.any((kind) => !asked.contains(kind.name));
   }
 
   bool get isConnected => _db.setting(_connectedKey) == 'true';

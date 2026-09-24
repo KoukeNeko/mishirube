@@ -23,9 +23,13 @@ void main() {
         (at: Duration(minutes: i), value: i < 4 ? 120.0 : 150.0),
     ];
     final splits = routeSplits(_northward(11, 250), heart);
-    expect([
-      for (final split in splits) (split.duration.inMilliseconds / 1000).round(),
-    ], [240, 240, 180]);
+    expect(
+      [
+        for (final split in splits)
+          (split.duration.inMilliseconds / 1000).round(),
+      ],
+      [240, 240, 180],
+    );
     expect(splits.last.meters, closeTo(750, 1));
     expect(splits.first.averageHeartRate, 120);
     expect(splits[1].averageHeartRate, 150);
@@ -38,7 +42,12 @@ void main() {
   test('zones come from the heart rate reserve when resting is known', () {
     // Age 30: maximum 187. Resting 60: reserve 127.
     final heart = [
-      for (final (minute, bpm) in [(0, 100.0), (1, 150.0), (2, 180.0), (3, 180.0)])
+      for (final (minute, bpm) in [
+        (0, 100.0),
+        (1, 150.0),
+        (2, 180.0),
+        (3, 180.0),
+      ])
         (at: Duration(minutes: minute), value: bpm),
     ];
     final zones = heartRateZones(heart, age: 30, restingHeartRate: 60)!;
@@ -52,11 +61,13 @@ void main() {
       const Duration(seconds: 30),
     ], reason: 'a reading counts until the next, at most 30 s');
     expect(heartRateZones(heart, age: null), isNull, reason: 'no maximum');
-    expect(
-      heartRateZones(heart, age: 30)!.lowerBounds,
-      [94, 112, 131, 150, 168],
-      reason: 'without a resting rate, shares of the maximum',
-    );
+    expect(heartRateZones(heart, age: 30)!.lowerBounds, [
+      94,
+      112,
+      131,
+      150,
+      168,
+    ], reason: 'without a resting rate, shares of the maximum');
   });
 
   test('a long series is averaged down to a drawable number of points', () {
@@ -79,7 +90,11 @@ void main() {
       'temperature': 25.2,
       'humidity': 77.0,
       'elevationGain': 4.0,
-      'figures': {'activeEnergy': 45.0, 'totalEnergy': 58.0, 'distance': 2500.0},
+      'figures': {
+        'activeEnergy': 45.0,
+        'totalEnergy': 58.0,
+        'distance': 2500.0,
+      },
       'series': {
         'heartRate': [
           [0, 140],
@@ -105,7 +120,11 @@ void main() {
     });
     expect(detail.activeDuration, const Duration(minutes: 9, seconds: 31));
     expect(detail.totalKcal, 58);
-    expect(detail.series.keys, {ActivitySeries.heartRate, ActivitySeries.altitude});
+    expect(detail.series.keys, {
+      ActivitySeries.heartRate,
+      ActivitySeries.speed,
+      ActivitySeries.altitude,
+    }, reason: 'speed from the route when the device wrote none');
     expect(detail.recovery.last.value, 148);
     expect(detail.route.last.speed, 4.6);
     expect(detail.intervals.single.duration, const Duration(seconds: 207));

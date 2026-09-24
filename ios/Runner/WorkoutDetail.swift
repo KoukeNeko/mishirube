@@ -24,6 +24,8 @@ enum WorkoutDetail {
       HKQuantityType(.basalEnergyBurned),
       HKQuantityType(.stepCount),
       HKQuantityType(.swimmingStrokeCount),
+      HKQuantityType(.distanceWheelchair),
+      HKQuantityType(.distanceDownhillSnowSports),
       HKCharacteristicType(.dateOfBirth),
     ]
     for (type, _, _) in seriesTypes { types.insert(type) }
@@ -99,7 +101,9 @@ enum WorkoutDetail {
       detail["temperature"] = temperature.doubleValue(for: .degreeCelsius())
     }
     if let humidity = metadata[HKMetadataKeyWeatherHumidity] as? HKQuantity {
-      detail["humidity"] = humidity.doubleValue(for: .percent()) * 100
+      // Stored as a percentage (77 for 77%), unlike other percent types.
+      let value = humidity.doubleValue(for: .percent())
+      detail["humidity"] = value <= 1 ? value * 100 : value
     }
     if let climb = metadata[HKMetadataKeyElevationAscended] as? HKQuantity {
       detail["elevationGain"] = climb.doubleValue(for: .meter())
@@ -117,11 +121,15 @@ enum WorkoutDetail {
     {
       figures["totalEnergy"] = active + basal
     }
-    for type in HealthKitBridge.distanceTypes {
-      if let metres = await sum(type, .meter(), interval), metres > 0 {
-        figures["distance"] = metres
-        break
-      }
+    // The distance the workout is measured in: a ride's walking steps
+    // are not its distance.
+    let distance = distanceType(of: workout.workoutActivityType)
+    if #available(iOS 16.0, *),
+      let metres = workout.statistics(for: distance)?.sumQuantity()?.doubleValue(for: .meter())
+    {
+      figures["distance"] = metres
+    } else {
+      figures["distance"] = await sum(distance, .meter(), interval)
     }
     figures["steps"] = await sum(HKQuantityType(.stepCount), .count(), interval)
     figures["swimmingStrokes"] = await sum(
@@ -180,6 +188,26 @@ enum WorkoutDetail {
       detail["age"] = years
     }
     return detail
+  }
+
+  static func distanceType(of type: HKWorkoutActivityType) -> HKQuantityType {
+    switch type {
+    case .cycling, .handCycling: return HKQuantityType(.distanceCycling)
+    case .swimming: return HKQuantityType(.distanceSwimming)
+    case .wheelchairWalkPace, .wheelchairRunPace: return HKQuantityType(.distanceWheelchair)
+    case .downhillSkiing, .snowboarding: return HKQuantityType(.distanceDownhillSnowSports)
+    default:
+      if #available(iOS 18.0, *) {
+        switch type {
+        case .rowing: return HKQuantityType(.distanceRowing)
+        case .paddleSports: return HKQuantityType(.distancePaddleSports)
+        case .crossCountrySkiing: return HKQuantityType(.distanceCrossCountrySkiing)
+        case .skatingSports: return HKQuantityType(.distanceSkatingSports)
+        default: break
+        }
+      }
+      return HKQuantityType(.distanceWalkingRunning)
+    }
   }
 
   static func sum(

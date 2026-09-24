@@ -328,6 +328,11 @@ void main() {
       health.askedFor = null;
       await store.syncHealth();
       expect(health.askedFor, isNull);
+
+      // Every kind asked for, but before workouts also read routes.
+      store.backend.db.setSetting('health.asked_version', '1');
+      await store.syncHealth();
+      expect(health.askedFor, isNotNull, reason: 'asked again, once');
     });
 
     test('the first read reaches back half a year, later ones a month', () async {

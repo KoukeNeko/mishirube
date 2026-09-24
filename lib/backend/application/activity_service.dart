@@ -133,6 +133,13 @@ class ActivityService {
 
   ActivitySession? byId(String id) => _activities.byId(id);
 
+  /// Whether session [id] was read from Apple Health or Health Connect:
+  /// the platform keeps it, so the app only shows it.
+  bool isFromHealth(String id) => switch (_activities.sourceOf(id)) {
+    ChangeSource.healthKit || ChangeSource.healthConnect => true,
+    _ => false,
+  };
+
   /// Saves a correction to a session that was already logged.
   void edit(ActivitySession activity) => _activities.update(activity);
 

@@ -110,7 +110,12 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               ),
             ),
           ),
-        if (_context(detail) case final tags when tags.isNotEmpty)
+        if ([
+              if (model.isFromHealth(activity.id))
+                AppStoreScope.of(context).healthSourceName,
+              ..._context(detail),
+            ]
+            case final tags when tags.isNotEmpty)
           Gutter(child: TagWrap(labels: tags)),
         PageSection(
           label: '詳細資料',
@@ -188,29 +193,32 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               ),
             ],
           ),
-        PageSection(
-          label: '管理',
-          children: [
-            Gutter(
-              child: GroupedCard(
-                children: [
-                  NavRow(
-                    title: '編輯內容',
-                    subtitle: '類型、時間、時長',
-                    onTap: () => pushModalPage<void>(
-                      context,
-                      RecordActivityScreen(activity: activity),
+        // What a health platform recorded is the platform's to change;
+        // only a session logged here can be corrected or taken back.
+        if (!model.isFromHealth(activity.id))
+          PageSection(
+            label: '管理',
+            children: [
+              Gutter(
+                child: GroupedCard(
+                  children: [
+                    NavRow(
+                      title: '編輯內容',
+                      subtitle: '類型、時間、時長',
+                      onTap: () => pushModalPage<void>(
+                        context,
+                        RecordActivityScreen(activity: activity),
+                      ),
                     ),
-                  ),
-                  NavRow(
-                    title: '刪除這筆紀錄',
-                    onTap: () => _delete(model, activity),
-                  ),
-                ],
+                    NavRow(
+                      title: '刪除這筆紀錄',
+                      onTap: () => _delete(model, activity),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
       ],
     );
   }
