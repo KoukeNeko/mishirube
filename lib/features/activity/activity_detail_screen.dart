@@ -49,8 +49,13 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   /// How far the page has scrolled, for the map behind it.
   final _scrolled = ValueNotifier(0.0);
 
+  /// The bar's glass over the map: none until the page, scrolled past
+  /// the map, runs under the bar, then in over [_glassFade].
+  late final _glass = _ScrolledPast(_scrolled, _mapHeight, _glassFade);
+
   @override
   void dispose() {
+    _glass.dispose();
     _scrolled.dispose();
     super.dispose();
   }
@@ -124,8 +129,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         topInset: media.padding.top,
         largeHeight: hasMap ? _mapHeight : 0,
         // Over the map the bar is only its buttons; the scroll-edge glass
-        // comes once the page runs under them.
-        isClearUntilOverlap: hasMap,
+        // comes as the page runs under them.
+        glassOpacity: hasMap ? _glass : null,
         isHighContrast: media.highContrast,
         reduceMotion: prefersReducedMotion(context),
         leading: isDetailPaneRoot(context) ? null : const AppBarBackButton(),
@@ -456,6 +461,28 @@ class _FigureGrid extends StatelessWidget {
 
 /// How much of the map shows above the title.
 const _mapHeight = 280.0;
+
+/// How far the page scrolls under the bar while its glass comes in.
+const _glassFade = 16.0;
+
+/// 0 until [source] passes [start], then up to 1 over [length].
+class _ScrolledPast extends ValueNotifier<double> {
+  _ScrolledPast(this.source, this.start, this.length) : super(0) {
+    source.addListener(_update);
+  }
+
+  final ValueListenable<double> source;
+  final double start;
+  final double length;
+
+  void _update() => value = ((source.value - start) / length).clamp(0.0, 1.0);
+
+  @override
+  void dispose() {
+    source.removeListener(_update);
+    super.dispose();
+  }
+}
 
 /// How blurred and how dark the map is once the page has scrolled over
 /// it: still there, as a trace.

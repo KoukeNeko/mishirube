@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -186,9 +187,6 @@ double pinnedSlotHeight({
 /// A page header that starts as content (large title) and collapses into a
 /// compact toolbar. The toolbar only turns into glass once content scrolls
 /// beneath it, like iOS scroll-edge effects.
-/// How far into the collapse a clear bar's glass starts to come in.
-const _clearGlassStart = 0.92;
-
 class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   CollapsingHeaderDelegate({
     required this.toolbar,
@@ -203,7 +201,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.hideToolbarFraction = 0,
     this.scrollsToolbarAway = false,
     this.solidColor,
-    this.isClearUntilOverlap = false,
+    this.glassOpacity,
     this.isHighContrast = false,
     this.reduceMotion = false,
   });
@@ -228,10 +226,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// Opaque branded background instead of scroll-edge glass.
   final Color? solidColor;
 
-  /// No glass at all while the large block collapses, only as the page
-  /// starts to run under the bar: for a page drawn over a picture (a
-  /// workout's map), which the bar would otherwise blur.
-  final bool isClearUntilOverlap;
+  /// The glass, from the page instead of the collapse: for a page drawn
+  /// over a picture (a workout's map), whose bar stays clear until the
+  /// page itself runs under it, which only the page can tell.
+  final ValueListenable<double>? glassOpacity;
   final bool isHighContrast;
   final bool reduceMotion;
 
@@ -266,16 +264,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final progress = _progress(shrinkOffset);
-    // A clear bar gets its glass only as the collapse ends, which is when
-    // the page starts to run under it.
-    final chromeOpacity = isClearUntilOverlap
-        ? ((progress - _clearGlassStart) / (1 - _clearGlassStart)).clamp(
-            0.0,
-            1.0,
-          )
-        : overlapsContent
-        ? 1.0
-        : progress;
+    final chromeOpacity = overlapsContent ? 1.0 : progress;
     final showsCompactTitle =
         !scrollsToolbarAway && progress >= _titleSwapPoint;
     // The large title goes first, then (without a compact bar) the toolbar.
@@ -294,11 +283,21 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Stack(
       fit: StackFit.expand,
       children: [
-        _HeaderBackground(
-          opacity: chromeOpacity,
-          solidColor: solidColor,
-          isHighContrast: isHighContrast,
-        ),
+        if (glassOpacity case final glass?)
+          ValueListenableBuilder(
+            valueListenable: glass,
+            builder: (context, opacity, _) => _HeaderBackground(
+              opacity: opacity,
+              solidColor: solidColor,
+              isHighContrast: isHighContrast,
+            ),
+          )
+        else
+          _HeaderBackground(
+            opacity: chromeOpacity,
+            solidColor: solidColor,
+            isHighContrast: isHighContrast,
+          ),
         _ContentColumn(
           child: Column(
             // Stretch so the large title can sit at the leading edge.

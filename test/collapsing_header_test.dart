@@ -232,9 +232,12 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a bar over a picture stays clear until the page runs under '
-      'it', (tester) async {
+  testWidgets('a bar over a picture takes its glass from the page', (
+    tester,
+  ) async {
     usePhoneViewport(tester);
+    final glass = ValueNotifier(0.0);
+    addTearDown(glass.dispose);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -244,7 +247,7 @@ void main() {
                 toolbar: ToolbarMetrics.of(context),
                 topInset: MediaQuery.paddingOf(context).top,
                 largeHeight: 280,
-                isClearUntilOverlap: true,
+                glassOpacity: glass,
                 large: const SizedBox.shrink(),
                 compactTitle: const SizedBox.shrink(),
                 leading: const AppBarBackButton(),
@@ -262,13 +265,13 @@ void main() {
     int filters() => find.byType(BackdropFilter).evaluate().length;
     final buttons = filters();
 
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -140));
-    await tester.pump();
-    expect(filters(), buttons, reason: 'half collapsed, still clear');
-
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
     await tester.pump();
-    expect(filters(), buttons + 1, reason: 'the page is under the bar');
+    expect(filters(), buttons, reason: 'collapsed, but clear till told');
+
+    glass.value = 1;
+    await tester.pump();
+    expect(filters(), buttons + 1, reason: 'the page ran under the bar');
     await disposeTree(tester);
   });
 
