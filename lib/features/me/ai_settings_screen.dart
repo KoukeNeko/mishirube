@@ -282,10 +282,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                           title: 'API 金鑰',
                           subtitle: hasKey
                               ? '已設定'
-                              : [
-                                  '未設定',
-                                  ?_keySource(provider),
-                                ].join(' · '),
+                              : ['未設定', ?_keySource(provider)].join(' · '),
                           onTap: _editKey,
                         ),
                       if (provider.hasModelChoice)

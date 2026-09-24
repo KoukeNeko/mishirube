@@ -879,11 +879,17 @@ void main() {
     await tester.tap(find.bySemanticsLabel('拍照讀取身體組成'));
     await tester.pumpAndSettle();
     expect(find.text('照片讀到 2 項，請核對'), findsOneWidget);
-    expect(store.backend.journal.latestBodyReadings(), isEmpty, reason: 'not yet');
+    expect(
+      store.backend.journal.latestBodyReadings(),
+      isEmpty,
+      reason: 'not yet',
+    );
 
     await _tapText(tester, '儲存');
     expect(
-      store.backend.journal.latestBodyReadings()[BodyMetric.skeletalMuscle]?.value,
+      store.backend.journal
+          .latestBodyReadings()[BodyMetric.skeletalMuscle]
+          ?.value,
       33.1,
     );
     await disposeTree(tester);
@@ -913,7 +919,9 @@ void main() {
     await tester.pumpAndSettle();
     await _tapText(tester, '儲存');
     expect(
-      store.backend.journal.latestMeasurements()[MeasurementSite.waist]?.centimetres,
+      store.backend.journal
+          .latestMeasurements()[MeasurementSite.waist]
+          ?.centimetres,
       82.5,
     );
     await disposeTree(tester);
@@ -1405,17 +1413,13 @@ void main() {
 
     final plate = store.todayMeals.skip(before).toList();
     expect(plate.map((m) => m.name), ['白飯', '蛋']);
-    expect(
-      plate.map((m) => m.mealType).toSet(),
-      {MealType.dinner},
-      reason: 'the meal chosen on the page applies to the whole plate',
-    );
+    expect(plate.map((m) => m.mealType).toSet(), {
+      MealType.dinner,
+    }, reason: 'the meal chosen on the page applies to the whole plate');
     await disposeTree(tester);
   });
 
-  testWidgets('every nutrient is on the form without asking', (
-    tester,
-  ) async {
+  testWidgets('every nutrient is on the form without asking', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const FoodEditScreen(), store: store);
 

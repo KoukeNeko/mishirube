@@ -612,10 +612,16 @@ void main() {
       );
 
       store
-        ..backend.journal.recordSleep(const Duration(hours: 7, minutes: 30), score: 4)
+        ..backend.journal.recordSleep(
+          const Duration(hours: 7, minutes: 30),
+          score: 4,
+        )
         ..backend.journal.recordSleep(const Duration(hours: 6, minutes: 30));
 
-      expect(store.backend.insights.trends().averageSleep, const Duration(hours: 7));
+      expect(
+        store.backend.insights.trends().averageSleep,
+        const Duration(hours: 7),
+      );
       final today = store.backend.timeline.month(DateTime(2026, 9)).days.first;
       expect(today.entries.map((entry) => entry.title), contains('睡眠 7:30'));
       expect(
@@ -919,17 +925,17 @@ void main() {
         (60, 3),
         (80, 1),
       ]);
-      expect(
-        warmupRamp(40, Equipment.barbell),
-        [(20, 10), (22.5, 3), (30, 1)],
-        reason: '40% is under the bar, so it is dropped',
-      );
+      expect(warmupRamp(40, Equipment.barbell), [
+        (20, 10),
+        (22.5, 3),
+        (30, 1),
+      ], reason: '40% is under the bar, so it is dropped');
       expect(warmupRamp(20, Equipment.barbell), isEmpty);
-      expect(
-        warmupRamp(30, Equipment.dumbbell),
-        [(10, 5), (17.5, 3), (22.5, 1)],
-        reason: 'no bar to start from',
-      );
+      expect(warmupRamp(30, Equipment.dumbbell), [
+        (10, 5),
+        (17.5, 3),
+        (22.5, 1),
+      ], reason: 'no bar to start from');
     });
 
     test('the warm-up chip adds the ramp once, then one set at a time', () {

@@ -26,8 +26,10 @@ void main() {
       expect(exercise.name, isNotEmpty);
       expect(exercise.primaryMuscles, isNotEmpty, reason: exercise.id);
       expect(
-        [...exercise.primaryMuscles, ...exercise.secondaryMuscles]
-            .where((m) => m.isGeneral),
+        [
+          ...exercise.primaryMuscles,
+          ...exercise.secondaryMuscles,
+        ].where((m) => m.isGeneral),
         isEmpty,
         reason: '${exercise.id} names a muscle, not a whole region',
       );

@@ -577,10 +577,7 @@ void main() {
       final saved = store.backend.nutrition.searchFoods('').length;
 
       final logged = store.backend.nutrition.logOnce(
-        FoodPortion(
-          const FoodItem(id: 'cake', name: '同事帶的蛋糕', kcal: 320.5),
-          1,
-        ),
+        FoodPortion(const FoodItem(id: 'cake', name: '同事帶的蛋糕', kcal: 320.5), 1),
         mealType: MealType.snack,
       );
 
@@ -722,17 +719,15 @@ void main() {
         ..backend.nutrition.logPortion(const FoodPortion(milk, 1))
         ..backend.nutrition.logPortion(const FoodPortion(rice, 1));
 
-      final calcium = summariseNutrients(
-        store.todayMeals,
-      ).singleWhere((total) => total.nutrient == Nutrient.calcium);
+      final calcium = summariseNutrients(store.todayMeals)
+          .singleWhere((total) => total.nutrient == Nutrient.calcium);
 
       expect(calcium.amount, 250);
       expect(calcium.isComplete, isFalse, reason: 'the rice said nothing');
       expect(calcium.label, '至少 250 mg');
       expect(
-        summariseNutrients(
-          store.todayMeals,
-        ).any((total) => total.nutrient == Nutrient.iron),
+        summariseNutrients(store.todayMeals)
+            .any((total) => total.nutrient == Nutrient.iron),
         isFalse,
         reason: 'a nutrient nobody recorded is left out, not listed as 0',
       );
@@ -1194,11 +1189,12 @@ void main() {
         (food) => food.name == '美式咖啡' && food.sizeName.isNotEmpty,
       );
       expect(americano.map((size) => size.sizeName), ['小杯', '中杯', '大杯', '特大杯']);
-      expect(
-        americano.map((size) => size.nutrients[Nutrient.caffeine]),
-        [98, 195, 293, 390],
-        reason: 'the cups are not proportional, so each carries its own',
-      );
+      expect(americano.map((size) => size.nutrients[Nutrient.caffeine]), [
+        98,
+        195,
+        293,
+        390,
+      ], reason: 'the cups are not proportional, so each carries its own');
     });
 
     test('a cup size is named, never counted as fluid drunk', () {
@@ -2392,10 +2388,7 @@ void main() {
 
       reopened.setShowsDemo(true);
       expect(reopened.demoRecordCounts, demo);
-      expect(
-        reopened.backend.nutrition.mealsOn(clock.now()),
-        hasLength(meals),
-      );
+      expect(reopened.backend.nutrition.mealsOn(clock.now()), hasLength(meals));
     });
 
     test('a demo record deleted before stays deleted', () {
@@ -2425,9 +2418,11 @@ void main() {
 
       store.setShowsDemo(false);
 
-      final audited = store.backend.db.select(
-        "SELECT COUNT(*) AS n FROM audit_events WHERE action = 'hide_demo'",
-      ).single['n'];
+      final audited = store.backend.db
+          .select(
+            "SELECT COUNT(*) AS n FROM audit_events WHERE action = 'hide_demo'",
+          )
+          .single['n'];
       expect(audited, records);
     });
   });

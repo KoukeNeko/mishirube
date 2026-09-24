@@ -197,18 +197,24 @@ void _withLunch(AppStore store) => store.confirmLunch();
 /// after a workout, and with one running.
 final _todayStates = <(String, _StoreSetup)>[
   ('as seeded', _noSetup),
-  ('with records', (store) {
-    _withLunch(store);
-    _withBody(store);
-    _withStagedNight(store);
-    _withMovement(store);
-  }),
-  ('after a workout', (store) {
-    store
-      ..startWorkout()
-      ..completeNextSet()
-      ..finishWorkout();
-  }),
+  (
+    'with records',
+    (store) {
+      _withLunch(store);
+      _withBody(store);
+      _withStagedNight(store);
+      _withMovement(store);
+    },
+  ),
+  (
+    'after a workout',
+    (store) {
+      store
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout();
+    },
+  ),
   ('during a workout', _withWorkout),
 ];
 

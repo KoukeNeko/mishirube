@@ -170,9 +170,8 @@ void main() {
     );
     var undone = false;
 
-    ToastScope.read(
-      tester.element(find.byType(WeightEntryScreen)),
-    ).showUndo('已拆成獨立紀錄', onUndo: () => undone = true);
+    ToastScope.read(tester.element(find.byType(WeightEntryScreen)))
+        .showUndo('已拆成獨立紀錄', onUndo: () => undone = true);
     await _settleToast(tester);
     expect(find.text('30s'), findsOneWidget);
 

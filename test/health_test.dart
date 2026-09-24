@@ -335,14 +335,17 @@ void main() {
       expect(health.askedFor, isNotNull, reason: 'asked again, once');
     });
 
-    test('the first read reaches back half a year, later ones a month', () async {
-      final health = _FakeHealth([lastNight]);
-      final store = storeWith(health);
-      await store.connectHealth();
-      await store.syncHealth();
+    test(
+      'the first read reaches back half a year, later ones a month',
+      () async {
+        final health = _FakeHealth([lastNight]);
+        final store = storeWith(health);
+        await store.connectHealth();
+        await store.syncHealth();
 
-      expect(health.readFrom, [HealthService.history, HealthService.window]);
-    });
+        expect(health.readFrom, [HealthService.history, HealthService.window]);
+      },
+    );
 
     test('reading again updates a night instead of adding it twice', () async {
       final health = _FakeHealth([lastNight]);
