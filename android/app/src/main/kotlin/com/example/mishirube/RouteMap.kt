@@ -48,6 +48,10 @@ class RouteMapView(context: Context, args: Map<*, *>) : PlatformView {
         .mapNotNull { point -> (point as? List<*>)?.mapNotNull { (it as? Number)?.toDouble() } }
         .filter { it.size >= 3 }
     private val interactive = args["interactive"] as? Boolean ?: false
+
+    /** What covers the map's top and bottom edges on the page, in dp. */
+    private val insets = (args["insets"] as? List<*>).orEmpty().mapNotNull { (it as? Number)?.toDouble() }
+    private val density = context.resources.displayMetrics.density
     // A texture, not a surface, so it composes inside Flutter's page.
     private val map = MapView(context, MapLibreMapOptions.createFromAttributes(context).textureMode(true))
     private var isOffline = false
@@ -78,7 +82,7 @@ class RouteMapView(context: Context, args: Map<*, *>) : PlatformView {
         )
         style.addLayer(
             LineLayer("route", "route").withProperties(
-                PropertyFactory.lineWidth(5f),
+                PropertyFactory.lineWidth(3.5f),
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
                 PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
                 PropertyFactory.lineGradient(gradient()),
@@ -94,8 +98,8 @@ class RouteMapView(context: Context, args: Map<*, *>) : PlatformView {
         style.addSource(GeoJsonSource("ends", ends))
         style.addLayer(
             CircleLayer("ends", "ends").withProperties(
-                PropertyFactory.circleRadius(7f),
-                PropertyFactory.circleStrokeWidth(2f),
+                PropertyFactory.circleRadius(5f),
+                PropertyFactory.circleStrokeWidth(1.5f),
                 PropertyFactory.circleStrokeColor(Color.WHITE),
                 PropertyFactory.circleColor(
                     Expression.switchCase(
@@ -108,7 +112,13 @@ class RouteMapView(context: Context, args: Map<*, *>) : PlatformView {
         val bounds = LatLngBounds.Builder()
             .includes(points.map { LatLng(it[0], it[1]) })
             .build()
-        mapLibre.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 96))
+        fun px(dp: Double) = (dp * density).toInt()
+        mapLibre.moveCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                bounds, px(32.0), px((insets.firstOrNull() ?: 0.0) + 24), px(32.0),
+                px((insets.lastOrNull() ?: 0.0) + 24),
+            )
+        )
     }
 
     /** Red when slow through yellow to green when fast, placed by distance. */

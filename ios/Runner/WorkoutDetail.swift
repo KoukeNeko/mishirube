@@ -362,8 +362,13 @@ final class RouteMapView: NSObject, FlutterPlatformView, MKMapViewDelegate {
     map.addOverlay(line)
     map.addAnnotations([Endpoint(coordinates.first!, isStart: true),
       Endpoint(coordinates.last!, isStart: false)])
+    // Framed in what shows: the page's header and title cover its edges.
+    let insets = arguments["insets"] as? [Double] ?? [0, 0]
     map.setVisibleMapRect(
-      line.boundingMapRect, edgePadding: UIEdgeInsets(top: 48, left: 32, bottom: 48, right: 32),
+      line.boundingMapRect,
+      edgePadding: UIEdgeInsets(
+        top: CGFloat(insets.first ?? 0) + 24, left: 32,
+        bottom: CGFloat(insets.last ?? 0) + 24, right: 32),
       animated: false)
   }
 
@@ -373,7 +378,7 @@ final class RouteMapView: NSObject, FlutterPlatformView, MKMapViewDelegate {
     guard let line = overlay as? MKPolyline else { return MKOverlayRenderer(overlay: overlay) }
     let renderer = MKGradientPolylineRenderer(polyline: line)
     renderer.setColors(colors, locations: stops)
-    renderer.lineWidth = 5
+    renderer.lineWidth = 3
     renderer.lineCap = .round
     return renderer
   }
@@ -381,12 +386,12 @@ final class RouteMapView: NSObject, FlutterPlatformView, MKMapViewDelegate {
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
     guard let endpoint = annotation as? Endpoint else { return nil }
     let view = MKAnnotationView(annotation: endpoint, reuseIdentifier: nil)
-    let size: CGFloat = 16
+    let size: CGFloat = 12
     let dot = UIView(frame: CGRect(x: 0, y: 0, width: size, height: size))
     dot.backgroundColor = endpoint.isStart ? .systemGreen : .systemRed
     dot.layer.cornerRadius = size / 2
     dot.layer.borderColor = UIColor.white.cgColor
-    dot.layer.borderWidth = 2
+    dot.layer.borderWidth = 1.5
     view.frame = dot.frame
     view.addSubview(dot)
     return view

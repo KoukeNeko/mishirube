@@ -135,9 +135,13 @@ void main() {
     expect(health.asked, ['ABC'], reason: 'the platform id, read once');
     for (final text in [
       '斗六市',
-      'Apple Watch',
-      '25°C',
-      '濕度 77%',
+      '騎自行車（戶外）',
+      '3.20 km',
+      'Apple Watch · Apple 健康',
+      '25°',
+      '天氣',
+      '77%',
+      '濕度',
       '總能量',
       '平均速度',
       '平均心率',
@@ -148,7 +152,6 @@ void main() {
     ]) {
       expect(find.text(text), findsWidgets, reason: text);
     }
-    expect(find.text('Apple 健康'), findsOneWidget, reason: 'where it lives');
     expect(find.text('編輯內容'), findsNothing, reason: 'the platform keeps it');
     expect(find.text('刪除這筆紀錄'), findsNothing);
     expect(find.text('3', skipOffstage: false), findsWidgets, reason: 'splits');

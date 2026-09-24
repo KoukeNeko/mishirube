@@ -18,13 +18,24 @@ const _viewType = 'mishirube/route_map';
 /// OpenFreeMap's tiles on Android (`RouteMap.kt`). Dark, the line
 /// coloured by speed, with the start and the end marked.
 class RouteMap extends StatelessWidget {
-  const RouteMap({super.key, required this.route, this.isInteractive = false});
+  const RouteMap({
+    super.key,
+    required this.route,
+    this.isInteractive = false,
+    this.topInset = 0,
+    this.bottomInset = 0,
+  });
 
   final List<RoutePoint> route;
 
   /// Whether it pans and zooms; a map inside a scrolling page does not,
   /// so the page still scrolls over it.
   final bool isInteractive;
+
+  /// What lies over the map at its top and bottom edges, in logical
+  /// pixels, so the route is fitted into the part that shows.
+  final double topInset;
+  final double bottomInset;
 
   /// Whether this device can draw one.
   static bool get isSupported =>
@@ -40,7 +51,11 @@ class RouteMap extends StatelessWidget {
       if ((route.length - 1) % step != 0)
         [route.last.latitude, route.last.longitude, route.last.speed],
     ];
-    final params = {'points': points, 'interactive': isInteractive};
+    final params = {
+      'points': points,
+      'interactive': isInteractive,
+      'insets': [topInset, bottomInset],
+    };
     final gestures = isInteractive
         ? {Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new)}
         : <Factory<OneSequenceGestureRecognizer>>{};

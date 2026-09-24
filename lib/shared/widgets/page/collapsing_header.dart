@@ -200,6 +200,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.hideToolbarFraction = 0,
     this.scrollsToolbarAway = false,
     this.solidColor,
+    this.backdrop,
     this.isHighContrast = false,
     this.reduceMotion = false,
   });
@@ -223,6 +224,12 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   /// Opaque branded background instead of scroll-edge glass.
   final Color? solidColor;
+
+  /// Drawn edge to edge behind the whole header, status bar and toolbar
+  /// included, and scrolled away with the large block: a workout's map.
+  /// It keeps its full height as the header shrinks, so it is clipped
+  /// rather than squeezed, and the glass fades in over it as usual.
+  final Widget? backdrop;
   final bool isHighContrast;
   final bool reduceMotion;
 
@@ -276,6 +283,14 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Stack(
       fit: StackFit.expand,
       children: [
+        if (backdrop case final backdrop?)
+          Positioned(
+            top: -shrinkOffset,
+            left: 0,
+            right: 0,
+            height: maxExtent,
+            child: backdrop,
+          ),
         _HeaderBackground(
           opacity: chromeOpacity,
           solidColor: solidColor,
