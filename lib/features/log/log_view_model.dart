@@ -15,6 +15,14 @@ class LogViewModel extends ViewModel {
         DateTime(today.year, today.month);
   }
 
+  static const _calendarKey = 'log.shows_calendar';
+
+  /// Whether the log opens on the calendar: the view last chosen, kept.
+  bool get showsCalendar => backend.db.setting(_calendarKey) == 'true';
+
+  void setShowsCalendar(bool shows) =>
+      backend.db.setSetting(_calendarKey, '$shows');
+
   /// Whether [id] is a sleep, which opens on the sleep page.
   bool isSleep(String id) => backend.journal.entry(id) is SleepEntry;
 }

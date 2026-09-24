@@ -1,3 +1,6 @@
+import 'dart:ui' show ImageFilter;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
@@ -42,6 +45,15 @@ class ActivityDetailScreen extends StatefulWidget {
 
 class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   Future<ActivityDetail?>? _detail;
+
+  /// How far the page has scrolled, for the map behind it.
+  final _scrolled = ValueNotifier(0.0);
+
+  @override
+  void dispose() {
+    _scrolled.dispose();
+    super.dispose();
+  }
 
   void _delete(ActivityViewModel model, ActivitySession activity) {
     final toast = ToastScope.read(context);
@@ -101,157 +113,188 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       source: model.isFromHealth(activity.id)
           ? AppStoreScope.of(context).healthSourceName
           : null,
-      hasMap: hasMap,
     );
     void openMap() => pushModalPage<void>(
       context,
       _RouteMapScreen(title: activity.type.label, detail: detail!),
     );
-    return EdgeToEdgeScaffold(
-      // Measured below the Scaffold so text uses Material's line height.
-      body: Builder(
-        builder: (context) => CollapsingScrollView(
-          header: CollapsingHeaderDelegate(
-            toolbar: toolbar,
-            topInset: media.padding.top,
-            largeHeight: hero.measureHeight(context),
-            isHighContrast: media.highContrast,
-            reduceMotion: prefersReducedMotion(context),
-            leading: isDetailPaneRoot(context)
-                ? null
-                : const AppBarBackButton(),
-            actions: [
-              if (hasMap)
-                HeaderAction(
-                  icon: Icons.map_outlined,
-                  semanticLabel: '路線地圖',
-                  onTap: openMap,
-                ),
-            ],
-            compactTitle: Text(
-              activity.type.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: compactTitleStyle,
+    final page = CollapsingScrollView(
+      header: CollapsingHeaderDelegate(
+        toolbar: toolbar,
+        topInset: media.padding.top,
+        largeHeight: hasMap ? _mapHeight : 0,
+        // Over the map the bar is only its buttons; the scroll-edge glass
+        // comes once the page runs under them.
+        isClearUntilOverlap: hasMap,
+        isHighContrast: media.highContrast,
+        reduceMotion: prefersReducedMotion(context),
+        leading: isDetailPaneRoot(context) ? null : const AppBarBackButton(),
+        actions: [
+          if (hasMap)
+            HeaderAction(
+              icon: Icons.map_outlined,
+              semanticLabel: '路線地圖',
+              onTap: openMap,
             ),
-            // Like Apple Fitness: the route fills the top of the page,
-            // under the status bar and the buttons, and the title sits on
-            // it where it fades into the page.
-            backdrop: hasMap
-                ? _MapBackdrop(
+        ],
+        // The title is on the page, as Apple Fitness has it; the bar
+        // holds only its buttons.
+        compactTitle: const SizedBox.shrink(),
+        // The stretch of map left clear above the title; it opens the
+        // map.
+        large: hasMap
+            ? Semantics(
+                button: true,
+                label: '路線地圖',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(onTap: openMap),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+      children: [
+        hero,
+        if (failed) Gutter(child: const InfoBanner(message: '無法讀取健康資料的詳細紀錄。')),
+        PageSection(
+          label: '詳細資料',
+          children: [
+            Gutter(
+              child: _FigureGrid(
+                figures: _figures(activity, detail, showsPace),
+              ),
+            ),
+          ],
+        ),
+        if (splits.isNotEmpty)
+          PageSection(
+            label: '分段 · 每 1 km',
+            children: [
+              Gutter(
+                child: _SplitTable(splits: splits, showsPace: showsPace),
+              ),
+            ],
+          ),
+        if (heartRate.isNotEmpty)
+          PageSection(
+            label: '心率',
+            children: [
+              Gutter(
+                child: _SeriesCard(
+                  series: ActivitySeries.heartRate,
+                  points: heartRate,
+                  start: activity.startedAt,
+                ),
+              ),
+              if (zones != null) Gutter(child: _ZoneCard(zones: zones)),
+            ],
+          ),
+        if (detail != null && detail.recovery.length > 1)
+          PageSection(
+            label: '運動後心率',
+            children: [
+              Gutter(
+                child: _RecoveryCard(
+                  points: detail.recovery,
+                  end: activity.endedAt,
+                ),
+              ),
+            ],
+          ),
+        if (detail != null)
+          for (final series in ActivitySeries.values)
+            if (series != ActivitySeries.heartRate)
+              if (detail.series[series] case final points?
+                  when points.length > 1)
+                PageSection(
+                  label: series == ActivitySeries.speed && showsPace
+                      ? '配速'
+                      : series.label,
+                  children: [
+                    Gutter(
+                      child: _SeriesCard(
+                        series: series,
+                        points: points,
+                        start: activity.startedAt,
+                        showsPace: showsPace,
+                      ),
+                    ),
+                  ],
+                ),
+        if (activity.note.isNotEmpty)
+          PageSection(
+            label: '備註',
+            children: [
+              Gutter(
+                child: AppCard(
+                  child: Text(activity.note, style: AppTextStyles.body),
+                ),
+              ),
+            ],
+          ),
+        // What a health platform recorded is the platform's to change;
+        // only a session logged here can be corrected or taken back.
+        if (!model.isFromHealth(activity.id))
+          PageSection(
+            label: '管理',
+            children: [
+              Gutter(
+                child: GroupedCard(
+                  children: [
+                    NavRow(
+                      title: '編輯內容',
+                      subtitle: '類型、時間、時長',
+                      onTap: () => pushModalPage<void>(
+                        context,
+                        RecordActivityScreen(activity: activity),
+                      ),
+                    ),
+                    NavRow(
+                      title: '刪除這筆紀錄',
+                      onTap: () => _delete(model, activity),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+    return EdgeToEdgeScaffold(
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.depth == 0) {
+            _scrolled.value = notification.metrics.pixels;
+          }
+          return false;
+        },
+        // Measured below the Scaffold so text uses Material's line height.
+        child: Builder(
+          builder: (context) => Stack(
+            children: [
+              // Like Apple Fitness: the route lies under the whole top of
+              // the page and stays there, blurring and darkening as the
+              // page scrolls over it.
+              if (hasMap)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height:
+                      media.padding.top +
+                      toolbar.height +
+                      _mapHeight +
+                      hero.textHeight(context),
+                  child: _MapBackdrop(
                     route: route,
                     topInset: media.padding.top + toolbar.height,
                     bottomInset: hero.textHeight(context),
-                  )
-                : null,
-            large: hero.withMapTap(hasMap ? openMap : null),
-          ),
-          children: [
-            if (failed)
-              Gutter(child: const InfoBanner(message: '無法讀取健康資料的詳細紀錄。')),
-            PageSection(
-              label: '詳細資料',
-              children: [
-                Gutter(
-                  child: _FigureGrid(
-                    figures: _figures(activity, detail, showsPace),
+                    scrolled: _scrolled,
                   ),
                 ),
-              ],
-            ),
-            if (splits.isNotEmpty)
-              PageSection(
-                label: '分段 · 每 1 km',
-                children: [
-                  Gutter(
-                    child: _SplitTable(splits: splits, showsPace: showsPace),
-                  ),
-                ],
-              ),
-            if (heartRate.isNotEmpty)
-              PageSection(
-                label: '心率',
-                children: [
-                  Gutter(
-                    child: _SeriesCard(
-                      series: ActivitySeries.heartRate,
-                      points: heartRate,
-                      start: activity.startedAt,
-                    ),
-                  ),
-                  if (zones != null) Gutter(child: _ZoneCard(zones: zones)),
-                ],
-              ),
-            if (detail != null && detail.recovery.length > 1)
-              PageSection(
-                label: '運動後心率',
-                children: [
-                  Gutter(
-                    child: _RecoveryCard(
-                      points: detail.recovery,
-                      end: activity.endedAt,
-                    ),
-                  ),
-                ],
-              ),
-            if (detail != null)
-              for (final series in ActivitySeries.values)
-                if (series != ActivitySeries.heartRate)
-                  if (detail.series[series] case final points?
-                      when points.length > 1)
-                    PageSection(
-                      label: series == ActivitySeries.speed && showsPace
-                          ? '配速'
-                          : series.label,
-                      children: [
-                        Gutter(
-                          child: _SeriesCard(
-                            series: series,
-                            points: points,
-                            start: activity.startedAt,
-                            showsPace: showsPace,
-                          ),
-                        ),
-                      ],
-                    ),
-            if (activity.note.isNotEmpty)
-              PageSection(
-                label: '備註',
-                children: [
-                  Gutter(
-                    child: AppCard(
-                      child: Text(activity.note, style: AppTextStyles.body),
-                    ),
-                  ),
-                ],
-              ),
-            // What a health platform recorded is the platform's to change;
-            // only a session logged here can be corrected or taken back.
-            if (!model.isFromHealth(activity.id))
-              PageSection(
-                label: '管理',
-                children: [
-                  Gutter(
-                    child: GroupedCard(
-                      children: [
-                        NavRow(
-                          title: '編輯內容',
-                          subtitle: '類型、時間、時長',
-                          onTap: () => pushModalPage<void>(
-                            context,
-                            RecordActivityScreen(activity: activity),
-                          ),
-                        ),
-                        NavRow(
-                          title: '刪除這筆紀錄',
-                          onTap: () => _delete(model, activity),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          ],
+              page,
+            ],
+          ),
         ),
       ),
     );
@@ -414,6 +457,11 @@ class _FigureGrid extends StatelessWidget {
 /// How much of the map shows above the title.
 const _mapHeight = 280.0;
 
+/// How blurred and how dark the map is once the page has scrolled over
+/// it: still there, as a trace.
+const _mapBlur = 18.0;
+const _mapDarkening = 0.7;
+
 const _heroPlaceStyle = AppTextStyles.itemTitle;
 const _heroTitleStyle = AppTextStyles.screenTitle;
 final _heroDistanceStyle = AppTextStyles.bigNumber.copyWith(
@@ -425,15 +473,13 @@ const _heroGap = AppSpacing.xxs;
 
 /// The top of a session's page, as Apple Fitness has it: where, what,
 /// how far, when and on what, then the weather, over the bottom of the
-/// map when there is one. Its height is measured, so large text grows
-/// the header instead of overflowing it.
+/// map when there is one. It scrolls with the page; its height is
+/// measured so the map can frame the route above it.
 class _Hero extends StatelessWidget {
   const _Hero({
     required this.activity,
     required this.detail,
     required this.source,
-    required this.hasMap,
-    this.onMapTap,
   });
 
   final ActivitySession activity;
@@ -441,16 +487,6 @@ class _Hero extends StatelessWidget {
 
   /// The health platform it was read from; null when logged here.
   final String? source;
-  final bool hasMap;
-  final VoidCallback? onMapTap;
-
-  _Hero withMapTap(VoidCallback? onTap) => _Hero(
-    activity: activity,
-    detail: detail,
-    source: source,
-    hasMap: hasMap,
-    onMapTap: onTap,
-  );
 
   String get _title => switch (detail?.isIndoor) {
     true => '${activity.type.label}（室內）',
@@ -512,9 +548,6 @@ class _Hero extends StatelessWidget {
         AppSpacing.lg;
   }
 
-  double measureHeight(BuildContext context) =>
-      (hasMap ? _mapHeight : 0) + textHeight(context);
-
   @override
   Widget build(BuildContext context) {
     Widget line(String text, TextStyle style) =>
@@ -526,20 +559,6 @@ class _Hero extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (hasMap)
-          SizedBox(
-            height: _mapHeight,
-            child: onMapTap == null
-                ? null
-                : Semantics(
-                    button: true,
-                    label: '路線地圖',
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: InkWell(onTap: onMapTap),
-                    ),
-                  ),
-          ),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screenGutter,
@@ -624,9 +643,13 @@ class _MapBackdrop extends StatelessWidget {
     required this.route,
     required this.topInset,
     required this.bottomInset,
+    required this.scrolled,
   });
 
   final List<RoutePoint> route;
+
+  /// How far the page over it has scrolled.
+  final ValueListenable<double> scrolled;
 
   /// What covers the map at its top (status bar and buttons) and at its
   /// bottom (the title), so the route is framed in what shows.
@@ -639,6 +662,28 @@ class _MapBackdrop extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         RouteMap(route: route, topInset: topInset, bottomInset: bottomInset),
+        // Blurs and darkens as the page scrolls over it, leaving a trace of
+        // the map behind the figures.
+        ValueListenableBuilder(
+          valueListenable: scrolled,
+          builder: (context, offset, _) {
+            final progress = (offset / _mapHeight).clamp(0.0, 1.0);
+            if (progress == 0) return const SizedBox.shrink();
+            return ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: progress * _mapBlur,
+                  sigmaY: progress * _mapBlur,
+                ),
+                child: ColoredBox(
+                  color: AppColors.background.withValues(
+                    alpha: progress * _mapDarkening,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
         IgnorePointer(
           child: DecoratedBox(
             decoration: BoxDecoration(

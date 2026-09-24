@@ -43,7 +43,9 @@ class LogScreen extends StatefulWidget {
 }
 
 class _LogScreenState extends State<LogScreen> {
-  _LogView _view = _LogView.timeline;
+  late _LogView _view = _log.showsCalendar
+      ? _LogView.calendar
+      : _LogView.timeline;
   _LogFilter _filter = _LogFilter.all;
   String _query = '';
 
@@ -85,6 +87,62 @@ class _LogScreenState extends State<LogScreen> {
       // Results are listed on the timeline.
       if (_query.isNotEmpty) _view = _LogView.timeline;
     });
+  }
+
+  void _setView(_LogView view) {
+    setState(() => _view = view);
+    _log.setShowsCalendar(view == _LogView.calendar);
+  }
+
+  /// Keys on the timeline's day headers, by day of the month, so the
+  /// calendar can open the timeline on its day.
+  final _dayKeys = <int, GlobalKey>{};
+  final _timelineStart = GlobalKey();
+
+  /// Switches to the timeline and scrolls to [day]. The list is built as
+  /// it scrolls, so a day far down is reached a screen at a time.
+  void _openOnTimeline(int day) {
+    _setView(_LogView.timeline);
+    var screens = 0;
+    // Taken once: the top of the list is gone once it has scrolled.
+    ScrollPosition? position;
+    void reveal(Duration _) {
+      if (!mounted) return;
+      final header = _dayKeys[day]?.currentContext;
+      if (header != null) {
+        // Below the pinned header and view control, not under them; once
+        // more a frame later, when the rows around it have been laid out
+        // and the list knows its real length.
+        Scrollable.ensureVisible(header, alignment: 0.3);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_dayKeys[day]?.currentContext case final settled?) {
+            Scrollable.ensureVisible(settled, alignment: 0.3);
+          }
+        });
+        return;
+      }
+      position ??= switch (_timelineStart.currentContext) {
+        final start? => Scrollable.of(start).position,
+        null => null,
+      };
+      final scroll = position;
+      // Stops at the end of the list or after enough screens: the day may
+      // have no records under the current filter.
+      if (scroll == null ||
+          scroll.pixels >= scroll.maxScrollExtent ||
+          screens++ > 50) {
+        return;
+      }
+      scroll.jumpTo(
+        (scroll.pixels + scroll.viewportDimension * 0.8).clamp(
+          0,
+          scroll.maxScrollExtent,
+        ),
+      );
+      WidgetsBinding.instance.addPostFrameCallback(reveal);
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback(reveal);
   }
 
   bool _matchesQuery(TimelineEntry entry) =>
@@ -160,7 +218,7 @@ class _LogScreenState extends State<LogScreen> {
           options: _LogView.values,
           selected: _view,
           labelOf: (view) => view == _LogView.timeline ? '時間軸' : '月曆',
-          onChanged: (view) => setState(() => _view = view),
+          onChanged: _setView,
         ),
       ),
       children: _view == _LogView.timeline
@@ -178,6 +236,7 @@ class _LogScreenState extends State<LogScreen> {
     ];
     return [
       FilterChipBar<_LogFilter>(
+        key: _timelineStart,
         options: _LogFilter.values,
         selected: _filter,
         labelOf: (filter) => filter.label,
@@ -196,7 +255,12 @@ class _LogScreenState extends State<LogScreen> {
         Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
       else
         for (final (day, entries) in days) ...[
-          Gutter(child: _DayHeader(day: day)),
+          Gutter(
+            key: entries.isEmpty
+                ? null
+                : _dayKeys.putIfAbsent(entries.first.at.day, GlobalKey.new),
+            child: _DayHeader(day: day),
+          ),
           for (final entry in entries)
             Gutter(
               child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
@@ -206,7 +270,11 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   List<Widget> _calendar(MonthRecords records) {
-    final summaries = records.summaries[_selectedDay] ?? const {};
+    final entries = [
+      for (final day in records.days)
+        for (final entry in day.entries)
+          if (entry.at.day == _selectedDay) entry,
+    ];
     return [
       Gutter(
         child: MonthCalendar(
@@ -223,20 +291,16 @@ class _LogScreenState extends State<LogScreen> {
           '${_month.month} 月 $_selectedDay 日',
           trailing: LinkText(
             label: '在時間軸開啟',
-            onTap: () => setState(() => _view = _LogView.timeline),
+            onTap: () => _openOnTimeline(_selectedDay),
           ),
         ),
       ),
-      if (summaries.isEmpty)
+      if (entries.isEmpty)
         Gutter(child: const InfoBanner(message: '這天沒有紀錄。'))
       else
-        for (final MapEntry(key: category, value: summary) in summaries.entries)
+        for (final entry in entries)
           Gutter(
-            child: AccentRow(
-              color: category.color,
-              title: category.label,
-              trailing: summary,
-            ),
+            child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
           ),
     ];
   }

@@ -232,6 +232,46 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a bar over a picture stays clear until the page runs under '
+      'it', (tester) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => CollapsingScrollView(
+              header: CollapsingHeaderDelegate(
+                toolbar: ToolbarMetrics.of(context),
+                topInset: MediaQuery.paddingOf(context).top,
+                largeHeight: 280,
+                isClearUntilOverlap: true,
+                large: const SizedBox.shrink(),
+                compactTitle: const SizedBox.shrink(),
+                leading: const AppBarBackButton(),
+              ),
+              children: [
+                for (var i = 0; i < 30; i++)
+                  const SizedBox(height: 80, child: Text('列')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    // The back button is glass of its own; the bar's is on top of that.
+    int filters() => find.byType(BackdropFilter).evaluate().length;
+    final buttons = filters();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -140));
+    await tester.pump();
+    expect(filters(), buttons, reason: 'half collapsed, still clear');
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
+    await tester.pump();
+    expect(filters(), buttons + 1, reason: 'the page is under the bar');
+    await disposeTree(tester);
+  });
+
   testWidgets('workout hero collapses into a live bar', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
       ..startWorkout();

@@ -186,8 +186,8 @@ double pinnedSlotHeight({
 /// A page header that starts as content (large title) and collapses into a
 /// compact toolbar. The toolbar only turns into glass once content scrolls
 /// beneath it, like iOS scroll-edge effects.
-/// How blurred a backdrop is once the header has collapsed.
-const _backdropBlur = 16.0;
+/// How far into the collapse a clear bar's glass starts to come in.
+const _clearGlassStart = 0.92;
 
 class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   CollapsingHeaderDelegate({
@@ -203,7 +203,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.hideToolbarFraction = 0,
     this.scrollsToolbarAway = false,
     this.solidColor,
-    this.backdrop,
+    this.isClearUntilOverlap = false,
     this.isHighContrast = false,
     this.reduceMotion = false,
   });
@@ -228,11 +228,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// Opaque branded background instead of scroll-edge glass.
   final Color? solidColor;
 
-  /// Drawn edge to edge behind the whole header, status bar and toolbar
-  /// included, and scrolled away with the large block: a workout's map.
-  /// It keeps its full height as the header shrinks, so it is clipped
-  /// rather than squeezed, and the glass fades in over it as usual.
-  final Widget? backdrop;
+  /// No glass at all while the large block collapses, only as the page
+  /// starts to run under the bar: for a page drawn over a picture (a
+  /// workout's map), which the bar would otherwise blur.
+  final bool isClearUntilOverlap;
   final bool isHighContrast;
   final bool reduceMotion;
 
@@ -267,9 +266,16 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final progress = _progress(shrinkOffset);
-    // Over a backdrop the glass comes in with the collapse, as the
-    // backdrop blurs and darkens; the page never runs under it before.
-    final chromeOpacity = overlapsContent && backdrop == null ? 1.0 : progress;
+    // A clear bar gets its glass only as the collapse ends, which is when
+    // the page starts to run under it.
+    final chromeOpacity = isClearUntilOverlap
+        ? ((progress - _clearGlassStart) / (1 - _clearGlassStart)).clamp(
+            0.0,
+            1.0,
+          )
+        : overlapsContent
+        ? 1.0
+        : progress;
     final showsCompactTitle =
         !scrollsToolbarAway && progress >= _titleSwapPoint;
     // The large title goes first, then (without a compact bar) the toolbar.
@@ -288,33 +294,6 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (backdrop case final backdrop?)
-          Positioned(
-            top: -shrinkOffset,
-            left: 0,
-            right: 0,
-            height: maxExtent,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                backdrop,
-                // Blurs and darkens little by little as it scrolls away,
-                // as Apple Fitness's map does, instead of vanishing.
-                if (progress > 0)
-                  ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: progress * _backdropBlur,
-                        sigmaY: progress * _backdropBlur,
-                      ),
-                      child: ColoredBox(
-                        color: AppColors.background.withValues(alpha: progress),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
         _HeaderBackground(
           opacity: chromeOpacity,
           solidColor: solidColor,
