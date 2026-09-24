@@ -797,6 +797,20 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a sleep goal is set on the sleep page', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.journal.recordSleep(const Duration(hours: 7));
+    await pumpScreen(tester, const SleepScreen(), store: store);
+
+    expect(find.text('未設定'), findsOneWidget);
+    await _tapText(tester, '睡眠目標');
+    await _tapText(tester, '儲存');
+    expect(store.backend.sleep.goal, const Duration(hours: 8));
+    expect(find.text('目標 8:00 · 少 1:00'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a sleep is logged by when it began and ended', (tester) async {
     usePhoneViewport(tester);
     final clock = FakeClock();

@@ -1,7 +1,18 @@
 import '../../domain/domain.dart';
+import '../engines/sleep_metrics.dart';
 import '../engines/sleep_nights.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
+import '../storage/meal_repository.dart';
+import '../storage/workout_repository.dart';
+
+/// A late meal, and caffeine late enough to still be around at bedtime:
+/// the hours of the day after which each counts.
+const _lateMealHour = 21;
+const _lateCaffeineHour = 14;
+
+/// Nights that factors are compared over.
+const _factorWindow = Duration(days: 90);
 
 /// One sleep as the sleep page shows it.
 class SleepRecord {
@@ -12,6 +23,7 @@ class SleepRecord {
     required this.sources,
     required this.shownSource,
     required this.readings,
+    required this.continuity,
   });
 
   final SleepEntry entry;
@@ -32,6 +44,10 @@ class SleepRecord {
 
   final List<OvernightReading> readings;
 
+  /// How the sleep held together, from the shown source; null for a
+  /// length typed in.
+  final SleepContinuity? continuity;
+
   /// Whether the source staged the sleep, so there is a chart to draw.
   bool get hasStages => stages.any((stage) => stage.stage.isDetailed);
 
@@ -41,10 +57,83 @@ class SleepRecord {
 /// The sleep page's reads, and the one choice it makes: which source a
 /// sleep is shown from.
 class SleepService {
-  SleepService(this._db, this._journal);
+  SleepService(this._db, this._journal, this._workouts, this._meals);
 
   final AppDatabase _db;
   final JournalRepository _journal;
+  final WorkoutRepository _workouts;
+  final MealRepository _meals;
+
+  static const _goalKey = 'sleep.goal_minutes';
+
+  /// How long a night the user aims for; null until they set one.
+  Duration? get goal => switch (int.tryParse(_db.setting(_goalKey) ?? '')) {
+    final minutes? when minutes > 0 => Duration(minutes: minutes),
+    _ => null,
+  };
+
+  void setGoal(Duration? goal) =>
+      _db.setSetting(_goalKey, goal == null ? '' : '${goal.inMinutes}');
+
+  /// Each night's average of [measure] over `[start, end)`, oldest
+  /// first: what a night's reading is compared against.
+  List<double> nightlyAverages(
+    OvernightMeasure measure,
+    DateTime start,
+    DateTime end,
+  ) => [
+    for (final night in nights(start, end))
+      for (final reading in _journal.sleepReadings(night.id))
+        if (reading.measure == measure) reading.average,
+  ];
+
+  /// Nights asleep over the last [_factorWindow] set against what the day
+  /// before held: training, caffeine late in the day, a late meal. Each
+  /// is null until both sides have enough nights.
+  ({
+    SleepComparison? training,
+    SleepComparison? lateCaffeine,
+    SleepComparison? lateMeal,
+  })
+  factors() {
+    final end = _db.nowInclusive;
+    final start = end.subtract(_factorWindow);
+    final asleep = [
+      for (final night in nights(start, end))
+        if (night.measure == SleepMeasure.asleep) night,
+    ];
+    DateTime dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
+    final trained = {
+      for (final started in _workouts.completedStarts(since: start))
+        dayOf(started),
+    };
+    final lateCaffeine = <DateTime>{};
+    final lateMeal = <DateTime>{};
+    for (final (eatenAt, meal) in _meals.between(start, end)) {
+      if (eatenAt.hour >= _lateMealHour) lateMeal.add(dayOf(eatenAt));
+      if (eatenAt.hour >= _lateCaffeineHour &&
+          (meal.nutrients[Nutrient.caffeine] ?? 0) > 0) {
+        lateCaffeine.add(dayOf(eatenAt));
+      }
+    }
+    // A night belongs to the evening before its morning.
+    DateTime eveningOf(DateTime morning) =>
+        DateTime(morning.year, morning.month, morning.day - 1);
+    return (
+      training: compareNights(
+        asleep,
+        (morning) => trained.contains(eveningOf(morning)),
+      ),
+      lateCaffeine: compareNights(
+        asleep,
+        (morning) => lateCaffeine.contains(eveningOf(morning)),
+      ),
+      lateMeal: compareNights(
+        asleep,
+        (morning) => lateMeal.contains(eveningOf(morning)),
+      ),
+    );
+  }
 
   /// The sleeps logged against [day]: its night first, then its naps.
   List<SleepRecord> day(DateTime day) {
@@ -109,6 +198,12 @@ class SleepService {
       sources: sourcesOf(samples),
       shownSource: shown,
       readings: _journal.sleepReadings(entry.id),
+      continuity: shown == null
+          ? null
+          : continuityOf([
+              for (final sample in samples)
+                if (sample.source == shown.source) sample,
+            ]),
     );
   }
 

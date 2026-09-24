@@ -1,5 +1,6 @@
 import '../../app/view_model.dart';
 import '../../backend/application/sleep_service.dart';
+import '../../backend/engines/sleep_metrics.dart';
 import '../../domain/domain.dart';
 
 /// The sleep page: the day being shown, its sleeps, the nights before it,
@@ -52,6 +53,46 @@ class SleepViewModel extends ViewModel {
         if (night.measure == SleepMeasure.asleep) night,
     ];
   }
+
+  /// How long a night the user aims for; null until set.
+  Duration? get goal => backend.sleep.goal;
+
+  void setGoal(Duration? goal) => backend.sleep.setGoal(goal);
+
+  /// How far the last seven nights fell short of the goal, net; null
+  /// without a goal or a night.
+  Duration? get weekShortfall {
+    final goal = this.goal;
+    final nights = nightsAsleep(DateTime.daysPerWeek);
+    if (goal == null || nights.isEmpty) return null;
+    return shortfall(nights, goal);
+  }
+
+  /// When to sleep tonight to reach the goal and wake as usual; only on
+  /// today, with a goal and enough nights.
+  ({DateTime bedtime, DateTime wake})? get tonightPlan {
+    final goal = this.goal;
+    if (goal == null || day != today) return null;
+    return tonight(nightsAsleep(14), goal, now: now());
+  }
+
+  /// The usual range of [measure] over the four weeks before the day.
+  ({double low, double high})? baseline(OvernightMeasure measure) => baselineOf(
+    backend.sleep.nightlyAverages(
+      measure,
+      _day.subtract(const Duration(days: 28)),
+      _day,
+    ),
+  );
+
+  /// Nights after training, late caffeine or a late meal against nights
+  /// without.
+  ({
+    SleepComparison? training,
+    SleepComparison? lateCaffeine,
+    SleepComparison? lateMeal,
+  })
+  get factors => backend.sleep.factors();
 
   /// Shows a sleep from another source that recorded it.
   void chooseSource(String id, String source) =>

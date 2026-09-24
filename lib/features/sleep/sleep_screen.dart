@@ -4,12 +4,14 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
+import '../../backend/engines/sleep_metrics.dart';
 import '../../backend/engines/sleep_nights.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
+import 'sleep_schedule_chart.dart';
 import 'sleep_stage_chart.dart';
 import 'sleep_view_model.dart';
 
@@ -17,8 +19,9 @@ import 'sleep_view_model.dart';
 /// overnight, the day's naps, how nights have gone lately, and which
 /// source it all comes from.
 ///
-/// It shows what the source recorded and nothing it did not: no score, no
-/// target for a stage, and time in bed is never called time asleep.
+/// It shows what the source recorded and what follows from it, and
+/// nothing it did not: no score, no target for a stage, no efficiency
+/// without time in bed, and time in bed is never called time asleep.
 class SleepScreen extends StatefulWidget {
   const SleepScreen({super.key, this.day});
 
@@ -98,10 +101,14 @@ class _SleepScreenState extends State<SleepScreen> {
             ),
           ),
         if (night != null) ...[
-          Gutter(child: _Summary(record: night)),
+          Gutter(
+            child: _Summary(record: night, goal: _model.goal, naps: naps),
+          ),
           ..._stages(night),
+          ..._continuity(night),
           ..._readings(night),
         ],
+        ..._tonight(),
         if (naps.isNotEmpty)
           PageSection(
             label: '小睡',
@@ -120,6 +127,26 @@ class _SleepScreenState extends State<SleepScreen> {
             ],
           ),
         _History(model: _model),
+        ..._factors(),
+        PageSection(
+          label: '目標',
+          children: [
+            Gutter(
+              child: GroupedCard(
+                children: [
+                  NavRow(
+                    title: '睡眠目標',
+                    trailing: Text(switch (_model.goal) {
+                      final goal? => formatHoursMinutes(goal),
+                      null => '未設定',
+                    }, style: AppTextStyles.caption),
+                    onTap: _editGoal,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         if (night != null) ..._sources(night),
         if (night != null)
           PageSection(
@@ -191,6 +218,167 @@ class _SleepScreenState extends State<SleepScreen> {
     ];
   }
 
+  /// Time to fall asleep, efficiency and time awake, each only when the
+  /// source recorded what it takes; nothing for a length typed in.
+  List<Widget> _continuity(SleepRecord record) {
+    final continuity = record.continuity;
+    if (continuity == null) return const [];
+    final efficiency = continuity.efficiency;
+    final latency = continuity.latency;
+    final awake = continuity.awake;
+    final rows = [
+      if (latency != null)
+        KeyValueRow(label: '入睡所需', value: '約 ${latency.inMinutes} 分'),
+      if (efficiency != null)
+        KeyValueRow(label: '睡眠效率', value: '${(efficiency * 100).round()}%'),
+      if (awake != null)
+        KeyValueRow(
+          label: '夜間清醒',
+          value: [
+            formatHoursMinutes(awake),
+            if (continuity.awakenings case final times? when times > 0)
+              '醒來 $times 次',
+          ].join(' · '),
+        ),
+    ];
+    if (rows.isEmpty) return const [];
+    return [
+      PageSection(
+        label: '連續性',
+        children: [
+          Gutter(child: GroupedCard(children: rows)),
+          if (latency != null || efficiency != null)
+            Gutter(child: const TagWrap(labels: ['依裝置的在床時間估算'])),
+        ],
+      ),
+    ];
+  }
+
+  /// When to sleep tonight for the goal, and how the week has gone
+  /// against it; only on today, with a goal.
+  List<Widget> _tonight() {
+    final plan = _model.tonightPlan;
+    final shortfall = _model.weekShortfall;
+    if (plan == null && shortfall == null) return const [];
+    return [
+      PageSection(
+        label: '今晚',
+        children: [
+          Gutter(
+            child: GroupedCard(
+              children: [
+                if (plan != null)
+                  KeyValueRow(
+                    label: '建議就寢',
+                    value:
+                        '${formatTimeOfDay(plan.bedtime)} · '
+                        '${formatTimeOfDay(plan.wake)} 起床',
+                  ),
+                if (shortfall != null)
+                  KeyValueRow(
+                    label: '近 7 晚與目標',
+                    value: shortfall.isNegative
+                        ? '多 ${formatHoursMinutes(-shortfall)}'
+                        : shortfall == Duration.zero
+                        ? '相同'
+                        : '少 ${formatHoursMinutes(shortfall)}',
+                  ),
+              ],
+            ),
+          ),
+          if (plan != null) Gutter(child: const TagWrap(labels: ['依平常的起床時間'])),
+        ],
+      ),
+    ];
+  }
+
+  /// Nights after training, late caffeine or a late meal against the
+  /// others, with how many nights each side has. Only what both sides
+  /// have enough nights for.
+  List<Widget> _factors() {
+    final factors = _model.factors;
+    final rows = [
+      for (final (label, comparison) in [
+        ('訓練後', factors.training),
+        ('14:00 後有咖啡因', factors.lateCaffeine),
+        ('21:00 後進食', factors.lateMeal),
+      ])
+        if (comparison != null)
+          KeyValueRow(
+            label: label,
+            value:
+                '${_signed(comparison.difference)} · '
+                '${comparison.withCount} 晚對 ${comparison.withoutCount} 晚',
+          ),
+    ];
+    if (rows.isEmpty) return const [];
+    return [
+      PageSection(
+        label: '影響因素',
+        children: [
+          Gutter(child: GroupedCard(children: rows)),
+          Gutter(child: const TagWrap(labels: ['近 90 天的平均睡著時間差', '相關，不代表因果'])),
+        ],
+      ),
+    ];
+  }
+
+  static String _signed(Duration difference) => difference.isNegative
+      ? '少睡 ${formatHoursMinutes(-difference)}'
+      : '多睡 ${formatHoursMinutes(difference)}';
+
+  Future<void> _editGoal() async {
+    var minutes = (_model.goal ?? const Duration(hours: 8)).inMinutes;
+    final result = await showAppDialog<Duration?>(
+      context,
+      StatefulBuilder(
+        builder: (context, setState) => AppDialog(
+          title: '睡眠目標',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                formatHoursMinutes(Duration(minutes: minutes)),
+                style: AppTextStyles.hugeNumber.copyWith(
+                  color: AppColors.wellness,
+                ),
+              ),
+              StepSlider(
+                value: minutes.toDouble(),
+                min: 300,
+                max: 600,
+                step: 15,
+                color: AppColors.wellness,
+                semanticLabel: '睡眠目標',
+                labelOf: (value) =>
+                    formatHoursMinutes(Duration(minutes: value.round())),
+                onChanged: (value) => setState(() => minutes = value.round()),
+              ),
+            ],
+          ),
+          actions: [
+            DialogAction(
+              label: '儲存',
+              tone: DialogTone.primary,
+              onTap: () =>
+                  Navigator.of(context).pop(Duration(minutes: minutes)),
+            ),
+            if (_model.goal != null)
+              DialogAction(
+                label: '清除目標',
+                tone: DialogTone.destructive,
+                onTap: () => Navigator.of(context).pop(Duration.zero),
+              ),
+            DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    _model.setGoal(result == Duration.zero ? null : result);
+  }
+
   List<Widget> _readings(SleepRecord record) {
     if (record.readings.isEmpty) return const [];
     return [
@@ -203,7 +391,14 @@ class _SleepScreenState extends State<SleepScreen> {
                 for (final reading in record.readings)
                   KeyValueRow(
                     label: reading.measure.label,
-                    value: overnightValue(reading),
+                    value: [
+                      overnightValue(reading),
+                      if (_model.baseline(reading.measure) case final usual?
+                          when reading.measure !=
+                              OvernightMeasure.breathingDisturbances)
+                        '平常 ${_number(reading.measure, usual.low)}–'
+                            '${_number(reading.measure, usual.high)}',
+                    ].join(' · '),
                   ),
               ],
             ),
@@ -283,6 +478,15 @@ String? _span(SleepEntry entry) => switch (entry.startedAt) {
   null => null,
 };
 
+/// One value of [measure] as its readings are written.
+String _number(OvernightMeasure measure, double value) => switch (measure) {
+  OvernightMeasure.wristTemperature ||
+  OvernightMeasure.respiratoryRate => value.toStringAsFixed(1),
+  OvernightMeasure.skinTemperatureChange =>
+    '${value >= 0 ? '+' : '−'}${value.abs().toStringAsFixed(1)}',
+  _ => value.round().toString(),
+};
+
 /// What was measured, as the platform reports it: a range, or one value
 /// when the range is a single one; Apple's own reading for breathing
 /// disturbances.
@@ -295,15 +499,8 @@ String overnightValue(OvernightReading reading) {
       null => formatAmount(reading.average),
     };
   }
-  String number(double value) => switch (measure) {
-    OvernightMeasure.wristTemperature ||
-    OvernightMeasure.respiratoryRate => value.toStringAsFixed(1),
-    OvernightMeasure.skinTemperatureChange =>
-      '${value >= 0 ? '+' : '−'}${value.abs().toStringAsFixed(1)}',
-    _ => value.round().toString(),
-  };
-  final low = number(reading.minimum);
-  final high = number(reading.maximum);
+  final low = _number(measure, reading.minimum);
+  final high = _number(measure, reading.maximum);
   final range = low == high ? low : '$low–$high';
   return measure.unit.isEmpty ? range : '$range ${measure.unit}';
 }
@@ -311,9 +508,29 @@ String overnightValue(OvernightReading reading) {
 /// The night's length, what it measures and when it began and ended, and
 /// where it came from.
 class _Summary extends StatelessWidget {
-  const _Summary({required this.record});
+  const _Summary({
+    required this.record,
+    required this.goal,
+    required this.naps,
+  });
 
   final SleepRecord record;
+
+  /// The night's length is read against it when there is one.
+  final Duration? goal;
+
+  /// The day's naps, which add to the day's sleep but not to the night.
+  final List<SleepRecord> naps;
+
+  /// The night against the goal: time in bed is not measured against a
+  /// goal for sleep.
+  String? _againstGoal(SleepEntry entry) {
+    final goal = this.goal;
+    if (goal == null || entry.measure != SleepMeasure.asleep) return null;
+    final gap = entry.duration - goal;
+    if (gap >= Duration.zero) return '目標 ${formatHoursMinutes(goal)} · 達成';
+    return '目標 ${formatHoursMinutes(goal)} · 少 ${formatHoursMinutes(-gap)}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -340,6 +557,13 @@ class _Summary extends StatelessWidget {
             [label, ?_span(entry)].join(' · '),
             style: AppTextStyles.caption,
           ),
+          if (_againstGoal(entry) case final line?)
+            Text(line, style: AppTextStyles.caption),
+          if (naps.isNotEmpty)
+            Text(
+              '含小睡共 ${formatHoursMinutes(naps.fold(entry.duration, (sum, nap) => sum + nap.entry.duration))}',
+              style: AppTextStyles.caption,
+            ),
           if (tags.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             TagWrap(labels: tags),
@@ -411,6 +635,11 @@ class _HistoryState extends State<_History> {
               ),
             ),
           ),
+          if (_range != _Range.halfYear &&
+              nights.where((night) => night.startedAt != null).length > 1)
+            Gutter(
+              child: AppCard(child: SleepScheduleChart(nights: nights)),
+            ),
           Gutter(
             child: GroupedCard(
               children: [
@@ -436,6 +665,16 @@ class _HistoryState extends State<_History> {
                     ], fromHour: 0)
                     case final wake?)
                   KeyValueRow(label: '平均起床', value: wake),
+                if (regularityOf(nights) case final regularity?) ...[
+                  KeyValueRow(
+                    label: '入睡時間變動',
+                    value: '±${regularity.bedtimeSpread.inMinutes} 分',
+                  ),
+                  KeyValueRow(
+                    label: '起床時間變動',
+                    value: '±${regularity.wakeSpread.inMinutes} 分',
+                  ),
+                ],
                 KeyValueRow(label: '紀錄晚數', value: '${nights.length} 晚'),
               ],
             ),

@@ -79,7 +79,7 @@ class Backend {
     nutrition = NutritionService(db, storage.meals, storage.foods);
     activity = ActivityService(db, storage.activities);
     journal = JournalService(db, storage.journal);
-    sleep = SleepService(db, storage.journal);
+    sleep = SleepService(db, storage.journal, storage.workouts, storage.meals);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
     provenance = ProvenanceService(db);
     insights = InsightsService(
