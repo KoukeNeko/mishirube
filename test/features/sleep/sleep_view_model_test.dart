@@ -71,8 +71,16 @@ void main() {
     expect(plan.wake.hour, 7, reason: 'the usual waking');
     expect(plan.wake.difference(plan.bedtime), const Duration(hours: 8));
 
+    expect(backend.sleep.reminderTime(), isNull, reason: 'off until asked');
+    model.setReminder(true);
+    expect(
+      backend.sleep.reminderTime(),
+      plan.bedtime.subtract(const Duration(minutes: 30)),
+    );
+
     model.setGoal(null);
     expect(model.goal, isNull);
+    expect(backend.sleep.reminderTime(), isNull, reason: 'no bedtime');
   });
 
   test('a night that was staged says how it held together', () {

@@ -85,11 +85,12 @@ class SleepViewModel extends ViewModel {
 
   /// When to sleep tonight to reach the goal and wake as usual; only on
   /// today, with a goal and enough nights.
-  ({DateTime bedtime, DateTime wake})? get tonightPlan {
-    final goal = this.goal;
-    if (goal == null || day != today) return null;
-    return tonight(nightsAsleep(14), goal, now: now());
-  }
+  ({DateTime bedtime, DateTime wake})? get tonightPlan =>
+      day == today ? backend.sleep.tonightPlan() : null;
+
+  bool get isReminderOn => backend.sleep.isReminderOn;
+
+  void setReminder(bool isOn) => backend.sleep.setReminder(isOn);
 
   /// The usual range of [measure] over the four weeks before the day.
   ({double low, double high})? baseline(OvernightMeasure measure) => baselineOf(

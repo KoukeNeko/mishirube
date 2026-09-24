@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
+import '../../app/bedtime_reminder.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
@@ -147,6 +148,22 @@ class _SleepScreenState extends State<SleepScreen> {
                     }, style: AppTextStyles.caption),
                     onTap: _editGoal,
                   ),
+                  if (_model.goal != null)
+                    SwitchRow(
+                      title: '就寢提醒',
+                      subtitle: switch (_model.tonightPlan) {
+                        final plan? =>
+                          '${formatTimeOfDay(plan.bedtime.subtract(SleepService.reminderLead))} 提醒',
+                        null => null,
+                      },
+                      value: _model.isReminderOn,
+                      onChanged: (isOn) {
+                        _model.setReminder(isOn);
+                        syncBedtimeReminder(
+                          AppStoreScope.read(context).backend,
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
@@ -380,8 +397,9 @@ class _SleepScreenState extends State<SleepScreen> {
         ),
       ),
     );
-    if (result == null) return;
+    if (result == null || !mounted) return;
     _model.setGoal(result == Duration.zero ? null : result);
+    syncBedtimeReminder(AppStoreScope.read(context).backend);
   }
 
   List<Widget> _readings(SleepRecord record) {

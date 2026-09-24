@@ -75,6 +75,38 @@ class SleepService {
   void setGoal(Duration? goal) =>
       _db.setSetting(_goalKey, goal == null ? '' : '${goal.inMinutes}');
 
+  /// When to sleep tonight for the goal and wake as usual; null without
+  /// a goal or enough recent nights to have a usual waking.
+  ({DateTime bedtime, DateTime wake})? tonightPlan() {
+    final goal = this.goal;
+    if (goal == null) return null;
+    final now = _db.now();
+    final asleep = [
+      for (final night in nights(
+        now.subtract(const Duration(days: 14)),
+        _db.nowInclusive,
+      ))
+        if (night.measure == SleepMeasure.asleep) night,
+    ];
+    return tonight(asleep, goal, now: now);
+  }
+
+  static const _reminderKey = 'sleep.reminder';
+
+  /// How long before the suggested bedtime the reminder comes.
+  static const reminderLead = Duration(minutes: 30);
+
+  bool get isReminderOn => _db.setting(_reminderKey) == 'true';
+
+  void setReminder(bool isOn) => _db.setSetting(_reminderKey, '$isOn');
+
+  /// When the bedtime reminder should come each day; null when it is off
+  /// or there is no bedtime to remind of.
+  DateTime? reminderTime() {
+    if (!isReminderOn) return null;
+    return tonightPlan()?.bedtime.subtract(reminderLead);
+  }
+
   /// Each night's average of [measure] over `[start, end)`, oldest
   /// first: what a night's reading is compared against.
   List<double> nightlyAverages(

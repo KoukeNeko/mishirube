@@ -22,6 +22,8 @@
         android:label="mishirube"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Posts the daily bedtime reminder. -->
+        <receiver android:name=".BedtimeReminder$Receiver" android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

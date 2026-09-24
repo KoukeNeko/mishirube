@@ -25,6 +25,9 @@ class MainActivity : FlutterFragmentActivity() {
         val watch = WearBridge(this, watchChannel)
         watchChannel.setMethodCallHandler(watch::handle)
         wear = watch
+        val bedtime = BedtimeReminder(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/bedtime")
+            .setMethodCallHandler(bedtime::handle)
         val rest = RestNoticeBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/rest_notice")
             .setMethodCallHandler(rest::handle)

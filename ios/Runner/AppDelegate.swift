@@ -38,6 +38,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WatchBridge") {
       WatchBridge.shared.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "BedtimeReminder") {
+      BedtimeReminder.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RestNotice") {
       RestNotice.register(with: registrar.messenger())
     }
@@ -841,6 +844,49 @@ final class WatchBridge: NSObject, WCSessionDelegate {
   ) {}
   func sessionDidBecomeInactive(_ session: WCSession) {}
   func sessionDidDeactivate(_ session: WCSession) { session.activate() }
+}
+
+/// A daily reminder before the suggested bedtime (`lib/app/bedtime_reminder.dart`).
+/// Permission is asked when it is first turned on.
+enum BedtimeReminder {
+  static let identifier = "bedtime"
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: "mishirube/bedtime", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      let center = UNUserNotificationCenter.current()
+      switch call.method {
+      case "schedule":
+        guard let arguments = call.arguments as? [String: Any],
+          let hour = arguments["hour"] as? Int, let minute = arguments["minute"] as? Int
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = arguments["title"] as? String ?? ""
+        content.body = arguments["body"] as? String ?? ""
+        content.sound = .default
+        var time = DateComponents()
+        time.hour = hour
+        time.minute = minute
+        let request = UNNotificationRequest(
+          identifier: identifier, content: content,
+          trigger: UNCalendarNotificationTrigger(dateMatching: time, repeats: true))
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+          guard granted else { return }
+          center.removePendingNotificationRequests(withIdentifiers: [identifier])
+          center.add(request)
+        }
+        result(nil)
+      case "cancel":
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
 }
 
 /// The end of the rest between sets as a notification

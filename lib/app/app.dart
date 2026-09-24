@@ -7,6 +7,7 @@ import '../features/shell/home_shell.dart';
 import '../shared/toast/toast_host.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
+import 'bedtime_reminder.dart';
 import 'rest_notice.dart';
 import 'watch_sync.dart';
 import 'theme.dart';
@@ -32,6 +33,9 @@ class _MishirubeAppState extends State<MishirubeApp> {
     // Health Connect opens the app to have it explain what it does with
     // health data; that is the privacy page, on top of whatever is open.
     _store.onHealthPrivacyRequest(_showPrivacy);
+    // The reminder's time follows the nights, which may have moved since
+    // it was last set.
+    syncBedtimeReminder(_store.backend);
   }
 
   /// The request can come before the first frame, when there is no
