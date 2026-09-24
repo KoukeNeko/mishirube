@@ -20,6 +20,7 @@ class MainFlutterWindow: NSWindow {
     RegisterGeneratedPlugins(registry: flutterViewController)
     WindowControls.register(
       with: flutterViewController.engine.binaryMessenger, window: self)
+    AppleIntelligence.register(with: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

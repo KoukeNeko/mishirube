@@ -690,6 +690,13 @@ class AppStore extends ChangeNotifier {
   /// The provider drafts come from, or null until one is chosen.
   AiProviderKind? get aiProvider => _ai.provider;
 
+  /// Uses Apple Intelligence without asking when it is on and no other
+  /// provider was chosen.
+  Future<void> refreshOnDeviceAi() async {
+    await _ai.refreshOnDevice();
+    notifyListeners();
+  }
+
   void setAiProvider(AiProviderKind kind) {
     _ai.setProvider(kind);
     notifyListeners();

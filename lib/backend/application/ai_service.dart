@@ -123,12 +123,24 @@ class AiService {
   /// Reads a photo's text on the phone, before any model sees anything.
   final LabelReader labelReader;
 
-  /// The chosen provider, or null until the user picks one: nothing is
-  /// sent anywhere by default.
+  /// The chosen provider; until the user picks one, Apple's on-device
+  /// model when Apple Intelligence is on, since nothing it is given
+  /// leaves the device; else null, and nothing is sent anywhere.
   AiProviderKind? get provider => switch (_db.setting(_providerKey)) {
     final name? => AiProviderKind.values.asNameMap()[name],
-    null => null,
+    null => _isOnDeviceReady ? AiProviderKind.appleOnDevice : null,
   };
+
+  bool _isOnDeviceReady = false;
+
+  /// Looks again at whether Apple's on-device model can run: the user
+  /// can turn Apple Intelligence on or off at any time, and the model
+  /// downloads after it is turned on.
+  Future<void> refreshOnDevice() async {
+    _isOnDeviceReady =
+        await availability(AiProviderKind.appleOnDevice) ==
+        AiAvailability.available;
+  }
 
   void setProvider(AiProviderKind kind) =>
       _db.setSetting(_providerKey, kind.name);

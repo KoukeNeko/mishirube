@@ -38,4 +38,5 @@ Future<void> main() async {
   // Apple Health or Health Connect is read again on every launch once
   // connected, so last night is there without asking.
   store.syncHealthInBackground();
+  store.refreshOnDeviceAi();
 }

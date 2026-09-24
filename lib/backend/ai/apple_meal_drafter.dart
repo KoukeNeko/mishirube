@@ -16,6 +16,9 @@ class AppleMealDrafter implements MealDrafter {
 
   static const _channel = MethodChannel('mishirube/apple_intelligence');
 
+  /// iOS and iPadOS, and macOS: the same bridge answers on each.
+  static bool get _isApple => Platform.isIOS || Platform.isMacOS;
+
   @override
   AiProviderKind get kind => AiProviderKind.appleOnDevice;
 
@@ -24,7 +27,7 @@ class AppleMealDrafter implements MealDrafter {
 
   @override
   Future<AiAvailability> availability() async {
-    if (!Platform.isIOS) return AiAvailability.unavailable;
+    if (!_isApple) return AiAvailability.unavailable;
     try {
       final status = await _channel.invokeMethod<String>('availability');
       return switch (status) {
@@ -57,7 +60,7 @@ class AppleMealDrafter implements MealDrafter {
   /// On the device from iOS 27, where the model has vision.
   @override
   Future<bool> readsPhotos() async {
-    if (!Platform.isIOS) return false;
+    if (!_isApple) return false;
     try {
       return await _channel.invokeMethod<bool>('readsPhotos') ?? false;
     } on MissingPluginException {

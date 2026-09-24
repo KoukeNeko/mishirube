@@ -37,8 +37,11 @@ class _FakeDrafter implements MealDrafter {
   @override
   Future<String> modelName() async => 'fake-1';
 
+  /// What it says about itself: Apple's model can be off.
+  AiAvailability status = AiAvailability.available;
+
   @override
-  Future<AiAvailability> availability() async => AiAvailability.available;
+  Future<AiAvailability> availability() async => status;
 
   @override
   Future<MealDraft> draftMeal(String description) async {
@@ -101,6 +104,43 @@ const _eggPancake = DraftItem(name: '蛋餅', amount: '一份', kcal: 250);
 const _milkTea = DraftItem(name: '冰奶茶', amount: '大杯', kcal: 300, isDrink: true);
 
 void main() {
+  group('Apple Intelligence without asking', () {
+    AiService serviceWith(_FakeDrafter apple, [_FakeDrafter? cloud]) =>
+        AiService(
+          Backend.inMemory().db,
+          secrets: MemorySecretStore(),
+          drafters: {apple.kind: apple, ?cloud?.kind: ?cloud},
+        );
+
+    test('is used when it is on and nothing else was chosen', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, [_eggPancake]);
+      final ai = serviceWith(apple);
+      expect(ai.provider, isNull, reason: 'not looked at yet');
+
+      await ai.refreshOnDevice();
+      expect(ai.provider, AiProviderKind.appleOnDevice);
+      final draft = await ai.draftMeal('蛋餅');
+      expect(draft.items.single.name, '蛋餅', reason: 'no consent to ask');
+    });
+
+    test('is not used while Apple Intelligence is off', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, [_eggPancake])
+        ..status = AiAvailability.notEnabled;
+      final ai = serviceWith(apple);
+      await ai.refreshOnDevice();
+      expect(ai.provider, isNull);
+    });
+
+    test('a provider the user chose comes first', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, [_eggPancake]);
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, [_milkTea]);
+      final ai = serviceWith(apple, cloud)
+        ..setProvider(AiProviderKind.ollamaCloud);
+      await ai.refreshOnDevice();
+      expect(ai.provider, AiProviderKind.ollamaCloud);
+    });
+  });
+
   group('reading a model answer', () {
     MealDraft parse(String answer) => parseMealDraft(
       answer,
