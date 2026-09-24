@@ -53,9 +53,14 @@ abstract interface class HealthSource {
   Future<List<HealthWater>> water(DateTime from, DateTime to);
 
   /// Every [ActivityMetric] the platform keeps over [from]–[to]: counted
-  /// ones as hourly totals, measured ones as daily averages, both from
-  /// the platform's own statistics so a phone and a watch count once.
-  Future<List<ActivitySample>> activitySamples(DateTime from, DateTime to);
+  /// ones as hourly totals ([isHourly]) or daily ones, measured ones as
+  /// daily averages, all from the platform's own statistics so a phone
+  /// and a watch count once.
+  Future<List<ActivitySample>> activitySamples(
+    DateTime from,
+    DateTime to, {
+    bool isHourly = true,
+  });
 
   /// Everything the platform recorded during the workout it calls
   /// [platformId]; null when it no longer has it.
@@ -155,12 +160,14 @@ class PlatformHealthSource implements HealthSource {
   Future<List<Map<Object?, Object?>>> _read(
     HealthDataKind kind,
     DateTime from,
-    DateTime to,
-  ) async =>
+    DateTime to, {
+    bool daily = false,
+  }) async =>
       await _channel.invokeListMethod<Map<Object?, Object?>>('read', {
         'kind': kind.name,
         'from': from.millisecondsSinceEpoch,
         'to': to.millisecondsSinceEpoch,
+        if (daily) 'daily': true,
       }) ??
       const [];
 
@@ -288,11 +295,17 @@ class PlatformHealthSource implements HealthSource {
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
-    DateTime to,
-  ) async {
+    DateTime to, {
+    bool isHourly = true,
+  }) async {
     final metrics = ActivityMetric.values.asNameMap();
     return [
-      for (final row in await _read(HealthDataKind.activity, from, to))
+      for (final row in await _read(
+        HealthDataKind.activity,
+        from,
+        to,
+        daily: !isHourly,
+      ))
         if (metrics[row['metric']] case final metric?)
           ActivitySample(
             metric: metric,
@@ -355,8 +368,9 @@ class NoHealthSource implements HealthSource {
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
-    DateTime to,
-  ) async => const [];
+    DateTime to, {
+    bool isHourly = true,
+  }) async => const [];
   @override
   Future<ActivityDetail?> activityDetail(String platformId) async => null;
 }

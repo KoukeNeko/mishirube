@@ -72,8 +72,15 @@ class _FakeHealth implements HealthSource {
   @override
   Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to) async {
     readFrom.add(to.difference(from));
-    return samples;
+    return [
+      for (final sample in samples)
+        if (_within(sample.start, from, to)) sample,
+    ];
   }
+
+  /// A platform answers a read with what lies in it, and nothing else.
+  static bool _within(DateTime at, DateTime from, DateTime to) =>
+      !at.isBefore(from) && at.isBefore(to);
 
   /// How far back each read of sleep reached.
   final readFrom = <Duration>[];
@@ -82,27 +89,42 @@ class _FakeHealth implements HealthSource {
     List<(DateTime, DateTime)> windows,
   ) async => [for (final _ in windows) overnightRows];
   @override
-  Future<List<HealthWeight>> weights(DateTime from, DateTime to) async =>
-      weightRows;
+  Future<List<HealthWeight>> weights(DateTime from, DateTime to) async => [
+    for (final row in weightRows)
+      if (_within(row.at, from, to)) row,
+  ];
   @override
-  Future<List<HealthWaist>> waists(DateTime from, DateTime to) async =>
-      waistRows;
+  Future<List<HealthWaist>> waists(DateTime from, DateTime to) async => [
+    for (final row in waistRows)
+      if (_within(row.at, from, to)) row,
+  ];
   @override
   Future<List<HealthBodyReading>> bodyReadings(
     DateTime from,
     DateTime to,
-  ) async => bodyRows;
+  ) async => [
+    for (final row in bodyRows)
+      if (_within(row.at, from, to)) row,
+  ];
   @override
-  Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async =>
-      workoutRows;
+  Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async => [
+    for (final row in workoutRows)
+      if (_within(row.start, from, to)) row,
+  ];
   @override
-  Future<List<HealthWater>> water(DateTime from, DateTime to) async =>
-      waterRows;
+  Future<List<HealthWater>> water(DateTime from, DateTime to) async => [
+    for (final row in waterRows)
+      if (_within(row.at, from, to)) row,
+  ];
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
-    DateTime to,
-  ) async => activityRows;
+    DateTime to, {
+    bool isHourly = true,
+  }) async => [
+    for (final row in activityRows)
+      if (_within(row.start, from, to)) row,
+  ];
 
   @override
   Future<ActivityDetail?> activityDetail(String platformId) async => null;
@@ -335,17 +357,26 @@ void main() {
       expect(health.askedFor, isNotNull, reason: 'asked again, once');
     });
 
-    test(
-      'the first read reaches back half a year, later ones a month',
-      () async {
-        final health = _FakeHealth([lastNight]);
-        final store = storeWith(health);
-        await store.connectHealth();
-        await store.syncHealth();
+    test('the first read reaches back to 2014 a year at a time, later ones '
+        'a month', () async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      final firstRead = [...health.readFrom];
+      await store.syncHealth();
 
-        expect(health.readFrom, [HealthService.history, HealthService.window]);
-      },
-    );
+      expect(
+        firstRead.fold(Duration.zero, (sum, read) => sum + read),
+        clock.now().difference(HealthService.earliest),
+        reason: 'everything the platform can hold, without a gap',
+      );
+      expect(
+        firstRead.every((read) => read <= const Duration(days: 366)),
+        isTrue,
+        reason: 'a year at a time',
+      );
+      expect(health.readFrom.last, HealthService.window);
+    });
 
     test('reading again updates a night instead of adding it twice', () async {
       final health = _FakeHealth([lastNight]);

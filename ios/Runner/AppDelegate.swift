@@ -133,6 +133,7 @@ enum HealthKitBridge {
         readActivity(
           from: Date(timeIntervalSince1970: Double(from) / 1000),
           to: Date(timeIntervalSince1970: Double(to) / 1000),
+          daily: arguments["daily"] as? Bool ?? false,
           result: result)
       case "read" where arguments["kind"] as? String == "body":
         guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
@@ -299,7 +300,7 @@ enum HealthKitBridge {
     }()
 
   /// Every activity metric from the start of [from]'s day to [to].
-  static func readActivity(from: Date, to: Date, result: @escaping FlutterResult) {
+  static func readActivity(from: Date, to: Date, daily: Bool, result: @escaping FlutterResult) {
     let anchor = Calendar.current.startOfDay(for: from)
     let group = DispatchGroup()
     let lock = NSLock()
@@ -312,7 +313,9 @@ enum HealthKitBridge {
         quantitySamplePredicate: HKQuery.predicateForSamples(withStart: anchor, end: to),
         options: activity.isCumulative ? .cumulativeSum : .discreteAverage,
         anchorDate: anchor,
-        intervalComponents: activity.isCumulative ? DateComponents(hour: 1) : DateComponents(day: 1))
+        // Counted ones by the hour, or by the day for years long past.
+        intervalComponents: activity.isCumulative && !daily
+          ? DateComponents(hour: 1) : DateComponents(day: 1))
       query.initialResultsHandler = { _, collection, error in
         lock.lock()
         if let error { failure = error }

@@ -58,8 +58,9 @@ class _Health implements HealthSource {
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
-    DateTime to,
-  ) async => const [];
+    DateTime to, {
+    bool isHourly = true,
+  }) async => const [];
   @override
   Future<ActivityDetail?> activityDetail(String platformId) async {
     asked.add(platformId);

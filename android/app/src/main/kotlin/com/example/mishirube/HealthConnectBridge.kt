@@ -190,10 +190,11 @@ class HealthConnectBridge(
                     result.error("badArguments", null, null)
                     return
                 }
+                val daily = call.argument<Boolean>("daily") ?: false
                 scope.launch {
                     try {
                         result.success(
-                            read(kind, Instant.ofEpochMilli(from), Instant.ofEpochMilli(to))
+                            read(kind, Instant.ofEpochMilli(from), Instant.ofEpochMilli(to), daily)
                         )
                     } catch (error: Exception) {
                         result.error("failed", error.message, null)
@@ -357,11 +358,16 @@ class HealthConnectBridge(
         return rows
     }
 
-    private suspend fun read(kind: String, from: Instant, to: Instant): List<Map<String, Any>> =
+    private suspend fun read(
+        kind: String,
+        from: Instant,
+        to: Instant,
+        daily: Boolean = false,
+    ): List<Map<String, Any>> =
         when (kind) {
             "sleep" -> readAll(SleepSessionRecord::class, from, to).flatMap(::sleepRows)
             "body" -> bodyRows(from, to)
-            "activity" -> activityRows(from, to)
+            "activity" -> activityRows(from, to, daily)
             "weight" -> readAll(WeightRecord::class, from, to).map {
                 mapOf(
                     "id" to it.metadata.id,
@@ -409,7 +415,11 @@ class HealthConnectBridge(
      * source the user ranked first where a phone and a watch overlap;
      * measured ones as each local day's average.
      */
-    private suspend fun activityRows(from: Instant, to: Instant): List<Map<String, Any>> {
+    private suspend fun activityRows(
+        from: Instant,
+        to: Instant,
+        daily: Boolean,
+    ): List<Map<String, Any>> {
         val granted = client.permissionController.getGrantedPermissions()
         fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
         val zone = ZoneId.systemDefault()
@@ -453,7 +463,8 @@ class HealthConnectBridge(
                     AggregateGroupByDurationRequest(
                         metrics = counted.map { it.second }.toSet(),
                         timeRangeFilter = TimeRangeFilter.between(start, end),
-                        timeRangeSlicer = Duration.ofHours(1),
+                        // By the hour, or by the day for years long past.
+                        timeRangeSlicer = if (daily) Duration.ofDays(1) else Duration.ofHours(1),
                     )
                 )
                 for (bucket in buckets) {

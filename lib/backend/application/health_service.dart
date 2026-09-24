@@ -29,6 +29,17 @@ class HealthImport {
   /// platform does not say.
   final Set<HealthDataKind>? denied;
 
+  /// This import and [other] together, as one.
+  HealthImport and(HealthImport other) => HealthImport(
+    added: {
+      for (final kind in {...added.keys, ...other.added.keys})
+        kind: (added[kind] ?? 0) + (other.added[kind] ?? 0),
+    },
+    updated: updated + other.updated,
+    skipped: skipped + other.skipped,
+    denied: denied,
+  );
+
   bool get foundNothing =>
       added.values.every((count) => count == 0) && updated == 0 && skipped == 0;
 }
@@ -61,7 +72,7 @@ class HealthService {
   /// it already had (a workout's route, heart rate and running figures
   /// under workouts): Apple Health never says a read was refused, so
   /// without asking again those reads would quietly come back empty.
-  static const _accessVersion = 2;
+  static const _accessVersion = 3;
   static const _askedVersionKey = 'health.asked_version';
   static const _syncedKey = 'health.synced_at';
 
@@ -69,9 +80,18 @@ class HealthService {
   /// on the platform since the last read.
   static const window = Duration(days: 30);
 
-  /// How far back the first import reads: the longest trend the app
-  /// draws, so it has something to draw from the first day.
-  static const history = Duration(days: 182);
+  /// How far back a full read reaches: Apple Health began in 2014, so
+  /// this is everything a platform can hold. Health Connect itself
+  /// returns less without its history permission.
+  static final earliest = DateTime(2014);
+
+  /// Kept whenever a full read has run, with [_accessVersion]: a kind or
+  /// type added later is read in full once, not just its last month.
+  static const _fullReadKey = 'health.full_read_version';
+
+  /// Activity is kept hour by hour for the last year, day by day before:
+  /// years of hours would fill the store for charts that never show them.
+  static const hourlyActivity = Duration(days: 365);
 
   final AppDatabase _db;
   final JournalRepository _journal;
@@ -128,9 +148,9 @@ class HealthService {
     null => null,
   };
 
-  /// Asks for access to every kind, remembers the choice and reads the
-  /// last [history]. Null when the platform is not there or the request
-  /// did not go through.
+  /// Asks for access to every kind, remembers the choice and reads all
+  /// the platform holds. Null when the platform is not there or the
+  /// request did not go through.
   Future<HealthImport?> connect() async {
     if (!await source.isAvailable()) return null;
     if (!await _ask()) return null;
@@ -141,14 +161,60 @@ class HealthService {
   /// Stops reading. What was imported stays: it is the user's record now.
   void disconnect() => _db.setSetting(_connectedKey, 'false');
 
+  /// Reads the last [window], or, the first time and whenever a kind or
+  /// type has been added since, everything back to [earliest] a year at
+  /// a time: one read of a decade of samples would not fit in memory.
   Future<HealthImport> importAll() async {
     if (isConnected && _hasUnaskedKinds) await _ask();
     final now = _db.now();
-    final from = now.subtract(lastSync == null ? history : window);
     // Only what was allowed: Health Connect refuses a read it was not
     // allowed, and asking for it anyway would fail the whole import.
     final granted = await grantedKinds();
     final kinds = granted ?? source.kinds;
+    final isFullRead =
+        lastSync == null || _db.setting(_fullReadKey) != '$_accessVersion';
+    var total = HealthImport(
+      added: {for (final kind in kinds) kind: 0},
+      updated: 0,
+      skipped: 0,
+      denied: granted == null ? null : source.kinds.difference(granted),
+    );
+    for (final (from, to)
+        in isFullRead ? _yearsBack(now) : [(now.subtract(window), now)]) {
+      total = total.and(
+        await _importRange(
+          from,
+          to,
+          kinds,
+          isHourly: now.difference(from) <= hourlyActivity,
+        ),
+      );
+    }
+    _db.setSetting(_syncedKey, '${now.millisecondsSinceEpoch}');
+    if (isFullRead) _db.setSetting(_fullReadKey, '$_accessVersion');
+    return total;
+  }
+
+  /// A year at a time from [now] back to [earliest], newest first. Each
+  /// stretch starts at noon, so no night's sleep is cut in two.
+  List<(DateTime, DateTime)> _yearsBack(DateTime now) {
+    final stretches = <(DateTime, DateTime)>[];
+    var to = now;
+    while (to.isAfter(earliest)) {
+      final from = DateTime(to.year - 1, to.month, to.day, 12);
+      stretches.add((from.isBefore(earliest) ? earliest : from, to));
+      to = from;
+    }
+    return stretches;
+  }
+
+  /// Reads [from]–[to] of [kinds] and records it, all or nothing.
+  Future<HealthImport> _importRange(
+    DateTime from,
+    DateTime now,
+    Set<HealthDataKind> kinds, {
+    required bool isHourly,
+  }) async {
     // Read everything first: a platform call can fail, and a failure
     // should leave the log as it was, not half imported.
     final samples = kinds.contains(HealthDataKind.sleep)
@@ -170,7 +236,7 @@ class HealthService {
         ? await source.water(from, now)
         : const <HealthWater>[];
     final activity = kinds.contains(HealthDataKind.activity)
-        ? await source.activitySamples(from, now)
+        ? await source.activitySamples(from, now, isHourly: isHourly)
         : const <ActivitySample>[];
     final sleeps = [for (final night in nightsOf(samples)) _planOf(night)];
     // Only over the time each sleep covers: a whole month of heart rate
@@ -265,12 +331,11 @@ class HealthService {
         );
       }
 
-      _db.setSetting(_syncedKey, '${now.millisecondsSinceEpoch}');
       return HealthImport(
         added: added,
         updated: updated,
         skipped: skipped,
-        denied: granted == null ? null : source.kinds.difference(granted),
+        denied: null,
       );
     });
   }

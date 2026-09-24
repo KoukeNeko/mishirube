@@ -46,7 +46,7 @@ class PrivacyScreen extends StatelessWidget {
           title: '健康資料（$platform）',
           facts: [
             ('權限', '只讀，不寫入'),
-            ('讀取', '第一次讀取最近 6 個月，之後開啟 App 時讀取最近 30 天'),
+            ('讀取', '第一次讀取全部紀錄，之後開啟 App 時讀取最近 30 天'),
             ('送出裝置', '否'),
             ('提供給 AI', '否'),
             ('用於廣告', '否'),
