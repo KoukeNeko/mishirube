@@ -722,9 +722,87 @@ class _HistoryState extends State<_History> {
               ],
             ),
           ),
+          ..._stageAverages(),
+          ..._vitals(),
         ],
       ],
     );
+  }
+
+  /// Each stage's average a night, over the nights that were staged.
+  List<Widget> _stageAverages() {
+    final average = widget.model.averageStages(_range.days);
+    if (average.nights == 0) return const [];
+    final asleep = average.stages.entries
+        .where((entry) => entry.key.isAsleep)
+        .fold(Duration.zero, (sum, entry) => sum + entry.value);
+    return [
+      Gutter(
+        child: GroupedCard(
+          children: [
+            for (final MapEntry(key: stage, value: time)
+                in average.stages.entries)
+              KeyValueRow(
+                label: '平均${stage.label}',
+                value: stage.isAsleep && asleep > Duration.zero
+                    ? '${formatHoursMinutes(time)} · '
+                          '${(time.inSeconds * 100 / asleep.inSeconds).round()}%'
+                    : formatHoursMinutes(time),
+              ),
+          ],
+        ),
+      ),
+      Gutter(child: TagWrap(labels: ['${average.nights} 晚有睡眠階段', '裝置估計'])),
+    ];
+  }
+
+  /// Each overnight reading's nightly average across the range.
+  List<Widget> _vitals() {
+    final rows = [
+      for (final measure in OvernightMeasure.values)
+        if (measure != OvernightMeasure.breathingDisturbances)
+          if (widget.model.nightlyAverages(measure, _range.days)
+              case final values when values.length > 1)
+            (measure, values),
+    ];
+    if (rows.isEmpty) return const [];
+    return [
+      for (final (measure, values) in rows)
+        Gutter(
+          child: AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        measure.label,
+                        style: AppTextStyles.itemTitle,
+                      ),
+                    ),
+                    Text(
+                      '平均 ${_number(measure, values.reduce((a, b) => a + b) / values.length)}'
+                      '${measure.unit.isEmpty ? '' : ' ${measure.unit}'}',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Semantics(
+                  label: '${measure.label}走勢，${values.length} 晚',
+                  excludeSemantics: true,
+                  child: Sparkline(
+                    values: values,
+                    color: AppColors.wellness,
+                    height: 40,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+    ];
   }
 
   /// One bar a night for a week or a month, one a week for half a year;

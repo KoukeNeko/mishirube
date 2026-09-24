@@ -92,6 +92,24 @@ class SleepViewModel extends ViewModel {
 
   void setReminder(bool isOn) => backend.sleep.setReminder(isOn);
 
+  /// The average time in each stage over the [days] ending with the day
+  /// shown, from the nights that were staged.
+  ({Map<SleepStage, Duration> stages, int nights}) averageStages(int days) {
+    final end = _day.add(const Duration(days: 1));
+    return backend.sleep.averageStages(end.subtract(Duration(days: days)), end);
+  }
+
+  /// Each night's average of [measure] over the [days] ending with the
+  /// day shown, oldest first.
+  List<double> nightlyAverages(OvernightMeasure measure, int days) {
+    final end = _day.add(const Duration(days: 1));
+    return backend.sleep.nightlyAverages(
+      measure,
+      end.subtract(Duration(days: days)),
+      end,
+    );
+  }
+
   /// The usual range of [measure] over the four weeks before the day.
   ({double low, double high})? baseline(OvernightMeasure measure) => baselineOf(
     backend.sleep.nightlyAverages(

@@ -113,6 +113,10 @@ void main() {
     expect(continuity.latency, const Duration(minutes: 15));
     expect(continuity.awakenings, 1);
     expect(continuity.efficiency, closeTo(440 / 480, 0.001));
+
+    final average = model.averageStages(7);
+    expect(average.nights, 1);
+    expect(average.stages[SleepStage.deep], const Duration(minutes: 255));
   });
 
   test('the usual night is the four weeks before, not the day itself', () {

@@ -107,6 +107,34 @@ class SleepService {
     return tonightPlan()?.bedtime.subtract(reminderLead);
   }
 
+  /// The time in each stage averaged over the staged nights that ended
+  /// in `[start, end)`, from each night's shown source, with how many
+  /// nights that is; nights the source did not stage are left out.
+  ({Map<SleepStage, Duration> stages, int nights}) averageStages(
+    DateTime start,
+    DateTime end,
+  ) {
+    final totals = <SleepStage, Duration>{};
+    var staged = 0;
+    for (final night in nights(start, end)) {
+      final record = _recordOf(night);
+      if (!record.hasStages) continue;
+      staged++;
+      for (final MapEntry(key: stage, value: time) in stageTotals(
+        record.stages,
+      ).entries) {
+        totals.update(stage, (sum) => sum + time, ifAbsent: () => time);
+      }
+    }
+    return (
+      stages: {
+        for (final MapEntry(key: stage, value: time) in totals.entries)
+          stage: time ~/ staged,
+      },
+      nights: staged,
+    );
+  }
+
   /// Each night's average of [measure] over `[start, end)`, oldest
   /// first: what a night's reading is compared against.
   List<double> nightlyAverages(
