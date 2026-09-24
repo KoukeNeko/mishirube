@@ -22,6 +22,7 @@ class _FakeHealth implements HealthSource {
     this.workoutRows = const [],
     this.waterRows = const [],
     this.overnightRows = const [],
+    this.activityRows = const [],
   });
 
   List<SleepSample> samples;
@@ -30,6 +31,7 @@ class _FakeHealth implements HealthSource {
   List<HealthBodyReading> bodyRows;
   List<HealthWorkout> workoutRows;
   List<HealthWater> waterRows;
+  List<ActivitySample> activityRows;
 
   /// What is measured over every sleep asked about.
   List<OvernightReading> overnightRows;
@@ -96,6 +98,11 @@ class _FakeHealth implements HealthSource {
   @override
   Future<List<HealthWater>> water(DateTime from, DateTime to) async =>
       waterRows;
+  @override
+  Future<List<ActivitySample>> activitySamples(
+    DateTime from,
+    DateTime to,
+  ) async => activityRows;
 }
 
 SleepSample _asleep(DateTime start, DateTime end) =>
@@ -256,6 +263,70 @@ void main() {
       },
     );
 
+    test('activity comes in as the platform counted it, and a re-read '
+        'changes only what moved', () async {
+      final today = clock.now();
+      DateTime hour(int h) => DateTime(today.year, today.month, today.day, h);
+      ActivitySample steps(int h, double value) => ActivitySample(
+        metric: ActivityMetric.steps,
+        start: hour(h),
+        end: hour(h + 1),
+        value: value,
+      );
+      final health = _FakeHealth(
+        const [],
+        activityRows: [
+          steps(8, 500),
+          steps(9, 700),
+          ActivitySample(
+            metric: ActivityMetric.restingHeartRate,
+            start: hour(0),
+            end: hour(0).add(const Duration(days: 1)),
+            value: 61,
+          ),
+        ],
+      );
+      final store = storeWith(health);
+
+      final first = await store.connectHealth();
+      expect(first!.added[HealthDataKind.activity], 3);
+      expect(store.backend.activity.dayTotals(today), {
+        ActivityMetric.steps: 1200,
+        ActivityMetric.restingHeartRate: 61,
+      });
+
+      final again = await store.syncHealth();
+      expect(again!.added[HealthDataKind.activity], 0, reason: 'unchanged');
+
+      health.activityRows = [steps(8, 500), steps(9, 900)];
+      final moved = await store.syncHealth();
+      expect(moved!.added[HealthDataKind.activity], 1);
+      expect(
+        store.backend.activity.dayTotals(today)[ActivityMetric.steps],
+        1400,
+      );
+      expect(
+        store.backend.activity.hourly(ActivityMetric.steps, today)![9],
+        900,
+      );
+    });
+
+    test('a kind added in an update is asked for once', () async {
+      final health = _FakeHealth(const []);
+      final store = storeWith(health);
+      await store.connectHealth();
+      // Connected before activity existed.
+      store.backend.db.setSetting('health.asked_kinds', 'sleep,weight');
+      health.askedFor = null;
+
+      await store.syncHealth();
+      expect(health.askedFor, contains(HealthDataKind.activity));
+
+      health.askedFor = null;
+      await store.syncHealth();
+      expect(health.askedFor, isNull);
+    });
+
     test('the first read reaches back half a year, later ones a month', () async {
       final health = _FakeHealth([lastNight]);
       final store = storeWith(health);
@@ -355,6 +426,7 @@ void main() {
         HealthDataKind.workouts: 1,
         HealthDataKind.water: 1,
         HealthDataKind.overnight: 0,
+        HealthDataKind.activity: 0,
       });
       expect(
         store.backend.journal
@@ -413,6 +485,7 @@ void main() {
         HealthDataKind.workouts,
         HealthDataKind.water,
         HealthDataKind.overnight,
+        HealthDataKind.activity,
       });
       expect(await store.healthGrantedKinds(), {HealthDataKind.sleep});
     });

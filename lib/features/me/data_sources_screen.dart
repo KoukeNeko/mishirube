@@ -336,6 +336,7 @@ String _summary(HealthImport? imported) {
     HealthDataKind.body: '筆',
     HealthDataKind.workouts: '次',
     HealthDataKind.water: '次',
+    HealthDataKind.activity: '筆',
   };
   return [
     for (final MapEntry(key: kind, value: count) in imported.added.entries)

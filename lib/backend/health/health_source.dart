@@ -51,6 +51,11 @@ abstract interface class HealthSource {
   Future<List<HealthBodyReading>> bodyReadings(DateTime from, DateTime to);
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to);
   Future<List<HealthWater>> water(DateTime from, DateTime to);
+
+  /// Every [ActivityMetric] the platform keeps over [from]–[to]: counted
+  /// ones as hourly totals, measured ones as daily averages, both from
+  /// the platform's own statistics so a phone and a watch count once.
+  Future<List<ActivitySample>> activitySamples(DateTime from, DateTime to);
 }
 
 /// A platform reached through a method channel. Apple Health
@@ -80,7 +85,9 @@ class PlatformHealthSource implements HealthSource {
     kinds: HealthDataKind.values.toSet(),
   );
 
-  /// Health Connect has no waist circumference record.
+  /// Health Connect has no waist circumference record, and no exercise
+  /// minutes, walking heart rate or SDNN variability; its absent metrics
+  /// just never come back from a read.
   static final healthConnect = PlatformHealthSource._(
     const MethodChannel('mishirube/healthconnect'),
     () => Platform.isAndroid,
@@ -264,6 +271,24 @@ class PlatformHealthSource implements HealthSource {
         ml: (row['ml']! as num).round(),
       ),
   ];
+
+  @override
+  Future<List<ActivitySample>> activitySamples(
+    DateTime from,
+    DateTime to,
+  ) async {
+    final metrics = ActivityMetric.values.asNameMap();
+    return [
+      for (final row in await _read(HealthDataKind.activity, from, to))
+        if (metrics[row['metric']] case final metric?)
+          ActivitySample(
+            metric: metric,
+            start: _time(row['start']),
+            end: _time(row['end']),
+            value: (row['value']! as num).toDouble(),
+          ),
+    ];
+  }
 }
 
 /// No platform: tests and previews.
@@ -314,4 +339,9 @@ class NoHealthSource implements HealthSource {
       const [];
   @override
   Future<List<HealthWater>> water(DateTime from, DateTime to) async => const [];
+  @override
+  Future<List<ActivitySample>> activitySamples(
+    DateTime from,
+    DateTime to,
+  ) async => const [];
 }

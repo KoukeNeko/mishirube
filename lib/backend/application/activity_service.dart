@@ -1,6 +1,8 @@
 import '../../domain/domain.dart';
+import '../engines/activity_metrics.dart';
 import '../engines/trend_engine.dart';
 import '../storage/activity_repository.dart';
+import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
 
 /// What the form starts from when nothing was logged before.
@@ -42,12 +44,14 @@ class ActivitySummary {
   int? get typicalWeeklyMinutes => typicalWeeklyAmount(weeklyMinutes);
 }
 
-/// Logging general exercise.
+/// Logging general exercise, and reading what a health platform counted
+/// and measured about everyday movement.
 class ActivityService {
-  ActivityService(this._db, this._activities);
+  ActivityService(this._db, this._activities, this._samples);
 
   final AppDatabase _db;
   final ActivityRepository _activities;
+  final ActivitySampleRepository _samples;
 
   /// Records a session. [startedAt] is when it began; the caller works out
   /// the start from the end and the duration, since that is how people
@@ -177,4 +181,61 @@ class ActivityService {
       ),
     );
   }
+
+  /// The metrics any source recorded over the last year, in the order
+  /// the app lists them.
+  List<ActivityMetric> recordedMetrics() {
+    final recorded = _samples.recordedSince(
+      _db.now().subtract(const Duration(days: 365)),
+    );
+    return [
+      for (final metric in ActivityMetric.values)
+        if (recorded.contains(metric)) metric,
+    ];
+  }
+
+  /// [metric] on each day from [from] to [to] (whole local days), oldest
+  /// first; a day nothing was read for is absent.
+  List<(DateTime, double)> daily(
+    ActivityMetric metric,
+    DateTime from,
+    DateTime to,
+  ) => dailyValues(
+    _samples.between(
+      metric,
+      DateTime(from.year, from.month, from.day),
+      DateTime(to.year, to.month, to.day + 1),
+    ),
+  );
+
+  /// Each metric's figure on [day], for the ones that have one.
+  Map<ActivityMetric, double> dayTotals(DateTime day) => {
+    for (final metric in ActivityMetric.values)
+      if (daily(metric, day, day).firstOrNull case (_, final value))
+        metric: value,
+  };
+
+  /// A counted metric's [day] hour by hour; null when nothing was read
+  /// for that day.
+  List<double>? hourly(ActivityMetric metric, DateTime day) {
+    final samples = _samples.between(
+      metric,
+      DateTime(day.year, day.month, day.day),
+      DateTime(day.year, day.month, day.day + 1),
+    );
+    return samples.isEmpty ? null : hourlyValues(samples);
+  }
+
+  /// What an ordinary day of [metric] looks like, from the
+  /// [usualRangeDays] before [day]; null with too few days.
+  ({double low, double high})? usualRange(
+    ActivityMetric metric,
+    DateTime day,
+  ) => usualRangeOf(
+    daily(
+      metric,
+      day.subtract(const Duration(days: usualRangeDays)),
+      day.subtract(const Duration(days: 1)),
+    ),
+  );
 }

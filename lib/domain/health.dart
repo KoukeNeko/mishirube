@@ -14,7 +14,11 @@ enum HealthDataKind {
 
   /// Heart rate, breathing, blood oxygen, temperature and heart rate
   /// variability, read only for the time a sleep covers.
-  overnight('夜間數據');
+  overnight('夜間數據'),
+
+  /// Steps, distance, energy, floors, exercise minutes, and the heart
+  /// and fitness figures measured through the day (see [ActivityMetric]).
+  activity('活動與心肺');
 
   const HealthDataKind(this.label);
 

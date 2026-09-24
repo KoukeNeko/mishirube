@@ -6,6 +6,7 @@ import '../../domain/domain.dart';
 /// step are not among them: they are the page's reason to exist.
 enum TodaySection {
   glance('今日指標'),
+  activity('今日活動'),
   intake('今日攝取'),
   week('本週'),
   records('今天的紀錄'),
@@ -60,6 +61,15 @@ class TodayViewModel extends ViewModel {
 
   /// How long a night the user aims for, when they have set it.
   Duration? get sleepGoal => backend.sleep.goal;
+
+  /// Today's figure for each activity metric the health platform has one
+  /// for.
+  Map<ActivityMetric, double> get activityTotals =>
+      backend.activity.dayTotals(_today);
+
+  /// [metric] hour by hour today; null without a reading.
+  List<double>? activityHours(ActivityMetric metric) =>
+      backend.activity.hourly(metric, _today);
 
   /// Water drunk today.
   WaterLogged get water => summariseWater(backend.nutrition.mealsOn(_today));

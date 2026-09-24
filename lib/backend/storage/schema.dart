@@ -668,6 +668,22 @@ final List<String> _migrations = [
   ALTER TABLE exercises ADD COLUMN family TEXT NOT NULL DEFAULT '';
   ALTER TABLE exercises ADD COLUMN frames TEXT NOT NULL DEFAULT '[]';
   ''',
+  '''
+  -- What a health platform counted (hourly, already de-duplicated
+  -- across devices) or measured (a day's average) about everyday
+  -- movement and fitness. Read again on each sync: a bucket's value is
+  -- replaced when the platform's has changed.
+  CREATE TABLE activity_samples (
+    id TEXT PRIMARY KEY,
+    metric TEXT NOT NULL,
+    started_at INTEGER NOT NULL,
+    ended_at INTEGER NOT NULL,
+    value REAL NOT NULL,
+    $_entityColumns
+  );
+  CREATE INDEX activity_samples_metric
+    ON activity_samples(metric, started_at) WHERE deleted_at IS NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

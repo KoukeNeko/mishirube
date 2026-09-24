@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 
-/// Minimal bar chart; the last bar is highlighted as "current period",
-/// or the [selected] one while a reading picks it.
+/// Minimal bar chart; the last bar is highlighted as "current period"
+/// unless [highlightsLast] is off, or the [selected] one while a reading
+/// picks it. Many bars sit closer together, so a month or a day of hours
+/// still has bars rather than gaps.
 class MiniBarChart extends StatelessWidget {
   const MiniBarChart({
     super.key,
@@ -13,12 +15,14 @@ class MiniBarChart extends StatelessWidget {
     this.color = AppColors.training,
     this.dimColor = AppColors.trainingDim,
     this.selected,
+    this.highlightsLast = true,
   });
 
   final List<(String, int)> bars;
   final double height;
   final bool showLabels;
   final int? selected;
+  final bool highlightsLast;
 
   /// The last bar's colour, and the others'.
   final Color color;
@@ -29,11 +33,13 @@ class MiniBarChart extends StatelessWidget {
     final highest = bars.map((bar) => bar.$2).fold(0, (a, b) => a > b ? a : b);
     // All zero is a row of empty bars, not a division by zero.
     final maxValue = highest == 0 ? 1 : highest;
+    final highlighted = selected ?? (highlightsLast ? bars.length - 1 : null);
+    final gap = bars.length > 14 ? 2.0 : AppSpacing.xs;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         for (var i = 0; i < bars.length; i++) ...[
-          if (i > 0) const SizedBox(width: AppSpacing.xs),
+          if (i > 0) SizedBox(width: gap),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -41,7 +47,7 @@ class MiniBarChart extends StatelessWidget {
                 Container(
                   height: height * bars[i].$2 / maxValue,
                   decoration: BoxDecoration(
-                    color: i == (selected ?? bars.length - 1)
+                    color: highlighted == null || i == highlighted
                         ? color
                         : dimColor,
                     borderRadius: const BorderRadius.vertical(

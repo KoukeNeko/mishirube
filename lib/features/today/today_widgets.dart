@@ -484,3 +484,58 @@ class CompletedWorkoutCard extends StatelessWidget {
     );
   }
 }
+
+/// Today's movement as the health platform counted it: the lead figure,
+/// the other counted ones, and the lead hour by hour.
+class TodayActivityCard extends StatelessWidget {
+  const TodayActivityCard({
+    super.key,
+    required this.lead,
+    required this.totals,
+    required this.hours,
+    required this.onTap,
+  });
+
+  final ActivityMetric lead;
+  final Map<ActivityMetric, double> totals;
+  final List<double> hours;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final others = [
+      for (final metric in ActivityMetric.headline)
+        if (metric != lead)
+          if (totals[metric] case final value?)
+            '${metric.format(value)} ${metric.unit}',
+    ];
+    return AppCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CategoryLabel(label: '活動', color: AppColors.activity),
+          const SizedBox(height: AppSpacing.xs),
+          ValueWithUnit(
+            value: lead.format(totals[lead]!),
+            unit: lead.unit,
+            style: AppTextStyles.bigNumber,
+          ),
+          if (others.isNotEmpty)
+            Text(others.join(' · '), style: AppTextStyles.caption),
+          const SizedBox(height: AppSpacing.sm),
+          ExcludeSemantics(
+            child: MiniBarChart(
+              bars: [for (final value in hours) ('', value.round())],
+              height: 32,
+              showLabels: false,
+              color: AppColors.activity,
+              dimColor: AppColors.activity.withValues(alpha: 0.4),
+              highlightsLast: false,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

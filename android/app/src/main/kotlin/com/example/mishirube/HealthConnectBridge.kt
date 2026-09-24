@@ -6,7 +6,15 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
@@ -23,12 +31,18 @@ import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.Period
+import java.time.ZoneId
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,8 +86,10 @@ class HealthConnectBridge(
     /** The kinds whose read permission is granted; a workout needs its session. */
     private suspend fun grantedKinds(): List<String> {
         val granted = client.permissionController.getGrantedPermissions()
-        return listOf("sleep", "weight", "body", "workouts", "water", "overnight").filter { kind ->
+        return listOf("sleep", "weight", "body", "workouts", "water", "overnight", "activity").filter { kind ->
             val needed = when (kind) {
+                // Steps stand for the rest: each allowed one is read.
+                "activity" -> HealthPermission.getReadPermission(StepsRecord::class)
                 "workouts" -> HealthPermission.getReadPermission(ExerciseSessionRecord::class)
                 // Height stands for the rest: each allowed one is read.
                 "body" -> HealthPermission.getReadPermission(HeightRecord::class)
@@ -176,6 +192,7 @@ class HealthConnectBridge(
             "water" -> listOf(HydrationRecord::class)
             "overnight" -> overnightTypes
             "body" -> bodyTypes
+            "activity" -> activityTypes
             else -> emptyList()
         }
     }.map { HealthPermission.getReadPermission(it) }.toSet()
@@ -295,6 +312,7 @@ class HealthConnectBridge(
         when (kind) {
             "sleep" -> readAll(SleepSessionRecord::class, from, to).flatMap(::sleepRows)
             "body" -> bodyRows(from, to)
+            "activity" -> activityRows(from, to)
             "weight" -> readAll(WeightRecord::class, from, to).map {
                 mapOf(
                     "id" to it.metadata.id,
@@ -322,6 +340,148 @@ class HealthConnectBridge(
             }
             else -> emptyList()
         }
+
+    /** Everyday movement and the fitness figures measured through the day. */
+    private val activityTypes = listOf(
+        StepsRecord::class,
+        DistanceRecord::class,
+        ActiveCaloriesBurnedRecord::class,
+        FloorsClimbedRecord::class,
+        ElevationGainedRecord::class,
+        WheelchairPushesRecord::class,
+        RestingHeartRateRecord::class,
+        HeartRateVariabilityRmssdRecord::class,
+        Vo2MaxRecord::class,
+    )
+
+    /**
+     * Each allowed activity metric in the app's terms: counted ones as
+     * hourly totals from Health Connect's aggregation, which keeps the
+     * source the user ranked first where a phone and a watch overlap;
+     * measured ones as each local day's average.
+     */
+    private suspend fun activityRows(from: Instant, to: Instant): List<Map<String, Any>> {
+        val granted = client.permissionController.getGrantedPermissions()
+        fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
+        val zone = ZoneId.systemDefault()
+        val firstDay = from.atZone(zone).toLocalDate()
+        val rows = mutableListOf<Map<String, Any>>()
+        fun row(metric: String, start: Instant, end: Instant, value: Double) {
+            rows += mapOf(
+                "metric" to metric,
+                "start" to start.toEpochMilli(),
+                "end" to end.toEpochMilli(),
+                "value" to value,
+            )
+        }
+
+        val counted = buildList<Pair<String, AggregateMetric<*>>> {
+            if (allowed(StepsRecord::class)) add("steps" to StepsRecord.COUNT_TOTAL)
+            if (allowed(DistanceRecord::class)) add("distance" to DistanceRecord.DISTANCE_TOTAL)
+            if (allowed(ActiveCaloriesBurnedRecord::class)) {
+                add("activeEnergy" to ActiveCaloriesBurnedRecord.ACTIVE_CALORIES_TOTAL)
+            }
+            if (allowed(FloorsClimbedRecord::class)) {
+                add("floors" to FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL)
+            }
+            if (allowed(ElevationGainedRecord::class)) {
+                add("elevationGained" to ElevationGainedRecord.ELEVATION_GAINED_TOTAL)
+            }
+            if (allowed(WheelchairPushesRecord::class)) {
+                add("wheelchairPushes" to WheelchairPushesRecord.COUNT_TOTAL)
+            }
+            // Asked for with the body figures; read here when allowed.
+            if (allowed(BasalMetabolicRateRecord::class)) {
+                add("basalEnergy" to BasalMetabolicRateRecord.BASAL_CALORIES_TOTAL)
+            }
+        }
+        if (counted.isNotEmpty()) {
+            // A month at a time: one request returns every hour in it.
+            var start = firstDay.atStartOfDay(zone).toInstant()
+            while (start.isBefore(to)) {
+                val end = minOf(start.plus(Duration.ofDays(30)), to)
+                val buckets = client.aggregateGroupByDuration(
+                    AggregateGroupByDurationRequest(
+                        metrics = counted.map { it.second }.toSet(),
+                        timeRangeFilter = TimeRangeFilter.between(start, end),
+                        timeRangeSlicer = Duration.ofHours(1),
+                    )
+                )
+                for (bucket in buckets) {
+                    for ((name, metric) in counted) {
+                        @Suppress("UNCHECKED_CAST")
+                        val total = bucket.result[metric as AggregateMetric<Any>]
+                        val value = when (total) {
+                            is Long -> total.toDouble()
+                            is Double -> total
+                            is androidx.health.connect.client.units.Length -> total.inMeters
+                            is androidx.health.connect.client.units.Energy -> total.inKilocalories
+                            else -> continue
+                        }
+                        row(name, bucket.startTime, bucket.endTime, value)
+                    }
+                }
+                start = end
+            }
+        }
+
+        // Each local day's average; heart rate is asked for with the
+        // overnight figures and read here when allowed.
+        for ((name, metric) in buildList {
+            if (allowed(RestingHeartRateRecord::class)) {
+                add("restingHeartRate" to RestingHeartRateRecord.BPM_AVG)
+            }
+            if (allowed(HeartRateRecord::class)) add("heartRate" to HeartRateRecord.BPM_AVG)
+        }) {
+            val days = client.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    metrics = setOf(metric),
+                    timeRangeFilter = TimeRangeFilter.between(
+                        firstDay.atStartOfDay(),
+                        to.atZone(zone).toLocalDateTime(),
+                    ),
+                    timeRangeSlicer = Period.ofDays(1),
+                )
+            )
+            for (day in days) {
+                val bpm = day.result[metric] ?: continue
+                row(
+                    name,
+                    day.startTime.atZone(zone).toInstant(),
+                    day.endTime.atZone(zone).toInstant(),
+                    bpm.toDouble(),
+                )
+            }
+        }
+
+        // Neither has an aggregate: each local day's readings averaged.
+        fun daily(metric: String, readings: List<Pair<Instant, Double>>) {
+            readings.groupBy { it.first.atZone(zone).toLocalDate() }
+                .forEach { (date: LocalDate, values) ->
+                    row(
+                        metric,
+                        date.atStartOfDay(zone).toInstant(),
+                        date.plusDays(1).atStartOfDay(zone).toInstant(),
+                        values.map { it.second }.average(),
+                    )
+                }
+        }
+        if (allowed(HeartRateVariabilityRmssdRecord::class)) {
+            daily(
+                "hrvRmssd",
+                readAll(HeartRateVariabilityRmssdRecord::class, from, to)
+                    .map { it.time to it.heartRateVariabilityMillis },
+            )
+        }
+        if (allowed(Vo2MaxRecord::class)) {
+            daily(
+                "vo2Max",
+                readAll(Vo2MaxRecord::class, from, to)
+                    .map { it.time to it.vo2MillilitersPerMinuteKilogram },
+            )
+        }
+        return rows
+    }
 
     private suspend fun <T : Record> readAll(type: KClass<T>, from: Instant, to: Instant): List<T> {
         val records = mutableListOf<T>()

@@ -23,6 +23,13 @@
     <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
     <uses-permission android:name="android.permission.health.READ_SKIN_TEMPERATURE"/>
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED"/>
+    <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED"/>
+    <uses-permission android:name="android.permission.health.READ_WHEELCHAIR_PUSHES"/>
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_VO2_MAX"/>
     <application
         android:label="mishirube"
         android:name="${applicationName}"

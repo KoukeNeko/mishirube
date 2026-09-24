@@ -10,8 +10,10 @@ only records intent that cannot be read from them.
 MISHIRUBE is a local-first Flutter fitness and nutrition logging app (iOS
 and Android). Data lives in an on-device SQLite database (`lib/backend/`),
 seeded with the design's demo data on first launch; there is no server
-or sync. Sleep, weight, waist, workouts and water can be read, never
-written, from Apple Health (iOS) or Health Connect (Android). AI is
+or sync. Sleep, weight, waist, body composition, workouts, water and
+everyday activity (steps, energy, heart and fitness figures) can be
+read, never written, from Apple Health (iOS) or Health Connect
+(Android). AI is
 optional and only drafts: Apple's on-device model, or a cloud provider
 with the user's own key (Ollama Cloud, Google AI Studio, Anthropic,
 Azure AI Foundry, or any OpenAI-compatible address), or Microsoft 365

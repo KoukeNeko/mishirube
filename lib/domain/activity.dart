@@ -262,3 +262,233 @@ class LiveActivity {
   Duration elapsedAt(DateTime now) =>
       (pausedAt ?? now).difference(startedAt) - pausedTotal;
 }
+
+/// How the activity page groups its metrics, following Apple Health's
+/// categories.
+enum ActivityMetricGroup {
+  movement('日常活動'),
+  heart('心臟與心肺'),
+  mobility('行動能力'),
+  running('跑步'),
+  cycling('騎車'),
+  swimmingWheelchair('游泳與輪椅');
+
+  const ActivityMetricGroup(this.label);
+
+  final String label;
+}
+
+/// A figure a health platform keeps about movement and fitness. A
+/// counted one ([isCumulative]) is read as hourly totals the platform
+/// has already de-duplicated across a phone and a watch; a measured one
+/// as each day's average. Neither is typed in: they come only from the
+/// platform, and a metric no source records is never shown. Some exist
+/// on one platform only; they simply never come back from the other.
+enum ActivityMetric {
+  steps('步數', '步', ActivityMetricGroup.movement, isCumulative: true),
+
+  /// Metres, shown in kilometres. Apple Health's is walking and running;
+  /// Health Connect's is every distance.
+  distance(
+    '距離',
+    'km',
+    ActivityMetricGroup.movement,
+    isCumulative: true,
+    displayScale: 0.001,
+    decimals: 1,
+  ),
+  activeEnergy(
+    '動態能量',
+    'kcal',
+    ActivityMetricGroup.movement,
+    isCumulative: true,
+  ),
+
+  /// What the body burns at rest; Health Connect's is its basal rate
+  /// over the hour.
+  basalEnergy('靜止能量', 'kcal', ActivityMetricGroup.movement, isCumulative: true),
+
+  /// Apple Watch's exercise minutes: time at a brisk walk's effort or
+  /// more.
+  exerciseTime('運動時間', '分', ActivityMetricGroup.movement, isCumulative: true),
+
+  /// Minutes on one's feet, not the stand hours of Apple's ring.
+  standTime('站立時間', '分', ActivityMetricGroup.movement, isCumulative: true),
+  floors('爬樓', '層', ActivityMetricGroup.movement, isCumulative: true),
+  elevationGained(
+    '爬升高度',
+    'm',
+    ActivityMetricGroup.movement,
+    isCumulative: true,
+  ),
+  timeInDaylight('日光時間', '分', ActivityMetricGroup.movement, isCumulative: true),
+  heartRate('平均心率', '次/分', ActivityMetricGroup.heart),
+  restingHeartRate('靜止心率', '次/分', ActivityMetricGroup.heart),
+  walkingHeartRate('步行平均心率', '次/分', ActivityMetricGroup.heart),
+
+  /// The two platforms measure variability differently; they are not
+  /// one figure.
+  hrvSdnn('心率變異度（SDNN）', 'ms', ActivityMetricGroup.heart),
+  hrvRmssd('心率變異度（RMSSD）', 'ms', ActivityMetricGroup.heart),
+  heartRateRecovery('一分鐘心率恢復', '次/分', ActivityMetricGroup.heart),
+  vo2Max('最大攝氧量', 'mL/kg/min', ActivityMetricGroup.heart, decimals: 1),
+
+  /// Apple Watch's estimate of effort, in METs.
+  physicalEffort('身體耗力', 'MET', ActivityMetricGroup.heart, decimals: 1),
+
+  /// Metres per second, shown in km/h.
+  walkingSpeed(
+    '步行速度',
+    'km/h',
+    ActivityMetricGroup.mobility,
+    displayScale: 3.6,
+    decimals: 1,
+  ),
+
+  /// Metres, shown in centimetres.
+  walkingStepLength(
+    '步長',
+    'cm',
+    ActivityMetricGroup.mobility,
+    displayScale: 100,
+  ),
+
+  /// Fractions, shown as percentages.
+  walkingAsymmetry(
+    '步行不對稱',
+    '%',
+    ActivityMetricGroup.mobility,
+    displayScale: 100,
+    decimals: 1,
+  ),
+  doubleSupport(
+    '雙腳支撐時間',
+    '%',
+    ActivityMetricGroup.mobility,
+    displayScale: 100,
+    decimals: 1,
+  ),
+  walkingSteadiness(
+    '步行穩定度',
+    '%',
+    ActivityMetricGroup.mobility,
+    displayScale: 100,
+  ),
+  stairAscentSpeed('上樓速度', 'm/s', ActivityMetricGroup.mobility, decimals: 2),
+  stairDescentSpeed('下樓速度', 'm/s', ActivityMetricGroup.mobility, decimals: 2),
+  sixMinuteWalk('六分鐘步行距離', 'm', ActivityMetricGroup.mobility),
+  runningSpeed(
+    '跑步速度',
+    'km/h',
+    ActivityMetricGroup.running,
+    displayScale: 3.6,
+    decimals: 1,
+  ),
+  runningPower('跑步功率', 'W', ActivityMetricGroup.running),
+  runningStrideLength('跑步步幅', 'm', ActivityMetricGroup.running, decimals: 2),
+  groundContactTime('觸地時間', 'ms', ActivityMetricGroup.running),
+  verticalOscillation('垂直振幅', 'cm', ActivityMetricGroup.running, decimals: 1),
+  cyclingDistance(
+    '騎車距離',
+    'km',
+    ActivityMetricGroup.cycling,
+    isCumulative: true,
+    displayScale: 0.001,
+    decimals: 1,
+  ),
+  cyclingSpeed(
+    '騎車速度',
+    'km/h',
+    ActivityMetricGroup.cycling,
+    displayScale: 3.6,
+    decimals: 1,
+  ),
+  cyclingPower('騎車功率', 'W', ActivityMetricGroup.cycling),
+  cyclingCadence('踏頻', 'rpm', ActivityMetricGroup.cycling),
+  functionalThresholdPower('功能性閾值功率', 'W', ActivityMetricGroup.cycling),
+  swimmingDistance(
+    '游泳距離',
+    'm',
+    ActivityMetricGroup.swimmingWheelchair,
+    isCumulative: true,
+  ),
+  swimmingStrokes(
+    '划水次數',
+    '次',
+    ActivityMetricGroup.swimmingWheelchair,
+    isCumulative: true,
+  ),
+  wheelchairPushes(
+    '輪椅推動',
+    '次',
+    ActivityMetricGroup.swimmingWheelchair,
+    isCumulative: true,
+  ),
+  wheelchairDistance(
+    '輪椅距離',
+    'km',
+    ActivityMetricGroup.swimmingWheelchair,
+    isCumulative: true,
+    displayScale: 0.001,
+    decimals: 1,
+  );
+
+  const ActivityMetric(
+    this.label,
+    this.unit,
+    this.group, {
+    this.isCumulative = false,
+    this.displayScale = 1,
+    this.decimals = 0,
+  });
+
+  /// What a day's movement leads with, in order: the figures a device
+  /// on its own can count come first.
+  static const headline = [steps, distance, activeEnergy, exerciseTime, floors];
+
+  final String label;
+  final String unit;
+  final ActivityMetricGroup group;
+  final bool isCumulative;
+
+  /// From the stored unit to [unit].
+  final double displayScale;
+  final int decimals;
+
+  /// [stored] in [unit], as the app writes numbers: whole thousands
+  /// grouped, as calories are.
+  String format(double stored) {
+    final value = stored * displayScale;
+    if (decimals > 0) return value.toStringAsFixed(decimals);
+    return formatKcal(value.round());
+  }
+}
+
+/// What a platform counted or measured over one stretch: an hour for a
+/// counted metric, a day for a measured one.
+class ActivitySample {
+  const ActivitySample({
+    required this.metric,
+    required this.start,
+    required this.end,
+    required this.value,
+  });
+
+  final ActivityMetric metric;
+  final DateTime start;
+  final DateTime end;
+
+  /// In the metric's stored unit.
+  final double value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ActivitySample &&
+      other.metric == metric &&
+      other.start == start &&
+      other.end == end &&
+      other.value == value;
+
+  @override
+  int get hashCode => Object.hash(metric, start, end, value);
+}

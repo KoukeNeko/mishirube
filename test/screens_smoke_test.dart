@@ -47,6 +47,8 @@ import 'package:mishirube/features/training/routine_list_screen.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/activity/activity_metric_screen.dart';
+import 'package:mishirube/features/activity/daily_activity_screen.dart';
 import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
@@ -59,6 +61,56 @@ import 'support/harness.dart';
 typedef _StoreSetup = void Function(AppStore store);
 
 void _noSetup(AppStore store) {}
+
+/// A month of what a phone and a watch counted: steps, distance and
+/// energy through the waking hours, a resting heart rate each morning,
+/// and a VO₂ max now and then.
+void _withMovement(AppStore store) {
+  final today = store.now();
+  store.backend.storage.activitySamples.sync(
+    [
+      for (var daysAgo = 30; daysAgo >= 0; daysAgo--)
+        for (var hour = 7; hour <= 21; hour++)
+          for (final (metric, value) in [
+            (ActivityMetric.steps, 300.0 + hour * 40 + daysAgo * 7),
+            (ActivityMetric.distance, 220.0 + hour * 25),
+            (ActivityMetric.activeEnergy, 18.0 + hour),
+          ])
+            ActivitySample(
+              metric: metric,
+              start: DateTime(
+                today.year,
+                today.month,
+                today.day - daysAgo,
+                hour,
+              ),
+              end: DateTime(
+                today.year,
+                today.month,
+                today.day - daysAgo,
+                hour + 1,
+              ),
+              value: value,
+            ),
+      for (var daysAgo = 30; daysAgo >= 0; daysAgo--)
+        ActivitySample(
+          metric: ActivityMetric.restingHeartRate,
+          start: DateTime(today.year, today.month, today.day - daysAgo),
+          end: DateTime(today.year, today.month, today.day - daysAgo + 1),
+          value: 58.0 + daysAgo % 5,
+        ),
+      for (var daysAgo = 28; daysAgo >= 0; daysAgo -= 7)
+        ActivitySample(
+          metric: ActivityMetric.vo2Max,
+          start: DateTime(today.year, today.month, today.day - daysAgo),
+          end: DateTime(today.year, today.month, today.day - daysAgo + 1),
+          value: 44.5 - daysAgo / 28,
+        ),
+    ],
+    idPrefix: 'healthkit',
+    source: ChangeSource.healthKit,
+  );
+}
 
 void _withWorkout(AppStore store) => store.startWorkout();
 
@@ -147,6 +199,7 @@ final _todayStates = <(String, _StoreSetup)>[
     _withLunch(store);
     _withBody(store);
     _withStagedNight(store);
+    _withMovement(store);
   }),
   ('after a workout', (store) {
     store
@@ -220,6 +273,24 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'sleep': ((_) => const SleepScreen(), _withStagedNight),
+  'activity': (
+    (_) => const DailyActivityScreen(),
+    (store) {
+      _withMovement(store);
+      _withActivity(store);
+    },
+  ),
+  'activity, nothing recorded': ((_) => const DailyActivityScreen(), _noSetup),
+  'activity metric, counted': (
+    (store) =>
+        ActivityMetricScreen(metric: ActivityMetric.steps, day: store.now()),
+    _withMovement,
+  ),
+  'activity metric, measured': (
+    (store) =>
+        ActivityMetricScreen(metric: ActivityMetric.vo2Max, day: store.now()),
+    _withMovement,
+  ),
   'sleep, nothing recorded': (
     (store) =>
         SleepScreen(day: store.now().subtract(const Duration(days: 400))),

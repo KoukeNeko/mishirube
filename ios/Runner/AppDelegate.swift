@@ -418,6 +418,9 @@ enum HealthKitBridge {
         if kinds.contains("body") {
           types.formUnion(bodyTypes.map(\.type))
         }
+        if kinds.contains("activity") {
+          types.formUnion(activityTypes.map(\.type))
+        }
         store.requestAuthorization(toShare: [], read: types) { success, error in
           DispatchQueue.main.async {
             if let error {
@@ -427,6 +430,15 @@ enum HealthKitBridge {
             }
           }
         }
+      case "read" where arguments["kind"] as? String == "activity":
+        guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        readActivity(
+          from: Date(timeIntervalSince1970: Double(from) / 1000),
+          to: Date(timeIntervalSince1970: Double(to) / 1000),
+          result: result)
       case "read" where arguments["kind"] as? String == "body":
         guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
           result(FlutterError(code: "badArguments", message: nil, details: nil))
@@ -503,6 +515,131 @@ enum HealthKitBridge {
     group.notify(queue: .main) {
       // One type Health refuses to read is that type missing, not the
       // whole read failing; only when nothing came back is it an error.
+      if let failure, rows.isEmpty {
+        result(FlutterError(code: "failed", message: "\(failure)", details: nil))
+      } else {
+        result(rows)
+      }
+    }
+  }
+
+  /// Everyday movement and the fitness figures measured through the day,
+  /// each as the app's metric in the app's stored unit. Counted ones are
+  /// summed per hour and measured ones averaged per day by Health's own
+  /// statistics, which count a phone and a watch once, by the source
+  /// order the user set.
+  static let activityTypes:
+    [(type: HKQuantityType, metric: String, unit: HKUnit, isCumulative: Bool)] = {
+      let bpm = HKUnit.count().unitDivided(by: .minute())
+      let metresPerSecond = HKUnit.meter().unitDivided(by: .second())
+      var types: [(type: HKQuantityType, metric: String, unit: HKUnit, isCumulative: Bool)] = [
+        (HKQuantityType(.stepCount), "steps", .count(), true),
+        (HKQuantityType(.distanceWalkingRunning), "distance", .meter(), true),
+        (HKQuantityType(.activeEnergyBurned), "activeEnergy", .kilocalorie(), true),
+        (HKQuantityType(.basalEnergyBurned), "basalEnergy", .kilocalorie(), true),
+        (HKQuantityType(.appleExerciseTime), "exerciseTime", .minute(), true),
+        (HKQuantityType(.appleStandTime), "standTime", .minute(), true),
+        (HKQuantityType(.flightsClimbed), "floors", .count(), true),
+        (HKQuantityType(.heartRate), "heartRate", bpm, false),
+        (HKQuantityType(.restingHeartRate), "restingHeartRate", bpm, false),
+        (HKQuantityType(.walkingHeartRateAverage), "walkingHeartRate", bpm, false),
+        (HKQuantityType(.heartRateVariabilitySDNN), "hrvSdnn", .secondUnit(with: .milli), false),
+        (HKQuantityType(.vo2Max), "vo2Max", HKUnit(from: "ml/kg*min"), false),
+        (HKQuantityType(.walkingSpeed), "walkingSpeed", metresPerSecond, false),
+        (HKQuantityType(.walkingStepLength), "walkingStepLength", .meter(), false),
+        (HKQuantityType(.walkingAsymmetryPercentage), "walkingAsymmetry", .percent(), false),
+        (HKQuantityType(.walkingDoubleSupportPercentage), "doubleSupport", .percent(), false),
+        (HKQuantityType(.appleWalkingSteadiness), "walkingSteadiness", .percent(), false),
+        (HKQuantityType(.stairAscentSpeed), "stairAscentSpeed", metresPerSecond, false),
+        (HKQuantityType(.stairDescentSpeed), "stairDescentSpeed", metresPerSecond, false),
+        (HKQuantityType(.sixMinuteWalkTestDistance), "sixMinuteWalk", .meter(), false),
+        (HKQuantityType(.distanceCycling), "cyclingDistance", .meter(), true),
+        (HKQuantityType(.distanceSwimming), "swimmingDistance", .meter(), true),
+        (HKQuantityType(.swimmingStrokeCount), "swimmingStrokes", .count(), true),
+        (HKQuantityType(.pushCount), "wheelchairPushes", .count(), true),
+        (HKQuantityType(.distanceWheelchair), "wheelchairDistance", .meter(), true),
+      ]
+      if #available(iOS 16.0, *) {
+        types += [
+          (HKQuantityType(.heartRateRecoveryOneMinute), "heartRateRecovery", bpm, false),
+          (HKQuantityType(.runningSpeed), "runningSpeed", metresPerSecond, false),
+          (HKQuantityType(.runningPower), "runningPower", .watt(), false),
+          (HKQuantityType(.runningStrideLength), "runningStrideLength", .meter(), false),
+          (
+            HKQuantityType(.runningGroundContactTime), "groundContactTime",
+            .secondUnit(with: .milli), false
+          ),
+          (
+            HKQuantityType(.runningVerticalOscillation), "verticalOscillation",
+            .meterUnit(with: .centi), false
+          ),
+        ]
+      }
+      if #available(iOS 17.0, *) {
+        types += [
+          (HKQuantityType(.cyclingSpeed), "cyclingSpeed", metresPerSecond, false),
+          (HKQuantityType(.cyclingPower), "cyclingPower", .watt(), false),
+          (HKQuantityType(.cyclingCadence), "cyclingCadence", bpm, false),
+          (
+            HKQuantityType(.cyclingFunctionalThresholdPower), "functionalThresholdPower",
+            .watt(), false
+          ),
+          (
+            HKQuantityType(.physicalEffort), "physicalEffort",
+            HKUnit.kilocalorie().unitDivided(
+              by: HKUnit.hour().unitMultiplied(by: .gramUnit(with: .kilo))),
+            false
+          ),
+          (HKQuantityType(.timeInDaylight), "timeInDaylight", .minute(), true),
+        ]
+      }
+      if #available(iOS 27.0, *) {
+        types.append(
+          (
+            HKQuantityType(.heartRateVariabilityRMSSD), "hrvRmssd",
+            .secondUnit(with: .milli), false
+          ))
+      }
+      return types
+    }()
+
+  /// Every activity metric from the start of [from]'s day to [to].
+  static func readActivity(from: Date, to: Date, result: @escaping FlutterResult) {
+    let anchor = Calendar.current.startOfDay(for: from)
+    let group = DispatchGroup()
+    let lock = NSLock()
+    var rows: [[String: Any]] = []
+    var failure: Error?
+    for activity in activityTypes {
+      group.enter()
+      let query = HKStatisticsCollectionQuery(
+        quantityType: activity.type,
+        quantitySamplePredicate: HKQuery.predicateForSamples(withStart: anchor, end: to),
+        options: activity.isCumulative ? .cumulativeSum : .discreteAverage,
+        anchorDate: anchor,
+        intervalComponents: activity.isCumulative ? DateComponents(hour: 1) : DateComponents(day: 1))
+      query.initialResultsHandler = { _, collection, error in
+        lock.lock()
+        if let error { failure = error }
+        collection?.enumerateStatistics(from: anchor, to: to) { statistics, _ in
+          let quantity =
+            activity.isCumulative ? statistics.sumQuantity() : statistics.averageQuantity()
+          guard let quantity else { return }
+          rows.append([
+            "metric": activity.metric,
+            "start": milliseconds(statistics.startDate),
+            "end": milliseconds(statistics.endDate),
+            "value": quantity.doubleValue(for: activity.unit),
+          ])
+        }
+        lock.unlock()
+        group.leave()
+      }
+      store.execute(query)
+    }
+    group.notify(queue: .main) {
+      // A type never allowed reads as nothing; only when nothing came
+      // back at all is an error the answer.
       if let failure, rows.isEmpty {
         result(FlutterError(code: "failed", message: "\(failure)", details: nil))
       } else {

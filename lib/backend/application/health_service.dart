@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../engines/sleep_nights.dart';
 import '../health/health_source.dart';
 import '../storage/activity_repository.dart';
+import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
 import 'nutrition_service.dart';
@@ -33,7 +34,8 @@ class HealthImport {
 }
 
 /// Records read from a health platform into the log: sleep, weight,
-/// waist, body composition, workouts and water. Read only.
+/// waist, body composition, workouts, water, and everyday activity.
+/// Read only.
 ///
 /// Every record gets an id from the platform's own — a night from its
 /// morning — so reading the same weeks again finds what came in before
@@ -44,11 +46,16 @@ class HealthService {
     this._db,
     this._journal,
     this._activities,
+    this._samples,
     this._nutrition,
     this.source,
   );
 
   static const _connectedKey = 'health.connected';
+
+  /// The kinds access was last asked for, so a kind added in an update
+  /// is asked for once instead of silently reading nothing.
+  static const _askedKey = 'health.asked_kinds';
   static const _syncedKey = 'health.synced_at';
 
   /// How far back an import reads: far enough to catch a record changed
@@ -62,6 +69,7 @@ class HealthService {
   final AppDatabase _db;
   final JournalRepository _journal;
   final ActivityRepository _activities;
+  final ActivitySampleRepository _samples;
   final NutritionService _nutrition;
   final HealthSource source;
 
@@ -75,8 +83,23 @@ class HealthService {
 
   /// Asks again for the kinds not yet allowed, then reads what now is.
   Future<HealthImport?> askAgain() async {
-    if (!await source.requestAccess(source.kinds)) return null;
+    if (!await _ask()) return null;
     return importAll();
+  }
+
+  Future<bool> _ask() async {
+    if (!await source.requestAccess(source.kinds)) return false;
+    _db.setSetting(
+      _askedKey,
+      [for (final kind in source.kinds) kind.name].join(','),
+    );
+    return true;
+  }
+
+  /// Whether a kind this platform holds was never asked for.
+  bool get _hasUnaskedKinds {
+    final asked = (_db.setting(_askedKey) ?? '').split(',').toSet();
+    return source.kinds.any((kind) => !asked.contains(kind.name));
   }
 
   bool get isConnected => _db.setting(_connectedKey) == 'true';
@@ -91,7 +114,7 @@ class HealthService {
   /// did not go through.
   Future<HealthImport?> connect() async {
     if (!await source.isAvailable()) return null;
-    if (!await source.requestAccess(source.kinds)) return null;
+    if (!await _ask()) return null;
     _db.setSetting(_connectedKey, 'true');
     return importAll();
   }
@@ -100,6 +123,7 @@ class HealthService {
   void disconnect() => _db.setSetting(_connectedKey, 'false');
 
   Future<HealthImport> importAll() async {
+    if (isConnected && _hasUnaskedKinds) await _ask();
     final now = _db.now();
     final from = now.subtract(lastSync == null ? history : window);
     // Only what was allowed: Health Connect refuses a read it was not
@@ -126,6 +150,9 @@ class HealthService {
     final water = kinds.contains(HealthDataKind.water)
         ? await source.water(from, now)
         : const <HealthWater>[];
+    final activity = kinds.contains(HealthDataKind.activity)
+        ? await source.activitySamples(from, now)
+        : const <ActivitySample>[];
     final sleeps = [for (final night in nightsOf(samples)) _planOf(night)];
     // Only over the time each sleep covers: a whole month of heart rate
     // is not what the sleep page shows.
@@ -209,6 +236,14 @@ class HealthService {
           source: source.changeSource,
         );
         added.update(HealthDataKind.water, (n) => n + 1);
+      }
+
+      if (kinds.contains(HealthDataKind.activity)) {
+        added[HealthDataKind.activity] = _samples.sync(
+          activity,
+          idPrefix: source.idPrefix,
+          source: source.changeSource,
+        );
       }
 
       _db.setSetting(_syncedKey, '${now.millisecondsSinceEpoch}');

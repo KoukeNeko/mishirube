@@ -268,6 +268,14 @@ const _tables = [
     _Column('target_days', _Kind.integer),
     ..._entity,
   ], orderBy: 'id'),
+  _Table('activitySamples', 'activity_samples', [
+    _Column('id', _Kind.text),
+    _Column('metric', _Kind.text),
+    _Column('started_at', _Kind.time),
+    _Column('ended_at', _Kind.time),
+    _Column('value', _Kind.real),
+    ..._entity,
+  ], orderBy: 'id'),
   _Table('goalPauses', 'goal_pauses', [
     _Column('id', _Kind.text),
     _Column('started_at', _Kind.time),

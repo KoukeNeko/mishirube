@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/engines/activity_metrics.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
@@ -111,6 +112,141 @@ void main() {
 
       expect(summary.hasRecords, isFalse);
       expect(isFoodLogIncomplete(summary), isFalse);
+    });
+  });
+
+  group('activity metrics', () {
+    ActivitySample sample(
+      ActivityMetric metric,
+      DateTime start,
+      double value,
+    ) => ActivitySample(
+      metric: metric,
+      start: start,
+      end: start.add(const Duration(hours: 1)),
+      value: value,
+    );
+
+    test('a counted day adds its hours; a measured one averages', () {
+      final day = DateTime(2026, 9, 20);
+      expect(
+        dailyValues([
+          sample(ActivityMetric.steps, day.add(const Duration(hours: 8)), 400),
+          sample(ActivityMetric.steps, day.add(const Duration(hours: 23)), 100),
+          sample(
+            ActivityMetric.steps,
+            day.add(const Duration(days: 1, hours: 7)),
+            250,
+          ),
+        ]),
+        [(day, 500.0), (DateTime(2026, 9, 21), 250.0)],
+      );
+      expect(
+        dailyValues([
+          sample(ActivityMetric.restingHeartRate, day, 58),
+          sample(
+            ActivityMetric.restingHeartRate,
+            day.add(const Duration(hours: 12)),
+            62,
+          ),
+        ]),
+        [(day, 60.0)],
+      );
+    });
+
+    test('a day with no reading is left out, not counted as zero', () {
+      final values = dailyValues([
+        sample(ActivityMetric.steps, DateTime(2026, 9, 18, 9), 3000),
+        sample(ActivityMetric.steps, DateTime(2026, 9, 20, 9), 5000),
+      ]);
+      expect([for (final (day, _) in values) day.day], [18, 20]);
+    });
+
+    test('a usual range needs two weeks of days', () {
+      final days = [
+        for (var i = 0; i < 20; i++)
+          (DateTime(2026, 9, 1 + i), 5000.0 + i * 100),
+      ];
+      expect(usualRangeOf(days.take(13).toList()), isNull);
+      expect(usualRangeOf(days), (low: 5500.0, high: 6400.0));
+    });
+  });
+
+    test('steps need most days of both stretches and a tenth more', () {
+      expect(
+        stepsFinding([
+          ...daily(25, 9000),
+          ...daily(25, 7500, endingDaysAgo: 28),
+        ], today)!.insight.statement,
+        '近 4 週平均每天 9,000 步，比前 4 週多 20%。',
+      );
+      expect(
+        stepsFinding([
+          ...daily(25, 7900),
+          ...daily(25, 7500, endingDaysAgo: 28),
+        ], today),
+        isNull,
+      );
+    });
+
+    test('the strongest finding among exercises is the one said', () {
+      ExerciseHistory history(double before, double now) => ExerciseHistory(
+        sessionCount: 4,
+        recent: [
+          for (final (daysAgo, max) in [
+            (3, now),
+            (10, now),
+            (33, before),
+            (40, before),
+          ])
+            ExerciseHistoryEntry(
+              date: today.subtract(Duration(days: daysAgo)),
+              weightKg: max,
+              reps: 1,
+              oneRepMaxKg: max,
+            ),
+        ],
+      );
+      final finding = strengthFinding([
+        ('臥推', history(100, 106)),
+        ('深蹲', history(100, 112)),
+        ('硬舉', history(100, 102)),
+      ], today)!;
+      expect(finding.insight.statement, '深蹲估計最大重量近 4 週 112 kg，比前 4 週高 12%。');
+    });
+
+    test('a relation needs five workouts on each side of the median', () {
+      final nights = <DateTime, double>{};
+      final workouts = <(DateTime, String, double)>[];
+      for (var i = 0; i < 12; i++) {
+        final day = DateTime(2026, 9, 1 + i);
+        final isLong = i.isEven;
+        nights[day] = isLong ? 480 : 360;
+        workouts.add((
+          day.add(const Duration(hours: 18)),
+          '下肢 A',
+          isLong ? 5500 : 4500,
+        ));
+      }
+      final relation = sleepAndTrainingInsight(nights, workouts)!;
+      expect(relation.statement, '前一晚睡得較久的訓練，訓練量平均多 20%。');
+      expect(relation.evidence, contains('關聯，不代表因果'));
+      expect(
+        sleepAndTrainingInsight(nights, workouts.take(8).toList()),
+        isNull,
+        reason: 'four a side',
+      );
+    });
+
+    test('a summary may use only the figures it was given', () {
+      const facts = ['近 4 週平均每天 9,000 步，比前 4 週多 20%。', '睡眠：平均 7:30'];
+      expect(keepsToFacts('步數比前 4 週多 20%，平均睡眠 7:30。', facts), isTrue);
+      expect(
+        keepsToFacts('步數多了 25%。', facts),
+        isFalse,
+        reason: '25 is not a given figure',
+      );
+      expect(keepsToFacts('你的步數多了 20%。', facts), isFalse);
     });
   });
 

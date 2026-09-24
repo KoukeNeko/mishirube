@@ -7,6 +7,7 @@ import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
 import '../goal/goal_entry_button.dart';
 import '../goal/goal_screen.dart';
@@ -117,6 +118,9 @@ class TodayScreen extends StatelessWidget {
     return [
       if (!hidden.contains(TodaySection.glance))
         ..._glance(context, store, today, modules),
+      if (!hidden.contains(TodaySection.activity) &&
+          modules.contains(AppModule.activity))
+        ?_activity(context, today),
       if (!hidden.contains(TodaySection.intake) &&
           modules.contains(AppModule.nutrition) &&
           store.todaySummary.recordCount > 0)
@@ -215,6 +219,21 @@ class TodayScreen extends StatelessWidget {
         ),
       ),
     ];
+  }
+
+  /// Today's movement, when the health platform counted any.
+  Widget? _activity(BuildContext context, TodayViewModel today) {
+    final totals = today.activityTotals;
+    final lead = ActivityMetric.headline.where(totals.containsKey).firstOrNull;
+    if (lead == null) return null;
+    return Gutter(
+      child: TodayActivityCard(
+        lead: lead,
+        totals: totals,
+        hours: today.activityHours(lead) ?? List.filled(24, 0),
+        onTap: () => pushPage(context, const DailyActivityScreen()),
+      ),
+    );
   }
 
   List<Widget> _week(

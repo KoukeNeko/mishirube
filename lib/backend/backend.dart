@@ -14,6 +14,7 @@ import 'application/provenance_service.dart';
 import 'application/sleep_service.dart';
 import 'application/training_service.dart';
 import 'storage/activity_repository.dart';
+import 'storage/activity_sample_repository.dart';
 import 'storage/goal_repository.dart';
 import 'storage/database.dart';
 import 'storage/exercise_repository.dart';
@@ -32,6 +33,7 @@ const _databaseFileName = 'mishirube.sqlite3';
 class Storage {
   Storage(this.db)
     : activities = ActivityRepository(db),
+      activitySamples = ActivitySampleRepository(db),
       goals = GoalRepository(db),
       exercises = ExerciseRepository(db),
       routines = RoutineRepository(db),
@@ -54,6 +56,7 @@ class Storage {
 
   final AppDatabase db;
   final ActivityRepository activities;
+  final ActivitySampleRepository activitySamples;
   final GoalRepository goals;
   final ExerciseRepository exercises;
   final RoutineRepository routines;
@@ -77,7 +80,7 @@ class Backend {
       storage.routines,
     );
     nutrition = NutritionService(db, storage.meals, storage.foods);
-    activity = ActivityService(db, storage.activities);
+    activity = ActivityService(db, storage.activities, storage.activitySamples);
     journal = JournalService(db, storage.journal);
     sleep = SleepService(db, storage.journal, storage.workouts, storage.meals);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
@@ -118,8 +121,14 @@ class Backend {
   AppDatabase get db => storage.db;
 
   /// Records read from [source] into this store.
-  HealthService healthFrom(HealthSource source) =>
-      HealthService(db, storage.journal, storage.activities, nutrition, source);
+  HealthService healthFrom(HealthSource source) => HealthService(
+    db,
+    storage.journal,
+    storage.activities,
+    storage.activitySamples,
+    nutrition,
+    source,
+  );
 
   TimelineQuery get timeline => storage.timeline;
 
