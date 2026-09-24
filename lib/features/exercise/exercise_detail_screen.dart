@@ -134,7 +134,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                const TagWrap(labels: ['深色：主要肌群', '淺色：次要肌群']),
+                const _ShadeLegend(),
               ],
             ),
           ),
@@ -226,6 +226,40 @@ class ExerciseDetailScreen extends StatelessWidget {
 
 /// Shade for a muscle that helps rather than leads.
 const _helpingShade = 5;
+
+/// Which shade on the figure is which: each colour, then what it marks.
+class _ShadeLegend extends StatelessWidget {
+  const _ShadeLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.xs,
+      children: [
+        for (final (shade, label) in [
+          (muscleMapTopOfScale, '主要肌群'),
+          (_helpingShade, '次要肌群'),
+        ])
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: muscleShade(shade),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              Text('：$label', style: AppTextStyles.caption),
+            ],
+          ),
+      ],
+    );
+  }
+}
 
 /// Other versions of the same movement — a dumbbell press beside the
 /// barbell one — that are shown in pickers.
