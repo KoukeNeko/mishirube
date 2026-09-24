@@ -115,7 +115,9 @@ enum AppleIntelligence {
   /// Whether the on-device model can look at a photo: from iOS 27, on a
   /// device whose model has vision.
   static func readsPhotos() -> Bool {
-    #if canImport(FoundationModels)
+    // Vision arrived with the iOS/macOS 27 SDK (Swift 6.4); an older
+    // Xcode builds without it.
+    #if canImport(FoundationModels) && compiler(>=6.4)
       if #available(iOS 27.0, macOS 27.0, *) {
         let model = SystemLanguageModel.default
         return model.isAvailable && model.capabilities.contains(.vision)
@@ -129,7 +131,9 @@ enum AppleIntelligence {
   static func draftMealPhoto(
     path: String, text: String, instructions: String, result: @escaping FlutterResult
   ) {
-    #if canImport(FoundationModels)
+    // Vision arrived with the iOS/macOS 27 SDK (Swift 6.4); an older
+    // Xcode builds without it.
+    #if canImport(FoundationModels) && compiler(>=6.4)
       if #available(iOS 27.0, macOS 27.0, *) {
         Task { @MainActor in
           do {
