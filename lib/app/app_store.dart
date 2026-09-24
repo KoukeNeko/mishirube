@@ -9,6 +9,7 @@ import '../backend/engines/progression_engine.dart';
 import '../backend/engines/training_metrics.dart';
 import '../backend/engines/workout_review.dart';
 import '../backend/application/provenance_service.dart';
+import '../backend/application/sleep_service.dart';
 import '../backend/backend.dart';
 import '../backend/health/health_source.dart';
 import '../backend/engines/nutrition_summary.dart';
@@ -207,6 +208,9 @@ class AppStore extends ChangeNotifier {
   /// The current template's last few finished workouts, newest first.
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_routine);
+
+  /// The latest night, if it ended today or yesterday.
+  SleepRecord? get lastNight => _backend.sleep.lastNight();
 
   /// Working sets per muscle over the last seven days.
   List<(MuscleGroup, int)> get weekMuscleSets =>

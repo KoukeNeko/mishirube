@@ -104,12 +104,13 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         trailing: '72.4 kg',
       ),
     ),
-    Gutter(
-      child: const AccentRow(
-        color: AppColors.wellness,
-        title: '睡眠',
-        trailing: '6 小時 52 分',
+    if (store.lastNight case final night?)
+      Gutter(
+        child: AccentRow(
+          color: AppColors.wellness,
+          title: '睡眠',
+          trailing: formatHoursMinutes(night.entry.duration),
+        ),
       ),
-    ),
   ];
 }

@@ -56,6 +56,14 @@ class SleepService {
     return [for (final entry in entries) _recordOf(entry)];
   }
 
+  /// The latest night, when it ended today or yesterday; older than that
+  /// it is not last night.
+  SleepRecord? lastNight() {
+    final start = today.subtract(const Duration(days: 1));
+    final night = nights(start, _db.nowInclusive).lastOrNull;
+    return night == null ? null : _recordOf(night);
+  }
+
   /// Nights (not naps) that ended in `[start, end)`, oldest first.
   List<SleepEntry> nights(DateTime start, DateTime end) => [
     for (final entry in _journal.sleepBetween(start, end))

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
@@ -70,6 +71,20 @@ void main() {
         finished.id,
         reason: 'the template lists what was really done, newest first',
       );
+    });
+
+    test('last night is the latest night, not a nap or an old one', () {
+      final journal = store.backend.journal;
+      journal.recordSleep(
+        const Duration(hours: 1),
+        at: clock.now(),
+        kind: SleepKind.nap,
+      );
+      journal.recordSleep(
+        const Duration(hours: 7),
+        at: clock.now().subtract(const Duration(hours: 3)),
+      );
+      expect(store.lastNight?.entry.duration, const Duration(hours: 7));
     });
 
     test('a template takes as long as its recent workouts did', () {

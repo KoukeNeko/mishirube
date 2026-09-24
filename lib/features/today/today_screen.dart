@@ -69,8 +69,18 @@ class TodayScreen extends StatelessWidget {
                 child: QuickStatTile(
                   category: '睡眠',
                   color: AppColors.wellness,
-                  value: '6:52',
-                  caption: 'Apple Health',
+                  value: switch (store.lastNight) {
+                    final night? => formatHoursMinutes(night.entry.duration),
+                    null => '—',
+                  },
+                  caption: switch (store.lastNight) {
+                    null => '沒有紀錄',
+                    final night when night.isTypedIn => '手動輸入',
+                    final night =>
+                      night.entry.sourceName.isEmpty
+                          ? store.healthSourceName
+                          : night.entry.sourceName,
+                  },
                   onTap: () => pushPage(context, const SleepScreen()),
                 ),
               ),
