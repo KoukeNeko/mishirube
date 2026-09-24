@@ -4,6 +4,7 @@ import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -102,7 +103,7 @@ class HealthConnectBridge(
                             result.success(true)
                         } else {
                             pendingRequest = result
-                            permissionLauncher.launch(permissions)
+                            permissionLauncher.launch(permissions + historyPermission())
                         }
                     } catch (error: Exception) {
                         result.error("failed", error.message, null)
@@ -142,6 +143,22 @@ class HealthConnectBridge(
             else -> result.notImplemented()
         }
     }
+
+    /**
+     * Reading past the 30 days before access was first given, asked with
+     * the rest where Health Connect offers it, so trends reach further
+     * back than the day the app was installed. Not required: without it
+     * the app reads what it may.
+     */
+    private fun historyPermission(): Set<String> =
+        if (client.features.getFeatureStatus(
+                HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY,
+            ) == HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+        ) {
+            setOf(HealthPermission.PERMISSION_READ_HEALTH_DATA_HISTORY)
+        } else {
+            emptySet()
+        }
 
     private fun permissionsFor(kinds: List<String>): Set<String> = kinds.flatMap { kind ->
         when (kind) {

@@ -51,8 +51,13 @@ class HealthService {
   static const _connectedKey = 'health.connected';
   static const _syncedKey = 'health.synced_at';
 
-  /// How far back an import reads.
+  /// How far back an import reads: far enough to catch a record changed
+  /// on the platform since the last read.
   static const window = Duration(days: 30);
+
+  /// How far back the first import reads: the longest trend the app
+  /// draws, so it has something to draw from the first day.
+  static const history = Duration(days: 182);
 
   final AppDatabase _db;
   final JournalRepository _journal;
@@ -82,7 +87,7 @@ class HealthService {
   };
 
   /// Asks for access to every kind, remembers the choice and reads the
-  /// last [window]. Null when the platform is not there or the request
+  /// last [history]. Null when the platform is not there or the request
   /// did not go through.
   Future<HealthImport?> connect() async {
     if (!await source.isAvailable()) return null;
@@ -96,7 +101,7 @@ class HealthService {
 
   Future<HealthImport> importAll() async {
     final now = _db.now();
-    final from = now.subtract(window);
+    final from = now.subtract(lastSync == null ? history : window);
     // Only what was allowed: Health Connect refuses a read it was not
     // allowed, and asking for it anyway would fail the whole import.
     final granted = await grantedKinds();

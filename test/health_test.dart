@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/backend/application/health_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/sleep_nights.dart';
 import 'package:mishirube/backend/health/health_source.dart';
@@ -65,8 +66,13 @@ class _FakeHealth implements HealthSource {
   }
 
   @override
-  Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to) async =>
-      samples;
+  Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to) async {
+    readFrom.add(to.difference(from));
+    return samples;
+  }
+
+  /// How far back each read of sleep reached.
+  final readFrom = <Duration>[];
   @override
   Future<List<List<OvernightReading>>> overnight(
     List<(DateTime, DateTime)> windows,
@@ -242,6 +248,15 @@ void main() {
         expect(imported(store).single.duration, const Duration(hours: 8));
       },
     );
+
+    test('the first read reaches back half a year, later ones a month', () async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      await store.syncHealth();
+
+      expect(health.readFrom, [HealthService.history, HealthService.window]);
+    });
 
     test('reading again updates a night instead of adding it twice', () async {
       final health = _FakeHealth([lastNight]);
