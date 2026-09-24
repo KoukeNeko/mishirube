@@ -186,6 +186,9 @@ double pinnedSlotHeight({
 /// A page header that starts as content (large title) and collapses into a
 /// compact toolbar. The toolbar only turns into glass once content scrolls
 /// beneath it, like iOS scroll-edge effects.
+/// How blurred a backdrop is once the header has collapsed.
+const _backdropBlur = 16.0;
+
 class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   CollapsingHeaderDelegate({
     required this.toolbar,
@@ -264,7 +267,9 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     final progress = _progress(shrinkOffset);
-    final chromeOpacity = overlapsContent ? 1.0 : progress;
+    // Over a backdrop the glass comes in with the collapse, as the
+    // backdrop blurs and darkens; the page never runs under it before.
+    final chromeOpacity = overlapsContent && backdrop == null ? 1.0 : progress;
     final showsCompactTitle =
         !scrollsToolbarAway && progress >= _titleSwapPoint;
     // The large title goes first, then (without a compact bar) the toolbar.
@@ -289,7 +294,26 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
             left: 0,
             right: 0,
             height: maxExtent,
-            child: backdrop,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                backdrop,
+                // Blurs and darkens little by little as it scrolls away,
+                // as Apple Fitness's map does, instead of vanishing.
+                if (progress > 0)
+                  ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: progress * _backdropBlur,
+                        sigmaY: progress * _backdropBlur,
+                      ),
+                      child: ColoredBox(
+                        color: AppColors.background.withValues(alpha: progress),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         _HeaderBackground(
           opacity: chromeOpacity,
