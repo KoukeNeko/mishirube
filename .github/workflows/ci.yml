@@ -50,3 +50,46 @@ jobs:
           name: mishirube-apk-${{ github.sha }}
           path: build/app/outputs/flutter-apk/app-*-release.apk
           if-no-files-found: error
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.5
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Ad-hoc signed (macos/Runner), so it opens on the machine it is
+      # copied to only after being allowed in System Settings.
+      - name: Built
+        run: flutter build macos --release
+      # Zipped with ditto, which keeps the bundle's symlinks and
+      # signature intact.
+      - name: Zipped
+        run: ditto -c -k --keepParent build/macos/Build/Products/Release/mishirube.app mishirube-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mishirube-macos-${{ github.sha }}
+          path: mishirube-macos.zip
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.5
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Built
+        run: flutter build windows --release
+      # The executable needs the DLLs and data folder beside it.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mishirube-windows-${{ github.sha }}
+          path: build/windows/x64/runner/Release/
+          if-no-files-found: error
