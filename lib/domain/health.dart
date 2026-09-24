@@ -1,9 +1,14 @@
+import 'body.dart';
+
 /// What the app reads from a health platform. Each has a record of its
 /// own here already; nothing is read that would have nowhere to go.
 enum HealthDataKind {
   sleep('睡眠'),
   weight('體重'),
   waist('腰圍'),
+
+  /// Height, and what a body composition scale wrote to the platform.
+  body('身體組成'),
   workouts('運動'),
   water('喝水'),
 
@@ -32,6 +37,23 @@ class HealthWaist {
   final String id;
   final DateTime at;
   final double cm;
+}
+
+/// A body figure from a health platform, already in the app's unit:
+/// body fat in percent however the platform keeps it, basal metabolic
+/// rate in kcal a day.
+class HealthBodyReading {
+  const HealthBodyReading({
+    required this.id,
+    required this.at,
+    required this.metric,
+    required this.value,
+  });
+
+  final String id;
+  final DateTime at;
+  final BodyMetric metric;
+  final double value;
 }
 
 /// A workout from a health platform. [activity] is one of the app's

@@ -415,6 +415,9 @@ enum HealthKitBridge {
         if kinds.contains("overnight") {
           types.formUnion(overnightTypes.map(\.type))
         }
+        if kinds.contains("body") {
+          types.formUnion(bodyTypes.map(\.type))
+        }
         store.requestAuthorization(toShare: [], read: types) { success, error in
           DispatchQueue.main.async {
             if let error {
@@ -424,6 +427,15 @@ enum HealthKitBridge {
             }
           }
         }
+      case "read" where arguments["kind"] as? String == "body":
+        guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        readBody(
+          from: Date(timeIntervalSince1970: Double(from) / 1000),
+          to: Date(timeIntervalSince1970: Double(to) / 1000),
+          result: result)
       case "read":
         guard let kind = arguments["kind"] as? String,
           let sampleType = type(of: kind),
@@ -449,6 +461,52 @@ enum HealthKitBridge {
         overnight(windows: windows, result: result)
       default:
         result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  /// The body figures Health keeps, each as the app's metric, in the
+  /// app's unit: body fat is a 0–1 fraction in Health and a percentage
+  /// in the app.
+  static let bodyTypes: [(type: HKQuantityType, metric: String, unit: HKUnit, scale: Double)] = [
+    (HKQuantityType(.height), "height", .meterUnit(with: .centi), 1),
+    (HKQuantityType(.bodyFatPercentage), "bodyFat", .percent(), 100),
+    (HKQuantityType(.leanBodyMass), "leanMass", .gramUnit(with: .kilo), 1),
+  ]
+
+  /// Every body figure in the window, all types together.
+  static func readBody(from: Date, to: Date, result: @escaping FlutterResult) {
+    let group = DispatchGroup()
+    let lock = NSLock()
+    var rows: [[String: Any]] = []
+    var failure: Error?
+    for body in bodyTypes {
+      group.enter()
+      let query = HKSampleQuery(
+        sampleType: body.type, predicate: HKQuery.predicateForSamples(withStart: from, end: to),
+        limit: HKObjectQueryNoLimit, sortDescriptors: nil
+      ) { _, samples, error in
+        lock.lock()
+        if let error { failure = error }
+        for case let sample as HKQuantitySample in samples ?? [] {
+          rows.append([
+            "id": sample.uuid.uuidString, "at": milliseconds(sample.startDate),
+            "metric": body.metric,
+            "value": sample.quantity.doubleValue(for: body.unit) * body.scale,
+          ])
+        }
+        lock.unlock()
+        group.leave()
+      }
+      store.execute(query)
+    }
+    group.notify(queue: .main) {
+      // One type Health refuses to read is that type missing, not the
+      // whole read failing; only when nothing came back is it an error.
+      if let failure, rows.isEmpty {
+        result(FlutterError(code: "failed", message: "\(failure)", details: nil))
+      } else {
+        result(rows)
       }
     }
   }

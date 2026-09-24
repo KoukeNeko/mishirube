@@ -33,7 +33,7 @@ class HealthImport {
 }
 
 /// Records read from a health platform into the log: sleep, weight,
-/// waist, workouts and water. Read only.
+/// waist, body composition, workouts and water. Read only.
 ///
 /// Every record gets an id from the platform's own — a night from its
 /// morning — so reading the same weeks again finds what came in before
@@ -117,6 +117,9 @@ class HealthService {
     final waists = kinds.contains(HealthDataKind.waist)
         ? await source.waists(from, now)
         : const <HealthWaist>[];
+    final body = kinds.contains(HealthDataKind.body)
+        ? await source.bodyReadings(from, now)
+        : const <HealthBodyReading>[];
     final workouts = kinds.contains(HealthDataKind.workouts)
         ? await source.workouts(from, now)
         : const <HealthWorkout>[];
@@ -162,6 +165,20 @@ class HealthService {
           source: source.changeSource,
         );
         added.update(HealthDataKind.waist, (n) => n + 1);
+      }
+      for (final reading in body) {
+        final id = '${source.idPrefix}-body-${reading.id}';
+        if (_db.hasRow('body_readings', id)) continue;
+        _journal.addBodyReading(
+          BodyReading(
+            id: id,
+            measuredAt: reading.at,
+            metric: reading.metric,
+            value: reading.value,
+          ),
+          source: source.changeSource,
+        );
+        added.update(HealthDataKind.body, (n) => n + 1);
       }
       for (final workout in workouts) {
         final id = '${source.idPrefix}-workout-${workout.id}';

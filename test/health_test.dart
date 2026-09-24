@@ -18,6 +18,7 @@ class _FakeHealth implements HealthSource {
     this.samples, {
     this.weightRows = const [],
     this.waistRows = const [],
+    this.bodyRows = const [],
     this.workoutRows = const [],
     this.waterRows = const [],
     this.overnightRows = const [],
@@ -26,6 +27,7 @@ class _FakeHealth implements HealthSource {
   List<SleepSample> samples;
   List<HealthWeight> weightRows;
   List<HealthWaist> waistRows;
+  List<HealthBodyReading> bodyRows;
   List<HealthWorkout> workoutRows;
   List<HealthWater> waterRows;
 
@@ -83,6 +85,11 @@ class _FakeHealth implements HealthSource {
   @override
   Future<List<HealthWaist>> waists(DateTime from, DateTime to) async =>
       waistRows;
+  @override
+  Future<List<HealthBodyReading>> bodyReadings(
+    DateTime from,
+    DateTime to,
+  ) async => bodyRows;
   @override
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async =>
       workoutRows;
@@ -302,12 +309,26 @@ void main() {
       },
     );
 
-    test('weight, waist, workouts and water come in once each', () async {
+    test('weight, waist, body, workouts and water come in once each', () async {
       final at = clock.now().subtract(const Duration(hours: 3));
       final health = _FakeHealth(
         const [],
         weightRows: [HealthWeight(id: 'w1', at: at, kg: 71.4)],
         waistRows: [HealthWaist(id: 'c1', at: at, cm: 80.5)],
+        bodyRows: [
+          HealthBodyReading(
+            id: 'b1',
+            at: at,
+            metric: BodyMetric.height,
+            value: 175,
+          ),
+          HealthBodyReading(
+            id: 'b2',
+            at: at,
+            metric: BodyMetric.bodyFat,
+            value: 18.2,
+          ),
+        ],
         workoutRows: [
           HealthWorkout(
             id: 'r1',
@@ -330,6 +351,7 @@ void main() {
         HealthDataKind.sleep: 0,
         HealthDataKind.weight: 1,
         HealthDataKind.waist: 1,
+        HealthDataKind.body: 2,
         HealthDataKind.workouts: 1,
         HealthDataKind.water: 1,
         HealthDataKind.overnight: 0,
@@ -340,6 +362,10 @@ void main() {
             .last
             .weightKg,
         71.4,
+      );
+      expect(
+        store.backend.journal.latestBodyReadings()[BodyMetric.bodyFat]?.value,
+        18.2,
       );
       final run = store
           .activitiesOn(at)
@@ -383,6 +409,7 @@ void main() {
       expect(result.denied, {
         HealthDataKind.weight,
         HealthDataKind.waist,
+        HealthDataKind.body,
         HealthDataKind.workouts,
         HealthDataKind.water,
         HealthDataKind.overnight,

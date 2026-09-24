@@ -7,6 +7,11 @@ import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.HeightRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
@@ -67,9 +72,11 @@ class HealthConnectBridge(
     /** The kinds whose read permission is granted; a workout needs its session. */
     private suspend fun grantedKinds(): List<String> {
         val granted = client.permissionController.getGrantedPermissions()
-        return listOf("sleep", "weight", "workouts", "water", "overnight").filter { kind ->
+        return listOf("sleep", "weight", "body", "workouts", "water", "overnight").filter { kind ->
             val needed = when (kind) {
                 "workouts" -> HealthPermission.getReadPermission(ExerciseSessionRecord::class)
+                // Height stands for the rest: each allowed one is read.
+                "body" -> HealthPermission.getReadPermission(HeightRecord::class)
                 // Heart rate stands for the rest: one allowed is enough to read.
                 "overnight" -> HealthPermission.getReadPermission(HeartRateRecord::class)
                 else -> permissionsFor(listOf(kind)).single()
@@ -168,9 +175,60 @@ class HealthConnectBridge(
             "workouts" -> listOf(ExerciseSessionRecord::class, DistanceRecord::class)
             "water" -> listOf(HydrationRecord::class)
             "overnight" -> overnightTypes
+            "body" -> bodyTypes
             else -> emptyList()
         }
     }.map { HealthPermission.getReadPermission(it) }.toSet()
+
+    /** Body figures Health Connect keeps; there is no skeletal muscle. */
+    private val bodyTypes = listOf(
+        HeightRecord::class,
+        BodyFatRecord::class,
+        LeanBodyMassRecord::class,
+        BoneMassRecord::class,
+        BasalMetabolicRateRecord::class,
+    )
+
+    /** Each allowed body figure in the app's metric and unit. */
+    private suspend fun bodyRows(from: Instant, to: Instant): List<Map<String, Any>> {
+        val granted = client.permissionController.getGrantedPermissions()
+        fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
+        fun row(id: String, at: Instant, metric: String, value: Double) =
+            mapOf("id" to id, "at" to at.toEpochMilli(), "metric" to metric, "value" to value)
+        val rows = mutableListOf<Map<String, Any>>()
+        if (allowed(HeightRecord::class)) {
+            rows += readAll(HeightRecord::class, from, to).map {
+                row(it.metadata.id, it.time, "height", it.height.inMeters * 100)
+            }
+        }
+        if (allowed(BodyFatRecord::class)) {
+            // Already 0–100 here, unlike Apple Health's fraction.
+            rows += readAll(BodyFatRecord::class, from, to).map {
+                row(it.metadata.id, it.time, "bodyFat", it.percentage.value)
+            }
+        }
+        if (allowed(LeanBodyMassRecord::class)) {
+            rows += readAll(LeanBodyMassRecord::class, from, to).map {
+                row(it.metadata.id, it.time, "leanMass", it.mass.inKilograms)
+            }
+        }
+        if (allowed(BoneMassRecord::class)) {
+            rows += readAll(BoneMassRecord::class, from, to).map {
+                row(it.metadata.id, it.time, "boneMass", it.mass.inKilograms)
+            }
+        }
+        if (allowed(BasalMetabolicRateRecord::class)) {
+            rows += readAll(BasalMetabolicRateRecord::class, from, to).map {
+                row(
+                    it.metadata.id,
+                    it.time,
+                    "basalMetabolicRate",
+                    it.basalMetabolicRate.inKilocaloriesPerDay,
+                )
+            }
+        }
+        return rows
+    }
 
     /** What is read over a sleep; HRV is RMSSD here and stays RMSSD. */
     private val overnightTypes = listOf(
@@ -236,6 +294,7 @@ class HealthConnectBridge(
     private suspend fun read(kind: String, from: Instant, to: Instant): List<Map<String, Any>> =
         when (kind) {
             "sleep" -> readAll(SleepSessionRecord::class, from, to).flatMap(::sleepRows)
+            "body" -> bodyRows(from, to)
             "weight" -> readAll(WeightRecord::class, from, to).map {
                 mapOf(
                     "id" to it.metadata.id,

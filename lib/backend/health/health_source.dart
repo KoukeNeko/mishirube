@@ -48,6 +48,7 @@ abstract interface class HealthSource {
   );
   Future<List<HealthWeight>> weights(DateTime from, DateTime to);
   Future<List<HealthWaist>> waists(DateTime from, DateTime to);
+  Future<List<HealthBodyReading>> bodyReadings(DateTime from, DateTime to);
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to);
   Future<List<HealthWater>> water(DateTime from, DateTime to);
 }
@@ -224,6 +225,24 @@ class PlatformHealthSource implements HealthSource {
   ];
 
   @override
+  Future<List<HealthBodyReading>> bodyReadings(
+    DateTime from,
+    DateTime to,
+  ) async {
+    final metrics = BodyMetric.values.asNameMap();
+    return [
+      for (final row in await _read(HealthDataKind.body, from, to))
+        if (metrics[row['metric']] case final metric?)
+          HealthBodyReading(
+            id: row['id']! as String,
+            at: _time(row['at']),
+            metric: metric,
+            value: (row['value']! as num).toDouble(),
+          ),
+    ];
+  }
+
+  @override
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async => [
     for (final row in await _read(HealthDataKind.workouts, from, to))
       HealthWorkout(
@@ -285,6 +304,11 @@ class NoHealthSource implements HealthSource {
   @override
   Future<List<HealthWaist>> waists(DateTime from, DateTime to) async =>
       const [];
+  @override
+  Future<List<HealthBodyReading>> bodyReadings(
+    DateTime from,
+    DateTime to,
+  ) async => const [];
   @override
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to) async =>
       const [];

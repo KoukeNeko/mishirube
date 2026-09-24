@@ -333,6 +333,7 @@ String _summary(HealthImport? imported) {
     HealthDataKind.sleep: '晚',
     HealthDataKind.weight: '筆',
     HealthDataKind.waist: '筆',
+    HealthDataKind.body: '筆',
     HealthDataKind.workouts: '次',
     HealthDataKind.water: '次',
   };
