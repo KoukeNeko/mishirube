@@ -724,6 +724,11 @@ final List<String> _migrations = [
   -- they differ from set to set; null when every set is alike.
   ALTER TABLE routine_exercises ADD COLUMN set_loads TEXT;
   ''',
+  '''
+  -- The allergens a food's maker declares, as Allergen names separated
+  -- by commas: empty for none declared, null for nobody having said.
+  ALTER TABLE foods ADD COLUMN allergens TEXT;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

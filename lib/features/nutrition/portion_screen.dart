@@ -308,6 +308,18 @@ class _PortionScreenState extends State<PortionScreen> {
                   ),
                 if (portion.millilitres case final volume?)
                   KeyValueRow(label: '容量', value: '$volume mL'),
+                // As the maker declares them; a food nobody declared them
+                // for says nothing rather than 無.
+                if (food.allergens case final allergens?)
+                  KeyValueRow(
+                    label: '過敏原',
+                    value: allergens.isEmpty
+                        ? '無'
+                        : [
+                            for (final allergen in Allergen.values)
+                              if (allergens.contains(allergen)) allergen.label,
+                          ].join('、'),
+                  ),
               ],
             ),
           ),

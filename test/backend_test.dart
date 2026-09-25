@@ -1282,6 +1282,55 @@ void main() {
       ], reason: 'the cups are not proportional, so each carries its own');
     });
 
+    test('figures per 100 g are served by the weight of a portion', () {
+      final parsed = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/ikea-bistro-tw.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      final meatballs = parsed.firstWhere(
+        (food) => food.id == 'ikea-bistro-meatballs',
+      );
+      expect(meatballs.servingUnit, ServingUnit.gram);
+      expect(meatballs.servingAmount, 105);
+      expect(meatballs.kcal, 310, reason: '295.1 kcal per 100 g × 105 g');
+      expect(meatballs.proteinGrams, closeTo(12.075, 0.001));
+      expect(meatballs.nutrients[Nutrient.sodium], closeTo(511.35, 0.001));
+      expect(meatballs.allergens, {
+        Allergen.egg,
+        Allergen.gluten,
+        Allergen.soy,
+        Allergen.treeNut,
+      });
+      expect(
+        parsed.every((food) => food.allergens != null),
+        isTrue,
+        reason: 'every IKEA label declares them',
+      );
+    });
+
+    test('allergens keep "none declared" apart from "nobody said"', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final foods = backend.storage.foods;
+      for (final (id, allergens) in [
+        ('declared', {Allergen.milk, Allergen.sulphite}),
+        ('none', <Allergen>{}),
+        ('unknown', null),
+      ]) {
+        foods.save(
+          FoodItem(id: id, name: id, allergens: allergens),
+          source: ChangeSource.local,
+        );
+      }
+      expect(foods.byId('declared')!.allergens, {
+        Allergen.milk,
+        Allergen.sulphite,
+      });
+      expect(foods.byId('none')!.allergens, isEmpty);
+      expect(foods.byId('unknown')!.allergens, isNull);
+    });
+
     test('a cup size is named, never counted as fluid drunk', () {
       final backend = openFile();
       addTearDown(backend.close);

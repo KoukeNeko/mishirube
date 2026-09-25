@@ -1,0 +1,386 @@
+{
+ "brand": "IKEA",
+ "brandAliases": [
+  "宜家"
+ ],
+ "series": "美食小站",
+ "market": "tw",
+ "sourceUrl": "https://www.ikea.com.tw/zh/ikea-food/bistro",
+ "checkedAt": "2026-09-26",
+ "valueType": "declared",
+ "basis": "per100g",
+ "note": "官方營養標示為每 100 g，乘以標示的餐點重量換算為一份。烤焙雞、薄脆雞翅為帶骨重量；熱狗堡、瑞典雞肉丸不含醬；瑞典雞肉丸的過敏原來自醬包。",
+ "drinks": [
+  {
+   "id": "ikea-bistro-meatballs",
+   "name": "瑞典烤肉丸 5 顆",
+   "kind": "food",
+   "grams": 105,
+   "kcal": 295.1,
+   "proteinG": 11.5,
+   "fatG": 20.3,
+   "carbG": 16.6,
+   "sodiumMg": 487,
+   "allergens": [
+    "egg",
+    "gluten",
+    "soy",
+    "treeNut"
+   ]
+  },
+  {
+   "id": "ikea-bistro-chicken-meatballs",
+   "name": "瑞典雞肉丸",
+   "kind": "food",
+   "grams": 80,
+   "kcal": 257.4,
+   "proteinG": 13.6,
+   "fatG": 20.2,
+   "carbG": 5.3,
+   "sodiumMg": 597,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-hot-dog",
+   "name": "熱狗堡",
+   "kind": "food",
+   "grams": 110,
+   "kcal": 290.7,
+   "proteinG": 13.1,
+   "fatG": 10.7,
+   "carbG": 35.5,
+   "sodiumMg": 725,
+   "allergens": [
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-veggie-hot-dog",
+   "name": "蔬食熱狗",
+   "kind": "food",
+   "grams": 120,
+   "kcal": 214.8,
+   "proteinG": 8.5,
+   "fatG": 5.2,
+   "carbG": 33.5,
+   "sodiumMg": 580,
+   "allergens": [
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-baked-chicken",
+   "name": "烤焙雞",
+   "kind": "food",
+   "grams": 145,
+   "kcal": 368.0,
+   "proteinG": 11.2,
+   "fatG": 32.4,
+   "carbG": 8.0,
+   "sodiumMg": 681,
+   "allergens": [
+    "gluten",
+    "soy",
+    "sulphite"
+   ]
+  },
+  {
+   "id": "ikea-bistro-chicken-wing",
+   "name": "薄脆雞翅",
+   "kind": "food",
+   "grams": 113,
+   "kcal": 230.0,
+   "proteinG": 23.1,
+   "fatG": 14.2,
+   "carbG": 2.4,
+   "sodiumMg": 561,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-beef-roll",
+   "name": "牛肉捲",
+   "kind": "food",
+   "grams": 135,
+   "kcal": 216.0,
+   "proteinG": 8.5,
+   "fatG": 6.8,
+   "carbG": 30.2,
+   "sodiumMg": 384,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "soy",
+    "treeNut"
+   ]
+  },
+  {
+   "id": "ikea-bistro-pork-pie",
+   "name": "豬肉餡餅",
+   "kind": "food",
+   "grams": 90,
+   "kcal": 240.0,
+   "proteinG": 6.1,
+   "fatG": 12.5,
+   "carbG": 25.8,
+   "sodiumMg": 315,
+   "allergens": [
+    "gluten",
+    "soy",
+    "sesame"
+   ]
+  },
+  {
+   "id": "ikea-bistro-cheese-pulppang",
+   "name": "牽絲起司餅",
+   "kind": "food",
+   "grams": 110,
+   "kcal": 308.9,
+   "proteinG": 9.1,
+   "fatG": 14.5,
+   "carbG": 35.5,
+   "sodiumMg": 391,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-soft-baguette",
+   "name": "軟法起司",
+   "kind": "food",
+   "grams": 83,
+   "kcal": 310.0,
+   "proteinG": 10.7,
+   "fatG": 4.7,
+   "carbG": 56.1,
+   "sodiumMg": 552,
+   "allergens": [
+    "milk",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-cinnamon-bun",
+   "name": "肉桂捲",
+   "kind": "food",
+   "grams": 85,
+   "kcal": 303.0,
+   "proteinG": 6.6,
+   "fatG": 8.6,
+   "carbG": 48.8,
+   "sodiumMg": 170,
+   "allergens": [
+    "milk",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-waffle",
+   "name": "列日鬆餅",
+   "kind": "food",
+   "grams": 45,
+   "kcal": 414.0,
+   "proteinG": 8.1,
+   "fatG": 21.2,
+   "carbG": 47.8,
+   "sodiumMg": 208,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "treeNut"
+   ]
+  },
+  {
+   "id": "ikea-bistro-cheese-pudding-tart",
+   "name": "起司布丁塔",
+   "kind": "food",
+   "grams": 180,
+   "kcal": 347.5,
+   "proteinG": 5.5,
+   "fatG": 18.3,
+   "carbG": 40.2,
+   "sodiumMg": 108,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "treeNut",
+    "sulphite"
+   ]
+  },
+  {
+   "id": "ikea-bistro-basque-cheesecake",
+   "name": "巴斯克起司蛋糕（切片）",
+   "kind": "food",
+   "grams": 80,
+   "kcal": 386.8,
+   "proteinG": 7.5,
+   "fatG": 29.6,
+   "carbG": 22.6,
+   "sodiumMg": 176,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-berry-cheesecake",
+   "name": "野莓起司蛋糕",
+   "kind": "food",
+   "grams": 125,
+   "kcal": 309.0,
+   "proteinG": 4.6,
+   "fatG": 17.5,
+   "carbG": 32.6,
+   "sodiumMg": 120,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-tiramisu",
+   "name": "提拉米蘇",
+   "kind": "food",
+   "grams": 85,
+   "kcal": 356.1,
+   "proteinG": 6.2,
+   "fatG": 27.1,
+   "carbG": 21.9,
+   "sodiumMg": 53,
+   "allergens": [
+    "milk",
+    "egg",
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-almond-cake",
+   "name": "瑞典巧克力杏仁蛋糕（無麩質）",
+   "kind": "food",
+   "grams": 72,
+   "kcal": 476.6,
+   "proteinG": 9.9,
+   "fatG": 33.0,
+   "carbG": 35.0,
+   "sodiumMg": 180,
+   "allergens": [
+    "milk",
+    "egg",
+    "soy",
+    "treeNut"
+   ]
+  },
+  {
+   "id": "ikea-bistro-ice-cream",
+   "name": "霜淇淋",
+   "kind": "food",
+   "grams": 75,
+   "kcal": 146.1,
+   "proteinG": 4.1,
+   "fatG": 3.7,
+   "carbG": 24.1,
+   "sodiumMg": 84,
+   "allergens": [
+    "milk",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-pomelo-ice-cream",
+   "name": "白柚蜂蜜霜淇淋",
+   "kind": "food",
+   "grams": 84,
+   "kcal": 158.1,
+   "proteinG": 2.0,
+   "fatG": 1.5,
+   "carbG": 34.1,
+   "sodiumMg": 47,
+   "allergens": [
+    "milk",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-durian-ice-cream",
+   "name": "榴槤風味霜淇淋",
+   "kind": "food",
+   "grams": 91,
+   "kcal": 187.3,
+   "proteinG": 1.9,
+   "fatG": 4.5,
+   "carbG": 34.8,
+   "sodiumMg": 59,
+   "allergens": [
+    "milk",
+    "gluten"
+   ]
+  },
+  {
+   "id": "ikea-bistro-ice-dog",
+   "name": "冰狗",
+   "kind": "food",
+   "grams": 125,
+   "kcal": 329.2,
+   "proteinG": 11.0,
+   "fatG": 6.0,
+   "carbG": 57.8,
+   "sodiumMg": 255,
+   "allergens": [
+    "milk",
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-durian-ice-dog",
+   "name": "榴槤風味冰狗",
+   "kind": "food",
+   "grams": 125,
+   "kcal": 223.1,
+   "proteinG": 5.6,
+   "fatG": 4.8,
+   "carbG": 39.4,
+   "sodiumMg": 145,
+   "allergens": [
+    "milk",
+    "gluten",
+    "soy"
+   ]
+  },
+  {
+   "id": "ikea-bistro-pomelo-sundae",
+   "name": "柚香蜂蜜粉角聖代",
+   "kind": "food",
+   "grams": 140,
+   "kcal": 105.9,
+   "proteinG": 0.6,
+   "fatG": 0.5,
+   "carbG": 24.8,
+   "sodiumMg": 21,
+   "allergens": [
+    "milk",
+    "gluten",
+    "soy"
+   ]
+  }
+ ]
+}

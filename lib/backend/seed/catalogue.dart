@@ -24,6 +24,7 @@ const catalogueFiles = [
   'assets/catalogue/7eleven-citypearl-tw.json',
   'assets/catalogue/7eleven-reserve-tw.json',
   'assets/catalogue/7eleven-teabar-tw.json',
+  'assets/catalogue/ikea-bistro-tw.json',
 ];
 
 /// Reads every bundled catalogue into [foods], replacing what is there.
@@ -71,6 +72,9 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
   final valueType = NutrientValueType.values.byName(
     file['valueType']! as String,
   );
+  // Figures published per 100 g beside a portion's weight, as a bakery or
+  // a canteen prints them, rather than for the item as served.
+  final isPer100g = file['basis'] == 'per100g';
 
   return [
     for (final drink
@@ -87,6 +91,12 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
           String? parentId,
         }) {
           final millilitres = figures['millilitres'] as num?;
+          final grams = figures['grams'] as num?;
+          final scale = isPer100g && grams != null ? grams / 100 : 1;
+          double? figure(String key) => switch (figures[key]) {
+            final num value => value * scale.toDouble(),
+            _ => null,
+          };
           return FoodItem(
             id: itemId,
             name: drink['name']! as String,
@@ -103,21 +113,34 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
             servingLabel: millilitres == null
                 ? (sizes.isEmpty ? '一份' : '一杯')
                 : '',
-            servingAmount: millilitres?.toDouble() ?? 1,
-            servingUnit: millilitres == null
-                ? ServingUnit.serving
-                : ServingUnit.millilitre,
+            servingAmount: (millilitres ?? grams)?.toDouble() ?? 1,
+            servingUnit: millilitres != null
+                ? ServingUnit.millilitre
+                : grams != null
+                ? ServingUnit.gram
+                : ServingUnit.serving,
             valueType: valueType,
             sourceUrl: drink['sourceUrl'] as String? ?? sourceUrl,
             checkedAt: checkedAt,
-            kcal: _wholeKcal(figures['kcal'] as num?, valueType)?.toDouble(),
+            kcal: _wholeKcal(figure('kcal'), valueType)?.toDouble(),
+            proteinGrams: figure('proteinG'),
+            carbGrams: figure('carbG'),
+            fatGrams: figure('fatG'),
             // A size with no published figure holds none: an absent
             // nutrient is nobody having written it down, not a zero.
             nutrients: {
-              if (figures['sugarG'] case final num sugar)
-                Nutrient.sugar: sugar.toDouble(),
-              if (figures['caffeineMg'] case final num caffeine)
-                Nutrient.caffeine: caffeine.toDouble(),
+              Nutrient.sugar: ?figure('sugarG'),
+              Nutrient.sodium: ?figure('sodiumMg'),
+              Nutrient.caffeine: ?figure('caffeineMg'),
+            },
+            // Declared per item; a file that says nothing of them leaves
+            // them unknown.
+            allergens: switch (drink['allergens']) {
+              final List<dynamic> names => {
+                for (final name in names)
+                  Allergen.values.byName(name as String),
+              },
+              _ => null,
             },
           );
         }

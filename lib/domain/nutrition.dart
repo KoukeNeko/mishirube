@@ -324,6 +324,7 @@ class FoodItem {
     this.series = '',
     this.country = '',
     this.caffeineBasis = CaffeineBasis.serving,
+    this.allergens,
   });
 
   final String id;
@@ -404,6 +405,10 @@ class FoodItem {
   /// Which label column the figures were typed from.
   final CaffeineBasis caffeineBasis;
 
+  /// The allergens the maker declares it contains; empty when it
+  /// declares none, null when nobody said — not the same as none.
+  final Set<Allergen>? allergens;
+
   /// Shipped with the app, and read-only.
   ///
   /// The app replaces this data wholesale when it updates, which is only
@@ -462,7 +467,9 @@ class FoodItem {
     String? series,
     String? country,
     CaffeineBasis? caffeineBasis,
+    Set<Allergen>? allergens,
   }) => FoodItem(
+    allergens: allergens ?? this.allergens,
     series: series ?? this.series,
     country: country ?? this.country,
     caffeineBasis: caffeineBasis ?? this.caffeineBasis,
@@ -488,6 +495,26 @@ class FoodItem {
     checkedAt: checkedAt ?? this.checkedAt,
     isBuiltIn: isBuiltIn ?? this.isBuiltIn,
   );
+}
+
+/// What Taiwan's food allergen labelling rule (食品過敏原標示規定) has a
+/// food declare it contains, in the order the rule lists them.
+enum Allergen {
+  crustacean('甲殼類'),
+  mango('芒果'),
+  peanut('花生'),
+  milk('牛奶'),
+  egg('蛋'),
+  treeNut('堅果'),
+  sesame('芝麻'),
+  gluten('麩質'),
+  soy('大豆'),
+  fish('魚類'),
+  sulphite('亞硫酸鹽');
+
+  const Allergen(this.label);
+
+  final String label;
 }
 
 /// The unit a nutrient is counted in.

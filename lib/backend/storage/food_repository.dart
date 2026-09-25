@@ -130,6 +130,7 @@ class FoodRepository {
           'size_name = ?, consumption_kind = ?, value_type = ?, '
           'source_url = ?, checked_at = ?, search_terms = ?, '
           'is_cup_capacity = ?, series = ?, country = ?, caffeine_basis = ?, '
+          'allergens = ?, '
           'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
           'WHERE id = ?',
           [
@@ -154,6 +155,7 @@ class FoodRepository {
             food.series,
             food.country,
             food.caffeineBasis.name,
+            _allergensColumn(food.allergens),
             now,
             food.id,
           ],
@@ -164,9 +166,10 @@ class FoodRepository {
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
           'fibre_g, parent_id, size_name, consumption_kind, value_type, '
           'source_url, checked_at, search_terms, is_cup_capacity, series, '
-          'country, caffeine_basis, created_at, updated_at, source) '
+          'country, caffeine_basis, allergens, created_at, updated_at, '
+          'source) '
           'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-          '?, ?, ?, ?)',
+          '?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -190,6 +193,7 @@ class FoodRepository {
             food.series,
             food.country,
             food.caffeineBasis.name,
+            _allergensColumn(food.allergens),
             now,
             now,
             source.name,
@@ -318,9 +322,25 @@ class FoodRepository {
       caffeineBasis: CaffeineBasis.values.byName(
         row['caffeine_basis']! as String,
       ),
+      allergens: switch (row['allergens'] as String?) {
+        null => null,
+        '' => const {},
+        final names => {
+          for (final name in names.split(','))
+            ?Allergen.values.asNameMap()[name],
+        },
+      },
     );
   }
 }
+
+/// [allergens] as the column keeps them, in [Allergen] order.
+String? _allergensColumn(Set<Allergen>? allergens) => allergens == null
+    ? null
+    : [
+        for (final allergen in Allergen.values)
+          if (allergens.contains(allergen)) allergen.name,
+      ].join(',');
 
 /// The nutrients stored for one record. Only what is known has a row, so
 /// what comes back is only what somebody actually wrote down.

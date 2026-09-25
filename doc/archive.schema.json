@@ -701,6 +701,12 @@
               "caffeineBasis": {
                 "type": "string"
               },
+              "allergens": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
