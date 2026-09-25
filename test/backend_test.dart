@@ -1938,6 +1938,12 @@ void main() {
       expect(marks.containsKey(7), isFalse);
     });
 
+    test('a chain is named with the country its figures are for', () {
+      expect(labelOfBrand('7-ELEVEN', 'TW'), '7-ELEVEN（台灣）');
+      expect(labelOfBrand('7-ELEVEN', 'JP'), '7-ELEVEN（日本）');
+      expect(labelOfBrand('自家', ''), '自家', reason: 'the user named it');
+    });
+
     test('water shows on the timeline as how much of it', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

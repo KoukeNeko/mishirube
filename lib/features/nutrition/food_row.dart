@@ -41,7 +41,7 @@ class FoodRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = [
-      if (food.brand.isNotEmpty) food.brand,
+      if (food.brand.isNotEmpty) food.brandLabel,
       if (food.isBuiltIn) '官方資料',
     ].join(' · ');
     return Semantics(

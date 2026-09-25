@@ -421,6 +421,10 @@ class FoodItem {
 
   bool get isSize => parentId != null;
 
+  /// The brand with the country its figures are for, `7-ELEVEN（台灣）`,
+  /// when the app ships them; the brand alone for a food the user made.
+  String get brandLabel => labelOfBrand(brand, country);
+
   /// `統一 雞胸肉` when it has a maker, otherwise just the name. A size
   /// says which one it is: `星巴克 美式咖啡 Tall`, and a line which it
   /// belongs to: `7-ELEVEN CITY CAFE 拿鐵咖啡`.
@@ -566,3 +570,17 @@ enum Nutrient {
 /// read as zero: a label that prints `0 g` of fat only means under half a
 /// gram, and a label that prints nothing at all means nothing at all.
 typedef Nutrients = Map<Nutrient, double>;
+
+/// A country as the app names it, from its ISO 3166-1 code; the code
+/// itself for one it has no name for.
+String countryName(String code) => switch (code) {
+  'TW' => '台灣',
+  'JP' => '日本',
+  _ => code,
+};
+
+/// `7-ELEVEN（台灣）`: a chain with the country its figures are for, since
+/// the same chain sells different drinks in each. [country] is empty for
+/// a brand the user wrote.
+String labelOfBrand(String brand, String country) =>
+    country.isEmpty ? brand : '$brand（${countryName(country)}）';

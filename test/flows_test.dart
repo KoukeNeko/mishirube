@@ -1881,7 +1881,7 @@ void main() {
     );
     await tester.tap(find.text('品牌'));
     await tester.pump();
-    expect(find.text('星巴克'), findsOneWidget);
+    expect(find.text('星巴克（台灣）'), findsOneWidget);
     expect(
       find.text('那堤'),
       findsNothing,
@@ -1900,7 +1900,7 @@ void main() {
     await tester.pump();
     await tester.enterText(find.byType(TextField), '星巴克');
     await tester.pump();
-    await tester.tap(find.text('星巴克 · 查看完整菜單'));
+    await tester.tap(find.text('星巴克（台灣） · 查看完整菜單'));
     await tester.pumpAndSettle();
     expect(find.text('那堤'), findsOneWidget);
     expect(find.text('摩卡'), findsOneWidget);
@@ -1983,13 +1983,13 @@ void main() {
     await _tapText(tester, '食物庫');
     await tester.pumpAndSettle();
     expect(find.text('自煮雞胸'), findsOneWidget, reason: 'own foods listed');
-    expect(find.text('星巴克'), findsOneWidget, reason: 'brands listed');
+    expect(find.text('星巴克（台灣）'), findsOneWidget, reason: 'brands listed');
 
     // Searching narrows both.
     await tester.enterText(find.byType(TextField), '雞胸');
     await tester.pump();
     expect(find.text('自煮雞胸'), findsOneWidget);
-    expect(find.text('星巴克'), findsNothing);
+    expect(find.text('星巴克（台灣）'), findsNothing);
 
     // An own food opens to be corrected.
     await tester.tap(find.text('自煮雞胸'));
@@ -2001,7 +2001,7 @@ void main() {
     // A brand opens its menu, to browse.
     await tester.enterText(find.byType(TextField), '');
     await tester.pump();
-    await tester.tap(find.text('星巴克'));
+    await tester.tap(find.text('星巴克（台灣）'));
     await tester.pumpAndSettle();
     expect(find.text('那堤'), findsOneWidget);
 

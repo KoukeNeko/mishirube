@@ -70,7 +70,7 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
         .firstOrNull;
     return DetailPage(
       appBar: PageAppBar(
-        title: widget.brand,
+        title: record?.label ?? widget.brand,
         subtitle: [
           '${menu.length} 款',
           '官方資料',

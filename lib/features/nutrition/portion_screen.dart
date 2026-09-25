@@ -36,7 +36,7 @@ Future<FoodItem?> pickCupSize(
   context,
   AppDialog(
     title: food.name,
-    message: food.brand.isEmpty ? null : food.brand,
+    message: food.brand.isEmpty ? null : food.brandLabel,
     isChoiceList: true,
     actions: [
       for (final (index, size) in sizes.indexed)

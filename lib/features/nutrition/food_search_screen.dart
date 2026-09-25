@@ -467,11 +467,15 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final brands = _scope == _Scope.all || _scope == _Scope.brands
         ? _nutrition.brandsNamedBy(query)
         : const <String>[];
+    final labels = {
+      for (final catalogue in AppStoreScope.of(context).catalogues)
+        catalogue.brand: catalogue.label,
+    };
     return [
       for (final brand in brands)
         Gutter(
           child: NavCard(
-            title: '$brand · 查看完整菜單',
+            title: '${labels[brand] ?? brand} · 查看完整菜單',
             subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料',
             onTap: () => _openBrand(brand),
           ),
@@ -512,7 +516,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       for (final catalogue in catalogues)
         Gutter(
           child: NavCard(
-            title: catalogue.brand,
+            title: catalogue.label,
             subtitle: [
               '${catalogue.products} 款',
               '官方資料',

@@ -64,7 +64,7 @@ class DataSourcesScreen extends StatelessWidget {
               children: [
                 for (final catalogue in catalogues)
                   KeyValueRow(
-                    label: catalogue.brand,
+                    label: catalogue.label,
                     value:
                         '${catalogue.products} 款 · '
                         '${catalogue.sizes} 種杯型',
@@ -77,7 +77,7 @@ class DataSourcesScreen extends StatelessWidget {
               [
                 for (final catalogue in catalogues)
                   if (catalogue.checkedAt case final at?)
-                    '${catalogue.brand}查證於 ${formatDate(at)}',
+                    '${catalogue.label}查證於 ${formatDate(at)}',
               ].join(' · '),
               style: AppTextStyles.caption,
             ),

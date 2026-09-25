@@ -114,6 +114,10 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
             for (final food in found)
               if (food.isBuiltIn) food.brand,
           }.toList();
+    final labels = {
+      for (final catalogue in store.catalogues)
+        catalogue.brand: catalogue.label,
+    };
     return PageScaffold(
       appBar: const PageAppBar(title: '食物庫'),
       pinned: Gutter(
@@ -138,7 +142,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
           for (final brand in brands)
             Gutter(
               child: NavCard(
-                title: brand,
+                title: labels[brand] ?? brand,
                 subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料，唯讀',
                 onTap: () => _openBrand(brand),
               ),
