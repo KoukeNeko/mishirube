@@ -25,6 +25,9 @@ const catalogueFiles = [
   'assets/catalogue/7eleven-reserve-tw.json',
   'assets/catalogue/7eleven-teabar-tw.json',
   'assets/catalogue/ikea-bistro-tw.json',
+  'assets/catalogue/familymart-letstea-tw.json',
+  'assets/catalogue/familymart-letscafe-tw.json',
+  'assets/catalogue/familymart-bottled-tw.json',
 ];
 
 /// Reads every bundled catalogue into [foods], replacing what is there.
@@ -129,6 +132,8 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
             // A size with no published figure holds none: an absent
             // nutrient is nobody having written it down, not a zero.
             nutrients: {
+              Nutrient.saturatedFat: ?figure('saturatedFatG'),
+              Nutrient.transFat: ?figure('transFatG'),
               Nutrient.sugar: ?figure('sugarG'),
               Nutrient.sodium: ?figure('sodiumMg'),
               Nutrient.caffeine: ?figure('caffeineMg'),

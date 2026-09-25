@@ -1,0 +1,1042 @@
+{
+  "brand": "全家",
+  "brandAliases": [
+    "FamilyMart",
+    "Family Mart",
+    "全家便利商店"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "series": "Let's Tea",
+  "sourceUrl": "https://event.family.com.tw/taiwantea/0805檔-茶飲現場調製飲料標示手冊.pdf",
+  "note": "官方手冊為每杯最高值；未公布杯子容量。",
+  "drinks": [
+    {
+      "id": "familymart-letstea-ab90e512",
+      "name": "仙女紅茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 134,
+          "sugarG": 32,
+          "caffeineMg": 76
+        },
+        {
+          "name": "L・冰",
+          "kcal": 132,
+          "sugarG": 29,
+          "caffeineMg": 76
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-6e3b9c1a",
+      "name": "仙女醇奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 278,
+          "sugarG": 43,
+          "caffeineMg": 76
+        },
+        {
+          "name": "L・冰",
+          "kcal": 214,
+          "sugarG": 33,
+          "caffeineMg": 76
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-0129e35c",
+      "name": "四季春青茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 92
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 92
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-1492e474",
+      "name": "厚濃抹茶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 345,
+          "sugarG": 48,
+          "caffeineMg": 159
+        },
+        {
+          "name": "L・冰",
+          "kcal": 321,
+          "sugarG": 51,
+          "caffeineMg": 182
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-d86d9985",
+      "name": "焙茶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 441,
+          "sugarG": 50,
+          "caffeineMg": 154
+        },
+        {
+          "name": "L・冰",
+          "kcal": 394,
+          "sugarG": 44,
+          "caffeineMg": 159
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-8beb5d81",
+      "name": "黑糖QQ撞奶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 536,
+          "sugarG": 65,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冰",
+          "kcal": 536,
+          "sugarG": 65,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4b415c2d",
+      "name": "柳丁橙柚綠",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 304,
+          "sugarG": 64,
+          "caffeineMg": 65
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-9d9a4e87",
+      "name": "芭C檸檬綠",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 354,
+          "sugarG": 75,
+          "caffeineMg": 36
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-7faf1ffe",
+      "name": "好喝奶茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 489,
+          "sugarG": 66,
+          "caffeineMg": 152
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-94d9c11b",
+      "name": "能量仙女紅(巨峰葡萄風味)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 271,
+          "sugarG": 64,
+          "caffeineMg": 180
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-2a7af8bc",
+      "name": "能量仙女紅(野莓風味)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 132,
+          "sugarG": 29,
+          "caffeineMg": 180
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-34a5ec2d",
+      "name": "唐寧經典伯爵茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 6,
+          "sugarG": 0,
+          "caffeineMg": 76
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-ee7e38b1",
+      "name": "唐寧伯爵醇奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 173,
+          "sugarG": 12,
+          "caffeineMg": 114
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-88ef7628",
+      "name": "冰冰仙草蜜",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 288,
+          "sugarG": 42,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4e92f3aa",
+      "name": "燒燒仙草",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 288,
+          "sugarG": 42,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-93642fab",
+      "name": "芝麻糊",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 480,
+          "sugarG": 39,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-18f6a4a2",
+      "name": "甘蔗青茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 306,
+          "sugarG": 69,
+          "caffeineMg": 65
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-58f65a3f",
+      "name": "杏仁凍青茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 145,
+          "sugarG": 25,
+          "caffeineMg": 110
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-2f5df847",
+      "name": "泰式奶茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 518,
+          "sugarG": 56,
+          "caffeineMg": 114
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-5133581e",
+      "name": "鮮露紅茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 83
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 98
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-c82ba011",
+      "name": "鮮露紅茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-8d65f05a",
+      "name": "鮮露紅茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 148
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-396e5c36",
+      "name": "紅奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 125,
+          "sugarG": 9,
+          "caffeineMg": 90
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 136,
+          "sugarG": 10,
+          "caffeineMg": 119
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-9cbb2679",
+      "name": "紅奶茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 422,
+          "sugarG": 57,
+          "caffeineMg": 210
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-760bfe23",
+      "name": "紅奶茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 284,
+          "sugarG": 53,
+          "caffeineMg": 186
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 244,
+          "sugarG": 50,
+          "caffeineMg": 226
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4f153f53",
+      "name": "白烏龍茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 86
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 66
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-f0545fff",
+      "name": "白烏龍茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 70
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-bd483361",
+      "name": "白烏龍茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 101
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 129
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-7c2cf9b4",
+      "name": "白奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 142,
+          "sugarG": 10,
+          "caffeineMg": 141
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 142,
+          "sugarG": 10,
+          "caffeineMg": 156
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-1d479584",
+      "name": "白奶茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 424,
+          "sugarG": 57,
+          "caffeineMg": 162
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-791b6ad5",
+      "name": "白奶茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 284,
+          "sugarG": 53,
+          "caffeineMg": 186
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 245,
+          "sugarG": 50,
+          "caffeineMg": 178
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-b21985c5",
+      "name": "金焙蕎麥茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 0
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-30e5b74d",
+      "name": "金焙蕎麥茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-3c4b34a3",
+      "name": "金焙蕎麥茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 0
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-7eca2c80",
+      "name": "金焙蕎麥醇奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 142,
+          "sugarG": 8,
+          "caffeineMg": 0
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 131,
+          "sugarG": 8,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-9b3f400c",
+      "name": "金焙蕎麥醇奶茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 423,
+          "sugarG": 57,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-96be7b80",
+      "name": "金焙蕎麥醇奶茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 284,
+          "sugarG": 52,
+          "caffeineMg": 0
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 243,
+          "sugarG": 50,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-1efb2e99",
+      "name": "蘭韻梨山烏龍",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 123
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 119
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4e2adf5e",
+      "name": "白烏龍茶(膠囊)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 129
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 111
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-35208bc6",
+      "name": "白烏龍茶(膠囊)(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 129
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4154a1b5",
+      "name": "白烏龍茶(膠囊)(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 101
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 129
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-f46a2fc4",
+      "name": "白烏龍醇奶茶(膠囊)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 141,
+          "sugarG": 8,
+          "caffeineMg": 141
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 142,
+          "sugarG": 8,
+          "caffeineMg": 142
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-b1c4305f",
+      "name": "白烏龍醇奶茶(膠囊)(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 425,
+          "sugarG": 57,
+          "caffeineMg": 179
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-72fe368c",
+      "name": "白烏龍醇奶茶(膠囊)(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 284,
+          "sugarG": 52,
+          "caffeineMg": 179
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 247,
+          "sugarG": 50,
+          "caffeineMg": 179
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-057f08f2",
+      "name": "鮮露紅茶(膠囊)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 141
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 135
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-18dca3d5",
+      "name": "鮮露紅茶(膠囊)(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 163
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-ceed5d02",
+      "name": "鮮露紅茶(膠囊)(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 148
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 163
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-0ef2566d",
+      "name": "鮮露醇奶茶(膠囊)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 137,
+          "sugarG": 8,
+          "caffeineMg": 150
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 137,
+          "sugarG": 8,
+          "caffeineMg": 174
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-4421423d",
+      "name": "鮮露醇奶茶(膠囊)(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 424,
+          "sugarG": 57,
+          "caffeineMg": 228
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-83d642b4",
+      "name": "鮮露醇奶茶(膠囊)(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 281,
+          "sugarG": 52,
+          "caffeineMg": 228
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 245,
+          "sugarG": 50,
+          "caffeineMg": 228
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-3dbe1b86",
+      "name": "五窨茉莉綠茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 201
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 159
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-c45fe13f",
+      "name": "五窨茉莉綠茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 394,
+          "sugarG": 55,
+          "caffeineMg": 105
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-e7338e6e",
+      "name": "五窨茉莉綠茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 105
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 199,
+          "sugarG": 47,
+          "caffeineMg": 105
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-8d8d3616",
+      "name": "五窨茉莉醇奶茶",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 149,
+          "sugarG": 8,
+          "caffeineMg": 267
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 149,
+          "sugarG": 8,
+          "caffeineMg": 248
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-9a076014",
+      "name": "五窨茉莉醇奶茶(黑糖QQ)",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 427,
+          "sugarG": 57,
+          "caffeineMg": 209
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-033e5d6b",
+      "name": "五窨茉莉醇奶茶(慢煮焦糖)",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 288,
+          "sugarG": 52,
+          "caffeineMg": 209
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 249,
+          "sugarG": 50,
+          "caffeineMg": 209
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-28de4140",
+      "name": "焙韻隱山烏龍",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 107
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 94
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-8a8f8488",
+      "name": "阿里山高冷烏龍",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 102
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 102
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-36ca1d82",
+      "name": "夏芒粉角青茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 437,
+          "sugarG": 84,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-cfd36eda",
+      "name": "蘋果芒芒綠",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 294,
+          "sugarG": 62,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-a50cc6e1",
+      "name": "卡曼橘青茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 238,
+          "sugarG": 55,
+          "caffeineMg": 92
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-1e7a3d21",
+      "name": "紅心芭樂牛奶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 432,
+          "sugarG": 69,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-b4cabaf7",
+      "name": "好喝蕎麥奶茶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 256,
+          "sugarG": 32,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-0bfff33f",
+      "name": "百香QQ綠",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 416,
+          "sugarG": 85,
+          "caffeineMg": 85
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-b7c2542e",
+      "name": "冬瓜QQ撞奶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 486,
+          "sugarG": 63,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-9646d0d7",
+      "name": "香蕉火龍果牛奶",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 385,
+          "sugarG": 65,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-817533f8",
+      "name": "酷繽果-胡蘿蔔亮",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 175,
+          "sugarG": 42,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-0782b08c",
+      "name": "酷繽果-桑葚明",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 159,
+          "sugarG": 33,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "familymart-letstea-cccff9d1",
+      "name": "酷繽果-蘋果順",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 186,
+          "sugarG": 27,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

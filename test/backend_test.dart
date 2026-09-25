@@ -1228,7 +1228,8 @@ void main() {
       Map<String, dynamic> read(String path) =>
           jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
       for (final path in catalogueFiles) {
-        final parsed = parseCatalogue(read(path));
+        final file = read(path);
+        final parsed = parseCatalogue(file);
         expect(parsed, isNotEmpty, reason: path);
         expect(
           parsed.map((food) => food.id).toSet(),
@@ -1245,8 +1246,11 @@ void main() {
           expect(food.sourceUrl, startsWith('https://'));
           expect(
             food.isCupCapacity,
-            food.servingUnit == ServingUnit.millilitre,
-            reason: 'the chains publish cup sizes, not what is drunk',
+            file['volumeIs'] == 'cup' &&
+                food.servingUnit == ServingUnit.millilitre,
+            reason:
+                'a chain publishes cup sizes, not what is drunk; a '
+                'bottle states what is in it',
           );
         }
       }
@@ -1307,6 +1311,27 @@ void main() {
         isTrue,
         reason: 'every IKEA label declares them',
       );
+    });
+
+    test('a bottle carries its whole label, and no label means no figures', () {
+      final parsed = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/familymart-bottled-tw.json')
+              .readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      final soyMilk = parsed.firstWhere((food) => food.name == '統一陽光 無加糖高纖豆漿');
+      expect(soyMilk.servingUnit, ServingUnit.millilitre);
+      expect(soyMilk.servingAmount, 400);
+      expect(soyMilk.isCupCapacity, isFalse);
+      expect(soyMilk.kcal, 167, reason: '41.85 kcal a serving × 4');
+      expect(soyMilk.proteinGrams, 15);
+      expect(soyMilk.nutrients[Nutrient.saturatedFat], closeTo(1.2, 0.001));
+      expect(soyMilk.nutrients[Nutrient.transFat], 0);
+
+      final water = parsed.firstWhere((food) => food.name == '統一 PH9.0鹼性離子水');
+      expect(water.kcal, isNull, reason: 'the bottle prints no label');
+      expect(water.nutrients, isEmpty);
     });
 
     test('allergens keep "none declared" apart from "nobody said"', () {

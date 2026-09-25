@@ -1,0 +1,900 @@
+{
+  "brand": "全家",
+  "brandAliases": [
+    "FamilyMart",
+    "Family Mart",
+    "全家便利商店"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "series": "Let's Café",
+  "sourceUrl": "https://event.family.com.tw/2018_letscafe/0916-咖啡茶現場調製飲料標示手冊-咖啡.pdf",
+  "note": "官方手冊為每杯最高值；未公布杯子容量。義式濃縮與美好分享壺為飲品容量；Fami奶昔為每 100 g。",
+  "drinks": [
+    {
+      "id": "familymart-letscafe-112f0dd2",
+      "name": "經典美式",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 7,
+          "sugarG": 0,
+          "caffeineMg": 108
+        },
+        {
+          "name": "M・熱",
+          "kcal": 11,
+          "sugarG": 0,
+          "caffeineMg": 168
+        },
+        {
+          "name": "L・熱",
+          "kcal": 15,
+          "sugarG": 0,
+          "caffeineMg": 241
+        },
+        {
+          "name": "XL・熱",
+          "kcal": 19,
+          "sugarG": 0,
+          "caffeineMg": 267
+        },
+        {
+          "name": "M・冰",
+          "kcal": 10,
+          "sugarG": 0,
+          "caffeineMg": 163
+        },
+        {
+          "name": "L・冰",
+          "kcal": 16,
+          "sugarG": 0,
+          "caffeineMg": 243
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 20,
+          "sugarG": 0,
+          "caffeineMg": 296
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-f548193e",
+      "name": "經典拿鐵",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 124,
+          "sugarG": 8,
+          "caffeineMg": 61
+        },
+        {
+          "name": "M・熱",
+          "kcal": 172,
+          "sugarG": 11,
+          "caffeineMg": 127
+        },
+        {
+          "name": "L・熱",
+          "kcal": 222,
+          "sugarG": 13,
+          "caffeineMg": 152
+        },
+        {
+          "name": "XL・熱",
+          "kcal": 276,
+          "sugarG": 17,
+          "caffeineMg": 195
+        },
+        {
+          "name": "M・冰",
+          "kcal": 97,
+          "sugarG": 7,
+          "caffeineMg": 61
+        },
+        {
+          "name": "L・冰",
+          "kcal": 174,
+          "sugarG": 11,
+          "caffeineMg": 86
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 233,
+          "sugarG": 15,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-110a7fe3",
+      "name": "特濃美式",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 19,
+          "sugarG": 0,
+          "caffeineMg": 274
+        },
+        {
+          "name": "XL・熱",
+          "kcal": 19,
+          "sugarG": 0,
+          "caffeineMg": 311
+        },
+        {
+          "name": "L・冰",
+          "kcal": 14,
+          "sugarG": 0,
+          "caffeineMg": 256
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 21,
+          "sugarG": 0,
+          "caffeineMg": 308
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-3682320a",
+      "name": "特濃拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 228,
+          "sugarG": 15,
+          "caffeineMg": 198
+        },
+        {
+          "name": "XL・熱",
+          "kcal": 270,
+          "sugarG": 17,
+          "caffeineMg": 213
+        },
+        {
+          "name": "L・冰",
+          "kcal": 166,
+          "sugarG": 12,
+          "caffeineMg": 108
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 215,
+          "sugarG": 14,
+          "caffeineMg": 148
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-9e56ce45",
+      "name": "卡布奇諾",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 139,
+          "sugarG": 9,
+          "caffeineMg": 169
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-d6661b4d",
+      "name": "經典冰磚拿鐵",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 214,
+          "sugarG": 20,
+          "caffeineMg": 167
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-4c83aab7",
+      "name": "卡曼橘美式",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 200,
+          "sugarG": 42,
+          "caffeineMg": 239
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-3ecaddb9",
+      "name": "泰式椰奶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 180,
+          "sugarG": 13,
+          "caffeineMg": 141
+        },
+        {
+          "name": "L・冰",
+          "kcal": 180,
+          "sugarG": 13,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-bc330f28",
+      "name": "經典巧克力飲",
+      "sizes": [
+        {
+          "name": "M・熱",
+          "kcal": 445,
+          "sugarG": 54,
+          "caffeineMg": 25
+        },
+        {
+          "name": "L・冰",
+          "kcal": 336,
+          "sugarG": 46,
+          "caffeineMg": 25
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-7fd220b5",
+      "name": "鮮乳坊嘉明拿鐵",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 196,
+          "sugarG": 13,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-f2e5c8a8",
+      "name": "鮮乳坊A2β酪蛋白拿鐵",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 201,
+          "sugarG": 13,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-3e4631ba",
+      "name": "愛之味燕麥奶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 196,
+          "sugarG": 12,
+          "caffeineMg": 113
+        },
+        {
+          "name": "L・冰",
+          "kcal": 196,
+          "sugarG": 12,
+          "caffeineMg": 113
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-ca11f8c0",
+      "name": "OATLY燕麥奶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 228,
+          "sugarG": 16,
+          "caffeineMg": 141
+        },
+        {
+          "name": "L・冰",
+          "kcal": 228,
+          "sugarG": 16,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-82c42fed",
+      "name": "義式濃縮",
+      "sizes": [
+        {
+          "name": "熱",
+          "millilitres": 30,
+          "kcal": 11,
+          "sugarG": 0,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-72d654e7",
+      "name": "美好分享壺",
+      "sizes": [
+        {
+          "name": "熱",
+          "millilitres": 2880,
+          "kcal": 108,
+          "sugarG": 0,
+          "caffeineMg": 1630
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-dfd8f6a0",
+      "name": "慢煮焦糖拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 310,
+          "sugarG": 37,
+          "caffeineMg": 177
+        },
+        {
+          "name": "L・冰",
+          "kcal": 265,
+          "sugarG": 35,
+          "caffeineMg": 118
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-49ab61ae",
+      "name": "棉花糖巧克力飲",
+      "sizes": [
+        {
+          "name": "M・熱",
+          "kcal": 356,
+          "sugarG": 43,
+          "caffeineMg": 22
+        },
+        {
+          "name": "L・冰",
+          "kcal": 285,
+          "sugarG": 38,
+          "caffeineMg": 22
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-af0fa63a",
+      "name": "生椰美式",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 98,
+          "sugarG": 18,
+          "caffeineMg": 183
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-78a3a8a4",
+      "name": "阿里山優遊吧斯綜合美式(限店)",
+      "sizes": [
+        {
+          "name": "M・熱",
+          "kcal": 15,
+          "sugarG": 0,
+          "caffeineMg": 300
+        },
+        {
+          "name": "L・熱",
+          "kcal": 19,
+          "sugarG": 0,
+          "caffeineMg": 354
+        },
+        {
+          "name": "M・冰",
+          "kcal": 12,
+          "sugarG": 0,
+          "caffeineMg": 209
+        },
+        {
+          "name": "L・冰",
+          "kcal": 16,
+          "sugarG": 0,
+          "caffeineMg": 301
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-506628bf",
+      "name": "阿里山優遊吧斯綜合拿鐵(限店)",
+      "sizes": [
+        {
+          "name": "M・熱",
+          "kcal": 211,
+          "sugarG": 15,
+          "caffeineMg": 194
+        },
+        {
+          "name": "L・熱",
+          "kcal": 261,
+          "sugarG": 19,
+          "caffeineMg": 243
+        },
+        {
+          "name": "M・冰",
+          "kcal": 108,
+          "sugarG": 8,
+          "caffeineMg": 117
+        },
+        {
+          "name": "L・冰",
+          "kcal": 183,
+          "sugarG": 13,
+          "caffeineMg": 179
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-c5acb7b2",
+      "name": "厚奶拿鐵",
+      "sizes": [
+        {
+          "name": "L・熱",
+          "kcal": 243,
+          "sugarG": 17,
+          "caffeineMg": 115
+        },
+        {
+          "name": "XL・熱",
+          "kcal": 348,
+          "sugarG": 25,
+          "caffeineMg": 120
+        },
+        {
+          "name": "L・冰",
+          "kcal": 199,
+          "sugarG": 15,
+          "caffeineMg": 59
+        },
+        {
+          "name": "XL・冰",
+          "kcal": 239,
+          "sugarG": 17,
+          "caffeineMg": 95
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-d697ce32",
+      "name": "高蛋白摩卡咖啡",
+      "sizes": [
+        {
+          "name": "XL・冰",
+          "kcal": 183,
+          "sugarG": 8,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-784ce016",
+      "name": "咖啡Q凍拿鐵",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 211,
+          "sugarG": 25,
+          "caffeineMg": 139
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-5f5aa70b",
+      "name": "葡萄繽球單品東東里",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 138,
+          "sugarG": 30,
+          "caffeineMg": 208
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-c6aca886",
+      "name": "檸檬繽球單品西西里",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 115,
+          "sugarG": 24,
+          "caffeineMg": 208
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-834636ff",
+      "name": "瓜地馬拉安提瓜美式",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 8,
+          "sugarG": 0,
+          "caffeineMg": 145
+        },
+        {
+          "name": "M・熱",
+          "kcal": 15,
+          "sugarG": 0,
+          "caffeineMg": 247
+        },
+        {
+          "name": "L・熱",
+          "kcal": 20,
+          "sugarG": 0,
+          "caffeineMg": 310
+        },
+        {
+          "name": "M・冰",
+          "kcal": 13,
+          "sugarG": 0,
+          "caffeineMg": 188
+        },
+        {
+          "name": "L・冰",
+          "kcal": 14,
+          "sugarG": 0,
+          "caffeineMg": 235
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-6b99ff55",
+      "name": "瓜地馬拉安提瓜拿鐵",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 130,
+          "sugarG": 9,
+          "caffeineMg": 85
+        },
+        {
+          "name": "M・熱",
+          "kcal": 208,
+          "sugarG": 14,
+          "caffeineMg": 159
+        },
+        {
+          "name": "L・熱",
+          "kcal": 253,
+          "sugarG": 18,
+          "caffeineMg": 235
+        },
+        {
+          "name": "M・冰",
+          "kcal": 94,
+          "sugarG": 6,
+          "caffeineMg": 64
+        },
+        {
+          "name": "L・冰",
+          "kcal": 152,
+          "sugarG": 10,
+          "caffeineMg": 143
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-5514f464",
+      "name": "巴西黃水晶美式",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 7,
+          "sugarG": 0,
+          "caffeineMg": 133
+        },
+        {
+          "name": "M・熱",
+          "kcal": 15,
+          "sugarG": 0,
+          "caffeineMg": 241
+        },
+        {
+          "name": "L・熱",
+          "kcal": 18,
+          "sugarG": 0,
+          "caffeineMg": 293
+        },
+        {
+          "name": "M・冰",
+          "kcal": 10,
+          "sugarG": 0,
+          "caffeineMg": 160
+        },
+        {
+          "name": "L・冰",
+          "kcal": 14,
+          "sugarG": 0,
+          "caffeineMg": 208
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-98b989b7",
+      "name": "巴西黃水晶拿鐵",
+      "sizes": [
+        {
+          "name": "S・熱",
+          "kcal": 118,
+          "sugarG": 8,
+          "caffeineMg": 81
+        },
+        {
+          "name": "M・熱",
+          "kcal": 189,
+          "sugarG": 13,
+          "caffeineMg": 164
+        },
+        {
+          "name": "L・熱",
+          "kcal": 240,
+          "sugarG": 17,
+          "caffeineMg": 209
+        },
+        {
+          "name": "M・冰",
+          "kcal": 108,
+          "sugarG": 6,
+          "caffeineMg": 96
+        },
+        {
+          "name": "L・冰",
+          "kcal": 164,
+          "sugarG": 10,
+          "caffeineMg": 161
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-be9f0749",
+      "name": "Fami奶昔",
+      "grams": 100,
+      "kcal": 295,
+      "sugarG": 41,
+      "caffeineMg": 10
+    },
+    {
+      "id": "familymart-letscafe-839c0e6a",
+      "name": "經典黑炫酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 347,
+          "sugarG": 37
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-63e1cb0d",
+      "name": "經典黑炫酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 303,
+          "sugarG": 33,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-defbccd0",
+      "name": "芒好喝酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 261,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-215d0745",
+      "name": "芒好喝酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 217,
+          "sugarG": 47,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-0da90c11",
+      "name": "芋實尬酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 320,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-5dbfead2",
+      "name": "芋實尬酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 276,
+          "sugarG": 37,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-5ef8b3bb",
+      "name": "香蕉酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 384,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-97574304",
+      "name": "香蕉酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 328,
+          "sugarG": 50,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-b9ac6e49",
+      "name": "MM巧克力酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 399,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-0f20ca6c",
+      "name": "MM巧克力酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 342,
+          "sugarG": 56,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-8e824104",
+      "name": "黑糖粉粿酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 317,
+          "sugarG": 50
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-439c3c48",
+      "name": "黑糖粉粿酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 260,
+          "sugarG": 45,
+          "caffeineMg": 181
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-7272ca66",
+      "name": "抹茶白玉酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 383,
+          "sugarG": 55,
+          "caffeineMg": 70
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-e0e1d64e",
+      "name": "抹茶白玉酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 326,
+          "sugarG": 49,
+          "caffeineMg": 251
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-4c6ed94e",
+      "name": "鹿兒島焙茶酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 317,
+          "sugarG": 53,
+          "caffeineMg": 60
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-f28b030e",
+      "name": "鹿兒島焙茶酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 252,
+          "sugarG": 48,
+          "caffeineMg": 221
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-400b9779",
+      "name": "玉米酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 286,
+          "sugarG": 35
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-16fc4aba",
+      "name": "玉米酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 228,
+          "sugarG": 31,
+          "caffeineMg": 235
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-620e3241",
+      "name": "香蕉卡士達酷繽沙(牛奶)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 369,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "familymart-letscafe-29b1a76c",
+      "name": "香蕉卡士達酷繽沙(咖啡)",
+      "sizes": [
+        {
+          "name": "L・冰",
+          "kcal": 312,
+          "sugarG": 44,
+          "caffeineMg": 181
+        }
+      ]
+    }
+  ]
+}
