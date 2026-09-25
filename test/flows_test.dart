@@ -342,11 +342,11 @@ void main() {
 
     final button = tester.getRect(
       find.ancestor(
-        of: find.text('9月').hitTestable(),
+        of: find.text('2026 年 9 月').hitTestable(),
         matching: find.byType(HeaderAction),
       ),
     );
-    await tester.tap(find.text('9月').hitTestable());
+    await tester.tap(find.text('2026 年 9 月').hitTestable());
     await tester.pump();
     await tester.pump(_pageTransition);
     final september = find.text('9 月');
@@ -369,7 +369,6 @@ void main() {
     await tester.drag(september, const Offset(0, 60));
     await tester.pumpAndSettle();
     expect(find.text('2026 年 8 月'), findsOneWidget);
-    expect(find.text('8月'), findsOneWidget);
 
     // Tapping outside closes it.
     await tester.tapAt(const Offset(20, 600));

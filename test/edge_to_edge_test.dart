@@ -221,7 +221,7 @@ void main() {
       MishirubeApp(store: _store()..selectTab(HomeTab.log)),
     );
     await tester.pump();
-    await tester.tap(find.text('月曆').hitTestable());
+    await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump();
 
     final weekday = tester.getRect(find.text('二').hitTestable());

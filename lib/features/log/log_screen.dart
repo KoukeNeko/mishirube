@@ -73,6 +73,8 @@ class _LogScreenState extends State<LogScreen> {
   bool get _isCurrentMonth =>
       _month.year == _today.year && _month.month == _today.month;
 
+  bool get _isEarliestMonth => !_month.isAfter(_log.earliestMonth);
+
   void _setMonth(DateTime month) {
     setState(() {
       _month = month;
@@ -184,9 +186,9 @@ class _LogScreenState extends State<LogScreen> {
 
   Widget _page() {
     final records = _log.month(_month);
+    final isTimeline = _view == _LogView.timeline;
     return CollapsingPage(
       title: '紀錄',
-      subtitle: '${_month.year} 年 ${_month.month} 月',
       compactBar: CompactBarBehavior.none,
       actions: [
         SearchableHeaderActions(
@@ -200,25 +202,51 @@ class _LogScreenState extends State<LogScreen> {
               semanticLabel: '回到今天',
               onTap: _goToToday,
             ),
-            Builder(
-              builder: (buttonContext) => HeaderAction(
-                icon: Icons.calendar_month_outlined,
-                label: '${_month.month}月',
-                semanticLabel: '切換月份，目前 ${_month.year} 年 ${_month.month} 月',
-                onTap: () => _pickMonth(buttonContext),
-              ),
+            HeaderAction(
+              icon: isTimeline
+                  ? Icons.calendar_month_outlined
+                  : Icons.view_agenda_outlined,
+              semanticLabel: isTimeline ? '以月曆顯示' : '以時間軸顯示',
+              onTap: () =>
+                  _setView(isTimeline ? _LogView.calendar : _LogView.timeline),
             ),
           ],
         ),
       ],
-      // Switching views changes the whole page, so it stays pinned; the
+      // The month is what both views show, so it stays pinned; the
       // category chips only narrow the list and scroll away with it.
       pinned: Gutter(
-        child: SegmentedChoice(
-          options: _LogView.values,
-          selected: _view,
-          labelOf: (view) => view == _LogView.timeline ? '時間軸' : '月曆',
-          onChanged: _setView,
+        child: Row(
+          children: [
+            _MonthStep(
+              icon: Icons.chevron_left,
+              semanticLabel: '上個月',
+              onTap: _isEarliestMonth
+                  ? null
+                  : () => _setMonth(DateTime(_month.year, _month.month - 1)),
+            ),
+            Expanded(
+              // Shrinks rather than overflows at large text sizes.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Builder(
+                  builder: (buttonContext) => HeaderAction(
+                    icon: Icons.calendar_month_outlined,
+                    label: '${_month.year} 年 ${_month.month} 月',
+                    semanticLabel: '選擇月份，目前 ${_month.year} 年 ${_month.month} 月',
+                    onTap: () => _pickMonth(buttonContext),
+                  ),
+                ),
+              ),
+            ),
+            _MonthStep(
+              icon: Icons.chevron_right,
+              semanticLabel: '下個月',
+              onTap: _isCurrentMonth
+                  ? null
+                  : () => _setMonth(DateTime(_month.year, _month.month + 1)),
+            ),
+          ],
         ),
       ),
       children: _view == _LogView.timeline
@@ -303,6 +331,31 @@ class _LogScreenState extends State<LogScreen> {
             child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
           ),
     ];
+  }
+}
+
+/// A step to the month before or after; dimmed where there is none.
+class _MonthStep extends StatelessWidget {
+  const _MonthStep({
+    required this.icon,
+    required this.semanticLabel,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String semanticLabel;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: onTap == null ? 0.35 : 1,
+      child: HeaderAction(
+        icon: icon,
+        semanticLabel: semanticLabel,
+        onTap: onTap,
+      ),
+    );
   }
 }
 

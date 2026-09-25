@@ -217,7 +217,7 @@ void main() {
       // Without a compact bar the pinned switch takes the toolbar's place.
       store.selectTab(HomeTab.log);
       await tester.pump(_settle);
-      final chip = tester.getRect(find.text('時間軸').hitTestable());
+      final chip = tester.getRect(find.text('2026 年 9 月').hitTestable());
       expect(
         chip.center.dy,
         closeTo(phoneTopInset + toolbar.controlRowHeight / 2, 0.5),
@@ -243,8 +243,8 @@ void main() {
           )
           .height;
 
-      expect(pillHeight(find.text('9月')), toolbar.actionVisualSize);
-      expect(pillHeight(find.text('時間軸')), toolbar.actionVisualSize);
+      expect(pillHeight(find.text('今天')), toolbar.actionVisualSize);
+      expect(pillHeight(find.text('2026 年 9 月')), toolbar.actionVisualSize);
       expect(pillHeight(find.text('訓練').first), toolbar.actionVisualSize);
       await disposeTree(tester);
     },
@@ -256,13 +256,23 @@ void main() {
     (tester) async {
       await _pumpShell(tester, tab: HomeTab.log);
 
-      final subtitle = tester.getRect(find.text('2026 年 9 月').first);
+      final title = tester.getRect(
+        find.descendant(
+          of: find.byWidgetPredicate(
+            (widget) => widget is LargeTitleBlock && widget.title == '紀錄',
+          ),
+          matching: find.text('紀錄'),
+        ),
+      );
       final control = tester.getRect(
         find
-            .ancestor(of: find.text('時間軸'), matching: find.byType(Material))
+            .ancestor(
+              of: find.text('2026 年 9 月'),
+              matching: find.byType(Material),
+            )
             .first,
       );
-      expect(control.top - subtitle.bottom, AppSpacing.md);
+      expect(control.top - title.bottom, AppSpacing.md);
       await disposeTree(tester);
     },
   );
@@ -301,7 +311,7 @@ void main() {
         await gesture.moveBy(Offset(0, -dy));
         await tester.pump();
         expect(
-          pill('時間軸').top - pill('9月').bottom,
+          pill('2026 年 9 月').top - pill('今天').bottom,
           toolbar.height - toolbar.controlRowHeight,
         );
       }
@@ -314,7 +324,7 @@ void main() {
     tester,
   ) async {
     await _pumpShell(tester, tab: HomeTab.log);
-    await tester.tap(find.text('月曆').hitTestable());
+    await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump(_settle);
     // Past halfway, so it snaps fully collapsed.
     await _dragAndSettle(tester, 150);

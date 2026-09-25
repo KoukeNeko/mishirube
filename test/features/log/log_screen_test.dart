@@ -23,7 +23,7 @@ void main() {
   }
 
   Future<void> openCalendar(WidgetTester tester) async {
-    await tester.tap(find.text('月曆').hitTestable());
+    await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pumpAndSettle();
   }
 
@@ -38,6 +38,27 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
     expect(find.byType(MonthCalendar), findsOneWidget, reason: 'kept');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the month steps back, and not past the current one', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(MishirubeApp(store: storeWithNotes()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('下個月').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('2026 年 9 月'), findsOneWidget, reason: 'no future');
+
+    await tester.tap(find.bySemanticsLabel('上個月').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('2026 年 8 月'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('下個月').hitTestable());
+    await tester.pumpAndSettle();
+    expect(find.text('2026 年 9 月'), findsOneWidget);
     await disposeTree(tester);
   });
 

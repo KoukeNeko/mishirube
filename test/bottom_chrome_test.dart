@@ -593,9 +593,13 @@ void main() {
         );
         await _pumpApp(tester, FakeClock());
 
-        await tester.tap(find.bySemanticsLabel('紀錄'));
+        final logTab = find.descendant(
+          of: find.byType(SplitDock),
+          matching: find.bySemanticsLabel('紀錄'),
+        );
+        await tester.tap(logTab);
         await _settleFor(tester);
-        await tester.tap(find.bySemanticsLabel('紀錄'));
+        await tester.tap(logTab);
         await _settleFor(tester);
         expect(haptics, ['HapticFeedbackType.selectionClick']);
 

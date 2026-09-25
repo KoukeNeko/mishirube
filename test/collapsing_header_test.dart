@@ -156,13 +156,13 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('Log has no compact bar: only the view switch stays', (
+  testWidgets('Log has no compact bar: only the month switch stays', (
     tester,
   ) async {
     await _pumpApp(tester, tab: HomeTab.log);
 
     await _scroll(tester, 500);
-    final pinnedTop = tester.getRect(find.text('時間軸').hitTestable()).top;
+    final pinnedTop = tester.getRect(find.text('2026 年 9 月').hitTestable()).top;
     expect(
       pinnedTop,
       lessThan(phoneTopInset + _toolbarHeight),
@@ -171,7 +171,7 @@ void main() {
 
     await _scroll(tester, -120);
     expect(
-      tester.getRect(find.text('時間軸').hitTestable()).top,
+      tester.getRect(find.text('2026 年 9 月').hitTestable()).top,
       pinnedTop,
       reason: 'scrolling up does not bring a small bar back',
     );
