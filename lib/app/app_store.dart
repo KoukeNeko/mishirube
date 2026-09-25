@@ -175,18 +175,6 @@ class AppStore extends ChangeNotifier {
   /// The template open for editing; null when there is none.
   Routine? get selectedRoutine => _routine;
 
-  /// What to train next: the template last trained, else the first
-  /// there is. Opening a template to look at it or edit it does not
-  /// change this.
-  Routine? get nextRoutine {
-    if (_lastFinishedWorkout?.routineId case final id?) {
-      if (_backend.training.routine(id, _exercisesById) case final last?) {
-        return last;
-      }
-    }
-    return routines.firstOrNull;
-  }
-
   /// Every template, for choosing what to train.
   List<Routine> get routines => _backend.training.routines(_exercisesById);
 

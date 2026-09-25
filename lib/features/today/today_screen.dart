@@ -15,9 +15,6 @@ import '../log/timeline_destination.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../sleep/sleep_screen.dart';
-import '../training/active_workout_screen.dart';
-import '../training/routine_detail_screen.dart';
-import '../training/training_screen.dart';
 import '../training/workout_summary_screen.dart';
 import '../trends/insight_detail_screen.dart';
 import 'active_workout_today.dart';
@@ -69,8 +66,9 @@ class TodayScreen extends StatelessWidget {
   }
 
   /// The one card that says what to do now, or nothing when there is
-  /// nothing to do: training not yet done today, then the meal that
-  /// usually comes about now, then the workout done today.
+  /// nothing to do: the meal that usually comes about now, then the
+  /// workout done today. What to train is not guessed: without a plan to
+  /// follow, the app does not know what comes next.
   Widget? _nextStep(
     BuildContext context,
     AppStore store,
@@ -78,32 +76,6 @@ class TodayScreen extends StatelessWidget {
   ) {
     final modules = store.enabledModules;
     final done = today.workoutToday;
-    if (modules.contains(AppModule.training) && done == null) {
-      final routine = store.nextRoutine;
-      if (routine == null) {
-        return Gutter(
-          child: EmptyStateCard(
-            icon: Icons.fitness_center,
-            title: '沒有訓練',
-            action: PrimaryButton(
-              label: '選擇訓練',
-              onPressed: () => pushPage(context, const TrainingScreen()),
-            ),
-          ),
-        );
-      }
-      return Gutter(
-        child: NextWorkoutCard(
-          routine: routine,
-          onStart: () => startWorkoutFlow(context, routine: routine),
-          onChange: () => pushPage(context, const TrainingScreen()),
-          onOpenRoutine: () {
-            store.selectRoutine(routine);
-            pushPage(context, const RoutineDetailScreen());
-          },
-        ),
-      );
-    }
     if (modules.contains(AppModule.nutrition)) {
       if (today.nextMeal case final meal?) {
         return Gutter(

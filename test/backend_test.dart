@@ -352,14 +352,6 @@ void main() {
       expect(saved.name, isNot('新的課表'));
     });
 
-    test('opening a workout does not change what Today offers', () {
-      final store = AppStore(clock: clock.now, isOnboarded: true);
-      addTearDown(store.dispose);
-      final next = store.nextRoutine!;
-      store.selectRoutine(store.routines.lastWhere((r) => r.id != next.id));
-      expect(store.nextRoutine!.id, next.id);
-    });
-
     test('a new workout is kept across a restart', () {
       final backend = openFile();
       addTearDown(backend.close);
@@ -429,7 +421,6 @@ void main() {
       }
       expect(store.routines, isEmpty);
       expect(store.selectedRoutine, isNull);
-      expect(store.nextRoutine, isNull);
 
       final reopened = AppStore(clock: clock.now, backend: backend);
       expect(reopened.selectedRoutine, isNull);

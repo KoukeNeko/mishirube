@@ -110,7 +110,11 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         label: isWorkoutActive ? '回到訓練' : '開始訓練',
         icon: Icons.play_arrow_outlined,
         onPressed: () {
-          store.startWorkout(sore: _sore);
+          // Exercise being timed is the user's to end first.
+          if (!store.startWorkout(sore: _sore)) {
+            showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
+            return;
+          }
           replaceWithPage(context, const ActiveWorkoutScreen());
         },
       ),

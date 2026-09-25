@@ -144,68 +144,6 @@ class CardEyebrow extends StatelessWidget {
   }
 }
 
-class NextWorkoutCard extends StatelessWidget {
-  const NextWorkoutCard({
-    super.key,
-    required this.routine,
-    required this.onStart,
-    required this.onChange,
-    required this.onOpenRoutine,
-  });
-
-  final Routine routine;
-
-  final VoidCallback onStart;
-
-  /// Trains something else this time.
-  final VoidCallback onChange;
-  final VoidCallback onOpenRoutine;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      tone: CardTone.training,
-      onTap: onOpenRoutine,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CardEyebrow(
-            label: '下一次訓練',
-            color: AppColors.training,
-            trailing:
-                '約 ${AppStoreScope.of(context).expectedMinutes(routine)} 分',
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(routine.name, style: AppTextStyles.pageTitle),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            '${routine.lastCompletedLabel} · ${routine.exercises.length} 個動作'
-            ' · ${routine.totalSets} 組',
-            style: AppTextStyles.caption.copyWith(fontSize: 14),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: PrimaryButton(
-                  label: '開始訓練',
-                  icon: Icons.play_arrow_outlined,
-                  onPressed: onStart,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: SecondaryButton(label: '更換', onPressed: onChange),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// One of the day's figures: its category, the value or 沒有紀錄, and
 /// underneath an optional small picture of it and a caption. Tiles in a
 /// row are stretched to one height, so the pictures and captions line up.

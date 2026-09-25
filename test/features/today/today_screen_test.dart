@@ -21,7 +21,11 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), store: emptyDay());
 
     expect(find.text('9 月 19 日（週六）'), findsOneWidget, reason: 'the date');
-    expect(find.byType(NextWorkoutCard), findsOneWidget, reason: 'next step');
+    expect(
+      find.text('開始訓練'),
+      findsNothing,
+      reason: 'what to train next is not guessed',
+    );
     expect(find.text('今天的紀錄'), findsNothing);
     expect(find.byType(IntakeCard), findsNothing, reason: 'not 0 kcal');
     expect(find.text('沒有紀錄'), findsWidgets);
@@ -63,7 +67,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('after training the next step moves on', (tester) async {
+  testWidgets('after training the workout done shows', (tester) async {
     usePhoneViewport(tester);
     final store = emptyDay()
       ..startWorkout()
@@ -71,7 +75,6 @@ void main() {
       ..finishWorkout();
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    expect(find.byType(NextWorkoutCard), findsNothing);
     expect(find.byType(CompletedWorkoutCard), findsOneWidget);
     await disposeTree(tester);
   });

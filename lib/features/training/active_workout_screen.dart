@@ -19,17 +19,6 @@ import 'substitute_exercise_screen.dart';
 import 'set_editor_dialog.dart';
 import 'workout_summary_screen.dart';
 
-/// Starts (or resumes) today's workout, from [routine] when given, and
-/// opens the logging screen. Says so and stops when exercise is already
-/// being timed: the running session is the user's to end.
-void startWorkoutFlow(BuildContext context, {Routine? routine}) {
-  if (!AppStoreScope.read(context).startWorkout(routine: routine)) {
-    showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
-    return;
-  }
-  pushPage(context, const ActiveWorkoutScreen());
-}
-
 /// A workout under way: every exercise on one page, each a table of its
 /// sets where weight and reps are typed in place and a tick logs the set
 /// and starts the rest. The rest and the time so far sit at the foot with

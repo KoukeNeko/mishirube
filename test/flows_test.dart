@@ -94,6 +94,23 @@ Future<void> _openFromHost(
   await tester.pumpAndSettle();
 }
 
+/// Opens a 課表 the way the user does: ＋, 訓練, then the 課表.
+Future<void> _openRoutine(WidgetTester tester, [String name = '下肢 A']) async {
+  await tester.tap(find.bySemanticsLabel('新增紀錄'));
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.descendant(of: find.byKey(quickLogMenuKey), matching: find.text('訓練')),
+  );
+  await tester.pumpAndSettle();
+  await _tapText(tester, name);
+}
+
+/// Starts a workout from a 課表, opened as the user opens one.
+Future<void> _startFromRoutine(WidgetTester tester) async {
+  await _openRoutine(tester);
+  await _tapText(tester, '開始訓練');
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   // Lazy lists only build what is on screen, so scroll until it exists.
   if (find.text(text).evaluate().isEmpty) {
@@ -127,7 +144,7 @@ void main() {
     await _tapText(tester, '繼續');
 
     expect(find.text('今天'), findsWidgets);
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
     expect(
       find.text('開始運動'),
       findsOneWidget,
@@ -167,8 +184,11 @@ void main() {
     );
     expect(store.lastFinishedWorkout, isNotNull);
 
-    await tester.tap(find.bySemanticsLabel('返回'));
-    await tester.pumpAndSettle();
+    // Back through the training page it was started from, to Today.
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.bySemanticsLabel('返回').last);
+      await tester.pumpAndSettle();
+    }
     expect(find.text('下肢 A 已完成'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
@@ -178,7 +198,7 @@ void main() {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
     final id = store.activeWorkout!.id;
 
     await _tapText(tester, '結束');
@@ -196,7 +216,7 @@ void main() {
     final clock = FakeClock();
     final store = AppStore(clock: clock.now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
     await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
     await tester.pump();
     expect(find.text('2:00'), findsOneWidget, reason: 'a squat rests longer');
@@ -225,7 +245,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
 
     await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
     await tester.pump();
@@ -243,7 +263,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
     final sets = store.activeWorkout!.currentExercise.sets;
     final count = sets.length;
     final weight = sets.first.weightKg;
@@ -311,7 +331,7 @@ void main() {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       await tester.pumpWidget(MishirubeApp(store: store));
 
-      await _tapText(tester, '下肢 A');
+      await _openRoutine(tester);
       await _tapText(tester, '加入動作');
       await tester.tap(find.byTooltip('篩選'));
       await tester.pumpAndSettle();
@@ -582,9 +602,7 @@ void main() {
     expect(find.textContaining('騎自行車進行中'), findsOneWidget);
 
     // Training must not quietly take over the running session.
-    store.selectTab(HomeTab.today);
-    await tester.pumpAndSettle();
-    await _tapText(tester, '開始訓練');
+    await _startFromRoutine(tester);
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(store.activeSession, isA<ActiveActivity>());
@@ -1483,7 +1501,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
 
-    await _tapText(tester, '下肢 A');
+    await _openRoutine(tester);
     final planned = [
       for (final exercise in store.routine.exercises) exercise.exercise.name,
     ];
@@ -1517,7 +1535,7 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     final planned = store.routine.exercises.length;
 
-    await _tapText(tester, '下肢 A');
+    await _openRoutine(tester);
     await _tapText(tester, '加入動作');
     await tester.enterText(find.byType(TextField), '前蹲');
     await tester.pump();
