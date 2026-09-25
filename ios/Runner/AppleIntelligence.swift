@@ -43,15 +43,6 @@ enum AppleIntelligence {
           return
         }
         draftFoodLabel(text: text, instructions: instructions, result: result)
-      case "summarizeTrends":
-        guard let arguments = call.arguments as? [String: Any],
-          let text = arguments["text"] as? String,
-          let instructions = arguments["instructions"] as? String
-        else {
-          result(FlutterError(code: "badArguments", message: nil, details: nil))
-          return
-        }
-        summarizeTrends(text: text, instructions: instructions, result: result)
       case "readsPhotos":
         result(readsPhotos())
       case "draftMealPhoto":
@@ -173,29 +164,6 @@ enum AppleIntelligence {
     result(FlutterError(code: "failed", message: "\(error)", details: nil))
   }
 
-  /// A few sentences over trend figures the app already worked out. The
-  /// Dart side checks the answer adds no figure of its own.
-  static func summarizeTrends(
-    text: String, instructions: String, result: @escaping FlutterResult
-  ) {
-    #if canImport(FoundationModels)
-      if #available(iOS 26.0, macOS 26.0, *) {
-        Task { @MainActor in
-          do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(
-              to: text, generating: TrendSummaryOutput.self)
-            result(response.content.summary)
-          } catch {
-            report(error, to: result)
-          }
-        }
-        return
-      }
-    #endif
-    result(FlutterError(code: "unavailable", message: nil, details: nil))
-  }
-
   /// A label's text, already read on the phone, into the food form's
   /// fields. Greedy sampling: this is copying numbers, not writing.
   static func draftFoodLabel(
@@ -222,13 +190,6 @@ enum AppleIntelligence {
 }
 
 #if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @Generable
-  struct TrendSummaryOutput {
-    @Guide(description: "兩到三句繁體中文摘要，只用事實裡出現的數字")
-    var summary: String
-  }
-
   /// One serving's figures off a Taiwanese nutrition label. Every field
   /// may be empty: a blank asks the user to look, a guess does not.
   @available(iOS 26.0, macOS 26.0, *)

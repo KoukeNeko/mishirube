@@ -68,8 +68,28 @@ class MiniBarChart extends StatelessWidget {
   }
 }
 
+/// A stretch of a [Sparkline] drawn as one flat level: an average over
+/// those points, rather than a fitted line.
+class ChartLevel {
+  const ChartLevel({
+    required this.value,
+    required this.from,
+    required this.to,
+    required this.color,
+  });
+
+  final double value;
+
+  /// The first and last point it spans.
+  final int from;
+  final int to;
+  final Color color;
+}
+
 /// Line chart without axes, ending in a dot on the latest value, or
-/// marking the [selected] one while a reading picks it.
+/// marking the [selected] one while a reading picks it. A null value is
+/// a gap the line breaks at rather than bridges. Behind the line it can
+/// show a [normal] band and [levels] across the stretches they average.
 class Sparkline extends StatelessWidget {
   const Sparkline({
     super.key,
@@ -77,12 +97,18 @@ class Sparkline extends StatelessWidget {
     this.color = AppColors.body,
     this.height = 48,
     this.selected,
+    this.normal,
+    this.levels = const [],
   });
 
-  final List<double> values;
+  final List<double?> values;
   final Color color;
   final double height;
   final int? selected;
+
+  /// The low and high edge of what is normal.
+  final (double, double)? normal;
+  final List<ChartLevel> levels;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +120,8 @@ class Sparkline extends StatelessWidget {
           values: values,
           color: color,
           selected: selected,
+          normal: normal,
+          levels: levels,
         ),
       ),
     );
@@ -105,53 +133,108 @@ class _SparklinePainter extends CustomPainter {
     required this.values,
     required this.color,
     required this.selected,
+    required this.normal,
+    required this.levels,
   });
 
   static const _endDotRadius = 4.0;
+  static const _loneDotRadius = 2.0;
+  static const _bandAlpha = 0.14;
 
-  final List<double> values;
+  final List<double?> values;
   final Color color;
   final int? selected;
+  final (double, double)? normal;
+  final List<ChartLevel> levels;
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (values.length < 2) return;
-    final minValue = values.reduce((a, b) => a < b ? a : b);
-    final maxValue = values.reduce((a, b) => a > b ? a : b);
+    final known = [...values.nonNulls];
+    if (known.length < 2 && levels.isEmpty) return;
+    final all = [
+      ...known,
+      if (normal case (final low, final high)) ...[low, high],
+      for (final level in levels) level.value,
+    ];
+    final minValue = all.reduce((a, b) => a < b ? a : b);
+    final maxValue = all.reduce((a, b) => a > b ? a : b);
     final range = (maxValue - minValue).abs() < 0.001 ? 1 : maxValue - minValue;
-    final stepX = (size.width - _endDotRadius) / (values.length - 1);
+    final stepX = values.length < 2
+        ? 0.0
+        : (size.width - _endDotRadius) / (values.length - 1);
+    double xOf(int index) => index * stepX;
+    double yOf(double value) =>
+        _endDotRadius +
+        (maxValue - value) / range * (size.height - _endDotRadius * 2);
 
-    Offset pointAt(int index) => Offset(
-      index * stepX,
-      _endDotRadius +
-          (maxValue - values[index]) /
-              range *
-              (size.height - _endDotRadius * 2),
-    );
-
-    final path = Path()..moveTo(pointAt(0).dx, pointAt(0).dy);
-    for (var i = 1; i < values.length; i++) {
-      path.lineTo(pointAt(i).dx, pointAt(i).dy);
+    if (normal case (final low, final high)) {
+      canvas.drawRect(
+        Rect.fromLTRB(0, yOf(high), size.width, yOf(low)),
+        Paint()..color = AppColors.textSecondary.withValues(alpha: _bandAlpha),
+      );
     }
-    canvas
-      ..drawPath(
-        path,
+    for (final level in levels) {
+      canvas.drawLine(
+        Offset(xOf(level.from), yOf(level.value)),
+        Offset(xOf(level.to), yOf(level.value)),
         Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
+          ..color = level.color
           ..strokeWidth = 2
-          ..strokeJoin = StrokeJoin.round,
-      )
-      ..drawCircle(
-        pointAt(selected ?? values.length - 1),
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+
+    final line = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeJoin = StrokeJoin.round;
+    Path? path;
+    var run = 0;
+    void endRun(int last) {
+      if (run == 1) {
+        // A point alone between gaps would otherwise not show at all.
+        canvas.drawCircle(
+          Offset(xOf(last), yOf(values[last]!)),
+          _loneDotRadius,
+          Paint()..color = color,
+        );
+      } else if (path != null) {
+        canvas.drawPath(path!, line);
+      }
+      path = null;
+      run = 0;
+    }
+
+    for (var i = 0; i < values.length; i++) {
+      final value = values[i];
+      if (value == null) {
+        endRun(i - 1);
+        continue;
+      }
+      final point = Offset(xOf(i), yOf(value));
+      path == null
+          ? path = (Path()..moveTo(point.dx, point.dy))
+          : path!.lineTo(point.dx, point.dy);
+      run++;
+    }
+    endRun(values.length - 1);
+
+    final last = values.lastIndexWhere((value) => value != null);
+    final marked = selected != null && values[selected!] != null
+        ? selected!
+        : last;
+    if (marked >= 0) {
+      canvas.drawCircle(
+        Offset(xOf(marked), yOf(values[marked]!)),
         _endDotRadius,
         Paint()..color = color,
       );
+    }
     if (selected case final index?) {
-      final x = pointAt(index).dx;
       canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
+        Offset(xOf(index), 0),
+        Offset(xOf(index), size.height),
         Paint()
           ..color = color.withValues(alpha: 0.4)
           ..strokeWidth = 1,
@@ -163,5 +246,7 @@ class _SparklinePainter extends CustomPainter {
   bool shouldRepaint(_SparklinePainter oldDelegate) =>
       oldDelegate.values != values ||
       oldDelegate.color != color ||
-      oldDelegate.selected != selected;
+      oldDelegate.selected != selected ||
+      oldDelegate.normal != normal ||
+      oldDelegate.levels != levels;
 }

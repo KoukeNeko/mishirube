@@ -3,7 +3,6 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/activity_metrics.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/trend_findings.dart';
-import 'package:mishirube/backend/ai/trend_writer.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
@@ -16,7 +15,9 @@ import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
+import 'package:mishirube/backend/engines/trend_detail.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
+import 'package:mishirube/backend/engines/trend_insights.dart';
 import 'package:mishirube/backend/engines/workout_review.dart';
 import 'package:mishirube/domain/domain.dart';
 
@@ -242,24 +243,6 @@ void main() {
         ),
     ];
 
-    test('sleep is compared only with two weeks of nights on each side', () {
-      final longer = [...daily(20, 450), ...daily(20, 410, endingDaysAgo: 28)];
-      expect(
-        sleepFinding(longer, today)!.insight.statement,
-        '近 4 週平均睡眠 7:30，比前 4 週多 40 分。',
-      );
-      final card = sleepFinding(longer, today)!;
-      expect(
-        (card.headline, card.value, card.change),
-        ('睡眠時間增加', '7:30', '+40 分'),
-      );
-      expect(card.weekly, isNotEmpty);
-      final thin = [...daily(10, 450), ...daily(20, 410, endingDaysAgo: 28)];
-      expect(sleepFinding(thin, today), isNull, reason: 'ten nights');
-      final steady = [...daily(20, 420), ...daily(20, 410, endingDaysAgo: 28)];
-      expect(sleepFinding(steady, today), isNull, reason: '10 min is noise');
-    });
-
     test('training weeks start at the first workout, not at zero', () {
       final line = trainingLine([
         DateTime(today.year, today.month, today.day - 3),
@@ -271,15 +254,13 @@ void main() {
 
     test('sleep is set against twelve weeks once there are that many', () {
       final nights = [...daily(28, 450), ...daily(84, 410, endingDaysAgo: 28)];
-      final finding = sleepFinding(nights, today)!;
-      expect(finding.insight.statement, '近 4 週平均睡眠 7:30，比前 12 週多 40 分。');
-      expect(finding.comparison, '與前 12 週相比');
+      expect(sleepLine(nights, today)!.change, '比前 12 週多 40 分');
       expect(
-        sleepFinding([
+        sleepLine([
           ...daily(20, 450),
           ...daily(20, 410, endingDaysAgo: 28),
-        ], today)!.comparison,
-        '與前 4 週相比',
+        ], today)!.change,
+        '比前 4 週多 40 分',
         reason: 'too few nights for twelve weeks: the four before stand in',
       );
     });
@@ -289,54 +270,8 @@ void main() {
         ...daily(90, 11000),
         ...daily(275, 9000, endingDaysAgo: 90),
       ];
-      final finding = stepsFinding(year, today)!;
-      expect(finding.comparison, '近 90 天與過去一年相比');
-      expect(finding.insight.statement, startsWith('近 90 天平均每天 11,000 步'));
+      expect(activityLine(year, today)!.value, '每天 11,000 步');
       expect(activityLine(year, today)!.change, startsWith('近 90 天比過去一年多'));
-    });
-
-    test('steps need most days of both stretches and a tenth more', () {
-      expect(
-        stepsFinding([
-          ...daily(25, 9000),
-          ...daily(25, 7500, endingDaysAgo: 28),
-        ], today)!.insight.statement,
-        '近 4 週平均每天 9,000 步，比前 4 週多 20%。',
-      );
-      expect(
-        stepsFinding([
-          ...daily(25, 7900),
-          ...daily(25, 7500, endingDaysAgo: 28),
-        ], today),
-        isNull,
-      );
-    });
-
-    test('the strongest finding among exercises is the one said', () {
-      ExerciseHistory history(double before, double now) => ExerciseHistory(
-        sessionCount: 4,
-        recent: [
-          for (final (daysAgo, max) in [
-            (3, now),
-            (10, now),
-            (60, before),
-            (67, before),
-          ])
-            ExerciseHistoryEntry(
-              date: today.subtract(Duration(days: daysAgo)),
-              weightKg: max,
-              reps: 1,
-              oneRepMaxKg: max,
-            ),
-        ],
-      );
-      final finding = strengthFinding([
-        ('臥推', history(100, 106)),
-        ('深蹲', history(100, 112)),
-        ('硬舉', history(100, 102)),
-      ], today)!;
-      expect(finding.insight.statement, '深蹲估計最大重量近 8 週 112 kg，比前 8 週高 12%。');
-      expect(finding.comparison, '與前 8 週相比');
     });
 
     test('a relation needs five workouts on each side of the median', () {
@@ -361,16 +296,179 @@ void main() {
         reason: 'four a side',
       );
     });
+  });
 
-    test('a summary may use only the figures it was given', () {
-      const facts = ['近 4 週平均每天 9,000 步，比前 4 週多 20%。', '睡眠：平均 7:30'];
-      expect(keepsToFacts('步數比前 4 週多 20%，平均睡眠 7:30。', facts), isTrue);
+  group('trend insights', () {
+    // A Saturday evening.
+    final today = DateTime(2026, 9, 19, 20);
+    DateTime day(int ago, [int hour = 12]) =>
+        DateTime(today.year, today.month, today.day - ago, hour);
+
+    test('energy burned is worked out from intake and the weight trend', () {
+      final food = [for (var i = 1; i <= 20; i++) (day(i), 2000.0)];
+      // 0.05 kg lost a day: 0.35 kg a week.
+      final weights = [
+        for (var i = 0; i < 21; i++) (day(20 - i, 7), 80 - 0.05 * i),
+      ];
+      final energy = energyBalance(
+        completeDays: food,
+        trendWeights: weights,
+        today: today,
+      )!;
+      expect(energy.intake, 2000);
+      expect(energy.expenditure, 2385, reason: '2000 + 0.05 × 7700');
+      expect(energy.balance, -385);
+      expect(energy.weeklyChangeKg, closeTo(-0.35, 0.001));
+      expect(energy.forecastKg, closeTo(79 - 0.05 * 56, 0.01));
+      expect(energy.isIntakeLikelyUnderlogged, isFalse);
+
       expect(
-        keepsToFacts('步數多了 25%。', facts),
-        isFalse,
-        reason: '25 is not a given figure',
+        energyBalance(
+          completeDays: food,
+          trendWeights: weights,
+          today: today,
+          basalKcal: 2500,
+        )!.isIntakeLikelyUnderlogged,
+        isTrue,
+        reason: 'burning less than at rest means food went unrecorded',
       );
-      expect(keepsToFacts('你的步數多了 20%。', facts), isFalse);
+      expect(
+        energyBalance(
+          completeDays: food.take(10).toList(),
+          trendWeights: weights,
+          today: today,
+        ),
+        isNull,
+        reason: 'ten food days',
+      );
+    });
+
+    test('weekends that eat more take back part of the deficit', () {
+      final food = [
+        for (var i = 0; i < 28; i++)
+          if (day(i).weekday >= DateTime.saturday)
+            (day(i), 2600.0)
+          else
+            (day(i), 2000.0),
+      ];
+      final gap = weekendIntake(food, today)!;
+      expect(gap.difference, 600);
+      const energy = EnergyBalance(
+        expenditure: 2400,
+        intake: 2170,
+        weeklyChangeKg: 0,
+        weightKg: 80,
+        forecastKg: 80,
+        foodDays: 21,
+        weighings: 21,
+        isIntakeLikelyUnderlogged: false,
+      );
+      // Weekends add 2 × 600 against a weekday deficit of 5 × 400.
+      expect(weekendOffset(energy, gap), closeTo(0.6, 0.001));
+      expect(
+        weekendIntake([for (var i = 0; i < 28; i++) (day(i), 2000.0)], today),
+        isNull,
+      );
+    });
+
+    test('waking later at weekends is said from 45 minutes', () {
+      final woke = [
+        for (var i = 0; i < 28; i++)
+          day(i).weekday >= DateTime.saturday
+              ? DateTime(today.year, today.month, today.day - i, 9)
+              : DateTime(today.year, today.month, today.day - i, 7, 20),
+      ];
+      final gap = weekendWake(woke, today)!;
+      expect(gap.difference, 100);
+      expect(
+        weekendWake([for (var i = 0; i < 28; i++) day(i, 7)], today),
+        isNull,
+      );
+    });
+
+    test('protein is judged per kilogram, trained days apart', () {
+      final grams = [
+        for (var i = 1; i <= 20; i++) (day(i), i.isEven ? 120.0 : 60.0),
+      ];
+      final protein = proteinIntake(
+        completeDayGrams: grams,
+        weightKg: 75,
+        trainingDays: {
+          for (var i = 2; i <= 20; i += 2)
+            DateTime(today.year, today.month, today.day - i),
+        },
+        today: today,
+      )!;
+      expect(protein.perKg, closeTo(1.2, 0.001));
+      expect(protein.shortGrams, 30, reason: '(1.6 − 1.2) × 75');
+      expect(protein.trainingDayPerKg, closeTo(1.6, 0.001));
+      expect(protein.restDayPerKg, closeTo(0.8, 0.001));
+    });
+
+    test('muscles short of ten sets and lopsided pairs are named', () {
+      final balance = trainingBalance([
+        (MuscleGroup.chest, 18),
+        (MuscleGroup.quads, 12),
+        (MuscleGroup.lats, 6),
+        (MuscleGroup.hamstrings, 4),
+      ], 8)!;
+      expect(balance.short.first, (MuscleGroup.hamstrings, 4));
+      expect(balance.enough.map((entry) => entry.$1), [
+        MuscleGroup.chest,
+        MuscleGroup.quads,
+      ]);
+      expect(balance.imbalances.map((entry) => entry.$1), [
+        MusclePair.pushPull,
+        MusclePair.quadsHamstrings,
+      ]);
+      expect(trainingBalance(const [(MuscleGroup.chest, 12)], 2), isNull);
+    });
+  });
+
+  group('trend detail', () {
+    // A Saturday.
+    final today = DateTime(2026, 9, 19, 20);
+    DateTime day(int ago) =>
+        DateTime(today.year, today.month, today.day - ago, 8);
+
+    test('weeks are averaged, gaps stay gaps, and the levels are placed', () {
+      final daily = [
+        for (var ago = 0; ago < 16 * 7; ago++)
+          if (ago ~/ 7 != 6) (day(ago), ago < 28 ? 480.0 : 420.0),
+      ];
+      final detail = trendDetail(
+        daily,
+        today,
+        weeks: 16,
+        aggregate: WeekAggregate.mean,
+      );
+      expect(detail.values, hasLength(16));
+      expect(detail.values.last, 480);
+      expect(detail.values[16 - 1 - 6], isNull, reason: 'a week not logged');
+      expect(detail.recent!.value, 480);
+      expect((detail.recent!.fromWeek, detail.recent!.toWeek), (12, 15));
+      expect(detail.baseline!.value, 420);
+      expect((detail.baseline!.fromWeek, detail.baseline!.toWeek), (0, 11));
+      expect(detail.normal, isNotNull);
+      expect(detail.daysWithRecords.last, 7);
+    });
+
+    test('a count is zero in a quiet week once counting began', () {
+      final starts = [(day(0), 1.0), (day(2), 1.0), (day(20), 1.0)];
+      final detail = trendDetail(
+        starts,
+        today,
+        weeks: 6,
+        aggregate: WeekAggregate.sum,
+      );
+      expect(detail.values, [null, null, null, 1, 0, 2]);
+      expect(detail.normal, isNull, reason: 'too few weeks');
+      final saturday = today.weekday - 1;
+      expect(
+        detail.weekdays[saturday],
+        closeTo(1 / 3, 0.001),
+        reason: 'one Saturday in the three weeks since the first',
+      );
     });
   });
 

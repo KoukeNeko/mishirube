@@ -7,12 +7,11 @@ import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
-import 'trend_writer.dart';
 
 /// Apple's on-device model, reached through a small channel to Swift
 /// (`AppleIntelligence` in `ios/Runner/AppDelegate.swift`). There is no Flutter plugin
 /// from Apple, and the job is small enough not to hang it on a 0.x one.
-class AppleMealDrafter implements MealDrafter, TrendWriter {
+class AppleMealDrafter implements MealDrafter {
   const AppleMealDrafter();
 
   static const _channel = MethodChannel('mishirube/apple_intelligence');
@@ -42,10 +41,6 @@ class AppleMealDrafter implements MealDrafter, TrendWriter {
       return AiAvailability.unavailable;
     }
   }
-
-  @override
-  Future<String> summarizeTrends(String facts) =>
-      _ask('summarizeTrends', trendSummaryInstructions, facts);
 
   @override
   Future<MealDraft> draftMeal(String description) async => parseMealDraft(

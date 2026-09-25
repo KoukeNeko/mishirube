@@ -451,6 +451,25 @@ enum ActivityMetric {
   final ActivityMetricGroup group;
   final bool isCumulative;
 
+  /// The most a counted metric can come to in a day, in its stored unit.
+  /// Past it a sample is not a hard day but a broken one: a device or
+  /// app once wrote 4,294,967,295 steps (a 32-bit counter's -1) to Apple
+  /// Health, and one such day outweighs a year of real ones.
+  double? get maxPerDay => switch (this) {
+    steps => 200000,
+    distance => 500000,
+    activeEnergy || basalEnergy => 20000,
+    exerciseTime || standTime || timeInDaylight => 1440,
+    floors => 3000,
+    elevationGained => 20000,
+    _ => null,
+  };
+
+  /// Whether [value] could be true of a sample of this metric: a counted
+  /// one within a day's most, and neither one negative.
+  bool isPlausible(double value) =>
+      value.isFinite && value >= 0 && value <= (maxPerDay ?? double.infinity);
+
   /// From the stored unit to [unit].
   final double displayScale;
   final int decimals;

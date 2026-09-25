@@ -24,6 +24,9 @@ class ActivitySampleRepository {
       final now = _db.now().millisecondsSinceEpoch;
       var changed = 0;
       for (final sample in samples) {
+        // A broken figure is not kept: the platform keeps it, but it
+        // would outweigh every real day it is averaged with.
+        if (!sample.metric.isPlausible(sample.value)) continue;
         final id =
             '$idPrefix-${sample.metric.name}-'
             '${sample.start.millisecondsSinceEpoch}';
@@ -78,7 +81,8 @@ class ActivitySampleRepository {
     });
   }
 
-  /// [metric]'s samples starting in [from]–[to], oldest first.
+  /// [metric]'s samples starting in [from]–[to], oldest first. One
+  /// stored before broken figures were turned away is left out here.
   List<ActivitySample> between(
     ActivityMetric metric,
     DateTime from,
@@ -90,12 +94,13 @@ class ActivitySampleRepository {
       'AND deleted_at IS NULL ORDER BY started_at',
       [metric.name, from.millisecondsSinceEpoch, to.millisecondsSinceEpoch],
     ))
-      ActivitySample(
-        metric: metric,
-        start: DateTime.fromMillisecondsSinceEpoch(row['started_at']! as int),
-        end: DateTime.fromMillisecondsSinceEpoch(row['ended_at']! as int),
-        value: (row['value']! as num).toDouble(),
-      ),
+      if (metric.isPlausible((row['value']! as num).toDouble()))
+        ActivitySample(
+          metric: metric,
+          start: DateTime.fromMillisecondsSinceEpoch(row['started_at']! as int),
+          end: DateTime.fromMillisecondsSinceEpoch(row['ended_at']! as int),
+          value: (row['value']! as num).toDouble(),
+        ),
   ];
 
   /// The metrics with any sample starting from [from] on.

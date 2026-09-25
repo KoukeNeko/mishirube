@@ -1664,6 +1664,55 @@ void main() {
   });
 
   group('activity persistence', () {
+    test('a broken step count is neither kept nor counted', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final samples = backend.storage.activitySamples;
+      final day = DateTime(2026, 9, 17, 9);
+      ActivitySample steps(DateTime at, double value) => ActivitySample(
+        metric: ActivityMetric.steps,
+        start: at,
+        end: at.add(const Duration(hours: 1)),
+        value: value,
+      );
+      // What a 32-bit counter's −1 reads as, as once written to Apple
+      // Health: one such hour outweighs a year of real days.
+      samples.sync(
+        [steps(day, 4294967295), steps(day.add(const Duration(hours: 1)), 800)],
+        idPrefix: 'healthkit',
+        source: ChangeSource.healthKit,
+      );
+      expect(
+        samples
+            .between(
+              ActivityMetric.steps,
+              DateTime(2026, 9, 17),
+              DateTime(2026, 9, 18),
+            )
+            .map((sample) => sample.value),
+        [800],
+      );
+
+      // One stored before the check is left out when read.
+      backend.db.execute(
+        'INSERT INTO activity_samples (id, metric, started_at, ended_at, '
+        "value, created_at, updated_at, source) VALUES ('old', 'steps', ?, ?, "
+        "4294967295, 0, 0, 'healthKit')",
+        [
+          day.add(const Duration(hours: 3)).millisecondsSinceEpoch,
+          day.add(const Duration(hours: 4)).millisecondsSinceEpoch,
+        ],
+      );
+      expect(
+        samples.between(
+          ActivityMetric.steps,
+          DateTime(2026, 9, 17),
+          DateTime(2026, 9, 18),
+        ),
+        hasLength(1),
+      );
+    });
+
     test('a logged session survives a restart and lands on the log', () {
       final backend = openFile();
       addTearDown(backend.close);

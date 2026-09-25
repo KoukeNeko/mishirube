@@ -726,17 +726,6 @@ class AppStore extends ChangeNotifier {
   /// The provider drafts come from, or null until one is chosen.
   AiProviderKind? get aiProvider => _ai.provider;
 
-  /// [facts] in a few sentences by Apple's on-device model; null when it
-  /// is not the provider or could not answer. The page says the same
-  /// without it, so a failure is not worth a message.
-  Future<String?> summarizeTrends(List<String> facts) async {
-    try {
-      return await _ai.summarizeTrends(facts);
-    } on AiException {
-      return null;
-    }
-  }
-
   /// Uses Apple Intelligence without asking when it is on and no other
   /// provider was chosen.
   Future<void> refreshOnDeviceAi() async {

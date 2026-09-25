@@ -1,6 +1,7 @@
 import '../../app/view_model.dart';
 import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/trend_findings.dart';
 import '../../backend/engines/trend_engine.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
@@ -26,6 +27,10 @@ class TrendsViewModel extends ViewModel {
 
   /// What changed over the last weeks, across every area.
   TrendsReport get report => backend.insights.report();
+
+  /// One area week by week over the last [weeks] weeks, or all of it.
+  AreaTrend areaTrend(TrendDomain domain, {int? weeks}) =>
+      backend.insights.areaTrend(domain, weeks: weeks);
 
   /// Training figures over [window].
   TrendsOverview overview(Duration window) =>

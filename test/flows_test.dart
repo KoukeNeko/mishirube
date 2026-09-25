@@ -709,7 +709,18 @@ void main() {
 
     expect(figureIn(backend), MuscleFigure.male, reason: 'one has to be first');
 
-    await tester.tap(find.widgetWithText(NavRow, '訓練'));
+    final trainingRow = find.widgetWithText(NavRow, '訓練');
+    await tester.dragUntilVisible(
+      trainingRow,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    await Scrollable.ensureVisible(tester.element(trainingRow), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(trainingRow);
+    await tester.pumpAndSettle();
+    expect(find.text('訓練趨勢'), findsWidgets);
+    await _tapText(tester, '每日紀錄');
     await tester.pumpAndSettle();
     await _tapText(tester, MuscleFigure.female.label);
     await tester.pumpAndSettle();
@@ -732,6 +743,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final delta = find.textContaining(RegExp('[−+][0-9]'));
+    await tester.dragUntilVisible(
+      delta,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
     expect(delta, findsWidgets, reason: 'the demo weight is trending');
     for (final text in tester.widgetList<Text>(delta)) {
       expect(

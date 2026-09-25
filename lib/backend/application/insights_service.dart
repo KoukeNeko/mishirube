@@ -1,9 +1,12 @@
 import '../../domain/domain.dart';
 import '../engines/activity_metrics.dart';
+import '../engines/body_metrics.dart';
 import '../engines/insight_engine.dart';
 import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
+import '../engines/trend_insights.dart';
 import '../engines/trend_engine.dart';
+import '../engines/trend_detail.dart';
 import '../engines/trend_findings.dart';
 import '../engines/workout_review.dart';
 import '../storage/activity_sample_repository.dart';
@@ -12,6 +15,38 @@ import '../storage/exercise_repository.dart';
 import '../storage/journal_repository.dart';
 import '../storage/meal_repository.dart';
 import '../storage/workout_repository.dart';
+
+/// How far back 「全部」 reads.
+const _earliestYear = 2000;
+
+/// Steps' latest stretch and the year they are set against, in weeks.
+const _quarterWeeks = 13;
+const _yearWeeks = 52;
+
+/// One area's figure week by week, what it is paired with (the scale
+/// weight beside the trend, training volume beside workouts, protein
+/// beside energy, resting heart rate beside steps), and for sleep when
+/// the nights begin and end.
+class AreaTrend {
+  const AreaTrend({
+    required this.domain,
+    required this.detail,
+    this.secondary,
+    this.sleepTimes,
+  });
+
+  final TrendDomain domain;
+  final TrendDetail detail;
+  final TrendDetail? secondary;
+
+  /// Average bedtime and waking over the latest four weeks, in minutes
+  /// after midnight.
+  final ({double bedtime, double wake})? sleepTimes;
+}
+
+/// Days of measured resting energy before it is trusted to catch food
+/// missing from the records.
+const _minimumBasalDays = 7;
 
 /// Sessions per week the training goal asks for, until goals are editable.
 const weeklyTrainingGoal = 3;
@@ -53,38 +88,42 @@ class TrendsOverview {
       weeklyWorkouts.isEmpty ? 0 : weeklyWorkouts.last.$2;
 }
 
-/// What the Trends page says: the changes worth noticing, strongest
-/// first; a relation between two areas when the records support one;
-/// and each area's long-run line.
+/// What the Trends page works out (see `research/56-trends-insights.md`):
+/// figures no single chart shows, each null when the records cannot
+/// support it; a relation between sleep and training when they do; and
+/// each area's long-run line.
 class TrendsReport {
   const TrendsReport({
-    required this.findings,
+    required this.energy,
+    required this.weekendIntake,
+    required this.protein,
+    required this.training,
+    required this.weekendWake,
     required this.relation,
     required this.lines,
+    required this.foodDays,
+    required this.weighings,
   });
 
-  final List<TrendFinding> findings;
+  final EnergyBalance? energy;
+  final WeekendGap? weekendIntake;
+  final ProteinIntake? protein;
+  final TrainingBalance? training;
+  final WeekendGap? weekendWake;
   final Insight? relation;
   final List<TrendLine> lines;
 
-  /// Every figure said above, one line each and marked by what it is,
-  /// for a writer to put into words without adding any.
-  List<String> get facts => [
-    for (final finding in findings) '變化：${finding.insight.statement}',
-    if (relation case final relation?) '關聯：${relation.statement}',
-    for (final line in lines)
-      '現況：${line.domain.label}${line.value}'
-          '${line.change == null ? '' : '，${line.change}'}',
-  ];
+  /// Complete food days and weighings in the energy window, for saying
+  /// how far short of an estimate the records are.
+  final int foodDays;
+  final int weighings;
 
-  /// Whether there is more than one thing to tie together: a summary of
-  /// a single change only repeats the card below it.
-  bool get isWorthSummarizing =>
-      findings.length + (relation == null ? 0 : 1) >= 2;
+  /// How much of the weekdays' deficit the weekends take back.
+  double? get weekendShare => switch ((energy, weekendIntake)) {
+    (final energy?, final intake?) => weekendOffset(energy, intake),
+    _ => null,
+  };
 }
-
-/// How many changes the Trends page leads with.
-const _findingCount = 3;
 
 /// One exercise's training volume over a window, with the insight it
 /// supports.
@@ -182,25 +221,44 @@ class InsightsService {
     final steps = dailyValues(
       _samples.between(ActivityMetric.steps, from, until),
     );
-    final restingHeartRate = dailyValues(
-      _samples.between(ActivityMetric.restingHeartRate, from, until),
+    final (:kcal, :protein, :daysTracked) = _completeFoodDays(from, until, now);
+    final trend = [for (final (at, _, value) in trendOf(weights)) (at, value)];
+    final basal = dailyValues(
+      _samples.between(
+        ActivityMetric.basalEnergy,
+        now.subtract(const Duration(days: energyWindowDays)),
+        until,
+      ),
     );
-    final (completeDays, daysTracked) = _completeFoodDays(from, until, now);
-    final findings = [
-      ?weightFinding(weights, now),
-      ?trainingFinding(starts, now),
-      ?strengthFinding([
-        for (final exercise in _exercises.all())
-          if (exercise.recordCount > 0)
-            (exercise.name, _exercises.history(exercise.id)),
-      ], now),
-      ?sleepFinding(nights, now),
-      ?intakeFinding(completeDays, now),
-      ?stepsFinding(steps, now),
-      ?restingHeartRateFinding(restingHeartRate, now),
-    ]..sort((a, b) => b.strength.compareTo(a.strength));
+    final energy = energyBalance(
+      completeDays: kcal,
+      trendWeights: trend,
+      today: now,
+      basalKcal: basal.length < _minimumBasalDays
+          ? null
+          : basal.fold(0.0, (sum, day) => sum + day.$2) / basal.length,
+    );
+    final energyStart = _dayOf(now)
+        .subtract(const Duration(days: energyWindowDays - 1));
+    final recentStart = now.subtract(const Duration(days: patternWindowDays));
     return TrendsReport(
-      findings: findings.take(_findingCount).toList(),
+      energy: energy,
+      weekendIntake: weekendIntake(kcal, now),
+      protein: trend.isEmpty
+          ? null
+          : proteinIntake(
+              completeDayGrams: protein,
+              weightKg: trend.last.$2,
+              trainingDays: {for (final start in starts) _dayOf(start)},
+              today: now,
+            ),
+      training: trainingBalance(
+        muscleLoad(),
+        starts.where((start) => start.isAfter(recentStart)).length,
+      ),
+      weekendWake: weekendWake([for (final (wokeAt, _) in nights) wokeAt], now),
+      foodDays: kcal.where((day) => !day.$1.isBefore(energyStart)).length,
+      weighings: trend.where((point) => !point.$1.isBefore(energyStart)).length,
       relation: sleepAndTrainingInsight({
         for (final (wokeAt, minutes) in nights) _dayOf(wokeAt): minutes,
       }, _workouts.completedVolumes(since: from)),
@@ -208,23 +266,164 @@ class InsightsService {
         ?bodyLine(weights, now),
         ?trainingLine(starts, now),
         ?sleepLine(nights, now),
-        ?nutritionLine(completeDays, daysTracked, now),
+        ?nutritionLine(kcal, daysTracked, now),
         ?activityLine(steps, now),
       ],
+    );
+  }
+
+  /// One area's figure week by week over the last [weeks] weeks, or
+  /// every week there are records for when [weeks] is null, with the
+  /// figure the area pairs it with.
+  AreaTrend areaTrend(TrendDomain domain, {int? weeks}) {
+    final now = _db.now();
+    final until = _db.nowInclusive;
+    final from = weeks == null
+        ? DateTime(_earliestYear)
+        : _dayOf(now).subtract(Duration(days: weeks * DateTime.daysPerWeek));
+    final (daily, aggregate, secondary) = switch (domain) {
+      TrendDomain.body => () {
+        final weights = _journal.weightsBetween(from, until);
+        return (
+          [for (final (at, _, value) in trendOf(weights)) (at, value)],
+          WeekAggregate.mean,
+          [for (final weight in weights) (weight.measuredAt, weight.weightKg)],
+        );
+      }(),
+      TrendDomain.training => (
+        [
+          for (final start in _workouts.completedStarts(since: from))
+            (start, 1.0),
+        ],
+        WeekAggregate.sum,
+        [
+          for (final (start, _, volume) in _workouts.completedVolumes(
+            since: from,
+          ))
+            (start, volume),
+        ],
+      ),
+      TrendDomain.sleep => (
+        [
+          for (final (wokeAt, minutes, _) in _nights(from, until))
+            (wokeAt, minutes),
+        ],
+        WeekAggregate.mean,
+        null,
+      ),
+      TrendDomain.nutrition => () {
+        final (:kcal, :protein, daysTracked: _) = _completeFoodDays(
+          from,
+          until,
+          now,
+        );
+        return (kcal, WeekAggregate.mean, protein);
+      }(),
+      TrendDomain.activity => (
+        dailyValues(_samples.between(ActivityMetric.steps, from, until)),
+        WeekAggregate.mean,
+        dailyValues(
+          _samples.between(ActivityMetric.restingHeartRate, from, until),
+        ),
+      ),
+    };
+    final span =
+        weeks ??
+        switch (daily
+            .map((day) => day.$1)
+            .fold<DateTime?>(
+              null,
+              (first, at) => first == null || at.isBefore(first) ? at : first,
+            )) {
+          final first? =>
+            (_dayOf(now).difference(_dayOf(first)).inDays ~/
+                    DateTime.daysPerWeek +
+                1),
+          null => 1,
+        };
+    // Steps are set against the year, as their long-run line is.
+    final isYearly = domain == TrendDomain.activity;
+    TrendDetail detailOf(
+      List<(DateTime, double)> values,
+      WeekAggregate aggregate,
+    ) => trendDetail(
+      values,
+      now,
+      weeks: span,
+      aggregate: aggregate,
+      recentWeeks: isYearly ? _quarterWeeks : trendWindowDays ~/ 7,
+      baselineWeeks: isYearly ? _yearWeeks : 3 * trendWindowDays ~/ 7,
+      baselineIncludesRecent: isYearly,
+    );
+
+    return AreaTrend(
+      domain: domain,
+      detail: detailOf(daily, aggregate),
+      secondary: secondary == null
+          ? null
+          : detailOf(
+              secondary,
+              domain == TrendDomain.training
+                  ? WeekAggregate.sum
+                  : WeekAggregate.mean,
+            ),
+      sleepTimes: domain == TrendDomain.sleep
+          ? _sleepTimes(
+              _nights(
+                now.subtract(const Duration(days: trendWindowDays)),
+                until,
+              ),
+            )
+          : null,
+    );
+  }
+
+  /// Nights asleep from [from]: when each ended, how long it was, and
+  /// when it began.
+  List<(DateTime, double, DateTime)> _nights(DateTime from, DateTime until) => [
+    for (final entry in _journal.sleepBetween(from, until))
+      if (entry.kind == SleepKind.night && entry.measure == SleepMeasure.asleep)
+        (
+          entry.sleptAt,
+          entry.duration.inMinutes.toDouble(),
+          entry.startedAt ?? entry.sleptAt.subtract(entry.duration),
+        ),
+  ];
+
+  /// The average bedtime and waking over [nights], in minutes after
+  /// midnight; null without any. Averaged around noon, so 23:30 and
+  /// 00:30 average to midnight rather than to noon.
+  static ({double bedtime, double wake})? _sleepTimes(
+    List<(DateTime, double, DateTime)> nights,
+  ) {
+    if (nights.isEmpty) return null;
+    const day = Duration.minutesPerDay;
+    double average(Iterable<DateTime> times) {
+      final shifted = [
+        for (final time in times)
+          (time.hour * 60 + time.minute + day / 2) % day,
+      ];
+      return (shifted.reduce((a, b) => a + b) / shifted.length - day / 2) % day;
+    }
+
+    return (
+      bedtime: average([for (final (_, _, began) in nights) began]),
+      wake: average([for (final (woke, _, _) in nights) woke]),
     );
   }
 
   static DateTime _dayOf(DateTime time) =>
       DateTime(time.year, time.month, time.day);
 
-  /// Energy eaten on each complete day from [from], and how many days in
-  /// the latest stretch have any food record. Today is never complete:
-  /// it is not over.
-  (List<(DateTime, double)>, int) _completeFoodDays(
-    DateTime from,
-    DateTime until,
-    DateTime now,
-  ) {
+  /// Energy and protein eaten on each complete day from [from], and how
+  /// many days in the latest stretch have any food record. Today is
+  /// never complete: it is not over.
+  ({
+    List<(DateTime, double)> kcal,
+    List<(DateTime, double)> protein,
+    int daysTracked,
+  })
+  _completeFoodDays(DateTime from, DateTime until, DateTime now) {
     final byDay = <DateTime, List<MealEvent>>{};
     for (final (eatenAt, meal) in _meals.between(from, until)) {
       (byDay[_dayOf(eatenAt)] ??= []).add(meal);
@@ -233,15 +432,18 @@ class InsightsService {
     final recentStart = today.subtract(
       const Duration(days: trendWindowDays - 1),
     );
-    final complete = <(DateTime, double)>[];
-    for (final MapEntry(key: day, value: meals) in byDay.entries) {
-      final summary = summariseDay(meals, isOver: day.isBefore(today));
-      if (summary.isComplete) complete.add((day, summary.kcal.toDouble()));
+    final kcal = <(DateTime, double)>[];
+    final protein = <(DateTime, double)>[];
+    for (final day in byDay.keys.toList()..sort()) {
+      final summary = summariseDay(byDay[day]!, isOver: day.isBefore(today));
+      if (!summary.isComplete) continue;
+      kcal.add((day, summary.kcal.toDouble()));
+      protein.add((day, summary.proteinGrams.toDouble()));
     }
-    complete.sort((a, b) => a.$1.compareTo(b.$1));
     return (
-      complete,
-      byDay.keys.where((day) => !day.isBefore(recentStart)).length,
+      kcal: kcal,
+      protein: protein,
+      daysTracked: byDay.keys.where((day) => !day.isBefore(recentStart)).length,
     );
   }
 

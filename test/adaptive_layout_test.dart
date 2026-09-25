@@ -259,9 +259,16 @@ void main() {
         find
             .descendant(
               of: find.byType(TrendsScreen),
-              matching: find.text('值得注意'),
+              matching: find.text('體重與飲食'),
             )
             .first,
+      );
+      // Below the insights on a phone, so scrolled to; only the
+      // horizontal positions are compared.
+      await tester.dragUntilVisible(
+        find.text('長期走向'),
+        find.byType(CustomScrollView).hitTestable().first,
+        const Offset(0, -200),
       );
       final longRun = tester.getRect(
         find.descendant(
