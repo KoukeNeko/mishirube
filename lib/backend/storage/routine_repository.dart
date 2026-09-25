@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/domain.dart';
 import 'database.dart';
 
@@ -37,6 +39,7 @@ class RoutineRepository {
             progressionLabel: row['progression_label'],
             isUnilateral: row['is_unilateral'] == 1,
             joinsNext: row['joins_next'] == 1,
+            setLoads: _loadsOf(row['set_loads'] as String?),
           ),
       ],
     );
@@ -128,7 +131,8 @@ class RoutineRepository {
         _db.execute(
           'INSERT INTO routine_exercises (routine_id, position, exercise_id, '
           'sets, reps, rir, target_weight_kg, progression_label, '
-          'is_unilateral, joins_next) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_unilateral, joins_next, set_loads) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             routine.id,
             position,
@@ -140,6 +144,12 @@ class RoutineRepository {
             planned.progressionLabel,
             planned.isUnilateral ? 1 : 0,
             planned.joinsNext ? 1 : null,
+            switch (planned.setLoads) {
+              final loads? => jsonEncode([
+                for (final load in loads) [load.weightKg, load.reps],
+              ]),
+              null => null,
+            },
           ],
         );
       }
@@ -156,3 +166,15 @@ class RoutineRepository {
     });
   }
 }
+
+/// Stored set loads, `[[kg, reps], ...]`, back as the domain's.
+List<SetLoad>? _loadsOf(String? stored) => switch (stored) {
+  final text? => [
+    for (final pair in jsonDecode(text) as List)
+      (
+        weightKg: ((pair as List)[0] as num).toDouble(),
+        reps: (pair[1] as num).toInt(),
+      ),
+  ],
+  null => null,
+};

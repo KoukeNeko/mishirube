@@ -80,10 +80,21 @@ class TodayScreen extends StatelessWidget {
     final done = today.workoutToday;
     if (modules.contains(AppModule.training) && done == null) {
       final routine = store.nextRoutine;
+      if (routine == null) {
+        return Gutter(
+          child: EmptyStateCard(
+            icon: Icons.fitness_center,
+            title: '沒有訓練',
+            action: PrimaryButton(
+              label: '選擇訓練',
+              onPressed: () => pushPage(context, const TrainingScreen()),
+            ),
+          ),
+        );
+      }
       return Gutter(
         child: NextWorkoutCard(
           routine: routine,
-          program: store.programProgress,
           onStart: () => startWorkoutFlow(context, routine: routine),
           onChange: () => pushPage(context, const TrainingScreen()),
           onOpenRoutine: () {

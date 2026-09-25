@@ -459,7 +459,9 @@ void main() {
 
     testWidgets('a session opened and finished from the dock stays beside '
         'the list', (tester) async {
-      final store = _store()..startWorkout();
+      final store = _store()
+        ..startWorkout()
+        ..beginWorkout();
       await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
       final list = tester.getRect(find.byType(TodayScreen));
 

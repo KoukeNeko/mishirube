@@ -81,7 +81,7 @@ void main() {
       tester.getRect(find.text('結束')).top,
       greaterThanOrEqualTo(phoneTopInset),
     );
-    _expectFooterReachesBottomEdge(tester, '完成這一組');
+    _expectFooterReachesBottomEdge(tester, '開始運動');
     await disposeTree(tester);
   });
 

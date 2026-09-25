@@ -212,7 +212,7 @@ In particular, do not create a parallel version of:
 - Every pane has the same side margin, the `AppSpacing.screenGutter`
   `Gutter` adds, and the content column is never capped or centred:
   cards, lists and charts use the pane's width, as a split view's detail
-  column does on iPad. Only footer buttons and the rest timer keep to
+  column does on iPad. Only footer buttons keep to
   `readableMaxWidth`, as would a paragraph of prose if a page had one.
   A wide pane shows more, not more margin: a group
   of tiles adds columns when it has room (the trends summary), measured
@@ -302,7 +302,7 @@ task requires it.
 ## Testing
 
 - `test/screens_smoke_test.dart`: every screen renders without layout
-  errors and uses the shared app bar (the rest timer is the only listed
+  errors and uses the shared app bar (the camera is the only listed
   exception).
 - Flow tests (`flows_test.dart`) cover multi-step user journeys.
 - Backend tests run real SQLite, in memory or in a temp file:

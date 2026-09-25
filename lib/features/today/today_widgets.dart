@@ -6,7 +6,6 @@ import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
-import '../training/training_screen.dart';
 
 const _weekDotSize = 28.0;
 
@@ -149,7 +148,6 @@ class NextWorkoutCard extends StatelessWidget {
   const NextWorkoutCard({
     super.key,
     required this.routine,
-    this.program,
     required this.onStart,
     required this.onChange,
     required this.onOpenRoutine,
@@ -157,8 +155,6 @@ class NextWorkoutCard extends StatelessWidget {
 
   final Routine routine;
 
-  /// The running program [routine] is the next workout of, if any.
-  final ProgramProgress? program;
   final VoidCallback onStart;
 
   /// Trains something else this time.
@@ -187,13 +183,6 @@ class NextWorkoutCard extends StatelessWidget {
             ' · ${routine.totalSets} 組',
             style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
-          if (program case final program?) ...[
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              '${program.program.name} · ${roundLabel(program)}',
-              style: AppTextStyles.caption,
-            ),
-          ],
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [

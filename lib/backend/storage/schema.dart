@@ -719,6 +719,11 @@ final List<String> _migrations = [
     $_entityColumns
   );
   ''',
+  '''
+  -- A planned exercise's sets one by one, as [[kg, reps], ...], when
+  -- they differ from set to set; null when every set is alike.
+  ALTER TABLE routine_exercises ADD COLUMN set_loads TEXT;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

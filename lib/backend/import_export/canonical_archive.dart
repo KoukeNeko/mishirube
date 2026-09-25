@@ -122,6 +122,7 @@ const _tables = [
     _Column('progression_label', _Kind.text),
     _Column('is_unilateral', _Kind.boolean),
     _Column('joins_next', _Kind.boolean, isNullable: true),
+    _Column('set_loads', _Kind.text, isNullable: true),
   ], orderBy: 'routine_id, position'),
   _Table('workouts', 'workouts', [
     _Column('id', _Kind.text),

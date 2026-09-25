@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '../../domain/domain.dart';
+import '../engines/workout_text.dart';
 import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
+import 'workout_draft_json.dart';
 
 /// Apple's on-device model, reached through a small channel to Swift
 /// (`AppleIntelligence` in `ios/Runner/AppDelegate.swift`). There is no Flutter plugin
@@ -55,6 +57,12 @@ class AppleMealDrafter implements MealDrafter {
         await _ask('draftFoodLabel', foodLabelInstructions, labelText),
         provider: kind,
         model: await modelName(),
+      );
+
+  @override
+  Future<List<WorkoutLine>> draftWorkout(String text) async =>
+      parseWorkoutDraft(
+        await _ask('draftWorkout', workoutDraftInstructions, text),
       );
 
   /// On the device from iOS 27, where the model has vision.

@@ -12,7 +12,7 @@ import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/schema.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/seed/catalogue.dart';
-import 'package:mishirube/backend/seed/program_templates.dart';
+import 'package:mishirube/backend/application/training_service.dart';
 import 'package:mishirube/backend/storage/food_repository.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -278,7 +278,84 @@ void main() {
   });
 
   group('routine persistence', () {
-    test('a new template is trained from next, across a restart', () {
+    test('a new workout is named after what it trains', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final created = store.createRoutine();
+      expect(created.name, '新的課表');
+      final bench = store.exercises.firstWhere((e) => e.id == 'bench-press');
+      store.addExercises([bench]);
+      expect(store.routine.name, routineNameFor(store.routine.exercises));
+      expect(store.routine.name, isNot('新的課表'));
+
+      store.renameRoutine('胸日');
+      store.addExercises([store.exercises.firstWhere((e) => e.id == 'ohp')]);
+      expect(store.routine.name, '胸日', reason: 'a name given is kept');
+    });
+
+    test('an exercise added starts from how it was last done', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      final last = store.backend.storage.exercises.history(squat.id).last!;
+      store
+        ..createRoutine()
+        ..addExercises([squat]);
+      final planned = store.routine.exercises.single;
+      expect(planned.targetWeightKg, last.weightKg);
+      expect(planned.reps, last.reps);
+    });
+
+    test('a planned exercise takes each set its own weight and reps', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      store.editLoads(0, [
+        (weightKg: 100, reps: 5),
+        (weightKg: 100, reps: 5),
+        (weightKg: 90, reps: 8),
+      ]);
+      final planned = store.routine.exercises.first;
+      expect((planned.sets, planned.reps, planned.targetWeightKg), (3, 5, 100));
+      expect(planned.loads.last, (weightKg: 90.0, reps: 8));
+
+      store.startWorkout();
+      final sets = store.activeWorkout!.exercises.first.sets;
+      expect(
+        [for (final set in sets) (set.weightKg, set.reps)],
+        [(100.0, 5), (100.0, 5), (90.0, 8)],
+        reason: 'the workout starts from each set as planned',
+      );
+    });
+
+    test('a finished workout is saved as a workout to do again', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final before = store.routines.length;
+      store
+        ..startWorkout()
+        ..completeNextSet()
+        ..completeNextSet()
+        ..finishWorkout();
+      final workout = store.lastFinishedWorkout!;
+      final saved = store.saveAsRoutine(workout);
+      expect(store.routines, hasLength(before + 1));
+      expect(
+        saved.exercises.first.exercise.id,
+        workout.exercises.first.exercise.id,
+      );
+      expect(saved.exercises.first.sets, workout.exercises.first.completedSets);
+      expect(saved.name, isNot('新的課表'));
+    });
+
+    test('opening a workout does not change what Today offers', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final next = store.nextRoutine!;
+      store.selectRoutine(store.routines.lastWhere((r) => r.id != next.id));
+      expect(store.nextRoutine!.id, next.id);
+    });
+
+    test('a new workout is kept across a restart', () {
       final backend = openFile();
       addTearDown(backend.close);
       final store = AppStore(
@@ -286,19 +363,12 @@ void main() {
         isOnboarded: true,
         backend: backend,
       );
-      final before = store.routines.length;
-
-      final created = store.createRoutine('上肢 B');
-      expect(store.routines, hasLength(before + 1));
-      expect(store.routine.id, created.id);
+      final created = store.createRoutine();
+      expect(store.routine.id, created.id, reason: 'opened to fill in');
       expect(created.exercises, isEmpty);
 
       final reopened = AppStore(clock: clock.now, backend: backend);
-      expect(
-        reopened.routine.id,
-        created.id,
-        reason: 'the choice of what to train is not lost on restart',
-      );
+      expect(reopened.routines.map((r) => r.id), contains(created.id));
     });
 
     test('deleting a template keeps the workouts done from it', () {
@@ -317,7 +387,7 @@ void main() {
           .where((entry) => entry.category == RecordCategory.training)
           .length;
 
-      expect(store.deleteRoutine(deleted), isTrue);
+      store.deleteRoutine(deleted);
       expect(store.routines.map((r) => r.id), isNot(contains(deleted.id)));
       expect(
         store.routine.id,
@@ -340,140 +410,28 @@ void main() {
       expect(store.routine.id, deleted.id);
     });
 
-    test('the last template is kept, so there is always one to train', () {
-      final store = AppStore(clock: clock.now, isOnboarded: true);
-      addTearDown(store.dispose);
+    test('every template can go, and a restart finds none', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
 
-      for (final routine in [...store.routines.skip(1)]) {
-        expect(store.deleteRoutine(routine), isTrue);
+      for (final routine in [...store.routines]) {
+        store.deleteRoutine(routine);
       }
-      expect(store.routines, hasLength(1));
-      expect(store.deleteRoutine(store.routine), isFalse);
-      expect(store.routines, hasLength(1));
+      expect(store.routines, isEmpty);
+      expect(store.selectedRoutine, isNull);
+      expect(store.nextRoutine, isNull);
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.selectedRoutine, isNull);
     });
   });
 
-  group('programs', () {
-    /// A running program of two of the demo templates, copied in.
-    AppStore storeWithProgram() {
-      final store = AppStore(clock: clock.now, isOnboarded: true);
-      addTearDown(store.dispose);
-      final programs = store.backend.program;
-      var program = programs.create('輪替');
-      for (final routine in [store.routines[1], store.routines[0]]) {
-        programs.addCopy(program, routine);
-        program = programs.byId(program.id)!;
-      }
-      programs.start(program);
-      return store;
-    }
-
-    test('its workouts are copies, kept out of the user\'s own', () {
-      final store = AppStore(clock: clock.now, isOnboarded: true);
-      addTearDown(store.dispose);
-      final own = store.routines.first;
-      final before = store.myRoutines.length;
-      final program = store.backend.program.create('課表');
-      final copy = store.backend.program.addCopy(program, own);
-
-      expect(copy.id, isNot(own.id));
-      expect(copy.exercises.length, own.exercises.length);
-      expect(store.myRoutines, hasLength(before));
-      expect(store.myRoutines.map((r) => r.id), isNot(contains(copy.id)));
-
-      store.backend.program.delete(program.id);
-      expect(
-        store.myRoutines.map((r) => r.id),
-        contains(copy.id),
-        reason: 'a deleted program gives its workouts back',
-      );
-    });
-
-    test('Today offers the running program\'s next workout', () {
-      final store = storeWithProgram();
-      final days = store.programProgress!.program.days;
-      expect(store.nextRoutine.id, days[0].routineId);
-
-      store
-        ..startWorkout(routine: store.nextRoutine)
-        ..completeNextSet()
-        ..finishWorkout();
-      final progress = store.programProgress!;
-      expect(progress.records.single.workoutId, isNotNull);
-      expect(progress.completed, 1);
-      expect(store.nextRoutine.id, days[1].routineId);
-
-      store.backend.program.skipNext();
-      expect(store.nextRoutine.id, days[0].routineId);
-    });
-
-    test('training another of its workouts moves the rotation on from it', () {
-      final store = storeWithProgram();
-      final days = store.programProgress!.program.days;
-      final second = store.backend.training.routine(days[1].routineId, {
-        for (final e in store.exercises) e.id: e,
-      })!;
-      store
-        ..startWorkout(routine: second)
-        ..completeNextSet()
-        ..finishWorkout();
-      expect(store.programProgress!.nextDay, 0);
-    });
-
-    test('a workout not yet finished does not count', () {
-      final store = storeWithProgram();
-      store.startWorkout(routine: store.nextRoutine);
-      expect(store.programProgress!.records, isEmpty);
-    });
-
-    test('starting a program ends the one running, and begins it anew', () {
-      final store = storeWithProgram();
-      final first = store.programProgress!.program;
-      store.backend.program.skipNext();
-      final second = store.backend.program.create('另一份');
-      store.backend.program.addCopy(second, store.routines.first);
-      store.backend.program.start(store.backend.program.byId(second.id)!);
-      expect(store.programProgress!.program.id, second.id);
-      expect(store.backend.program.byId(first.id)!.endedAt, isNotNull);
-
-      clock.advance(const Duration(minutes: 1));
-      store.backend.program.start(store.backend.program.byId(first.id)!);
-      expect(
-        store.programProgress!.nextDay,
-        0,
-        reason: 'what was skipped before the restart is not counted',
-      );
-      expect(
-        store.backend.db.select(
-          "SELECT 1 FROM audit_events WHERE entity_type = 'program'",
-        ),
-        isNotEmpty,
-      );
-    });
-
-    test('going to weekdays spreads the workouts across the week', () {
-      final store = storeWithProgram();
-      final program = store.programProgress!.program;
-      store.backend.program.setSchedule(program, ProgramSchedule.weekdays);
-      expect(
-        store.backend.program.byId(program.id)!.days.map((d) => d.weekday),
-        [DateTime.monday, DateTime.wednesday],
-      );
-    });
-
-    test('a template starts a program with its workouts', () {
-      final store = AppStore(clock: clock.now, isOnboarded: true);
-      addTearDown(store.dispose);
-      final template = programTemplates.firstWhere((t) => t.name == '5×5');
-      final program = store.backend.program.createFrom(template);
-      final routines = {for (final r in store.routines) r.id: r};
-      expect(program.days.map((d) => routines[d.routineId]!.name), ['A', 'B']);
-      final first = routines[program.days.first.routineId]!;
-      expect(first.exercises.first.exercise.id, 'back-squat');
-      expect(first.exercises.first.sets, 5);
-      expect(first.exercises.first.reps, 5);
-    });
-
+  group('free workouts', () {
     test('a free workout starts with the exercises chosen', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
@@ -2612,6 +2570,8 @@ void main() {
       final source = AppStore(clock: clock.now, isOnboarded: true)
         // A superset, in the template and the workout started from it.
         ..setJoinsNext(0, joins: true)
+        // Sets that differ from one another.
+        ..editLoads(1, [(weightKg: 60, reps: 8), (weightKg: 50, reps: 12)])
         ..startWorkout()
         ..completeNextSet()
         ..confirmLunch();
@@ -2623,20 +2583,6 @@ void main() {
         BodyMetric.height: 175,
         BodyMetric.bodyFat: 18.2,
       });
-      final program = source.backend.program.create('上下分化');
-      for (final routine in source.routines.take(2)) {
-        source.backend.program.addCopy(
-          source.backend.program.byId(program.id)!,
-          routine,
-        );
-      }
-      source.backend.program
-        ..setSchedule(
-          source.backend.program.byId(program.id)!,
-          ProgramSchedule.weekdays,
-        )
-        ..start(source.backend.program.byId(program.id)!)
-        ..skipNext();
       source
         ..backend.nutrition.saveFood(
           FoodItem(

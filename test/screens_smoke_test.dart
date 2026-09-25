@@ -41,11 +41,11 @@ import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/journal/measurement_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
-import 'package:mishirube/features/training/rest_timer_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
-import 'package:mishirube/features/training/program_screen.dart';
+import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/features/training/training_screen.dart';
-import 'package:mishirube/backend/seed/program_templates.dart';
+import 'package:mishirube/features/trends/trend_detail_screen.dart';
+import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
@@ -255,11 +255,10 @@ void _withFood(AppStore store) => store.backend.nutrition.saveFood(
   ),
 );
 
-void _withProgram(AppStore store) {
-  final program = store.backend.program.createFrom(programTemplates.first);
-  store.backend.program
-    ..start(program)
-    ..skipNext();
+void _withoutRoutines(AppStore store) {
+  for (final routine in [...store.routines]) {
+    store.deleteRoutine(routine);
+  }
 }
 
 void _withGoal(AppStore store) =>
@@ -356,16 +355,17 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),
   'routine detail': ((_) => const RoutineDetailScreen(), _noSetup),
   'training': ((_) => const TrainingScreen(), _noSetup),
-  'training with programs': ((_) => const TrainingScreen(), _withProgram),
-  'program': (
-    (store) => ProgramScreen(programId: store.backend.program.all().first.id),
-    _withProgram,
+  'training (none)': ((_) => const TrainingScreen(), _withoutRoutines),
+  'describe workout': ((_) => const DescribeWorkoutScreen(), _noSetup),
+  for (final domain in TrendDomain.values)
+    'trend · ${domain.label}': (
+      (_) => TrendDetailScreen(domain: domain),
+      _noSetup,
+    ),
+  'shell / today without workouts': (
+    (_) => const HomeShell(),
+    _withoutRoutines,
   ),
-  'program (empty)': (
-    (store) => ProgramScreen(programId: store.backend.program.create('空的').id),
-    _noSetup,
-  ),
-  'shell / today with a program': ((_) => const HomeShell(), _withProgram),
   'goal (not set up)': ((_) => const GoalScreen(), _noSetup),
   'goal': ((_) => const GoalScreen(), _withGoal),
   'goal setup': (
@@ -374,14 +374,6 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
   'active workout (resting)': ((_) => const ActiveWorkoutScreen(), _resting),
-  'rest timer': (
-    (store) => RestTimerScreen(
-      exerciseName: '槓鈴深蹲',
-      completedSet: store.activeWorkout!.currentExercise.sets.first,
-      isPersonalRecord: true,
-    ),
-    _resting,
-  ),
   'personal records': ((_) => const PersonalRecordsScreen(), _noSetup),
   'muscle trends': ((_) => const MuscleTrendsScreen(), _noSetup),
   'training trends': ((_) => const TrainingTrendsScreen(), _noSetup),
@@ -487,8 +479,6 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
 
 /// Pages that intentionally skip the shared app bar.
 const _screensWithoutAppBar = {
-  // Full-screen countdown; any chrome would compete with the timer.
-  'rest timer',
   // A viewfinder: a header over the preview would cover what is framed.
   'camera',
 };

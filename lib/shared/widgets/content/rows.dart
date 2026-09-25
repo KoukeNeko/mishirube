@@ -197,9 +197,13 @@ class CheckRow extends StatelessWidget {
     required this.isChecked,
     required this.onChanged,
     this.badge,
+    this.subtitle,
   });
 
   final String title;
+
+  /// What the item holds, under its title.
+  final String? subtitle;
   final bool isChecked;
   final ValueChanged<bool> onChanged;
   final Widget? badge;
@@ -210,6 +214,7 @@ class CheckRow extends StatelessWidget {
       checked: isChecked,
       child: NavRow(
         title: title,
+        subtitle: subtitle,
         titleTrailing: badge,
         trailing: CheckSquare(isChecked: isChecked),
         onTap: () => onChanged(!isChecked),

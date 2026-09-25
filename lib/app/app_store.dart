@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
+import '../backend/application/training_service.dart'
+    show routineNameFor, untitledRoutineName;
+import '../backend/engines/workout_text.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
@@ -28,7 +31,7 @@ export '../backend/application/nutrition_service.dart'
 enum AppModule {
   nutrition('飲食', '一餐、料理、成分與營養'),
   weight('體重', '體重與圍度'),
-  training('訓練', '動作、訓練、課表與訓練紀錄'),
+  training('訓練', '動作、課表與訓練紀錄'),
   activity('運動', '跑步、健走、騎車、球類、瑜伽'),
   sleep('睡眠', '睡眠時間與品質'),
   wellness('心情、精力、症狀', '一天的狀態日誌'),
@@ -71,8 +74,7 @@ class AppStore extends ChangeNotifier {
         ]);
     }
     _reloadExercises();
-    _routine =
-        _storedRoutine ?? _backend.training.routines(_exercisesById).first;
+    _routine = _backend.training.routines(_exercisesById).firstOrNull;
     _session = switch ((
       _backend.training.active(),
       _backend.activity.active(),
@@ -90,6 +92,12 @@ class AppStore extends ChangeNotifier {
   /// reading from here are rebuilt.
   void _onRecordsChanged() {
     _todayMealsRead = null;
+    // The template shown may have been deleted elsewhere; another takes
+    // its place.
+    if (_routine case final shown?
+        when _backend.training.routine(shown.id, _exercisesById) == null) {
+      _routine = routines.firstOrNull;
+    }
     notifyListeners();
   }
 
@@ -97,7 +105,6 @@ class AppStore extends ChangeNotifier {
   static const _aiProposalLegCurlSets = 4;
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
-  static const _selectedRoutineKey = 'selected_routine';
 
   final DateTime Function() _clock;
   final Backend _backend;
@@ -117,7 +124,12 @@ class AppStore extends ChangeNotifier {
     AppModule.sleep,
     AppModule.wellness,
   };
-  late Routine _routine;
+
+  /// The template shown and trained from; null once every one is gone.
+  Routine? _routine;
+
+  /// [_routine], for what is only done with a template open.
+  Routine get _shown => _routine!;
   ActiveSession? _session;
   WorkoutSession? _lastFinishedWorkout;
 
@@ -142,12 +154,6 @@ class AppStore extends ChangeNotifier {
 
   bool get _storedOnboarded => _backend.db.setting(_onboardedKey) == 'true';
 
-  /// The template last trained from, when it is still there.
-  Routine? get _storedRoutine {
-    final id = _backend.db.setting(_selectedRoutineKey);
-    return id == null ? null : _backend.training.routine(id, _exercisesById);
-  }
-
   void _reloadExercises() {
     _exercises = _backend.catalog.all();
     _exercisesById = {for (final e in _exercises) e.id: e};
@@ -160,31 +166,24 @@ class AppStore extends ChangeNotifier {
   Backend get backend => _backend;
   bool get isOnboarded => _isOnboarded;
   Set<AppModule> get enabledModules => Set.unmodifiable(_enabledModules);
-  Routine get routine => _routine;
 
-  /// Where the running program stands; null when none runs.
-  ProgramProgress? get programProgress => _backend.program.progress();
+  /// The template open for editing and starting; only read where one
+  /// is open (see [selectedRoutine]).
+  Routine get routine => _shown;
 
-  /// What to train next: the running program's next workout, else the
-  /// template last trained or opened.
-  Routine get nextRoutine {
-    if (programProgress case final progress?) {
-      final next = _backend.training.routine(
-        progress.next.routineId,
-        _exercisesById,
-      );
-      if (next != null) return next;
+  /// The template open for editing; null when there is none.
+  Routine? get selectedRoutine => _routine;
+
+  /// What to train next: the template last trained, else the first
+  /// there is. Opening a template to look at it or edit it does not
+  /// change this.
+  Routine? get nextRoutine {
+    if (_lastFinishedWorkout?.routineId case final id?) {
+      if (_backend.training.routine(id, _exercisesById) case final last?) {
+        return last;
+      }
     }
-    return _routine;
-  }
-
-  /// The user's own templates: every one no program holds.
-  List<Routine> get myRoutines {
-    final inPrograms = _backend.program.routineIdsInPrograms();
-    return [
-      for (final routine in routines)
-        if (!inPrograms.contains(routine.id)) routine,
-    ];
+    return routines.firstOrNull;
   }
 
   /// Every template, for choosing what to train.
@@ -220,7 +219,7 @@ class AppStore extends ChangeNotifier {
 
   /// The current template's last few finished workouts, newest first.
   List<WorkoutSession> get recentRoutineWorkouts =>
-      _backend.training.recentOf(_routine);
+      _backend.training.recentOf(_shown);
 
   /// The latest weighing, the trend over the last week and how far it
   /// moved; null for what there are no weighings for.
@@ -274,21 +273,23 @@ class AppStore extends ChangeNotifier {
   }) {
     _backend.catalog.merge(duplicate: duplicate, canonical: canonical);
     _reloadExercises();
-    _routine = _backend.training.routine(_routine.id, _exercisesById)!;
+    if (_routine case final shown?) {
+      _routine = _backend.training.routine(shown.id, _exercisesById);
+    }
     notifyListeners();
   }
 
   /// What to do with each planned exercise next time, with the reason.
   /// Nothing is applied until the user accepts it.
   List<(PlannedExercise, ProgressionSuggestion)> get progressionSuggestions =>
-      _backend.training.suggestions(_routine);
+      _backend.training.suggestions(_shown);
 
   /// Writes one suggestion into the template.
   void applySuggestion(
     PlannedExercise planned,
     ProgressionSuggestion suggestion,
   ) {
-    _routine = _backend.training.applySuggestion(_routine, planned, suggestion);
+    _routine = _backend.training.applySuggestion(_shown, planned, suggestion);
     notifyListeners();
   }
 
@@ -360,9 +361,74 @@ class AppStore extends ChangeNotifier {
   bool startWorkout({Routine? routine, Set<MuscleGroup> sore = const {}}) {
     if (_session case ActiveActivity()) return false;
     _session = ActiveWorkout(
-      activeWorkout ??
-          _backend.program.startWorkout(routine ?? _routine, sore: sore),
+      activeWorkout ?? _backend.training.start(routine ?? _shown, sore: sore),
     );
+    notifyListeners();
+    return true;
+  }
+
+  /// A workout written as text, line by line: each line with the
+  /// exercise it most likely names, planned at the sets, reps and weight
+  /// it gave (the usual ones where it gave none); null for a line whose
+  /// name matches nothing.
+  List<(WorkoutLine, PlannedExercise?)> draftWorkout(String text) =>
+      _planLines(parseWorkoutText(text));
+
+  /// The same, read by the chosen AI, for text the rules could not read
+  /// all of. Throws [AiException].
+  Future<List<(WorkoutLine, PlannedExercise?)>> draftWorkoutWithAi(
+    String text,
+  ) async => _planLines(await _ai.draftWorkout(text));
+
+  List<(WorkoutLine, PlannedExercise?)> _planLines(List<WorkoutLine> lines) => [
+    for (final line in lines)
+      if (_backend.catalog.bestMatch([line.name, ?line.otherName])
+          case final exercise?)
+        (line, planLine(line, exercise))
+      // A line with no exercise and no figures is a column heading or
+      // a remark around the list, not an exercise to pick.
+      else if (line.sets != null || line.reps != null || line.weightKg != null)
+        (line, null),
+  ];
+
+  /// [exercise] planned as [line] says, the usual figures where it is
+  /// silent.
+  PlannedExercise planLine(WorkoutLine line, ExerciseDefinition exercise) =>
+      _backend.training
+          .planFor(exercise)
+          .copyWith(
+            sets: line.sets,
+            reps: line.reps,
+            targetWeightKg: line.weightKg,
+          );
+
+  /// Starts a workout planned as [planned]. Refuses while exercise is
+  /// being timed.
+  bool startPlannedWorkout(List<PlannedExercise> planned) {
+    if (_session is ActiveSession) return false;
+    _session = ActiveWorkout(_backend.training.startPlanned(planned));
+    notifyListeners();
+    return true;
+  }
+
+  /// A new template of [planned], named after what it trains, opened.
+  Routine createRoutineOf(List<PlannedExercise> planned) {
+    final created = _backend.training.createRoutine(
+      routineNameFor(planned),
+      exercises: planned,
+    );
+    selectRoutine(created);
+    return created;
+  }
+
+  /// Finished workouts to start a new one from, newest first.
+  List<WorkoutSession> get recentWorkouts => _backend.training.recentFinished();
+
+  /// Starts a workout from [exercises] of earlier workouts, at the sets
+  /// they were done at. Refuses while exercise is being timed.
+  bool startFromPast(List<ExerciseSession> exercises) {
+    if (_session is ActiveSession) return false;
+    _session = ActiveWorkout(_backend.training.startFrom(exercises));
     notifyListeners();
     return true;
   }
@@ -505,6 +571,48 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Makes the exercise at [index] the one being done, so a set action
+  /// that follows acts on it; nothing is written when it already is.
+  void focusExercise(int index) {
+    final workout = activeWorkout;
+    if (workout == null || workout.currentExerciseIndex == index) return;
+    _backend.training.selectExercise(workout, index);
+  }
+
+  /// Last time's weight and reps for the sets still to do of the
+  /// exercise at [index].
+  void loadPrevious(int index) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.loadPrevious(workout, index);
+    notifyListeners();
+  }
+
+  /// The first set's weight and reps for the rest of the exercise at
+  /// [index] still to do.
+  void fillFromFirst(int index) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.fillFromFirst(workout, index);
+    notifyListeners();
+  }
+
+  void removeLastSet(int index) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.removeLastSet(workout, index);
+    notifyListeners();
+  }
+
+  /// Takes the exercise at [index] out of today's workout, keeping at
+  /// least one.
+  void removeExercise(int index) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.removeExercise(workout, index);
+    notifyListeners();
+  }
+
   void selectExercise(int index) {
     final workout = activeWorkout;
     if (workout == null) return;
@@ -512,38 +620,34 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Trains from [routine] from now on. The choice survives a restart,
-  /// because it is what the Today screen offers.
+  /// Opens [routine] for editing and starting.
   void selectRoutine(Routine routine) {
     _routine = routine;
-    _backend.db.setSetting(_selectedRoutineKey, routine.id);
     notifyListeners();
   }
 
-  /// Adds an empty template and switches to it.
-  Routine createRoutine(String name) {
+  /// Adds an empty template and opens it.
+  Routine createRoutine([String name = untitledRoutineName]) {
     final created = _backend.training.createRoutine(name);
     selectRoutine(created);
     return created;
   }
 
-  /// Removes the template being shown. Refuses to remove the last one:
-  /// the Today screen always has something to offer, and a template is
-  /// not the history, which stays either way. Returns false when it
-  /// refused, so the screen can say why.
-  bool deleteRoutine(Routine routine) {
-    final remaining = routines.where((other) => other.id != routine.id);
-    if (remaining.isEmpty) return false;
+  /// Removes [routine]. A template is not the history, which stays
+  /// either way. When it was the one shown, the next one left is, if
+  /// any.
+  void deleteRoutine(Routine routine) {
     _backend.training.deleteRoutine(routine.id);
-    selectRoutine(remaining.first);
-    return true;
+    if (routine.id == _routine?.id) _routine = routines.firstOrNull;
+    notifyListeners();
   }
 
-  /// Puts a removed template back and trains from it again.
-  void undeleteRoutine(String id) {
+  /// Puts a removed template back and, when [select], trains from it
+  /// again.
+  void undeleteRoutine(String id, {bool select = true}) {
     _backend.training.undeleteRoutine(id);
     final restored = _backend.training.routine(id, _exercisesById);
-    if (restored != null) selectRoutine(restored);
+    if (restored != null && select) selectRoutine(restored);
   }
 
   /// Adds [exercises] to the running workout, or to the template when no
@@ -553,14 +657,28 @@ class AppStore extends ChangeNotifier {
     if (workout != null) {
       _backend.training.addExercises(workout, exercises);
     } else {
-      _routine = _backend.training.addToRoutine(_routine, exercises);
+      _routine = _backend.training.addToRoutine(_shown, exercises);
     }
     notifyListeners();
   }
 
+  /// Plans the open template's exercise at [index] as [loads], set by
+  /// set.
+  void editLoads(int index, List<SetLoad> loads) {
+    _routine = _backend.training.editLoads(_shown, index, loads);
+    notifyListeners();
+  }
+
+  /// A new template of what [workout] did, opened.
+  Routine saveAsRoutine(WorkoutSession workout) {
+    final created = _backend.training.routineFrom(workout);
+    selectRoutine(created);
+    return created;
+  }
+
   /// Removes the exercise at [index] from the template.
   void removeRoutineExercise(int index) {
-    _routine = _backend.training.removeFromRoutine(_routine, index);
+    _routine = _backend.training.removeFromRoutine(_shown, index);
     notifyListeners();
   }
 
@@ -568,12 +686,12 @@ class AppStore extends ChangeNotifier {
   /// Makes the planned exercise at [index] a superset with the next one,
   /// or ends that.
   void setJoinsNext(int index, {required bool joins}) {
-    _routine = _backend.training.setJoinsNext(_routine, index, joins: joins);
+    _routine = _backend.training.setJoinsNext(_shown, index, joins: joins);
     notifyListeners();
   }
 
   void moveRoutineExercise(int from, int to) {
-    _routine = _backend.training.reorderRoutine(_routine, from, to);
+    _routine = _backend.training.reorderRoutine(_shown, from, to);
     notifyListeners();
   }
 
@@ -585,7 +703,7 @@ class AppStore extends ChangeNotifier {
   }
 
   void renameRoutine(String name) {
-    _routine = _backend.training.renameRoutine(_routine, name);
+    _routine = _backend.training.renameRoutine(_shown, name);
     notifyListeners();
   }
 
@@ -657,7 +775,7 @@ class AppStore extends ChangeNotifier {
   ) {
     final id = workout.routineId;
     if (id == null) return;
-    final plan = id == _routine.id
+    final plan = id == _routine?.id
         ? _routine
         : _backend.training.routine(id, _exercisesById);
     if (plan == null) return;
@@ -666,10 +784,18 @@ class AppStore extends ChangeNotifier {
       replacedId,
       replacement,
     );
-    if (updated.id == _routine.id) _routine = updated;
+    if (updated.id == _routine?.id) _routine = updated;
   }
 
   /// Pauses whatever is running, or picks it up again.
+  /// Sets the ready workout under way: its time runs from here.
+  void beginWorkout() {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.begin(workout);
+    notifyListeners();
+  }
+
   void togglePause() {
     switch (_session) {
       case ActiveWorkout(:final workout):
@@ -700,7 +826,9 @@ class AppStore extends ChangeNotifier {
     _lastFinishedWorkout = workout;
     _session = null;
     _restEndsAt = null;
-    _routine = _backend.training.routine(_routine.id, _exercisesById)!;
+    if (_routine case final shown?) {
+      _routine = _backend.training.routine(shown.id, _exercisesById);
+    }
     _reloadExercises();
     notifyListeners();
   }
@@ -959,16 +1087,17 @@ class AppStore extends ChangeNotifier {
   /// the audit log records that the change came from an AI draft.
   void applyAiProposal() {
     final exercises = [
-      for (final planned in _routine.exercises)
+      for (final planned in _shown.exercises)
         switch (planned.exercise.id) {
           'back-squat' => planned.copyWith(sets: _aiProposalSquatSets),
           'leg-curl' => planned.copyWith(sets: _aiProposalLegCurlSets),
           _ => planned,
         },
     ];
-    _routine = _routine.copyWith(exercises: exercises);
+    final updated = _shown.copyWith(exercises: exercises);
+    _routine = updated;
     _backend.training.saveRoutine(
-      _routine,
+      updated,
       action: 'accept_ai_proposal',
       source: ChangeSource.aiDraft,
     );

@@ -117,12 +117,15 @@ class InsightDetailScreen extends StatelessWidget {
                       : '目前的組數穩定。要繼續進步，小幅增加每週組數或重量。',
                   style: AppTextStyles.body,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                PrimaryButton(
-                  label: '調整「${store.routine.name}」的組數',
-                  isCompact: true,
-                  onPressed: () => pushPage(context, const AiProposalScreen()),
-                ),
+                if (store.selectedRoutine case final routine?) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  PrimaryButton(
+                    label: '調整「${routine.name}」的組數',
+                    isCompact: true,
+                    onPressed: () =>
+                        pushPage(context, const AiProposalScreen()),
+                  ),
+                ],
               ],
             ),
           ),

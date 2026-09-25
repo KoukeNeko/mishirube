@@ -347,6 +347,12 @@
                   "boolean",
                   "null"
                 ]
+              },
+              "setLoads": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }

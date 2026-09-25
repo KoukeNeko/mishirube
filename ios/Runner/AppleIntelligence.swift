@@ -13,10 +13,10 @@ import Foundation
 
 /// Apple's on-device model for `lib/backend/ai/apple_meal_drafter.dart`.
 ///
-/// Two calls: whether the model can run, and a meal draft from a
-/// sentence. The draft's shape is enforced here by guided generation and
-/// handed back as the same JSON every provider returns, so Dart reads
-/// one format.
+/// Whether the model can run, and drafts: a meal from a sentence or a
+/// photo, a food from its label's text, a workout from its text. Each
+/// draft's shape is enforced here by guided generation and handed back
+/// as the same JSON every provider returns, so Dart reads one format.
 enum AppleIntelligence {
   static func register(with messenger: FlutterBinaryMessenger) {
     let channel = FlutterMethodChannel(
@@ -43,6 +43,15 @@ enum AppleIntelligence {
           return
         }
         draftFoodLabel(text: text, instructions: instructions, result: result)
+      case "draftWorkout":
+        guard let arguments = call.arguments as? [String: Any],
+          let text = arguments["text"] as? String,
+          let instructions = arguments["instructions"] as? String
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        draftWorkout(text: text, instructions: instructions, result: result)
       case "readsPhotos":
         result(readsPhotos())
       case "draftMealPhoto":
@@ -164,6 +173,30 @@ enum AppleIntelligence {
     result(FlutterError(code: "failed", message: "\(error)", details: nil))
   }
 
+  /// A workout written as text into its exercises. Greedy sampling:
+  /// this is reading a list, not writing one.
+  static func draftWorkout(
+    text: String, instructions: String, result: @escaping FlutterResult
+  ) {
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        Task { @MainActor in
+          do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(
+              to: text, generating: WorkoutDraftOutput.self,
+              options: GenerationOptions(sampling: .greedy))
+            result(try response.content.json())
+          } catch {
+            report(error, to: result)
+          }
+        }
+        return
+      }
+    #endif
+    result(FlutterError(code: "unavailable", message: nil, details: nil))
+  }
+
   /// A label's text, already read on the phone, into the food form's
   /// fields. Greedy sampling: this is copying numbers, not writing.
   static func draftFoodLabel(
@@ -283,6 +316,46 @@ enum AppleIntelligence {
         ]
       }
       let data = try JSONSerialization.data(withJSONObject: ["items": list])
+      return String(decoding: data, as: UTF8.self)
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct WorkoutDraftOutput {
+    @Guide(description: "要做的每一個動作，照原文順序；說明、休息、注意事項不算")
+    var exercises: [Item]
+
+    @Generable
+    struct Item {
+      @Guide(description: "動作名稱，台灣健身房常用的繁體中文說法")
+      var name: String
+      @Guide(description: "動作常見的英文名稱")
+      var englishName: String
+      @Guide(description: "原文裡寫這個動作的那一行")
+      var line: String
+      @Guide(description: "組數；原文沒寫就留空")
+      var sets: Int?
+      @Guide(description: "每組次數，範圍填較小的數字；計時的動作或原文沒寫就留空")
+      var reps: Int?
+      @Guide(description: "重量，公斤，範圍填較小的數字；原文沒寫就留空")
+      var weightKg: Double?
+    }
+
+    /// The JSON `parseWorkoutDraft` reads, with the keys every provider
+    /// uses.
+    func json() throws -> String {
+      let list: [[String: Any]] = exercises.map { item in
+        [
+          "name": item.name,
+          "name_en": item.englishName,
+          "line": item.line,
+          "sets": item.sets as Any? ?? NSNull(),
+          "reps": item.reps as Any? ?? NSNull(),
+          "weight_kg": item.weightKg as Any? ?? NSNull(),
+        ]
+      }
+      let data = try JSONSerialization.data(withJSONObject: ["exercises": list])
       return String(decoding: data, as: UTF8.self)
     }
   }

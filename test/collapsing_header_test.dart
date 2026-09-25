@@ -279,13 +279,14 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
       ..startWorkout();
     await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
-    expect(find.text('0:00 · 槓鈴深蹲 1/5'), findsOneWidget);
-    expect(_opacityOf(tester, find.text('0:00 · 槓鈴深蹲 1/5')), 0);
+    final title = find.text(store.activeWorkout!.routineName);
+    expect(title, findsOneWidget);
+    expect(_opacityOf(tester, title), 0);
 
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
     await tester.pump();
 
-    expect(_opacityOf(tester, find.text('0:00 · 槓鈴深蹲 1/5')), 1);
+    expect(_opacityOf(tester, title), 1);
     expect(find.text('結束').hitTestable(), findsOneWidget);
     await disposeTree(tester);
   });

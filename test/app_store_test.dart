@@ -55,8 +55,38 @@ void main() {
       expect(store.workoutReview(store.activeWorkout!).records, 1);
     });
 
-    test('finishWorkout records duration and logs nothing else', () {
+    test('a workout is ready until it begins, and times from there', () {
       store.startWorkout();
+      expect(store.activeWorkout!.isReady, isTrue);
+      clock.advance(const Duration(minutes: 5));
+      expect(store.activeWorkout!.elapsedAt(clock.now()), Duration.zero);
+
+      store.beginWorkout();
+      expect(store.activeWorkout!.isReady, isFalse);
+      clock.advance(const Duration(minutes: 1));
+      expect(
+        store.activeWorkout!.elapsedAt(clock.now()),
+        const Duration(minutes: 1),
+        reason: 'the time looking it over is not training',
+      );
+    });
+
+    test('the first set ticked begins a ready workout', () {
+      store.startWorkout();
+      clock.advance(const Duration(minutes: 3));
+      store.completeNextSet();
+      expect(store.activeWorkout!.isReady, isFalse);
+      clock.advance(const Duration(minutes: 1));
+      expect(
+        store.activeWorkout!.elapsedAt(clock.now()),
+        const Duration(minutes: 1),
+      );
+    });
+
+    test('finishWorkout records duration and logs nothing else', () {
+      store
+        ..startWorkout()
+        ..beginWorkout();
       clock.advance(const Duration(minutes: 58, seconds: 2));
       store.finishWorkout();
 
@@ -100,7 +130,9 @@ void main() {
         reason: 'no workout yet, so the plan is the estimate',
       );
 
-      store.startWorkout();
+      store
+        ..startWorkout()
+        ..beginWorkout();
       clock.advance(const Duration(minutes: 40));
       store.finishWorkout();
       expect(store.expectedMinutes(store.routine), 40);

@@ -10,7 +10,6 @@ import 'application/health_service.dart';
 import 'health/health_source.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
-import 'application/program_service.dart';
 import 'application/provenance_service.dart';
 import 'application/sleep_service.dart';
 import 'application/training_service.dart';
@@ -22,7 +21,6 @@ import 'storage/exercise_repository.dart';
 import 'storage/food_repository.dart';
 import 'storage/journal_repository.dart';
 import 'storage/meal_repository.dart';
-import 'storage/program_repository.dart';
 import 'storage/routine_repository.dart';
 import 'storage/timeline_query.dart';
 import 'storage/workout_repository.dart';
@@ -39,7 +37,6 @@ class Storage {
       goals = GoalRepository(db),
       exercises = ExerciseRepository(db),
       routines = RoutineRepository(db),
-      programs = ProgramRepository(db),
       workouts = WorkoutRepository(db),
       meals = MealRepository(db),
       foods = FoodRepository(db),
@@ -63,7 +60,6 @@ class Storage {
   final GoalRepository goals;
   final ExerciseRepository exercises;
   final RoutineRepository routines;
-  final ProgramRepository programs;
   final WorkoutRepository workouts;
   final MealRepository meals;
   final FoodRepository foods;
@@ -83,7 +79,6 @@ class Backend {
       storage.exercises,
       storage.routines,
     );
-    program = ProgramService(db, storage.programs, storage.exercises, training);
     nutrition = NutritionService(db, storage.meals, storage.foods);
     activity = ActivityService(db, storage.activities, storage.activitySamples);
     journal = JournalService(db, storage.journal);
@@ -116,7 +111,6 @@ class Backend {
   final Storage storage;
   late final CatalogService catalog;
   late final TrainingService training;
-  late final ProgramService program;
   late final NutritionService nutrition;
   late final ActivityService activity;
   late final JournalService journal;

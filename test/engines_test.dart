@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/activity_metrics.dart';
@@ -6,7 +9,6 @@ import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
-import 'package:mishirube/backend/engines/program_progress.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
@@ -19,8 +21,12 @@ import 'package:mishirube/backend/engines/trend_detail.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
 import 'package:mishirube/backend/engines/trend_insights.dart';
 import 'package:mishirube/backend/engines/workout_review.dart';
+import 'package:mishirube/backend/engines/workout_text.dart';
+import 'package:mishirube/backend/engines/exercise_search.dart';
+import 'package:mishirube/backend/seed/exercise_catalogue.dart';
 import 'package:mishirube/domain/domain.dart';
 
+import 'support/chat_workout.dart';
 import 'support/harness.dart';
 
 MealEvent _meal(
@@ -46,57 +52,6 @@ BodyWeight _weight(DateTime at, double kg) =>
     BodyWeight(id: '$at', measuredAt: at, weightKg: kg);
 
 void main() {
-  group('program progress', () {
-    // A Monday.
-    final start = DateTime(2026, 9, 7, 8);
-    Program program(ProgramSchedule schedule) => Program(
-      id: 'p',
-      name: '課表',
-      schedule: schedule,
-      days: const [
-        ProgramDay(routineId: 'a', weekday: DateTime.monday),
-        ProgramDay(routineId: 'b', weekday: DateTime.wednesday),
-        ProgramDay(routineId: 'c', weekday: DateTime.friday),
-      ],
-      startedAt: start,
-    );
-
-    test('in rotation a missed day waits', () {
-      final rotation = program(ProgramSchedule.rotation);
-      expect(programProgress(rotation, const [], start).nextDay, 0);
-      final records = [
-        ProgramDayRecord(day: 0, at: start, workoutId: 'w1'),
-        ProgramDayRecord(day: 1, at: start.add(const Duration(days: 1))),
-      ];
-      final later = start.add(const Duration(days: 10));
-      expect(programProgress(rotation, records, later).nextDay, 2);
-      expect(
-        programProgress(rotation, [
-          ...records,
-          ProgramDayRecord(day: 2, at: later, workoutId: 'w2'),
-        ], later).nextDay,
-        0,
-        reason: 'after the last day comes the first',
-      );
-    });
-
-    test('on weekdays the next day is the one coming up', () {
-      final weekdays = program(ProgramSchedule.weekdays);
-      final tuesday = start.add(const Duration(days: 1));
-      expect(programProgress(weekdays, const [], tuesday).nextDay, 1);
-      expect(programProgress(weekdays, const [], start).nextDay, 0);
-      expect(
-        programProgress(weekdays, [
-          ProgramDayRecord(day: 0, at: start, workoutId: 'w'),
-        ], start).nextDay,
-        1,
-        reason: "today's day done, Wednesday's is next",
-      );
-      final saturday = start.add(const Duration(days: 5));
-      expect(programProgress(weekdays, const [], saturday).nextDay, 0);
-    });
-  });
-
   final now = FakeClock().now();
 
   group('nutrition summary', () {
@@ -468,6 +423,69 @@ void main() {
         detail.weekdays[saturday],
         closeTo(1 / 3, 0.001),
         reason: 'one Saturday in the three weeks since the first',
+      );
+    });
+  });
+
+  group('workout text', () {
+    test('a list from a chat reads into exercises and their sets', () {
+      final lines = parseWorkoutText('''
+今天的課表：
+1. 槓鈴深蹲 4×8 60kg
+- 臥推：3 組 10 下 40 公斤
+• Pull-up 3x8
+（4）平板支撐
+休息 90 秒
+''');
+      expect(
+        [for (final line in lines) line.name],
+        ['槓鈴深蹲', '臥推', 'Pull-up', '平板支撐', '休息'],
+      );
+      final squat = lines[0];
+      expect((squat.sets, squat.reps, squat.weightKg), (4, 8, 60.0));
+      final bench = lines[1];
+      expect((bench.sets, bench.reps, bench.weightKg), (3, 10, 40.0));
+      expect((lines[2].sets, lines[2].reps, lines[2].weightKg), (3, 8, null));
+      expect(lines[3].sets, isNull, reason: 'no figures given');
+    });
+
+    test('a table from a chat reads row by row, the talk around it not', () {
+      final lines = parseWorkoutText(chatWorkout);
+      expect(
+        [for (final line in lines) line.name],
+        ['順序', '啞鈴划船', '單手啞鈴划船', '啞鈴二頭彎舉', '錘式彎舉', '腕彎舉', '反向腕彎舉', '棒式'],
+        reason: 'the heading row is dropped later, matching nothing',
+      );
+      final figures = [
+        for (final line in lines.skip(1)) (line.sets, line.reps, line.weightKg),
+      ];
+      expect(figures, [
+        (3, 10, 12.0),
+        (3, 8, 29.0),
+        (3, 10, 8.5),
+        (2, 8, 8.5),
+        (2, 12, 7.5),
+        (2, 15, 2.5),
+        (2, null, null),
+      ], reason: 'a range is read at its low end; a hold has no reps');
+      expect(
+        parseWorkoutText(chatWorkout.replaceAll('    ', '\t')).length,
+        lines.length,
+        reason: 'tabs read as the spaces do',
+      );
+    });
+
+    test('names as a chat writes them find the library\'s exercises', () {
+      final library = parseExerciseCatalogue(
+        jsonDecode(File(exerciseCatalogueFile).readAsStringSync())
+            as Map<String, dynamic>,
+      );
+      expect(
+        [
+          for (final line in parseWorkoutText(chatWorkout))
+            closestExercise([line.name], library)?.name,
+        ],
+        [null, '俯身啞鈴划船', '單臂啞鈴划船', '啞鈴彎舉', '錘式彎舉', '腕屈', '腕伸', '棒式'],
       );
     });
   });

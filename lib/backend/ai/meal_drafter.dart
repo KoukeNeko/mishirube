@@ -1,8 +1,10 @@
 import '../../domain/domain.dart';
+import '../engines/workout_text.dart';
 import 'food_photo.dart';
 
-/// Turns a sentence into a [MealDraft], or a label's text into a
-/// [FoodLabelDraft]. That is all it can do: it is given no repository
+/// Turns a sentence into a [MealDraft], a label's text into a
+/// [FoodLabelDraft], or a workout's text into its exercises. That is all
+/// it can do: it is given no repository
 /// and no database, so whatever a model answers, the only thing it can
 /// produce is a draft for the user to confirm.
 abstract interface class MealDrafter {
@@ -19,6 +21,10 @@ abstract interface class MealDrafter {
   /// [labelText] is a nutrition label already read off a photo on the
   /// phone, one table row per line. Throws [AiException].
   Future<FoodLabelDraft> draftFoodLabel(String labelText);
+
+  /// The exercises a workout written as [text] lists, in order, with
+  /// the figures it gives. Throws [AiException].
+  Future<List<WorkoutLine>> draftWorkout(String text);
 
   /// Whether this provider, with the model chosen, can look at a photo.
   Future<bool> readsPhotos();

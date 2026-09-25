@@ -357,14 +357,14 @@ void main() {
     await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
     final handle = tester.ensureSemantics();
 
-    final chip = find.widgetWithText(ChipButton, '熱身');
+    final chip = find.widgetWithText(ChipButton, '載入').first;
     expect(
       tester.getSize(chip).height,
       ToolbarMetrics.of(tester.element(chip)).actionVisualSize,
     );
     expect(
       tester.getSemantics(chip),
-      matchesSemantics(label: '加入熱身組', isButton: true, hasTapAction: true),
+      matchesSemantics(label: '填入上次的重量與次數', isButton: true, hasTapAction: true),
     );
     handle.dispose();
     await disposeTree(tester);

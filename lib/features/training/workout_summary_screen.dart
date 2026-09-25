@@ -7,6 +7,7 @@ import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'routine_detail_screen.dart';
 
 class WorkoutSummaryScreen extends StatelessWidget {
   const WorkoutSummaryScreen({super.key, this.workoutId});
@@ -110,6 +111,19 @@ class WorkoutSummaryScreen extends StatelessWidget {
           Gutter(child: _ResultRow(item: item)),
         if (review.exercises.any((item) => item.oneRepMaxKg != null))
           Gutter(child: const TagWrap(labels: ['Epley 估計，非實測'])),
+        // What was done becomes a plan to do again, with its own sets
+        // and weights.
+        if (workout.completedSets > 0)
+          Gutter(
+            child: SecondaryButton(
+              label: '存成課表',
+              icon: Icons.bookmark_add_outlined,
+              onPressed: () {
+                store.saveAsRoutine(workout);
+                pushPage(context, const RoutineDetailScreen());
+              },
+            ),
+          ),
       ],
     );
   }

@@ -19,6 +19,31 @@ const _ownProgramName = '自己的訓練';
 
 /// What a workout started from no routine is called.
 const freeWorkoutName = '自由訓練';
+
+/// What a new template is called until it has exercises to be named
+/// after, or the user names it.
+const untitledRoutineName = '新的課表';
+
+/// How many muscles a template's own name lists.
+const _namedMuscles = 2;
+
+/// A template's name from what it trains: its two most trained muscles
+/// (by planned sets), `胸・三頭肌`; [untitledRoutineName] with nothing in
+/// it yet.
+String routineNameFor(List<PlannedExercise> exercises) {
+  final sets = <MuscleGroup, int>{};
+  for (final planned in exercises) {
+    for (final muscle in planned.exercise.primaryMuscles) {
+      sets[muscle] = (sets[muscle] ?? 0) + planned.sets;
+    }
+  }
+  if (sets.isEmpty) return untitledRoutineName;
+  final ranked = sets.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+  return [for (final entry in ranked.take(_namedMuscles)) entry.key.label]
+      .join('・');
+}
+
 const _addedReps = 10;
 const _addedWeightKg = 20.0;
 
@@ -57,6 +82,47 @@ class TrainingService {
           ),
       ],
     );
+    // Ready, not yet under way: the time runs from 開始運動 or the first
+    // set, after the sets and weights have been looked over.
+    workout.pausedAt = workout.startedAt;
+    _workouts.save(workout, action: 'start');
+    return workout;
+  }
+
+  /// The last [limit] finished workouts, newest first, to start a new
+  /// one from.
+  List<WorkoutSession> recentFinished({int limit = 30}) =>
+      _workouts.recentFinished(limit, _exercise);
+
+  /// Starts a workout from no routine with [done], exercises of earlier
+  /// workouts, each at the sets it was done at.
+  WorkoutSession startFrom(List<ExerciseSession> done) {
+    final workout = WorkoutSession(
+      id: _db.newId(),
+      routineName: freeWorkoutName,
+      startedAt: _db.now(),
+      exercises: [
+        for (final session in done)
+          if (_planOfDone(session) case final planned?) plan(planned),
+      ],
+    );
+    // Ready, not yet under way: the time runs from 開始運動 or the first
+    // set, after the sets and weights have been looked over.
+    workout.pausedAt = workout.startedAt;
+    _workouts.save(workout, action: 'start');
+    return workout;
+  }
+
+  /// Starts a workout from no routine, planned as [planned].
+  WorkoutSession startPlanned(List<PlannedExercise> planned) {
+    final workout = WorkoutSession(
+      id: _db.newId(),
+      routineName: freeWorkoutName,
+      startedAt: _db.now(),
+      exercises: [for (final item in planned) plan(item)],
+    );
+    // Ready, not yet under way, like any other start.
+    workout.pausedAt = workout.startedAt;
     _workouts.save(workout, action: 'start');
     return workout;
   }
@@ -69,6 +135,9 @@ class TrainingService {
       startedAt: _db.now(),
       exercises: [for (final exercise in exercises) plan(planFor(exercise))],
     );
+    // Ready, not yet under way: the time runs from 開始運動 or the first
+    // set, after the sets and weights have been looked over.
+    workout.pausedAt = workout.startedAt;
     _workouts.save(workout, action: 'start');
     return workout;
   }
@@ -84,16 +153,16 @@ class TrainingService {
       exercise: planned.exercise,
       isPersonalRecordCandidate: planned.targetWeightKg > previousWeight,
       joinsNext: planned.joinsNext,
-      sets: List.generate(
-        planned.sets,
-        (_) => WorkoutSet(
-          weightKg: planned.targetWeightKg,
-          reps: planned.reps,
-          rir: planned.rir,
-          previousWeightKg: previousWeight,
-          previousReps: previousReps,
-        ),
-      ),
+      sets: [
+        for (final load in planned.loads)
+          WorkoutSet(
+            weightKg: load.weightKg,
+            reps: load.reps,
+            rir: planned.rir,
+            previousWeightKg: previousWeight,
+            previousReps: previousReps,
+          ),
+      ],
     );
   }
 
@@ -138,6 +207,7 @@ class TrainingService {
   /// Marks the next pending set of the current exercise as done and moves
   /// on to the next unfinished exercise once every set is logged.
   WorkoutSet? completeNextSet(WorkoutSession workout) {
+    _underWay(workout);
     final exercise = workout.currentExercise;
     final setIndex = exercise.nextSetIndex;
     if (setIndex == null) return null;
@@ -230,6 +300,7 @@ class TrainingService {
   }
 
   void toggleSet(WorkoutSession workout, int setIndex) {
+    _underWay(workout);
     final set = workout.currentExercise.sets[setIndex];
     set.isDone = !set.isDone;
     _workouts.save(workout, action: set.isDone ? 'complete_set' : 'reopen_set');
@@ -267,6 +338,70 @@ class TrainingService {
   void removeSet(WorkoutSession workout, int setIndex) {
     workout.currentExercise.sets.removeAt(setIndex);
     _workouts.save(workout, action: 'remove_set');
+  }
+
+  /// [set] with a new weight and reps, the rest of it kept.
+  static WorkoutSet _withLoad(WorkoutSet set, double weightKg, int reps) =>
+      WorkoutSet(
+        weightKg: weightKg,
+        reps: reps,
+        rir: set.rir,
+        rpe: set.rpe,
+        type: set.type,
+        previousWeightKg: set.previousWeightKg,
+        previousReps: set.previousReps,
+        durationSeconds: set.durationSeconds,
+        distanceMeters: set.distanceMeters,
+        isDone: set.isDone,
+      );
+
+  /// Sets each set of the exercise at [index] still to do to the weight
+  /// and reps it was done at last time, where there was a last time.
+  void loadPrevious(WorkoutSession workout, int index) {
+    final sets = workout.exercises[index].sets;
+    for (final (i, set) in sets.indexed) {
+      if (set.isDone || set.previousReps == 0) continue;
+      sets[i] = _withLoad(set, set.previousWeightKg, set.previousReps);
+    }
+    _workouts.save(workout, action: 'load_previous');
+  }
+
+  /// Sets every set still to do of the exercise at [index], of the same
+  /// kind as its first set, to that set's weight and reps.
+  void fillFromFirst(WorkoutSession workout, int index) {
+    final sets = workout.exercises[index].sets;
+    if (sets.isEmpty) return;
+    final first = sets.first;
+    for (final (i, set) in sets.indexed.skip(1)) {
+      if (set.isDone || set.type != first.type) continue;
+      sets[i] = _withLoad(set, first.weightKg, first.reps);
+    }
+    _workouts.save(workout, action: 'fill_sets');
+  }
+
+  /// Takes the last set still to do off the exercise at [index], or its
+  /// last set when all are done; nothing when it has none.
+  void removeLastSet(WorkoutSession workout, int index) {
+    final sets = workout.exercises[index].sets;
+    if (sets.isEmpty) return;
+    final pending = sets.lastIndexWhere((set) => !set.isDone);
+    sets.removeAt(pending >= 0 ? pending : sets.length - 1);
+    _workouts.save(workout, action: 'remove_set');
+  }
+
+  /// Takes the exercise at [index] out of today's workout; the template
+  /// keeps it.
+  void removeExercise(WorkoutSession workout, int index) {
+    if (workout.exercises.length <= 1) return;
+    workout.exercises.removeAt(index);
+    if (workout.currentExerciseIndex >= workout.exercises.length ||
+        workout.currentExerciseIndex > index) {
+      workout.currentExerciseIndex = (workout.currentExerciseIndex - 1).clamp(
+        0,
+        workout.exercises.length - 1,
+      );
+    }
+    _workouts.save(workout, action: 'remove_exercise');
   }
 
   void selectExercise(WorkoutSession workout, int index) {
@@ -307,6 +442,22 @@ class TrainingService {
     _workouts.save(workout, action: 'replace_exercise');
   }
 
+  /// Sets a ready workout under way; nothing when it already is.
+  void begin(WorkoutSession workout) {
+    if (!workout.isReady) return;
+    _underWay(workout);
+    _workouts.save(workout, action: 'begin');
+  }
+
+  /// A ready workout's time running from now, left for the change that
+  /// set it off to write.
+  void _underWay(WorkoutSession workout) {
+    if (!workout.isReady) return;
+    workout
+      ..pausedTotal = _db.now().difference(workout.startedAt)
+      ..pausedAt = null;
+  }
+
   void togglePause(WorkoutSession workout) {
     final pausedAt = workout.pausedAt;
     if (pausedAt == null) {
@@ -343,14 +494,51 @@ class TrainingService {
     String action = 'add_exercises',
     ChangeSource source = ChangeSource.local,
   }) {
-    final updated = routine.copyWith(
-      exercises: [
-        ...routine.exercises,
-        for (final exercise in exercises) planFor(exercise),
-      ],
-    );
+    final planned = [
+      ...routine.exercises,
+      for (final exercise in exercises) planFor(exercise),
+    ];
+    // Still unnamed, it takes its name from what it now trains.
+    final updated = routine.name == untitledRoutineName
+        ? routine.renamed(routineNameFor(planned)).copyWith(exercises: planned)
+        : routine.copyWith(exercises: planned);
     _routines.save(updated, action: action, source: source);
     return updated;
+  }
+
+  /// Plans the exercise at [index] as [loads], set by set; with none
+  /// left it comes out of the template.
+  Routine editLoads(Routine routine, int index, List<SetLoad> loads) {
+    final exercises = [...routine.exercises];
+    if (loads.isEmpty) {
+      exercises.removeAt(index);
+    } else {
+      exercises[index] = PlannedExercise.ofLoads(exercises[index], loads);
+    }
+    final updated = routine.copyWith(exercises: exercises);
+    _routines.save(updated, action: 'edit_plan');
+    return updated;
+  }
+
+  /// A new template of what [workout] did: each exercise with a done
+  /// working set, each done set as it was done. Named after what it trains.
+  Routine routineFrom(WorkoutSession workout) {
+    final exercises = [
+      for (final session in workout.exercises) ?_planOfDone(session),
+    ];
+    return createRoutine(routineNameFor(exercises), exercises: exercises);
+  }
+
+  /// What [session] did as a plan; null without a done working set.
+  PlannedExercise? _planOfDone(ExerciseSession session) {
+    final done = [
+      for (final set in session.sets)
+        if (set.isDone && set.type != SetType.warmup) set,
+    ];
+    if (done.isEmpty) return null;
+    return PlannedExercise.ofLoads(planFor(session.exercise), [
+      for (final set in done) (weightKg: set.weightKg, reps: set.reps),
+    ]);
   }
 
   /// Drops one exercise from the template. History keeps every workout
@@ -496,20 +684,20 @@ class TrainingService {
     return routine;
   }
 
-  /// A copy of [routine] under a new id, for a program to hold as its
-  /// own.
-  Routine copyRoutine(Routine routine) =>
-      createRoutine(routine.name, exercises: routine.exercises);
-
   void deleteRoutine(String id) => _routines.remove(id);
 
   void undeleteRoutine(String id) => _routines.restore(id);
 
-  PlannedExercise planFor(ExerciseDefinition exercise) => PlannedExercise(
-    exercise: exercise,
-    sets: _addedSets,
-    reps: _addedReps,
-    targetWeightKg: _addedWeightKg,
-    progressionLabel: '維持',
-  );
+  /// A new exercise in a plan: the reps and weight it was last done at,
+  /// and the app's defaults for one never done.
+  PlannedExercise planFor(ExerciseDefinition exercise) {
+    final last = _exercises.history(exercise.id).last;
+    return PlannedExercise(
+      exercise: exercise,
+      sets: _addedSets,
+      reps: last?.reps ?? _addedReps,
+      targetWeightKg: last?.weightKg ?? _addedWeightKg,
+      progressionLabel: '維持',
+    );
+  }
 }

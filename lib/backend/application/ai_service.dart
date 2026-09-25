@@ -12,6 +12,7 @@ import '../ai/food_photo.dart';
 import '../ai/copilot_drafter.dart';
 import '../ai/secret_store.dart';
 import '../engines/label_text.dart';
+import '../engines/workout_text.dart';
 import '../storage/database.dart';
 
 /// The AI layer's front door: which provider the user chose, its key
@@ -214,6 +215,12 @@ class AiService {
   /// [AiFailure.needsConsent] before the first cloud request.
   Future<MealDraft> draftMeal(String description) async =>
       _drafter().draftMeal(description);
+
+  /// The exercises a workout written as [text] lists, for when the rules
+  /// could not read all of it. Throws [AiException];
+  /// [AiFailure.needsConsent] before the first cloud request.
+  Future<List<WorkoutLine>> draftWorkout(String text) async =>
+      _drafter().draftWorkout(text);
 
   /// A food drafted from a nutrition label's text, read off a photo on
   /// the phone: only the text is ever sent, never the photo.

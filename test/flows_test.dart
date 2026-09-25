@@ -35,6 +35,7 @@ import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
+import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -126,14 +127,26 @@ void main() {
 
     expect(find.text('今天'), findsWidgets);
     await _tapText(tester, '開始訓練');
-    expect(find.text('完成這一組'), findsOneWidget);
+    expect(
+      find.text('開始運動'),
+      findsOneWidget,
+      reason: 'ready to look over, not yet under way',
+    );
     expect(find.text('槓鈴深蹲'), findsOneWidget);
+    await _tapText(tester, '開始運動');
+    expect(find.text('完成訓練'), findsOneWidget);
 
-    await _tapText(tester, '完成這一組');
-    expect(find.text('休息中'), findsOneWidget);
-    expect(find.text('個人紀錄'), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+    await tester.pump();
+    expect(find.textContaining('個人紀錄 ·'), findsOneWidget);
+    expect(store.restEndsAt, isNotNull, reason: 'the rest starts in place');
 
+    await tester.tap(find.bySemanticsLabel(RegExp('^休息的選項')));
+    await tester.pumpAndSettle();
     await _tapText(tester, '跳過休息');
+    semantics.dispose();
+    expect(store.restEndsAt, isNull);
     expect(store.activeWorkout!.completedSets, 1);
 
     clock.advance(const Duration(minutes: 30));
@@ -170,37 +183,36 @@ void main() {
     await _tapText(tester, '放棄這次訓練');
     expect(store.activeWorkout, isNull);
     expect(store.lastFinishedWorkout?.id, isNot(id));
-    expect(find.text('完成這一組'), findsNothing);
+    expect(find.text('完成訓練'), findsNothing);
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });
 
-  testWidgets('a rest keeps counting on the workout page and ends there', (
-    tester,
-  ) async {
+  testWidgets('a rest counts down at the foot and ends there', (tester) async {
     usePhoneViewport(tester);
+    final semantics = tester.ensureSemantics();
     final clock = FakeClock();
     final store = AppStore(clock: clock.now, isOnboarded: true);
     await tester.pumpWidget(MishirubeApp(store: store));
     await _tapText(tester, '開始訓練');
-    await _tapText(tester, '完成這一組');
-    expect(find.text('休息中'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+    await tester.pump();
     expect(find.text('2:00'), findsOneWidget, reason: 'a squat rests longer');
-
-    await tester.tap(find.byTooltip('返回'));
-    await tester.pumpAndSettle();
-    expect(find.text('休息 2:00'), findsOneWidget);
 
     clock.advance(const Duration(minutes: 1));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('休息 1:00'), findsOneWidget);
+    expect(
+      find.text('1:00'),
+      findsWidgets,
+      reason: 'the rest, beside the time so far',
+    );
 
     clock.advance(const Duration(minutes: 1));
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
-    expect(find.textContaining('休息 '), findsNothing);
     expect(store.restEndsAt, isNull);
     expect(tester.takeException(), isNull);
+    semantics.dispose();
     await disposeTree(tester);
   });
 
@@ -213,11 +225,10 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     await _tapText(tester, '開始訓練');
 
-    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
     await tester.pump();
-    expect(find.text('休息 2:00'), findsOneWidget);
+    expect(find.text('2:00'), findsOneWidget);
     expect(find.textContaining('個人紀錄 ·'), findsOneWidget);
-    expect(find.text('休息中'), findsNothing, reason: 'no page to leave');
     expect(tester.takeException(), isNull);
     semantics.dispose();
     await disposeTree(tester);
@@ -235,7 +246,7 @@ void main() {
     final count = sets.length;
     final weight = sets.first.weightKg;
 
-    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
     await tester.pumpAndSettle();
     expect(find.textContaining('每邊'), findsOneWidget, reason: 'a barbell');
     await tester.tap(find.byTooltip('增加 2.5 kg'));
@@ -248,7 +259,7 @@ void main() {
     expect(edited.reps, sets.first.reps);
     expect(edited.rir, 2);
 
-    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')));
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
     await tester.pumpAndSettle();
     await _tapText(tester, '刪除這一組');
     expect(store.activeWorkout!.currentExercise.sets, hasLength(count - 1));
@@ -1007,53 +1018,82 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a program is made from a template and Today follows it', (
-    tester,
-  ) async {
+  testWidgets('a workout of my own is swiped away, and undone', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final own = store.routines.last;
+    final count = store.routines.length;
     await pumpScreen(tester, const TrainingScreen(), store: store);
 
-    await _tapText(tester, '建立課表');
-    await tester.tap(find.text('5×5'));
+    await tester.drag(find.text(own.name), const Offset(-300, 0));
     await tester.pumpAndSettle();
-    await _tapText(tester, '啟用課表');
+    await tester.tap(find.text('刪除'));
+    // Not settled: the undo's countdown would run out.
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(store.routines, hasLength(count - 1));
 
-    final progress = store.programProgress!;
-    expect(progress.program.name, '5×5');
-    expect(store.nextRoutine.name, 'A');
-    expect(find.text('下一次：A'), findsOneWidget);
-
-    await _tapText(tester, '略過這次');
-    expect(store.nextRoutine.name, 'B');
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(store.routines, hasLength(count));
     await disposeTree(tester);
   });
 
-  testWidgets('a program built from nothing takes a new workout', (
+  testWidgets('an exercise is replaced by any from the library', (
     tester,
   ) async {
     usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout();
+    final current = store.activeWorkout!.currentExercise.exercise;
+    final other = store.exercises.firstWhere(
+      (exercise) =>
+          exercise.id != current.id &&
+          !store
+              .substitutesFor(current)
+              .any((o) => o.exercise.id == exercise.id),
+    );
+    await pumpScreen(tester, const SubstituteExerciseScreen(), store: store);
+
+    await _tapText(tester, '從所有動作選擇');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, other.name);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(other.name).last);
+    await tester.pumpAndSettle();
+    await _tapText(tester, '替換');
+
+    expect(store.activeWorkout!.currentExercise.exercise.id, other.id);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a workout pasted as text is read and started', (tester) async {
+    usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    final own = store.routines.first;
     await pumpScreen(tester, const TrainingScreen(), store: store);
 
-    await _tapText(tester, '建立課表');
-    await tester.tap(find.text('自己建立'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, '分化');
-    await tester.tap(find.text('建立'));
-    await tester.pumpAndSettle();
+    await _tapText(tester, '一句話');
+    await tester.enterText(
+      find.byType(TextField).first,
+      '1. 槓鈴深蹲 4×8 60kg\n2. 不存在的動作名稱 3x5',
+    );
+    await tester.pump();
+    await _tapText(tester, '產生');
+    expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
+    expect(find.text('找不到這個動作'), findsOneWidget);
 
-    await _tapText(tester, '新增訓練');
-    await tester.tap(find.text('從「我的訓練」加入'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(own.name).last);
-    await tester.pumpAndSettle();
-
-    final program = store.backend.program.all().single;
-    expect(program.name, '分化');
-    expect(program.days, hasLength(1));
-    expect(program.days.single.routineId, isNot(own.id));
+    await _tapText(tester, '開始訓練');
+    final workout = store.activeWorkout!;
+    expect(
+      workout.exercises,
+      hasLength(1),
+      reason: 'the unmatched is left out',
+    );
+    expect(workout.exercises.single.exercise.name, '槓鈴深蹲');
+    expect(
+      [for (final set in workout.exercises.single.sets) set.weightKg],
+      [60.0, 60.0, 60.0, 60.0],
+    );
+    expect(workout.isReady, isTrue);
     await disposeTree(tester);
   });
 
@@ -1123,29 +1163,66 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a new workout becomes the one to train next', (tester) async {
+  testWidgets('a new workout opens at once, named later by what it trains', (
+    tester,
+  ) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const RoutineDetailScreen(), store: store);
-    final before = store.routine.name;
+    final before = store.routines.length;
 
-    await tester.tap(find.bySemanticsLabel('所有訓練'));
+    await tester.tap(find.bySemanticsLabel('所有課表'));
     await tester.pumpAndSettle();
-    expect(find.text(before), findsWidgets);
-
-    await _tapText(tester, '新增訓練');
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).last, '上肢 B');
-    await tester.tap(find.text('建立'));
+    await _tapText(tester, '新增課表');
     await tester.pumpAndSettle();
 
-    expect(store.routine.name, '上肢 B');
+    expect(store.routines, hasLength(before + 1));
+    expect(store.routine.name, '新的課表');
+    expect(find.text('新的課表'), findsWidgets, reason: 'no name dialog first');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a planned set is typed in place and more are added', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    final sets = store.routine.exercises.first.sets;
+
+    final weight = find.bySemanticsLabel('第 1 組重量').first;
+    await tester.tap(weight);
+    await tester.enterText(find.byType(TextField).first, '100');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(store.routine.exercises.first.loads.first.weightKg, 100);
+
+    await _tapText(tester, '新增組');
+    expect(store.routine.exercises.first.sets, sets + 1);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a workout starts from exercises of an earlier one', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final past = store.recentWorkouts.first;
+    await pumpScreen(tester, const TrainingScreen(), store: store);
+
+    await tester.tap(find.text('載入紀錄'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining(past.routineName).first);
+    await tester.pumpAndSettle();
+    await _tapText(tester, '選擇全部');
+    await _tapText(tester, '開始訓練（${past.exercises.length} 個動作）');
+
+    final started = store.activeWorkout!;
+    expect(started.routineId, isNull);
     expect(
-      find.text('上肢 B'),
-      findsWidgets,
-      reason: 'the detail screen follows the choice',
+      started.exercises.first.exercise.id,
+      past.exercises.first.exercise.id,
     );
-    expect(store.routines.map((routine) => routine.name), contains(before));
     await disposeTree(tester);
   });
 
@@ -1311,12 +1388,10 @@ void main() {
     expect(find.text('上移'), findsNothing, reason: 'browsing cannot reorder');
 
     await _tapText(tester, '編輯');
-    await tester.tap(find.text('下移').first);
-    await tester.pump();
+    await _tapText(tester, '下移');
     expect(store.routine.exercises.first.exercise.name, planned[1]);
 
-    await tester.tap(find.text('移除').first);
-    await tester.pump();
+    await _tapText(tester, '移除');
     expect(store.routine.exercises, hasLength(planned.length - 1));
     expect(find.textContaining('已移除'), findsOneWidget);
 

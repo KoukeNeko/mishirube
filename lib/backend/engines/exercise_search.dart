@@ -96,15 +96,67 @@ List<ExerciseDefinition> duplicateCandidates(
 /// `ＢＥＮＣＨ　ＰＲＥＳＳ` all normalise alike.
 String normalizeTerm(String value) {
   final buffer = StringBuffer();
-  for (final rune in value.trim().toLowerCase().runes) {
-    // Full-width forms sit a fixed distance above their ASCII twins.
-    final folded = rune >= 0xFF01 && rune <= 0xFF5E ? rune - 0xFEE0 : rune;
-    final char = String.fromCharCode(folded);
+  for (final char in _foldWidth(value.trim().toLowerCase()).split('')) {
     if (char == ' ' || char == '　' || char == '-' || char == '_') continue;
     buffer.write(char);
   }
   return buffer.toString();
 }
+
+/// Full-width forms sit a fixed distance above their ASCII twins.
+String _foldWidth(String value) => String.fromCharCodes([
+  for (final rune in value.runes)
+    rune >= 0xFF01 && rune <= 0xFF5E ? rune - 0xFEE0 : rune,
+]);
+
+/// How much of a name must be shared for [closestExercise] to take it.
+const _closeEnough = 0.5;
+
+final _word = RegExp(r'[a-z0-9]+|\p{L}', unicode: true);
+
+/// The exercise [names] most likely mean, when someone else wrote them:
+/// the one sharing the most of a name's words — each Chinese character,
+/// each English word — through its own name or an alias, so
+/// 「單手啞鈴划船」 finds 單臂啞鈴划船 by its alias 啞鈴單手划船 and
+/// 「反向腕彎舉」 finds 腕伸 by 反握手腕彎舉. [names] are the same exercise
+/// named more than one way, such as in Chinese and in English. Null when
+/// nothing shares half. A tie goes to the more familiar exercise.
+ExerciseDefinition? closestExercise(
+  Iterable<String> names,
+  Iterable<ExerciseDefinition> catalog,
+) {
+  final wanted = [
+    for (final name in names)
+      if (_wordsOf(name) case final words when words.isNotEmpty) words,
+  ];
+  if (wanted.isEmpty) return null;
+  ExerciseDefinition? closest;
+  var closestShare = 0.0;
+  for (final result in searchExercises(catalog)) {
+    final exercise = result.exercise;
+    for (final term in [
+      exercise.name,
+      ...exercise.personalAliases,
+      ...exercise.aliases,
+    ]) {
+      final words = _wordsOf(term);
+      for (final name in wanted) {
+        final share =
+            words.intersection(name).length / words.union(name).length;
+        if (share >= _closeEnough && share > closestShare) {
+          closest = exercise;
+          closestShare = share;
+        }
+      }
+    }
+  }
+  return closest;
+}
+
+Set<String> _wordsOf(String value) => {
+  for (final match in _word.allMatches(_foldWidth(value.toLowerCase())))
+    match[0]!,
+};
 
 /// The best match over an exercise's searchable terms, and whether it
 /// came from the name rather than an alias, the equipment or a muscle.

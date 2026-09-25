@@ -57,7 +57,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   Future<void> _rename(Routine routine) async {
     final name = await showTextDialog(
       context,
-      title: '訓練名稱',
+      title: '課表名稱',
       initial: routine.name,
     );
     if (name == null || name.trim().isEmpty || !mounted) return;
@@ -65,7 +65,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   }
 
   /// Removing a template is undoable and never touches the workouts done
-  /// from it; the app keeps at least one to train from.
+  /// from it. The page closes with it.
   Future<void> _delete(Routine routine) async {
     final store = AppStoreScope.read(context);
     final confirmed = await showAppDialog<bool>(
@@ -75,7 +75,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         message: '已完成的訓練紀錄會保留。',
         actions: [
           DialogAction(
-            label: '刪除這個訓練',
+            label: '刪除這份課表',
             tone: DialogTone.destructive,
             onTap: () => Navigator.of(context).pop(true),
           ),
@@ -84,12 +84,10 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    if (!store.deleteRoutine(routine)) {
-      showToast(context, '至少要留下一個訓練', kind: ToastKind.warning);
-      return;
-    }
-    setState(() => _isEditing = false);
-    ToastScope.read(context).showUndo(
+    final toast = ToastScope.read(context);
+    Navigator.of(context).pop();
+    store.deleteRoutine(routine);
+    toast.showUndo(
       '已刪除「${routine.name}」',
       onUndo: () => store.undeleteRoutine(routine.id),
     );
@@ -98,7 +96,14 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final routine = store.routine;
+    // Deleted from here, while the page leaves.
+    final routine = store.selectedRoutine;
+    if (routine == null) {
+      return const DetailPage(
+        appBar: PageAppBar(title: '訓練'),
+        children: [],
+      );
+    }
     final isWorkoutActive = store.activeWorkout != null;
     return DetailPage(
       appBar: PageAppBar(
@@ -107,13 +112,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         actions: [
           HeaderAction(
             icon: Icons.list_alt_outlined,
-            semanticLabel: '所有訓練',
+            semanticLabel: '所有課表',
             onTap: () => pushPage(context, const TrainingScreen()),
           ),
           HeaderAction(
             icon: _isEditing ? Icons.check : Icons.edit_outlined,
             label: _isEditing ? '完成' : '編輯',
-            semanticLabel: _isEditing ? '完成編輯' : '編輯這個訓練',
+            semanticLabel: _isEditing ? '完成編輯' : '編輯這份課表',
             onTap: () => setState(() => _isEditing = !_isEditing),
           ),
         ],
@@ -171,6 +176,11 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                   planned.joinsNext ||
                   (index > 0 && routine.exercises[index - 1].joinsNext),
               onJoinNext: (joins) => store.setJoinsNext(index, joins: joins),
+              onLoads: (loads) => store.editLoads(index, loads),
+              last: switch (store.exerciseHistory(planned.exercise).last) {
+                final last? => (weightKg: last.weightKg, reps: last.reps),
+                null => null,
+              },
             ),
           ),
         Gutter(
@@ -183,7 +193,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
           Gutter(
             child: Center(
               child: LinkText(
-                label: '刪除這個訓練',
+                label: '刪除這份課表',
                 color: AppColors.destructive,
                 onTap: () => _delete(routine),
               ),
@@ -240,10 +250,18 @@ class _PlannedExerciseCard extends StatelessWidget {
     required this.isInSuperset,
     required this.onJoinNext,
     required this.isLighter,
+    required this.onLoads,
+    this.last,
   });
 
   /// A muscle it works is sore today: a set fewer when started.
   final bool isLighter;
+
+  /// Plans the exercise as these sets; none takes it out.
+  final ValueChanged<List<SetLoad>> onLoads;
+
+  /// How it was last done, for filling the plan in from.
+  final SetLoad? last;
 
   final PlannedExercise planned;
   final bool isEditing;
@@ -267,6 +285,13 @@ class _PlannedExerciseCard extends StatelessWidget {
         : planned.rir == null
         ? null
         : 'RIR ${planned.rir}';
+    final loads = planned.loads;
+    void change(int set, {double? weightKg, int? reps}) => onLoads([
+      for (final (i, load) in loads.indexed)
+        i == set
+            ? (weightKg: weightKg ?? load.weightKg, reps: reps ?? load.reps)
+            : load,
+    ]);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,10 +303,6 @@ class _PlannedExerciseCard extends StatelessWidget {
                   planned.exercise.name,
                   style: AppTextStyles.itemTitle,
                 ),
-              ),
-              Text(
-                '${planned.sets} × ${planned.reps}',
-                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
               ),
               SizedBox(
                 width: 56,
@@ -318,6 +339,99 @@ class _PlannedExerciseCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 const TagChip(label: '超級組', tone: TagTone.training),
               ],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              const SizedBox(
+                width: 40,
+                child: Text('組', style: AppTextStyles.caption),
+              ),
+              const Expanded(
+                child: Text(
+                  'kg',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              const Expanded(
+                child: Text(
+                  '次',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption,
+                ),
+              ),
+              if (last != null) ...[
+                const SizedBox(width: AppSpacing.xs),
+                ChipButton(
+                  label: '載入',
+                  semanticLabel: '以上次的重量與次數填入',
+                  onTap: () => onLoads([for (final _ in loads) last!]),
+                ),
+              ],
+            ],
+          ),
+          for (final (i, load) in loads.indexed)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 40,
+                    child: Text('${i + 1}', style: AppTextStyles.itemTitle),
+                  ),
+                  Expanded(
+                    child: InlineNumberField(
+                      text: formatWeight(load.weightKg),
+                      label: '第 ${i + 1} 組重量',
+                      decimal: true,
+                      onCommit: (text) {
+                        if (double.tryParse(text) case final kg? when kg >= 0) {
+                          change(i, weightKg: kg);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: InlineNumberField(
+                      text: '${load.reps}',
+                      label: '第 ${i + 1} 組次數',
+                      decimal: false,
+                      onCommit: (text) {
+                        if (int.tryParse(text) case final reps? when reps > 0) {
+                          change(i, reps: reps);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            spacing: AppSpacing.sm,
+            children: [
+              Expanded(
+                child: SecondaryButton(
+                  label: '刪除組',
+                  icon: Icons.remove,
+                  isCompact: true,
+                  onPressed: loads.length <= 1
+                      ? null
+                      : () => onLoads(loads.sublist(0, loads.length - 1)),
+                ),
+              ),
+              Expanded(
+                child: SecondaryButton(
+                  label: '新增組',
+                  icon: Icons.add,
+                  isCompact: true,
+                  onPressed: () => onLoads([...loads, loads.last]),
+                ),
+              ),
             ],
           ),
           if (isEditing) ...[

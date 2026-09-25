@@ -19,7 +19,12 @@ void dismissKeyboardOnTapOutside(PointerDownEvent _) =>
 /// The corner of every input, and of anything that sits beside one.
 const _fieldRadius = AppRadius.small + 4;
 
-InputDecoration _decoration({required String hint, Widget? prefixIcon}) {
+InputDecoration _decoration({
+  required String hint,
+  Widget? prefixIcon,
+  Color fill = AppColors.surface,
+  double horizontalPadding = AppSpacing.md,
+}) {
   final border = OutlineInputBorder(
     borderRadius: BorderRadius.circular(_fieldRadius),
     borderSide: BorderSide.none,
@@ -29,12 +34,12 @@ InputDecoration _decoration({required String hint, Widget? prefixIcon}) {
     hintStyle: const TextStyle(color: AppColors.textTertiary),
     prefixIcon: prefixIcon,
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: fill,
     // Without vertical padding the fill is drawn at the text row's own
     // 48 and sits at the top of the 56 box, so anything placed beside the
     // field at the field's height looks larger than it.
-    contentPadding: const EdgeInsets.symmetric(
-      horizontal: AppSpacing.md,
+    contentPadding: EdgeInsets.symmetric(
+      horizontal: horizontalPadding,
       vertical: 18,
     ),
     border: border,
@@ -207,6 +212,97 @@ class NumberFieldRow extends StatelessWidget {
           child: Text(unit, style: AppTextStyles.caption),
         ),
       ],
+    );
+  }
+}
+
+/// A figure typed in place, in a table of them: a set's weight or reps. What was typed is handed over when the field
+/// is left or submitted; until then the set keeps its figure.
+class InlineNumberField extends StatefulWidget {
+  const InlineNumberField({
+    super.key,
+    required this.text,
+    required this.label,
+    required this.decimal,
+    required this.onCommit,
+  });
+
+  final String text;
+
+  /// What a screen reader calls the field: `第 1 組重量`.
+  final String label;
+
+  /// Whether a decimal point may be typed.
+  final bool decimal;
+  final ValueChanged<String> onCommit;
+
+  @override
+  State<InlineNumberField> createState() => _InlineNumberFieldState();
+}
+
+class _InlineNumberFieldState extends State<InlineNumberField> {
+  late final _controller = TextEditingController(text: widget.text);
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(() {
+      if (!_focus.hasFocus) _commit();
+    });
+  }
+
+  @override
+  void didUpdateWidget(InlineNumberField old) {
+    super.didUpdateWidget(old);
+    // A figure changed elsewhere shows unless it is being typed over.
+    if (!_focus.hasFocus && widget.text != _controller.text) {
+      _controller.text = widget.text;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _commit() {
+    final text = _controller.text.trim();
+    if (text != widget.text) widget.onCommit(text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _fieldHeight,
+      child: Semantics(
+        label: widget.label,
+        textField: true,
+        child: TextField(
+          controller: _controller,
+          focusNode: _focus,
+          onTapOutside: dismissKeyboardOnTapOutside,
+          onSubmitted: (_) => _commit(),
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.numberWithOptions(
+            decimal: widget.decimal,
+          ),
+          textAlignVertical: TextAlignVertical.center,
+          style: AppTextStyles.body.copyWith(
+            fontSize: 17,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+          // The app's field, raised a step: it sits on a card, whose fill
+          // is the field's own.
+          decoration: _decoration(
+            hint: '',
+            fill: AppColors.surfaceRaised,
+            horizontalPadding: AppSpacing.xs,
+          ),
+        ),
+      ),
     );
   }
 }

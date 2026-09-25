@@ -42,6 +42,11 @@ class CatalogService {
       result.exercise,
   ];
 
+  /// The exercise [names] most likely mean, for a workout written as
+  /// text; null when nothing matches them, not even loosely.
+  ExerciseDefinition? bestMatch(Iterable<String> names) =>
+      finder.closestExercise(names, all());
+
   /// Folds [duplicate] into [canonical]: one history instead of two.
   /// Nothing is deleted — the duplicate is tombstoned and the records it
   /// held move across, so the past reads as one exercise from now on.

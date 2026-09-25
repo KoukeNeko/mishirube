@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
+import '../engines/workout_text.dart';
 import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
+import 'workout_draft_json.dart';
 
 /// A model reached over the network with the user's own key.
 ///
@@ -54,6 +56,10 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
         provider: kind,
         model: await modelName(),
       );
+
+  @override
+  Future<List<WorkoutLine>> draftWorkout(String text) async =>
+      parseWorkoutDraft(await chat(workoutDraftInstructions, text));
 
   @override
   Future<bool> readsPhotos() async => true;

@@ -267,7 +267,10 @@ void main() {
   testWidgets('workout accessory ticks, pauses and resumes', (tester) async {
     final clock = FakeClock();
     final store = await _pumpApp(tester, clock);
-    store.startWorkout();
+    store
+      ..startWorkout()
+      ..beginWorkout()
+      ..beginWorkout();
     await _settleFor(tester);
 
     // The state and the clock are separate: the clock stays put while the
@@ -310,6 +313,7 @@ void main() {
     final store = await _pumpApp(tester, FakeClock());
     store
       ..startWorkout()
+      ..beginWorkout()
       ..selectTab(HomeTab.log);
     await _settleFor(tester);
     expect(find.textContaining('訓練進行中 ·'), findsOneWidget);
@@ -354,6 +358,7 @@ void main() {
     final store = await _pumpApp(tester, clock);
     store
       ..startWorkout()
+      ..beginWorkout()
       ..selectTab(HomeTab.log);
     await _settleFor(tester);
 
@@ -380,6 +385,7 @@ void main() {
     final store = await _pumpApp(tester, FakeClock());
     store
       ..startWorkout()
+      ..beginWorkout()
       ..selectTab(HomeTab.log);
     await _settleFor(tester);
 
@@ -413,7 +419,10 @@ void main() {
     tester,
   ) async {
     final store = await _pumpApp(tester, FakeClock());
-    store.startWorkout();
+    store
+      ..startWorkout()
+      ..beginWorkout()
+      ..beginWorkout();
     await _settleFor(tester);
 
     await tester.tap(find.byTooltip('結束訓練'));
@@ -466,7 +475,9 @@ void main() {
 
   test('paused time is excluded from workout duration', () {
     final clock = FakeClock();
-    final store = AppStore(clock: clock.now, isOnboarded: true)..startWorkout();
+    final store = AppStore(clock: clock.now, isOnboarded: true)
+      ..startWorkout()
+      ..beginWorkout();
 
     clock.advance(const Duration(minutes: 10));
     store.togglePause();

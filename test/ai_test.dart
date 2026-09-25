@@ -14,13 +14,16 @@ import 'package:mishirube/backend/ai/meal_drafter.dart';
 import 'package:mishirube/backend/ai/cloud_drafter.dart';
 import 'package:mishirube/backend/ai/copilot_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
+import 'package:mishirube/backend/ai/workout_draft_json.dart';
 import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/label_text.dart';
+import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -80,6 +83,19 @@ class _FakeDrafter implements MealDrafter {
     photos.add(photo);
     notes.add(note);
     return parseMealPhoto(photoAnswer, provider: kind, model: 'fake-1');
+  }
+
+  /// The workouts it was given; answers with a model's JSON for them, or
+  /// fails as [workoutFailure] says.
+  final workouts = <String>[];
+  String workoutAnswer = '{"exercises":[]}';
+  AiFailure? workoutFailure;
+
+  @override
+  Future<List<WorkoutLine>> draftWorkout(String text) async {
+    workouts.add(text);
+    if (workoutFailure case final failure?) throw AiException(failure);
+    return parseWorkoutDraft(workoutAnswer);
   }
 }
 
@@ -1143,5 +1159,110 @@ void main() {
     expect(store.todayMeals, hasLength(before + 1));
     expect(store.todayMeals.last.name, '蛋餅（一份）');
     await disposeTree(tester);
+  });
+
+  group('a workout the rules cannot read', () {
+    test(
+      'a model\'s answer reads into lines, figures out of range left out',
+      () {
+        final lines = parseWorkoutDraft(
+          '```json\n{"exercises":['
+          '{"name":"深蹲","name_en":"Back Squat","line":"深蹲五組五下",'
+          '"sets":5,"reps":5,"weight_kg":100},'
+          '{"name":"棒式","name_en":"Plank","sets":2,"reps":null,'
+          '"weight_kg":0},'
+          '{"name":"臥推","sets":300,"reps":8,"weight_kg":9000},'
+          '{"name":"  "}]}\n```',
+        );
+
+        expect([for (final line in lines) line.name], ['深蹲', '棒式', '臥推']);
+        expect(lines[0].otherName, 'Back Squat');
+        expect(lines[0].text, '深蹲五組五下');
+        expect(
+          (lines[0].sets, lines[0].reps, lines[0].weightKg),
+          (5, 5, 100.0),
+        );
+        expect(lines[1].text, '棒式', reason: 'no line given: its name');
+        expect((lines[1].reps, lines[1].weightKg), (null, null));
+        expect((lines[2].sets, lines[2].weightKg), (null, null));
+        expect(
+          () => parseWorkoutDraft('這是一份很棒的課表！'),
+          throwsA(
+            isA<AiException>().having(
+              (error) => error.failure,
+              'failure',
+              AiFailure.unreadable,
+            ),
+          ),
+        );
+      },
+    );
+
+    Future<(AppStore, _FakeDrafter)> open(WidgetTester tester) async {
+      usePhoneViewport(tester);
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final store = AppStore(
+        clock: FakeClock().now,
+        isOnboarded: true,
+        backend: backend,
+        ai: AiService(
+          backend.db,
+          secrets: MemorySecretStore(),
+          drafters: {apple.kind: apple},
+        )..setProvider(AiProviderKind.appleOnDevice),
+      );
+      await pumpScreen(tester, const DescribeWorkoutScreen(), store: store);
+      return (store, apple);
+    }
+
+    Future<void> read(WidgetTester tester, String text) async {
+      await tester.enterText(find.byType(TextField), text);
+      await tester.pump();
+      await tester.tap(find.text('產生'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('goes to the chosen AI', (tester) async {
+      final (_, apple) = await open(tester);
+      apple.workoutAnswer =
+          '{"exercises":[{"name":"深蹲","name_en":"Back Squat",'
+          '"line":"先深蹲五組五下一百公斤","sets":5,"reps":5,"weight_kg":100}]}';
+
+      await read(tester, '先深蹲五組五下一百公斤，再看狀況');
+
+      expect(apple.workouts, ['先深蹲五組五下一百公斤，再看狀況']);
+      expect(find.text('槓鈴深蹲'), findsOneWidget);
+      expect(find.text('5 組 × 5 下 · 100 kg'), findsOneWidget);
+      expect(find.text('Apple Intelligence 判讀'), findsOneWidget);
+      await disposeTree(tester);
+    });
+
+    testWidgets('what the rules read whole is not sent', (tester) async {
+      final (_, apple) = await open(tester);
+
+      await read(tester, '槓鈴深蹲 4×8 60kg');
+
+      expect(apple.workouts, isEmpty);
+      expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
+      expect(find.text('Apple Intelligence 判讀'), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('when the AI fails, the rules\' reading stays', (tester) async {
+      final (_, apple) = await open(tester);
+      apple.workoutFailure = AiFailure.rateLimited;
+
+      await read(tester, '槓鈴深蹲 4×8 60kg\n不存在的動作名稱 3x5');
+
+      expect(apple.workouts, hasLength(1));
+      expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
+      expect(find.text('找不到這個動作'), findsOneWidget);
+      expect(
+        find.text(aiFailureMessage(AiFailure.rateLimited)),
+        findsOneWidget,
+      );
+      await disposeTree(tester);
+    });
   });
 }

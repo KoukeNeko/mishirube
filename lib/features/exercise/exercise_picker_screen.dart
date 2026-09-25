@@ -35,7 +35,7 @@ enum _PickerTab {
 /// to pick: the search, tabs and filters are the point either way, and a
 /// second catalogue screen would only drift from this one.
 enum PickerPurpose {
-  template('加入訓練'),
+  template('加入課表'),
   activeWorkout('加入進行中的'),
   browse('瀏覽與搜尋所有動作'),
   single('選擇一個動作');

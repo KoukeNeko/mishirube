@@ -13,6 +13,7 @@ import 'package:mishirube/backend/ai/meal_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
 import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/domain/domain.dart';
 
 /// A JPEG's segments, each as its marker and payload.
@@ -73,6 +74,10 @@ class _FakeDrafter implements MealDrafter {
 
   @override
   Future<FoodLabelDraft> draftFoodLabel(String labelText) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<WorkoutLine>> draftWorkout(String text) =>
       throw UnimplementedError();
 
   @override

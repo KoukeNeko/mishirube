@@ -208,6 +208,9 @@ class ExerciseDefinition {
 }
 
 /// The plan side of training: editing it never rewrites finished workouts.
+/// One planned set: its weight and reps.
+typedef SetLoad = ({double weightKg, int reps});
+
 class PlannedExercise {
   const PlannedExercise({
     required this.exercise,
@@ -218,7 +221,30 @@ class PlannedExercise {
     this.rir,
     this.isUnilateral = false,
     this.joinsNext = false,
+    this.setLoads,
   });
+
+  /// A plan of [loads], set by set: its sets, reps and weight read from
+  /// them (the heaviest set's), and the loads kept only when the sets
+  /// differ.
+  factory PlannedExercise.ofLoads(
+    PlannedExercise planned,
+    List<SetLoad> loads,
+  ) {
+    final heaviest = loads.reduce((a, b) => b.weightKg > a.weightKg ? b : a);
+    final uniform = loads.every((load) => load == loads.first);
+    return PlannedExercise(
+      exercise: planned.exercise,
+      sets: loads.length,
+      reps: heaviest.reps,
+      targetWeightKg: heaviest.weightKg,
+      progressionLabel: planned.progressionLabel,
+      rir: planned.rir,
+      isUnilateral: planned.isUnilateral,
+      joinsNext: planned.joinsNext,
+      setLoads: uniform ? null : List.unmodifiable(loads),
+    );
+  }
 
   final ExerciseDefinition exercise;
   final int sets;
@@ -232,22 +258,42 @@ class PlannedExercise {
   /// rest: a superset. A run of these is one superset.
   final bool joinsNext;
 
+  /// Each set's weight and reps when they differ from set to set; null
+  /// when every set is [reps] at [targetWeightKg].
+  final List<SetLoad>? setLoads;
+
+  /// Every set's weight and reps, set by set.
+  List<SetLoad> get loads =>
+      setLoads ?? List.filled(sets, (weightKg: targetWeightKg, reps: reps));
+
+  /// A new reps or weight makes every set alike again; a new number of
+  /// sets keeps the sets' own loads, dropping the last or repeating it.
   PlannedExercise copyWith({
     int? sets,
     int? reps,
     ExerciseDefinition? exercise,
     double? targetWeightKg,
     bool? joinsNext,
-  }) => PlannedExercise(
-    exercise: exercise ?? this.exercise,
-    sets: sets ?? this.sets,
-    reps: reps ?? this.reps,
-    targetWeightKg: targetWeightKg ?? this.targetWeightKg,
-    progressionLabel: progressionLabel,
-    rir: rir,
-    isUnilateral: isUnilateral,
-    joinsNext: joinsNext ?? this.joinsNext,
-  );
+  }) {
+    final own = setLoads;
+    final count = sets ?? this.sets;
+    return PlannedExercise(
+      exercise: exercise ?? this.exercise,
+      sets: count,
+      reps: reps ?? this.reps,
+      targetWeightKg: targetWeightKg ?? this.targetWeightKg,
+      progressionLabel: progressionLabel,
+      rir: rir,
+      isUnilateral: isUnilateral,
+      joinsNext: joinsNext ?? this.joinsNext,
+      setLoads: own == null || reps != null || targetWeightKg != null
+          ? null
+          : [
+              for (var i = 0; i < count; i++)
+                own[i < own.length ? i : own.length - 1],
+            ],
+    );
+  }
 }
 
 class Routine {
@@ -397,6 +443,13 @@ class WorkoutSession {
   Duration pausedTotal = Duration.zero;
 
   bool get isPaused => pausedAt != null;
+
+  /// Opened but not yet under way: paused since it was started, with no
+  /// set done, so its sets and weights can be looked over first.
+  bool get isReady =>
+      pausedAt == startedAt &&
+      pausedTotal == Duration.zero &&
+      completedSets == 0;
 
   ExerciseSession get currentExercise => exercises[currentExerciseIndex];
 
