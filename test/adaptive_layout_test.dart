@@ -6,6 +6,7 @@ import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
+import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/me/me_screen.dart';
@@ -408,14 +409,15 @@ void main() {
       await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
       store.selectTab(HomeTab.me);
       await tester.pumpAndSettle();
-      await _tapRow(tester, '隱私說明');
+      // A row at the top of the list, so opening it scrolls nothing.
+      await _tapRow(tester, '每週目標');
       bool isMinimized() => tester
           .widget<AppBottomChrome>(find.byType(AppBottomChrome))
           .isMinimized;
 
       await tester.drag(
         find.descendant(
-          of: find.byType(PrivacyScreen),
+          of: find.byType(GoalScreen),
           matching: find.byType(CustomScrollView),
         ),
         const Offset(0, -300),

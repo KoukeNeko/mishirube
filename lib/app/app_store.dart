@@ -332,6 +332,21 @@ class AppStore extends ChangeNotifier {
   Map<RecordCategory, int> get demoRecordCounts =>
       _backend.provenance.recordCounts(ChangeSource.seed);
 
+  /// The year the user was born, as given under 我的.
+  int? get birthYear => _backend.journal.birthYear;
+
+  void setBirthYear(int? year) {
+    _backend.journal.setBirthYear(year);
+    notifyListeners();
+  }
+
+  /// Workouts finished, all time.
+  int get finishedWorkoutCount =>
+      _backend.storage.workouts.completedStarts().length;
+
+  /// The first month holding any record; null before there is one.
+  DateTime? get firstRecordMonth => _backend.timeline.earliestMonth();
+
   /// Whether the demo records show; switched in 我的.
   bool get showsDemo => _backend.provenance.showsDemo;
 

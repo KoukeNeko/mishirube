@@ -1944,6 +1944,18 @@ void main() {
       expect(labelOfBrand('自家', ''), '自家', reason: 'the user named it');
     });
 
+    test('the birth year gives an age for what goes by it', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      expect(backend.journal.ageOn(clock.now()), isNull);
+
+      backend.journal.setBirthYear(1995);
+      expect(backend.journal.ageOn(DateTime(2026, 9, 19)), 31);
+
+      backend.journal.setBirthYear(null);
+      expect(backend.journal.birthYear, isNull);
+    });
+
     test('water shows on the timeline as how much of it', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

@@ -100,7 +100,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         : routeSplits(detail.route, heartRate);
     final zones = heartRateZones(
       heartRate,
-      age: detail?.age,
+      age: detail?.age ?? model.ageOn(activity.startedAt),
       restingHeartRate: model.restingHeartRateBefore(activity.startedAt),
     );
     final route = detail?.route ?? const <RoutePoint>[];

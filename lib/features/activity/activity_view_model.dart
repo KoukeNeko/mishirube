@@ -44,6 +44,10 @@ class ActivityViewModel extends ViewModel {
 
   /// The average resting heart rate over the month before [day], for
   /// heart rate zones; null without readings.
+  /// The user's age on [day] as given under 我的, for when the health
+  /// platform does not say.
+  int? ageOn(DateTime day) => backend.journal.ageOn(day);
+
   double? restingHeartRateBefore(DateTime day) {
     final days = backend.activity.daily(
       ActivityMetric.restingHeartRate,

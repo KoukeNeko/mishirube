@@ -1203,6 +1203,32 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('我的 sums up what was done and keeps the birth year', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    await pumpScreen(tester, const MeScreen(), store: store);
+
+    expect(
+      find.text('${store.finishedWorkoutCount} 次', findRichText: true),
+      findsWidgets,
+      reason: 'the workouts done so far',
+    );
+    expect(find.text('睡眠目標'), findsOneWidget, reason: 'goals together');
+
+    await _tapText(tester, '出生年');
+    await tester.enterText(find.byType(TextField), '1995');
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    expect(store.birthYear, 1995);
+    expect(find.text('1995 年'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a sore muscle is marked before starting', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

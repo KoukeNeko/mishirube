@@ -6,6 +6,21 @@ import '../storage/journal_repository.dart';
 class JournalService {
   JournalService(this._db, this._journal);
 
+  static const _birthYearKey = 'profile.birth_year';
+
+  /// The year the user was born, as they gave it; null until then.
+  int? get birthYear => int.tryParse(_db.setting(_birthYearKey) ?? '');
+
+  void setBirthYear(int? year) =>
+      _db.setSetting(_birthYearKey, year == null ? '' : '$year');
+
+  /// Roughly how old the user is on [day], from [birthYear]: what goes by
+  /// age, such as heart rate zones, needs no closer than the year.
+  int? ageOn(DateTime day) => switch (birthYear) {
+    final year? => day.year - year,
+    null => null,
+  };
+
   final AppDatabase _db;
   final JournalRepository _journal;
 

@@ -126,13 +126,14 @@ void main() {
       final largeBlock =
           tester.getRect(_header).height - phoneTopInset - toolbar.height;
 
-      // Past halfway, so it snaps to exactly collapsed.
-      await _dragAndSettle(tester, largeBlock * 0.7);
+      // Past halfway but short of all the way, so it snaps to exactly
+      // collapsed; whether the touch slop counts toward the scroll or not.
+      await _dragAndSettle(tester, largeBlock * 0.75 - _slop / 2);
 
       final header = tester.getRect(_header);
       expect(header.height, phoneTopInset + toolbar.height);
-      // The first item is the first section's label.
-      final firstItem = tester.getRect(find.byType(SectionLabel).first);
+      // The first item is the figures of what has been done.
+      final firstItem = tester.getRect(find.byType(FigureGrid));
       expect(firstItem.top - header.bottom, 16);
       await disposeTree(tester);
     },
@@ -142,7 +143,9 @@ void main() {
     tester,
   ) async {
     final toolbar = toolbarMetrics();
-    await _pumpShell(tester);
+    // A title with a subtitle: room enough that the drag, touch slop and
+    // all, stays short of halfway.
+    await _pumpShell(tester, tab: HomeTab.today);
     final expanded = tester.getRect(_header);
 
     await _dragAndSettle(tester, 12);

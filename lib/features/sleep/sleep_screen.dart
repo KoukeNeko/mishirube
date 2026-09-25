@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
-import '../../app/bedtime_reminder.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
@@ -15,6 +14,7 @@ import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
 import 'sleep_schedule_chart.dart';
 import 'sleep_stage_chart.dart';
+import 'sleep_goal_rows.dart';
 import 'sleep_view_model.dart';
 
 /// One day's sleep: the night, what each stage took, what was measured
@@ -166,34 +166,7 @@ class _SleepScreenState extends State<SleepScreen> {
           label: '目標',
           children: [
             Gutter(
-              child: GroupedCard(
-                children: [
-                  NavRow(
-                    title: '睡眠目標',
-                    trailing: Text(switch (_model.goal) {
-                      final goal? => formatHoursMinutes(goal),
-                      null => '未設定',
-                    }, style: AppTextStyles.caption),
-                    onTap: _editGoal,
-                  ),
-                  if (_model.goal != null)
-                    SwitchRow(
-                      title: '就寢提醒',
-                      subtitle: switch (_model.tonightPlan) {
-                        final plan? =>
-                          '${formatTimeOfDay(plan.bedtime.subtract(SleepService.reminderLead))} 提醒',
-                        null => null,
-                      },
-                      value: _model.isReminderOn,
-                      onChanged: (isOn) {
-                        _model.setReminder(isOn);
-                        syncBedtimeReminder(
-                          AppStoreScope.read(context).backend,
-                        );
-                      },
-                    ),
-                ],
-              ),
+              child: GroupedCard(children: sleepGoalRows(context, _model)),
             ),
           ],
         ),
@@ -380,59 +353,6 @@ class _SleepScreenState extends State<SleepScreen> {
   static String _signed(Duration difference) => difference.isNegative
       ? '少睡 ${formatHoursMinutes(-difference)}'
       : '多睡 ${formatHoursMinutes(difference)}';
-
-  Future<void> _editGoal() async {
-    var minutes = (_model.goal ?? const Duration(hours: 8)).inMinutes;
-    final result = await showAppDialog<Duration?>(
-      context,
-      StatefulBuilder(
-        builder: (context, setState) => AppDialog(
-          title: '睡眠目標',
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                formatHoursMinutes(Duration(minutes: minutes)),
-                style: AppTextStyles.hugeNumber.copyWith(
-                  color: AppColors.wellness,
-                ),
-              ),
-              StepSlider(
-                value: minutes.toDouble(),
-                min: 300,
-                max: 600,
-                step: 15,
-                color: AppColors.wellness,
-                semanticLabel: '睡眠目標',
-                labelOf: (value) =>
-                    formatHoursMinutes(Duration(minutes: value.round())),
-                onChanged: (value) => setState(() => minutes = value.round()),
-              ),
-            ],
-          ),
-          actions: [
-            DialogAction(
-              label: '儲存',
-              tone: DialogTone.primary,
-              onTap: () =>
-                  Navigator.of(context).pop(Duration(minutes: minutes)),
-            ),
-            if (_model.goal != null)
-              DialogAction(
-                label: '清除目標',
-                tone: DialogTone.destructive,
-                onTap: () => Navigator.of(context).pop(Duration.zero),
-              ),
-            DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
-          ],
-        ),
-      ),
-    );
-    if (result == null || !mounted) return;
-    _model.setGoal(result == Duration.zero ? null : result);
-    syncBedtimeReminder(AppStoreScope.read(context).backend);
-  }
 
   List<Widget> _readings(SleepRecord record) {
     if (record.readings.isEmpty) return const [];

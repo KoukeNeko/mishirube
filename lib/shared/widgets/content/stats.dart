@@ -102,7 +102,12 @@ class FigureGrid extends StatelessWidget {
     return AppCard(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final width = (constraints.maxWidth - AppSpacing.md) / 2;
+          // Never below nothing: a first frame can be laid out at zero
+          // width.
+          final width = ((constraints.maxWidth - AppSpacing.md) / 2).clamp(
+            0.0,
+            double.infinity,
+          );
           return Wrap(
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,

@@ -56,6 +56,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SystemCalendar") {
       SystemCalendar.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AppInfo") {
+      AppInfo.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
       WindowControls.register(with: registrar.messenger())
     }
@@ -918,6 +921,25 @@ enum ScreenAwake {
       }
       UIApplication.shared.isIdleTimerDisabled = isOn
       result(nil)
+    }
+  }
+}
+
+/// The app's own version, for 我的 > 關於 (`lib/shared/app_info.dart`).
+enum AppInfo {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/app_info", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "version" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let info = Bundle.main.infoDictionary
+      result([
+        "version": info?["CFBundleShortVersionString"] as? String ?? "",
+        "build": info?["CFBundleVersion"] as? String ?? "",
+      ])
     }
   }
 }

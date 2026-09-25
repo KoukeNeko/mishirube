@@ -37,6 +37,26 @@ class MainActivity : FlutterFragmentActivity() {
         val rest = RestNoticeBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/rest_notice")
             .setMethodCallHandler(rest::handle)
+        // The app's own version, for 我的 > 關於 (lib/shared/app_info.dart).
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/app_info")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "version") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                val info = packageManager.getPackageInfo(packageName, 0)
+                result.success(
+                    mapOf(
+                        "version" to (info.versionName ?: ""),
+                        "build" to if (android.os.Build.VERSION.SDK_INT >= 28) {
+                            info.longVersionCode.toString()
+                        } else {
+                            @Suppress("DEPRECATION")
+                            info.versionCode.toString()
+                        },
+                    ),
+                )
+            }
         // The day a week starts on, as the user's region has it
         // (lib/shared/system_calendar.dart); 1 is Sunday.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/system_calendar")
