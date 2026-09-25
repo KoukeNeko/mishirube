@@ -4,7 +4,6 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
-import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -355,7 +354,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       _Scope.all => [
         // The quickest ways in lead: a photo or a sentence for the AI to
         // draft, numbers typed once, or a whole meal eaten before. The
-        // day and water follow; water also has its own place under ＋.
+        // water follows; it also has its own place under ＋.
         Gutter(
           child: FutureBuilder(
             future: _readsPhotos,
@@ -388,19 +387,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(child: const SectionLabel('近期用餐')),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
-        // What is already logged today, one tap away: this page is
-        // opened from ＋, not from the day, and the question before
-        // logging is often whether breakfast is in yet.
-        Gutter(
-          child: NavCard(
-            title: '今天',
-            subtitle: switch (store.todaySummary) {
-              DaySummary(recordCount: 0) => '沒有紀錄',
-              final day => '${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal',
-            },
-            onTap: () => pushPage(context, const DailyNutritionScreen()),
-          ),
-        ),
         // Water gets a card of its own: it is the most repeated record
         // there is, logged in one tap and never through the plate.
         Gutter(

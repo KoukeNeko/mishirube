@@ -6,7 +6,6 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
-import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
 import 'package:mishirube/backend/backend.dart';
@@ -1517,11 +1516,13 @@ void main() {
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
 
     final eggs = find.byTooltip('加入「水煮蛋」');
-    await tester.dragUntilVisible(
-      eggs,
-      find.byType(CustomScrollView).hitTestable().first,
-      _scrollStep,
-    );
+    for (var i = 0; i < 20 && eggs.evaluate().isEmpty; i++) {
+      await tester.drag(
+        find.byType(CustomScrollView).hitTestable().first,
+        _scrollStep,
+      );
+      await tester.pump();
+    }
     // Listed under 最近 and 自己的 alike; the first will do.
     final add = eggs.first;
     await Scrollable.ensureVisible(tester.element(add), alignment: 0.5);
@@ -1797,23 +1798,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PortionScreen), findsOneWidget);
     expect(find.textContaining('加入'), findsNothing);
-    await disposeTree(tester);
-  });
-
-  testWidgets('what is already logged today is one tap away', (tester) async {
-    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    final day = store.todaySummary;
-    await pumpScreen(tester, const FoodSearchScreen(), store: store);
-
-    final row = find.text('${day.mealCount} 餐 · ${formatKcal(day.kcal)} kcal');
-    expect(
-      row,
-      findsOneWidget,
-      reason: 'the page is opened from ＋, not from the day',
-    );
-    await tester.tap(row);
-    await tester.pumpAndSettle();
-    expect(find.byType(DailyNutritionScreen), findsOneWidget);
     await disposeTree(tester);
   });
 
