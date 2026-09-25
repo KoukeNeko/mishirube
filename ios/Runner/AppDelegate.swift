@@ -167,6 +167,15 @@ enum HealthKitBridge {
             : nil
         }
         overnight(windows: windows, result: result)
+      case "overnightSeries":
+        guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        overnightSeries(
+          from: Date(timeIntervalSince1970: Double(from) / 1000),
+          to: Date(timeIntervalSince1970: Double(to) / 1000),
+          result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -461,6 +470,41 @@ enum HealthKitBridge {
         ("breathingDisturbances", HKQuantityType(.appleSleepingBreathingDisturbances), .count(), 1))
     }
     return types
+  }
+
+  /// Heart rate and respiratory rate through one night, sample by sample
+  /// as [time, value] pairs keyed by measure, for the night's charts.
+  /// Read when the night is opened, not stored.
+  static func overnightSeries(from: Date, to: Date, result: @escaping FlutterResult) {
+    let measures = overnightTypes.filter { ["heartRate", "respiratoryRate"].contains($0.name) }
+    let predicate = HKQuery.predicateForSamples(withStart: from, end: to)
+    let group = DispatchGroup()
+    let lock = NSLock()
+    var series: [String: [[Double]]] = [:]
+    for measure in measures {
+      group.enter()
+      let query = HKSampleQuery(
+        sampleType: measure.type, predicate: predicate, limit: HKObjectQueryNoLimit,
+        sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
+      ) { _, samples, _ in
+        // A measure not allowed or not recorded reads as no samples.
+        let points: [[Double]] = (samples ?? []).compactMap { sample in
+          guard let sample = sample as? HKQuantitySample,
+            sample.quantity.is(compatibleWith: measure.unit)
+          else { return nil }
+          return [
+            Double(milliseconds(sample.startDate)),
+            sample.quantity.doubleValue(for: measure.unit) * measure.scale,
+          ]
+        }
+        lock.lock()
+        series[measure.name] = points
+        lock.unlock()
+        group.leave()
+      }
+      store.execute(query)
+    }
+    group.notify(queue: .main) { result(series) }
   }
 
   /// Each measure's range over each window, as rows the Dart side reads:

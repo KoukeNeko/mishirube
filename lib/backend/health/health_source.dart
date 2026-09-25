@@ -65,6 +65,13 @@ abstract interface class HealthSource {
   /// Everything the platform recorded during the workout it calls
   /// [platformId]; null when it no longer has it.
   Future<ActivityDetail?> activityDetail(String platformId);
+
+  /// Heart rate and respiratory rate through [from]–[to], sample by
+  /// sample, oldest first; a measure the platform has none of is absent.
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  );
 }
 
 /// A platform reached through a method channel. Apple Health
@@ -284,6 +291,33 @@ class PlatformHealthSource implements HealthSource {
   ];
 
   @override
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) async {
+    if (!_isThisPlatform()) return const {};
+    final rows =
+        await _channel.invokeMapMethod<Object?, Object?>('overnightSeries', {
+          'from': from.millisecondsSinceEpoch,
+          'to': to.millisecondsSinceEpoch,
+        }) ??
+        const {};
+    final byName = OvernightMeasure.values.asNameMap();
+    return {
+      for (final MapEntry(key: name, value: points) in rows.entries)
+        if ((byName[name], points) case (final measure?, final List points))
+          measure: [
+            for (final point in points)
+              if (point case [final num at, final num value])
+                (
+                  DateTime.fromMillisecondsSinceEpoch(at.toInt()),
+                  value.toDouble(),
+                ),
+          ],
+    };
+  }
+
+  @override
   Future<ActivityDetail?> activityDetail(String platformId) async {
     final row = await _channel.invokeMapMethod<Object?, Object?>(
       'workoutDetail',
@@ -373,6 +407,12 @@ class NoHealthSource implements HealthSource {
   }) async => const [];
   @override
   Future<ActivityDetail?> activityDetail(String platformId) async => null;
+
+  @override
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) async => const {};
 }
 
 /// A workout's detail as both platform bridges send it. Anything

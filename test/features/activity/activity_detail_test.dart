@@ -66,6 +66,12 @@ class _Health implements HealthSource {
     asked.add(platformId);
     return detail;
   }
+
+  @override
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) async => const {};
 }
 
 void main() {

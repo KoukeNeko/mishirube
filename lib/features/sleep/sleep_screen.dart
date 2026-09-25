@@ -5,6 +5,7 @@ import '../../app/bedtime_reminder.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
+import '../../backend/engines/overnight_series.dart';
 import '../../backend/engines/sleep_metrics.dart';
 import '../../backend/engines/sleep_nights.dart';
 import '../../domain/domain.dart';
@@ -38,6 +39,28 @@ class _SleepScreenState extends State<SleepScreen> {
     AppStoreScope.read(context).backend,
     day: widget.day,
   );
+
+  /// The shown night's heart rate and breathing through the night, read
+  /// from the health platform when the night is shown, and which night
+  /// it was read for.
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>>? _series;
+  (DateTime, DateTime)? _seriesFor;
+
+  /// [_series] for [night], read again only when the night changes.
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> _seriesOf(
+    SleepRecord night,
+  ) {
+    final entry = night.entry;
+    final span = (
+      entry.startedAt ?? entry.sleptAt.subtract(entry.duration),
+      entry.sleptAt,
+    );
+    if (span != _seriesFor || _series == null) {
+      _seriesFor = span;
+      _series = AppStoreScope.read(context).overnightSeries(span.$1, span.$2);
+    }
+    return _series!;
+  }
 
   @override
   void dispose() {
@@ -113,6 +136,11 @@ class _SleepScreenState extends State<SleepScreen> {
           ..._stages(night),
           ..._continuity(night),
           ..._readings(night),
+          _NightCharts(
+            series: _seriesOf(night),
+            from: _seriesFor!.$1,
+            to: _seriesFor!.$2,
+          ),
         ],
         ..._tonight(),
         if (naps.isNotEmpty)
@@ -913,4 +941,97 @@ String? _averageClock(List<DateTime> times, {required int fromHour}) {
   final minutes = average % 60;
   return '${hours.toString().padLeft(2, '0')}:'
       '${minutes.toString().padLeft(2, '0')}';
+}
+
+/// Heart rate and breathing through the night, in half-hour stretches,
+/// once the health platform has answered; nothing without samples.
+class _NightCharts extends StatelessWidget {
+  const _NightCharts({
+    required this.series,
+    required this.from,
+    required this.to,
+  });
+
+  final Future<Map<OvernightMeasure, List<(DateTime, double)>>> series;
+  final DateTime from;
+  final DateTime to;
+
+  static const _shown = [
+    (OvernightMeasure.heartRate, '睡眠時心率', AppColors.heart),
+    (OvernightMeasure.respiratoryRate, '睡眠時呼吸速率', AppColors.activity),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: series,
+      builder: (context, snapshot) {
+        final byMeasure = snapshot.data ?? const {};
+        return Column(
+          spacing: pageItemSpacing,
+          children: [
+            for (final (measure, title, color) in _shown)
+              if (byMeasure[measure] case final points? when points.isNotEmpty)
+                Gutter(
+                  child: _NightChartCard(
+                    title: title,
+                    measure: measure,
+                    color: color,
+                    points: points,
+                    from: from,
+                    to: to,
+                  ),
+                ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _NightChartCard extends StatelessWidget {
+  const _NightChartCard({
+    required this.title,
+    required this.measure,
+    required this.color,
+    required this.points,
+    required this.from,
+    required this.to,
+  });
+
+  final String title;
+  final OvernightMeasure measure;
+  final Color color;
+  final List<(DateTime, double)> points;
+  final DateTime from;
+  final DateTime to;
+
+  @override
+  Widget build(BuildContext context) {
+    final values = [for (final (_, value) in points) value];
+    final lowText = _number(measure, values.reduce((a, b) => a < b ? a : b));
+    final highText = _number(measure, values.reduce((a, b) => a > b ? a : b));
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CategoryLabel(label: title, color: color),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${lowText == highText ? lowText : '$lowText–$highText'} '
+            '${measure.unit}',
+            style: AppTextStyles.itemTitle,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          RangeBarChart(
+            ranges: rangeBins(points, from, to),
+            color: color,
+            labelOf: (value) => _number(measure, value),
+            start: formatTimeOfDay(from),
+            end: formatTimeOfDay(to),
+          ),
+        ],
+      ),
+    );
+  }
 }

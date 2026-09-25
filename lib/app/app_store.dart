@@ -910,6 +910,12 @@ class AppStore extends ChangeNotifier {
   Future<ActivityDetail?> activityDetail(ActivitySession session) =>
       _health.detailOf(session);
 
+  /// Heart rate and respiratory rate through a sleep, from the platform.
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) => _health.overnightSeries(from, to);
+
   /// Asks for read access to every kind and reads the last month; null
   /// when the platform is missing or the request did not go through.
   Future<HealthImport?> connectHealth() async {

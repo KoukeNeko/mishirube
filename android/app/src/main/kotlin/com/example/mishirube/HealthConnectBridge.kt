@@ -168,6 +168,23 @@ class HealthConnectBridge(
                     }
                 }
             }
+            "overnightSeries" -> {
+                val from = call.argument<Number>("from")?.toLong()
+                val to = call.argument<Number>("to")?.toLong()
+                if (from == null || to == null) {
+                    result.error("badArguments", null, null)
+                    return
+                }
+                scope.launch {
+                    try {
+                        result.success(
+                            overnightSeries(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to)),
+                        )
+                    } catch (error: Exception) {
+                        result.error("failed", error.message, null)
+                    }
+                }
+            }
             "workoutDetail" -> {
                 val id = call.argument<String>("id")
                 if (id == null) {
@@ -356,6 +373,28 @@ class HealthConnectBridge(
             }
         }
         return rows
+    }
+
+    /** Heart rate and respiratory rate through one night, sample by sample, as
+     *  [time, value] pairs keyed by measure, for the night's charts. */
+    private suspend fun overnightSeries(from: Instant, to: Instant): Map<String, List<List<Double>>> {
+        val granted = client.permissionController.getGrantedPermissions()
+        fun allowed(type: KClass<out Record>) = HealthPermission.getReadPermission(type) in granted
+        fun inWindow(time: Instant) = !time.isBefore(from) && time.isBefore(to)
+        val series = mutableMapOf<String, List<List<Double>>>()
+        if (allowed(HeartRateRecord::class)) {
+            series["heartRate"] = readAll(HeartRateRecord::class, from, to)
+                .flatMap { record -> record.samples.filter { inWindow(it.time) } }
+                .sortedBy { it.time }
+                .map { listOf(it.time.toEpochMilli().toDouble(), it.beatsPerMinute.toDouble()) }
+        }
+        if (allowed(RespiratoryRateRecord::class)) {
+            series["respiratoryRate"] = readAll(RespiratoryRateRecord::class, from, to)
+                .filter { inWindow(it.time) }
+                .sortedBy { it.time }
+                .map { listOf(it.time.toEpochMilli().toDouble(), it.rate) }
+        }
+        return series
     }
 
     private suspend fun read(

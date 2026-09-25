@@ -143,6 +143,13 @@ class HealthService {
     return source.activityDetail(session.id.substring(prefix.length));
   }
 
+  /// Heart rate and respiratory rate through a sleep, read from the
+  /// platform when the night is opened; empty when not connected.
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) async => isConnected ? source.overnightSeries(from, to) : const {};
+
   DateTime? get lastSync => switch (_db.setting(_syncedKey)) {
     final ms? => DateTime.fromMillisecondsSinceEpoch(int.parse(ms)),
     null => null,

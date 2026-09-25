@@ -128,6 +128,12 @@ class _FakeHealth implements HealthSource {
 
   @override
   Future<ActivityDetail?> activityDetail(String platformId) async => null;
+
+  @override
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) async => const {};
 }
 
 SleepSample _asleep(DateTime start, DateTime end) =>

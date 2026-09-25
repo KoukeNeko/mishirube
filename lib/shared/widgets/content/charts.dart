@@ -250,3 +250,136 @@ class _SparklinePainter extends CustomPainter {
       oldDelegate.normal != normal ||
       oldDelegate.levels != levels;
 }
+
+/// A span of time in equal stretches, each drawn as a bar from its lowest
+/// to its highest value, with the lowest and highest of all marked and
+/// labelled: how a night's heart rate or breathing moved. A stretch
+/// without a value is left empty. [labelOf] writes a value for the
+/// marks; [start] and [end] sit under the ends of the axis.
+class RangeBarChart extends StatelessWidget {
+  const RangeBarChart({
+    super.key,
+    required this.ranges,
+    required this.color,
+    required this.labelOf,
+    required this.start,
+    required this.end,
+    this.height = 180,
+  });
+
+  final List<(double, double)?> ranges;
+  final Color color;
+  final String Function(double value) labelOf;
+  final String start;
+  final String end;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: height,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _RangeBarPainter(
+              ranges: ranges,
+              color: color,
+              labelOf: labelOf,
+              labelStyle: AppTextStyles.caption.copyWith(color: color),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          children: [
+            Text(start, style: AppTextStyles.caption),
+            const Spacer(),
+            Text(end, style: AppTextStyles.caption),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RangeBarPainter extends CustomPainter {
+  _RangeBarPainter({
+    required this.ranges,
+    required this.color,
+    required this.labelOf,
+    required this.labelStyle,
+  });
+
+  /// Room kept above and below the bars for the labels of the extremes.
+  static const _labelRoom = 22.0;
+  static const _barShare = 0.45;
+  static const _markRadius = 3.0;
+
+  final List<(double, double)?> ranges;
+  final Color color;
+  final String Function(double value) labelOf;
+  final TextStyle labelStyle;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final known = [
+      for (final (index, range) in ranges.indexed)
+        if (range != null) (index, range),
+    ];
+    if (known.isEmpty) return;
+    var low = known.first.$2.$1;
+    var high = known.first.$2.$2;
+    var lowAt = known.first.$1;
+    var highAt = known.first.$1;
+    for (final (index, (bottom, top)) in known) {
+      if (bottom < low) (low, lowAt) = (bottom, index);
+      if (top > high) (high, highAt) = (top, index);
+    }
+    final span = (high - low).abs() < 0.001 ? 1.0 : high - low;
+    final slot = size.width / ranges.length;
+    final barWidth = slot * _barShare;
+    final top = _labelRoom;
+    final bottom = size.height - _labelRoom;
+    double xOf(int index) => slot * (index + 0.5);
+    double yOf(double value) => top + (high - value) / span * (bottom - top);
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = barWidth
+      ..strokeCap = StrokeCap.round;
+    for (final (index, (bottomValue, topValue)) in known) {
+      canvas.drawLine(
+        Offset(xOf(index), yOf(topValue)),
+        Offset(xOf(index), yOf(bottomValue)),
+        paint,
+      );
+    }
+
+    void mark(int index, double value, {required bool above}) {
+      final point = Offset(xOf(index), yOf(value));
+      canvas.drawCircle(point, _markRadius, Paint()..color = AppColors.surface);
+      final text = TextPainter(
+        text: TextSpan(text: labelOf(value), style: labelStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final x = (point.dx - text.width / 2).clamp(0.0, size.width - text.width);
+      text.paint(
+        canvas,
+        Offset(
+          x,
+          above
+              ? point.dy - barWidth / 2 - text.height - 2
+              : point.dy + barWidth / 2 + 2,
+        ),
+      );
+    }
+
+    mark(highAt, high, above: true);
+    mark(lowAt, low, above: false);
+  }
+
+  @override
+  bool shouldRepaint(_RangeBarPainter old) =>
+      old.ranges != ranges || old.color != color;
+}
