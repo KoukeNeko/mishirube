@@ -481,6 +481,78 @@ class TrainingService {
   }
 
   /// Records how a finished workout felt.
+  /// Removes a finished workout; it no longer counts anywhere. The row
+  /// is tombstoned, so [restore] can bring it back from the undo.
+  void delete(String id) => _workouts.remove(id);
+
+  void restore(String id) => _workouts.restore(id);
+
+  /// Rewrites what a finished workout was done at, exercise by exercise
+  /// in [corrections]' order, and with [timing] when it started and how
+  /// long it took. A set keeps its kind, reserve and last time's numbers
+  /// where the set it replaces had them; sets never done, and exercises
+  /// with none done, stay as they were.
+  void correct(
+    WorkoutSession workout,
+    List<WorkoutCorrection> corrections, {
+    ({DateTime startedAt, Duration length})? timing,
+  }) {
+    WorkoutSet doneAt(ExerciseSession? was, int index, SetLoad load) {
+      final before = was?.sets
+          .where((set) => set.isDone)
+          .elementAtOrNull(index);
+      return WorkoutSet(
+        weightKg: load.weightKg,
+        reps: load.reps,
+        rir: before?.rir,
+        rpe: before?.rpe,
+        type: before?.type ?? SetType.working,
+        previousWeightKg: before?.previousWeightKg ?? 0,
+        previousReps: before?.previousReps ?? 0,
+        durationSeconds: before?.durationSeconds,
+        distanceMeters: before?.distanceMeters,
+        isDone: true,
+      );
+    }
+
+    final untouched = [
+      for (final session in workout.exercises)
+        if (session.completedSets == 0) session,
+    ];
+    final corrected = [
+      for (final (:exercise, :was, :loads) in corrections)
+        if (loads.isNotEmpty)
+          ExerciseSession(
+            exercise: exercise,
+            isPersonalRecordCandidate: was?.isPersonalRecordCandidate ?? false,
+            joinsNext: was?.joinsNext ?? false,
+            sets: [
+              for (final (i, load) in loads.indexed) doneAt(was, i, load),
+              ...?was?.sets.where((set) => !set.isDone),
+            ],
+          ),
+    ];
+    workout.exercises
+      ..clear()
+      ..addAll([...corrected, ...untouched]);
+    workout.currentExerciseIndex = 0;
+    _workouts.save(switch (timing) {
+      null => workout,
+      // A length typed in has no pauses in it.
+      (:final startedAt, :final length) =>
+        WorkoutSession(
+            id: workout.id,
+            routineId: workout.routineId,
+            routineName: workout.routineName,
+            startedAt: startedAt,
+            exercises: workout.exercises,
+            notes: workout.notes,
+          )
+          ..workload = workout.workload
+          ..finishedAt = startedAt.add(length),
+    }, action: 'correct');
+  }
+
   void rate(WorkoutSession workout, Workload workload) {
     workout.workload = workload;
     _workouts.save(workout, action: 'rate');

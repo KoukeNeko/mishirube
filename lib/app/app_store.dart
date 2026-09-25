@@ -251,6 +251,40 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Rewrites what a finished workout was done at, and when and for how
+  /// long when [timing] is given.
+  void correctWorkout(
+    WorkoutSession workout,
+    List<WorkoutCorrection> corrections, {
+    ({DateTime startedAt, Duration length})? timing,
+  }) {
+    _backend.training.correct(workout, corrections, timing: timing);
+    _workoutsChanged();
+  }
+
+  /// The sets [exercise] is usually planned at, for adding it somewhere.
+  List<SetLoad> usualLoads(ExerciseDefinition exercise) =>
+      _backend.training.planFor(exercise).loads;
+
+  /// Removes a finished workout; [restoreWorkout] takes it back.
+  void deleteWorkout(String id) {
+    _backend.training.delete(id);
+    _workoutsChanged();
+  }
+
+  void restoreWorkout(String id) {
+    _backend.training.restore(id);
+    _workoutsChanged();
+  }
+
+  /// What a finished workout coming or going changes: which one was
+  /// last, and each exercise's use.
+  void _workoutsChanged() {
+    _lastFinishedWorkout = _backend.training.lastFinished();
+    _reloadExercises();
+    notifyListeners();
+  }
+
   /// [workout] against what came before it.
   WorkoutReview workoutReview(WorkoutSession workout) =>
       _backend.training.review(workout);

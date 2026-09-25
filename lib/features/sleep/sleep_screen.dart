@@ -212,7 +212,11 @@ class _SleepScreenState extends State<SleepScreen> {
                         SleepEntryScreen(editing: night.entry),
                       ),
                     ),
-                    NavRow(title: '刪除這筆紀錄', onTap: () => _delete(night)),
+                    NavRow(
+                      title: '刪除這筆紀錄',
+                      isDestructive: true,
+                      onTap: () => _delete(night),
+                    ),
                   ],
                 ),
               ),

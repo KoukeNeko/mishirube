@@ -37,6 +37,7 @@ enum _PickerTab {
 enum PickerPurpose {
   template('加入課表'),
   activeWorkout('加入進行中的'),
+  record('加入紀錄'),
   browse('瀏覽與搜尋所有動作'),
   single('選擇一個動作');
 

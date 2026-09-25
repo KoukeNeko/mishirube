@@ -36,6 +36,7 @@ import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
+import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -157,7 +158,7 @@ void main() {
       reason: 'sets are left, so ending is asked, not assumed',
     );
     await _tapText(tester, '結束並儲存');
-    expect(find.text('回到今天'), findsOneWidget);
+    expect(find.text('這次的負荷'), findsOneWidget, reason: 'the summary');
     await _tapText(tester, '太吃力');
     expect(
       store.backend.training.lastFinished()!.workload,
@@ -166,7 +167,8 @@ void main() {
     );
     expect(store.lastFinishedWorkout, isNotNull);
 
-    await _tapText(tester, '回到今天');
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pumpAndSettle();
     expect(find.text('下肢 A 已完成'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await disposeTree(tester);
@@ -1093,6 +1095,59 @@ void main() {
       [60.0, 60.0, 60.0, 60.0],
     );
     expect(workout.isReady, isTrue);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a finished workout is deleted from its page, with an undo', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    final workout = store.lastFinishedWorkout!;
+    await pumpScreen(tester, const LogScreen(), store: store);
+    pushPage(
+      tester.element(find.byType(LogScreen)),
+      WorkoutSummaryScreen(workoutId: workout.id),
+    );
+    await tester.pumpAndSettle();
+
+    await _tapText(tester, '刪除這筆紀錄');
+    await tester.pump(_pageTransition);
+    expect(find.byType(WorkoutSummaryScreen), findsNothing);
+    expect(store.lastFinishedWorkout?.id, isNot(workout.id));
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(store.lastFinishedWorkout?.id, workout.id);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a finished workout is corrected from its page', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    final workout = store.lastFinishedWorkout!;
+    final before = workout.completedSets;
+    await pumpScreen(tester, const LogScreen(), store: store);
+    pushPage(
+      tester.element(find.byType(LogScreen)),
+      WorkoutSummaryScreen(workoutId: workout.id),
+    );
+    await tester.pumpAndSettle();
+
+    await _tapText(tester, '編輯這筆紀錄');
+    await tester.pumpAndSettle();
+    await _tapText(tester, '新增組');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(WorkoutSummaryScreen), findsOneWidget);
+    expect(store.workoutById(workout.id)!.completedSets, before + 1);
     await disposeTree(tester);
   });
 

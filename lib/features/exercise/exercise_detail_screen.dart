@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../app/view_model.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../app/navigation.dart';
@@ -9,7 +8,6 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'exercise_picker_screen.dart';
 import '../trends/muscle_map.dart';
-import '../trends/trends_view_model.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_demo.dart';
 
@@ -117,25 +115,9 @@ class ExerciseDetailScreen extends StatelessWidget {
         Gutter(child: _SpecCard(exercise: exercise)),
         Gutter(
           child: AppCard(
-            child: Column(
-              children: [
-                ViewModelBuilder(
-                  create: TrendsViewModel.new,
-                  builder: (context, trends) => MuscleMap(
-                    figure: trends.muscleFigure,
-                    // The strongest shade for what it trains, a light one
-                    // for what helps.
-                    setsByMuscle: {
-                      for (final muscle in exercise.secondaryMuscles)
-                        muscle: _helpingShade,
-                      for (final muscle in exercise.primaryMuscles)
-                        muscle: muscleMapTopOfScale,
-                    },
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                const _ShadeLegend(),
-              ],
+            child: MuscleRoleMap(
+              primary: exercise.primaryMuscles,
+              secondary: exercise.secondaryMuscles,
             ),
           ),
         ),
@@ -219,43 +201,6 @@ class ExerciseDetailScreen extends StatelessWidget {
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-/// Shade for a muscle that helps rather than leads.
-const _helpingShade = 5;
-
-/// Which shade on the figure is which: each colour, then what it marks.
-class _ShadeLegend extends StatelessWidget {
-  const _ShadeLegend();
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: AppSpacing.md,
-      runSpacing: AppSpacing.xs,
-      children: [
-        for (final (shade, label) in [
-          (muscleMapTopOfScale, '主要肌群'),
-          (_helpingShade, '次要肌群'),
-        ])
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: muscleShade(shade),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-              Text('：$label', style: AppTextStyles.caption),
-            ],
-          ),
       ],
     );
   }

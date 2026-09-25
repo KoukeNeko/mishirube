@@ -194,6 +194,25 @@ class WorkoutRepository {
     });
   }
 
+  /// Tombstones a finished workout, so removing it can be taken back and
+  /// the audit trail still shows it happened.
+  void remove(String id) => _setDeleted(id, _db.now(), 'delete');
+
+  /// Puts a removed workout back, for the undo on the toast.
+  void restore(String id) => _setDeleted(id, null, 'restore');
+
+  void _setDeleted(String id, DateTime? deletedAt, String action) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'UPDATE workouts SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [deletedAt?.millisecondsSinceEpoch, now, id],
+      );
+      _db.audit(entityType: 'workout', entityId: id, action: action);
+    });
+  }
+
   /// Writes the whole workout. [action] names what changed for the audit
   /// log (e.g. `start`, `complete_set`, `finish`).
   void save(
@@ -222,13 +241,28 @@ class WorkoutRepository {
         workout.workload?.name,
       ];
       if (exists) {
+        final startedAt = workout.startedAt.millisecondsSinceEpoch;
+        // The day it counts on moves only when its start was corrected:
+        // an imported workout keeps the zone it was trained in.
         _db.execute(
-          'UPDATE workouts SET routine_id = ?, name = ?, status = ?, '
+          'UPDATE workouts SET '
+          'local_day = CASE WHEN started_at = ? THEN local_day ELSE ? END, '
+          'utc_offset_minutes = CASE WHEN started_at = ? '
+          'THEN utc_offset_minutes ELSE ? END, '
+          'routine_id = ?, name = ?, status = ?, '
           'started_at = ?, finished_at = ?, paused_at = ?, '
           'paused_total_ms = ?, current_exercise = ?, notes = ?, '
           'workload = ?, updated_at = ?, '
           'revision = revision + 1 WHERE id = ?',
-          [...values, now, workout.id],
+          [
+            startedAt,
+            localDayOf(workout.startedAt),
+            startedAt,
+            workout.startedAt.timeZoneOffset.inMinutes,
+            ...values,
+            now,
+            workout.id,
+          ],
         );
         _db.execute('DELETE FROM workout_sets WHERE workout_id = ?', [
           workout.id,

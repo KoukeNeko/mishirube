@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path_parsing/path_parsing.dart';
 
 import '../../app/theme.dart';
+import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import 'trends_view_model.dart';
 import 'muscle_map_paths.dart';
@@ -25,6 +26,79 @@ int setsShownOn(MuscleGroup muscle, Map<MuscleGroup, int> setsByMuscle) =>
               entry.key.region == muscle.region,
         )
         .fold(0, (sum, entry) => sum + entry.value);
+
+/// Shade for a muscle that helps rather than leads.
+const _helpingShade = 5;
+
+/// The figure with [primary] at the strongest shade and [secondary] at a
+/// light one, and what the two mean: what an exercise, or a workout's
+/// exercises, train, and what helps. Drawn on the body chosen in trends.
+class MuscleRoleMap extends StatelessWidget {
+  const MuscleRoleMap({
+    super.key,
+    required this.primary,
+    required this.secondary,
+  });
+
+  final Iterable<MuscleGroup> primary;
+  final Iterable<MuscleGroup> secondary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ViewModelBuilder(
+          create: TrendsViewModel.new,
+          builder: (context, trends) => MuscleMap(
+            figure: trends.muscleFigure,
+            // A muscle that leads anywhere is shaded as leading.
+            setsByMuscle: {
+              for (final muscle in secondary) muscle: _helpingShade,
+              for (final muscle in primary) muscle: muscleMapTopOfScale,
+            },
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        const _RoleLegend(),
+      ],
+    );
+  }
+}
+
+/// Which shade on the figure is which: each colour, then what it marks.
+class _RoleLegend extends StatelessWidget {
+  const _RoleLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.xs,
+      children: [
+        for (final (shade, label) in [
+          (muscleMapTopOfScale, '主要肌群'),
+          (_helpingShade, '次要肌群'),
+        ])
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: muscleShade(shade),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xxs),
+              Text(label, style: AppTextStyles.caption),
+            ],
+          ),
+      ],
+    );
+  }
+}
 
 /// Front and back figures, shaded by how many working sets each muscle
 /// got. The shading answers "where did the work go"; the numbers beside

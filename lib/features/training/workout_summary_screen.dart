@@ -7,6 +7,8 @@ import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../trends/muscle_map.dart';
+import 'edit_workout_screen.dart';
 import 'routine_detail_screen.dart';
 
 class WorkoutSummaryScreen extends StatelessWidget {
@@ -15,20 +17,27 @@ class WorkoutSummaryScreen extends StatelessWidget {
   /// Which finished workout to show; the last one when null.
   final String? workoutId;
 
+  /// Removed with an undo, like any other record.
+  void _delete(BuildContext context, WorkoutSession workout) {
+    final store = AppStoreScope.read(context);
+    final toast = ToastScope.read(context);
+    store.deleteWorkout(workout.id);
+    Navigator.of(context).pop();
+    toast.showUndo(
+      '已刪除「${workout.routineName}」',
+      onUndo: () => store.restoreWorkout(workout.id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final workout = workoutId == null
         ? store.lastFinishedWorkout
         : store.workoutById(workoutId!);
-    final footer = PrimaryButton(
-      label: '回到今天',
-      onPressed: () => returnToTab(context, HomeTab.today),
-    );
     if (workout == null) {
       return DetailPage(
         appBar: PageAppBar(title: '訓練'),
-        footer: footer,
         children: [
           Gutter(
             child: const EmptyStateCard(
@@ -54,63 +63,87 @@ class WorkoutSummaryScreen extends StatelessWidget {
             '${formatTimeOfDay(workout.startedAt)} – '
             '${formatTimeOfDay(finishedAt)}',
       ),
-      footer: footer,
       children: [
         Gutter(
-          child: AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StatRow(
-                  stats: [
-                    StatBlock(
-                      value: formatClock(workout.elapsedAt(finishedAt)),
-                      label: '時長',
-                    ),
-                    StatBlock(value: '${review.sets}', label: '總組數'),
-                    StatBlock(
-                      value: formatAmount(review.volumeKg.roundToDouble()),
-                      unit: 'kg',
-                      label: '總量',
-                    ),
-                    StatBlock(
-                      value: '${review.records}',
-                      label: '個人紀錄',
-                      valueColor: AppColors.training,
-                    ),
-                  ],
-                ),
-                if (_volumeChange(review) case final change?) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  TagWrap(labels: [change]),
-                ],
-              ],
+          child: FigureGrid(
+            figures: [
+              (
+                label: '時長',
+                value: formatClock(workout.elapsedAt(finishedAt)),
+                unit: null,
+                color: null,
+              ),
+              (label: '總組數', value: '${review.sets}', unit: null, color: null),
+              (
+                label: '總量',
+                value: formatKcal(review.volumeKg.round()),
+                unit: 'kg',
+                color: null,
+              ),
+              (
+                label: '個人紀錄',
+                value: '${review.records}',
+                unit: null,
+                color: review.records > 0 ? AppColors.training : null,
+              ),
+            ],
+          ),
+        ),
+        if (_volumeChange(review) case final change?)
+          Gutter(child: TagWrap(labels: [change])),
+        PageSection(
+          label: '這次的負荷',
+          children: [
+            Gutter(
+              child: ChipWrap(
+                options: Workload.values,
+                labelOf: (workload) => workload.label,
+                isSelected: (workload) => workload == workout.workload,
+                onTap: (workload) => store.rateWorkout(workout, workload),
+              ),
             ),
-          ),
+          ],
         ),
-        Gutter(child: const SectionLabel('這次的負荷')),
-        Gutter(
-          child: ChipWrap(
-            options: Workload.values,
-            labelOf: (workload) => workload.label,
-            isSelected: (workload) => workload == workout.workload,
-            onTap: (workload) => store.rateWorkout(workout, workload),
+        if (records.isNotEmpty)
+          PageSection(
+            label: '個人紀錄',
+            children: [
+              for (final item in records) Gutter(child: _RecordRow(item: item)),
+            ],
           ),
-        ),
-        if (records.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('個人紀錄')),
-          for (final item in records) Gutter(child: _RecordRow(item: item)),
-        ],
-        if (_weekSets(store, review) case final labels
-            when labels.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('近 7 天肌群組數')),
-          Gutter(child: TagWrap(labels: labels)),
-        ],
-        Gutter(child: const SectionLabel('動作')),
-        for (final item in review.exercises)
-          Gutter(child: _ResultRow(item: item)),
-        if (review.exercises.any((item) => item.oneRepMaxKg != null))
-          Gutter(child: const TagWrap(labels: ['Epley 估計，非實測'])),
+        if (review.exercises.isNotEmpty)
+          PageSection(
+            label: '動作',
+            children: [
+              for (final item in review.exercises)
+                Gutter(child: _ExerciseResult(item: item)),
+            ],
+          ),
+        if (review.exercises.isNotEmpty)
+          PageSection(
+            label: '訓練部位',
+            children: [
+              Gutter(
+                child: AppCard(
+                  child: MuscleRoleMap(
+                    primary: [
+                      for (final item in review.exercises)
+                        ...item.exercise.primaryMuscles,
+                    ],
+                    secondary: [
+                      for (final item in review.exercises)
+                        ...item.exercise.secondaryMuscles,
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        if (_weekSets(store, review) case final labels when labels.isNotEmpty)
+          PageSection(
+            label: '近 7 天肌群組數',
+            children: [Gutter(child: TagWrap(labels: labels))],
+          ),
         // What was done becomes a plan to do again, with its own sets
         // and weights.
         if (workout.completedSets > 0)
@@ -124,6 +157,27 @@ class WorkoutSummaryScreen extends StatelessWidget {
               },
             ),
           ),
+        PageSection(
+          label: '管理',
+          children: [
+            Gutter(
+              child: GroupedCard(
+                children: [
+                  NavRow(
+                    title: '編輯這筆紀錄',
+                    onTap: () =>
+                        pushPage(context, EditWorkoutScreen(workout: workout)),
+                  ),
+                  NavRow(
+                    title: '刪除這筆紀錄',
+                    isDestructive: true,
+                    onTap: () => _delete(context, workout),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -174,42 +228,79 @@ class _RecordRow extends StatelessWidget {
   }
 }
 
-class _ResultRow extends StatelessWidget {
-  const _ResultRow({required this.item});
+/// An exercise as it was done: its sets and total, and each set, the
+/// record marked.
+class _ExerciseResult extends StatelessWidget {
+  const _ExerciseResult({required this.item});
 
   final ExerciseReview item;
 
-  /// The estimated max against last time's, or alone the first time.
-  static String? _estimateLine(ExerciseReview item) {
-    final now = item.oneRepMaxKg;
-    if (now == null) return null;
-    final before = item.previousOneRepMaxKg;
-    return before == null
-        ? '估計最大重量 ${now.round()} kg'
-        : '估計最大重量 ${before.round()} → ${now.round()} kg';
-  }
+  static String _figuresOf(WorkoutSet set) => switch (set) {
+    WorkoutSet(durationSeconds: final seconds?) => formatClock(
+      Duration(seconds: seconds),
+    ),
+    _ => '${formatWeight(set.weightKg)} kg × ${set.reps}',
+  };
 
   @override
   Widget build(BuildContext context) {
-    final best = item.best;
-    return NavCard(
-      leading: const AccentBar(color: AppColors.training, height: 32),
-      title: item.exercise.name,
-      subtitle:
-          '${item.sets} 組 · ${formatAmount(item.volumeKg.roundToDouble())} kg',
-      detail: _estimateLine(item),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    // Working sets are numbered; the others go by the first character
+    // of their kind, as they do while training.
+    var ordinal = 0;
+    final numbers = [
+      for (final set in item.done)
+        set.type == SetType.working
+            ? '${++ordinal}'
+            : set.type.label.characters.first,
+    ];
+    const figures = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (best != null)
-            Text(
-              '${formatWeight(best.weightKg)} kg × ${best.reps}',
-              style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
+          Row(
+            children: [
+              Expanded(
+                child: Text(item.exercise.name, style: AppTextStyles.itemTitle),
+              ),
+              if (item.record != null)
+                const TagChip(label: 'PR', tone: TagTone.solidTraining),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            '${item.sets} 組 · ${formatKcal(item.volumeKg.round())} kg',
+            style: AppTextStyles.caption,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          for (final (index, set) in item.done.indexed)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: AppSpacing.xl,
+                    child: Text(
+                      numbers[index],
+                      style: AppTextStyles.caption.merge(figures),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      _figuresOf(set),
+                      style: AppTextStyles.body.merge(figures),
+                    ),
+                  ),
+                  if (identical(set, item.record))
+                    const Icon(
+                      Icons.emoji_events_outlined,
+                      size: 18,
+                      color: AppColors.training,
+                      semanticLabel: '個人紀錄',
+                    ),
+                ],
+              ),
             ),
-          if (item.record != null) ...const [
-            SizedBox(width: AppSpacing.xs),
-            TagChip(label: 'PR', tone: TagTone.solidTraining),
-          ],
         ],
       ),
     );

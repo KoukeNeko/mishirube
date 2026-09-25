@@ -10,6 +10,7 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'progression_card.dart';
+import 'set_load_table.dart';
 import 'training_screen.dart';
 import 'workout_summary_screen.dart';
 
@@ -286,12 +287,6 @@ class _PlannedExerciseCard extends StatelessWidget {
         ? null
         : 'RIR ${planned.rir}';
     final loads = planned.loads;
-    void change(int set, {double? weightKg, int? reps}) => onLoads([
-      for (final (i, load) in loads.indexed)
-        i == set
-            ? (weightKg: weightKg ?? load.weightKg, reps: reps ?? load.reps)
-            : load,
-    ]);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,97 +337,16 @@ class _PlannedExerciseCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              const SizedBox(
-                width: 40,
-                child: Text('組', style: AppTextStyles.caption),
-              ),
-              const Expanded(
-                child: Text(
-                  'kg',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.caption,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              const Expanded(
-                child: Text(
-                  '次',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.caption,
-                ),
-              ),
-              if (last != null) ...[
-                const SizedBox(width: AppSpacing.xs),
-                ChipButton(
-                  label: '載入',
-                  semanticLabel: '以上次的重量與次數填入',
-                  onTap: () => onLoads([for (final _ in loads) last!]),
-                ),
-              ],
-            ],
-          ),
-          for (final (i, load) in loads.indexed)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 40,
-                    child: Text('${i + 1}', style: AppTextStyles.itemTitle),
+          SetLoadTable(
+            loads: loads,
+            onLoads: onLoads,
+            headerAction: last == null
+                ? null
+                : ChipButton(
+                    label: '載入',
+                    semanticLabel: '以上次的重量與次數填入',
+                    onTap: () => onLoads([for (final _ in loads) last!]),
                   ),
-                  Expanded(
-                    child: InlineNumberField(
-                      text: formatWeight(load.weightKg),
-                      label: '第 ${i + 1} 組重量',
-                      decimal: true,
-                      onCommit: (text) {
-                        if (double.tryParse(text) case final kg? when kg >= 0) {
-                          change(i, weightKg: kg);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Expanded(
-                    child: InlineNumberField(
-                      text: '${load.reps}',
-                      label: '第 ${i + 1} 組次數',
-                      decimal: false,
-                      onCommit: (text) {
-                        if (int.tryParse(text) case final reps? when reps > 0) {
-                          change(i, reps: reps);
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            spacing: AppSpacing.sm,
-            children: [
-              Expanded(
-                child: SecondaryButton(
-                  label: '刪除組',
-                  icon: Icons.remove,
-                  isCompact: true,
-                  onPressed: loads.length <= 1
-                      ? null
-                      : () => onLoads(loads.sublist(0, loads.length - 1)),
-                ),
-              ),
-              Expanded(
-                child: SecondaryButton(
-                  label: '新增組',
-                  icon: Icons.add,
-                  isCompact: true,
-                  onPressed: () => onLoads([...loads, loads.last]),
-                ),
-              ),
-            ],
           ),
           if (isEditing) ...[
             const SizedBox(height: AppSpacing.sm),

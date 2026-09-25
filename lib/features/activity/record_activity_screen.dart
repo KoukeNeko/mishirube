@@ -114,28 +114,13 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   }
 
   Future<void> _pickStart() async {
-    final store = AppStoreScope.read(context);
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _startedAt,
-      firstDate: DateTime(store.now().year - 1),
-      lastDate: store.now(),
+    final picked = await pickDateTime(
+      context,
+      initial: _startedAt,
+      latest: AppStoreScope.read(context).now(),
     );
-    if (date == null || !mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_startedAt),
-    );
-    if (time == null || !mounted) return;
-    setState(() {
-      _startedAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-    });
+    if (picked == null || !mounted) return;
+    setState(() => _startedAt = picked);
   }
 
   double? get _elevationMetres {

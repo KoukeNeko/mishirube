@@ -29,18 +29,18 @@ bool isPersonalRecordSet(WorkoutSet set, List<ExerciseHistoryEntry> earlier) {
 class ExerciseReview {
   const ExerciseReview({
     required this.exercise,
-    required this.sets,
+    required this.done,
     required this.best,
     required this.volumeKg,
     required this.record,
-    required this.oneRepMaxKg,
-    required this.previousOneRepMaxKg,
   });
 
   final ExerciseDefinition exercise;
 
-  /// Sets done, warm-ups included: they were done.
-  final int sets;
+  /// The sets done, in order, warm-ups included: they were done.
+  final List<WorkoutSet> done;
+
+  int get sets => done.length;
 
   /// The heaviest counted set; null when only warm-ups were done.
   final WorkoutSet? best;
@@ -50,12 +50,6 @@ class ExerciseReview {
   /// The set that set a record, the one with the highest estimated max
   /// when several did; null for none.
   final WorkoutSet? record;
-
-  /// The best estimated max of this session, and of the one before it:
-  /// the change that says more than the total lifted. Null where no set
-  /// gives an estimate, or there was no session before.
-  final double? oneRepMaxKg;
-  final double? previousOneRepMaxKg;
 }
 
 /// A workout as it came out, against what came before it.
@@ -92,16 +86,16 @@ WorkoutReview reviewWorkout(
       if (session.completedSets > 0)
         ExerciseReview(
           exercise: session.exercise,
-          sets: session.completedSets,
+          done: [
+            for (final set in session.sets)
+              if (set.isDone) set,
+          ],
           best: heaviestSet(session.sets),
           volumeKg: volumeKg(session.sets),
           record: _record(
             session.sets,
             earlier[session.exercise.id] ?? const [],
           ),
-          oneRepMaxKg: _bestEstimate(session.sets),
-          previousOneRepMaxKg:
-              earlier[session.exercise.id]?.firstOrNull?.oneRepMaxKg,
         ),
   ];
   return WorkoutReview(
@@ -112,12 +106,6 @@ WorkoutReview reviewWorkout(
     ),
   );
 }
-
-double? _bestEstimate(List<WorkoutSet> sets) =>
-    countedSets(sets)
-        .map((set) => estimateOneRepMax(set.weightKg, set.reps))
-        .nonNulls
-        .fold<double?>(null, (best, e) => best == null || e > best ? e : best);
 
 WorkoutSet? _record(List<WorkoutSet> sets, List<ExerciseHistoryEntry> earlier) {
   WorkoutSet? record;

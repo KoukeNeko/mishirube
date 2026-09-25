@@ -120,7 +120,9 @@ class _HomeShellState extends State<HomeShell> {
         switch (session) {
           case ActiveWorkout():
             store.finishWorkout();
-            _open<void>(const WorkoutSummaryScreen());
+            _open<void>(
+              WorkoutSummaryScreen(workoutId: store.lastFinishedWorkout?.id),
+            );
           case ActiveActivity():
             final finished = store.finishActivity();
             if (finished == null) return;

@@ -158,9 +158,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           label: '詳細資料',
           children: [
             Gutter(
-              child: _FigureGrid(
-                figures: _figures(activity, detail, showsPace),
-              ),
+              child: FigureGrid(figures: _figures(activity, detail, showsPace)),
             ),
           ],
         ),
@@ -249,6 +247,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     ),
                     NavRow(
                       title: '刪除這筆紀錄',
+                      isDestructive: true,
                       onTap: () => _delete(model, activity),
                     ),
                   ],
@@ -300,7 +299,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 
   /// The session's figures, the platform's where it has them and what
   /// was logged otherwise.
-  static List<_Figure> _figures(
+  static List<Figure> _figures(
     ActivitySession activity,
     ActivityDetail? detail,
     bool showsPace,
@@ -414,43 +413,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
 /// `5:32`, minutes and seconds per kilometre.
 String _pace(double metersPerSecond) =>
     formatClock(Duration(seconds: (1000 / metersPerSecond).round()));
-
-typedef _Figure = ({String label, String value, String? unit, Color? color});
-
-/// The figures two to a row, each coloured by what it measures.
-class _FigureGrid extends StatelessWidget {
-  const _FigureGrid({required this.figures});
-
-  final List<_Figure> figures;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = (constraints.maxWidth - AppSpacing.md) / 2;
-          return Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
-            children: [
-              for (final figure in figures)
-                SizedBox(
-                  width: width,
-                  child: StatBlock(
-                    value: figure.value,
-                    unit: figure.unit,
-                    label: figure.label,
-                    valueColor: figure.color ?? AppColors.textPrimary,
-                    valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 26),
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
 
 /// How much of the map shows above the title.
 const _mapHeight = 280.0;

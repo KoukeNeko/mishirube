@@ -211,6 +211,15 @@ class ExerciseDefinition {
 /// One planned set: its weight and reps.
 typedef SetLoad = ({double weightKg, int reps});
 
+/// One exercise of a finished workout as corrected: the sets it was done
+/// at, and the exercise as it was recorded, which [was] is null for one
+/// added while correcting.
+typedef WorkoutCorrection = ({
+  ExerciseDefinition exercise,
+  ExerciseSession? was,
+  List<SetLoad> loads,
+});
+
 class PlannedExercise {
   const PlannedExercise({
     required this.exercise,

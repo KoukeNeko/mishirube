@@ -306,3 +306,26 @@ class _InlineNumberFieldState extends State<InlineNumberField> {
     );
   }
 }
+
+/// A day then a time of it, from a year before [latest] to [latest]; null
+/// when either is dismissed. To the minute: seconds are not something
+/// anyone remembers.
+Future<DateTime?> pickDateTime(
+  BuildContext context, {
+  required DateTime initial,
+  required DateTime latest,
+}) async {
+  final date = await showDatePicker(
+    context: context,
+    initialDate: initial,
+    firstDate: DateTime(latest.year - 1),
+    lastDate: latest,
+  );
+  if (date == null || !context.mounted) return null;
+  final time = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.fromDateTime(initial),
+  );
+  if (time == null) return null;
+  return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+}

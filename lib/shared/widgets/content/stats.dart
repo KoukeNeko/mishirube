@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import 'cards.dart';
 
 /// A big number with an optional unit and a caption underneath.
 class StatBlock extends StatelessWidget {
@@ -81,6 +82,46 @@ class StatRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [for (final stat in stats) Expanded(child: stat)],
+    );
+  }
+}
+
+/// One figure of a [FigureGrid]: what it measures, its value and unit,
+/// and the colour of what it measures when it has one.
+typedef Figure = ({String label, String value, String? unit, Color? color});
+
+/// A detail page's figures in a card, two to a row: each has room for a
+/// long number, where a [StatRow] of four would squeeze it.
+class FigureGrid extends StatelessWidget {
+  const FigureGrid({super.key, required this.figures});
+
+  final List<Figure> figures;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = (constraints.maxWidth - AppSpacing.md) / 2;
+          return Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.md,
+            children: [
+              for (final figure in figures)
+                SizedBox(
+                  width: width,
+                  child: StatBlock(
+                    value: figure.value,
+                    unit: figure.unit,
+                    label: figure.label,
+                    valueColor: figure.color ?? AppColors.textPrimary,
+                    valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 26),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -105,6 +105,119 @@ void main() {
       );
     });
 
+    test('a finished workout can be removed, and taken back', () {
+      final before = store.lastFinishedWorkout;
+      store
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout();
+      final finished = store.lastFinishedWorkout!;
+
+      store.deleteWorkout(finished.id);
+      expect(store.lastFinishedWorkout?.id, before?.id);
+      expect([
+        for (final workout in store.recentWorkouts) workout.id,
+      ], isNot(contains(finished.id)));
+
+      store.restoreWorkout(finished.id);
+      expect(store.lastFinishedWorkout!.id, finished.id);
+    });
+
+    test('a finished workout is corrected set by set', () {
+      store
+        ..startWorkout()
+        ..addWarmups()
+        ..completeNextSet()
+        ..completeNextSet()
+        ..completeNextSet()
+        ..finishWorkout();
+      final finished = store.lastFinishedWorkout!;
+      final first = finished.exercises.first;
+      final done = [
+        for (final set in first.sets)
+          if (set.isDone) set,
+      ];
+      final undone = first.sets.where((set) => !set.isDone).length;
+      final added = store.exercises.firstWhere(
+        (exercise) => finished.exercises.every(
+          (session) => session.exercise.id != exercise.id,
+        ),
+      );
+
+      store.correctWorkout(finished, [
+        (
+          exercise: first.exercise,
+          was: first,
+          loads: [
+            for (final set in done) (weightKg: set.weightKg + 5, reps: 3),
+          ],
+        ),
+        (exercise: added, was: null, loads: [(weightKg: 20, reps: 12)]),
+      ]);
+
+      final saved = store.workoutById(finished.id)!;
+      final corrected = saved.exercises.first;
+      expect(
+        [
+          for (final set in corrected.sets)
+            if (set.isDone) (set.weightKg, set.reps, set.type),
+        ],
+        [for (final set in done) (set.weightKg + 5, 3, set.type)],
+        reason: 'each set keeps its kind, a warm-up stays one',
+      );
+      expect(
+        corrected.sets.where((set) => !set.isDone),
+        hasLength(undone),
+        reason: 'sets never done are left as they were',
+      );
+      expect(saved.exercises[1].exercise.id, added.id);
+      expect(saved.exercises[1].sets.single.isDone, isTrue);
+    });
+
+    test('a finished workout can be moved and given a length', () {
+      store
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout();
+      final finished = store.lastFinishedWorkout!;
+      final yesterday = finished.startedAt.subtract(const Duration(days: 1));
+
+      store.correctWorkout(
+        finished,
+        [
+          for (final session in finished.exercises)
+            if (session.completedSets > 0)
+              (
+                exercise: session.exercise,
+                was: session,
+                loads: [
+                  for (final set in session.sets)
+                    if (set.isDone) (weightKg: set.weightKg, reps: set.reps),
+                ],
+              ),
+        ],
+        timing: (startedAt: yesterday, length: const Duration(minutes: 45)),
+      );
+
+      final saved = store.workoutById(finished.id)!;
+      expect(saved.startedAt, yesterday);
+      expect(saved.elapsedAt(saved.finishedAt!), const Duration(minutes: 45));
+      expect(
+        store.backend.timeline
+            .month(DateTime(yesterday.year, yesterday.month))
+            .days
+            .any(
+              (day) => day.entries.any(
+                (entry) =>
+                    entry.recordId == finished.id &&
+                    entry.at.day == yesterday.day,
+              ),
+            ),
+        isTrue,
+        reason: 'it is listed on the day it was moved to',
+      );
+    });
+
     test('last night is the latest night, not a nap or an old one', () {
       final journal = store.backend.journal;
       journal.recordSleep(

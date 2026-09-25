@@ -432,7 +432,7 @@ void main() {
     await tester.tap(find.text('結束並儲存'));
     await _settleFor(tester);
     expect(store.activeWorkout, isNull);
-    expect(find.text('回到今天'), findsOneWidget);
+    expect(find.text('這次的負荷'), findsOneWidget, reason: 'the summary');
     await disposeTree(tester);
   });
 

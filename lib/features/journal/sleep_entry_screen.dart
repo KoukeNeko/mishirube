@@ -97,27 +97,12 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
       !_end.isAfter(AppStoreScope.read(context).now());
 
   Future<void> _pick({required bool isStart}) async {
-    final store = AppStoreScope.read(context);
-    final current = isStart ? _start : _end;
-    final date = await showDatePicker(
-      context: context,
-      initialDate: current,
-      firstDate: DateTime(store.now().year - 1),
-      lastDate: store.now(),
+    final picked = await pickDateTime(
+      context,
+      initial: isStart ? _start : _end,
+      latest: AppStoreScope.read(context).now(),
     );
-    if (date == null || !mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(current),
-    );
-    if (time == null || !mounted) return;
-    final picked = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    );
+    if (picked == null || !mounted) return;
     setState(() => isStart ? _start = picked : _end = picked);
   }
 

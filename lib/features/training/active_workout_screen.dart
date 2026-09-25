@@ -63,8 +63,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   }
 
   void _finish(BuildContext context) {
-    AppStoreScope.read(context).finishWorkout();
-    replaceWithPage(context, const WorkoutSummaryScreen());
+    final store = AppStoreScope.read(context)..finishWorkout();
+    replaceWithPage(
+      context,
+      WorkoutSummaryScreen(workoutId: store.lastFinishedWorkout?.id),
+    );
   }
 
   /// Ends the workout. With every set done it simply finishes; with sets

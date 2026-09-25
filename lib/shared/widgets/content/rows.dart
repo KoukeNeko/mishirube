@@ -18,6 +18,7 @@ class NavRow extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.showChevron,
+    this.isDestructive = false,
   });
 
   final String title;
@@ -38,7 +39,12 @@ class NavRow extends StatelessWidget {
   /// something and has nothing else at its end.
   final bool? showChevron;
 
-  bool get _showsChevron => showChevron ?? (onTap != null && trailing == null);
+  /// An action that removes something: its title in the destructive
+  /// colour, and no chevron, since it opens nothing.
+  final bool isDestructive;
+
+  bool get _showsChevron =>
+      showChevron ?? (onTap != null && trailing == null && !isDestructive);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +65,14 @@ class NavRow extends StatelessWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(title, style: AppTextStyles.itemTitle),
+                        child: Text(
+                          title,
+                          style: isDestructive
+                              ? AppTextStyles.itemTitle.copyWith(
+                                  color: AppColors.destructive,
+                                )
+                              : AppTextStyles.itemTitle,
+                        ),
                       ),
                       if (titleTrailing != null) ...[
                         const SizedBox(width: AppSpacing.xxs),

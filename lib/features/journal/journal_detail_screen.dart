@@ -100,6 +100,7 @@ class JournalDetailScreen extends StatelessWidget {
               NavRow(title: '編輯', onTap: () => pushPage(context, view.editor)),
               NavRow(
                 title: '刪除這筆紀錄',
+                isDestructive: true,
                 onTap: () => _delete(context, journal, view.title),
               ),
             ],
