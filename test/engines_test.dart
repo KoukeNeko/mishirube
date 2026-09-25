@@ -475,6 +475,32 @@ void main() {
       );
     });
 
+    test('a shared log reads each exercise with its own sets', () {
+      final lines = parseWorkoutText(sharedWorkoutLog);
+      final exercises = [
+        for (final line in lines)
+          if (line.loads.isNotEmpty) line,
+      ];
+      expect(
+        [for (final line in exercises) line.name],
+        ['啞鈴划船', '單臂啞鈴划船', '啞鈴二頭肌彎舉', '啞鈴槌式彎舉', '啞鈴腕彎舉', '反向啞鈴腕彎舉'],
+      );
+      expect(exercises[3].loads, [
+        (weightKg: 9.0, reps: 10),
+        (weightKg: 9.0, reps: 10),
+        (weightKg: 9.0, reps: 7),
+      ]);
+      expect(exercises[4].loads.first, (weightKg: 7.5, reps: 12));
+      expect(
+        [
+          for (final line in lines)
+            if (line.loads.isEmpty) line.sets,
+        ],
+        everyElement(isNull),
+        reason: 'the date and sign-off lines give no figures to keep',
+      );
+    });
+
     test('names as a chat writes them find the library\'s exercises', () {
       final library = parseExerciseCatalogue(
         jsonDecode(File(exerciseCatalogueFile).readAsStringSync())
@@ -485,7 +511,16 @@ void main() {
           for (final line in parseWorkoutText(chatWorkout))
             closestExercise([line.name], library)?.name,
         ],
-        [null, '俯身啞鈴划船', '單臂啞鈴划船', '啞鈴彎舉', '錘式彎舉', '腕屈', '腕伸', '棒式'],
+        [null, '俯身啞鈴划船', '單臂啞鈴划船', '啞鈴彎舉', '錘式彎舉', '腕彎舉', '反向腕彎舉', '棒式'],
+      );
+      expect(
+        [
+          for (final line in parseWorkoutText(sharedWorkoutLog))
+            if (line.loads.isNotEmpty)
+              closestExercise([line.name], library)?.name,
+        ],
+        ['俯身啞鈴划船', '單臂啞鈴划船', '啞鈴彎舉', '錘式彎舉', '腕彎舉', '反向腕彎舉'],
+        reason: 'the names Taiwanese apps use, 槌 for 錘 included',
       );
     });
   });

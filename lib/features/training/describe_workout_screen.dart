@@ -187,9 +187,7 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
                   tone: plan == null ? CardTone.warning : CardTone.neutral,
                   title: plan?.exercise.name ?? line.name,
                   subtitle: switch (plan) {
-                    final plan? =>
-                      '${plan.sets} 組 × ${plan.reps} 下 · '
-                          '${formatWeight(plan.targetWeightKg)} kg',
+                    final plan? => _figuresOf(plan),
                     null => '找不到這個動作',
                   },
                   detail: line.text,
@@ -218,3 +216,19 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     );
   }
 }
+
+/// `3 組 × 10 下 · 12 kg`; sets that differ are each written out:
+/// `3 組 · 9 kg × 10、10、7 下`, or `12 kg × 10、10 kg × 8`.
+String _figuresOf(PlannedExercise plan) => switch (plan.setLoads) {
+  null =>
+    '${plan.sets} 組 × ${plan.reps} 下 · '
+        '${formatWeight(plan.targetWeightKg)} kg',
+  final loads
+      when loads.every((load) => load.weightKg == loads.first.weightKg) =>
+    '${loads.length} 組 · ${formatWeight(loads.first.weightKg)} kg × '
+        '${loads.map((load) => load.reps).join('、')} 下',
+  final loads =>
+    loads
+        .map((load) => '${formatWeight(load.weightKg)} kg × ${load.reps}')
+        .join('、'),
+};

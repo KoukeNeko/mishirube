@@ -117,10 +117,10 @@ final _word = RegExp(r'[a-z0-9]+|\p{L}', unicode: true);
 /// The exercise [names] most likely mean, when someone else wrote them:
 /// the one sharing the most of a name's words — each Chinese character,
 /// each English word — through its own name or an alias, so
-/// 「單手啞鈴划船」 finds 單臂啞鈴划船 by its alias 啞鈴單手划船 and
-/// 「反向腕彎舉」 finds 腕伸 by 反握手腕彎舉. [names] are the same exercise
-/// named more than one way, such as in Chinese and in English. Null when
-/// nothing shares half. A tie goes to the more familiar exercise.
+/// 「單手啞鈴划船」 finds 單臂啞鈴划船 by its alias 啞鈴單手划船. [names]
+/// are the same exercise named more than one way, such as in Chinese and
+/// in English. Null when nothing shares half. A tie goes to the more
+/// familiar exercise.
 ExerciseDefinition? closestExercise(
   Iterable<String> names,
   Iterable<ExerciseDefinition> catalog,

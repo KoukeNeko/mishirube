@@ -20,3 +20,44 @@ const chatWorkout = '''
 
 如果左手現在還有前幾天那種明顯痠痛，就把今天改成腿＋核心，上肢不要硬練。否則今天就正式開背、二頭、前臂工地。
 ''';
+
+/// A workout log as a workout app shares it: each exercise, then its
+/// sets one to a line, then the app's own sign-off.
+const sharedWorkoutLog = '''
+2026-09-25運動日誌
+
+啞鈴划船
+1組: 12kg 10次 
+2組: 12kg 10次 
+3組: 12kg 10次 
+4組: 12kg 10次 
+
+單臂啞鈴划船
+1組: 30kg 12次 
+2組: 30kg 12次 
+3組: 30kg 12次 
+
+啞鈴二頭肌彎舉
+1組: 9kg 12次 
+2組: 9kg 12次 
+3組: 9kg 12次 
+
+啞鈴槌式彎舉
+1組: 9kg 10次 
+2組: 9kg 10次 
+3組: 9kg 7次 
+
+啞鈴腕彎舉
+1組: 7.5kg 12次 
+2組: 7.5kg 12次 
+3組: 7.5kg 4次 
+
+反向啞鈴腕彎舉
+1組: 5kg 10次 
+2組: 5kg 11次 
+
+記錄塑造身體,BurnFit #BurnFit #運動日誌
+
+
+https://apps.apple.com/tw/app/id1503464984
+''';

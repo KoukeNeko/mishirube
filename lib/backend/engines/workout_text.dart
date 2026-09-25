@@ -1,9 +1,12 @@
 /// A workout written as text — typed, or pasted from a chat with a
 /// language model — read line by line into exercises and their sets:
-/// `1. 槓鈴深蹲 4×8 60kg`, `- 臥推：3 組 10 下 40 公斤`, `Pull-up 3x8`.
-/// Deterministic: a list someone else wrote is already structured, and
-/// reading it needs no model.
+/// `1. 槓鈴深蹲 4×8 60kg`, `- 臥推：3 組 10 下 40 公斤`, `Pull-up 3x8`,
+/// or an exercise with its sets on the lines under it, as workout apps
+/// share a log: `1組: 12kg 10次`. Deterministic: a list someone else
+/// wrote is already structured, and reading it needs no model.
 library;
+
+import '../../domain/domain.dart';
 
 /// One exercise as written: its name, and whatever of its sets, reps
 /// and weight the line gave.
@@ -15,13 +18,14 @@ class WorkoutLine {
     this.sets,
     this.reps,
     this.weightKg,
+    this.loads = const [],
   });
 
   /// The exercise's name, the figures and list marks taken off.
   final String name;
 
-  /// Another name for the same exercise, tried when [name] finds
-  /// nothing: the English name a model gives beside the Chinese one.
+  /// Another name for the same exercise, tried alongside [name]: the
+  /// English name a model gives beside the Chinese one.
   final String? otherName;
 
   /// The line as written, for showing what an unmatched name came from.
@@ -29,6 +33,23 @@ class WorkoutLine {
   final int? sets;
   final int? reps;
   final double? weightKg;
+
+  /// Each set as the lines under the name gave it, when they did.
+  final List<SetLoad> loads;
+
+  /// This exercise with [load] as its next set.
+  WorkoutLine withSet(SetLoad load) {
+    final all = [...loads, load];
+    return WorkoutLine(
+      name: name,
+      text: text,
+      otherName: otherName,
+      sets: all.length,
+      reps: load.reps,
+      weightKg: load.weightKg,
+      loads: all,
+    );
+  }
 }
 
 /// A range, `10–12`, is read at its low end: what the plan asks at least.
@@ -70,12 +91,48 @@ final _leftover = RegExp(r'[：:,，、;；/（）()@＠]+|(?<!\S)[-–—~～]+
 final _sentenceEnd = RegExp(r'[。！？!?]');
 final _letter = RegExp(r'\p{L}', unicode: true);
 
-/// Each line of [text] that names something, in order. Headings,
-/// sentences around the list, and lines with no name once their figures
-/// are read are skipped.
-List<WorkoutLine> parseWorkoutText(String text) => [
-  for (final raw in text.split(RegExp(r'\r?\n'))) ?_lineOf(raw),
-];
+/// A set on a line of its own, under its exercise: `1組: 12kg 10次`,
+/// `第 2 組：60 公斤 x 8`, `Set 3: 15 reps`.
+final _setLine = RegExp(
+  r'^\s*(?:第\s*\d+\s*組|\d+\s*組|set\s*\d+)\s*[:：]',
+  caseSensitive: false,
+);
+final _bareReps = RegExp(r'[x×X＊*]\s*(\d+)');
+
+/// Each line of [text] that names something, in order, with the sets
+/// on the lines under it. Headings, sentences around the list, and lines
+/// with no name once their figures are read are skipped.
+List<WorkoutLine> parseWorkoutText(String text) {
+  final lines = <WorkoutLine>[];
+  for (final raw in text.split(RegExp(r'\r?\n'))) {
+    if (_setLine.hasMatch(raw)) {
+      // A set with no exercise above it belongs to nothing.
+      final load = _loadOf(raw);
+      if (load != null && lines.isNotEmpty) {
+        lines.last = lines.last.withSet(load);
+      }
+      continue;
+    }
+    if (_lineOf(raw) case final line?) lines.add(line);
+  }
+  return lines;
+}
+
+/// The weight and reps a set line gives; null without reps, such as a
+/// set held for a time. No weight is bodyweight.
+SetLoad? _loadOf(String raw) {
+  final line = raw.replaceFirst(_setLine, '');
+  final weight = _weight.firstMatch(line);
+  final rest = weight == null
+      ? line
+      : line.replaceRange(weight.start, weight.end, ' ');
+  final reps = (_reps.firstMatch(rest) ?? _bareReps.firstMatch(rest))?[1];
+  if (reps == null) return null;
+  return (
+    weightKg: weight == null ? 0 : double.parse(weight[1]!),
+    reps: int.parse(reps),
+  );
+}
 
 WorkoutLine? _lineOf(String raw) {
   var line = raw.replaceFirst(_listMark, '').trim();

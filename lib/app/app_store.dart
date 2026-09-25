@@ -391,16 +391,18 @@ class AppStore extends ChangeNotifier {
         (line, null),
   ];
 
-  /// [exercise] planned as [line] says, the usual figures where it is
-  /// silent.
-  PlannedExercise planLine(WorkoutLine line, ExerciseDefinition exercise) =>
-      _backend.training
-          .planFor(exercise)
-          .copyWith(
+  /// [exercise] planned as [line] says, set by set when it gave each
+  /// set, the usual figures where it is silent.
+  PlannedExercise planLine(WorkoutLine line, ExerciseDefinition exercise) {
+    final usual = _backend.training.planFor(exercise);
+    return line.loads.isNotEmpty
+        ? PlannedExercise.ofLoads(usual, line.loads)
+        : usual.copyWith(
             sets: line.sets,
             reps: line.reps,
             targetWeightKg: line.weightKg,
           );
+  }
 
   /// Starts a workout planned as [planned]. Refuses while exercise is
   /// being timed.

@@ -1524,7 +1524,8 @@
    "id": "dumbbell-bent-over-row",
    "name": "俯身啞鈴划船",
    "aliases": [
-    "Dumbbell Bent Over Row"
+    "Dumbbell Bent Over Row",
+    "啞鈴划船"
    ],
    "equipment": "dumbbell",
    "primaryMuscles": [
@@ -4702,7 +4703,10 @@
    "name": "啞鈴彎舉",
    "aliases": [
     "Bicep Curl",
-    "二頭彎舉"
+    "二頭彎舉",
+    "二頭肌彎舉",
+    "啞鈴二頭彎舉",
+    "啞鈴二頭肌彎舉"
    ],
    "equipment": "dumbbell",
    "primaryMuscles": [
@@ -4725,7 +4729,10 @@
    "id": "hammer-curl",
    "name": "錘式彎舉",
    "aliases": [
-    "Hammer Curl"
+    "Hammer Curl",
+    "槌式彎舉",
+    "啞鈴錘式彎舉",
+    "啞鈴槌式彎舉"
    ],
    "equipment": "dumbbell",
    "primaryMuscles": [
@@ -4956,10 +4963,12 @@
   },
   {
    "id": "wrist-curl",
-   "name": "腕屈",
+   "name": "腕彎舉",
    "aliases": [
     "Wrist Curl",
-    "手腕彎舉"
+    "手腕彎舉",
+    "腕屈",
+    "啞鈴腕彎舉"
    ],
    "equipment": "barbell",
    "primaryMuscles": [
@@ -4978,10 +4987,14 @@
   },
   {
    "id": "wrist-extension",
-   "name": "腕伸",
+   "name": "反向腕彎舉",
    "aliases": [
     "Wrist Extension",
-    "反握手腕彎舉"
+    "反握手腕彎舉",
+    "腕伸",
+    "反握腕彎舉",
+    "反向啞鈴腕彎舉",
+    "啞鈴反向腕彎舉"
    ],
    "equipment": "dumbbell",
    "primaryMuscles": [
