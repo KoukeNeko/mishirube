@@ -1357,6 +1357,12 @@ void main() {
     await _openFromHost(tester, const FoodSearchScreen(), store);
     final before = store.todayKcal;
 
+    // Below the recent meals, so looked for further down.
+    await tester.dragUntilVisible(
+      find.text('沒有食物'),
+      find.byType(CustomScrollView).first,
+      _scrollStep,
+    );
     expect(find.text('沒有食物'), findsOneWidget);
 
     await _tapText(tester, '新增食物');
@@ -1448,7 +1454,6 @@ void main() {
       await tester.tap(find.textContaining('加入'));
       await tester.pumpAndSettle();
     }
-    expect(find.byIcon(Icons.add), findsNothing, reason: 'no ＋ on a list row');
     expect(find.byTooltip('這一餐 · 2 項 · 200 kcal'), findsOneWidget);
 
     // Which meal is chosen from the title, for the whole plate.
@@ -1481,7 +1486,9 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a habitual meal label is offered, not chosen', (tester) async {
+  testWidgets('the habitual meal label is filled in, and can be changed', (
+    tester,
+  ) async {
     final clock = FakeClock()..current = DateTime(2026, 9, 17, 15);
     final store = AppStore(clock: clock.now, isOnboarded: true);
     for (var day = 0; day < 2; day++) {
@@ -1493,21 +1500,54 @@ void main() {
     }
     await pumpScreen(tester, const FoodSearchScreen(), store: store);
 
-    expect(find.textContaining('常用：午餐'), findsOneWidget);
-    expect(
-      find.bySemanticsLabel(RegExp('目前不指定')),
-      findsOneWidget,
-      reason: 'nothing is picked on the user\'s behalf',
-    );
+    expect(find.bySemanticsLabel(RegExp('目前午餐')), findsOneWidget);
+    expect(find.text('套用'), findsNothing, reason: 'nothing left to accept');
+    await disposeTree(tester);
+  });
 
-    await tester.tap(find.text('套用'));
+  testWidgets('＋ on a food eaten before puts the same portion on the plate', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final egg = FoodItem(id: nutrition.newFoodId(), name: '水煮蛋', kcal: 70);
+    nutrition
+      ..saveFood(egg)
+      ..logPortion(FoodPortion(egg, 2));
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    final eggs = find.byTooltip('加入「水煮蛋」');
+    await tester.dragUntilVisible(
+      eggs,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    // Listed under 最近 and 自己的 alike; the first will do.
+    final add = eggs.first;
+    await Scrollable.ensureVisible(tester.element(add), alignment: 0.5);
+    await tester.pump();
+    await tester.tap(add);
     await tester.pump();
     expect(
-      find.text('套用'),
-      findsNothing,
-      reason: 'taken, so no longer offered',
+      find.byTooltip('這一餐 · 1 項 · 140 kcal'),
+      findsOneWidget,
+      reason: 'two eggs, as last time, with no portion page in between',
     );
-    expect(find.bySemanticsLabel(RegExp('目前午餐')), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a recent meal is logged again from the first view', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    final before = store.todayKcal;
+
+    expect(find.text('近期用餐'), findsOneWidget);
+    await tester.tap(find.byTooltip(RegExp('^加入(?!收藏)')).first);
+    await tester.pump();
+    expect(store.todayKcal, greaterThan(before));
+    expect(find.text('復原'), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -1800,8 +1840,7 @@ void main() {
     final glass = nutrition.glassMillilitres;
 
     expect(nutrition.todayWater.millilitres, 0, reason: 'coffee is not water');
-    await tester.tap(find.text('＋ $glass mL'));
-    await tester.pump();
+    await _tapText(tester, '＋ $glass mL');
 
     expect(nutrition.todayWater.millilitres, glass);
     expect(nutrition.todayWater.times, 1);

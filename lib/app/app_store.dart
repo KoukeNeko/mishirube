@@ -840,6 +840,9 @@ class AppStore extends ChangeNotifier {
   Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>
       _ai.scanFoodLabel(imagePath);
 
+  /// Whether the chosen AI can read a food photo.
+  Future<bool> readsFoodPhotos() => _ai.readsPhotos();
+
   /// The items a food photo shows, with estimated figures; nothing is
   /// logged. Throws [AiException].
   Future<MealDraft> draftMealPhoto(String imagePath, {String note = ''}) =>

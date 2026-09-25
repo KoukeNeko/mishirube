@@ -245,6 +245,13 @@ class AiService {
     return drafter.draftFoodLabel(text);
   }
 
+  /// Whether the chosen provider can look at a food photo, for offering
+  /// the camera only where a photo can be read.
+  Future<bool> readsPhotos() async {
+    final drafter = drafters[provider];
+    return drafter != null && await drafter.readsPhotos();
+  }
+
   /// What a food photo at [imagePath] shows, item by item, with [note]
   /// the user added. Throws [AiException]: [AiFailure.needsPhotoConsent]
   /// before the first photo goes to a cloud provider, and

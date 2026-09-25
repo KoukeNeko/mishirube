@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
@@ -11,19 +13,32 @@ import 'nutrition_view_model.dart';
 
 /// A meal in one sentence: the chosen AI drafts it, the user checks and
 /// corrects it, and only then is anything logged. Given a [draft] already
-/// made — a food photo's items — it opens on the check.
+/// made — a food photo's items — it opens on the check; given a
+/// [photoPath], it drafts from that photo as it opens.
 ///
 /// Pops with the logged meals, so the page that opened it can close too
 /// and offer the undo, the way logging a plate does.
 class DescribeMealScreen extends StatefulWidget {
-  const DescribeMealScreen({super.key, this.mealType, this.draft});
+  const DescribeMealScreen({
+    super.key,
+    this.mealType,
+    this.draft,
+    this.photoPath,
+  });
 
   final MealType? mealType;
   final MealDraft? draft;
+  final String? photoPath;
+
+  bool get _isPhoto => draft != null || photoPath != null;
 
   @override
   State<DescribeMealScreen> createState() => _DescribeMealScreenState();
 }
+
+/// Tall enough to recognise the plate by, short enough to leave the
+/// draft on screen.
+const _photoHeight = 200.0;
 
 class _DescribeMealScreenState extends State<DescribeMealScreen> {
   late final NutritionViewModel _nutrition;
@@ -45,6 +60,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       _draft = draft;
       _items = draft.items;
     }
+    if (widget.photoPath != null) {
+      _isDrafting = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _generate());
+    }
   }
 
   @override
@@ -62,7 +81,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       _failure = null;
     });
     try {
-      final draft = await store.draftMeal(_text.text.trim());
+      final draft = switch (widget.photoPath) {
+        final path? => await store.draftMealPhoto(path),
+        null => await store.draftMeal(_text.text.trim()),
+      };
       if (!mounted) return;
       setState(() {
         _draft = draft;
@@ -73,6 +95,11 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       if (error.failure == AiFailure.needsConsent) {
         setState(() => _isDrafting = false);
         if (await _askConsent()) await _generate();
+        return;
+      }
+      if (error.failure == AiFailure.needsPhotoConsent) {
+        setState(() => _isDrafting = false);
+        if (await askPhotoConsent(context)) await _generate();
         return;
       }
       setState(() => _failure = error.failure);
@@ -127,15 +154,19 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     final draft = _draft;
     return DetailPage(
       appBar: PageAppBar(
-        title: widget.draft == null ? '用一句話記錄' : '照片估算',
+        title: widget._isPhoto ? '照片估算' : '用一句話記錄',
         subtitle: store.aiProvider?.label ?? 'AI 未啟用',
       ),
       footer: draft == null
           ? PrimaryButton(
-              label: _isDrafting ? '產生中…' : '產生草稿',
+              label: _isDrafting
+                  ? '產生中…'
+                  : widget.photoPath != null
+                  ? '重試'
+                  : '產生草稿',
               onPressed:
                   _isDrafting ||
-                      _text.text.trim().isEmpty ||
+                      (widget.photoPath == null && _text.text.trim().isEmpty) ||
                       store.aiProvider == null
                   ? null
                   : _generate,
@@ -145,7 +176,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               onPressed: _items.isEmpty ? null : _log,
             ),
       children: [
-        if (store.aiProvider == null && widget.draft == null) ...[
+        if (store.aiProvider == null && !widget._isPhoto) ...[
           Gutter(
             child: const InfoBanner(
               icon: Icons.auto_awesome_outlined,
@@ -159,7 +190,20 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
             ),
           ),
         ],
-        if (widget.draft == null)
+        if (widget.photoPath case final path?)
+          Gutter(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              child: Image.file(
+                File(path),
+                height: _photoHeight,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                semanticLabel: '食物照片',
+              ),
+            ),
+          ),
+        if (!widget._isPhoto)
           Gutter(
             child: AppTextField(
               controller: _text,
@@ -205,7 +249,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               style: AppTextStyles.caption,
             ),
           ),
-          if (widget.draft == null)
+          if (!widget._isPhoto)
             Gutter(
               child: LinkText(
                 label: '重新產生',

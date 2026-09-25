@@ -9,6 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
+import 'camera_screen.dart';
 import 'daily_nutrition_screen.dart';
 import 'describe_meal_screen.dart';
 import 'food_edit_screen.dart';
@@ -66,6 +67,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// How many recent or starred foods 「全部」 shows before the rest.
   static const _preview = 4;
 
+  /// How many recent meals 「全部」 offers to log again.
+  static const _mealPreview = 3;
+
   final _query = TextEditingController();
 
   /// What has been picked so far, in the order it was picked.
@@ -85,15 +89,25 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   void _plateChanged() => _changePlate(() {});
 
-  /// Which meal the plate is, for everything on it. Optional.
+  /// Which meal the plate is, for everything on it: the one the hour
+  /// suggests to begin with, changed from the header. Optional.
   MealType? _mealType;
+
+  /// Whether the chosen AI can read a food photo; the camera is offered
+  /// only then.
+  late final Future<bool> _readsPhotos;
 
   _Scope _scope = _Scope.all;
 
   @override
   void initState() {
     super.initState();
-    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+    final store = AppStoreScope.read(context);
+    _nutrition = NutritionViewModel(store.backend);
+    _mealType = _nutrition.suggestedMealType();
+    _readsPhotos = store.aiProvider == null
+        ? Future.value(false)
+        : store.readsFoodPhotos();
     _query.addListener(() => setState(() {}));
   }
 
@@ -213,29 +227,40 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final last = _nutrition.recentFoods
         .where((r) => r.food.id == food.id || r.food.parentId == food.id)
         .firstOrNull;
+    final sizeCount = _nutrition.sizesOf(food.id).length;
+    // The portion the row's last line names: the last one eaten, or a
+    // serving of a food without cup sizes to choose from.
+    final quick = last != null
+        ? last.portion
+        : sizeCount == 0
+        ? FoodPortion(food, 1)
+        : null;
     return FoodRow(
       food: food,
       adds: last != null
           ? addsLastPortion(last.portion)
-          : addsFirstPortion(
-              food,
-              sizeCount: _nutrition.sizesOf(food.id).length,
-            ),
+          : addsFirstPortion(food, sizeCount: sizeCount),
       isOnPlate: _isOnPlate(food),
       onTap: () async {
         await _choose(food, last: last);
         onChanged?.call();
       },
+      onQuickAdd: quick == null
+          ? null
+          : () {
+              _add(quick);
+              onChanged?.call();
+            },
     );
   }
 
   /// A meal drafted by the AI and confirmed on its own page; once it is
   /// logged, this page closes too and offers the undo, as a plate does.
-  Future<void> _describe() async {
+  Future<void> _describe({String? photoPath}) async {
     final toast = ToastScope.read(context);
     final logged = await pushPage<List<MealEvent>>(
       context,
-      DescribeMealScreen(mealType: _mealType),
+      DescribeMealScreen(mealType: _mealType, photoPath: photoPath),
     );
     if (logged == null || logged.isEmpty || !mounted) return;
     Navigator.of(context).pop();
@@ -245,6 +270,13 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           : '已記錄 ${logged.length} 項',
       onUndo: () => _nutrition.deleteMeals(logged),
     );
+  }
+
+  /// A photo of the meal, drafted item by item on the draft page.
+  Future<void> _photo() async {
+    final path = await takePhoto(context, '食物', maxSide: foodPhotoMaxSide);
+    if (path == null || !mounted) return;
+    await _describe(photoPath: path);
   }
 
   Future<void> _quickAdd() async {
@@ -257,8 +289,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   void _logAgain(RecentMeal recent) {
-    _nutrition.copyMeal(recent.meal);
-    showToast(context, '已記錄「${recent.label}」', kind: ToastKind.success);
+    final logged = _nutrition.copyMeal(recent.meal);
+    ToastScope.read(context).showUndo(
+      '已記錄「${recent.label}」',
+      onUndo: () => _nutrition.deleteMeals([logged]),
+    );
   }
 
   void _toggleFavorite(RecentMeal recent) {
@@ -299,14 +334,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         null => null,
       },
       children: [
-        if (_mealType == null)
-          if (_nutrition.suggestedMealType() case final offer?)
-            Gutter(
-              child: MealTypeOffer(
-                offer: offer,
-                onTake: () => setState(() => _mealType = offer),
-              ),
-            ),
         FilterChipBar<_Scope>(
           options: _Scope.values,
           selected: _scope,
@@ -326,6 +353,41 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final own = _nutrition.searchFoods('').where((food) => !food.isBuiltIn);
     return switch (_scope) {
       _Scope.all => [
+        // The quickest ways in lead: a photo or a sentence for the AI to
+        // draft, numbers typed once, or a whole meal eaten before. The
+        // day and water follow; water also has its own place under ＋.
+        Gutter(
+          child: FutureBuilder(
+            future: _readsPhotos,
+            builder: (context, readsPhotos) => Row(
+              spacing: AppSpacing.sm,
+              children: [
+                if (readsPhotos.data ?? false)
+                  _WayIn(
+                    icon: Icons.photo_camera_outlined,
+                    label: '拍照',
+                    onTap: _photo,
+                  ),
+                _WayIn(
+                  icon: Icons.auto_awesome_outlined,
+                  label: '一句話',
+                  onTap: _describe,
+                ),
+                _WayIn(
+                  icon: Icons.edit_note_outlined,
+                  label: '快速記錄',
+                  onTap: _quickAdd,
+                ),
+              ],
+            ),
+          ),
+        ),
+        // A whole meal eaten before is the fastest record there is.
+        if (_nutrition.recentMeals.take(_mealPreview).toList() case final meals
+            when meals.isNotEmpty) ...[
+          Gutter(child: const SectionLabel('近期用餐')),
+          for (final meal in meals) Gutter(child: _mealRow(meal)),
+        ],
         // What is already logged today, one tap away: this page is
         // opened from ＋, not from the day, and the question before
         // logging is often whether breakfast is in yet.
@@ -346,18 +408,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             onOpenDay: () => pushPage(context, const DailyNutritionScreen()),
           ),
         ),
-        // The other ways in: numbers typed once, or a sentence for the
-        // AI to draft. Photo and barcode join them when they are real.
-        Gutter(
-          child: ButtonPair(
-            secondary: SecondaryButton(label: '快速記錄', onPressed: _quickAdd),
-            primary: SecondaryButton(
-              label: '用一句話記錄',
-              icon: Icons.auto_awesome_outlined,
-              onPressed: _describe,
-            ),
-          ),
-        ),
         ..._section('最近', [for (final r in recent.take(_preview)) r.food]),
         ..._section('收藏', starred.take(_preview).toList()),
         // Chains are found by typing their name or under 「品牌」, not
@@ -376,7 +426,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       _Scope.recent => [
         ..._section('吃過的食物', [for (final r in recent) r.food]),
         if (_nutrition.recentMeals case final meals when meals.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('最近的餐')),
+          Gutter(child: const SectionLabel('近期用餐')),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (recent.isEmpty && _nutrition.recentMeals.isEmpty)
@@ -494,4 +544,31 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     onAdd: () => _logAgain(meal),
     onToggleFavorite: () => _toggleFavorite(meal),
   );
+}
+
+/// One way of logging besides picking foods: an icon over its name, a
+/// third of the row each.
+class _WayIn extends StatelessWidget {
+  const _WayIn({required this.icon, required this.label, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: AppCard(
+        onTap: onTap,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.nutrition),
+            const SizedBox(height: AppSpacing.xs),
+            Text(label, style: AppTextStyles.itemTitle),
+          ],
+        ),
+      ),
+    );
+  }
 }

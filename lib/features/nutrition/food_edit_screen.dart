@@ -191,8 +191,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// size that scan needs: a label's small print needs more than a plate
   /// does.
   Future<String?> Function(String title) _takeWithCamera(_Scan scan) =>
-      (title) =>
-          takePhoto(context, title, maxSide: scan == _Scan.food ? 1568 : 2400);
+      (title) => takePhoto(
+        context,
+        title,
+        maxSide: scan == _Scan.food ? foodPhotoMaxSide : 2400,
+      );
 
   /// A food photo or a nutrition label, from the camera or the library,
   /// read into the form. Nothing is saved: the user checks every number
