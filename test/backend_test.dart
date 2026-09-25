@@ -337,7 +337,12 @@ void main() {
         ..completeNextSet()
         ..finishWorkout();
       final workout = store.lastFinishedWorkout!;
-      final saved = store.saveAsRoutine(workout);
+      final planned = store.planFromWorkout(workout);
+      expect(store.routines, hasLength(before), reason: 'nothing kept yet');
+      final saved = store.createRoutineOf(
+        planned,
+        name: store.routineNameOf(planned),
+      );
       expect(store.routines, hasLength(before + 1));
       expect(
         saved.exercises.first.exercise.id,

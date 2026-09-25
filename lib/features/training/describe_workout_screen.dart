@@ -10,7 +10,7 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../me/ai_settings_screen.dart';
 import 'active_workout_screen.dart';
-import 'routine_detail_screen.dart';
+import 'new_routine_screen.dart';
 
 /// A workout written out — typed, or pasted from a chat with a language
 /// model — read into exercises with their sets, checked, then started or
@@ -126,9 +126,14 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     replaceWithPage(context, const ActiveWorkoutScreen());
   }
 
-  void _save() {
-    AppStoreScope.read(context).createRoutineOf(_planned);
-    replaceWithPage(context, const RoutineDetailScreen());
+  /// Looked over and named first; once kept, back to where 課表 are
+  /// listed, the new one among them.
+  Future<void> _save() async {
+    final isKept = await pushPage<bool>(
+      context,
+      NewRoutineScreen(planned: _planned),
+    );
+    if (isKept == true && mounted) Navigator.of(context).pop();
   }
 
   @override

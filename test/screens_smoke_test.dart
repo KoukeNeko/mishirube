@@ -44,6 +44,7 @@ import 'package:mishirube/features/journal/wellness_entry_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/features/training/edit_workout_screen.dart';
+import 'package:mishirube/features/training/new_routine_screen.dart';
 import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
 import 'package:mishirube/backend/engines/trend_findings.dart';
@@ -390,6 +391,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'exercise trends': ((_) => const ExerciseTrendsScreen(), _noSetup),
   'workout summary (sample)': ((_) => const WorkoutSummaryScreen(), _noSetup),
+  'new routine': (
+    (store) => NewRoutineScreen(
+      planned: store.planFromWorkout(store.lastFinishedWorkout!),
+    ),
+    _withFinished,
+  ),
   'edit workout': (
     (store) => EditWorkoutScreen(workout: store.lastFinishedWorkout!),
     _withFinished,

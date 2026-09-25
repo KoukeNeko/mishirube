@@ -127,3 +127,43 @@ class SetLoadTable extends StatelessWidget {
     );
   }
 }
+
+/// An exercise to plan or correct: its name, a way to take it out, and
+/// its sets as a [SetLoadTable].
+class ExerciseLoadsCard extends StatelessWidget {
+  const ExerciseLoadsCard({
+    super.key,
+    required this.name,
+    required this.loads,
+    required this.onLoads,
+    required this.onRemove,
+  });
+
+  final String name;
+  final List<SetLoad> loads;
+  final ValueChanged<List<SetLoad>> onLoads;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(name, style: AppTextStyles.itemTitle)),
+              ChipButton(
+                label: '移除',
+                semanticLabel: '移除「$name」',
+                onTap: onRemove,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          SetLoadTable(loads: loads, onLoads: onLoads),
+        ],
+      ),
+    );
+  }
+}

@@ -592,14 +592,11 @@ class TrainingService {
     return updated;
   }
 
-  /// A new template of what [workout] did: each exercise with a done
-  /// working set, each done set as it was done. Named after what it trains.
-  Routine routineFrom(WorkoutSession workout) {
-    final exercises = [
-      for (final session in workout.exercises) ?_planOfDone(session),
-    ];
-    return createRoutine(routineNameFor(exercises), exercises: exercises);
-  }
+  /// What [workout] did as a plan: each exercise with a done working set,
+  /// each done set as it was done.
+  List<PlannedExercise> planFrom(WorkoutSession workout) => [
+    for (final session in workout.exercises) ?_planOfDone(session),
+  ];
 
   /// What [session] did as a plan; null without a done working set.
   PlannedExercise? _planOfDone(ExerciseSession session) {

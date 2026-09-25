@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -110,7 +109,11 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
         for (final exercise in picked)
           (
             UniqueKey(),
-            (exercise: exercise, was: null, loads: store.usualLoads(exercise)),
+            (
+              exercise: exercise,
+              was: null,
+              loads: store.usualPlan(exercise).loads,
+            ),
           ),
       ]);
       _isChanged = true;
@@ -172,32 +175,11 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
         for (final (index, (key, correction)) in _exercises.indexed)
           Gutter(
             key: key,
-            child: AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          correction.exercise.name,
-                          style: AppTextStyles.itemTitle,
-                        ),
-                      ),
-                      ChipButton(
-                        label: '移除',
-                        semanticLabel: '移除「${correction.exercise.name}」',
-                        onTap: () => _remove(index),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  SetLoadTable(
-                    loads: correction.loads,
-                    onLoads: (loads) => _setLoads(index, loads),
-                  ),
-                ],
-              ),
+            child: ExerciseLoadsCard(
+              name: correction.exercise.name,
+              loads: correction.loads,
+              onLoads: (loads) => _setLoads(index, loads),
+              onRemove: () => _remove(index),
             ),
           ),
         Gutter(

@@ -1125,6 +1125,40 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a finished workout is looked over before it is kept', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startWorkout()
+      ..completeNextSet()
+      ..completeNextSet()
+      ..finishWorkout();
+    final before = store.routines.length;
+    await pumpScreen(tester, const LogScreen(), store: store);
+    pushPage(
+      tester.element(find.byType(LogScreen)),
+      WorkoutSummaryScreen(workoutId: store.lastFinishedWorkout!.id),
+    );
+    await tester.pumpAndSettle();
+
+    await _tapText(tester, '存成課表');
+    await tester.pumpAndSettle();
+    expect(store.routines, hasLength(before), reason: 'nothing kept yet');
+    expect(find.text('開始訓練'), findsNothing, reason: 'nothing to start');
+
+    await tester.enterText(find.byType(TextField).first, '背日');
+    await _tapText(tester, '新增組');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(WorkoutSummaryScreen), findsOneWidget);
+    expect(store.routines, hasLength(before + 1));
+    final kept = store.routines.firstWhere((routine) => routine.name == '背日');
+    expect(kept.exercises.first.sets, 3, reason: 'two done, one added');
+    await disposeTree(tester);
+  });
+
   testWidgets('a finished workout is corrected from its page', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)

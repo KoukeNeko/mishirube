@@ -9,7 +9,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../trends/muscle_map.dart';
 import 'edit_workout_screen.dart';
-import 'routine_detail_screen.dart';
+import 'new_routine_screen.dart';
 
 class WorkoutSummaryScreen extends StatelessWidget {
   const WorkoutSummaryScreen({super.key, this.workoutId});
@@ -145,16 +145,16 @@ class WorkoutSummaryScreen extends StatelessWidget {
             children: [Gutter(child: TagWrap(labels: labels))],
           ),
         // What was done becomes a plan to do again, with its own sets
-        // and weights.
+        // and weights, looked over before it is kept.
         if (workout.completedSets > 0)
           Gutter(
             child: SecondaryButton(
               label: '存成課表',
               icon: Icons.bookmark_add_outlined,
-              onPressed: () {
-                store.saveAsRoutine(workout);
-                pushPage(context, const RoutineDetailScreen());
-              },
+              onPressed: () => pushPage(
+                context,
+                NewRoutineScreen(planned: store.planFromWorkout(workout)),
+              ),
             ),
           ),
         PageSection(

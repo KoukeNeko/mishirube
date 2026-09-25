@@ -262,9 +262,9 @@ class AppStore extends ChangeNotifier {
     _workoutsChanged();
   }
 
-  /// The sets [exercise] is usually planned at, for adding it somewhere.
-  List<SetLoad> usualLoads(ExerciseDefinition exercise) =>
-      _backend.training.planFor(exercise).loads;
+  /// [exercise] as it is usually planned, for adding it somewhere.
+  PlannedExercise usualPlan(ExerciseDefinition exercise) =>
+      _backend.training.planFor(exercise);
 
   /// Removes a finished workout; [restoreWorkout] takes it back.
   void deleteWorkout(String id) {
@@ -447,15 +447,20 @@ class AppStore extends ChangeNotifier {
     return true;
   }
 
-  /// A new template of [planned], named after what it trains, opened.
-  Routine createRoutineOf(List<PlannedExercise> planned) {
-    final created = _backend.training.createRoutine(
-      routineNameFor(planned),
-      exercises: planned,
-    );
-    selectRoutine(created);
+  /// A new template of [planned] called [name], kept for later: saving
+  /// it is not opening it.
+  Routine createRoutineOf(
+    List<PlannedExercise> planned, {
+    required String name,
+  }) {
+    final created = _backend.training.createRoutine(name, exercises: planned);
+    notifyListeners();
     return created;
   }
+
+  /// The name a template of [planned] gets: what it trains.
+  String routineNameOf(List<PlannedExercise> planned) =>
+      routineNameFor(planned);
 
   /// Finished workouts to start a new one from, newest first.
   List<WorkoutSession> get recentWorkouts => _backend.training.recentFinished();
@@ -705,12 +710,10 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// A new template of what [workout] did, opened.
-  Routine saveAsRoutine(WorkoutSession workout) {
-    final created = _backend.training.routineFrom(workout);
-    selectRoutine(created);
-    return created;
-  }
+  /// What [workout] did as a plan, to be looked over before it is kept
+  /// as a template.
+  List<PlannedExercise> planFromWorkout(WorkoutSession workout) =>
+      _backend.training.planFrom(workout);
 
   /// Removes the exercise at [index] from the template.
   void removeRoutineExercise(int index) {
