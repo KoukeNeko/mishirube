@@ -259,7 +259,7 @@ void main() {
         find
             .descendant(
               of: find.byType(TrendsScreen),
-              matching: find.byType(InsightCard),
+              matching: find.text('值得注意'),
             )
             .first,
       );

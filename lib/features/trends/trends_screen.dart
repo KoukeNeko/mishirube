@@ -58,7 +58,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
 
   void _reload({bool rebuild = true}) {
     _report = _model.report;
-    final facts = _report.facts;
+    final facts = _report.isWorthSummarizing ? _report.facts : const <String>[];
     final provider = AppStoreScope.read(context).aiProvider;
     if (_summarized == null ||
         _summarizedBy != provider ||
@@ -72,6 +72,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
 
   Future<void> _summarize(List<String> facts) async {
     _summarized = facts;
+    if (facts.isEmpty) return;
     final summary = await AppStoreScope.read(context).summarizeTrends(facts);
     if (!mounted || _summarized != facts) return;
     setState(() => _summary = summary);
@@ -81,28 +82,35 @@ class _TrendsScreenState extends State<TrendsScreen> {
   Widget build(BuildContext context) {
     final report = _report;
     final facts = report.facts;
+    final modules = AppStoreScope.of(context).enabledModules;
+    final linesByDomain = {for (final line in report.lines) line.domain: line};
     final changes = [
       if (report.findings.isNotEmpty)
         PageSection(
           label: '值得注意',
           children: [
-            for (final (:domain, :insight) in report.findings)
+            for (final finding in report.findings)
               Gutter(
-                child: InsightCard(insight: insight, title: domain.label),
+                child: _FindingCard(
+                  finding: finding,
+                  onTap: () => pushPage(context, _pageFor(finding.domain)),
+                ),
               ),
           ],
         ),
       if (report.relation case final relation?)
         PageSection(
           label: '可能的關聯',
-          children: [
-            Gutter(
-              child: InsightCard(insight: relation, title: '睡眠與訓練'),
-            ),
-          ],
+          children: [Gutter(child: _RelationCard(relation: relation))],
         ),
     ];
-    final lines = report.lines.isEmpty
+    // Every area the app logs gets a row, with or without records yet,
+    // so each area's page is always one tap away.
+    final domains = [
+      for (final domain in TrendDomain.values)
+        if (modules.contains(_moduleOf(domain))) domain,
+    ];
+    final lines = domains.isEmpty
         ? null
         : PageSection(
             label: '長期走向',
@@ -110,10 +118,11 @@ class _TrendsScreenState extends State<TrendsScreen> {
               Gutter(
                 child: GroupedCard(
                   children: [
-                    for (final line in report.lines)
+                    for (final domain in domains)
                       _LineRow(
-                        line: line,
-                        onTap: () => pushPage(context, _pageFor(line.domain)),
+                        domain: domain,
+                        line: linesByDomain[domain],
+                        onTap: () => pushPage(context, _pageFor(domain)),
                       ),
                   ],
                 ),
@@ -130,10 +139,7 @@ class _TrendsScreenState extends State<TrendsScreen> {
             constraints.maxWidth >= _minColumnWidth * 2;
         return CollapsingPage(
           title: '趨勢',
-          subtitle: '近 4 週與前 4 週',
           children: [
-            if (report.lines.isEmpty)
-              Gutter(child: const InfoBanner(message: '紀錄還不夠多。')),
             if (_summary case final summary?)
               Gutter(
                 child: _SummaryCard(summary: summary, factCount: facts.length),
@@ -165,6 +171,14 @@ class _TrendsScreenState extends State<TrendsScreen> {
       a.length == b.length &&
       [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((same) => same);
 
+  static AppModule _moduleOf(TrendDomain domain) => switch (domain) {
+    TrendDomain.body => AppModule.weight,
+    TrendDomain.training => AppModule.training,
+    TrendDomain.sleep => AppModule.sleep,
+    TrendDomain.nutrition => AppModule.nutrition,
+    TrendDomain.activity => AppModule.activity,
+  };
+
   static Widget _pageFor(TrendDomain domain) => switch (domain) {
     TrendDomain.body => const BodyScreen(),
     TrendDomain.training => const TrainingTrendsScreen(),
@@ -189,47 +203,165 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Text(summary, style: AppTextStyles.body),
           const SizedBox(height: AppSpacing.sm),
-          TagWrap(labels: ['Apple Intelligence 整理', '依據 $factCount 項紀錄']),
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome,
+                size: 14,
+                color: AppColors.textTertiary,
+              ),
+              const SizedBox(width: AppSpacing.xxs),
+              Expanded(
+                child: Text(
+                  'Apple Intelligence 整理 · 依據 $factCount 項紀錄',
+                  style: AppTextStyles.caption,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-/// An area where it stands, against the stretch before, and its weeks.
-class _LineRow extends StatelessWidget {
-  const _LineRow({required this.line, required this.onTap});
+Color _colorOf(TrendDomain domain) => switch (domain) {
+  TrendDomain.body => AppColors.body,
+  TrendDomain.training => AppColors.training,
+  TrendDomain.sleep => AppColors.wellness,
+  TrendDomain.nutrition => AppColors.nutrition,
+  TrendDomain.activity => AppColors.activity,
+};
 
-  static const _chartWidth = 64.0;
+/// A change worth noticing: what moved, where it stands and by how
+/// much, its weeks, and what it rests on. Opens the area it is about.
+class _FindingCard extends StatelessWidget {
+  const _FindingCard({required this.finding, required this.onTap});
 
-  final TrendLine line;
+  final TrendFinding finding;
   final VoidCallback onTap;
-
-  Color get _color => switch (line.domain) {
-    TrendDomain.body => AppColors.body,
-    TrendDomain.training => AppColors.training,
-    TrendDomain.sleep => AppColors.wellness,
-    TrendDomain.nutrition => AppColors.nutrition,
-    TrendDomain.activity => AppColors.activity,
-  };
 
   @override
   Widget build(BuildContext context) {
+    final color = _colorOf(finding.domain);
+    return AppCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CategoryLabel(label: finding.domain.label, color: color),
+              const Spacer(),
+              const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(finding.headline, style: AppTextStyles.itemTitle),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.end,
+            spacing: AppSpacing.sm,
+            children: [
+              Text(finding.value, style: AppTextStyles.bigNumber),
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xxs),
+                child: Text(finding.change, style: AppTextStyles.body),
+              ),
+            ],
+          ),
+          if (finding.weekly.length >= 2) ...[
+            const SizedBox(height: AppSpacing.sm),
+            ExcludeSemantics(
+              child: Sparkline(
+                values: finding.weekly,
+                color: color,
+                height: 40,
+              ),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            [finding.comparison, ...finding.insight.evidence].join(' · '),
+            style: AppTextStyles.caption,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A relation between two areas, with what it rests on, and never more
+/// than a relation.
+class _RelationCard extends StatelessWidget {
+  const _RelationCard({required this.relation});
+
+  final Insight relation;
+
+  @override
+  Widget build(BuildContext context) {
+    const caveat = '關聯，不代表因果';
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CategoryLabel(
+                label: TrendDomain.sleep.label,
+                color: _colorOf(TrendDomain.sleep),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              CategoryLabel(
+                label: TrendDomain.training.label,
+                color: _colorOf(TrendDomain.training),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(relation.statement, style: AppTextStyles.itemTitle),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            [
+              for (final line in relation.evidence)
+                if (line != caveat) line,
+            ].join(' · '),
+            style: AppTextStyles.caption,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          const TagChip(label: caveat),
+        ],
+      ),
+    );
+  }
+}
+
+/// An area where it stands, against the stretch before, and its weeks;
+/// 沒有紀錄 until it has any.
+class _LineRow extends StatelessWidget {
+  const _LineRow({required this.domain, this.line, required this.onTap});
+
+  static const _chartWidth = 64.0;
+
+  final TrendDomain domain;
+  final TrendLine? line;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final line = this.line;
+    final color = _colorOf(domain);
     return NavRow(
-      leading: AccentBar(color: _color, height: 28),
-      title: line.domain.label,
-      subtitle: line.value,
-      detail: line.change,
-      trailing: line.weekly.length < 2
+      leading: AccentBar(color: color, height: 28),
+      title: domain.label,
+      subtitle: line?.value ?? '沒有紀錄',
+      detail: line?.change,
+      trailing: line == null || line.weekly.length < 2
           ? null
           : SizedBox(
               width: _chartWidth,
               child: ExcludeSemantics(
-                child: Sparkline(
-                  values: line.weekly,
-                  color: _color,
-                  height: 28,
-                ),
+                child: Sparkline(values: line.weekly, color: color, height: 28),
               ),
             ),
       onTap: onTap,

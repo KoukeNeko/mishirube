@@ -8,8 +8,11 @@ abstract interface class TrendWriter {
 /// How the model is asked. The figures are the engine's; the model only
 /// words them.
 const trendSummaryInstructions =
-    '以下每一行是健身紀錄 App 已經算好的趨勢事實。'
-    '用繁體中文（台灣用語）寫兩到三句摘要，挑最重要的事實。'
+    '以下每一行是健身紀錄 App 已經算好的趨勢事實，'
+    '標「變化」的是近 4 週與前 4 週相比的明顯改變，標「關聯」的是兩件事一起變化，'
+    '標「現況」的只是背景。'
+    '用繁體中文（台灣用語）寫一到兩句、80 字以內的摘要，'
+    '只寫「變化」與「關聯」，把它們串成一段話，不要逐條重述，不要提「現況」。'
     '只能使用事實裡出現的數字，不要計算新的數字，不要推測原因，'
     '不要給建議或醫療判斷，不要稱呼讀者，不要用「你」。';
 

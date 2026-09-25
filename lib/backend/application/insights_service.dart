@@ -63,19 +63,24 @@ class TrendsReport {
     required this.lines,
   });
 
-  final List<({TrendDomain domain, Insight insight})> findings;
+  final List<TrendFinding> findings;
   final Insight? relation;
   final List<TrendLine> lines;
 
-  /// Every figure said above, one line each, for a writer to put into
-  /// words without adding any.
+  /// Every figure said above, one line each and marked by what it is,
+  /// for a writer to put into words without adding any.
   List<String> get facts => [
-    for (final finding in findings) finding.insight.statement,
-    ?relation?.statement,
+    for (final finding in findings) '變化：${finding.insight.statement}',
+    if (relation case final relation?) '關聯：${relation.statement}',
     for (final line in lines)
-      '${line.domain.label}：${line.value}'
+      '現況：${line.domain.label}${line.value}'
           '${line.change == null ? '' : '，${line.change}'}',
   ];
+
+  /// Whether there is more than one thing to tie together: a summary of
+  /// a single change only repeats the card below it.
+  bool get isWorthSummarizing =>
+      findings.length + (relation == null ? 0 : 1) >= 2;
 }
 
 /// How many changes the Trends page leads with.
@@ -159,12 +164,12 @@ class InsightsService {
   }
 
   /// The changes worth noticing, a relation between sleep and training
-  /// when the records support one, and each area's long-run line, over
-  /// the latest [trendWindowDays] and the stretch before.
+  /// when the records support one, and each area's long-run line, each
+  /// read over the last [trendHistoryDays] against its own baseline.
   TrendsReport report() {
     final now = _db.now();
     final from = _dayOf(now)
-        .subtract(const Duration(days: trendLineWeeks * DateTime.daysPerWeek));
+        .subtract(const Duration(days: trendHistoryDays - 1));
     final until = _db.nowInclusive;
     final nights = [
       for (final entry in _journal.sleepBetween(from, until))
@@ -195,10 +200,7 @@ class InsightsService {
       ?restingHeartRateFinding(restingHeartRate, now),
     ]..sort((a, b) => b.strength.compareTo(a.strength));
     return TrendsReport(
-      findings: [
-        for (final finding in findings.take(_findingCount))
-          (domain: finding.domain, insight: finding.insight),
-      ],
+      findings: findings.take(_findingCount).toList(),
       relation: sleepAndTrainingInsight({
         for (final (wokeAt, minutes) in nights) _dayOf(wokeAt): minutes,
       }, _workouts.completedVolumes(since: from)),

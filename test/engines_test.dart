@@ -248,10 +248,51 @@ void main() {
         sleepFinding(longer, today)!.insight.statement,
         '近 4 週平均睡眠 7:30，比前 4 週多 40 分。',
       );
+      final card = sleepFinding(longer, today)!;
+      expect(
+        (card.headline, card.value, card.change),
+        ('睡眠時間增加', '7:30', '+40 分'),
+      );
+      expect(card.weekly, isNotEmpty);
       final thin = [...daily(10, 450), ...daily(20, 410, endingDaysAgo: 28)];
       expect(sleepFinding(thin, today), isNull, reason: 'ten nights');
       final steady = [...daily(20, 420), ...daily(20, 410, endingDaysAgo: 28)];
       expect(sleepFinding(steady, today), isNull, reason: '10 min is noise');
+    });
+
+    test('training weeks start at the first workout, not at zero', () {
+      final line = trainingLine([
+        DateTime(today.year, today.month, today.day - 3),
+        DateTime(today.year, today.month, today.day - 10),
+      ], today)!;
+      expect(line.weekly.first, greaterThan(0));
+      expect(line.weekly.length, lessThanOrEqualTo(3));
+    });
+
+    test('sleep is set against twelve weeks once there are that many', () {
+      final nights = [...daily(28, 450), ...daily(84, 410, endingDaysAgo: 28)];
+      final finding = sleepFinding(nights, today)!;
+      expect(finding.insight.statement, '近 4 週平均睡眠 7:30，比前 12 週多 40 分。');
+      expect(finding.comparison, '與前 12 週相比');
+      expect(
+        sleepFinding([
+          ...daily(20, 450),
+          ...daily(20, 410, endingDaysAgo: 28),
+        ], today)!.comparison,
+        '與前 4 週相比',
+        reason: 'too few nights for twelve weeks: the four before stand in',
+      );
+    });
+
+    test('steps are set against the year once there is half a year', () {
+      final year = [
+        ...daily(90, 11000),
+        ...daily(275, 9000, endingDaysAgo: 90),
+      ];
+      final finding = stepsFinding(year, today)!;
+      expect(finding.comparison, '近 90 天與過去一年相比');
+      expect(finding.insight.statement, startsWith('近 90 天平均每天 11,000 步'));
+      expect(activityLine(year, today)!.change, startsWith('近 90 天比過去一年多'));
     });
 
     test('steps need most days of both stretches and a tenth more', () {
@@ -278,8 +319,8 @@ void main() {
           for (final (daysAgo, max) in [
             (3, now),
             (10, now),
-            (33, before),
-            (40, before),
+            (60, before),
+            (67, before),
           ])
             ExerciseHistoryEntry(
               date: today.subtract(Duration(days: daysAgo)),
@@ -294,7 +335,8 @@ void main() {
         ('深蹲', history(100, 112)),
         ('硬舉', history(100, 102)),
       ], today)!;
-      expect(finding.insight.statement, '深蹲估計最大重量近 4 週 112 kg，比前 4 週高 12%。');
+      expect(finding.insight.statement, '深蹲估計最大重量近 8 週 112 kg，比前 8 週高 12%。');
+      expect(finding.comparison, '與前 8 週相比');
     });
 
     test('a relation needs five workouts on each side of the median', () {
