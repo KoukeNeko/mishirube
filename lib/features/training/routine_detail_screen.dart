@@ -11,7 +11,6 @@ import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'progression_card.dart';
 import 'set_load_table.dart';
-import 'training_screen.dart';
 import 'workout_summary_screen.dart';
 
 /// A workout's plan (a template). Editing it never rewrites finished
@@ -24,10 +23,6 @@ class RoutineDetailScreen extends StatefulWidget {
 }
 
 class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
-  /// Editing shows the controls that change the plan's shape, so a tap
-  /// while browsing cannot reorder or remove anything.
-  bool _isEditing = false;
-
   /// Muscles still sore today; each exercise working one gets a set
   /// fewer when the workout starts. Kept for the visit only.
   final _sore = <MuscleGroup>{};
@@ -110,19 +105,6 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       appBar: PageAppBar(
         title: routine.name,
         subtitle: '約 ${store.expectedMinutes(routine)} 分',
-        actions: [
-          HeaderAction(
-            icon: Icons.list_alt_outlined,
-            semanticLabel: '所有課表',
-            onTap: () => pushPage(context, const TrainingScreen()),
-          ),
-          HeaderAction(
-            icon: _isEditing ? Icons.check : Icons.edit_outlined,
-            label: _isEditing ? '完成' : '編輯',
-            semanticLabel: _isEditing ? '完成編輯' : '編輯這份課表',
-            onTap: () => setState(() => _isEditing = !_isEditing),
-          ),
-        ],
       ),
       footer: PrimaryButton(
         label: isWorkoutActive ? '回到訓練' : '開始訓練',
@@ -133,44 +115,17 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         },
       ),
       children: [
-        if (!_isEditing && !isWorkoutActive) ...[
-          Gutter(child: const SectionLabel('今天酸痛的肌群')),
-          Gutter(
-            child: ChipWrap(
-              options: {
-                for (final planned in routine.exercises)
-                  ...planned.exercise.primaryMuscles,
-              }.toList(),
-              labelOf: (muscle) => muscle.label,
-              isSelected: _sore.contains,
-              onTap: (muscle) => setState(
-                () => _sore.contains(muscle)
-                    ? _sore.remove(muscle)
-                    : _sore.add(muscle),
-              ),
-            ),
-          ),
-        ],
-        Gutter(
-          child: SectionLabel(
-            '計畫的動作',
-            trailing: _isEditing
-                ? LinkText(label: '改名稱', onTap: () => _rename(routine))
-                : null,
-          ),
-        ),
+        Gutter(child: const SectionLabel('計畫的動作')),
         for (final (index, planned) in routine.exercises.indexed)
           Gutter(
             child: _PlannedExerciseCard(
               planned: planned,
-              isEditing: _isEditing,
               canMoveUp: index > 0,
               canMoveDown: index < routine.exercises.length - 1,
               onMove: (offset) =>
                   store.moveRoutineExercise(index, index + offset),
               onRemove: () => _remove(store, routine, index),
               isLighter:
-                  !_isEditing &&
                   worksSoreMuscle(planned, _sore) &&
                   setsWhenSore(planned.sets) < planned.sets,
               isInSuperset:
@@ -190,17 +145,25 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             onTap: () => _addExercises(context, routine),
           ),
         ),
-        if (_isEditing)
+        if (!isWorkoutActive) ...[
+          Gutter(child: const SectionLabel('今天酸痛的肌群')),
           Gutter(
-            child: Center(
-              child: LinkText(
-                label: '刪除這份課表',
-                color: AppColors.destructive,
-                onTap: () => _delete(routine),
+            child: ChipWrap(
+              options: {
+                for (final planned in routine.exercises)
+                  ...planned.exercise.primaryMuscles,
+              }.toList(),
+              labelOf: (muscle) => muscle.label,
+              isSelected: _sore.contains,
+              onTap: (muscle) => setState(
+                () => _sore.contains(muscle)
+                    ? _sore.remove(muscle)
+                    : _sore.add(muscle),
               ),
             ),
           ),
-        if (!_isEditing) ProgressionSection(routine: routine),
+        ],
+        ProgressionSection(routine: routine),
         if (store.recentRoutineWorkouts case final recent
             when recent.isNotEmpty) ...[
           Gutter(child: const SectionLabel('最近實際完成')),
@@ -222,6 +185,23 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               ),
             ),
         ],
+        PageSection(
+          label: '管理',
+          children: [
+            Gutter(
+              child: GroupedCard(
+                children: [
+                  NavRow(title: '改名稱', onTap: () => _rename(routine)),
+                  NavRow(
+                    title: '刪除這份課表',
+                    isDestructive: true,
+                    onTap: () => _delete(routine),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -243,7 +223,6 @@ enum _PlanEdit {
 class _PlannedExerciseCard extends StatelessWidget {
   const _PlannedExerciseCard({
     required this.planned,
-    required this.isEditing,
     required this.canMoveUp,
     required this.canMoveDown,
     required this.onMove,
@@ -265,7 +244,6 @@ class _PlannedExerciseCard extends StatelessWidget {
   final SetLoad? last;
 
   final PlannedExercise planned;
-  final bool isEditing;
   final bool canMoveUp;
   final bool canMoveDown;
 
@@ -278,6 +256,46 @@ class _PlannedExerciseCard extends StatelessWidget {
   /// Moves the exercise by the given offset in the plan.
   final ValueChanged<int> onMove;
   final VoidCallback onRemove;
+
+  Future<void> _menu(BuildContext context) async {
+    final edit = await showAppDialog<_PlanEdit>(
+      context,
+      AppDialog(
+        title: planned.exercise.name,
+        isChoiceList: true,
+        actions: [
+          for (final edit in [
+            if (canMoveUp) _PlanEdit.up,
+            if (canMoveDown) _PlanEdit.down,
+            if (canMoveDown)
+              planned.joinsNext ? _PlanEdit.leave : _PlanEdit.join,
+            _PlanEdit.remove,
+          ])
+            DialogAction(
+              label: edit.label,
+              tone: edit == _PlanEdit.remove
+                  ? DialogTone.destructive
+                  : DialogTone.normal,
+              onTap: () => Navigator.of(context).pop(edit),
+            ),
+        ],
+      ),
+    );
+    switch (edit) {
+      case _PlanEdit.up:
+        onMove(-1);
+      case _PlanEdit.down:
+        onMove(1);
+      case _PlanEdit.join:
+        onJoinNext(true);
+      case _PlanEdit.leave:
+        onJoinNext(false);
+      case _PlanEdit.remove:
+        onRemove();
+      case null:
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -299,15 +317,12 @@ class _PlannedExerciseCard extends StatelessWidget {
                   style: AppTextStyles.itemTitle,
                 ),
               ),
-              SizedBox(
-                width: 56,
-                child: qualifier == null
-                    ? null
-                    : Text(
-                        qualifier,
-                        textAlign: TextAlign.right,
-                        style: AppTextStyles.caption,
-                      ),
+              if (qualifier != null)
+                Text(qualifier, style: AppTextStyles.caption),
+              SquareIconButton(
+                icon: Icons.more_horiz,
+                tooltip: '${planned.exercise.name}的選項',
+                onPressed: () => _menu(context),
               ),
             ],
           ),
@@ -348,27 +363,6 @@ class _PlannedExerciseCard extends StatelessWidget {
                     onTap: () => onLoads([for (final _ in loads) last!]),
                   ),
           ),
-          if (isEditing) ...[
-            const SizedBox(height: AppSpacing.sm),
-            ChipWrap(
-              options: [
-                if (canMoveUp) _PlanEdit.up,
-                if (canMoveDown) _PlanEdit.down,
-                if (canMoveDown)
-                  planned.joinsNext ? _PlanEdit.leave : _PlanEdit.join,
-                _PlanEdit.remove,
-              ],
-              labelOf: (edit) => edit.label,
-              isSelected: (_) => false,
-              onTap: (edit) => switch (edit) {
-                _PlanEdit.up => onMove(-1),
-                _PlanEdit.down => onMove(1),
-                _PlanEdit.join => onJoinNext(true),
-                _PlanEdit.leave => onJoinNext(false),
-                _PlanEdit.remove => onRemove(),
-              },
-            ),
-          ],
         ],
       ),
     );

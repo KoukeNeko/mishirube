@@ -1158,7 +1158,16 @@ void main() {
     final first = store.routine.exercises.first;
 
     await _tapText(tester, first.exercise.primaryMuscles.first.label);
-    expect(find.text('今天少 1 組'), findsWidgets);
+    // The muscles are chosen under the plan; its cards are above.
+    final lighter = find.text('今天少 1 組');
+    for (var i = 0; i < 20 && lighter.evaluate().isEmpty; i++) {
+      await tester.drag(
+        find.byType(CustomScrollView).hitTestable().first,
+        const Offset(0, 200),
+      );
+      await tester.pump();
+    }
+    expect(lighter, findsWidgets);
     await disposeTree(tester);
   });
 
@@ -1168,12 +1177,18 @@ void main() {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    final options = find.byTooltip(
+      '${store.routine.exercises.first.exercise.name}的選項',
+    );
 
-    await _tapText(tester, '編輯');
+    await tester.tap(options);
+    await tester.pumpAndSettle();
     await _tapText(tester, '與下一個組成超級組');
     expect(store.routine.exercises.first.joinsNext, isTrue);
     expect(find.widgetWithText(TagChip, '超級組'), findsNWidgets(2));
 
+    await tester.tap(options);
+    await tester.pumpAndSettle();
     await _tapText(tester, '解除超級組');
     expect(store.routine.exercises.first.joinsNext, isFalse);
     expect(find.widgetWithText(TagChip, '超級組'), findsNothing);
@@ -1222,11 +1237,9 @@ void main() {
   ) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    await pumpScreen(tester, const TrainingScreen(), store: store);
     final before = store.routines.length;
 
-    await tester.tap(find.bySemanticsLabel('所有課表'));
-    await tester.pumpAndSettle();
     await _tapText(tester, '新增課表');
     await tester.pumpAndSettle();
 
@@ -1439,13 +1452,16 @@ void main() {
     final planned = [
       for (final exercise in store.routine.exercises) exercise.exercise.name,
     ];
-    expect(find.text('上移'), findsNothing, reason: 'browsing cannot reorder');
+    Future<void> choose(String exercise, String edit) async {
+      await tester.tap(find.byTooltip('$exercise的選項'));
+      await tester.pumpAndSettle();
+      await _tapText(tester, edit);
+    }
 
-    await _tapText(tester, '編輯');
-    await _tapText(tester, '下移');
+    await choose(planned[0], '下移');
     expect(store.routine.exercises.first.exercise.name, planned[1]);
 
-    await _tapText(tester, '移除');
+    await choose(planned[1], '移除');
     expect(store.routine.exercises, hasLength(planned.length - 1));
     expect(find.textContaining('已移除'), findsOneWidget);
 
