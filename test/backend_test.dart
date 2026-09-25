@@ -1947,6 +1947,18 @@ void main() {
       expect(marks.containsKey(7), isFalse);
     });
 
+    test('water shows on the timeline as how much of it', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      store.backend.nutrition.logWater(250, at: clock.now());
+
+      final water = store.backend.timeline
+          .day(clock.now())
+          .lastWhere((entry) => entry.title == '水');
+      expect(water.detail, '250 ml');
+      expect(water.tags, isEmpty, reason: 'no 0 kcal, no second 水');
+    });
+
     test('a finished workout shows up on the timeline with its record', () {
       final store = AppStore(clock: clock.now, isOnboarded: true)
         ..startWorkout();

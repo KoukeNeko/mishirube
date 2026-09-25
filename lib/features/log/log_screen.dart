@@ -453,8 +453,10 @@ class _TimelineContent extends StatelessWidget {
           entry.title,
           style: AppTextStyles.itemTitle.copyWith(fontSize: 17),
         ),
-        const SizedBox(height: AppSpacing.xxs),
-        Text(entry.detail, style: AppTextStyles.caption),
+        if (entry.detail.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.xxs),
+          Text(entry.detail, style: AppTextStyles.caption),
+        ],
         if (entry.tags.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.sm),
           TagWrap(labels: entry.tags),

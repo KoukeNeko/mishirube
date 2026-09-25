@@ -399,15 +399,29 @@ class MealTimelineSource extends TimelineSource {
     ))
       (
         eatenAt,
-        TimelineEntry(
-          timeLabel: meal.timeLabel,
-          at: eatenAt,
-          recordId: meal.id,
-          category: RecordCategory.nutrition,
-          title: meal.name,
-          detail: meal.dishes.map((dish) => dish.name).join('、'),
-          tags: ['${formatKcalOrDash(meal.kcal)} kcal', meal.qualityTag],
-        ),
+        // Water is how much of it: its 0 kcal and its own name as a tag
+        // would say nothing.
+        meal.isWater
+            ? TimelineEntry(
+                timeLabel: meal.timeLabel,
+                at: eatenAt,
+                recordId: meal.id,
+                category: RecordCategory.nutrition,
+                title: meal.name,
+                detail: switch (meal.millilitres) {
+                  final millilitres? => '$millilitres ml',
+                  null => '',
+                },
+              )
+            : TimelineEntry(
+                timeLabel: meal.timeLabel,
+                at: eatenAt,
+                recordId: meal.id,
+                category: RecordCategory.nutrition,
+                title: meal.name,
+                detail: meal.dishes.map((dish) => dish.name).join('、'),
+                tags: ['${formatKcalOrDash(meal.kcal)} kcal', meal.qualityTag],
+              ),
       ),
   ];
 
