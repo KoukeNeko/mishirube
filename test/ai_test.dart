@@ -20,6 +20,7 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/label_text.dart';
 import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/me/ai_draft_parts.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
@@ -1147,6 +1148,10 @@ void main() {
     expect(cloud.asked, ['早餐 蛋餅加大杯冰奶茶']);
     expect(store.todayMeals, hasLength(before), reason: 'a draft logs nothing');
     expect(find.text('蛋餅'), findsOneWidget);
+    expect(
+      find.widgetWithText(DraftAttribution, 'Ollama Cloud / fake-1'),
+      findsOneWidget,
+    );
 
     await tester.drag(find.text('冰奶茶'), const Offset(-300, 0));
     await tester.pumpAndSettle();
@@ -1159,6 +1164,22 @@ void main() {
     expect(store.todayMeals, hasLength(before + 1));
     expect(store.todayMeals.last.name, '蛋餅（一份）');
     await disposeTree(tester);
+  });
+
+  test('a draft names its provider, and the model when there is a choice', () {
+    expect(
+      aiLabel(AiProviderKind.ollamaCloud, 'gemma4:31b'),
+      'Ollama Cloud / gemma4:31b',
+    );
+    expect(
+      aiLabel(AiProviderKind.appleOnDevice, 'on-device'),
+      'Apple Intelligence',
+    );
+    expect(
+      aiLabel(AiProviderKind.microsoftCopilot, 'Microsoft 365 Copilot'),
+      'Microsoft 365 Copilot',
+    );
+    expect(aiLabel(AiProviderKind.anthropic, ''), 'Anthropic');
   });
 
   group('a workout the rules cannot read', () {
@@ -1219,7 +1240,7 @@ void main() {
     Future<void> read(WidgetTester tester, String text) async {
       await tester.enterText(find.byType(TextField), text);
       await tester.pump();
-      await tester.tap(find.text('產生'));
+      await tester.tap(find.text('產生草稿'));
       await tester.pumpAndSettle();
     }
 
@@ -1234,7 +1255,10 @@ void main() {
       expect(apple.workouts, ['先深蹲五組五下一百公斤，再看狀況']);
       expect(find.text('槓鈴深蹲'), findsOneWidget);
       expect(find.text('5 組 × 5 下 · 100 kg'), findsOneWidget);
-      expect(find.text('Apple Intelligence 判讀'), findsOneWidget);
+      expect(
+        find.widgetWithText(DraftAttribution, 'Apple Intelligence'),
+        findsOneWidget,
+      );
       await disposeTree(tester);
     });
 
@@ -1245,7 +1269,7 @@ void main() {
 
       expect(apple.workouts, isEmpty);
       expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
-      expect(find.text('Apple Intelligence 判讀'), findsNothing);
+      expect(find.byType(DraftAttribution), findsNothing);
       await disposeTree(tester);
     });
 

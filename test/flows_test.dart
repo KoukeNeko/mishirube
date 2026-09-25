@@ -1096,7 +1096,7 @@ void main() {
       '1. 槓鈴深蹲 4×8 60kg\n2. 不存在的動作名稱 3x5',
     );
     await tester.pump();
-    await _tapText(tester, '產生');
+    await _tapText(tester, '產生草稿');
     expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
     expect(find.text('找不到這個動作'), findsOneWidget);
 

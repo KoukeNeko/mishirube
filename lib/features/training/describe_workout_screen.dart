@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
-import '../../app/theme.dart';
 import '../../backend/engines/workout_text.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
+import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
 import 'active_workout_screen.dart';
 import 'new_routine_screen.dart';
@@ -34,8 +34,9 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
 
   bool _isReading = false;
 
-  /// Whether the AI read [_draft] rather than the rules.
-  bool _isByAi = false;
+  /// The AI that read [_draft], `Ollama Cloud / gemma4:31b`; null when the
+  /// rules read it.
+  String? _readBy;
 
   /// Why the AI could not read it, when the rules' reading is shown
   /// instead.
@@ -66,11 +67,11 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     final byRules = store.draftWorkout(text);
     void show(
       List<(WorkoutLine, PlannedExercise?)> draft, {
-      bool isByAi = false,
+      String? readBy,
       AiFailure? failure,
     }) => setState(() {
       _draft = draft;
-      _isByAi = isByAi;
+      _readBy = readBy;
       _failure = failure;
       _isReading = false;
     });
@@ -83,13 +84,18 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
       _isReading = true;
       _failure = null;
     });
+    // Named as it is asked, so a setting changed meanwhile does not rename
+    // what already answered.
+    final readBy = currentAiLabel(store);
     try {
       final byAi = await store.draftWorkoutWithAi(text);
       if (!mounted) return;
       // The AI's reading unless it found fewer exercises than the rules.
       int found(List<(WorkoutLine, PlannedExercise?)> draft) =>
           draft.where((entry) => entry.$2 != null).length;
-      found(byAi) >= found(byRules) ? show(byAi, isByAi: true) : show(byRules);
+      found(byAi) >= found(byRules)
+          ? show(byAi, readBy: readBy)
+          : show(byRules);
     } on AiException catch (error) {
       if (!mounted) return;
       if (error.failure == AiFailure.needsConsent) {
@@ -141,11 +147,14 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     final draft = _draft;
     final planned = _planned;
     return DetailPage(
-      appBar: const PageAppBar(title: '一句話'),
+      appBar: PageAppBar(
+        title: '一句話',
+        subtitle: currentAiLabel(AppStoreScope.of(context)),
+      ),
       footer: draft == null
-          ? PrimaryButton(
-              label: _isReading ? '產生中…' : '產生',
-              onPressed: _isReading || _text.text.trim().isEmpty ? null : _read,
+          ? DraftButton(
+              isDrafting: _isReading,
+              onPressed: _text.text.trim().isEmpty ? null : _read,
             )
           : ButtonPair(
               secondary: SecondaryButton(
@@ -160,20 +169,14 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
       children: [
         if (draft == null)
           Gutter(
-            child: AppTextField(
+            child: DescribeField(
               controller: _text,
               hint: '例如：\n槓鈴深蹲 4×8 60kg\n臥推 3 組 10 下 40 公斤\n引體向上 3x8',
-              maxLines: 10,
             ),
           )
         else ...[
           if (_failure case final failure?)
-            Gutter(
-              child: InfoBanner(
-                tone: CardTone.warning,
-                message: aiFailureMessage(failure),
-              ),
-            ),
+            Gutter(child: AiFailureBanner(failure: failure)),
           if (draft.isEmpty)
             Gutter(
               child: const EmptyStateCard(
@@ -200,21 +203,10 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
                 ),
               ),
             ),
-          if (_isByAi)
-            if (AppStoreScope.of(context).aiProvider case final provider?)
-              Gutter(
-                child: Text(
-                  '${provider.label} 判讀',
-                  style: AppTextStyles.caption,
-                ),
-              ),
+          if (_readBy case final readBy?)
+            Gutter(child: DraftAttribution(label: readBy)),
           Gutter(
-            child: Center(
-              child: LinkText(
-                label: '重新輸入',
-                onTap: () => setState(() => _draft = null),
-              ),
-            ),
+            child: RewriteLink(onTap: () => setState(() => _draft = null)),
           ),
         ],
       ],

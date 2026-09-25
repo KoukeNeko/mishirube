@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
 import 'nutrition_view_model.dart';
 
@@ -155,18 +156,14 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: widget._isPhoto ? '照片估算' : '用一句話記錄',
-        subtitle: store.aiProvider?.label ?? 'AI 未啟用',
+        subtitle: currentAiLabel(store),
       ),
       footer: draft == null
-          ? PrimaryButton(
-              label: _isDrafting
-                  ? '產生中…'
-                  : widget.photoPath != null
-                  ? '重試'
-                  : '產生草稿',
+          ? DraftButton(
+              isDrafting: _isDrafting,
+              label: widget.photoPath != null ? '重試' : '產生草稿',
               onPressed:
-                  _isDrafting ||
-                      (widget.photoPath == null && _text.text.trim().isEmpty) ||
+                  (widget.photoPath == null && _text.text.trim().isEmpty) ||
                       store.aiProvider == null
                   ? null
                   : _generate,
@@ -205,19 +202,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
           ),
         if (!widget._isPhoto)
           Gutter(
-            child: AppTextField(
-              controller: _text,
-              hint: '例如：早餐 蛋餅加大杯冰奶茶',
-              maxLines: 3,
-            ),
+            child: DescribeField(controller: _text, hint: '例如：早餐 蛋餅加大杯冰奶茶'),
           ),
         if (_failure case final failure?)
-          Gutter(
-            child: InfoBanner(
-              tone: CardTone.warning,
-              message: aiFailureMessage(failure),
-            ),
-          ),
+          Gutter(child: AiFailureBanner(failure: failure)),
         if (draft != null) ...[
           if (draft.warnings.isNotEmpty)
             Gutter(
@@ -244,17 +232,13 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               ),
             ),
           Gutter(
-            child: Text(
-              '${draft.provider.label}（${draft.model}）估計',
-              style: AppTextStyles.caption,
+            child: DraftAttribution(
+              label: aiLabel(draft.provider, draft.model),
             ),
           ),
           if (!widget._isPhoto)
             Gutter(
-              child: LinkText(
-                label: '重新產生',
-                onTap: () => setState(() => _draft = null),
-              ),
+              child: RewriteLink(onTap: () => setState(() => _draft = null)),
             ),
         ],
       ],
