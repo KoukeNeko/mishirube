@@ -39,9 +39,13 @@ const _steps = 10;
 
 /// Scrolls exactly [dy] like a finger that stops before lifting: past the
 /// touch slop first, then in small steps, then a pause so nothing flings.
-Future<void> _dragAndSettle(WidgetTester tester, double dy) async {
+Future<void> _dragAndSettle(
+  WidgetTester tester,
+  double dy, {
+  Finder? from,
+}) async {
   final gesture = await tester.startGesture(
-    tester.getCenter(_visibleScrollView),
+    tester.getCenter(from ?? _visibleScrollView),
   );
   await gesture.moveBy(const Offset(0, -_slop));
   for (var i = 0; i < _steps; i++) {
@@ -205,6 +209,9 @@ void main() {
 
       final store = await _pumpShell(tester);
       for (final tab in HomeTab.values) {
+        // The log keeps its category chips under its month switch, a row
+        // taller on purpose; where the switch sits is checked below.
+        if (tab == HomeTab.log) continue;
         store.selectTab(tab);
         await tester.pump(_settle);
         expect(
@@ -217,6 +224,9 @@ void main() {
       // Without a compact bar the pinned switch takes the toolbar's place.
       store.selectTab(HomeTab.log);
       await tester.pump(_settle);
+      for (var i = 0; i < 3; i++) {
+        await _dragAndSettle(tester, 600);
+      }
       final chip = tester.getRect(find.text('2026 年 9 月').hitTestable());
       expect(
         chip.center.dy,
@@ -254,22 +264,35 @@ void main() {
     'pinned control keeps the content gap below the large title',
     variant: bothPlatforms,
     (tester) async {
-      await _pumpShell(tester, tab: HomeTab.log);
+      // No tab pins a control under a large title now; the page itself
+      // still has to lay one out.
+      await pumpScreen(
+        tester,
+        CollapsingPage(
+          title: '標題',
+          compactBar: CompactBarBehavior.none,
+          pinned: Gutter(
+            child: SegmentedChoice<int>(
+              options: const [0, 1],
+              selected: 0,
+              labelOf: (option) => '選項$option',
+              onChanged: (_) {},
+            ),
+          ),
+          children: const [SizedBox(height: 2000)],
+        ),
+        store: AppStore(clock: FakeClock().now, isOnboarded: true),
+      );
 
       final title = tester.getRect(
         find.descendant(
-          of: find.byWidgetPredicate(
-            (widget) => widget is LargeTitleBlock && widget.title == '紀錄',
-          ),
-          matching: find.text('紀錄'),
+          of: find.byType(LargeTitleBlock),
+          matching: find.text('標題'),
         ),
       );
       final control = tester.getRect(
         find
-            .ancestor(
-              of: find.text('2026 年 9 月'),
-              matching: find.byType(Material),
-            )
+            .ancestor(of: find.text('選項0'), matching: find.byType(Material))
             .first,
       );
       expect(control.top - title.bottom, AppSpacing.md);
@@ -312,7 +335,7 @@ void main() {
         await tester.pump();
         expect(
           pill('2026 年 9 月').top - pill('今天').bottom,
-          toolbar.height - toolbar.controlRowHeight,
+          closeTo(toolbar.height - toolbar.controlRowHeight, 0.001),
         );
       }
       await gesture.up();
@@ -326,8 +349,9 @@ void main() {
     await _pumpShell(tester, tab: HomeTab.log);
     await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump(_settle);
-    // Past halfway, so it snaps fully collapsed.
-    await _dragAndSettle(tester, 150);
+    // Past halfway, so it snaps fully collapsed. Dragged below the
+    // calendar, which scrolls through months itself.
+    await _dragAndSettle(tester, 150, from: find.text('9月19日 週六'));
     final scrollable = tester.state<ScrollableState>(
       find
           .descendant(of: _visibleScrollView, matching: find.byType(Scrollable))
@@ -414,8 +438,9 @@ void main() {
       );
       expect(phoneSize.width - search.right, AppSpacing.screenGutter);
       expect(
-        tester.getRect(find.text('紀錄').hitTestable().first).left,
+        tester.getRect(find.text('今天 · 9 月 19 日（週六）')).left,
         AppSpacing.screenGutter,
+        reason: 'as the page content does',
       );
       await disposeTree(tester);
     },

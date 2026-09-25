@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -185,16 +186,26 @@ void main() {
     await tester.pump();
 
     final visibleList = find.byType(CustomScrollView).hitTestable().first;
-    final listPadding = tester
-        .widget<SliverPadding>(
-          // The page's own list padding comes first; the chip row's inner
-          // ListView has one too.
-          find
-              .descendant(of: visibleList, matching: find.byType(SliverPadding))
-              .first,
+    // The page's own list padding, not the pinned chip row's.
+    final chipPadding = find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(SliverPadding),
         )
-        .padding
-        .resolve(TextDirection.ltr);
+        .evaluate()
+        .toSet();
+    final listPadding =
+        (find
+                    .descendant(
+                      of: visibleList,
+                      matching: find.byType(SliverPadding),
+                    )
+                    .evaluate()
+                    .firstWhere((element) => !chipPadding.contains(element))
+                    .widget
+                as SliverPadding)
+            .padding
+            .resolve(TextDirection.ltr);
     expect(listPadding.left, 0);
     expect(listPadding.right, 0);
 
@@ -224,16 +235,18 @@ void main() {
     await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump();
 
-    final weekday = tester.getRect(find.text('二').hitTestable());
+    // The weekday row, then the month's name, then its first week: no
+    // inset of the page's pushes the scrolling weeks down.
+    final calendar = tester.getRect(find.byType(MonthCalendar));
     final firstDay = tester.getRect(
       find
           .ancestor(
             of: find.text('1').hitTestable(),
-            matching: find.byType(Material),
+            matching: find.byType(GestureDetector),
           )
           .first,
     );
-    expect(firstDay.top - weekday.bottom, AppSpacing.xs);
+    expect(firstDay.top - calendar.top, 24 + 36);
     await disposeTree(tester);
   });
 }

@@ -53,6 +53,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ScreenAwake") {
       ScreenAwake.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "SystemCalendar") {
+      SystemCalendar.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
       WindowControls.register(with: registrar.messenger())
     }
@@ -915,6 +918,23 @@ enum ScreenAwake {
       }
       UIApplication.shared.isIdleTimerDisabled = isOn
       result(nil)
+    }
+  }
+}
+
+/// How the user's calendar is set up (`lib/shared/system_calendar.dart`):
+/// the day a week starts on, as Settings has it.
+enum SystemCalendar {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/system_calendar", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "firstWeekday" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      // 1 is Sunday, as Foundation counts.
+      result(Calendar.autoupdatingCurrent.firstWeekday)
     }
   }
 }

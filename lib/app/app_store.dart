@@ -21,6 +21,7 @@ import '../backend/seed/demo_content.dart';
 import '../backend/seed/seed.dart';
 import '../backend/storage/database.dart';
 import '../domain/domain.dart';
+import '../shared/system_calendar.dart';
 
 export '../backend/application/catalog_service.dart' show TrackingChangeRefused;
 export '../backend/application/provenance_service.dart'
@@ -892,6 +893,19 @@ class AppStore extends ChangeNotifier {
 
   /// The provider drafts come from, or null until one is chosen.
   AiProviderKind? get aiProvider => _ai.provider;
+
+  /// The weekday a calendar's week starts on: the device's setting once
+  /// read, Monday until then.
+  int get firstWeekday => _firstWeekday;
+  int _firstWeekday = DateTime.monday;
+
+  /// Reads the day a week starts on from the device's settings.
+  Future<void> refreshFirstWeekday() async {
+    final day = await systemFirstWeekday();
+    if (day == null || day == _firstWeekday) return;
+    _firstWeekday = day;
+    notifyListeners();
+  }
 
   /// Uses Apple Intelligence without asking when it is on and no other
   /// provider was chosen.

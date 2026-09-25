@@ -35,7 +35,9 @@ class CollapsingPage extends StatelessWidget {
     this.compactBar = CompactBarBehavior.pinned,
   });
 
-  final String title;
+  /// Null for a page whose tab already names it: no large title, only
+  /// the toolbar and what is pinned under it.
+  final String? title;
   final String? subtitle;
 
   /// Back/close control at the leading edge of the toolbar.
@@ -82,16 +84,22 @@ class CollapsingPage extends StatelessWidget {
                   isBar: isBar,
                 ),
         );
-        final largeHeight = measureLargeTitleHeight(
-          context,
-          title: title,
-          subtitle: subtitle,
-          maxWidth:
-              constraints.maxWidth -
-              contentColumnInsets(context, constraints.maxWidth).horizontal -
-              AppSpacing.screenGutter * 2,
-          bottomPadding: largeBottomPadding,
-        );
+        final title = this.title;
+        final largeHeight = title == null
+            ? 0.0
+            : measureLargeTitleHeight(
+                context,
+                title: title,
+                subtitle: subtitle,
+                maxWidth:
+                    constraints.maxWidth -
+                    contentColumnInsets(
+                      context,
+                      constraints.maxWidth,
+                    ).horizontal -
+                    AppSpacing.screenGutter * 2,
+                bottomPadding: largeBottomPadding,
+              );
         return TweenAnimationBuilder<double>(
           tween: Tween(end: shouldHide ? 1 : 0),
           duration: chromeDuration(context, _autoHideDuration),
@@ -101,17 +109,21 @@ class CollapsingPage extends StatelessWidget {
               toolbar: toolbar,
               topInset: media.padding.top,
               largeHeight: largeHeight,
-              large: LargeTitleBlock(
-                title: title,
-                subtitle: subtitle,
-                bottomPadding: largeBottomPadding,
-              ),
-              compactTitle: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: compactTitleStyle,
-              ),
+              large: title == null
+                  ? const SizedBox.shrink()
+                  : LargeTitleBlock(
+                      title: title,
+                      subtitle: subtitle,
+                      bottomPadding: largeBottomPadding,
+                    ),
+              compactTitle: title == null
+                  ? const SizedBox.shrink()
+                  : Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: compactTitleStyle,
+                    ),
               leading: leading,
               actions: actions,
               pinned: pinned,

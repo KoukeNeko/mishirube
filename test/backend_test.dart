@@ -1942,11 +1942,9 @@ void main() {
       expect(yesterday.warning, '有未記錄的餐');
       expect(yesterday.entries.first.title, '精力 3 / 5');
 
-      expect(september.dots[16], [
-        RecordCategory.training,
-        RecordCategory.nutrition,
-      ]);
-      expect(september.dots.containsKey(7), isFalse);
+      final marks = store.backend.timeline.categoriesIn(DateTime(2026, 9));
+      expect(marks[16], [RecordCategory.training, RecordCategory.nutrition]);
+      expect(marks.containsKey(7), isFalse);
     });
 
     test('a finished workout shows up on the timeline with its record', () {

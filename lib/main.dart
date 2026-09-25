@@ -39,4 +39,5 @@ Future<void> main() async {
   // connected, so last night is there without asking.
   store.syncHealthInBackground();
   store.refreshOnDeviceAi();
+  store.refreshFirstWeekday();
 }

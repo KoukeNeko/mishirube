@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'month_calendar.dart';
 import 'log_view_model.dart';
@@ -51,7 +52,10 @@ class _LogScreenState extends State<LogScreen> {
 
   /// First day of the month being browsed.
   late DateTime _month;
-  late int _selectedDay;
+
+  /// The day the calendar lists; it may lie outside [_month] once the
+  /// calendar has been scrolled on.
+  late DateTime _selected;
 
   late final _log = LogViewModel(AppStoreScope.read(context).backend);
 
@@ -67,8 +71,11 @@ class _LogScreenState extends State<LogScreen> {
   void initState() {
     super.initState();
     _month = DateTime(_today.year, _today.month);
-    _selectedDay = _today.day;
+    _selected = _dayOf(_today);
   }
+
+  static DateTime _dayOf(DateTime time) =>
+      DateTime(time.year, time.month, time.day);
 
   bool get _isCurrentMonth =>
       _month.year == _today.year && _month.month == _today.month;
@@ -79,7 +86,7 @@ class _LogScreenState extends State<LogScreen> {
     setState(() {
       _month = month;
       // Today in the current month; otherwise the month's first day.
-      _selectedDay = _isCurrentMonth ? _today.day : 1;
+      _selected = _isCurrentMonth ? _dayOf(_today) : month;
     });
   }
 
@@ -96,57 +103,6 @@ class _LogScreenState extends State<LogScreen> {
     _log.setShowsCalendar(view == _LogView.calendar);
   }
 
-  /// Keys on the timeline's day headers, by day of the month, so the
-  /// calendar can open the timeline on its day.
-  final _dayKeys = <int, GlobalKey>{};
-  final _timelineStart = GlobalKey();
-
-  /// Switches to the timeline and scrolls to [day]. The list is built as
-  /// it scrolls, so a day far down is reached a screen at a time.
-  void _openOnTimeline(int day) {
-    _setView(_LogView.timeline);
-    var screens = 0;
-    // Taken once: the top of the list is gone once it has scrolled.
-    ScrollPosition? position;
-    void reveal(Duration _) {
-      if (!mounted) return;
-      final header = _dayKeys[day]?.currentContext;
-      if (header != null) {
-        // Below the pinned header and view control, not under them; once
-        // more a frame later, when the rows around it have been laid out
-        // and the list knows its real length.
-        Scrollable.ensureVisible(header, alignment: 0.3);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_dayKeys[day]?.currentContext case final settled?) {
-            Scrollable.ensureVisible(settled, alignment: 0.3);
-          }
-        });
-        return;
-      }
-      position ??= switch (_timelineStart.currentContext) {
-        final start? => Scrollable.of(start).position,
-        null => null,
-      };
-      final scroll = position;
-      // Stops at the end of the list or after enough screens: the day may
-      // have no records under the current filter.
-      if (scroll == null ||
-          scroll.pixels >= scroll.maxScrollExtent ||
-          screens++ > 50) {
-        return;
-      }
-      scroll.jumpTo(
-        (scroll.pixels + scroll.viewportDimension * 0.8).clamp(
-          0,
-          scroll.maxScrollExtent,
-        ),
-      );
-      WidgetsBinding.instance.addPostFrameCallback(reveal);
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback(reveal);
-  }
-
   bool _matchesQuery(TimelineEntry entry) =>
       _query.isEmpty ||
       [
@@ -158,7 +114,7 @@ class _LogScreenState extends State<LogScreen> {
   void _goToToday() {
     setState(() {
       _month = DateTime(_today.year, _today.month);
-      _selectedDay = _today.day;
+      _selected = _dayOf(_today);
     });
   }
 
@@ -185,11 +141,25 @@ class _LogScreenState extends State<LogScreen> {
       ListenableBuilder(listenable: _log, builder: (context, _) => _page());
 
   Widget _page() {
-    final records = _log.month(_month);
     final isTimeline = _view == _LogView.timeline;
     return CollapsingPage(
-      title: '紀錄',
-      compactBar: CompactBarBehavior.none,
+      // The tab names the page. The calendar reads as Apple Calendar's
+      // month view: its month pinned as a title, and the year to reach
+      // other months from.
+      title: null,
+      compactBar: isTimeline
+          ? CompactBarBehavior.none
+          : CompactBarBehavior.pinned,
+      leading: isTimeline
+          ? null
+          : Builder(
+              builder: (buttonContext) => HeaderAction(
+                icon: Icons.chevron_left,
+                label: '${_month.year}年',
+                semanticLabel: '選擇月份，目前 ${_month.year}年${_month.month}月',
+                onTap: () => _pickMonth(buttonContext),
+              ),
+            ),
       actions: [
         SearchableHeaderActions(
           hint: '搜尋紀錄',
@@ -213,45 +183,92 @@ class _LogScreenState extends State<LogScreen> {
           ],
         ),
       ],
-      // The month is what both views show, so it stays pinned; the
-      // category chips only narrow the list and scroll away with it.
-      pinned: Gutter(
-        child: Row(
-          children: [
-            _MonthStep(
-              icon: Icons.chevron_left,
-              semanticLabel: '上個月',
-              onTap: _isEarliestMonth
-                  ? null
-                  : () => _setMonth(DateTime(_month.year, _month.month - 1)),
-            ),
-            Expanded(
-              // Shrinks rather than overflows at large text sizes.
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Builder(
-                  builder: (buttonContext) => HeaderAction(
-                    icon: Icons.calendar_month_outlined,
-                    label: '${_month.year} 年 ${_month.month} 月',
-                    semanticLabel: '選擇月份，目前 ${_month.year} 年 ${_month.month} 月',
-                    onTap: () => _pickMonth(buttonContext),
-                  ),
+      // The timeline's month and its category chips stay at the top as
+      // the list scrolls, as does the calendar's month.
+      pinned: !isTimeline
+          ? Gutter(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${_month.month}月',
+                  maxLines: 1,
+                  style: largeTitleStyle,
                 ),
               ),
+            )
+          : Column(
+              children: [
+                SizedBox(
+                  // The switch takes the toolbar's row once it has
+                  // scrolled away, centred in it as the toolbar's buttons.
+                  height: ToolbarMetrics.of(context).controlRowHeight,
+                  child: Gutter(
+                    child: Row(
+                      children: [
+                        _MonthStep(
+                          icon: Icons.chevron_left,
+                          semanticLabel: '上個月',
+                          onTap: _isEarliestMonth
+                              ? null
+                              : () => _setMonth(
+                                  DateTime(_month.year, _month.month - 1),
+                                ),
+                        ),
+                        Expanded(
+                          // Shrinks rather than overflows at large text sizes.
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Builder(
+                              builder: (buttonContext) => HeaderAction(
+                                icon: Icons.calendar_month_outlined,
+                                label: '${_month.year} 年 ${_month.month} 月',
+                                semanticLabel:
+                                    '選擇月份，目前 ${_month.year} 年 ${_month.month} 月',
+                                onTap: () => _pickMonth(buttonContext),
+                              ),
+                            ),
+                          ),
+                        ),
+                        _MonthStep(
+                          icon: Icons.chevron_right,
+                          semanticLabel: '下個月',
+                          onTap: _isCurrentMonth
+                              ? null
+                              : () => _setMonth(
+                                  DateTime(_month.year, _month.month + 1),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                FilterChipBar<_LogFilter>(
+                  options: _LogFilter.values,
+                  selected: _filter,
+                  labelOf: (filter) => filter.label,
+                  iconOf: (filter) => filter.icon,
+                  colorOf: (filter) => filter.color,
+                  onSelected: (filter) => setState(() => _filter = filter),
+                ),
+              ],
             ),
-            _MonthStep(
-              icon: Icons.chevron_right,
-              semanticLabel: '下個月',
-              onTap: _isCurrentMonth
-                  ? null
-                  : () => _setMonth(DateTime(_month.year, _month.month + 1)),
-            ),
-          ],
-        ),
-      ),
+      // The chips' row, then the switch's, as tall as the toolbar's row.
+      pinnedHeight: isTimeline
+          ? measurePinnedControlHeight(context) +
+                AppSpacing.xs +
+                ToolbarMetrics.of(context).controlRowHeight
+          : measurePinnedControlHeight(context) -
+                pillHeight(context) +
+                measureTextHeight(
+                  context,
+                  '12月',
+                  largeTitleStyle,
+                  maxWidth: double.infinity,
+                ),
       children: _view == _LogView.timeline
-          ? _timeline(records)
-          : _calendar(records),
+          ? _timeline(_log.month(_month))
+          : _calendar(),
     );
   }
 
@@ -263,15 +280,6 @@ class _LogScreenState extends State<LogScreen> {
           (day, entries),
     ];
     return [
-      FilterChipBar<_LogFilter>(
-        key: _timelineStart,
-        options: _LogFilter.values,
-        selected: _filter,
-        labelOf: (filter) => filter.label,
-        iconOf: (filter) => filter.icon,
-        colorOf: (filter) => filter.color,
-        onSelected: (filter) => setState(() => _filter = filter),
-      ),
       if (records.days.isEmpty)
         Gutter(
           child: EmptyStateCard(
@@ -283,12 +291,7 @@ class _LogScreenState extends State<LogScreen> {
         Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
       else
         for (final (day, entries) in days) ...[
-          Gutter(
-            key: entries.isEmpty
-                ? null
-                : _dayKeys.putIfAbsent(entries.first.at.day, GlobalKey.new),
-            child: _DayHeader(day: day),
-          ),
+          Gutter(child: _DayHeader(day: day)),
           for (final entry in entries)
             Gutter(
               child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
@@ -297,30 +300,27 @@ class _LogScreenState extends State<LogScreen> {
     ];
   }
 
-  List<Widget> _calendar(MonthRecords records) {
-    final entries = [
-      for (final day in records.days)
-        for (final entry in day.entries)
-          if (entry.at.day == _selectedDay) entry,
-    ];
+  List<Widget> _calendar() {
+    final entries = _log.day(_selected);
     return [
       Gutter(
         child: MonthCalendar(
           month: _month,
-          selectedDay: _selectedDay,
+          earliest: _log.earliestMonth,
+          selected: _selected,
           today: _today,
-          dotsByDay: records.dots,
-          onSelect: (day) => setState(() => _selectedDay = day),
+          firstWeekday: AppStoreScope.of(context).firstWeekday,
+          categoriesOf: _log.categoriesIn,
+          onSelect: (day) => setState(() => _selected = day),
+          // Scrolled by hand: the month shown follows, the day listed
+          // stays until another is tapped.
+          onMonth: (month) => setState(() => _month = month),
         ),
       ),
       Gutter(child: const _CalendarLegend()),
       Gutter(
         child: SectionLabel(
-          '${_month.month} 月 $_selectedDay 日',
-          trailing: LinkText(
-            label: '在時間軸開啟',
-            onTap: () => _openOnTimeline(_selectedDay),
-          ),
+          '${_selected.month}月${_selected.day}日 週${weekdayLabel(_selected)}',
         ),
       ),
       if (entries.isEmpty)

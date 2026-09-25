@@ -12,7 +12,9 @@ const _visibleRows = 5;
 const _popoverDuration = Duration(milliseconds: 220);
 
 /// Year and month wheels in a glass popover that hangs from [anchor] (the
-/// button that opened it), like a UIKit date picker in a popover. Every
+/// button that opened it), like a UIKit date picker in a popover: from
+/// its left edge under a button on the left of the screen, its right edge
+/// otherwise. Every
 /// settled change is reported through [onChanged]; tapping outside closes
 /// it.
 Future<void> showMonthPopover(
@@ -31,11 +33,13 @@ Future<void> showMonthPopover(
     transitionDuration: chromeDuration(context, _popoverDuration),
     pageBuilder: (context, _, _) {
       final screenWidth = MediaQuery.sizeOf(context).width;
+      final fromLeft = _hangsFromLeft(anchor, screenWidth);
       return Stack(
         children: [
           Positioned(
             top: anchor.bottom + _anchorGap,
-            right: screenWidth - anchor.right,
+            left: fromLeft ? anchor.left : null,
+            right: fromLeft ? null : screenWidth - anchor.right,
             width: _popoverWidth,
             child: _MonthWheels(
               selected: selected,
@@ -62,7 +66,12 @@ Future<void> showMonthPopover(
             : ScaleTransition(
                 scale: Tween(begin: 0.9, end: 1.0).animate(curved),
                 alignment: Alignment(
-                  anchor.right / size.width * 2 - 1,
+                  (_hangsFromLeft(anchor, size.width)
+                              ? anchor.left
+                              : anchor.right) /
+                          size.width *
+                          2 -
+                      1,
                   (anchor.bottom + _anchorGap) / size.height * 2 - 1,
                 ),
                 child: child,
@@ -71,6 +80,9 @@ Future<void> showMonthPopover(
     },
   );
 }
+
+bool _hangsFromLeft(Rect anchor, double screenWidth) =>
+    anchor.center.dx < screenWidth / 2;
 
 class _MonthWheels extends StatefulWidget {
   const _MonthWheels({

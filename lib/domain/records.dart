@@ -68,9 +68,4 @@ class MonthRecords {
   /// Per day of the month, one short summary per recorded category, in
   /// [RecordCategory] order.
   final Map<int, Map<RecordCategory, String>> summaries;
-
-  Map<int, List<RecordCategory>> get dots => {
-    for (final MapEntry(key: day, value: byCategory) in summaries.entries)
-      day: byCategory.keys.toList(),
-  };
 }

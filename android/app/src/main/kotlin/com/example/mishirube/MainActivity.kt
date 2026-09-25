@@ -37,6 +37,16 @@ class MainActivity : FlutterFragmentActivity() {
         val rest = RestNoticeBridge(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/rest_notice")
             .setMethodCallHandler(rest::handle)
+        // The day a week starts on, as the user's region has it
+        // (lib/shared/system_calendar.dart); 1 is Sunday.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/system_calendar")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "firstWeekday") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                result.success(java.util.Calendar.getInstance().firstDayOfWeek)
+            }
         // Keeps the screen on while a workout page is open
         // (lib/shared/screen_awake.dart).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "mishirube/screen_awake")

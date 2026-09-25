@@ -8,6 +8,24 @@ class LogViewModel extends ViewModel {
   /// Records for the month starting [month].
   MonthRecords month(DateTime month) => backend.timeline.month(month);
 
+  /// Every record of [day], newest first.
+  List<TimelineEntry> day(DateTime day) =>
+      backend.timeline.day(day).reversed.toList();
+
+  /// The kinds of record on each day of [month], kept until anything is
+  /// written: a calendar scrolled through months asks for each again as
+  /// it comes into view.
+  Map<int, List<RecordCategory>> categoriesIn(DateTime month) =>
+      _categories[month] ??= backend.timeline.categoriesIn(month);
+
+  final _categories = <DateTime, Map<int, List<RecordCategory>>>{};
+
+  @override
+  void notifyListeners() {
+    _categories.clear();
+    super.notifyListeners();
+  }
+
   /// The first month the log can go back to.
   DateTime get earliestMonth {
     final today = now();

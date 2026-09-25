@@ -1390,7 +1390,8 @@ void main() {
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('騎自行車').first);
+    // Centred first, clear of the pinned month switch and chips.
+    await _tapText(tester, '騎自行車');
     await tester.pumpAndSettle();
     expect(find.text('平均速度'), findsOneWidget, reason: 'a ride reads as speed');
 

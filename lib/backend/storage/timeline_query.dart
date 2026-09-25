@@ -35,6 +35,26 @@ class TimelineQuery {
     return [for (final (_, entry) in rows) entry];
   }
 
+  /// The kinds of record on each day of [month] that has any, for marking
+  /// a calendar: the summaries alone, without reading every entry.
+  Map<int, List<RecordCategory>> categoriesIn(DateTime month) {
+    final start = DateTime(month.year, month.month);
+    final end = DateTime(month.year, month.month + 1);
+    final byDay = <int, Set<RecordCategory>>{};
+    for (final source in sources) {
+      for (final day in source.summariesIn(start, end).keys) {
+        (byDay[day] ??= {}).add(source.category);
+      }
+    }
+    return {
+      for (final MapEntry(key: day, value: categories) in byDay.entries)
+        day: [
+          for (final category in RecordCategory.values)
+            if (categories.contains(category)) category,
+        ],
+    };
+  }
+
   MonthRecords month(DateTime month) {
     final start = DateTime(month.year, month.month);
     final end = DateTime(month.year, month.month + 1);
