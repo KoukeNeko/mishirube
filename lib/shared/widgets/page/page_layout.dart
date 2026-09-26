@@ -320,23 +320,43 @@ class SectionLabel extends StatelessWidget {
     }
     // The trailing control takes the label's own height, the space above
     // the text included, as its touch target instead of growing the row:
-    // every label then sits as far above its items as every other.
+    // every label then sits as far above its items as every other. Its
+    // text sits at the bottom of that height, on the label's baseline.
+    // Measured in the style the label is drawn in: the page's default
+    // merged under the overline, as [Text] does.
+    final inherited = DefaultTextStyle.of(context);
     final line = TextPainter(
-      text: TextSpan(text: text, style: AppTextStyles.overline),
+      text: TextSpan(
+        text: text,
+        style: inherited.style.merge(AppTextStyles.overline),
+      ),
       textScaler: MediaQuery.textScalerOf(context),
       textDirection: Directionality.of(context),
+      textHeightBehavior: inherited.textHeightBehavior,
     )..layout();
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.md),
-            child: label,
+    // The row keeps the label's height: a larger font beside it would
+    // otherwise hang its descender below and push the section down.
+    return SizedBox(
+      height: AppSpacing.md + line.height,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.md),
+              child: label,
+            ),
           ),
-        ),
-        SizedBox(height: AppSpacing.md + line.height, child: trailing),
-      ],
+          SizedBox(
+            height: AppSpacing.md + line.height,
+            child: Align(
+              alignment: AlignmentDirectional.bottomEnd,
+              child: trailing,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
