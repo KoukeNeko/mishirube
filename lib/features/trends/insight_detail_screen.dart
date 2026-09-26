@@ -79,7 +79,7 @@ class InsightDetailScreen extends StatelessWidget {
               labels: [
                 '${report.sessionCount} 次訓練皆有紀錄',
                 '重量與次數為手動輸入',
-                if (estimate != null) 'Epley 估計，非實測',
+                if (estimate != null) 'Epley 估計',
               ],
             ),
           ),

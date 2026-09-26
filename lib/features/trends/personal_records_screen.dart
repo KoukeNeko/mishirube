@@ -31,7 +31,7 @@ class PersonalRecordsScreen extends StatelessWidget {
           else ...[
             for (final bests in records)
               Gutter(child: _RecordRow(bests: bests)),
-            Gutter(child: const TagWrap(labels: ['Epley 估計，非實測'])),
+            Gutter(child: const TagWrap(labels: ['Epley 估計'])),
           ],
         ],
       );

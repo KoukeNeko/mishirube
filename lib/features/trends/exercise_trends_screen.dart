@@ -34,7 +34,7 @@ class ExerciseTrendsScreen extends StatelessWidget {
               Gutter(
                 child: _ExerciseCard(exercise: exercise, history: history),
               ),
-            Gutter(child: const TagWrap(labels: ['Epley 估計，非實測'])),
+            Gutter(child: const TagWrap(labels: ['Epley 估計'])),
           ],
         ],
       );

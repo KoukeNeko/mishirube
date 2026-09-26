@@ -318,7 +318,7 @@ class _EnergyCard extends StatelessWidget {
       warning: energy.isIntakeLikelyUnderlogged
           ? '估計的消耗低於靜止代謝，紀錄的攝取可能少於實際。'
           : null,
-      tag: '依紀錄估算，非實測',
+      tag: '依紀錄估算',
       onTap: onTap,
     );
   }

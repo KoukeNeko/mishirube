@@ -269,8 +269,9 @@ sentence is almost always better than rewording it.
    no banners restating how the page works, no gesture hints ("點一項
    可以…", "往左滑…"), no design rationale ("條件之間可以自由組合"),
    no "這裡會…" promises in empty states. A value that needs a qualifier
-   gets a short tag (`Epley 估計，非實測`, `依半衰期 5 小時推算`), not a
-   paragraph. Keep a warning to the risk and what to do about it, and
+   gets a short tag (`Epley 估計`, `依半衰期 5 小時推算`), not a
+   paragraph, and says it once: `估計` already means not measured, so
+   no `，非實測` after it. Keep a warning to the risk and what to do about it, and
    put a field's instructions in that field's dialog hint.
 3. **Privacy and storage are explained once, on the privacy page**
    (`lib/features/me/privacy_screen.dart`). Other screens do not repeat

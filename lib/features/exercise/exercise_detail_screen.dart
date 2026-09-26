@@ -352,7 +352,7 @@ class _HistoryCard extends StatelessWidget {
               ),
             ),
           const SizedBox(height: AppSpacing.sm),
-          const TagWrap(labels: ['Epley 估計，非實測', '近 90 天']),
+          const TagWrap(labels: ['Epley 估計', '近 90 天']),
         ],
       ),
     );
