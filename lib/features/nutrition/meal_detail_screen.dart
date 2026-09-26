@@ -226,11 +226,21 @@ class _Macros extends StatelessWidget {
           children: [
             for (final (label, color, grams, kcal) in minor)
               Expanded(
-                child: _MacroColumn(
-                  label: label,
-                  color: color,
-                  amount: '${formatAmount((grams ?? 0).toDouble())} g',
-                  kcal: kcal ?? 0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CategoryLabel(label: label, color: color),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: CategoryLabel.textInset,
+                      ),
+                      child: Text(
+                        '${formatAmount((grams ?? 0).toDouble())} g · '
+                        '${formatKcal(kcal ?? 0)} kcal',
+                        style: AppTextStyles.caption,
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],

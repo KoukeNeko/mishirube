@@ -2449,18 +2449,13 @@ void main() {
       reason: 'the figures line up with the name, not its dot',
     );
     expect(
-      tester.getTopLeft(find.text('10 kcal')).dx,
+      tester.getTopLeft(find.text('5 g · 10 kcal')).dx,
       tester.getTopLeft(find.text(MacroLabel.fibre).last).dx,
     );
     expect(find.text('360 kcal'), findsOneWidget);
     expect(find.text('140 kcal'), findsOneWidget);
     expect(find.text('252 kcal'), findsOneWidget);
-    expect(find.text('10 kcal'), findsOneWidget);
-    expect(
-      tester.widget<Text>(find.text('5 g')).style,
-      tester.widget<Text>(find.text('95 g')).style,
-      reason: 'the minor row reads at the size of the row above',
-    );
+    expect(find.text('5 g · 10 kcal'), findsOneWidget);
     for (final nutrient in [Nutrient.polyols, Nutrient.alcohol]) {
       expect(
         find.text(nutrient.label),
@@ -2469,7 +2464,7 @@ void main() {
       );
     }
     expect(
-      find.text('0 kcal'),
+      find.text('0 g · 0 kcal'),
       findsNWidgets(2),
       reason: 'none on record reads as none',
     );
@@ -2539,8 +2534,7 @@ void main() {
       MealDetailScreen(meal: store.backend.nutrition.mealById('beer')!),
       store: store,
     );
-    expect(find.text('13 g'), findsOneWidget);
-    expect(find.text('91 kcal'), findsOneWidget);
+    expect(find.text('13 g · 91 kcal'), findsOneWidget);
     await disposeTree(tester);
   });
 
