@@ -233,6 +233,9 @@ class NutritionService {
     return previous;
   }
 
+  /// The items of the meal [groupId] groups, in the order eaten.
+  List<MealEvent> mealGroup(String groupId) => _meals.inGroup(groupId);
+
   /// Meal [id] as it is now; null once it is deleted.
   MealEvent? mealById(String id) => _meals.byId(id);
 

@@ -1805,6 +1805,37 @@ void main() {
     },
   );
 
+  test('a meal of several items is their sum, main figures all or none', () {
+    MealEvent item(String id, {int? kcal, int? protein, double? alcohol}) =>
+        MealEvent(
+          id: id,
+          name: id,
+          timeLabel: '20:00',
+          qualityTag: '手動',
+          dishes: const [],
+          kcal: kcal,
+          proteinGrams: protein,
+          nutrients: {Nutrient.alcohol: ?alcohol},
+          groupId: 'g',
+        );
+    final total = mealTotal([
+      item('披薩', kcal: 800, protein: 30),
+      item('啤酒', kcal: 142, alcohol: 13),
+    ]);
+    expect(total.kcal, 942);
+    expect(
+      total.proteinGrams,
+      isNull,
+      reason: 'the beer gave none: a sum would say less than was eaten',
+    );
+    expect(
+      total.nutrients[Nutrient.alcohol],
+      13,
+      reason: 'what is known adds up; the pizza has none on record',
+    );
+    expect(total.name, '披薩、啤酒');
+  });
+
   group('nutrition targets', () {
     test('resting energy is Mifflin-St Jeor', () {
       // 70 kg, 175 cm, 30 years: 700 + 1093.75 - 150, +5 or -161.

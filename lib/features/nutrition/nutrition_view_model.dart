@@ -104,6 +104,10 @@ class NutritionViewModel extends ViewModel {
   void restoreMeals(List<MealEvent> meals) =>
       backend.nutrition.restoreMeals(meals.map((meal) => meal.id));
 
+  /// The items of the meal [groupId] groups, in the order eaten.
+  List<MealEvent> mealGroup(String groupId) =>
+      backend.nutrition.mealGroup(groupId);
+
   /// Meal [id] as it is now; null once it is deleted.
   MealEvent? mealById(String id) => backend.nutrition.mealById(id);
 

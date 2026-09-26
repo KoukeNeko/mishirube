@@ -10,6 +10,7 @@ import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
+import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_target_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -2515,14 +2516,29 @@ void main() {
     Navigator.of(tester.element(find.byType(MealDetailScreen))).pop();
     await tester.pumpAndSettle();
 
+    // The meal's own row opens to their sum, and takes it apart there.
     await Scrollable.ensureVisible(
-      tester.element(find.byTooltip('拆開這一餐')),
+      tester.element(find.text('蛋餅、冰奶茶')),
       alignment: 0.5,
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('拆開這一餐'));
+    await tester.tap(find.text('蛋餅、冰奶茶'));
+    await tester.pumpAndSettle();
+    final group = find.byType(MealGroupScreen);
+    expect(group, findsOneWidget);
+    expect(
+      find.descendant(of: group, matching: find.text('450 kcal')),
+      findsOneWidget,
+      reason: 'the items summed',
+    );
+    expect(
+      find.descendant(of: group, matching: find.text('2 項')),
+      findsOneWidget,
+    );
+    await _tapText(tester, '拆開這一餐');
     await tester.pump();
     expect(mealsOf(nutrition.mealsOn(today)), hasLength(2));
+    expect(find.byType(MealGroupScreen), findsNothing, reason: 'nothing left');
     await disposeTree(tester);
   });
 

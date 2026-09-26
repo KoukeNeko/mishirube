@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'meal_detail_screen.dart';
+import 'meal_group_screen.dart';
 import 'nutrition_target_screen.dart';
 import 'nutrition_view_model.dart';
 import 'split_dish_sheet.dart';
@@ -64,15 +65,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     setState(() => _merging = null);
     ToastScope.read(context).showUndo(
       '已合併 ${chosen.length} 筆',
-      onUndo: () => _nutrition.regroupMeals(previous),
-    );
-  }
-
-  /// Takes a meal apart into its items, undoably.
-  void _ungroup(List<MealEvent> items) {
-    final previous = _nutrition.ungroupMeals(items);
-    ToastScope.read(context).showUndo(
-      '已拆成 ${items.length} 筆',
       onUndo: () => _nutrition.regroupMeals(previous),
     );
   }
@@ -271,11 +263,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                           _toggle('${meal.single.id}/${dish.name}'),
                       onSplit: (dishIndex) => _split(meal.single, dishIndex),
                     )
-                  : _MealGroupCard(
-                      items: meal,
-                      onUngroup: () => _ungroup(meal),
-                      onRemove: _removeItem,
-                    ),
+                  : _MealGroupCard(items: meal, onRemove: _removeItem),
             ),
         if (water.isNotEmpty && merging == null) ...[
           Gutter(child: const SectionLabel('水')),
@@ -316,14 +304,9 @@ String _nameOf(List<MealEvent> meal) => meal.map((item) => item.name).join('、'
 /// A meal of several items: their sum at the top, then each item with
 /// its own figures, which open to edit and swipe away.
 class _MealGroupCard extends StatelessWidget {
-  const _MealGroupCard({
-    required this.items,
-    required this.onUngroup,
-    required this.onRemove,
-  });
+  const _MealGroupCard({required this.items, required this.onRemove});
 
   final List<MealEvent> items;
-  final VoidCallback onUngroup;
   final ValueChanged<MealEvent> onRemove;
 
   @override
@@ -331,43 +314,40 @@ class _MealGroupCard extends StatelessWidget {
     final first = items.first;
     return GroupedCard(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              const AccentBar(color: AppColors.nutrition),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(_nameOf(items), style: AppTextStyles.itemTitle),
-                    Text(
-                      [
-                        first.timeLabel,
-                        ?first.mealType?.label,
-                        '${items.length} 項',
-                      ].join(' · '),
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
+        // The meal opens to its sum, as a single meal's row does.
+        InkWell(
+          onTap: () => pushPage(context, MealGroupScreen(items: items)),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                const AccentBar(color: AppColors.nutrition),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_nameOf(items), style: AppTextStyles.itemTitle),
+                      Text(
+                        [
+                          first.timeLabel,
+                          ?first.mealType?.label,
+                          '${items.length} 項',
+                        ].join(' · '),
+                        style: AppTextStyles.caption,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              ValueWithUnit(
-                value: formatKcalOrDash(mealKcalOf(items)),
-                unit: 'kcal',
-                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              SquareIconButton(
-                icon: Icons.call_split,
-                tooltip: '拆開這一餐',
-                color: AppColors.nutrition,
-                size: 36,
-                onPressed: onUngroup,
-              ),
-            ],
+                const SizedBox(width: AppSpacing.sm),
+                ValueWithUnit(
+                  value: formatKcalOrDash(mealKcalOf(items)),
+                  unit: 'kcal',
+                  style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                ),
+                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+              ],
+            ),
           ),
         ),
         for (final item in items)

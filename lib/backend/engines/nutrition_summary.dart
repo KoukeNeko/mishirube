@@ -93,6 +93,47 @@ int? mealKcalOf(List<MealEvent> meal) {
   return meal.fold<int>(0, (sum, item) => sum + item.kcal!);
 }
 
+/// [items] as the one meal they were eaten as. Energy and the three
+/// macronutrients are their sum, or null when any item lacks the figure,
+/// so the meal is not shown as less than it was; fibre and the other
+/// nutrients add up what is known, since an item without alcohol or
+/// sugar alcohols on record usually has none (the nutrient list says
+/// where a total is only a floor: [summariseNutrients]).
+MealEvent mealTotal(List<MealEvent> items) {
+  int? sum(int? Function(MealEvent) figure) {
+    if (items.any((item) => figure(item) == null)) return null;
+    return items.fold<int>(0, (total, item) => total + figure(item)!);
+  }
+
+  final first = items.first;
+  final tags = {for (final item in items) item.qualityTag};
+  final fibres = [for (final item in items) ?item.fibreGrams];
+  final volumes = [for (final item in items) ?item.millilitres];
+  return MealEvent(
+    id: first.groupId ?? first.id,
+    name: items.map((item) => item.name).join('、'),
+    timeLabel: first.timeLabel,
+    qualityTag: tags.length == 1 ? tags.single : '',
+    dishes: const [],
+    kcal: mealKcalOf(items),
+    proteinGrams: sum((item) => item.proteinGrams),
+    carbGrams: sum((item) => item.carbGrams),
+    fatGrams: sum((item) => item.fatGrams),
+    fibreGrams: fibres.isEmpty ? null : fibres.reduce((a, b) => a + b),
+    nutrients: {
+      for (final total in summariseNutrients(items))
+        total.nutrient: total.amount,
+    },
+    millilitres: volumes.isEmpty ? null : volumes.reduce((a, b) => a + b),
+    kind: items.every((item) => item.kind == ConsumptionKind.beverage)
+        ? ConsumptionKind.beverage
+        : ConsumptionKind.food,
+    mealType: first.mealType,
+    isEstimated: items.any((item) => item.isEstimated),
+    groupId: first.groupId,
+  );
+}
+
 /// Energy a gram carries, by the Atwater factors labels use: 4 kcal for
 /// protein and for available carbohydrate, 9 for fat, 2 for fibre, 2.4
 /// for sugar alcohols (the EU's general figure; erythritol has almost

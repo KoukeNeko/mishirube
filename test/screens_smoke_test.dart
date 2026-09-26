@@ -36,6 +36,7 @@ import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
+import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -469,6 +470,30 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'meal': (
     (store) => MealDetailScreen(meal: store.todayMeals.last),
     _withLunch,
+  ),
+  'meal of several items': (
+    (store) {
+      final nutrition = store.backend.nutrition;
+      final items = [
+        for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+          nutrition.logMeal(
+            MealEvent(
+              id: name,
+              name: name,
+              timeLabel: '08:00',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: kcal,
+            ),
+            eatenAt: store.now(),
+          ),
+      ];
+      nutrition.groupMeals(items);
+      return MealGroupScreen(
+        items: nutrition.mealGroup(nutrition.mealById('蛋餅')!.groupId!),
+      );
+    },
+    _noSetup,
   ),
   'meal edit': (
     (store) => FoodEditScreen(meal: store.todayMeals.last),

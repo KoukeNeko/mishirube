@@ -178,6 +178,16 @@ class MealRepository {
       row['id']! as String,
   ];
 
+  /// The live items of group [groupId], in the order eaten.
+  List<MealEvent> inGroup(String groupId) => [
+    for (final row in _db.select(
+      'SELECT * FROM meals WHERE group_id = ? AND deleted_at IS NULL '
+      'ORDER BY eaten_at',
+      [groupId],
+    ))
+      _fromRow(row),
+  ];
+
   /// Calls meals [ids] [mealType], or no sitting with null.
   void setMealType(Iterable<String> ids, MealType? mealType) {
     _db.transaction(() {
