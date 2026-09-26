@@ -21,6 +21,20 @@ class SleepViewModel extends ViewModel {
 
   bool get canGoForward => _day.isBefore(today);
 
+  /// Shows [day], never past today.
+  void show(DateTime day) {
+    final picked = _dateOf(day);
+    if (picked.isAfter(today) || picked == _day) return;
+    _day = picked;
+    notifyListeners();
+  }
+
+  /// Which of [days] have a night or a nap recorded.
+  Set<DateTime> daysWithSleep(Iterable<DateTime> days) => {
+    for (final day in days)
+      if (backend.sleep.day(day).isNotEmpty) day,
+  };
+
   /// Moves the page [days] days, never past today.
   void step(int days) {
     final next = DateTime(_day.year, _day.month, _day.day + days);

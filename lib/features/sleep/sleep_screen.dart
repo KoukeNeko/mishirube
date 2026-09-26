@@ -86,23 +86,24 @@ class _SleepScreenState extends State<SleepScreen> {
     final day = _model.day;
     final night = _model.night;
     final naps = _model.naps;
-    return DetailPage(
+    return PageScaffold(
       appBar: PageAppBar(
         title: '睡眠',
         subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
-        actions: [
-          HeaderAction(
-            icon: Icons.chevron_left,
-            semanticLabel: '前一天',
-            onTap: () => _model.step(-1),
-          ),
-          HeaderAction(
-            icon: Icons.chevron_right,
-            semanticLabel: '後一天',
-            onTap: _model.canGoForward ? () => _model.step(1) : null,
-          ),
-        ],
       ),
+      // The same week header as 飲食: any night is a swipe away.
+      pinned: WeekDayStrip(
+        selected: day,
+        latest: _model.today,
+        firstWeekday: AppStoreScope.of(context).firstWeekday,
+        color: AppColors.wellness,
+        markedDays: _model.daysWithSleep([
+          for (var back = -35; back <= 35; back++)
+            DateTime(day.year, day.month, day.day + back),
+        ]),
+        onSelected: _model.show,
+      ),
+      pinnedHeight: WeekDayStrip.pinnedHeightOf(context),
       children: [
         if (night == null && naps.isEmpty)
           Gutter(
