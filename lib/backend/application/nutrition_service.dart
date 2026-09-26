@@ -233,6 +233,9 @@ class NutritionService {
     return previous;
   }
 
+  /// Meal [id] as it is now; null once it is deleted.
+  MealEvent? mealById(String id) => _meals.byId(id);
+
   /// When meal [id] was eaten.
   DateTime? eatenAtOf(String id) => _meals.eatenAtOf(id);
 

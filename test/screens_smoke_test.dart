@@ -35,7 +35,7 @@ import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
-import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
+import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -466,8 +466,12 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     ),
     _noSetup,
   ),
+  'meal': (
+    (store) => MealDetailScreen(meal: store.todayMeals.last),
+    _withLunch,
+  ),
   'meal edit': (
-    (store) => MealEditScreen(meal: store.todayMeals.last),
+    (store) => FoodEditScreen(meal: store.todayMeals.last),
     _withLunch,
   ),
   'food search (empty)': ((_) => const FoodSearchScreen(), _noSetup),

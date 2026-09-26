@@ -9,7 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
-import 'meal_edit_screen.dart';
+import 'meal_detail_screen.dart';
 import 'nutrition_target_screen.dart';
 import 'nutrition_view_model.dart';
 import 'split_dish_sheet.dart';
@@ -289,7 +289,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                 child: NavCard(
                   title: '水',
                   subtitle: '${glass.timeLabel} · ${glass.millilitres} mL',
-                  onTap: () => pushPage(context, MealEditScreen(meal: glass)),
+                  onTap: () => pushPage(context, MealDetailScreen(meal: glass)),
                 ),
               ),
             ),
@@ -385,7 +385,7 @@ class _MealGroupCard extends StatelessWidget {
                 style: AppTextStyles.caption,
               ),
               showChevron: true,
-              onTap: () => pushPage(context, MealEditScreen(meal: item)),
+              onTap: () => pushPage(context, MealDetailScreen(meal: item)),
             ),
           ),
       ],
@@ -423,39 +423,36 @@ class _MealCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const AccentBar(color: AppColors.nutrition),
-              const SizedBox(width: AppSpacing.sm),
-              // The name takes the row and wraps; the time goes under it
-              // so a long name is not squeezed into a column.
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(meal.name, style: AppTextStyles.itemTitle),
-                    Text(
-                      '${meal.timeLabel} · ${meal.qualityTag}',
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
+          // The meal opens to what it was, as a list row does.
+          InkWell(
+            onTap: () => pushPage(context, MealDetailScreen(meal: meal)),
+            child: Row(
+              children: [
+                const AccentBar(color: AppColors.nutrition),
+                const SizedBox(width: AppSpacing.sm),
+                // The name takes the row and wraps; the time goes under
+                // it so a long name is not squeezed into a column.
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(meal.name, style: AppTextStyles.itemTitle),
+                      Text(
+                        '${meal.timeLabel} · ${meal.qualityTag}',
+                        style: AppTextStyles.caption,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              ValueWithUnit(
-                value: formatKcalOrDash(meal.kcal),
-                unit: 'kcal',
-                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              SquareIconButton(
-                icon: Icons.edit_outlined,
-                tooltip: '編輯${meal.name}',
-                color: AppColors.nutrition,
-                size: 36,
-                onPressed: () => pushPage(context, MealEditScreen(meal: meal)),
-              ),
-            ],
+                const SizedBox(width: AppSpacing.sm),
+                ValueWithUnit(
+                  value: formatKcalOrDash(meal.kcal),
+                  unit: 'kcal',
+                  style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                ),
+                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+              ],
+            ),
           ),
           for (var i = 0; i < meal.dishes.length; i++) ...[
             if (i > 0) const Divider(height: 1),

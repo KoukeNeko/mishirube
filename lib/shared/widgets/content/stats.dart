@@ -157,3 +157,42 @@ class ProgressLine extends StatelessWidget {
     );
   }
 }
+
+/// One bar split into [segments] by each one's share of their sum, each
+/// in its own colour, with a hairline between them. Only the track shows
+/// while there is nothing to split.
+class SegmentBar extends StatelessWidget {
+  const SegmentBar({super.key, required this.segments, this.height = 12});
+
+  final List<(double, Color)> segments;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = [
+      for (final (value, color) in segments)
+        if (value > 0) (value, color),
+    ];
+    final total = shown.fold(0.0, (sum, segment) => sum + segment.$1);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(height),
+      child: SizedBox(
+        width: double.infinity,
+        height: height,
+        child: total <= 0
+            ? const ColoredBox(color: AppColors.surfaceRaised)
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 2,
+                children: [
+                  for (final (value, color) in shown)
+                    Expanded(
+                      flex: (value / total * 1000).round().clamp(1, 1000),
+                      child: ColoredBox(color: color),
+                    ),
+                ],
+              ),
+      ),
+    );
+  }
+}

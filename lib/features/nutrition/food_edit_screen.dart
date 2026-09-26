@@ -13,7 +13,8 @@ import 'describe_meal_screen.dart';
 import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 
-/// Creating or correcting one of the user's own foods.
+/// Creating or correcting one of the user's own foods, logging one as a
+/// quick record, or correcting a logged meal: one form for all of them.
 ///
 /// Every number here is typed by hand, so the screen never dresses them
 /// up as a lookup: what goes in is what comes back out.
@@ -25,6 +26,7 @@ class FoodEditScreen extends StatefulWidget {
     this.sizeOf,
     this.takePhoto,
     this.logsOnce = false,
+    this.meal,
   });
 
   /// The food being corrected; null when adding a new one.
@@ -49,6 +51,13 @@ class FoodEditScreen extends StatefulWidget {
   /// Pops the food that was logged.
   final bool logsOnce;
 
+  /// A logged meal being corrected: its time and sitting join the form,
+  /// and a food's own parts (brand, serving, sizes, the label's basis)
+  /// leave it, since a record keeps what was eaten, not a food. Saving
+  /// confirms the figures, so an estimate stops being one. Pops `true`
+  /// when the meal was deleted.
+  final MealEvent? meal;
+
   @override
   State<FoodEditScreen> createState() => _FoodEditScreenState();
 }
@@ -56,7 +65,11 @@ class FoodEditScreen extends StatefulWidget {
 class _FoodEditScreenState extends State<FoodEditScreen> {
   late final NutritionViewModel _nutrition;
   late final _name = TextEditingController(
-    text: widget.editing?.name ?? widget.sizeOf?.name ?? widget.initialName,
+    text:
+        widget.meal?.name ??
+        widget.editing?.name ??
+        widget.sizeOf?.name ??
+        widget.initialName,
   );
   late final _sizeName = TextEditingController(
     text: widget.editing?.sizeName ?? '',
@@ -79,35 +92,62 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// Eaten or drunk. Prefilled from the unit because that is right more
   /// often than not, but shown and changeable, because the unit does not
   /// actually decide it: soup is poured and is not a drink.
-  /// The meal a quick record is logged under; none unless picked.
-  MealType? _mealType;
+  /// The meal a quick record is logged under, or a logged meal was;
+  /// none unless picked.
+  late MealType? _mealType = widget.meal?.mealType;
+
+  /// When a logged meal was eaten; changed here, the meal moves, to
+  /// another day too.
+  late DateTime? _eatenAt = switch (widget.meal) {
+    final meal? => _nutrition.eatenAtOf(meal.id),
+    null => null,
+  };
+
+  /// What a logged drink came to, when it has a volume.
+  late final _millilitres = TextEditingController(
+    text: widget.meal?.millilitres?.toString() ?? '',
+  );
+
+  String? _error;
 
   /// Whether a quick record also keeps the food in the library.
   bool _keepsFood = false;
 
   late ConsumptionKind _kind =
-      widget.editing?.kind ?? widget.sizeOf?.kind ?? _kindForUnit;
+      widget.meal?.kind ??
+      widget.editing?.kind ??
+      widget.sizeOf?.kind ??
+      _kindForUnit;
 
-  late final _kcal = _figure(widget.editing?.kcal);
-  late final _protein = _figure(widget.editing?.proteinGrams);
-  late final _carb = _figure(widget.editing?.carbGrams);
-  late final _fat = _figure(widget.editing?.fatGrams);
-  late final _fibre = _figure(widget.editing?.fibreGrams);
+  late final _kcal = _figure(widget.meal?.kcal ?? widget.editing?.kcal);
+  late final _protein = _figure(
+    widget.meal?.proteinGrams ?? widget.editing?.proteinGrams,
+  );
+  late final _carb = _figure(
+    widget.meal?.carbGrams ?? widget.editing?.carbGrams,
+  );
+  late final _fat = _figure(widget.meal?.fatGrams ?? widget.editing?.fatGrams);
+  late final _fibre = _figure(
+    widget.meal?.fibreGrams ?? widget.editing?.fibreGrams,
+  );
 
   /// One field per nutrient. A field left empty stays out of the food:
   /// unknown is not zero.
   late final _extra = {
     for (final nutrient in Nutrient.values)
-      nutrient: _figure(widget.editing?.nutrients[nutrient]),
+      nutrient: _figure(
+        widget.meal?.nutrients[nutrient] ?? widget.editing?.nutrients[nutrient],
+      ),
   };
 
-  /// A stored per-serving figure, shown in the column it was typed from.
-  TextEditingController _figure(num? perServing) {
+  /// A stored figure, shown in the column it was typed from: a food's
+  /// per 100 when its label was, a meal's as it is.
+  TextEditingController _figure(num? stored) {
+    if (stored == null) return TextEditingController();
     final food = widget.editing;
-    if (perServing == null || food == null) return TextEditingController();
-    final shown = food.caffeineBasis == CaffeineBasis.per100
-        ? perServing / food.servingAmount * 100
-        : perServing.toDouble();
+    final shown = food != null && food.caffeineBasis == CaffeineBasis.per100
+        ? stored / food.servingAmount * 100
+        : stored.toDouble();
     return TextEditingController(text: formatAmount(shown));
   }
 
@@ -132,6 +172,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _carb,
       _fat,
       _fibre,
+      _millilitres,
       ..._extra.values,
     ]) {
       controller.dispose();
@@ -459,6 +500,78 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     Navigator.of(context).pop(food);
   }
 
+  Future<void> _pickTime() async {
+    final picked = await pickDateTime(
+      context,
+      initial: _eatenAt ?? _nutrition.now(),
+      latest: _nutrition.now(),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _eatenAt = picked);
+  }
+
+  /// Saves the form over the logged meal. An empty figure is one nobody
+  /// wrote down, not zero; a negative one is nonsense either way.
+  void _saveMeal(MealEvent meal) {
+    final figures = [_kcal, _protein, _carb, _fat, _fibre, ..._extra.values];
+    if (figures.any((field) => (double.tryParse(field.text.trim()) ?? 0) < 0)) {
+      setState(() => _error = '營養素不能是負數。');
+      return;
+    }
+    int? whole(TextEditingController field) => _perServing(field)?.round();
+    if (_eatenAt case final eatenAt?
+        when eatenAt != _nutrition.eatenAtOf(meal.id)) {
+      _nutrition.retimeMeal(meal, eatenAt);
+    }
+    final name = _name.text.trim();
+    _nutrition.updateMeal(
+      meal,
+      // Built by hand rather than with copyWith, which cannot put a
+      // figure back to "nobody wrote this down".
+      MealEvent(
+        id: meal.id,
+        name: name,
+        timeLabel: meal.timeLabel,
+        dishes: meal.dishes,
+        nutrients: _typedNutrients(),
+        millilitres: meal.millilitres == null
+            ? null
+            : int.tryParse(_millilitres.text.trim()) ?? meal.millilitres,
+        kind: _kind,
+        mealType: _mealType,
+        foodId: meal.foodId,
+        servings: meal.servings,
+        groupId: meal.groupId,
+        valueType: meal.valueType,
+        isFavorite: meal.isFavorite,
+        kcal: whole(_kcal),
+        proteinGrams: whole(_protein),
+        carbGrams: whole(_carb),
+        fatGrams: whole(_fat),
+        fibreGrams: whole(_fibre),
+        // The user has just said what these are, so they are no longer
+        // somebody's guess.
+        isEstimated: false,
+        // Water keeps its own mark, or a corrected glass would stop
+        // counting as water.
+        qualityTag: meal.isWater ? meal.qualityTag : '已確認',
+      ),
+    );
+    Navigator.of(context).pop();
+    showToast(context, '已更新「$name」', kind: ToastKind.success);
+  }
+
+  /// A tombstone, taken back from the toast, as a workout's delete is.
+  void _deleteMeal(MealEvent meal) {
+    final toast = ToastScope.read(context);
+    _nutrition.deleteMeals([meal]);
+    Navigator.of(context).pop(true);
+    toast.showUndo(
+      '已刪除「${meal.name}」',
+      onUndo: () => _nutrition.restoreMeals([meal]),
+    );
+  }
+
   /// The food as the form has it.
   FoodItem _food() {
     return FoodItem(
@@ -535,10 +648,15 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   );
 
   Widget _page(BuildContext context) {
-    final isNew = widget.editing == null;
+    final meal = widget.meal;
+    final isNew = widget.editing == null && meal == null;
     return DetailPage(
       appBar: PageAppBar(
-        title: widget.logsOnce ? '快速記錄' : (isNew ? '新增食物' : '編輯食物'),
+        title: meal != null
+            ? '編輯這一餐'
+            : widget.logsOnce
+            ? '快速記錄'
+            : (isNew ? '新增食物' : '編輯食物'),
         actions: [
           if (isNew && !_isSize)
             HeaderAction(
@@ -549,7 +667,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
         ],
       ),
-      footer: widget.logsOnce
+      footer: meal != null
+          ? PrimaryButton(
+              label: '儲存',
+              onPressed: _canSave ? () => _saveMeal(meal) : null,
+            )
+          : widget.logsOnce
           ? PrimaryButton(label: '記錄', onPressed: _canSave ? _logOnce : null)
           : isNew && !_isSize
           ? ButtonPair(
@@ -617,15 +740,34 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         Gutter(
           child: AppTextField(controller: _name, hint: '例如：雞胸肉'),
         ),
-        if (widget.logsOnce) ...[
+        if (_eatenAt case final eatenAt?)
+          Gutter(
+            child: GroupedCard(
+              children: [
+                NavRow(
+                  title: '時間',
+                  trailing: Text(
+                    '${formatDate(eatenAt)} ${formatTimeOfDay(eatenAt)}',
+                    style: AppTextStyles.caption,
+                  ),
+                  onTap: _pickTime,
+                ),
+              ],
+            ),
+          ),
+        if (widget.logsOnce || meal != null) ...[
           Gutter(child: const SectionLabel('餐次（選填）')),
           Gutter(
             child: MealTypePicker(
               selected: _mealType,
-              suggested: _nutrition.suggestedMealType(),
+              // Not on a logged meal: the user already had their chance
+              // to label it, and an offer then is second-guessing them.
+              suggested: meal == null ? _nutrition.suggestedMealType() : null,
               onChanged: (type) => setState(() => _mealType = type),
             ),
           ),
+        ],
+        if (widget.logsOnce) ...[
           Gutter(
             child: GroupedCard(
               children: [
@@ -653,10 +795,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             ),
         ],
-        Gutter(child: const SectionLabel('品牌（選填）')),
-        Gutter(
-          child: AppTextField(controller: _brand, hint: '例如：大成'),
-        ),
+        if (meal == null) ...[
+          Gutter(child: const SectionLabel('品牌（選填）')),
+          Gutter(
+            child: AppTextField(controller: _brand, hint: '例如：大成'),
+          ),
+        ],
         Gutter(child: const SectionLabel('食物或飲品')),
         Gutter(
           child: ChipWrap(
@@ -666,36 +810,46 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             onTap: (kind) => setState(() => _kind = kind),
           ),
         ),
-        Gutter(child: const SectionLabel('份量')),
-        Gutter(
-          child: Row(
-            children: [
-              SizedBox(
-                width: 120,
-                child: AppTextField(
-                  controller: _servingAmount,
-                  hint: '100',
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+        if (meal case final meal? when meal.millilitres != null)
+          Gutter(
+            child: NumberFieldRow(
+              label: '容量',
+              unit: 'mL',
+              controller: _millilitres,
+            ),
+          ),
+        if (meal == null) ...[
+          Gutter(child: const SectionLabel('份量')),
+          Gutter(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: AppTextField(
+                    controller: _servingAmount,
+                    hint: '100',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-            ],
+                const SizedBox(width: AppSpacing.sm),
+              ],
+            ),
           ),
-        ),
-        Gutter(
-          child: ChipWrap(
-            options: ServingUnit.values,
-            labelOf: (unit) => unit.label,
-            isSelected: (unit) => unit == _servingUnit,
-            onTap: (unit) => setState(() {
-              final wasSuggested = _kind == _kindForUnit;
-              _servingUnit = unit;
-              if (wasSuggested) _kind = _kindForUnit;
-            }),
+          Gutter(
+            child: ChipWrap(
+              options: ServingUnit.values,
+              labelOf: (unit) => unit.label,
+              isSelected: (unit) => unit == _servingUnit,
+              onTap: (unit) => setState(() {
+                final wasSuggested = _kind == _kindForUnit;
+                _servingUnit = unit;
+                if (wasSuggested) _kind = _kindForUnit;
+              }),
+            ),
           ),
-        ),
+        ],
         if (!_isSize && widget.editing != null) ...[
           Gutter(child: const SectionLabel('杯型')),
           for (final size in _sizes)
@@ -712,8 +866,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: SecondaryButton(label: '新增杯型', onPressed: _addSize),
           ),
         ],
-        Gutter(child: const SectionLabel('營養標示')),
-        if (_servingUnit.isMeasured)
+        Gutter(child: SectionLabel(meal == null ? '營養標示' : '營養素')),
+        if (meal == null && _servingUnit.isMeasured)
           Gutter(
             child: ChipWrap(
               options: CaffeineBasis.values,
@@ -765,6 +919,22 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         for (final nutrient in Nutrient.values)
           if (!_labelNutrients.contains(nutrient))
             Gutter(child: _nutrientField(nutrient)),
+        if (_error case final error?)
+          Gutter(
+            child: InfoBanner(tone: CardTone.warning, message: error),
+          ),
+        if (meal != null)
+          Gutter(
+            child: GroupedCard(
+              children: [
+                NavRow(
+                  title: '刪除這一餐',
+                  isDestructive: true,
+                  onTap: () => _deleteMeal(meal),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

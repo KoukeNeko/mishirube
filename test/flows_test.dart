@@ -9,6 +9,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_target_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -35,7 +36,6 @@ import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
-import 'package:mishirube/features/nutrition/meal_edit_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
@@ -809,7 +809,7 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
       ..confirmLunch();
     final before = store.todayMeals.last;
-    await pumpScreen(tester, MealEditScreen(meal: before), store: store);
+    await pumpScreen(tester, FoodEditScreen(meal: before), store: store);
 
     await tester.enterText(find.byType(TextField).at(1), '700');
     await tester.tap(find.text('儲存'));
@@ -2325,6 +2325,60 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a meal opens to what it was, and the pencil edits it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    nutrition.deleteMeals([
+      for (final meal in nutrition.mealsOn(today)) meal.id,
+    ]);
+    nutrition.logMeal(
+      MealEvent(
+        id: 'bento',
+        name: '雞腿便當',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: const [],
+        kcal: 780,
+        proteinGrams: 35,
+        carbGrams: 95,
+        fatGrams: 28,
+      ),
+      eatenAt: today,
+    );
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    await _tapText(tester, '雞腿便當');
+    await tester.pumpAndSettle();
+
+    final detail = find.byType(MealDetailScreen);
+    expect(detail, findsOneWidget);
+    expect(
+      find.descendant(of: detail, matching: find.byType(TextField)),
+      findsNothing,
+      reason: 'nothing to edit on the page itself',
+    );
+    expect(find.text('35 g'), findsOneWidget);
+    // Shares of the energy the three carry: 380, 140 and 252 kcal.
+    expect(find.text('49%'), findsOneWidget);
+    expect(find.text('18%'), findsOneWidget);
+    expect(find.text('33%'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('編輯這一餐'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(FoodEditScreen),
+        matching: find.text('編輯這一餐'),
+      ),
+      findsWidgets,
+      reason: 'the form foods are added with, for this meal',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('an item of a meal is corrected, and the meal follows', (
     tester,
   ) async {
@@ -2364,13 +2418,21 @@ void main() {
 
     await tester.tap(find.text('冰奶茶'));
     await tester.pumpAndSettle();
+    expect(find.byType(MealDetailScreen), findsOneWidget);
+    expect(
+      find.byType(FoodEditScreen),
+      findsNothing,
+      reason: 'an item opens to what it was; changing it is the pencil',
+    );
+    await tester.tap(find.bySemanticsLabel('編輯這一餐'));
+    await tester.pumpAndSettle();
     // The day's page stays under the editor, so its 熱量 is left alone.
     await tester.enterText(
       find.descendant(
         of: find
             .ancestor(
               of: find.descendant(
-                of: find.byType(MealEditScreen),
+                of: find.byType(FoodEditScreen),
                 matching: find.text('kcal'),
               ),
               matching: find.byType(Row),
@@ -2384,6 +2446,13 @@ void main() {
     await _tapText(tester, '儲存');
     await tester.pumpAndSettle();
     expect(mealKcalOf(mealsOf(nutrition.mealsOn(today)).single), 450);
+    expect(
+      find.byType(MealDetailScreen),
+      findsOneWidget,
+      reason: 'saving returns to the meal',
+    );
+    Navigator.of(tester.element(find.byType(MealDetailScreen))).pop();
+    await tester.pumpAndSettle();
 
     await Scrollable.ensureVisible(
       tester.element(find.byTooltip('拆開這一餐')),
@@ -2414,18 +2483,24 @@ void main() {
       eatenAt: store.now(),
     );
     final before = nutrition.mealsOn(store.now()).length;
-    await _openFromHost(tester, MealEditScreen(meal: meal), store);
+    await _openFromHost(tester, FoodEditScreen(meal: meal), store);
 
     await tester.scrollUntilVisible(
       find.text('刪除這一餐'),
       200,
       scrollable: find
           .descendant(
-            of: find.byType(MealEditScreen),
+            of: find.byType(FoodEditScreen),
             matching: find.byType(Scrollable),
           )
           .first,
     );
+    // Clear of the footer's 儲存, which sits over the bottom edge.
+    await Scrollable.ensureVisible(
+      tester.element(find.text('刪除這一餐')),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('刪除這一餐'));
     // Not settled: the undo's countdown would run out.
     await tester.pump();
@@ -2456,8 +2531,24 @@ void main() {
       ),
       eatenAt: store.now(),
     );
-    await _openFromHost(tester, MealEditScreen(meal: meal), store);
+    await _openFromHost(tester, FoodEditScreen(meal: meal), store);
 
+    final editorScroll = find
+        .descendant(
+          of: find.byType(FoodEditScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(
+      find.text('糖'),
+      200,
+      scrollable: editorScroll,
+    );
+    await Scrollable.ensureVisible(
+      tester.element(find.text('糖')),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
     final sugar = find.descendant(
       of: find.ancestor(of: find.text('糖'), matching: find.byType(Row)).first,
       matching: find.byType(TextField),
@@ -2473,7 +2564,7 @@ void main() {
       200,
       scrollable: find
           .descendant(
-            of: find.byType(MealEditScreen),
+            of: find.byType(FoodEditScreen),
             matching: find.byType(Scrollable),
           )
           .first,
@@ -2514,11 +2605,11 @@ void main() {
     final moved = nutrition
         .mealsOn(evening)
         .firstWhere((meal) => meal.id == glass.id);
-    await _openFromHost(tester, MealEditScreen(meal: moved), store);
+    await _openFromHost(tester, FoodEditScreen(meal: moved), store);
     await tester.enterText(
       find
           .descendant(
-            of: find.byType(MealEditScreen),
+            of: find.byType(FoodEditScreen),
             matching: find.byType(TextField),
           )
           .at(1),
@@ -2708,7 +2799,7 @@ void main() {
     final logged = store.backend.nutrition.logPortion(
       const FoodPortion(unknown, 1),
     );
-    await pumpScreen(tester, MealEditScreen(meal: logged), store: store);
+    await pumpScreen(tester, FoodEditScreen(meal: logged), store: store);
 
     expect(
       find.text('null'),

@@ -97,6 +97,15 @@ class MealRepository {
       ),
   ];
 
+  /// Meal [id] as it is now; null when there is none or it was deleted.
+  MealEvent? byId(String id) {
+    final rows = _db.select(
+      'SELECT * FROM meals WHERE id = ? AND deleted_at IS NULL',
+      [id],
+    );
+    return rows.isEmpty ? null : _fromRow(rows.first);
+  }
+
   /// When meal [id] was eaten; null when there is no such meal.
   DateTime? eatenAtOf(String id) {
     final rows = _db.select('SELECT eaten_at FROM meals WHERE id = ?', [id]);
