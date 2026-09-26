@@ -1,0 +1,415 @@
+{
+  "brand": "セブン‐イレブン",
+  "brandAliases": [
+    "7-ELEVEN",
+    "7-11",
+    "セブンイレブン",
+    "Seven-Eleven"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "包裝飲品",
+  "sourceUrl": "https://www.sej.co.jp/products/",
+  "note": "栄養成分表示は原文の表示単位のまま（1本あたり、100mlあたり、65mlあたり等）。7プレミアムの表示基準は公式ページに記載なし。幅のある表示値（～）は収録しない。",
+  "drinks": [
+    {
+      "id": "7eleven-jp-drinks-46c3cd2c",
+      "name": "７プレミアム　のむヨーグルト　コクうまプレーン　１８０ｇ",
+      "kcal": 164,
+      "proteinG": 6.7,
+      "fatG": 4.9,
+      "carbG": 23.2,
+      "netCarbG": 23.2,
+      "fibreG": 0,
+      "saltG": 0.3,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210717"
+    },
+    {
+      "id": "7eleven-jp-drinks-800b3079",
+      "name": "７プレミアム　のむヨーグルト　コクうまプレーン　２７０ｇ",
+      "kcal": 245,
+      "proteinG": 10,
+      "fatG": 7.3,
+      "carbG": 34.8,
+      "netCarbG": 34.8,
+      "fibreG": 0,
+      "saltG": 0.4,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210141"
+    },
+    {
+      "id": "7eleven-jp-drinks-01c248a0",
+      "name": "７プレミアム　のむヨーグルト　いちご　１９０ｇ",
+      "kcal": 136,
+      "proteinG": 5.9,
+      "fatG": 1.9,
+      "carbG": 24,
+      "netCarbG": 23.6,
+      "fibreG": 0.4,
+      "saltG": 0.19,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210104"
+    },
+    {
+      "id": "7eleven-jp-drinks-7537a354",
+      "name": "７プレミアム　のむヨーグルト　ブルーベリー　１９０ｇ",
+      "kcal": 123,
+      "proteinG": 5.8,
+      "fatG": 1.1,
+      "carbG": 22.7,
+      "netCarbG": 22.4,
+      "fibreG": 0.3,
+      "saltG": 0.19,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210064"
+    },
+    {
+      "id": "7eleven-jp-drinks-847f7781",
+      "name": "７プレミアム　のむヨーグルト　アロエ　１９０ｇ",
+      "kcal": 141,
+      "proteinG": 6,
+      "fatG": 2.4,
+      "carbG": 24,
+      "saltG": 0.2,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210466/"
+    },
+    {
+      "id": "7eleven-jp-drinks-17aaa693",
+      "name": "７プレミアム　のむヨーグルト　９００ｇ",
+      "kcal": 112,
+      "proteinG": 5.8,
+      "fatG": 0,
+      "carbG": 22.3,
+      "netCarbG": 21.9,
+      "fibreG": 0.4,
+      "saltG": 0.2,
+      "sourceUrl": "https://www.sej.co.jp/products/a/item/210199/"
+    },
+    {
+      "id": "7eleven-jp-drinks-6ab046f1",
+      "name": "ビオ脂肪燃焼ヨーグルトドリンク　１００ｇ",
+      "grams": 100,
+      "kcal": 26,
+      "proteinG": 3.2,
+      "fatG": 0,
+      "carbG": 8.7,
+      "saltG": 0.1,
+      "nutrients": {
+        "calcium": 90
+      },
+      "sourceUrl": "https://www.danone.co.jp/bio/lineup/drink-plain/"
+    },
+    {
+      "id": "7eleven-jp-drinks-0a066e8a",
+      "name": "ビオ脂肪燃焼ヨーグルトドリンク　ブルーベリー風味　１００ｇ",
+      "grams": 100,
+      "kcal": 27,
+      "proteinG": 3.1,
+      "fatG": 0,
+      "carbG": 9,
+      "saltG": 0.1,
+      "nutrients": {
+        "calcium": 90
+      },
+      "sourceUrl": "https://www.danone.co.jp/bio/lineup/drink-blueberry/"
+    },
+    {
+      "id": "7eleven-jp-drinks-261fe3b2",
+      "name": "森永トリプルヨーグルトドリンク砂糖不使用",
+      "grams": 100,
+      "kcal": 42,
+      "proteinG": 3.7,
+      "fatG": 0,
+      "carbG": 10.5,
+      "fibreG": 5,
+      "saltG": 0.12,
+      "nutrients": {
+        "calcium": 110
+      },
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/yoghurt/triplenosugar/6426.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-5c6dd8c4",
+      "name": "明治ブルガリアのむヨーグルトＬＢ８１ ONE SHOT",
+      "millilitres": 100,
+      "kcal": 68,
+      "proteinG": 3.1,
+      "fatG": 0.6,
+      "carbG": 12.5,
+      "saltG": 0.1,
+      "nutrients": {
+        "calcium": 114
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/yogurt/4902705130647.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-c8bab05d",
+      "name": "明治ブルガリアのむヨーグルトストロベリー風味 ONE SHOT",
+      "millilitres": 100,
+      "kcal": 68,
+      "proteinG": 3.1,
+      "fatG": 0.6,
+      "carbG": 12.5,
+      "saltG": 0.1,
+      "nutrients": {
+        "calcium": 114
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/yogurt/4902705130661.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-cfd44fb8",
+      "name": "ザバスＢＩＯＰＲＯ　ヨーグルト味　３００ｍｌ",
+      "millilitres": 300,
+      "kcal": 118,
+      "fatG": 1,
+      "carbG": 11.1,
+      "netCarbG": 9.6,
+      "saltG": 0.54,
+      "nutrients": {
+        "calcium": 222,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705132306.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-958b43f4",
+      "name": "ザバスミルクプロテイン脂肪０ヨーグルト風味　４３０ｍｌ",
+      "millilitres": 430,
+      "kcal": 96,
+      "proteinG": 15,
+      "fatG": 0,
+      "carbG": 10,
+      "netCarbG": 7.8,
+      "saltG": 0.22,
+      "nutrients": {
+        "calcium": 350
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705001879.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-f747a8c7",
+      "name": "明治ザバスのむヨーグルト脂肪０ベリーミックス風味２５０ｇ",
+      "grams": 250,
+      "kcal": 140,
+      "proteinG": 20,
+      "fatG": 0,
+      "carbG": 15.3,
+      "netCarbG": 14.5,
+      "saltG": 0.34,
+      "nutrients": {
+        "calcium": 494
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705133532.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-f236d352",
+      "name": "明治ヘモグロビンＡ１ｃ対策ヨーグルトドリンク１１２ｇ",
+      "grams": 112,
+      "kcal": 40,
+      "proteinG": 3.3,
+      "fatG": 0.6,
+      "carbG": 5.4,
+      "saltG": 0.11,
+      "sugarG": 3.6,
+      "nutrients": {
+        "calcium": 121
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705097391.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-3dca6049",
+      "name": "メグミルク１日分の鉄分のむヨーグルト１９０Ｇ",
+      "grams": 190,
+      "kcal": 129,
+      "proteinG": 5.7,
+      "fatG": 1.7,
+      "carbG": 22.8,
+      "netCarbG": 22.8,
+      "fibreG": 0,
+      "saltG": 0.18,
+      "nutrients": {
+        "calcium": 190,
+        "iron": 6.8,
+        "vitaminB12": 2.4,
+        "folate": 120
+      },
+      "sourceUrl": "https://www.meg-snow.com/products/detail.php?p=prune_fe"
+    },
+    {
+      "id": "7eleven-jp-drinks-9bc97ad6",
+      "name": "明治プロビオヨーグルトＬＧ２１ドリンクタイプ１１２ｇ",
+      "grams": 112,
+      "kcal": 73,
+      "proteinG": 3.3,
+      "fatG": 0.6,
+      "carbG": 13.6,
+      "saltG": 0.11,
+      "sugarG": 12.5,
+      "nutrients": {
+        "calcium": 120
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705095984.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-be44b2f5",
+      "name": "森永　ビヒダスＹＧ　便通改善ドリンク",
+      "grams": 100,
+      "kcal": 59,
+      "proteinG": 3.3,
+      "fatG": 0.7,
+      "carbG": 11.9,
+      "saltG": 0.1,
+      "nutrients": {
+        "calcium": 111
+      },
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/yoghurt/bentsu/7720.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-305c23ca",
+      "name": "日清ヨーク　ピルクル　４００　４５５ｍｌ",
+      "millilitres": 65,
+      "kcal": 42,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 9.8,
+      "netCarbG": 9.8,
+      "fibreG": 0,
+      "sourceUrl": "https://www.nissin.com/jp/product/items/10525/"
+    },
+    {
+      "id": "7eleven-jp-drinks-38b1abbc",
+      "name": "日清ヨーク　ピルクル４００鉄分　４５５ｍｌ",
+      "millilitres": 195,
+      "kcal": 86,
+      "proteinG": 2.5,
+      "fatG": 0,
+      "carbG": 19.1,
+      "netCarbG": 19.1,
+      "fibreG": 0,
+      "saltG": 0.09,
+      "nutrients": {
+        "iron": 7.2,
+        "vitaminB12": 2.16
+      },
+      "sourceUrl": "https://www.nissin.com/jp/product/items/13678/"
+    },
+    {
+      "id": "7eleven-jp-drinks-c32e4224",
+      "name": "キリン　おいしい免疫ケア　１００ｍｌ",
+      "millilitres": 100,
+      "kcal": 47,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 11,
+      "saltG": 0.07,
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/softdrink/detail.html?id=8227"
+    },
+    {
+      "id": "7eleven-jp-drinks-2b7e855f",
+      "name": "キリン　おいしい免疫ケア　カロリーオフ　１００ｍｌ",
+      "millilitres": 100,
+      "kcal": 21,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 4.8,
+      "saltG": 0.08,
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/softdrink/detail.html?id=8230"
+    },
+    {
+      "id": "7eleven-jp-drinks-d11abcc1",
+      "name": "明治プロビオヨーグルトＲ－１ドリンクタイプ１１２ｇ",
+      "grams": 112,
+      "kcal": 71,
+      "proteinG": 3.3,
+      "fatG": 0.6,
+      "carbG": 13.2,
+      "saltG": 0.11,
+      "sugarG": 11.7,
+      "nutrients": {
+        "calcium": 122
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705096011.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-72bee998",
+      "name": "明治プロビオＹＧＲ－１ドリンクタイプ低糖・低カロリー１１２ｇ",
+      "grams": 112,
+      "kcal": 49,
+      "proteinG": 3.3,
+      "fatG": 0.6,
+      "carbG": 7.5,
+      "saltG": 0.11,
+      "sugarG": 6.5,
+      "nutrients": {
+        "calcium": 121
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705096028.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-346163ee",
+      "name": "明治プロビオＹＧＲ－１ドリンクタイプＴｈｅＧＯＬＤ１１２ｇ",
+      "grams": 112,
+      "kcal": 75,
+      "proteinG": 3.4,
+      "fatG": 0.6,
+      "carbG": 14,
+      "saltG": 0.11,
+      "sugarG": 10.6,
+      "nutrients": {
+        "calcium": 120
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705097018.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-0edb15ff",
+      "name": "明治プロビオＹＧＲ－１ドリンクＧＯＬＤ低糖低カロリー１１２ｇ",
+      "grams": 112,
+      "kcal": 52,
+      "proteinG": 3.3,
+      "fatG": 0.6,
+      "carbG": 8.4,
+      "saltG": 0.11,
+      "sugarG": 5.5,
+      "nutrients": {
+        "calcium": 120
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/probioticsyogurt/4902705098503.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-4658fefc",
+      "name": "雪印メグミルク　ＭＢＰドリンク　１００ｇ",
+      "grams": 100,
+      "kcal": 36,
+      "proteinG": 0.1,
+      "fatG": 0,
+      "carbG": 9,
+      "netCarbG": 9,
+      "fibreG": 0,
+      "saltG": 0.12,
+      "sugarG": 8.3,
+      "sourceUrl": "https://www.meg-snow.com/products/detail.php?p=mbpdrink"
+    },
+    {
+      "id": "7eleven-jp-drinks-fc9ed52c",
+      "name": "ヤクルト　Ｙ１０００　１１０ｍｌ",
+      "millilitres": 110,
+      "kcal": 70,
+      "proteinG": 1.7,
+      "fatG": 0.1,
+      "carbG": 15.6,
+      "sourceUrl": "https://www.yakult.co.jp/products/item0379.html"
+    },
+    {
+      "id": "7eleven-jp-drinks-3dee4561",
+      "name": "明治さわやか乳酸菌ドリンク　モヤモヤハレルヤピーチミックス味",
+      "millilitres": 100,
+      "kcal": 34,
+      "proteinG": 1.6,
+      "fatG": 0,
+      "carbG": 6.8,
+      "saltG": 0.054,
+      "nutrients": {
+        "calcium": 56
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/milk_drink/4902705133211.html"
+    }
+  ]
+}

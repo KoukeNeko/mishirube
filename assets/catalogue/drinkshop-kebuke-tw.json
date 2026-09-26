@@ -1,0 +1,133 @@
+{
+  "brand": "可不可熟成紅茶",
+  "brandAliases": [
+    "可不可",
+    "KEBUKE"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "kebuke-de2dcf96",
+      "name": "茉桃紅茶",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 120,
+          "sugarG": 39
+        }
+      ]
+    },
+    {
+      "id": "kebuke-e5647164",
+      "name": "熟成烏龍",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 120,
+          "sugarG": 39
+        }
+      ]
+    },
+    {
+      "id": "kebuke-2a1ce6e5",
+      "name": "黑糖珍珠茉桃拿鐵",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 373,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "kebuke-4800dab8",
+      "name": "黑糖珍珠烏龍拿鐵",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 363,
+          "sugarG": 50
+        }
+      ]
+    },
+    {
+      "id": "kebuke-5fe38efe",
+      "name": "黑糖珍珠小農鮮奶",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 489,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "kebuke-09a1b601",
+      "name": "黑糖珍珠檸檬烏龍",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 318,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "kebuke-7c7afaff",
+      "name": "蜂蜜檸檬茉桃紅",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 235,
+          "sugarG": 56
+        }
+      ]
+    },
+    {
+      "id": "kebuke-280c990b",
+      "name": "奶酥奶蓋烏龍拿鐵",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 407,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "kebuke-ac76dadb",
+      "name": "黑糖珍珠",
+      "series": "2026官方營養頁",
+      "sourceUrl": "https://www.kebuke.com/wp-content/uploads/2026/08/%E5%8F%AF%E4%B8%8D%E5%8F%AF%E9%A3%B2%E5%93%81%E7%87%9F%E9%A4%8A%E6%A8%99%E7%A4%BA.pdf",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 175,
+          "sugarG": 13
+        }
+      ]
+    }
+  ]
+}

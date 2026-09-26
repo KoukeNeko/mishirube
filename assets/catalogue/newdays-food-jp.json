@@ -1,0 +1,93 @@
+{
+  "brand": "NewDays",
+  "brandAliases": [
+    "ニューデイズ",
+    "New Days"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "",
+  "sourceUrl": "https://retail.jr-cross.co.jp/newdays/",
+  "note": "栄養成分表示は原文の表示単位のまま。幅のある値、未満、検出せずは収録しない。",
+  "drinks": [
+    {
+      "id": "newdays-food-jp-8476a442",
+      "name": "ニューチキ プレーン",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 229,
+      "proteinG": 11,
+      "fatG": 13.3,
+      "carbG": 16.6,
+      "saltG": 1.7,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/4100.html"
+    },
+    {
+      "id": "newdays-food-jp-cd82e7cd",
+      "name": "チキン竜田揚げ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 190,
+      "proteinG": 9.99,
+      "fatG": 10.89,
+      "carbG": 11.61,
+      "saltG": 0.9,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/5756.html"
+    },
+    {
+      "id": "newdays-food-jp-dfae274e",
+      "name": "ハッシュドポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 192,
+      "proteinG": 1.7,
+      "fatG": 9.5,
+      "carbG": 25,
+      "saltG": 0.9,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/647.html"
+    },
+    {
+      "id": "newdays-food-jp-74fa90e1",
+      "name": "串フランク",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 285,
+      "proteinG": 12.5,
+      "fatG": 24.2,
+      "carbG": 4.3,
+      "saltG": 1.9,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/1415.html"
+    },
+    {
+      "id": "newdays-food-jp-0c4dbcac",
+      "name": "ニューチキ 辛口",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 221,
+      "proteinG": 10.5,
+      "fatG": 12.6,
+      "carbG": 16.6,
+      "saltG": 1.6,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/4101.html"
+    },
+    {
+      "id": "newdays-food-jp-0bb3725d",
+      "name": "唐揚げ棒",
+      "series": "ホットスナック",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 145,
+      "proteinG": 6.7,
+      "fatG": 7.7,
+      "carbG": 12.1,
+      "saltG": 0.9,
+      "sourceUrl": "https://retail.jr-cross.co.jp/newdays/menu/detail/1295.html"
+    }
+  ]
+}

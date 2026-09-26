@@ -1,0 +1,87 @@
+{
+  "brand": "デイリーヤマザキ",
+  "brandAliases": [
+    "Daily Yamazaki",
+    "ヤマザキ"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "",
+  "sourceUrl": "https://www.daily-yamazaki.jp/",
+  "note": "栄養成分表示は原文の表示単位のまま。幅のある値、未満、検出せずは収録しない。",
+  "drinks": [
+    {
+      "id": "dailyyamazaki-jp-5b98791c",
+      "name": "ツナメルトトーストサンド（シーチキン®使用）",
+      "series": "デイリーホット",
+      "kind": "food",
+      "kcal": 384,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-fca82776",
+      "name": "４種きのこと燻しベーコンのピザ",
+      "series": "デイリーホット",
+      "kind": "food",
+      "kcal": 305,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-edbe8ff2",
+      "name": "もっちり食感のハムとゴーダチーズのパン",
+      "series": "デイリーホット",
+      "kind": "food",
+      "kcal": 300,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-03cf51e1",
+      "name": "チキンステーキ弁当",
+      "series": "弁当",
+      "kind": "food",
+      "kcal": 523,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-f42cb950",
+      "name": "ヒレカツ重",
+      "series": "弁当",
+      "kind": "food",
+      "kcal": 426,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-72712fca",
+      "name": "チキンカツ弁当",
+      "series": "弁当",
+      "kind": "food",
+      "kcal": 634,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-8feda05d",
+      "name": "チキン竜田揚げサンド",
+      "series": "サンド/おむすび",
+      "kind": "food",
+      "kcal": 260,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-4834ba60",
+      "name": "から揚げおむすび（油淋鶏ソース）",
+      "series": "サンド/おむすび",
+      "kind": "food",
+      "kcal": 278,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    },
+    {
+      "id": "dailyyamazaki-jp-3048801d",
+      "name": "デミグラスソースカツ丼",
+      "series": "弁当",
+      "kind": "food",
+      "kcal": 706,
+      "sourceUrl": "https://www.daily-yamazaki.jp/"
+    }
+  ]
+}

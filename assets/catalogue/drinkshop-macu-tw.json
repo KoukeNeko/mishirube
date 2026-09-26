@@ -1,0 +1,861 @@
+{
+  "brand": "麻古茶坊",
+  "brandAliases": [
+    "麻古",
+    "MACU"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "macu-84665cb9",
+      "name": "粉粿紅茶拿鐵",
+      "series": "粉粿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "瓶裝",
+          "kcal": 468,
+          "sugarG": 83
+        },
+        {
+          "name": "一般",
+          "kcal": 389,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "macu-8293591b",
+      "name": "粉粿橙香紅萱",
+      "series": "粉粿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "瓶裝",
+          "kcal": 531,
+          "sugarG": 120
+        },
+        {
+          "name": "一般",
+          "kcal": 425,
+          "sugarG": 97
+        }
+      ]
+    },
+    {
+      "id": "macu-8763c331",
+      "name": "粉粿冰萃檸檬",
+      "series": "粉粿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 362,
+          "sugarG": 82
+        }
+      ]
+    },
+    {
+      "id": "macu-c8eafa68",
+      "name": "粉粿金萱",
+      "series": "粉粿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "瓶裝",
+          "kcal": 302,
+          "sugarG": 71
+        },
+        {
+          "name": "一般",
+          "kcal": 257,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "macu-84bcc46a",
+      "name": "巨峰葡萄冰沙",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 281,
+      "sugarG": 67
+    },
+    {
+      "id": "macu-7e460cc7",
+      "name": "芝芝葡萄果粒",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 501,
+      "sugarG": 77
+    },
+    {
+      "id": "macu-b97b0911",
+      "name": "葡萄果粒波波",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 342,
+      "sugarG": 80
+    },
+    {
+      "id": "macu-6ebc6831",
+      "name": "酪梨甘露",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 430,
+      "sugarG": 74
+    },
+    {
+      "id": "macu-b74aa675",
+      "name": "楊枝甘露2.0",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 357,
+      "sugarG": 65
+    },
+    {
+      "id": "macu-56a3c660",
+      "name": "芝芝芒果果粒",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 494,
+      "sugarG": 72
+    },
+    {
+      "id": "macu-fa7a16be",
+      "name": "芒果果粒波波",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 335,
+      "sugarG": 74
+    },
+    {
+      "id": "macu-5b4f9a88",
+      "name": "芝芝草莓果粒",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 497,
+      "sugarG": 74
+    },
+    {
+      "id": "macu-c0495fae",
+      "name": "草莓果粒波波",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 338,
+      "sugarG": 76
+    },
+    {
+      "id": "macu-a037f5a8",
+      "name": "芋泥波波鮮奶2.0",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 528,
+      "sugarG": 49
+    },
+    {
+      "id": "macu-753ce883",
+      "name": "濃厚芋泥鮮奶",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 555,
+      "sugarG": 51
+    },
+    {
+      "id": "macu-a9fb7cab",
+      "name": "蕃茄梅蜜",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 328,
+          "sugarG": 73
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 428,
+          "sugarG": 95
+        }
+      ]
+    },
+    {
+      "id": "macu-11036ad3",
+      "name": "蕃茄梅蜜波波",
+      "series": "甜點飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 403,
+          "sugarG": 90
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 500,
+          "sugarG": 111
+        }
+      ]
+    },
+    {
+      "id": "macu-e489547f",
+      "name": "芝芝金萱",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 335,
+      "sugarG": 37
+    },
+    {
+      "id": "macu-93839a62",
+      "name": "芝芝金萱雙Q",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 501,
+      "sugarG": 55
+    },
+    {
+      "id": "macu-6c9fe60c",
+      "name": "芝芝錫蘭奶茶",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 646,
+      "sugarG": 50
+    },
+    {
+      "id": "macu-94c5f33e",
+      "name": "芝芝翡翠綠茶",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 335,
+      "sugarG": 37
+    },
+    {
+      "id": "macu-70f72ac3",
+      "name": "芝芝錫蘭紅茶",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 371,
+      "sugarG": 46
+    },
+    {
+      "id": "macu-a0ca7fb6",
+      "name": "芝芝蜜桃紅茶",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 371,
+      "sugarG": 46
+    },
+    {
+      "id": "macu-9f779556",
+      "name": "芝芝阿華田",
+      "series": "芝芝",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 753,
+      "sugarG": 70
+    },
+    {
+      "id": "macu-bbd1b5e4",
+      "name": "錫蘭奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 513,
+          "sugarG": 48
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 723,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "macu-b509f6fe",
+      "name": "鐵觀音奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 513,
+          "sugarG": 48
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 723,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "macu-c240466c",
+      "name": "波霸奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 697,
+          "sugarG": 62
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 907,
+          "sugarG": 75
+        }
+      ]
+    },
+    {
+      "id": "macu-4a50d7fd",
+      "name": "玫瑰奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 595,
+          "sugarG": 69
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 839,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "macu-b79d6aaa",
+      "name": "蜜桃奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 513,
+          "sugarG": 48
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 723,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "macu-82ee2c4f",
+      "name": "仙草凍奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 509,
+          "sugarG": 57
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 664,
+          "sugarG": 69
+        }
+      ]
+    },
+    {
+      "id": "macu-d2aacaae",
+      "name": "阿華田",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 566,
+          "sugarG": 67
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 707,
+          "sugarG": 83
+        }
+      ]
+    },
+    {
+      "id": "macu-38ab098a",
+      "name": "梅子冰茶",
+      "series": "特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 139,
+          "sugarG": 30
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 195,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "macu-93d06d0e",
+      "name": "梅子綠茶",
+      "series": "特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 228,
+      "sugarG": 53
+    },
+    {
+      "id": "macu-d5152390",
+      "name": "多多綠茶",
+      "series": "特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 328,
+          "sugarG": 70
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 446,
+          "sugarG": 95
+        }
+      ]
+    },
+    {
+      "id": "macu-0e0dcfe9",
+      "name": "蕎麥綠寶石",
+      "series": "特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 154,
+          "sugarG": 37
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 198,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "macu-015ce884",
+      "name": "香橙果粒茶",
+      "series": "果粒茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 367,
+          "sugarG": 76
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 458,
+          "sugarG": 96
+        }
+      ]
+    },
+    {
+      "id": "macu-a6088c14",
+      "name": "柳橙果粒茶",
+      "series": "果粒茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 342,
+          "sugarG": 76
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 431,
+          "sugarG": 96
+        }
+      ]
+    },
+    {
+      "id": "macu-d8187a05",
+      "name": "葡萄柚果粒茶",
+      "series": "果粒茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 315,
+          "sugarG": 71
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 382,
+          "sugarG": 83
+        }
+      ]
+    },
+    {
+      "id": "macu-6adaac32",
+      "name": "葡萄柚果粒蜜茶",
+      "series": "果粒茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 290,
+          "sugarG": 64
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 455,
+          "sugarG": 101
+        }
+      ]
+    },
+    {
+      "id": "macu-853105e9",
+      "name": "柳橙芒果果粒茶",
+      "series": "果粒茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 330,
+      "sugarG": 74
+    },
+    {
+      "id": "macu-3b657670",
+      "name": "紅萱烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 147,
+          "sugarG": 34
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 193,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "macu-8aeefe4d",
+      "name": "紅萱雙Q",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 322,
+          "sugarG": 55
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 368,
+          "sugarG": 66
+        }
+      ]
+    },
+    {
+      "id": "macu-008c1288",
+      "name": "高山金萱茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 147,
+          "sugarG": 35
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 193,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "macu-4c0095e8",
+      "name": "翡翠綠茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 147,
+          "sugarG": 35
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 193,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "macu-b017256e",
+      "name": "錫蘭紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 184,
+          "sugarG": 43
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 230,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "macu-62533816",
+      "name": "柚香紅萱",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 271,
+          "sugarG": 64
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 328,
+          "sugarG": 78
+        }
+      ]
+    },
+    {
+      "id": "macu-a2420708",
+      "name": "橙香紅萱",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 315,
+          "sugarG": 71
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 413,
+          "sugarG": 92
+        }
+      ]
+    },
+    {
+      "id": "macu-17841c5c",
+      "name": "百香雙Q果",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 519,
+          "sugarG": 87
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 784,
+          "sugarG": 125
+        }
+      ]
+    },
+    {
+      "id": "macu-f8424c56",
+      "name": "百香綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 343,
+          "sugarG": 66
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 415,
+          "sugarG": 79
+        }
+      ]
+    },
+    {
+      "id": "macu-9f725268",
+      "name": "百香多多",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 432,
+      "sugarG": 80
+    },
+    {
+      "id": "macu-45ff7295",
+      "name": "翡翠柳橙",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 337,
+          "sugarG": 75
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 413,
+          "sugarG": 92
+        }
+      ]
+    },
+    {
+      "id": "macu-41888cdc",
+      "name": "冰萃檸檬",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 264,
+      "sugarG": 57
+    },
+    {
+      "id": "macu-88eb03a4",
+      "name": "蜂蜜檸檬",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 282,
+      "sugarG": 64
+    },
+    {
+      "id": "macu-6c4d455b",
+      "name": "柚香翡翠",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 271,
+          "sugarG": 64
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 328,
+          "sugarG": 78
+        }
+      ]
+    },
+    {
+      "id": "macu-4017648c",
+      "name": "紅茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 372,
+          "sugarG": 48
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 424,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "macu-463643f9",
+      "name": "鐵觀音拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 345,
+          "sugarG": 49
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 424,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "macu-ef424ba0",
+      "name": "波霸紅茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 551,
+          "sugarG": 61
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 630,
+          "sugarG": 74
+        }
+      ]
+    },
+    {
+      "id": "macu-5c3bffcd",
+      "name": "阿華田拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 508,
+          "sugarG": 69
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 628,
+          "sugarG": 87
+        }
+      ]
+    },
+    {
+      "id": "macu-80c114c7",
+      "name": "玫瑰紅茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 427,
+          "sugarG": 70
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 539,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "macu-19b251da",
+      "name": "仙草凍紅茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E9%BA%BB%E5%8F%A4%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一般",
+          "kcal": 330,
+          "sugarG": 53
+        },
+        {
+          "name": "瓶裝",
+          "kcal": 409,
+          "sugarG": 66
+        }
+      ]
+    }
+  ]
+}

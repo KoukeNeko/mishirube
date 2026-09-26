@@ -1,0 +1,4934 @@
+{
+  "brand": "すき家",
+  "brandAliases": [
+    "Sukiya",
+    "SUKIYA",
+    "食其家"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "",
+  "sourceUrl": "https://images.zensho.co.jp/materials/sukiya/allergen/nutrition.pdf",
+  "note": "栄養成分一覧表（2026-09-08）。紅しょうが、醤油、ドレッシング等の卓上調味料は含まない。",
+  "drinks": [
+    {
+      "id": "sukiya-jp-e8700721",
+      "name": "牛皿",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 204,
+          "proteinG": 10.4,
+          "fatG": 15.1,
+          "carbG": 7,
+          "saltG": 1.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 297,
+          "proteinG": 15,
+          "fatG": 22,
+          "carbG": 9.9,
+          "saltG": 2.4
+        },
+        {
+          "name": "中盛",
+          "kcal": 423,
+          "proteinG": 21.1,
+          "fatG": 32.3,
+          "carbG": 12.2,
+          "saltG": 2.8
+        },
+        {
+          "name": "２倍盛",
+          "kcal": 581,
+          "proteinG": 29.1,
+          "fatG": 43.8,
+          "carbG": 17.6,
+          "saltG": 4.2
+        },
+        {
+          "name": "３倍盛",
+          "kcal": 865,
+          "proteinG": 43.3,
+          "fatG": 65.7,
+          "carbG": 25.5,
+          "saltG": 5.9
+        },
+        {
+          "name": "４倍盛",
+          "kcal": 1232,
+          "proteinG": 61.3,
+          "fatG": 93.9,
+          "carbG": 35.3,
+          "saltG": 8.1
+        },
+        {
+          "name": "５倍盛",
+          "kcal": 1435,
+          "proteinG": 71.4,
+          "fatG": 109.4,
+          "carbG": 41.2,
+          "saltG": 9.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-93078d36",
+      "name": "牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 464,
+          "proteinG": 14.8,
+          "fatG": 16,
+          "carbG": 65.7,
+          "saltG": 1.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 695,
+          "proteinG": 21.7,
+          "fatG": 23.4,
+          "carbG": 99.8,
+          "saltG": 2.4
+        },
+        {
+          "name": "中盛",
+          "kcal": 752,
+          "proteinG": 26.6,
+          "fatG": 33.4,
+          "carbG": 86.5,
+          "saltG": 2.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 908,
+          "proteinG": 28.4,
+          "fatG": 30.7,
+          "carbG": 130.1,
+          "saltG": 3.1
+        },
+        {
+          "name": "特盛",
+          "kcal": 1100,
+          "proteinG": 37.8,
+          "fatG": 45.6,
+          "carbG": 134.9,
+          "saltG": 4.2
+        },
+        {
+          "name": "メガ",
+          "kcal": 1365,
+          "proteinG": 50.8,
+          "fatG": 66.3,
+          "carbG": 141.6,
+          "saltG": 5.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-e8e8700b",
+      "name": "おろしポン酢牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 488,
+          "proteinG": 15.8,
+          "fatG": 16.1,
+          "carbG": 69.8,
+          "saltG": 2.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 719,
+          "proteinG": 22.7,
+          "fatG": 23.5,
+          "carbG": 103.9,
+          "saltG": 3.5
+        },
+        {
+          "name": "中盛",
+          "kcal": 776,
+          "proteinG": 27.6,
+          "fatG": 33.5,
+          "carbG": 90.6,
+          "saltG": 3.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 932,
+          "proteinG": 29.4,
+          "fatG": 30.8,
+          "carbG": 134.2,
+          "saltG": 4.2
+        },
+        {
+          "name": "特盛",
+          "kcal": 1124,
+          "proteinG": 38.8,
+          "fatG": 45.7,
+          "carbG": 139,
+          "saltG": 5.3
+        },
+        {
+          "name": "メガ",
+          "kcal": 1389,
+          "proteinG": 51.8,
+          "fatG": 66.4,
+          "carbG": 145.7,
+          "saltG": 6.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-23a0b00e",
+      "name": "ねぎ玉牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 572,
+          "proteinG": 22.4,
+          "fatG": 22.4,
+          "carbG": 71.1,
+          "saltG": 2.5
+        },
+        {
+          "name": "並盛",
+          "kcal": 803,
+          "proteinG": 29.3,
+          "fatG": 29.8,
+          "carbG": 105.2,
+          "saltG": 3.2
+        },
+        {
+          "name": "中盛",
+          "kcal": 865,
+          "proteinG": 34.2,
+          "fatG": 39.9,
+          "carbG": 91.9,
+          "saltG": 3.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 1016,
+          "proteinG": 36,
+          "fatG": 37.1,
+          "carbG": 135.5,
+          "saltG": 3.9
+        },
+        {
+          "name": "特盛",
+          "kcal": 1208,
+          "proteinG": 45.4,
+          "fatG": 52,
+          "carbG": 140.3,
+          "saltG": 5
+        },
+        {
+          "name": "メガ",
+          "kcal": 1473,
+          "proteinG": 58.4,
+          "fatG": 72.7,
+          "carbG": 147,
+          "saltG": 6.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-83b0b54a",
+      "name": "とろ～り3種のチーズ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 640,
+          "proteinG": 26,
+          "fatG": 29.3,
+          "carbG": 68.7,
+          "saltG": 2.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 871,
+          "proteinG": 32.9,
+          "fatG": 36.7,
+          "carbG": 102.8,
+          "saltG": 3.5
+        },
+        {
+          "name": "中盛",
+          "kcal": 928,
+          "proteinG": 37.8,
+          "fatG": 46.7,
+          "carbG": 89.5,
+          "saltG": 3.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 1084,
+          "proteinG": 39.6,
+          "fatG": 44,
+          "carbG": 133.1,
+          "saltG": 4.2
+        },
+        {
+          "name": "特盛",
+          "kcal": 1276,
+          "proteinG": 49,
+          "fatG": 58.9,
+          "carbG": 137.9,
+          "saltG": 5.3
+        },
+        {
+          "name": "メガ",
+          "kcal": 1541,
+          "proteinG": 62,
+          "fatG": 79.6,
+          "carbG": 144.6,
+          "saltG": 6.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1fcef4d3",
+      "name": "わさび山かけ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 517,
+          "proteinG": 16.3,
+          "fatG": 16.1,
+          "carbG": 77,
+          "saltG": 1.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 748,
+          "proteinG": 23.2,
+          "fatG": 23.5,
+          "carbG": 111.1,
+          "saltG": 2.6
+        },
+        {
+          "name": "中盛",
+          "kcal": 804,
+          "proteinG": 28.1,
+          "fatG": 33.5,
+          "carbG": 97.9,
+          "saltG": 3
+        },
+        {
+          "name": "大盛",
+          "kcal": 961,
+          "proteinG": 29.9,
+          "fatG": 30.8,
+          "carbG": 141.4,
+          "saltG": 3.3
+        },
+        {
+          "name": "特盛",
+          "kcal": 1153,
+          "proteinG": 39.3,
+          "fatG": 45.7,
+          "carbG": 146.2,
+          "saltG": 4.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1418,
+          "proteinG": 52.3,
+          "fatG": 66.4,
+          "carbG": 152.9,
+          "saltG": 5.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-7286b2e9",
+      "name": "かつぶしオクラ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 485,
+          "proteinG": 16.6,
+          "fatG": 16.1,
+          "carbG": 69.4,
+          "saltG": 2.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 716,
+          "proteinG": 23.5,
+          "fatG": 23.5,
+          "carbG": 103.5,
+          "saltG": 3.3
+        },
+        {
+          "name": "中盛",
+          "kcal": 773,
+          "proteinG": 28.4,
+          "fatG": 33.5,
+          "carbG": 90.2,
+          "saltG": 3.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 929,
+          "proteinG": 30.2,
+          "fatG": 30.8,
+          "carbG": 133.8,
+          "saltG": 4
+        },
+        {
+          "name": "特盛",
+          "kcal": 1121,
+          "proteinG": 39.6,
+          "fatG": 45.7,
+          "carbG": 138.6,
+          "saltG": 5.1
+        },
+        {
+          "name": "メガ",
+          "kcal": 1386,
+          "proteinG": 52.6,
+          "fatG": 66.4,
+          "carbG": 145.3,
+          "saltG": 6.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f145b0e1",
+      "name": "高菜明太マヨ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 564,
+          "proteinG": 16.4,
+          "fatG": 24.1,
+          "carbG": 70,
+          "saltG": 4.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 795,
+          "proteinG": 23.3,
+          "fatG": 31.5,
+          "carbG": 104.1,
+          "saltG": 4.9
+        },
+        {
+          "name": "中盛",
+          "kcal": 852,
+          "proteinG": 28.2,
+          "fatG": 41.5,
+          "carbG": 90.8,
+          "saltG": 5.3
+        },
+        {
+          "name": "大盛",
+          "kcal": 1008,
+          "proteinG": 30,
+          "fatG": 38.8,
+          "carbG": 134.4,
+          "saltG": 5.6
+        },
+        {
+          "name": "特盛",
+          "kcal": 1200,
+          "proteinG": 39.4,
+          "fatG": 53.7,
+          "carbG": 139.2,
+          "saltG": 6.7
+        },
+        {
+          "name": "メガ",
+          "kcal": 1465,
+          "proteinG": 52.4,
+          "fatG": 74.4,
+          "carbG": 145.9,
+          "saltG": 8.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-ae5b0053",
+      "name": "キムチ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 494,
+          "proteinG": 16.4,
+          "fatG": 16.4,
+          "carbG": 70.7,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 725,
+          "proteinG": 23.3,
+          "fatG": 23.8,
+          "carbG": 104.8,
+          "saltG": 4.2
+        },
+        {
+          "name": "中盛",
+          "kcal": 782,
+          "proteinG": 28.2,
+          "fatG": 33.8,
+          "carbG": 91.5,
+          "saltG": 4.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 938,
+          "proteinG": 30,
+          "fatG": 31.1,
+          "carbG": 135.1,
+          "saltG": 4.8
+        },
+        {
+          "name": "特盛",
+          "kcal": 1130,
+          "proteinG": 39.4,
+          "fatG": 46,
+          "carbG": 139.9,
+          "saltG": 6
+        },
+        {
+          "name": "メガ",
+          "kcal": 1395,
+          "proteinG": 52.4,
+          "fatG": 66.7,
+          "carbG": 146.6,
+          "saltG": 7.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-c18fd374",
+      "name": "にんにく明太マヨチーズ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 720,
+          "proteinG": 26.6,
+          "fatG": 34.8,
+          "carbG": 75.2,
+          "saltG": 3
+        },
+        {
+          "name": "並盛",
+          "kcal": 956,
+          "proteinG": 33.7,
+          "fatG": 42.7,
+          "carbG": 109.4,
+          "saltG": 3.8
+        },
+        {
+          "name": "中盛",
+          "kcal": 1022,
+          "proteinG": 39.2,
+          "fatG": 53.4,
+          "carbG": 96.4,
+          "saltG": 4.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1190,
+          "proteinG": 40.9,
+          "fatG": 50.1,
+          "carbG": 143.9,
+          "saltG": 4.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 1399,
+          "proteinG": 51.2,
+          "fatG": 66.6,
+          "carbG": 149,
+          "saltG": 5.7
+        },
+        {
+          "name": "メガ",
+          "kcal": 1681,
+          "proteinG": 65.1,
+          "fatG": 88.7,
+          "carbG": 156.1,
+          "saltG": 7.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-59432832",
+      "name": "にんにく明太マヨキムチ牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 622,
+          "proteinG": 19.7,
+          "fatG": 25,
+          "carbG": 79.7,
+          "saltG": 4.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 858,
+          "proteinG": 26.8,
+          "fatG": 32.9,
+          "carbG": 113.9,
+          "saltG": 5
+        },
+        {
+          "name": "中盛",
+          "kcal": 924,
+          "proteinG": 32.3,
+          "fatG": 43.6,
+          "carbG": 100.9,
+          "saltG": 5.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1092,
+          "proteinG": 34,
+          "fatG": 40.3,
+          "carbG": 148.4,
+          "saltG": 5.9
+        },
+        {
+          "name": "特盛",
+          "kcal": 1301,
+          "proteinG": 44.3,
+          "fatG": 56.8,
+          "carbG": 153.5,
+          "saltG": 6.9
+        },
+        {
+          "name": "メガ",
+          "kcal": 1583,
+          "proteinG": 58.2,
+          "fatG": 78.9,
+          "carbG": 160.6,
+          "saltG": 8.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-7342cf11",
+      "name": "月見すきやき牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 666,
+          "proteinG": 28.5,
+          "fatG": 25.6,
+          "carbG": 81.8,
+          "saltG": 4.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 897,
+          "proteinG": 35.4,
+          "fatG": 33,
+          "carbG": 115.9,
+          "saltG": 5.1
+        },
+        {
+          "name": "中盛",
+          "kcal": 954,
+          "proteinG": 40.3,
+          "fatG": 43,
+          "carbG": 102.6,
+          "saltG": 5.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 1110,
+          "proteinG": 42.1,
+          "fatG": 40.3,
+          "carbG": 146.2,
+          "saltG": 5.8
+        },
+        {
+          "name": "特盛",
+          "kcal": 1302,
+          "proteinG": 51.5,
+          "fatG": 55.2,
+          "carbG": 151,
+          "saltG": 6.9
+        },
+        {
+          "name": "メガ",
+          "kcal": 1567,
+          "proteinG": 64.5,
+          "fatG": 75.9,
+          "carbG": 157.7,
+          "saltG": 8.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-d5167dc7",
+      "name": "月見辛旨すきやき牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 671,
+          "proteinG": 28.4,
+          "fatG": 27.5,
+          "carbG": 78.7,
+          "saltG": 4.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 902,
+          "proteinG": 35.3,
+          "fatG": 34.9,
+          "carbG": 112.8,
+          "saltG": 4.8
+        },
+        {
+          "name": "中盛",
+          "kcal": 959,
+          "proteinG": 40.2,
+          "fatG": 44.9,
+          "carbG": 99.5,
+          "saltG": 5.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1115,
+          "proteinG": 42,
+          "fatG": 42.2,
+          "carbG": 143.1,
+          "saltG": 5.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 1307,
+          "proteinG": 51.4,
+          "fatG": 57.1,
+          "carbG": 147.9,
+          "saltG": 6.6
+        },
+        {
+          "name": "メガ",
+          "kcal": 1572,
+          "proteinG": 64.4,
+          "fatG": 77.8,
+          "carbG": 154.6,
+          "saltG": 8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-ca67d858",
+      "name": "すきやき牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 580,
+          "proteinG": 21.1,
+          "fatG": 19.4,
+          "carbG": 81.6,
+          "saltG": 4.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 811,
+          "proteinG": 28,
+          "fatG": 26.8,
+          "carbG": 115.7,
+          "saltG": 4.9
+        },
+        {
+          "name": "中盛",
+          "kcal": 868,
+          "proteinG": 32.9,
+          "fatG": 36.8,
+          "carbG": 102.4,
+          "saltG": 5.3
+        },
+        {
+          "name": "大盛",
+          "kcal": 1024,
+          "proteinG": 34.7,
+          "fatG": 34.1,
+          "carbG": 146,
+          "saltG": 5.6
+        },
+        {
+          "name": "特盛",
+          "kcal": 1216,
+          "proteinG": 44.1,
+          "fatG": 49,
+          "carbG": 150.8,
+          "saltG": 6.7
+        },
+        {
+          "name": "メガ",
+          "kcal": 1481,
+          "proteinG": 57.1,
+          "fatG": 69.7,
+          "carbG": 157.5,
+          "saltG": 8.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b33fd9a8",
+      "name": "辛旨すきやき牛丼",
+      "series": "牛丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 585,
+          "proteinG": 21,
+          "fatG": 21.3,
+          "carbG": 78.4,
+          "saltG": 3.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 816,
+          "proteinG": 27.9,
+          "fatG": 28.7,
+          "carbG": 112.5,
+          "saltG": 4.6
+        },
+        {
+          "name": "中盛",
+          "kcal": 873,
+          "proteinG": 32.8,
+          "fatG": 38.7,
+          "carbG": 99.2,
+          "saltG": 4.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1029,
+          "proteinG": 34.6,
+          "fatG": 36,
+          "carbG": 142.8,
+          "saltG": 5.2
+        },
+        {
+          "name": "特盛",
+          "kcal": 1221,
+          "proteinG": 44,
+          "fatG": 50.9,
+          "carbG": 147.6,
+          "saltG": 6.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1486,
+          "proteinG": 57,
+          "fatG": 71.6,
+          "carbG": 154.3,
+          "saltG": 7.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-54f8ec19",
+      "name": "牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 311,
+          "proteinG": 18.5,
+          "fatG": 19.9,
+          "carbG": 14.7,
+          "saltG": 1.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 399,
+          "proteinG": 22.8,
+          "fatG": 26.8,
+          "carbG": 16.7,
+          "saltG": 2.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 487,
+          "proteinG": 27.1,
+          "fatG": 33.6,
+          "carbG": 18.8,
+          "saltG": 2.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b7bb9543",
+      "name": "ねぎ玉牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 413,
+          "proteinG": 25.8,
+          "fatG": 26.4,
+          "carbG": 19.4,
+          "saltG": 1.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 486,
+          "proteinG": 29.6,
+          "fatG": 33,
+          "carbG": 18.8,
+          "saltG": 2.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 587,
+          "proteinG": 34.3,
+          "fatG": 40,
+          "carbG": 23.5,
+          "saltG": 2.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-976579ab",
+      "name": "とろ～り3種のチーズ牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 480,
+          "proteinG": 29.2,
+          "fatG": 33.2,
+          "carbG": 16.9,
+          "saltG": 2.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 568,
+          "proteinG": 33.5,
+          "fatG": 40.1,
+          "carbG": 19,
+          "saltG": 2.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 655,
+          "proteinG": 37.8,
+          "fatG": 46.9,
+          "carbG": 21.1,
+          "saltG": 3
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b48ac25a",
+      "name": "わさび山かけ牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 356,
+          "proteinG": 19.5,
+          "fatG": 20,
+          "carbG": 25.2,
+          "saltG": 1.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 444,
+          "proteinG": 23.8,
+          "fatG": 26.9,
+          "carbG": 27.3,
+          "saltG": 1.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 531,
+          "proteinG": 28.1,
+          "fatG": 33.7,
+          "carbG": 29.4,
+          "saltG": 2.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-19b2d2db",
+      "name": "高菜明太マヨ牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 404,
+          "proteinG": 19.6,
+          "fatG": 28,
+          "carbG": 18.3,
+          "saltG": 3.5
+        },
+        {
+          "name": "並盛",
+          "kcal": 492,
+          "proteinG": 23.9,
+          "fatG": 34.9,
+          "carbG": 20.4,
+          "saltG": 3.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 579,
+          "proteinG": 28.2,
+          "fatG": 41.7,
+          "carbG": 22.5,
+          "saltG": 4.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-551f3c2e",
+      "name": "おろしポン酢牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 324,
+          "proteinG": 18.8,
+          "fatG": 20,
+          "carbG": 17.6,
+          "saltG": 1.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 412,
+          "proteinG": 23.1,
+          "fatG": 26.9,
+          "carbG": 19.7,
+          "saltG": 2.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 499,
+          "proteinG": 27.4,
+          "fatG": 33.7,
+          "carbG": 21.8,
+          "saltG": 2.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-4b84e30c",
+      "name": "かつぶしオクラ牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 334,
+          "proteinG": 20.5,
+          "fatG": 20,
+          "carbG": 19.9,
+          "saltG": 1.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 422,
+          "proteinG": 24.8,
+          "fatG": 26.9,
+          "carbG": 22,
+          "saltG": 2.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 509,
+          "proteinG": 29.1,
+          "fatG": 33.7,
+          "carbG": 24.1,
+          "saltG": 2.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b53bc931",
+      "name": "キムチ牛丼ライト",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 334,
+          "proteinG": 19.6,
+          "fatG": 20.3,
+          "carbG": 19,
+          "saltG": 2.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 422,
+          "proteinG": 23.9,
+          "fatG": 27.2,
+          "carbG": 21.1,
+          "saltG": 3.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 530,
+          "proteinG": 29.2,
+          "fatG": 35.6,
+          "carbG": 23.6,
+          "saltG": 3.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-9a7d5f1c",
+      "name": "牛丼ライト（テイクアウト）",
+      "series": "牛丼ライト",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 324,
+          "proteinG": 19.6,
+          "fatG": 20.1,
+          "carbG": 17.2,
+          "saltG": 2.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 417,
+          "proteinG": 24.2,
+          "fatG": 27,
+          "carbG": 20.1,
+          "saltG": 3.3
+        },
+        {
+          "name": "大盛",
+          "kcal": 509,
+          "proteinG": 28.9,
+          "fatG": 33.9,
+          "carbG": 23,
+          "saltG": 4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-7aaa97c8",
+      "name": "牛・お食事サラダ",
+      "series": "お食事サラダ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 359,
+          "proteinG": 15.5,
+          "fatG": 22.1,
+          "carbG": 26.6,
+          "saltG": 1.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-d60a9eb2",
+      "name": "チキン・お食事サラダ",
+      "series": "お食事サラダ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 247,
+          "proteinG": 24.5,
+          "fatG": 7.8,
+          "carbG": 21.5,
+          "saltG": 0.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-99b05c27",
+      "name": "カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 390,
+          "proteinG": 7.5,
+          "fatG": 8.1,
+          "carbG": 72,
+          "saltG": 2
+        },
+        {
+          "name": "並盛",
+          "kcal": 653,
+          "proteinG": 12.8,
+          "fatG": 15.7,
+          "carbG": 115.2,
+          "saltG": 3.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 967,
+          "proteinG": 19,
+          "fatG": 23.5,
+          "carbG": 170.3,
+          "saltG": 5.2
+        },
+        {
+          "name": "メガ",
+          "kcal": 1311,
+          "proteinG": 25.6,
+          "fatG": 31.4,
+          "carbG": 231.8,
+          "saltG": 7.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-883b104d",
+      "name": "牛カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 584,
+          "proteinG": 17.2,
+          "fatG": 23.1,
+          "carbG": 77.4,
+          "saltG": 3.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 847,
+          "proteinG": 22.5,
+          "fatG": 30.7,
+          "carbG": 120.6,
+          "saltG": 4.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 1161,
+          "proteinG": 28.7,
+          "fatG": 38.5,
+          "carbG": 175.7,
+          "saltG": 6.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1505,
+          "proteinG": 35.3,
+          "fatG": 46.4,
+          "carbG": 237.2,
+          "saltG": 8.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-562bc1c4",
+      "name": "とろ～りチーズカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 566,
+          "proteinG": 18.7,
+          "fatG": 21.4,
+          "carbG": 75,
+          "saltG": 3.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 829,
+          "proteinG": 24,
+          "fatG": 29,
+          "carbG": 118.3,
+          "saltG": 4.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 1143,
+          "proteinG": 30.2,
+          "fatG": 36.8,
+          "carbG": 173.3,
+          "saltG": 6.3
+        },
+        {
+          "name": "メガ",
+          "kcal": 1487,
+          "proteinG": 36.8,
+          "fatG": 44.7,
+          "carbG": 234.8,
+          "saltG": 8.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b8c02594",
+      "name": "おんたまカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 474,
+          "proteinG": 14.3,
+          "fatG": 13.8,
+          "carbG": 72.1,
+          "saltG": 2.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 737,
+          "proteinG": 19.6,
+          "fatG": 21.5,
+          "carbG": 115.4,
+          "saltG": 3.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 1051,
+          "proteinG": 25.8,
+          "fatG": 29.2,
+          "carbG": 170.5,
+          "saltG": 5.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1395,
+          "proteinG": 32.4,
+          "fatG": 37.2,
+          "carbG": 231.9,
+          "saltG": 7.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-eb3e4aaf",
+      "name": "チーズおんたまカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 650,
+          "proteinG": 25.5,
+          "fatG": 27.1,
+          "carbG": 75.1,
+          "saltG": 3.3
+        },
+        {
+          "name": "並盛",
+          "kcal": 913,
+          "proteinG": 30.8,
+          "fatG": 34.8,
+          "carbG": 118.4,
+          "saltG": 4.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1227,
+          "proteinG": 37,
+          "fatG": 42.5,
+          "carbG": 173.5,
+          "saltG": 6.5
+        },
+        {
+          "name": "メガ",
+          "kcal": 1571,
+          "proteinG": 43.6,
+          "fatG": 50.5,
+          "carbG": 234.9,
+          "saltG": 9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-d148e9f0",
+      "name": "おんたま牛カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 668,
+          "proteinG": 24,
+          "fatG": 28.8,
+          "carbG": 77.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 931,
+          "proteinG": 29.3,
+          "fatG": 36.5,
+          "carbG": 120.8,
+          "saltG": 5
+        },
+        {
+          "name": "大盛",
+          "kcal": 1245,
+          "proteinG": 35.5,
+          "fatG": 44.2,
+          "carbG": 175.9,
+          "saltG": 6.6
+        },
+        {
+          "name": "メガ",
+          "kcal": 1589,
+          "proteinG": 42.1,
+          "fatG": 52.2,
+          "carbG": 237.3,
+          "saltG": 9.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f29f3488",
+      "name": "チーズ牛カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 760,
+          "proteinG": 28.4,
+          "fatG": 42.8,
+          "carbG": 75.9,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 1023,
+          "proteinG": 33.7,
+          "fatG": 44,
+          "carbG": 123.7,
+          "saltG": 5.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1337,
+          "proteinG": 39.9,
+          "fatG": 51.8,
+          "carbG": 178.7,
+          "saltG": 7.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1681,
+          "proteinG": 46.5,
+          "fatG": 59.7,
+          "carbG": 240.2,
+          "saltG": 10
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-ea2e9eb5",
+      "name": "ソーセージカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 641,
+          "proteinG": 18.2,
+          "fatG": 30.1,
+          "carbG": 75.1,
+          "saltG": 3.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 903,
+          "proteinG": 23.5,
+          "fatG": 37.8,
+          "carbG": 118.4,
+          "saltG": 5.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1218,
+          "proteinG": 29.6,
+          "fatG": 45.5,
+          "carbG": 173.4,
+          "saltG": 7
+        },
+        {
+          "name": "メガ",
+          "kcal": 1562,
+          "proteinG": 36.2,
+          "fatG": 53.5,
+          "carbG": 234.9,
+          "saltG": 9.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-803fd715",
+      "name": "ほうれん草カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 401,
+          "proteinG": 9.1,
+          "fatG": 8.1,
+          "carbG": 73.5,
+          "saltG": 2.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 663,
+          "proteinG": 14.4,
+          "fatG": 15.7,
+          "carbG": 116.8,
+          "saltG": 3.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 978,
+          "proteinG": 20.6,
+          "fatG": 23.5,
+          "carbG": 171.9,
+          "saltG": 5.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1321,
+          "proteinG": 27.2,
+          "fatG": 31.4,
+          "carbG": 233.3,
+          "saltG": 7.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-6be89f15",
+      "name": "チーズソーセージカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 817,
+          "proteinG": 29.4,
+          "fatG": 43.4,
+          "carbG": 78.1,
+          "saltG": 4.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 1080,
+          "proteinG": 34.7,
+          "fatG": 51.1,
+          "carbG": 121.4,
+          "saltG": 6.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 1394,
+          "proteinG": 40.8,
+          "fatG": 58.8,
+          "carbG": 176.5,
+          "saltG": 8.1
+        },
+        {
+          "name": "メガ",
+          "kcal": 1738,
+          "proteinG": 47.4,
+          "fatG": 66.8,
+          "carbG": 237.9,
+          "saltG": 10.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-3da0b2f5",
+      "name": "チーズほうれん草カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 577,
+          "proteinG": 20.3,
+          "fatG": 21.4,
+          "carbG": 76.5,
+          "saltG": 3.3
+        },
+        {
+          "name": "並盛",
+          "kcal": 839,
+          "proteinG": 25.6,
+          "fatG": 29,
+          "carbG": 119.8,
+          "saltG": 4.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1154,
+          "proteinG": 31.8,
+          "fatG": 36.8,
+          "carbG": 174.9,
+          "saltG": 6.4
+        },
+        {
+          "name": "メガ",
+          "kcal": 1497,
+          "proteinG": 38.4,
+          "fatG": 44.7,
+          "carbG": 236.3,
+          "saltG": 9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1d2e13be",
+      "name": "肉2倍牛カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 778,
+          "proteinG": 26.8,
+          "fatG": 38,
+          "carbG": 82.8,
+          "saltG": 4.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 1041,
+          "proteinG": 32.1,
+          "fatG": 45.6,
+          "carbG": 126,
+          "saltG": 6
+        },
+        {
+          "name": "大盛",
+          "kcal": 1355,
+          "proteinG": 38.3,
+          "fatG": 53.4,
+          "carbG": 181.1,
+          "saltG": 7.5
+        },
+        {
+          "name": "メガ",
+          "kcal": 1699,
+          "proteinG": 44.9,
+          "fatG": 61.3,
+          "carbG": 242.6,
+          "saltG": 10.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-12c65657",
+      "name": "目玉焼き牛カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 700,
+          "proteinG": 24.6,
+          "fatG": 32.6,
+          "carbG": 77.6,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 963,
+          "proteinG": 29.9,
+          "fatG": 40.2,
+          "carbG": 120.9,
+          "saltG": 5
+        },
+        {
+          "name": "大盛",
+          "kcal": 1277,
+          "proteinG": 36.1,
+          "fatG": 48,
+          "carbG": 176,
+          "saltG": 6.6
+        },
+        {
+          "name": "メガ",
+          "kcal": 1621,
+          "proteinG": 42.7,
+          "fatG": 56,
+          "carbG": 237.4,
+          "saltG": 9.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-8273aa34",
+      "name": "目玉焼きほうれん草カレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 517,
+          "proteinG": 16.6,
+          "fatG": 17.6,
+          "carbG": 73.7,
+          "saltG": 2.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 779,
+          "proteinG": 21.9,
+          "fatG": 25.2,
+          "carbG": 117,
+          "saltG": 4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1094,
+          "proteinG": 28.1,
+          "fatG": 33,
+          "carbG": 172.1,
+          "saltG": 5.6
+        },
+        {
+          "name": "メガ",
+          "kcal": 1438,
+          "proteinG": 34.7,
+          "fatG": 41,
+          "carbG": 233.6,
+          "saltG": 8.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-6cd7adb6",
+      "name": "目玉焼きソーセージカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 757,
+          "proteinG": 25.6,
+          "fatG": 39.6,
+          "carbG": 75.3,
+          "saltG": 4.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 1020,
+          "proteinG": 30.9,
+          "fatG": 47.3,
+          "carbG": 118.6,
+          "saltG": 5.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 1334,
+          "proteinG": 37.1,
+          "fatG": 55,
+          "carbG": 173.7,
+          "saltG": 7.3
+        },
+        {
+          "name": "メガ",
+          "kcal": 1678,
+          "proteinG": 43.7,
+          "fatG": 63,
+          "carbG": 235.1,
+          "saltG": 9.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-06052deb",
+      "name": "ポークロックカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 631,
+          "proteinG": 28.5,
+          "fatG": 20,
+          "carbG": 84.1,
+          "saltG": 4.5
+        },
+        {
+          "name": "並盛",
+          "kcal": 893,
+          "proteinG": 33.8,
+          "fatG": 27.7,
+          "carbG": 127.4,
+          "saltG": 6.1
+        },
+        {
+          "name": "大盛",
+          "kcal": 1208,
+          "proteinG": 40,
+          "fatG": 35.4,
+          "carbG": 182.5,
+          "saltG": 7.7
+        },
+        {
+          "name": "メガ",
+          "kcal": 1551,
+          "proteinG": 46.6,
+          "fatG": 43.4,
+          "carbG": 243.9,
+          "saltG": 10.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-05c4f65e",
+      "name": "ポークロックカレー 肉ダブル",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 867,
+          "proteinG": 49.5,
+          "fatG": 32,
+          "carbG": 95.2,
+          "saltG": 6.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 1129,
+          "proteinG": 54.8,
+          "fatG": 39.6,
+          "carbG": 138.4,
+          "saltG": 8.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1444,
+          "proteinG": 61,
+          "fatG": 47.4,
+          "carbG": 193.5,
+          "saltG": 10
+        },
+        {
+          "name": "メガ",
+          "kcal": 1787,
+          "proteinG": 67.6,
+          "fatG": 55.4,
+          "carbG": 255,
+          "saltG": 12.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-734946cc",
+      "name": "ポークロックカレー 肉トリプル",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 1103,
+          "proteinG": 70.4,
+          "fatG": 43.9,
+          "carbG": 106.2,
+          "saltG": 9.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 1365,
+          "proteinG": 75.7,
+          "fatG": 51.6,
+          "carbG": 149.5,
+          "saltG": 10.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 1680,
+          "proteinG": 81.9,
+          "fatG": 59.4,
+          "carbG": 204.6,
+          "saltG": 12.3
+        },
+        {
+          "name": "メガ",
+          "kcal": 2023,
+          "proteinG": 88.5,
+          "fatG": 67.3,
+          "carbG": 266,
+          "saltG": 14.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-941b3c2e",
+      "name": "にんにくポークロックカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 673,
+          "proteinG": 30.6,
+          "fatG": 20.6,
+          "carbG": 91.3,
+          "saltG": 4.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 936,
+          "proteinG": 35.9,
+          "fatG": 28.3,
+          "carbG": 134.5,
+          "saltG": 6.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1250,
+          "proteinG": 42.1,
+          "fatG": 36,
+          "carbG": 189.6,
+          "saltG": 7.8
+        },
+        {
+          "name": "メガ",
+          "kcal": 1594,
+          "proteinG": 48.7,
+          "fatG": 44,
+          "carbG": 251.1,
+          "saltG": 10.3
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1149e86c",
+      "name": "にんにくファイヤーポークロックカレー",
+      "series": "カレー",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 673,
+          "proteinG": 29.9,
+          "fatG": 21.6,
+          "carbG": 89.9,
+          "saltG": 5.3
+        },
+        {
+          "name": "並盛",
+          "kcal": 936,
+          "proteinG": 35.2,
+          "fatG": 29.3,
+          "carbG": 133.2,
+          "saltG": 6.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1250,
+          "proteinG": 41.4,
+          "fatG": 37,
+          "carbG": 188.3,
+          "saltG": 8.5
+        },
+        {
+          "name": "メガ",
+          "kcal": 1594,
+          "proteinG": 48,
+          "fatG": 45,
+          "carbG": 249.7,
+          "saltG": 11
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-45a6efc5",
+      "name": "すき家の特製辛口ソース",
+      "series": "カレー",
+      "kind": "food",
+      "kcal": 14,
+      "proteinG": 0.2,
+      "fatG": 0.7,
+      "carbG": 1.6,
+      "saltG": 0.5
+    },
+    {
+      "id": "sukiya-jp-e70dfcf6",
+      "name": "旨だしとりそぼろ丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 604,
+          "proteinG": 29.4,
+          "fatG": 14.1,
+          "carbG": 89.2,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 673,
+          "proteinG": 30.6,
+          "fatG": 14.4,
+          "carbG": 104.8,
+          "saltG": 3.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 794,
+          "proteinG": 32.6,
+          "fatG": 14.8,
+          "carbG": 132.2,
+          "saltG": 3.4
+        },
+        {
+          "name": "特盛",
+          "kcal": 971,
+          "proteinG": 47.9,
+          "fatG": 21.3,
+          "carbG": 145.1,
+          "saltG": 6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-bc35568e",
+      "name": "明太マヨ旨だしとりそぼろ丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 673,
+          "proteinG": 29.9,
+          "fatG": 21.1,
+          "carbG": 90.4,
+          "saltG": 4.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 742,
+          "proteinG": 31.1,
+          "fatG": 21.4,
+          "carbG": 106,
+          "saltG": 4.1
+        },
+        {
+          "name": "大盛",
+          "kcal": 863,
+          "proteinG": 33.1,
+          "fatG": 21.8,
+          "carbG": 133.4,
+          "saltG": 4.1
+        },
+        {
+          "name": "特盛",
+          "kcal": 1040,
+          "proteinG": 48.4,
+          "fatG": 28.2,
+          "carbG": 146.3,
+          "saltG": 6.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-01853554",
+      "name": "オクラ旨だしとりそぼろ丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 620,
+          "proteinG": 30.6,
+          "fatG": 14.2,
+          "carbG": 93.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 689,
+          "proteinG": 31.8,
+          "fatG": 14.5,
+          "carbG": 109.1,
+          "saltG": 3.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 810,
+          "proteinG": 33.8,
+          "fatG": 14.9,
+          "carbG": 136.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "特盛",
+          "kcal": 987,
+          "proteinG": 49.1,
+          "fatG": 21.3,
+          "carbG": 149.4,
+          "saltG": 6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-8b53a25c",
+      "name": "まぐろたたき皿",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 170,
+          "proteinG": 20.8,
+          "fatG": 8.2,
+          "carbG": 2.7,
+          "saltG": 0.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-bd45adc4",
+      "name": "まぐろたたき丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 581,
+          "proteinG": 27.6,
+          "fatG": 9.6,
+          "carbG": 95.2,
+          "saltG": 1.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 706,
+          "proteinG": 29.7,
+          "fatG": 10,
+          "carbG": 123.5,
+          "saltG": 1.6
+        },
+        {
+          "name": "特盛",
+          "kcal": 865,
+          "proteinG": 49.5,
+          "fatG": 18,
+          "carbG": 124.2,
+          "saltG": 2.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-6dd17968",
+      "name": "まぐろユッケ丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 688,
+          "proteinG": 35.1,
+          "fatG": 16.4,
+          "carbG": 99.5,
+          "saltG": 2.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 813,
+          "proteinG": 37.2,
+          "fatG": 16.8,
+          "carbG": 127.8,
+          "saltG": 2.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 1001,
+          "proteinG": 57.6,
+          "fatG": 25.9,
+          "carbG": 132.5,
+          "saltG": 4.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-2a48018b",
+      "name": "山かけまぐろたたき丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 629,
+          "proteinG": 29,
+          "fatG": 9.6,
+          "carbG": 105.8,
+          "saltG": 1.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 754,
+          "proteinG": 31.1,
+          "fatG": 10,
+          "carbG": 134.1,
+          "saltG": 1.8
+        },
+        {
+          "name": "特盛",
+          "kcal": 913,
+          "proteinG": 50.9,
+          "fatG": 18,
+          "carbG": 134.8,
+          "saltG": 2.3
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-eeef84e0",
+      "name": "鉄火丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 458,
+          "proteinG": 27.1,
+          "fatG": 3.3,
+          "carbG": 79.1,
+          "saltG": 1.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 527,
+          "proteinG": 28.3,
+          "fatG": 3.6,
+          "carbG": 94.7,
+          "saltG": 1.1
+        },
+        {
+          "name": "大盛",
+          "kcal": 652,
+          "proteinG": 30.4,
+          "fatG": 4,
+          "carbG": 122.9,
+          "saltG": 1.3
+        },
+        {
+          "name": "特盛",
+          "kcal": 760,
+          "proteinG": 50.8,
+          "fatG": 5.9,
+          "carbG": 124,
+          "saltG": 1.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-73ed6e74",
+      "name": "鉄火たたき丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 618,
+          "proteinG": 46.9,
+          "fatG": 11.3,
+          "carbG": 80,
+          "saltG": 1.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 687,
+          "proteinG": 48.1,
+          "fatG": 11.6,
+          "carbG": 95.6,
+          "saltG": 1.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 812,
+          "proteinG": 50.2,
+          "fatG": 12,
+          "carbG": 123.9,
+          "saltG": 1.9
+        },
+        {
+          "name": "特盛",
+          "kcal": 920,
+          "proteinG": 70.7,
+          "fatG": 13.9,
+          "carbG": 125,
+          "saltG": 2.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-24574a50",
+      "name": "山かけ鉄火丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 506,
+          "proteinG": 28.5,
+          "fatG": 3.3,
+          "carbG": 89.6,
+          "saltG": 1.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 575,
+          "proteinG": 29.7,
+          "fatG": 3.6,
+          "carbG": 105.2,
+          "saltG": 1.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 700,
+          "proteinG": 31.8,
+          "fatG": 4,
+          "carbG": 133.5,
+          "saltG": 1.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 808,
+          "proteinG": 52.2,
+          "fatG": 5.9,
+          "carbG": 134.6,
+          "saltG": 1.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-7c59ad70",
+      "name": "ばくだん鉄火丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 687,
+          "proteinG": 43.3,
+          "fatG": 13.7,
+          "carbG": 98.2,
+          "saltG": 1.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 756,
+          "proteinG": 44.5,
+          "fatG": 14,
+          "carbG": 113.8,
+          "saltG": 1.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 881,
+          "proteinG": 46.6,
+          "fatG": 14.4,
+          "carbG": 142.1,
+          "saltG": 1.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 989,
+          "proteinG": 67,
+          "fatG": 16.3,
+          "carbG": 143.2,
+          "saltG": 2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-3b88b8fb",
+      "name": "おんたま牛ネバとろ丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 757,
+          "proteinG": 27.4,
+          "fatG": 22.5,
+          "carbG": 108,
+          "saltG": 2.5
+        },
+        {
+          "name": "大盛",
+          "kcal": 878,
+          "proteinG": 29.4,
+          "fatG": 23,
+          "carbG": 139.3,
+          "saltG": 2.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 1075,
+          "proteinG": 39.3,
+          "fatG": 38,
+          "carbG": 145.1,
+          "saltG": 3.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-2ffa3685",
+      "name": "キムチ牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 860,
+          "proteinG": 27.1,
+          "fatG": 38.7,
+          "carbG": 100.9,
+          "saltG": 4.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 929,
+          "proteinG": 28.3,
+          "fatG": 39,
+          "carbG": 116.5,
+          "saltG": 4.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 1067,
+          "proteinG": 30.6,
+          "fatG": 39.5,
+          "carbG": 147.8,
+          "saltG": 4.6
+        },
+        {
+          "name": "特盛",
+          "kcal": 1552,
+          "proteinG": 50.2,
+          "fatG": 76.5,
+          "carbG": 166,
+          "saltG": 7.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-9cfb24f9",
+      "name": "チーズ牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 1007,
+          "proteinG": 36.7,
+          "fatG": 51.6,
+          "carbG": 98.9,
+          "saltG": 3.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 1075,
+          "proteinG": 37.9,
+          "fatG": 51.9,
+          "carbG": 114.5,
+          "saltG": 3.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 1213,
+          "proteinG": 40.2,
+          "fatG": 52.4,
+          "carbG": 145.8,
+          "saltG": 3.9
+        },
+        {
+          "name": "特盛",
+          "kcal": 1698,
+          "proteinG": 59.9,
+          "fatG": 89.4,
+          "carbG": 164.1,
+          "saltG": 6.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-a28bba53",
+      "name": "ねぎ玉牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 946,
+          "proteinG": 33.8,
+          "fatG": 45.3,
+          "carbG": 101.2,
+          "saltG": 3.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 1015,
+          "proteinG": 35,
+          "fatG": 45.6,
+          "carbG": 116.8,
+          "saltG": 3.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 1153,
+          "proteinG": 37.3,
+          "fatG": 46.1,
+          "carbG": 148.1,
+          "saltG": 3.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 1638,
+          "proteinG": 56.9,
+          "fatG": 83.1,
+          "carbG": 166.4,
+          "saltG": 6.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1cadb065",
+      "name": "にんにく牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 873,
+          "proteinG": 27.5,
+          "fatG": 38.9,
+          "carbG": 103,
+          "saltG": 3
+        },
+        {
+          "name": "並盛",
+          "kcal": 942,
+          "proteinG": 28.7,
+          "fatG": 39.3,
+          "carbG": 118.6,
+          "saltG": 3
+        },
+        {
+          "name": "大盛",
+          "kcal": 1080,
+          "proteinG": 31,
+          "fatG": 39.8,
+          "carbG": 149.9,
+          "saltG": 3
+        },
+        {
+          "name": "特盛",
+          "kcal": 1565,
+          "proteinG": 50.6,
+          "fatG": 76.8,
+          "carbG": 168.2,
+          "saltG": 5.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1d2287fd",
+      "name": "にんにく明太マヨキムチ牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 1071,
+          "proteinG": 36.6,
+          "fatG": 56,
+          "carbG": 105,
+          "saltG": 4.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 1140,
+          "proteinG": 37.8,
+          "fatG": 56.3,
+          "carbG": 120.6,
+          "saltG": 4.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1278,
+          "proteinG": 40.1,
+          "fatG": 56.8,
+          "carbG": 151.9,
+          "saltG": 4.2
+        },
+        {
+          "name": "特盛",
+          "kcal": 1635,
+          "proteinG": 51.3,
+          "fatG": 83.7,
+          "carbG": 169.7,
+          "saltG": 6.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-09883de5",
+      "name": "にんにく明太マヨチーズ牛カルビ焼肉丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 973,
+          "proteinG": 29.7,
+          "fatG": 46.2,
+          "carbG": 109.5,
+          "saltG": 5.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 1043,
+          "proteinG": 30.9,
+          "fatG": 46.5,
+          "carbG": 125.1,
+          "saltG": 5.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1181,
+          "proteinG": 33.2,
+          "fatG": 47,
+          "carbG": 156.4,
+          "saltG": 5.4
+        },
+        {
+          "name": "特盛",
+          "kcal": 1665,
+          "proteinG": 52.9,
+          "fatG": 84,
+          "carbG": 174.6,
+          "saltG": 7.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1b106353",
+      "name": "シビ辛麻婆茄子牛丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 759,
+          "proteinG": 20.8,
+          "fatG": 33.3,
+          "carbG": 94.8,
+          "saltG": 4.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 828,
+          "proteinG": 22,
+          "fatG": 33.5,
+          "carbG": 110.4,
+          "saltG": 4.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 949,
+          "proteinG": 24,
+          "fatG": 33.9,
+          "carbG": 137.8,
+          "saltG": 4.2
+        },
+        {
+          "name": "特盛",
+          "kcal": 1146,
+          "proteinG": 33.9,
+          "fatG": 49,
+          "carbG": 143.6,
+          "saltG": 5.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-780c1781",
+      "name": "おんたまシビ辛麻婆茄子牛丼",
+      "series": "こだわり丼",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 842,
+          "proteinG": 27.5,
+          "fatG": 38.9,
+          "carbG": 95,
+          "saltG": 4.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 911,
+          "proteinG": 28.7,
+          "fatG": 39.2,
+          "carbG": 110.6,
+          "saltG": 4.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 1032,
+          "proteinG": 30.7,
+          "fatG": 39.6,
+          "carbG": 138,
+          "saltG": 4.4
+        },
+        {
+          "name": "特盛",
+          "kcal": 1229,
+          "proteinG": 40.6,
+          "fatG": 54.6,
+          "carbG": 143.8,
+          "saltG": 5.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-94b706a3",
+      "name": "うな皿",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 255,
+          "proteinG": 16,
+          "fatG": 17.3,
+          "carbG": 8.5,
+          "saltG": 1.8
+        },
+        {
+          "name": "特盛",
+          "kcal": 509,
+          "proteinG": 31.9,
+          "fatG": 34.6,
+          "carbG": 16.8,
+          "saltG": 3.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-27899e20",
+      "name": "うな丼",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 662,
+          "proteinG": 22.8,
+          "fatG": 18.7,
+          "carbG": 100.2,
+          "saltG": 2.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 791,
+          "proteinG": 24.9,
+          "fatG": 19.1,
+          "carbG": 129.4,
+          "saltG": 2.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 1028,
+          "proteinG": 40.6,
+          "fatG": 36.4,
+          "carbG": 134.1,
+          "saltG": 3.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b76b98ac",
+      "name": "おんたまうな丼",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 677,
+          "proteinG": 28.4,
+          "fatG": 24.1,
+          "carbG": 84.7,
+          "saltG": 2.3
+        },
+        {
+          "name": "並盛",
+          "kcal": 746,
+          "proteinG": 29.7,
+          "fatG": 24.4,
+          "carbG": 100.3,
+          "saltG": 2.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 876,
+          "proteinG": 31.8,
+          "fatG": 24.8,
+          "carbG": 129.5,
+          "saltG": 2.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 1113,
+          "proteinG": 47.4,
+          "fatG": 42.1,
+          "carbG": 134.1,
+          "saltG": 3.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-4b86f388",
+      "name": "山かけうな丼",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 645,
+          "proteinG": 23,
+          "fatG": 18.5,
+          "carbG": 95.9,
+          "saltG": 2.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 714,
+          "proteinG": 24.3,
+          "fatG": 18.8,
+          "carbG": 111.5,
+          "saltG": 2.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 844,
+          "proteinG": 26.4,
+          "fatG": 19.2,
+          "carbG": 140.7,
+          "saltG": 2.7
+        },
+        {
+          "name": "特盛",
+          "kcal": 1081,
+          "proteinG": 42.1,
+          "fatG": 36.5,
+          "carbG": 145.4,
+          "saltG": 3.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f2032a17",
+      "name": "うな牛皿",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 443,
+          "proteinG": 25.3,
+          "fatG": 33,
+          "carbG": 11.4,
+          "saltG": 2
+        },
+        {
+          "name": "特盛",
+          "kcal": 685,
+          "proteinG": 40.8,
+          "fatG": 50.9,
+          "carbG": 16,
+          "saltG": 2.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-3dfabb19",
+      "name": "うな牛",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 791,
+          "proteinG": 31,
+          "fatG": 34,
+          "carbG": 89.9,
+          "saltG": 3
+        },
+        {
+          "name": "並盛",
+          "kcal": 860,
+          "proteinG": 32.2,
+          "fatG": 34.3,
+          "carbG": 105.5,
+          "saltG": 3
+        },
+        {
+          "name": "大盛",
+          "kcal": 990,
+          "proteinG": 34.4,
+          "fatG": 34.7,
+          "carbG": 134.8,
+          "saltG": 3.3
+        },
+        {
+          "name": "特盛",
+          "kcal": 1232,
+          "proteinG": 49.8,
+          "fatG": 52.7,
+          "carbG": 139.3,
+          "saltG": 4.2
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-6500da3f",
+      "name": "おんたまうな牛",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 875,
+          "proteinG": 37.9,
+          "fatG": 39.7,
+          "carbG": 90.1,
+          "saltG": 3.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 945,
+          "proteinG": 39.1,
+          "fatG": 40.1,
+          "carbG": 105.7,
+          "saltG": 3.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1074,
+          "proteinG": 41.2,
+          "fatG": 40.5,
+          "carbG": 134.9,
+          "saltG": 3.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 1316,
+          "proteinG": 56.7,
+          "fatG": 58.4,
+          "carbG": 139.5,
+          "saltG": 4.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-51560fc7",
+      "name": "山かけうな牛",
+      "series": "うなぎ",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ごはん少なめ",
+          "kcal": 844,
+          "proteinG": 32.5,
+          "fatG": 34.1,
+          "carbG": 101.2,
+          "saltG": 3.2
+        },
+        {
+          "name": "並盛",
+          "kcal": 913,
+          "proteinG": 33.7,
+          "fatG": 34.4,
+          "carbG": 116.8,
+          "saltG": 3.2
+        },
+        {
+          "name": "大盛",
+          "kcal": 1043,
+          "proteinG": 35.8,
+          "fatG": 34.8,
+          "carbG": 146.1,
+          "saltG": 3.5
+        },
+        {
+          "name": "特盛",
+          "kcal": 1284,
+          "proteinG": 51.3,
+          "fatG": 52.8,
+          "carbG": 150.6,
+          "saltG": 4.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-324d63b8",
+      "name": "牛皿定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 832,
+          "proteinG": 31.7,
+          "fatG": 30.8,
+          "carbG": 106.5,
+          "saltG": 4.8
+        },
+        {
+          "name": "中盛",
+          "kcal": 966,
+          "proteinG": 38.3,
+          "fatG": 41.2,
+          "carbG": 110,
+          "saltG": 5.6
+        },
+        {
+          "name": "２倍盛",
+          "kcal": 1116,
+          "proteinG": 45.8,
+          "fatG": 52.6,
+          "carbG": 114.2,
+          "saltG": 6.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b17c663a",
+      "name": "おろしポン酢牛皿定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 768,
+          "proteinG": 25.9,
+          "fatG": 25.1,
+          "carbG": 110.5,
+          "saltG": 5.9
+        },
+        {
+          "name": "中盛",
+          "kcal": 833,
+          "proteinG": 31.3,
+          "fatG": 35.2,
+          "carbG": 98.4,
+          "saltG": 6.7
+        },
+        {
+          "name": "２倍盛",
+          "kcal": 1069,
+          "proteinG": 40.3,
+          "fatG": 46.9,
+          "carbG": 122.1,
+          "saltG": 7.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-99d6c3ad",
+      "name": "山かけとろろ牛皿定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "並盛",
+          "kcal": 884,
+          "proteinG": 33.1,
+          "fatG": 30.9,
+          "carbG": 117.8,
+          "saltG": 5
+        },
+        {
+          "name": "中盛",
+          "kcal": 1016,
+          "proteinG": 39.6,
+          "fatG": 41.1,
+          "carbG": 121.5,
+          "saltG": 6.7
+        },
+        {
+          "name": "２倍盛",
+          "kcal": 1168,
+          "proteinG": 47.2,
+          "fatG": 52.7,
+          "carbG": 125.5,
+          "saltG": 6.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-7e9eeb22",
+      "name": "鮭定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 435,
+          "proteinG": 21.2,
+          "fatG": 10.1,
+          "carbG": 65.9,
+          "saltG": 4.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 573,
+          "proteinG": 23.5,
+          "fatG": 10.6,
+          "carbG": 97.1,
+          "saltG": 4.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 695,
+          "proteinG": 25.7,
+          "fatG": 11,
+          "carbG": 124.7,
+          "saltG": 4.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-c21320f3",
+      "name": "納豆定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 484,
+          "proteinG": 22.4,
+          "fatG": 13,
+          "carbG": 72.3,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 622,
+          "proteinG": 24.7,
+          "fatG": 13.5,
+          "carbG": 103.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 743,
+          "proteinG": 26.7,
+          "fatG": 13.9,
+          "carbG": 130.9,
+          "saltG": 3.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-a8235a3e",
+      "name": "鮭・納豆定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 604,
+          "proteinG": 35.4,
+          "fatG": 20.5,
+          "carbG": 72.3,
+          "saltG": 4.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 742,
+          "proteinG": 37.7,
+          "fatG": 21,
+          "carbG": 103.5,
+          "saltG": 4.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 863,
+          "proteinG": 39.7,
+          "fatG": 21.4,
+          "carbG": 130.9,
+          "saltG": 4.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-8229ed31",
+      "name": "さば定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 550,
+          "proteinG": 22.1,
+          "fatG": 22.5,
+          "carbG": 65.9,
+          "saltG": 3.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 688,
+          "proteinG": 24.4,
+          "fatG": 23,
+          "carbG": 97.1,
+          "saltG": 3.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 809,
+          "proteinG": 26.4,
+          "fatG": 23.4,
+          "carbG": 124.5,
+          "saltG": 3.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-451badf2",
+      "name": "さば納豆定食",
+      "series": "定食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 721,
+          "proteinG": 36.2,
+          "fatG": 32.8,
+          "carbG": 72.1,
+          "saltG": 3.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 859,
+          "proteinG": 38.5,
+          "fatG": 33.3,
+          "carbG": 103.3,
+          "saltG": 3.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 980,
+          "proteinG": 40.5,
+          "fatG": 33.7,
+          "carbG": 130.7,
+          "saltG": 3.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f99f2869",
+      "name": "まぜのっけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 393,
+          "proteinG": 14.8,
+          "fatG": 8.1,
+          "carbG": 65.5,
+          "saltG": 2.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 532,
+          "proteinG": 17.1,
+          "fatG": 8.6,
+          "carbG": 96.7,
+          "saltG": 2.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 653,
+          "proteinG": 19.1,
+          "fatG": 9,
+          "carbG": 124.1,
+          "saltG": 2.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-5c61716c",
+      "name": "納豆まぜのっけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 482,
+          "proteinG": 22.2,
+          "fatG": 12.8,
+          "carbG": 71.4,
+          "saltG": 2.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 620,
+          "proteinG": 24.5,
+          "fatG": 13.3,
+          "carbG": 102.6,
+          "saltG": 2.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 741,
+          "proteinG": 26.5,
+          "fatG": 13.7,
+          "carbG": 130,
+          "saltG": 2.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-b038b7a5",
+      "name": "牛まぜのっけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 504,
+          "proteinG": 20.3,
+          "fatG": 16.2,
+          "carbG": 69.2,
+          "saltG": 3.3
+        },
+        {
+          "name": "並盛",
+          "kcal": 642,
+          "proteinG": 22.6,
+          "fatG": 16.7,
+          "carbG": 100.4,
+          "saltG": 3.3
+        },
+        {
+          "name": "大盛",
+          "kcal": 763,
+          "proteinG": 24.6,
+          "fatG": 17.1,
+          "carbG": 127.8,
+          "saltG": 3.3
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-e912b935",
+      "name": "焼鮭まぜのっけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 515,
+          "proteinG": 27.9,
+          "fatG": 15.7,
+          "carbG": 65.5,
+          "saltG": 3.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 653,
+          "proteinG": 30.2,
+          "fatG": 16.2,
+          "carbG": 96.7,
+          "saltG": 3.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 774,
+          "proteinG": 32.2,
+          "fatG": 16.6,
+          "carbG": 124.1,
+          "saltG": 3.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-554cb931",
+      "name": "塩さばまぜのっけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 629,
+          "proteinG": 28.8,
+          "fatG": 27.9,
+          "carbG": 65.5,
+          "saltG": 2.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 767,
+          "proteinG": 31.1,
+          "fatG": 28.4,
+          "carbG": 96.7,
+          "saltG": 2.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 888,
+          "proteinG": 33.1,
+          "fatG": 28.8,
+          "carbG": 124.1,
+          "saltG": 2.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-5bf8038a",
+      "name": "たまかけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 422,
+          "proteinG": 15.1,
+          "fatG": 10.3,
+          "carbG": 67.5,
+          "saltG": 3.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 560,
+          "proteinG": 17.4,
+          "fatG": 10.8,
+          "carbG": 98.7,
+          "saltG": 3.1
+        },
+        {
+          "name": "大盛",
+          "kcal": 681,
+          "proteinG": 19.4,
+          "fatG": 11.2,
+          "carbG": 126.1,
+          "saltG": 3.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-aec5f215",
+      "name": "納豆たまかけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 510,
+          "proteinG": 22.5,
+          "fatG": 15.1,
+          "carbG": 73.4,
+          "saltG": 3.1
+        },
+        {
+          "name": "並盛",
+          "kcal": 648,
+          "proteinG": 24.8,
+          "fatG": 15.6,
+          "carbG": 104.6,
+          "saltG": 3.1
+        },
+        {
+          "name": "大盛",
+          "kcal": 769,
+          "proteinG": 26.8,
+          "fatG": 16,
+          "carbG": 132,
+          "saltG": 3.1
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-32d18e7d",
+      "name": "牛たまかけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 532,
+          "proteinG": 20.6,
+          "fatG": 18.4,
+          "carbG": 71.2,
+          "saltG": 4
+        },
+        {
+          "name": "並盛",
+          "kcal": 670,
+          "proteinG": 22.9,
+          "fatG": 18.9,
+          "carbG": 102.4,
+          "saltG": 4
+        },
+        {
+          "name": "大盛",
+          "kcal": 791,
+          "proteinG": 24.9,
+          "fatG": 19.3,
+          "carbG": 129.8,
+          "saltG": 4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-a97fc9ab",
+      "name": "焼鮭たまかけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 542,
+          "proteinG": 28.1,
+          "fatG": 17.8,
+          "carbG": 67.5,
+          "saltG": 4.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 680,
+          "proteinG": 30.4,
+          "fatG": 18.3,
+          "carbG": 98.7,
+          "saltG": 4.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 797,
+          "proteinG": 32.4,
+          "fatG": 18.7,
+          "carbG": 126.1,
+          "saltG": 4.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-600e577e",
+      "name": "塩さばたまかけ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 657,
+          "proteinG": 29,
+          "fatG": 30.2,
+          "carbG": 67.5,
+          "saltG": 3.6
+        },
+        {
+          "name": "並盛",
+          "kcal": 795,
+          "proteinG": 31.3,
+          "fatG": 30.7,
+          "carbG": 98.7,
+          "saltG": 3.6
+        },
+        {
+          "name": "大盛",
+          "kcal": 916,
+          "proteinG": 33.3,
+          "fatG": 31.1,
+          "carbG": 126.1,
+          "saltG": 3.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1e71042a",
+      "name": "ソーセージエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 579,
+          "proteinG": 20.6,
+          "fatG": 24.7,
+          "carbG": 69.7,
+          "saltG": 4
+        },
+        {
+          "name": "並盛",
+          "kcal": 717,
+          "proteinG": 22.9,
+          "fatG": 25.2,
+          "carbG": 100.9,
+          "saltG": 4
+        },
+        {
+          "name": "大盛",
+          "kcal": 838,
+          "proteinG": 24.9,
+          "fatG": 25.6,
+          "carbG": 128.3,
+          "saltG": 4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-2e436a82",
+      "name": "納豆ソーセージエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 668,
+          "proteinG": 27.9,
+          "fatG": 29.4,
+          "carbG": 75.7,
+          "saltG": 4
+        },
+        {
+          "name": "並盛",
+          "kcal": 806,
+          "proteinG": 30.2,
+          "fatG": 29.9,
+          "carbG": 106.9,
+          "saltG": 4
+        },
+        {
+          "name": "大盛",
+          "kcal": 927,
+          "proteinG": 32.2,
+          "fatG": 30.3,
+          "carbG": 134.3,
+          "saltG": 4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f117f6f8",
+      "name": "牛小鉢ソーセージエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 687,
+          "proteinG": 25.9,
+          "fatG": 32.7,
+          "carbG": 72.7,
+          "saltG": 4.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 825,
+          "proteinG": 28.2,
+          "fatG": 33.2,
+          "carbG": 103.9,
+          "saltG": 4.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 946,
+          "proteinG": 30.2,
+          "fatG": 33.6,
+          "carbG": 131.3,
+          "saltG": 4.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-73779526",
+      "name": "自社製ベーコンエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 554,
+          "proteinG": 20.3,
+          "fatG": 22.5,
+          "carbG": 68.2,
+          "saltG": 3.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 692,
+          "proteinG": 22.6,
+          "fatG": 23,
+          "carbG": 99.4,
+          "saltG": 3.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 813,
+          "proteinG": 24.6,
+          "fatG": 23.4,
+          "carbG": 126.8,
+          "saltG": 3.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-1d2acfec",
+      "name": "納豆ベーコンエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 643,
+          "proteinG": 27.7,
+          "fatG": 27.2,
+          "carbG": 74.1,
+          "saltG": 3.8
+        },
+        {
+          "name": "並盛",
+          "kcal": 781,
+          "proteinG": 30,
+          "fatG": 27.7,
+          "carbG": 105.3,
+          "saltG": 3.8
+        },
+        {
+          "name": "大盛",
+          "kcal": 902,
+          "proteinG": 32,
+          "fatG": 28.1,
+          "carbG": 132.7,
+          "saltG": 3.8
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-91703187",
+      "name": "牛小鉢ベーコンエッグ朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 664,
+          "proteinG": 25.9,
+          "fatG": 30.6,
+          "carbG": 71.9,
+          "saltG": 4.7
+        },
+        {
+          "name": "並盛",
+          "kcal": 802,
+          "proteinG": 28.2,
+          "fatG": 31.1,
+          "carbG": 103.1,
+          "saltG": 4.7
+        },
+        {
+          "name": "大盛",
+          "kcal": 923,
+          "proteinG": 30.2,
+          "fatG": 31.5,
+          "carbG": 130.5,
+          "saltG": 4.7
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-55d8434a",
+      "name": "焼鮭朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 458,
+          "proteinG": 21.3,
+          "fatG": 12.1,
+          "carbG": 67.3,
+          "saltG": 4.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 596,
+          "proteinG": 23.6,
+          "fatG": 12.6,
+          "carbG": 98.5,
+          "saltG": 4.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 713,
+          "proteinG": 25.6,
+          "fatG": 13,
+          "carbG": 125.9,
+          "saltG": 4.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-4c355e63",
+      "name": "納豆焼鮭朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 546,
+          "proteinG": 28.7,
+          "fatG": 16.8,
+          "carbG": 73.3,
+          "saltG": 4.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 684,
+          "proteinG": 31,
+          "fatG": 17.3,
+          "carbG": 104.5,
+          "saltG": 4.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 801,
+          "proteinG": 33,
+          "fatG": 17.7,
+          "carbG": 131.9,
+          "saltG": 4.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-cd2ed1d9",
+      "name": "牛焼鮭朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 589,
+          "proteinG": 28.9,
+          "fatG": 22.2,
+          "carbG": 71.2,
+          "saltG": 4
+        },
+        {
+          "name": "並盛",
+          "kcal": 727,
+          "proteinG": 31.2,
+          "fatG": 22.7,
+          "carbG": 102.4,
+          "saltG": 4
+        },
+        {
+          "name": "大盛",
+          "kcal": 848,
+          "proteinG": 33.2,
+          "fatG": 23.1,
+          "carbG": 129.8,
+          "saltG": 4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-d12b069e",
+      "name": "塩さば朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 573,
+          "proteinG": 22.2,
+          "fatG": 24.5,
+          "carbG": 67.3,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 711,
+          "proteinG": 24.5,
+          "fatG": 25,
+          "carbG": 98.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 832,
+          "proteinG": 26.5,
+          "fatG": 25.4,
+          "carbG": 125.9,
+          "saltG": 3.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-f2d803c7",
+      "name": "納豆塩さば朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 661,
+          "proteinG": 29.6,
+          "fatG": 29.2,
+          "carbG": 73.3,
+          "saltG": 3.4
+        },
+        {
+          "name": "並盛",
+          "kcal": 799,
+          "proteinG": 31.9,
+          "fatG": 29.7,
+          "carbG": 104.5,
+          "saltG": 3.4
+        },
+        {
+          "name": "大盛",
+          "kcal": 920,
+          "proteinG": 33.9,
+          "fatG": 30.1,
+          "carbG": 131.9,
+          "saltG": 3.4
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-8f61e1fa",
+      "name": "牛塩さば朝食",
+      "series": "朝食",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 703,
+          "proteinG": 28.8,
+          "fatG": 32.9,
+          "carbG": 71.3,
+          "saltG": 4.9
+        },
+        {
+          "name": "並盛",
+          "kcal": 841,
+          "proteinG": 31.1,
+          "fatG": 33.4,
+          "carbG": 102.5,
+          "saltG": 4.9
+        },
+        {
+          "name": "大盛",
+          "kcal": 962,
+          "proteinG": 33.1,
+          "fatG": 33.8,
+          "carbG": 129.9,
+          "saltG": 4.9
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-0a6f5de7",
+      "name": "お子様牛丼",
+      "series": "お子様メニュー",
+      "kind": "food",
+      "kcal": 362,
+      "proteinG": 12.2,
+      "fatG": 15.5,
+      "carbG": 43.7,
+      "saltG": 1
+    },
+    {
+      "id": "sukiya-jp-ccdce182",
+      "name": "お子様チーズ牛丼",
+      "series": "お子様メニュー",
+      "kind": "food",
+      "kcal": 410,
+      "proteinG": 14.9,
+      "fatG": 18.6,
+      "carbG": 46.2,
+      "saltG": 1.7
+    },
+    {
+      "id": "sukiya-jp-bb374b30",
+      "name": "お子様カレー",
+      "series": "お子様メニュー",
+      "kind": "food",
+      "kcal": 258,
+      "proteinG": 5.9,
+      "fatG": 3.4,
+      "carbG": 51.1,
+      "saltG": 1.3
+    },
+    {
+      "id": "sukiya-jp-b6f5bd6b",
+      "name": "お子様チーズカレー",
+      "series": "お子様メニュー",
+      "kind": "food",
+      "kcal": 307,
+      "proteinG": 8.6,
+      "fatG": 6.5,
+      "carbG": 53.6,
+      "saltG": 1.8
+    },
+    {
+      "id": "sukiya-jp-19220c14",
+      "name": "お子様とりそぼろ丼",
+      "series": "お子様メニュー",
+      "kind": "food",
+      "kcal": 319,
+      "proteinG": 20.8,
+      "fatG": 5.5,
+      "carbG": 47,
+      "saltG": 1.9
+    },
+    {
+      "id": "sukiya-jp-427e49b3",
+      "name": "すきすきセット（爽健美茶）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 19,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 5.1,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-a96a8a15",
+      "name": "すきすきセット（緑茶）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 19,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 5.1,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-1400247d",
+      "name": "すきすきセット（黒烏龍茶）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 24,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 5.6,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-06e49472",
+      "name": "すきすきセット（コーラ）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 118,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 30,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-bb5345ff",
+      "name": "すきすきセット（カルピス）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 143,
+      "proteinG": 0.5,
+      "fatG": 0.3,
+      "carbG": 35,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-ea144097",
+      "name": "すきすきセット（ファンタメロン）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 129,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 32.7,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-1a1a6af9",
+      "name": "すきすきセット（オレンジジュース）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 122,
+      "proteinG": 0.5,
+      "fatG": 0.3,
+      "carbG": 29.7,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-e05123cb",
+      "name": "すきすきセット（ぶどうジュース）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 111,
+      "proteinG": 0.6,
+      "fatG": 0.6,
+      "carbG": 29.1,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-196dbb31",
+      "name": "すきすきセット（りんごジュース）",
+      "series": "すきすきセット",
+      "kind": "food",
+      "kcal": 113,
+      "proteinG": 0.2,
+      "fatG": 0.4,
+      "carbG": 27.9,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-adea44d2",
+      "name": "ごはん",
+      "series": "一品",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "ミニ",
+          "kcal": 260,
+          "proteinG": 4.4,
+          "fatG": 0.9,
+          "carbG": 58.7,
+          "saltG": 0
+        },
+        {
+          "name": "並盛",
+          "kcal": 398,
+          "proteinG": 6.7,
+          "fatG": 1.4,
+          "carbG": 89.9,
+          "saltG": 0
+        },
+        {
+          "name": "大盛",
+          "kcal": 519,
+          "proteinG": 8.7,
+          "fatG": 1.8,
+          "carbG": 117.3,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-c6ac5681",
+      "name": "みそ汁",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 38,
+      "proteinG": 2.4,
+      "fatG": 1.4,
+      "carbG": 4.3,
+      "saltG": 2.2
+    },
+    {
+      "id": "sukiya-jp-2a5d1ce0",
+      "name": "とん汁",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 115,
+      "proteinG": 8,
+      "fatG": 5.6,
+      "carbG": 8.2,
+      "saltG": 2.8
+    },
+    {
+      "id": "sukiya-jp-b6854126",
+      "name": "しじみ汁",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 85,
+      "proteinG": 9.4,
+      "fatG": 2.3,
+      "carbG": 8.3,
+      "saltG": 2.5
+    },
+    {
+      "id": "sukiya-jp-830ff481",
+      "name": "カレールー",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 249,
+      "proteinG": 6,
+      "fatG": 14.3,
+      "carbG": 24.2,
+      "saltG": 3.2
+    },
+    {
+      "id": "sukiya-jp-a025efa6",
+      "name": "おしんこセット",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 53,
+      "proteinG": 3.2,
+      "fatG": 1.7,
+      "carbG": 6.5,
+      "saltG": 3.1
+    },
+    {
+      "id": "sukiya-jp-87ad9f22",
+      "name": "3点セット",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 132,
+      "proteinG": 10,
+      "fatG": 7.3,
+      "carbG": 6.8,
+      "saltG": 3.3
+    },
+    {
+      "id": "sukiya-jp-5fe12685",
+      "name": "たまごセット",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 124,
+      "proteinG": 9.3,
+      "fatG": 7.3,
+      "carbG": 4.4,
+      "saltG": 2.4
+    },
+    {
+      "id": "sukiya-jp-faf82862",
+      "name": "冷やっこセット",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 127,
+      "proteinG": 9.8,
+      "fatG": 6.2,
+      "carbG": 8.1,
+      "saltG": 2.2
+    },
+    {
+      "id": "sukiya-jp-ce1308e1",
+      "name": "サラダセット（ドレッシング除く）",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 65,
+      "proteinG": 3.9,
+      "fatG": 1.9,
+      "carbG": 9.5,
+      "saltG": 2.3
+    },
+    {
+      "id": "sukiya-jp-aec6b6b6",
+      "name": "オクラサラダセット（ドレッシング除く）",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 75,
+      "proteinG": 4.5,
+      "fatG": 1.9,
+      "carbG": 11.8,
+      "saltG": 2.3
+    },
+    {
+      "id": "sukiya-jp-c05f1c0f",
+      "name": "サラダ（ドレッシング除く）",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 28,
+      "proteinG": 1.5,
+      "fatG": 0.3,
+      "carbG": 5.9,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-fb54204b",
+      "name": "オクラサラダ（ドレッシング除く）",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 37,
+      "proteinG": 2.1,
+      "fatG": 0.3,
+      "carbG": 8.2,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-22f9fd68",
+      "name": "シーザーサラダ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 80,
+      "proteinG": 2.4,
+      "fatG": 6.2,
+      "carbG": 3.9,
+      "saltG": 1.1
+    },
+    {
+      "id": "sukiya-jp-b21d4004",
+      "name": "おしんこ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 13,
+      "proteinG": 0.7,
+      "fatG": 0.1,
+      "carbG": 2.3,
+      "saltG": 0.9
+    },
+    {
+      "id": "sukiya-jp-dd1e70b0",
+      "name": "牛小鉢",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 110,
+      "proteinG": 5.5,
+      "fatG": 8.1,
+      "carbG": 3.7,
+      "saltG": 0.9
+    },
+    {
+      "id": "sukiya-jp-afcd093f",
+      "name": "たまご",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 84,
+      "proteinG": 6.9,
+      "fatG": 5.7,
+      "carbG": 0.2,
+      "saltG": 0.2
+    },
+    {
+      "id": "sukiya-jp-8cc9335e",
+      "name": "おんたま",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 84,
+      "proteinG": 6.9,
+      "fatG": 5.7,
+      "carbG": 0.2,
+      "saltG": 0.2
+    },
+    {
+      "id": "sukiya-jp-3670be23",
+      "name": "ベーコン",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 100,
+      "proteinG": 5.1,
+      "fatG": 8.8,
+      "carbG": 0,
+      "saltG": 0.7
+    },
+    {
+      "id": "sukiya-jp-3707c57d",
+      "name": "ソーセージ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 125,
+      "proteinG": 5.3,
+      "fatG": 11,
+      "carbG": 1.6,
+      "saltG": 0.9
+    },
+    {
+      "id": "sukiya-jp-edc8064b",
+      "name": "ささみチキン",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 85,
+      "proteinG": 16.1,
+      "fatG": 1.4,
+      "carbG": 2.1,
+      "saltG": 0.4
+    },
+    {
+      "id": "sukiya-jp-cf299bb6",
+      "name": "鮭",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 120,
+      "proteinG": 13,
+      "fatG": 7.5,
+      "carbG": 0.1,
+      "saltG": 1.4
+    },
+    {
+      "id": "sukiya-jp-4035a12d",
+      "name": "塩サバ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 235,
+      "proteinG": 13.9,
+      "fatG": 19.9,
+      "carbG": 0.1,
+      "saltG": 0.5
+    },
+    {
+      "id": "sukiya-jp-a4973a36",
+      "name": "山かけ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 48,
+      "proteinG": 1.4,
+      "fatG": 0,
+      "carbG": 10.6,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-ea86bd87",
+      "name": "かつぶしオクラ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 30,
+      "proteinG": 2.4,
+      "fatG": 0.1,
+      "carbG": 5.9,
+      "saltG": 0.9
+    },
+    {
+      "id": "sukiya-jp-77a0be44",
+      "name": "キムチ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 30,
+      "proteinG": 1.6,
+      "fatG": 0.4,
+      "carbG": 5,
+      "saltG": 1.8
+    },
+    {
+      "id": "sukiya-jp-9dbe4df8",
+      "name": "季節の小鉢",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 37,
+      "proteinG": 0.9,
+      "fatG": 2.3,
+      "carbG": 3.7,
+      "saltG": 0.7
+    },
+    {
+      "id": "sukiya-jp-36c6e89a",
+      "name": "フライドにんにく",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 43,
+      "proteinG": 2,
+      "fatG": 0.6,
+      "carbG": 7.2,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-80a0df25",
+      "name": "青ねぎ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 11,
+      "proteinG": 0.4,
+      "fatG": 0,
+      "carbG": 2.5,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-3d4f8642",
+      "name": "冷やっこ",
+      "series": "一品",
+      "kind": "food",
+      "kcal": 88,
+      "proteinG": 7.4,
+      "fatG": 4.7,
+      "carbG": 3.8,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-d7409b9c",
+      "name": "からあげ",
+      "series": "一品",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "２個",
+          "kcal": 123,
+          "proteinG": 10.1,
+          "fatG": 6.8,
+          "carbG": 5.2,
+          "saltG": 0.8
+        },
+        {
+          "name": "６個",
+          "kcal": 368,
+          "proteinG": 30.4,
+          "fatG": 20.5,
+          "carbG": 15.5,
+          "saltG": 2.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-0359a097",
+      "name": "りんごジュース",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 94,
+      "proteinG": 0.2,
+      "fatG": 0.4,
+      "carbG": 22.8,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-ab1c3554",
+      "name": "ぶどうジュース",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 92,
+      "proteinG": 0.6,
+      "fatG": 0.6,
+      "carbG": 24,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-43c87161",
+      "name": "アサヒスーパードライ（中瓶）",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 210,
+      "proteinG": 2,
+      "fatG": 0,
+      "carbG": 15,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-6aebf9ae",
+      "name": "ノンアルコールビール",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-10172aa3",
+      "name": "コカ・コーラ",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 99,
+          "proteinG": 0,
+          "fatG": 0,
+          "carbG": 24.8,
+          "saltG": 0
+        },
+        {
+          "name": "L",
+          "kcal": 133,
+          "proteinG": 0,
+          "fatG": 0,
+          "carbG": 33.5,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-0fc69535",
+      "name": "ミニッツメイドオレンジ",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 108,
+          "proteinG": 0.5,
+          "fatG": 0.2,
+          "carbG": 24.6,
+          "saltG": 0
+        },
+        {
+          "name": "L",
+          "kcal": 146,
+          "proteinG": 0.6,
+          "fatG": 0.3,
+          "carbG": 33.2,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-613983e6",
+      "name": "ファンタメロン",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 110,
+          "proteinG": 0,
+          "fatG": 0,
+          "carbG": 27.6,
+          "saltG": 0
+        },
+        {
+          "name": "L",
+          "kcal": 149,
+          "proteinG": 0,
+          "fatG": 0,
+          "carbG": 37.2,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-3bdfa11f",
+      "name": "カルピス",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 122,
+          "proteinG": 0.5,
+          "fatG": 0.2,
+          "carbG": 29.9,
+          "saltG": 0
+        },
+        {
+          "name": "L",
+          "kcal": 164,
+          "proteinG": 0.6,
+          "fatG": 0.3,
+          "carbG": 40.3,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-0c6dffc5",
+      "name": "爽健美茶",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-32d7f098",
+      "name": "緑茶",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 0,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-a6131924",
+      "name": "黒烏龍茶",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 5,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 0.5,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-88efb171",
+      "name": "レモネードスカッシュ",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "通常",
+          "kcal": 138,
+          "proteinG": 0.4,
+          "fatG": 0.2,
+          "carbG": 33.1,
+          "saltG": 0
+        },
+        {
+          "name": "メガ",
+          "kcal": 276,
+          "proteinG": 0.9,
+          "fatG": 0.4,
+          "carbG": 66.1,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-2aa3b19f",
+      "name": "ホットコーヒー（砂糖・ミルクを除く）",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0.1,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-3ca6bcf7",
+      "name": "アイスコーヒー（砂糖・ミルクを除く）",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 1,
+          "proteinG": 0,
+          "fatG": 0,
+          "carbG": 0.1,
+          "saltG": 0
+        },
+        {
+          "name": "L",
+          "kcal": 1,
+          "proteinG": 0.1,
+          "fatG": 0,
+          "carbG": 0.2,
+          "saltG": 0
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-9844863b",
+      "name": "Sukiシェイク バニラ",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "S",
+          "kcal": 176,
+          "proteinG": 3.5,
+          "fatG": 6.4,
+          "carbG": 26.2,
+          "saltG": 0.3
+        },
+        {
+          "name": "M",
+          "kcal": 252,
+          "proteinG": 5,
+          "fatG": 9.2,
+          "carbG": 37.4,
+          "saltG": 0.4
+        },
+        {
+          "name": "L",
+          "kcal": 340,
+          "proteinG": 6.8,
+          "fatG": 12.4,
+          "carbG": 50.5,
+          "saltG": 0.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-3ddc3242",
+      "name": "Sukiシェイク 抹茶",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "sizes": [
+        {
+          "name": "S",
+          "kcal": 194,
+          "proteinG": 3.8,
+          "fatG": 6.6,
+          "carbG": 30.1,
+          "saltG": 0.3
+        },
+        {
+          "name": "M",
+          "kcal": 275,
+          "proteinG": 5.4,
+          "fatG": 9.4,
+          "carbG": 42.7,
+          "saltG": 0.4
+        },
+        {
+          "name": "L",
+          "kcal": 375,
+          "proteinG": 7.4,
+          "fatG": 12.8,
+          "carbG": 58.4,
+          "saltG": 0.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-902c4514",
+      "name": "Sukiシェイク マスカット",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "S",
+          "kcal": 199,
+          "proteinG": 3.5,
+          "fatG": 6.4,
+          "carbG": 31.9,
+          "saltG": 0.3
+        },
+        {
+          "name": "M",
+          "kcal": 283,
+          "proteinG": 5.1,
+          "fatG": 9.2,
+          "carbG": 45.1,
+          "saltG": 0.4
+        },
+        {
+          "name": "L",
+          "kcal": 386,
+          "proteinG": 6.8,
+          "fatG": 12.4,
+          "carbG": 62,
+          "saltG": 0.5
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-9182ca84",
+      "name": "Sukiシェイク 焼き芋",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "sizes": [
+        {
+          "name": "S",
+          "kcal": 218,
+          "proteinG": 3.7,
+          "fatG": 7.4,
+          "carbG": 34.6,
+          "saltG": 0.3
+        },
+        {
+          "name": "M",
+          "kcal": 302,
+          "proteinG": 5.2,
+          "fatG": 10.2,
+          "carbG": 47.7,
+          "saltG": 0.4
+        },
+        {
+          "name": "L",
+          "kcal": 405,
+          "proteinG": 7,
+          "fatG": 13.5,
+          "carbG": 64.5,
+          "saltG": 0.6
+        }
+      ]
+    },
+    {
+      "id": "sukiya-jp-cca74c04",
+      "name": "スティックシュガー",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 12,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 3,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-ec665ddc",
+      "name": "ガムシロップ",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 37,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 9.2,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-19b55fa1",
+      "name": "コーヒーフレッシュ",
+      "series": "ドリンク・デザート",
+      "kind": "beverage",
+      "kcal": 11,
+      "proteinG": 0.2,
+      "fatG": 1,
+      "carbG": 0.2,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-4ab9b198",
+      "name": "カットりんご",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 19,
+      "proteinG": 0.1,
+      "fatG": 0,
+      "carbG": 5.1,
+      "saltG": 0
+    },
+    {
+      "id": "sukiya-jp-de36b7ee",
+      "name": "なめらかカラメルぷりん",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 190,
+      "proteinG": 3.3,
+      "fatG": 13.1,
+      "carbG": 14,
+      "saltG": 0.1
+    },
+    {
+      "id": "sukiya-jp-0270902e",
+      "name": "とろけるダブルショコラ",
+      "series": "ドリンク・デザート",
+      "kind": "food",
+      "kcal": 198,
+      "proteinG": 3.1,
+      "fatG": 11.8,
+      "carbG": 20.1,
+      "saltG": 0.1
+    }
+  ]
+}

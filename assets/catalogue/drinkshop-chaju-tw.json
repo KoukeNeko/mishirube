@@ -1,0 +1,395 @@
+{
+  "brand": "茶聚",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "chaju-726a7168",
+      "name": "綠豆冰沙",
+      "series": "期間限定",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 384.9,
+          "sugarG": 58.4,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chaju-c5e0014b",
+      "name": "綠豆牛奶冰沙",
+      "series": "期間限定",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 451,
+          "sugarG": 63.2,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chaju-33945635",
+      "name": "香片姍姍",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 201.9,
+      "sugarG": 42.9
+    },
+    {
+      "id": "chaju-3e0c3471",
+      "name": "香片奶綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 480,
+      "sugarG": 49.8
+    },
+    {
+      "id": "chaju-fc5cc24d",
+      "name": "香片釀梅綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 304.5,
+      "sugarG": 62.5
+    },
+    {
+      "id": "chaju-6b27179a",
+      "name": "香片葡柚綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 326,
+      "sugarG": 66.4
+    },
+    {
+      "id": "chaju-829b8b81",
+      "name": "香片凍檸綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 640,
+      "sugarG": 66.7
+    },
+    {
+      "id": "chaju-d06831ad",
+      "name": "香片鮮奶綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 328,
+          "sugarG": 51.5,
+          "caffeineMg": 141.8
+        }
+      ]
+    },
+    {
+      "id": "chaju-7ed06746",
+      "name": "香片玫瑰奶綠",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 363.9,
+      "sugarG": 55.8
+    },
+    {
+      "id": "chaju-43d49c26",
+      "name": "香片釀梅氣泡",
+      "series": "香片綠茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 304.5,
+          "sugarG": 62.5,
+          "caffeineMg": 40.5
+        }
+      ]
+    },
+    {
+      "id": "chaju-498bcfd4",
+      "name": "奶霜香片",
+      "series": "輕鹽奶霜",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 384,
+          "sugarG": 38.4,
+          "caffeineMg": 121.6
+        }
+      ]
+    },
+    {
+      "id": "chaju-a2024303",
+      "name": "奶霜李果紅",
+      "series": "輕鹽奶霜",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 384,
+          "sugarG": 38.4,
+          "caffeineMg": 207.5
+        }
+      ]
+    },
+    {
+      "id": "chaju-d7ab3c18",
+      "name": "奶霜焙烏龍",
+      "series": "輕鹽奶霜",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 384,
+          "sugarG": 38.4,
+          "caffeineMg": 217.4
+        }
+      ]
+    },
+    {
+      "id": "chaju-aa70c5b3",
+      "name": "奶霜金萱",
+      "series": "輕鹽奶霜",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 384,
+          "sugarG": 38.4,
+          "caffeineMg": 101.8
+        }
+      ]
+    },
+    {
+      "id": "chaju-96ab2875",
+      "name": "李果紅",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 152,
+      "sugarG": 32.2
+    },
+    {
+      "id": "chaju-50787bc6",
+      "name": "深焙烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 201.9,
+      "sugarG": 42.9
+    },
+    {
+      "id": "chaju-f1972397",
+      "name": "烏龍青",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 201.9,
+      "sugarG": 42.9
+    },
+    {
+      "id": "chaju-62119dab",
+      "name": "不知青",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 201.9,
+      "sugarG": 42.9
+    },
+    {
+      "id": "chaju-73942015",
+      "name": "熟藏金萱",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 201.9,
+      "sugarG": 42.9
+    },
+    {
+      "id": "chaju-68eae971",
+      "name": "黃金芯芽",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 0,
+      "sugarG": 0
+    },
+    {
+      "id": "chaju-1c18fe0d",
+      "name": "蕎寶茶",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 0,
+      "sugarG": 0
+    },
+    {
+      "id": "chaju-30295ff8",
+      "name": "珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 586.5,
+      "sugarG": 51.2
+    },
+    {
+      "id": "chaju-267063d5",
+      "name": "沐嵐奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 469,
+      "sugarG": 49.5
+    },
+    {
+      "id": "chaju-e3922efe",
+      "name": "深焙烏龍奶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 480,
+      "sugarG": 49.9
+    },
+    {
+      "id": "chaju-89fddb0a",
+      "name": "半熟奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 480,
+      "sugarG": 49.9
+    },
+    {
+      "id": "chaju-e0135040",
+      "name": "熊貓奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 501.8,
+      "sugarG": 56.9
+    },
+    {
+      "id": "chaju-e1cb9f62",
+      "name": "沐嵐鮮奶紅",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 333.9,
+      "sugarG": 52.5
+    },
+    {
+      "id": "chaju-f6ea50e5",
+      "name": "深焙鮮奶烏",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 333.9,
+      "sugarG": 52.5
+    },
+    {
+      "id": "chaju-411b163f",
+      "name": "半熟鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 333.9,
+      "sugarG": 52.5
+    },
+    {
+      "id": "chaju-05a2d804",
+      "name": "靜岡抹茶鮮",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 333.9,
+      "sugarG": 52.5
+    },
+    {
+      "id": "chaju-fab14af6",
+      "name": "蘋安紅",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 265,
+      "sugarG": 60.6
+    },
+    {
+      "id": "chaju-23d89abe",
+      "name": "蘋果寒天凍",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 383.4,
+      "sugarG": 61.56
+    },
+    {
+      "id": "chaju-ee564cd5",
+      "name": "冬瓜玉露",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 304.9,
+      "sugarG": 72.5
+    },
+    {
+      "id": "chaju-e3ae0695",
+      "name": "鮮檸檬冬瓜",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 262.4,
+      "sugarG": 63.6
+    },
+    {
+      "id": "chaju-346fdda8",
+      "name": "膠原戀檸C",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 370.5,
+      "sugarG": 78.8
+    },
+    {
+      "id": "chaju-928a0fa8",
+      "name": "珍椰金萱",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 504.3,
+          "sugarG": 65.3,
+          "caffeineMg": 102
+        }
+      ]
+    },
+    {
+      "id": "chaju-cae49e96",
+      "name": "鮮檸青",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 411.7,
+      "sugarG": 67.8
+    },
+    {
+      "id": "chaju-6a2730fd",
+      "name": "戀檸不知青",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 298.3,
+      "sugarG": 60.4
+    },
+    {
+      "id": "chaju-8e15a2fc",
+      "name": "鮮檸蜜蘆薈",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 331.5,
+      "sugarG": 47.5
+    },
+    {
+      "id": "chaju-9f489159",
+      "name": "貴妃紅",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 354.5,
+      "sugarG": 80.6
+    },
+    {
+      "id": "chaju-5cfc5a0d",
+      "name": "膠原貴妃",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/nyq0/cha-ju-hu-kou-zhong-zheng-dian",
+      "kcal": 403,
+      "sugarG": 93
+    }
+  ]
+}

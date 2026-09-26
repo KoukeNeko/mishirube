@@ -1,0 +1,790 @@
+{
+  "brand": "萊爾富",
+  "brandAliases": [
+    "Hi-Life",
+    "HiLife",
+    "萊爾富便利商店"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "series": "Hi Café",
+  "sourceUrl": "https://dailydietitian.com.tw/%E8%90%8A%E7%88%BE%E5%AF%8C%E5%92%96%E5%95%A1-%E9%A3%B2%E5%93%81-%E7%86%B1%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E7%B3%96%E9%87%8F/",
+  "note": "萊爾富公布的每杯最高值，經第三方彙整（2026-05-26）；未公布杯子容量。",
+  "drinks": [
+    {
+      "id": "hilife-hicafe-57760919",
+      "name": "美式咖啡",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 11.2,
+          "sugarG": 0,
+          "caffeineMg": 145.9
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 10.7,
+          "sugarG": 0,
+          "caffeineMg": 143.3
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 15.2,
+          "sugarG": 0,
+          "caffeineMg": 202.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 12.7,
+          "sugarG": 0,
+          "caffeineMg": 169.6
+        },
+        {
+          "name": "特大杯・熱",
+          "kcal": 21.4,
+          "sugarG": 0,
+          "caffeineMg": 286
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 17.4,
+          "sugarG": 0,
+          "caffeineMg": 237.9
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-110a7fe3",
+      "name": "特濃美式",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 13.2,
+          "sugarG": 0,
+          "caffeineMg": 160.7
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 12.1,
+          "sugarG": 0,
+          "caffeineMg": 155.1
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 18.1,
+          "sugarG": 0,
+          "caffeineMg": 236.4
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 15.4,
+          "sugarG": 0,
+          "caffeineMg": 199
+        },
+        {
+          "name": "特大杯・熱",
+          "kcal": 25.1,
+          "sugarG": 0,
+          "caffeineMg": 326.1
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 23.2,
+          "sugarG": 0,
+          "caffeineMg": 295.4
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-eb25f340",
+      "name": "拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 154,
+          "sugarG": 12.6,
+          "caffeineMg": 125.1
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 85.5,
+          "sugarG": 7.2,
+          "caffeineMg": 101.1
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 208.1,
+          "sugarG": 17.2,
+          "caffeineMg": 196.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 111.6,
+          "sugarG": 9.1,
+          "caffeineMg": 126.2
+        },
+        {
+          "name": "特大杯・熱",
+          "kcal": 273.8,
+          "sugarG": 23.1,
+          "caffeineMg": 244.3
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 147.2,
+          "sugarG": 8.8,
+          "caffeineMg": 184.2
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-b73aae15",
+      "name": "特濃拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 153.1,
+          "sugarG": 11.9,
+          "caffeineMg": 170.4
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 83.6,
+          "sugarG": 6.5,
+          "caffeineMg": 138.8
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 212.4,
+          "sugarG": 17.3,
+          "caffeineMg": 235.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 101.7,
+          "sugarG": 8.1,
+          "caffeineMg": 148.5
+        },
+        {
+          "name": "特大杯・熱",
+          "kcal": 276.3,
+          "sugarG": 23.2,
+          "caffeineMg": 269.4
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 149.8,
+          "sugarG": 10.6,
+          "caffeineMg": 217.9
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-133b7ef1",
+      "name": "重乳拿鐵咖啡",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 233.3,
+          "sugarG": 19.6,
+          "caffeineMg": 167.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 181.5,
+          "sugarG": 12.4,
+          "caffeineMg": 123.8
+        },
+        {
+          "name": "特大杯・熱",
+          "kcal": 326.8,
+          "sugarG": 28.7,
+          "caffeineMg": 206.4
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 192,
+          "sugarG": 10.7,
+          "caffeineMg": 121.8
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-9e56ce45",
+      "name": "卡布奇諾",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 129.2,
+          "sugarG": 10.9,
+          "caffeineMg": 149.4
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 183.6,
+          "sugarG": 15.5,
+          "caffeineMg": 196.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-a47910f7",
+      "name": "加一份濃縮",
+      "sizes": [
+        {
+          "name": "熱",
+          "kcal": 3.7,
+          "sugarG": 0,
+          "caffeineMg": 46.9
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-419db6d3",
+      "name": "蜂蜜美式",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 101,
+          "sugarG": 18.8,
+          "caffeineMg": 197.9
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 94.1,
+          "sugarG": 20.4,
+          "caffeineMg": 162.8
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-54710fe8",
+      "name": "蜂蜜拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 298,
+          "sugarG": 38.6,
+          "caffeineMg": 207.5
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 186.5,
+          "sugarG": 27.4,
+          "caffeineMg": 105.1
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-f894026e",
+      "name": "海鹽焦糖拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 277.3,
+          "sugarG": 36.6,
+          "caffeineMg": 172
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 184.6,
+          "sugarG": 27.3,
+          "caffeineMg": 16.9
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-e44941cf",
+      "name": "醇脆黑糖拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 317.4,
+          "sugarG": 43.7,
+          "caffeineMg": 204.2
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 208.7,
+          "sugarG": 32.6,
+          "caffeineMg": 108.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-155f5cf6",
+      "name": "燕麥奶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 142.7,
+          "sugarG": 8.1,
+          "caffeineMg": 111.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-0f7f4aaf",
+      "name": "阿華田摩卡咖啡",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 302.4,
+          "sugarG": 36.1,
+          "caffeineMg": 201.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 196.6,
+          "sugarG": 28,
+          "caffeineMg": 132.1
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-cefcabe1",
+      "name": "藝伎美式",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 14.5,
+          "sugarG": 0,
+          "caffeineMg": 179.1
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 13.1,
+          "sugarG": 0,
+          "caffeineMg": 153.1
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-56aa8b31",
+      "name": "藝伎拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 166.8,
+          "sugarG": 14.1,
+          "caffeineMg": 167.7
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 93.4,
+          "sugarG": 7.3,
+          "caffeineMg": 137.2
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-68fdb547",
+      "name": "芋泥小芋圓歐蕾",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 271.8,
+          "sugarG": 41.9,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-6fdfe646",
+      "name": "巧克力歐蕾",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 270,
+          "sugarG": 40.1,
+          "caffeineMg": 6.3
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 200.8,
+          "sugarG": 35.4,
+          "caffeineMg": 5.9
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-83372f4c",
+      "name": "阿華田草莓巧克力歐蕾",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 220.8,
+          "sugarG": 35,
+          "caffeineMg": 7
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 249.6,
+          "sugarG": 37.6,
+          "caffeineMg": 7.5
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-e185e7ac",
+      "name": "恐龍巧克力歐蕾",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 155.4,
+          "sugarG": 29.8,
+          "caffeineMg": 3.1
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 229,
+          "sugarG": 37.3,
+          "caffeineMg": 5.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-2cf9b51a",
+      "name": "恐龍冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 253.2,
+          "sugarG": 28.9,
+          "caffeineMg": 10.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-25cac4d0",
+      "name": "漂浮恐龍冰沙",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 338.2,
+          "sugarG": 35.4,
+          "caffeineMg": 13.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-021ab7a5",
+      "name": "恐龍巧克力珍珠歐蕾",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 425.4,
+          "sugarG": 34.3,
+          "caffeineMg": 32
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 454.2,
+          "sugarG": 36.8,
+          "caffeineMg": 2.35
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-c1f8a74d",
+      "name": "黑糖薑茶",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 113.3,
+          "sugarG": 26.1,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-d9d7e6d2",
+      "name": "辻利減糖抹茶歐蕾",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 173.6,
+          "sugarG": 21.2,
+          "caffeineMg": 83
+        },
+        {
+          "name": "中杯・冰",
+          "kcal": 159.2,
+          "sugarG": 19.8,
+          "caffeineMg": 83
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-6be22a50",
+      "name": "抹茶拿鐵",
+      "sizes": [
+        {
+          "name": "中杯・熱",
+          "kcal": 146.6,
+          "sugarG": 34.2,
+          "caffeineMg": 110.6
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 246.7,
+          "sugarG": 39.7,
+          "caffeineMg": 122.4
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 216.4,
+          "sugarG": 32,
+          "caffeineMg": 120.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-567053af",
+      "name": "芋泥西米露奶茶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 203.7,
+          "sugarG": 22.4,
+          "caffeineMg": 32.4
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-9716922e",
+      "name": "富桂紅棗茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 114.3,
+          "sugarG": 26.9,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-b9c13e90",
+      "name": "台茶18紅玉茶拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 270.7,
+          "sugarG": 34.6,
+          "caffeineMg": 87.1
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 241.9,
+          "sugarG": 32,
+          "caffeineMg": 84.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-f9fac95c",
+      "name": "炭焙鐵觀音拿鐵",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 265.3,
+          "sugarG": 34.7,
+          "caffeineMg": 165.7
+        },
+        {
+          "name": "大杯・冰",
+          "kcal": 259.4,
+          "sugarG": 33.2,
+          "caffeineMg": 160.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-32c97315",
+      "name": "黑糖珍珠燕麥奶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 271.2,
+          "sugarG": 19.3,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-585f8e31",
+      "name": "紅玉紅茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 201.1,
+          "sugarG": 35.9,
+          "caffeineMg": 159.4
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 134.4
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-0129e35c",
+      "name": "四季春青茶",
+      "sizes": [
+        {
+          "name": "大杯・熱",
+          "kcal": 214.3,
+          "sugarG": 52,
+          "caffeineMg": 40
+        },
+        {
+          "name": "特大杯・冰",
+          "kcal": 0,
+          "sugarG": 0,
+          "caffeineMg": 88.7
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-2f5df847",
+      "name": "泰式奶茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 219,
+          "sugarG": 53.2,
+          "caffeineMg": 22
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-95efb443",
+      "name": "波霸黑糖奶茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 302.1,
+          "sugarG": 47.6,
+          "caffeineMg": 100
+        },
+        {
+          "name": "大杯・熱",
+          "kcal": 330.7,
+          "sugarG": 50.1,
+          "caffeineMg": 100
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-da9c272d",
+      "name": "泰式珍珠奶茶",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 369.9,
+          "sugarG": 35.3,
+          "caffeineMg": 78.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-196885d6",
+      "name": "鳳梨風味氣泡美式",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 137.1,
+          "sugarG": 30.1,
+          "caffeineMg": 169.4
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-b758ea88",
+      "name": "柚香風味氣泡美式",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 159.4,
+          "sugarG": 37,
+          "caffeineMg": 171.8
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-759f786f",
+      "name": "紅茶拿鐵",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 165.2,
+          "sugarG": 31.4,
+          "caffeineMg": 104.3
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-fbde7b5b",
+      "name": "檸檬焙烏龍",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "kcal": 184.4,
+          "sugarG": 43.2,
+          "caffeineMg": 83.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-276f7372",
+      "name": "漂浮香草海鹽奶茶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 318.9,
+          "sugarG": 41.4,
+          "caffeineMg": 83.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-b1936be7",
+      "name": "漂浮巧克力奶茶",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 326.9,
+          "sugarG": 38.5,
+          "caffeineMg": 87.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-6203a6ef",
+      "name": "檸檬美式",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 110.4,
+          "sugarG": 21.7,
+          "caffeineMg": 138.6
+        }
+      ]
+    },
+    {
+      "id": "hilife-hicafe-3f44ec12",
+      "name": "芒果美式（季節限定）",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "kcal": 116.1,
+          "sugarG": 23.9,
+          "caffeineMg": 138.1
+        }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,12 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   late final NutritionViewModel _nutrition;
   final _query = TextEditingController();
 
+  /// What the list shows: everything, the user's own foods, or one
+  /// country's chains — [_all], [_own] or a country code.
+  String _scope = _all;
+  static const _all = '';
+  static const _own = 'own';
+
   /// A brand's menu opened from here browses; nothing goes on a plate.
   static final _noPlate = Listenable.merge(const []);
 
@@ -107,6 +113,14 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     final query = _query.text.trim();
     final found = _nutrition.searchFoods(query).where((food) => !food.isSize);
     final own = found.where((food) => !food.isBuiltIn).toList();
+    final countryOf = {
+      for (final catalogue in store.catalogues)
+        catalogue.brand: catalogue.country,
+    };
+    final labels = {
+      for (final catalogue in store.catalogues)
+        catalogue.brand: catalogue.label,
+    };
     final brands = query.isEmpty
         ? [for (final catalogue in store.catalogues) catalogue.brand]
         : {
@@ -114,40 +128,62 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
             for (final food in found)
               if (food.isBuiltIn) food.brand,
           }.toList();
-    final labels = {
-      for (final catalogue in store.catalogues)
-        catalogue.brand: catalogue.label,
+    // The same chain sells different things in each country, so its
+    // brands are looked for by country first.
+    final countries = {
+      for (final catalogue in store.catalogues) catalogue.country,
     };
     return PageScaffold(
       appBar: const PageAppBar(title: '食物庫'),
-      pinned: Gutter(
-        child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
+      pinned: Column(
+        children: [
+          Gutter(
+            child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          FilterChipBar<String>(
+            options: [_all, _own, ...countries],
+            selected: _scope,
+            labelOf: (scope) => switch (scope) {
+              _all => '全部',
+              _own => '自己的',
+              final country => countryName(country),
+            },
+            onSelected: (scope) => setState(() => _scope = scope),
+          ),
+        ],
       ),
-      pinnedHeight: measurePinnedSearchHeight(),
+      pinnedHeight:
+          measurePinnedSearchHeight() + AppSpacing.xs + pillHeight(context),
       footer: BottomActionBar(
         child: PrimaryButton(label: '新增食物', onPressed: _create),
       ),
       children: [
-        Gutter(child: const SectionLabel('自己的')),
-        if (own.isEmpty)
-          Gutter(
-            child: Text(
-              query.isEmpty ? '沒有自己的食物。' : '沒有符合的食物。',
-              style: AppTextStyles.caption,
-            ),
-          ),
-        for (final food in own) Gutter(child: _ownRow(food)),
-        if (brands.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('內建品牌')),
-          for (final brand in brands)
+        if (_scope == _all || _scope == _own) ...[
+          Gutter(child: const SectionLabel('自己的')),
+          if (own.isEmpty)
             Gutter(
-              child: NavCard(
-                title: labels[brand] ?? brand,
-                subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料，唯讀',
-                onTap: () => _openBrand(brand),
+              child: Text(
+                query.isEmpty ? '沒有自己的食物。' : '沒有符合的食物。',
+                style: AppTextStyles.caption,
               ),
             ),
+          for (final food in own) Gutter(child: _ownRow(food)),
         ],
+        for (final country in countries)
+          if (_scope == _all || _scope == country)
+            if (brands.where((brand) => countryOf[brand] == country).toList()
+                case final inCountry when inCountry.isNotEmpty) ...[
+              Gutter(child: SectionLabel(countryName(country))),
+              for (final brand in inCountry)
+                Gutter(
+                  child: NavCard(
+                    title: labels[brand] ?? brand,
+                    subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料，唯讀',
+                    onTap: () => _openBrand(brand),
+                  ),
+                ),
+            ],
       ],
     );
   }

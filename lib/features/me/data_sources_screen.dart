@@ -77,8 +77,8 @@ class DataSourcesScreen extends StatelessWidget {
               [
                 for (final catalogue in catalogues)
                   if (catalogue.checkedAt case final at?)
-                    '${catalogue.label}查證於 ${formatDate(at)}',
-              ].join(' · '),
+                    '${catalogue.label}更新於 ${formatDate(at)}',
+              ].join('\n'),
               style: AppTextStyles.caption,
             ),
           ),

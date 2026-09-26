@@ -1,0 +1,482 @@
+{
+  "brand": "大茗本位製茶堂",
+  "brandAliases": [
+    "大茗"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "daming-9bca875f",
+      "name": "芒果青經典",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 392,
+      "sugarG": 60,
+      "caffeineMg": 41
+    },
+    {
+      "id": "daming-30ad5aae",
+      "name": "芒果青果粒",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 263,
+      "sugarG": 50,
+      "caffeineMg": 41
+    },
+    {
+      "id": "daming-33891e45",
+      "name": "芒果優格經典",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 396,
+      "sugarG": 55,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-811bd4f0",
+      "name": "芒果優格果粒",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 328,
+      "sugarG": 47,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-e42b18c2",
+      "name": "青抹浮島",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 651,
+      "sugarG": 52.1,
+      "caffeineMg": 189
+    },
+    {
+      "id": "daming-344d2a69",
+      "name": "抹茶拿鐵 ESPRESSO",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 262,
+      "sugarG": 40.2,
+      "caffeineMg": 225
+    },
+    {
+      "id": "daming-010780ec",
+      "name": "抹茶拿鐵（大）",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 455,
+          "sugarG": 76.5,
+          "caffeineMg": 204
+        }
+      ]
+    },
+    {
+      "id": "daming-eae34e2f",
+      "name": "抹茶拿鐵（中）",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 366,
+          "sugarG": 54.5,
+          "caffeineMg": 189
+        }
+      ]
+    },
+    {
+      "id": "daming-6e0f9ae4",
+      "name": "青抹蕎麥凍奶",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 286,
+      "sugarG": 68.1,
+      "caffeineMg": 189
+    },
+    {
+      "id": "daming-7d94b309",
+      "name": "抹一點酸",
+      "series": "期間限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 782,
+      "sugarG": 74.4,
+      "caffeineMg": 189
+    },
+    {
+      "id": "daming-97b0f6e6",
+      "name": "玉露青",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-3a9b9078",
+      "name": "桂花青",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-7b09d5f4",
+      "name": "炭燒青",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-009ecc78",
+      "name": "紅玉紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 88
+    },
+    {
+      "id": "daming-4c0095e8",
+      "name": "翡翠綠茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 55
+    },
+    {
+      "id": "daming-9e188c8b",
+      "name": "御品冬瓜露",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 183,
+      "sugarG": 46,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-f20de2bb",
+      "name": "熟成油切蕎麥",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 49,
+      "sugarG": 0,
+      "caffeineMg": 44
+    },
+    {
+      "id": "daming-6c7f010f",
+      "name": "冷萃東方美人",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 108,
+      "sugarG": 27,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-a7ddbe4a",
+      "name": "冷萃半熟金萱",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 108,
+      "sugarG": 27,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-49b3b109",
+      "name": "冷萃茉綠",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 167,
+      "sugarG": 42,
+      "caffeineMg": 55
+    },
+    {
+      "id": "daming-a9cd6a8c",
+      "name": "老奶奶的鳳梨田",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 187,
+      "sugarG": 47,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-94048a22",
+      "name": "蘋果玉露青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 335,
+      "sugarG": 62,
+      "caffeineMg": 33
+    },
+    {
+      "id": "daming-ae55ddf1",
+      "name": "甘蔗玉露青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 256,
+      "sugarG": 40,
+      "caffeineMg": 33
+    },
+    {
+      "id": "daming-3f8ca45a",
+      "name": "冬瓜玉露青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 224,
+      "sugarG": 40,
+      "caffeineMg": 50
+    },
+    {
+      "id": "daming-d30d3c51",
+      "name": "鮮檸冬瓜露",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 332,
+      "sugarG": 40,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-eb149e83",
+      "name": "翡翠多多青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 335,
+      "sugarG": 42,
+      "caffeineMg": 41
+    },
+    {
+      "id": "daming-6a03b86c",
+      "name": "檸檬桂花青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 366,
+      "sugarG": 115,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-aabe90b8",
+      "name": "百香翡翠青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 433,
+      "sugarG": 31,
+      "caffeineMg": 55
+    },
+    {
+      "id": "daming-623c01e9",
+      "name": "柳橙翡翠青",
+      "series": "手作",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 297,
+      "sugarG": 42,
+      "caffeineMg": 22
+    },
+    {
+      "id": "daming-c8c486e6",
+      "name": "酪梨奶蓋紅玉",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 507,
+      "sugarG": 42,
+      "caffeineMg": 79
+    },
+    {
+      "id": "daming-2331e5a3",
+      "name": "酪梨奶蓋綠茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 507,
+      "sugarG": 42,
+      "caffeineMg": 50
+    },
+    {
+      "id": "daming-785c5447",
+      "name": "酪梨奶蓋烏龍",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 507,
+      "sugarG": 42,
+      "caffeineMg": 59
+    },
+    {
+      "id": "daming-3ba85bbf",
+      "name": "酪梨奶蓋冬瓜露",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 521,
+      "sugarG": 42,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-18dad775",
+      "name": "酪梨奶蓋熟成蕎麥",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 507,
+      "sugarG": 42,
+      "caffeineMg": 40
+    },
+    {
+      "id": "daming-ee5324a8",
+      "name": "酪梨奶蓋冷萃茉綠",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 507,
+      "sugarG": 42,
+      "caffeineMg": 50
+    },
+    {
+      "id": "daming-b9a2c950",
+      "name": "玉露奶青",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 549,
+      "sugarG": 62,
+      "caffeineMg": 83
+    },
+    {
+      "id": "daming-86463314",
+      "name": "懷舊經典奶茶",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 515,
+      "sugarG": 62,
+      "caffeineMg": 106
+    },
+    {
+      "id": "daming-3af75a93",
+      "name": "翡翠奶綠",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 515,
+      "sugarG": 62,
+      "caffeineMg": 66
+    },
+    {
+      "id": "daming-885f2a3b",
+      "name": "熟成蕎麥奶茶",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 623,
+      "sugarG": 40,
+      "caffeineMg": 44
+    },
+    {
+      "id": "daming-9341ecc0",
+      "name": "珍珠奶茶",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 704,
+      "sugarG": 72,
+      "caffeineMg": 84
+    },
+    {
+      "id": "daming-9dc02cf8",
+      "name": "紅茶拿鐵",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 381,
+      "sugarG": 62,
+      "caffeineMg": 110
+    },
+    {
+      "id": "daming-93d6f2b1",
+      "name": "翡翠拿鐵",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 381,
+      "sugarG": 62,
+      "caffeineMg": 69
+    },
+    {
+      "id": "daming-bfab03e0",
+      "name": "仙草嫩奶",
+      "series": "奶茶/鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 362,
+      "sugarG": 90,
+      "caffeineMg": 0
+    },
+    {
+      "id": "daming-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 275,
+          "sugarG": 25,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "daming-2dd2a7d1",
+      "name": "酪梨奶蓋",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 317,
+          "sugarG": 0,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "daming-6fab7c34",
+      "name": "嫩仙草",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 76,
+          "sugarG": 17,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "daming-5073c414",
+      "name": "蕎麥凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 112,
+          "sugarG": 28,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "daming-77b94f04",
+      "name": "珈啡粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8C%97%E6%9C%AC%E4%BD%8D%E8%A3%BD%E8%8C%B6%E5%A0%82%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 108,
+          "sugarG": 25,
+          "caffeineMg": 71
+        }
+      ]
+    }
+  ]
+}

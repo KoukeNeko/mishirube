@@ -1,0 +1,1319 @@
+{
+  "brand": "CoCo都可",
+  "brandAliases": [
+    "CoCo",
+    "都可"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "coco-51cce9aa",
+      "name": "蜜桃泡泡",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 273,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "coco-6ef844e9",
+      "name": "蜜桃映烏龍",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 329,
+          "sugarG": 75
+        }
+      ]
+    },
+    {
+      "id": "coco-d119017f",
+      "name": "生椰楊枝甘露",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 457,
+          "sugarG": 78
+        }
+      ]
+    },
+    {
+      "id": "coco-ba441c7c",
+      "name": "擂擂穀麥奶茶",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 500,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "coco-4cd80528",
+      "name": "莓好雙果茶",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 299,
+          "sugarG": 65
+        }
+      ]
+    },
+    {
+      "id": "coco-ebca0378",
+      "name": "莓好雙果牛乳",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 281,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "coco-e42f748c",
+      "name": "日安大麥",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 121,
+          "sugarG": 30
+        }
+      ]
+    },
+    {
+      "id": "coco-82eea84b",
+      "name": "冬韻擂焙珍奶",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 749,
+          "sugarG": 59,
+          "caffeineMg": 105
+        }
+      ]
+    },
+    {
+      "id": "coco-dcef2e44",
+      "name": "羽衣蘋安杯",
+      "series": "新品/經典",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 245,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "coco-616574ae",
+      "name": "生椰拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 135,
+      "sugarG": 7
+    },
+    {
+      "id": "coco-2d805606",
+      "name": "粉角生椰拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 256,
+      "sugarG": 25
+    },
+    {
+      "id": "coco-6799f953",
+      "name": "紅柚香檸美式",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 223,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "coco-d21c46b6",
+      "name": "香橙美式",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 217,
+      "sugarG": 45
+    },
+    {
+      "id": "coco-38cd8632",
+      "name": "西西里手搗檸檬美式",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 253,
+      "sugarG": 54
+    },
+    {
+      "id": "coco-ed7cfd4d",
+      "name": "珍珠黑糖拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 246,
+      "sugarG": 16
+    },
+    {
+      "id": "coco-5dee15c2",
+      "name": "珍珠職人拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 216,
+      "sugarG": 13
+    },
+    {
+      "id": "coco-5c367536",
+      "name": "粉角職人拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 244,
+      "sugarG": 27
+    },
+    {
+      "id": "coco-a268de8b",
+      "name": "職人美式",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 4,
+      "sugarG": 1
+    },
+    {
+      "id": "coco-4456569e",
+      "name": "職人拿鐵",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 157,
+      "sugarG": 11
+    },
+    {
+      "id": "coco-d1d65cbc",
+      "name": "茉莉綠茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 110
+        },
+        {
+          "name": "M・熱",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 160
+        },
+        {
+          "name": "L・冷",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 150
+        },
+        {
+          "name": "L・熱",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 230
+        }
+      ]
+    },
+    {
+      "id": "coco-fff67b68",
+      "name": "21歲輕烏龍",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 145
+        },
+        {
+          "name": "M・熱",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 185
+        },
+        {
+          "name": "L・冷",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 200
+        },
+        {
+          "name": "L・熱",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 260
+        }
+      ]
+    },
+    {
+      "id": "coco-d0afa462",
+      "name": "四季春青茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 145
+        },
+        {
+          "name": "M・熱",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 185
+        },
+        {
+          "name": "L・冷",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 200
+        },
+        {
+          "name": "L・熱",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 260
+        }
+      ]
+    },
+    {
+      "id": "coco-8f6409bf",
+      "name": "手採紅茶2.0",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 100
+        },
+        {
+          "name": "M・熱",
+          "kcal": 105,
+          "sugarG": 25,
+          "caffeineMg": 125
+        },
+        {
+          "name": "L・冷",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 130
+        },
+        {
+          "name": "L・熱",
+          "kcal": 140,
+          "sugarG": 33,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "coco-6917c278",
+      "name": "四季珍椰青",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 182,
+          "sugarG": 30,
+          "caffeineMg": 115
+        },
+        {
+          "name": "L・冷",
+          "kcal": 265,
+          "sugarG": 46,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "coco-93986a31",
+      "name": "蜜香凍紅茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 246,
+          "sugarG": 57,
+          "caffeineMg": 70
+        },
+        {
+          "name": "L・冷",
+          "kcal": 320,
+          "sugarG": 74,
+          "caffeineMg": 90
+        }
+      ]
+    },
+    {
+      "id": "coco-7e204f90",
+      "name": "蜜香凍綠茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 246,
+          "sugarG": 57,
+          "caffeineMg": 85
+        },
+        {
+          "name": "L・冷",
+          "kcal": 320,
+          "sugarG": 74,
+          "caffeineMg": 120
+        }
+      ]
+    },
+    {
+      "id": "coco-fdcf143d",
+      "name": "蜜香凍青茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 246,
+          "sugarG": 57,
+          "caffeineMg": 115
+        },
+        {
+          "name": "L・冷",
+          "kcal": 320,
+          "sugarG": 74,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "coco-75282ec3",
+      "name": "仙草蜜",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 558,
+          "sugarG": 124,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 722,
+          "sugarG": 161,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-5d96aa71",
+      "name": "日式焙茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 141,
+          "sugarG": 33,
+          "caffeineMg": 170
+        }
+      ]
+    },
+    {
+      "id": "coco-02a589ea",
+      "name": "奶茶三兄弟",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 622,
+          "sugarG": 61,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "coco-7705935c",
+      "name": "阿薩姆奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 404,
+          "sugarG": 33,
+          "caffeineMg": 110
+        },
+        {
+          "name": "L",
+          "kcal": 584,
+          "sugarG": 46,
+          "caffeineMg": 150
+        }
+      ]
+    },
+    {
+      "id": "coco-30295ff8",
+      "name": "珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 501,
+          "sugarG": 38,
+          "caffeineMg": 90
+        },
+        {
+          "name": "L",
+          "kcal": 722,
+          "sugarG": 51,
+          "caffeineMg": 120
+        }
+      ]
+    },
+    {
+      "id": "coco-df21b1b4",
+      "name": "粉角奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 567,
+          "sugarG": 57,
+          "caffeineMg": 109
+        },
+        {
+          "name": "M・熱",
+          "kcal": 567,
+          "sugarG": 57,
+          "caffeineMg": 110
+        },
+        {
+          "name": "L・冷",
+          "kcal": 744,
+          "sugarG": 142,
+          "caffeineMg": 126
+        },
+        {
+          "name": "L・熱",
+          "kcal": 744,
+          "sugarG": 142,
+          "caffeineMg": 125
+        }
+      ]
+    },
+    {
+      "id": "coco-b7159312",
+      "name": "布丁奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 447,
+          "sugarG": 41,
+          "caffeineMg": 90
+        },
+        {
+          "name": "L・冷",
+          "kcal": 522,
+          "sugarG": 56,
+          "caffeineMg": 120
+        }
+      ]
+    },
+    {
+      "id": "coco-eb1b8c34",
+      "name": "西谷米奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 498,
+          "sugarG": 49,
+          "caffeineMg": 85
+        },
+        {
+          "name": "L・冷",
+          "kcal": 705,
+          "sugarG": 74,
+          "caffeineMg": 105
+        }
+      ]
+    },
+    {
+      "id": "coco-a91d1c37",
+      "name": "日式焙奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 557,
+          "sugarG": 47,
+          "caffeineMg": 205
+        }
+      ]
+    },
+    {
+      "id": "coco-83d41734",
+      "name": "日焙珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 679,
+          "sugarG": 45,
+          "caffeineMg": 165
+        }
+      ]
+    },
+    {
+      "id": "coco-21520412",
+      "name": "英式鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 263,
+          "sugarG": 37,
+          "caffeineMg": 60
+        },
+        {
+          "name": "M・熱",
+          "kcal": 263,
+          "sugarG": 37,
+          "caffeineMg": 135
+        },
+        {
+          "name": "L・冷",
+          "kcal": 365,
+          "sugarG": 50,
+          "caffeineMg": 75
+        },
+        {
+          "name": "L・熱",
+          "kcal": 365,
+          "sugarG": 50,
+          "caffeineMg": 180
+        }
+      ]
+    },
+    {
+      "id": "coco-9150cce0",
+      "name": "珍珠鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 369,
+          "sugarG": 38,
+          "caffeineMg": 60
+        },
+        {
+          "name": "M・熱",
+          "kcal": 369,
+          "sugarG": 38,
+          "caffeineMg": 120
+        },
+        {
+          "name": "L・冷",
+          "kcal": 524,
+          "sugarG": 52,
+          "caffeineMg": 75
+        },
+        {
+          "name": "L・熱",
+          "kcal": 524,
+          "sugarG": 52,
+          "caffeineMg": 155
+        }
+      ]
+    },
+    {
+      "id": "coco-fd007c88",
+      "name": "粉角鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 411,
+          "sugarG": 56,
+          "caffeineMg": 52
+        },
+        {
+          "name": "M・熱",
+          "kcal": 411,
+          "sugarG": 56,
+          "caffeineMg": 175
+        },
+        {
+          "name": "L・冷",
+          "kcal": 580,
+          "sugarG": 78,
+          "caffeineMg": 73
+        },
+        {
+          "name": "L・熱",
+          "kcal": 580,
+          "sugarG": 78,
+          "caffeineMg": 200
+        }
+      ]
+    },
+    {
+      "id": "coco-8dcec625",
+      "name": "手作仙草凍乳",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 319,
+          "sugarG": 60,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-215b24d2",
+      "name": "芋頭牛奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 426,
+          "sugarG": 49,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L",
+          "kcal": 552,
+          "sugarG": 63,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-bc4e06dd",
+      "name": "芋頭西谷米牛奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 493,
+          "sugarG": 59,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 736,
+          "sugarG": 90,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-a84914da",
+      "name": "日焙鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 278,
+          "sugarG": 44,
+          "caffeineMg": 135
+        }
+      ]
+    },
+    {
+      "id": "coco-99ee034c",
+      "name": "美式咖啡",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "16oz",
+          "kcal": 17,
+          "sugarG": 13,
+          "caffeineMg": 250
+        }
+      ]
+    },
+    {
+      "id": "coco-b6c76965",
+      "name": "拿鐵咖啡",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "16oz",
+          "kcal": 185,
+          "sugarG": 13,
+          "caffeineMg": 250
+        }
+      ]
+    },
+    {
+      "id": "coco-ef24719b",
+      "name": "珍珠拿鐵咖啡",
+      "series": "咖啡",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "kcal": 337,
+      "sugarG": 21,
+      "caffeineMg": 210
+    },
+    {
+      "id": "coco-06d9d10d",
+      "name": "28茉輕乳茶",
+      "series": "輕乳茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 278,
+          "sugarG": 47,
+          "caffeineMg": 175
+        }
+      ]
+    },
+    {
+      "id": "coco-0c8ca092",
+      "name": "28茉粉角輕乳茶",
+      "series": "輕乳茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 547,
+          "sugarG": 79,
+          "caffeineMg": 175
+        }
+      ]
+    },
+    {
+      "id": "coco-b2e1c454",
+      "name": "百香雙響炮",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 470,
+          "sugarG": 81,
+          "caffeineMg": 75
+        }
+      ]
+    },
+    {
+      "id": "coco-72b29df9",
+      "name": "HPP楊枝甘露",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 455,
+          "sugarG": 75,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 640,
+          "sugarG": 105,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-50c25b45",
+      "name": "葡萄柚果粒茶",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 304,
+          "sugarG": 40,
+          "caffeineMg": 160
+        },
+        {
+          "name": "L・熱",
+          "kcal": 304,
+          "sugarG": 40,
+          "caffeineMg": 190
+        }
+      ]
+    },
+    {
+      "id": "coco-ace6cb76",
+      "name": "檸檬霸",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 332,
+          "sugarG": 73,
+          "caffeineMg": 75
+        }
+      ]
+    },
+    {
+      "id": "coco-74d439e6",
+      "name": "鮮芋雪冰",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 527,
+          "sugarG": 76,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-51590015",
+      "name": "粉角鮮芋雪冰",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 739,
+          "sugarG": 100,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-eb553d6e",
+      "name": "綠豆沙",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 422,
+          "sugarG": 67,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 588,
+          "sugarG": 93,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-ea714af5",
+      "name": "綠豆沙牛奶",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 404,
+          "sugarG": 57,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 555,
+          "sugarG": 77,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-f38f87d8",
+      "name": "芒果冰沙",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 429,
+          "sugarG": 66,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 597,
+          "sugarG": 92,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-b2b57763",
+      "name": "芒果歐蕾",
+      "series": "水果/冰沙",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 408,
+          "sugarG": 57,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 562,
+          "sugarG": 76,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-3961aaf2",
+      "name": "粉角檸檬冬瓜",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 340,
+          "sugarG": 57,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 495,
+          "sugarG": 82,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-243a69d5",
+      "name": "檸檬奇遇金桔",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 383,
+          "sugarG": 82,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-1e4e02f5",
+      "name": "21歲輕檸烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 242,
+          "sugarG": 55,
+          "caffeineMg": 130
+        },
+        {
+          "name": "L・冷",
+          "kcal": 322,
+          "sugarG": 73,
+          "caffeineMg": 175
+        }
+      ]
+    },
+    {
+      "id": "coco-7d0b5f18",
+      "name": "鮮檸檬紅茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 242,
+          "sugarG": 55,
+          "caffeineMg": 100
+        },
+        {
+          "name": "L・冷",
+          "kcal": 322,
+          "sugarG": 73,
+          "caffeineMg": 140
+        }
+      ]
+    },
+    {
+      "id": "coco-cca90238",
+      "name": "鮮檸檬綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 242,
+          "sugarG": 55,
+          "caffeineMg": 90
+        },
+        {
+          "name": "L・冷",
+          "kcal": 322,
+          "sugarG": 73,
+          "caffeineMg": 125
+        }
+      ]
+    },
+    {
+      "id": "coco-413c80c3",
+      "name": "鮮檸檬青茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 242,
+          "sugarG": 55,
+          "caffeineMg": 130
+        },
+        {
+          "name": "L・冷",
+          "kcal": 322,
+          "sugarG": 73,
+          "caffeineMg": 175
+        }
+      ]
+    },
+    {
+      "id": "coco-f8424c56",
+      "name": "百香綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 255,
+          "sugarG": 61,
+          "caffeineMg": 80
+        },
+        {
+          "name": "L・冷",
+          "kcal": 355,
+          "sugarG": 84,
+          "caffeineMg": 110
+        }
+      ]
+    },
+    {
+      "id": "coco-ecfca309",
+      "name": "芒果綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 248,
+          "sugarG": 47,
+          "caffeineMg": 55
+        },
+        {
+          "name": "L・冷",
+          "kcal": 331,
+          "sugarG": 63,
+          "caffeineMg": 75
+        }
+      ]
+    },
+    {
+      "id": "coco-f1ab6da2",
+      "name": "芒椰偷閒奇亞籽",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 360,
+          "sugarG": 66,
+          "caffeineMg": 48
+        }
+      ]
+    },
+    {
+      "id": "coco-ea619ad3",
+      "name": "檸檬冬瓜露",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 170,
+          "sugarG": 40,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 225,
+          "sugarG": 53,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-ebdbea97",
+      "name": "蕎麥冬瓜露",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 161,
+          "sugarG": 40,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 215,
+          "sugarG": 53,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "coco-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 262,
+          "sugarG": 14
+        }
+      ]
+    },
+    {
+      "id": "coco-f51581c5",
+      "name": "布丁",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 135,
+          "sugarG": 19
+        }
+      ]
+    },
+    {
+      "id": "coco-a555e4a3",
+      "name": "仙草",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 86,
+          "sugarG": 19
+        }
+      ]
+    },
+    {
+      "id": "coco-54cd0bf7",
+      "name": "粉角",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 317,
+          "sugarG": 27
+        }
+      ]
+    },
+    {
+      "id": "coco-2ef4f719",
+      "name": "西谷米",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 348,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "coco-a0e7141d",
+      "name": "蜜香凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 160,
+          "sugarG": 38
+        }
+      ]
+    },
+    {
+      "id": "coco-1298961b",
+      "name": "椰果",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/coco%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 90,
+          "sugarG": 22
+        }
+      ]
+    }
+  ]
+}

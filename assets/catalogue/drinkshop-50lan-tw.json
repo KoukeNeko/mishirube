@@ -1,0 +1,1220 @@
+{
+  "brand": "50嵐",
+  "brandAliases": [
+    "五十嵐"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "50lan-fe1600b5",
+      "name": "茉莉綠茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 119,
+          "sugarG": 28
+        },
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "50lan-904ae1c0",
+      "name": "阿薩姆紅茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 119,
+          "sugarG": 28
+        },
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "50lan-71f23abd",
+      "name": "四季春青茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 119,
+          "sugarG": 28
+        },
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "50lan-f8f9d259",
+      "name": "黃金烏龍",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 119,
+          "sugarG": 28
+        },
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "50lan-82a9fe2d",
+      "name": "檸檬綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 154,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 217,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "50lan-9f08a2fe",
+      "name": "梅の綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 276,
+          "sugarG": 65
+        },
+        {
+          "name": "L",
+          "kcal": 395,
+          "sugarG": 93
+        }
+      ]
+    },
+    {
+      "id": "50lan-86675792",
+      "name": "桔子綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 155,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 218,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "50lan-a88bd28b",
+      "name": "8冰綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 186,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 291,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-d89823fa",
+      "name": "養樂多綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 230,
+          "sugarG": 53
+        },
+        {
+          "name": "L",
+          "kcal": 318,
+          "sugarG": 73
+        }
+      ]
+    },
+    {
+      "id": "50lan-3973e499",
+      "name": "旺來紅",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 228,
+          "sugarG": 53
+        },
+        {
+          "name": "L",
+          "kcal": 326,
+          "sugarG": 75
+        }
+      ]
+    },
+    {
+      "id": "50lan-4967516a",
+      "name": "鮮柚綠",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 158,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-1eef1797",
+      "name": "柚子紅",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 214,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 301,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-0e3ce193",
+      "name": "麵茶紅茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 265,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 388,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "50lan-31e7ded2",
+      "name": "麵茶烏龍茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 265,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 388,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "50lan-28e761b2",
+      "name": "麵茶綠茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 265,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 388,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "50lan-8394d149",
+      "name": "麵茶青茶",
+      "series": "好茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 265,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 388,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "50lan-9d4db802",
+      "name": "奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 372,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 532,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "50lan-46920c8a",
+      "name": "奶綠",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 372,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 532,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "50lan-8de00263",
+      "name": "紅茶瑪奇朵",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 452,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 636,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-83900181",
+      "name": "烏龍瑪奇朵",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 452,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 636,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-3d9bc3f8",
+      "name": "四季奶青",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 372,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 532,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "50lan-8739ce41",
+      "name": "黃金烏龍奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 330,
+          "sugarG": 31
+        },
+        {
+          "name": "L",
+          "kcal": 472,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "50lan-d2aacaae",
+      "name": "阿華田",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 359,
+          "sugarG": 33
+        },
+        {
+          "name": "L",
+          "kcal": 512,
+          "sugarG": 47
+        }
+      ]
+    },
+    {
+      "id": "50lan-bd6de770",
+      "name": "麵茶奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 528,
+          "sugarG": 46
+        },
+        {
+          "name": "L",
+          "kcal": 783,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-8ff76455",
+      "name": "麵茶奶綠",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 528,
+          "sugarG": 46
+        },
+        {
+          "name": "L",
+          "kcal": 783,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-65d63213",
+      "name": "檸檬汁",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 161,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 228,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "50lan-887f60a0",
+      "name": "金桔檸檬",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 161,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 227,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "50lan-ac74520f",
+      "name": "檸檬梅汁",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 239,
+          "sugarG": 55
+        },
+        {
+          "name": "L",
+          "kcal": 338,
+          "sugarG": 77
+        }
+      ]
+    },
+    {
+      "id": "50lan-52babd50",
+      "name": "檸檬養樂多",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 357,
+          "sugarG": 77
+        },
+        {
+          "name": "L",
+          "kcal": 490,
+          "sugarG": 106
+        }
+      ]
+    },
+    {
+      "id": "50lan-86c3a2e1",
+      "name": "8冰茶",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 187,
+          "sugarG": 43
+        },
+        {
+          "name": "L",
+          "kcal": 291,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-412ffe74",
+      "name": "鮮柚汁",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 158,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-ad63f84b",
+      "name": "葡萄柚多多",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 269,
+          "sugarG": 61
+        },
+        {
+          "name": "L",
+          "kcal": 374,
+          "sugarG": 84
+        }
+      ]
+    },
+    {
+      "id": "50lan-faaf2825",
+      "name": "柚子茶",
+      "series": "鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 214,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 301,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-b8a5210c",
+      "name": "冰淇淋紅茶",
+      "series": "冰淇淋/果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 244,
+          "sugarG": 39
+        },
+        {
+          "name": "L",
+          "kcal": 436,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-166afa7f",
+      "name": "冰淇淋綠茶",
+      "series": "冰淇淋/果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 244,
+          "sugarG": 39
+        },
+        {
+          "name": "L",
+          "kcal": 436,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "50lan-cd6c15bf",
+      "name": "芒果青",
+      "series": "冰淇淋/果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 185,
+          "sugarG": 41
+        },
+        {
+          "name": "L",
+          "kcal": 319,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-75ccab45",
+      "name": "荔枝烏龍",
+      "series": "冰淇淋/果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 178,
+          "sugarG": 39
+        },
+        {
+          "name": "L",
+          "kcal": 304,
+          "sugarG": 66
+        }
+      ]
+    },
+    {
+      "id": "50lan-a7452cd8",
+      "name": "重焙烏龍拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 334,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-bd96c1ba",
+      "name": "紅茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 334,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-6c40fb7a",
+      "name": "綠茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 334,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-1f4763a6",
+      "name": "四季拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 334,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-d57896b1",
+      "name": "黃金烏龍拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 334,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "50lan-c8ec5ef7",
+      "name": "阿華田拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 301,
+          "sugarG": 38
+        },
+        {
+          "name": "L",
+          "kcal": 428,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "50lan-e72caac5",
+      "name": "麵茶紅茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 367,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 524,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-0102291a",
+      "name": "麵茶綠茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 367,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 524,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-d19a6eb4",
+      "name": "麵茶四季拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 367,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 524,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-a6cce9c6",
+      "name": "麵茶黃金烏龍拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 367,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 524,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-24eb6a86",
+      "name": "麵茶重焙烏龍拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 367,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 524,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "50lan-e84cd243",
+      "name": "50嵐一號（四季春+珍波椰）",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 291,
+          "sugarG": 46
+        },
+        {
+          "name": "L",
+          "kcal": 413,
+          "sugarG": 65
+        }
+      ]
+    },
+    {
+      "id": "50lan-f0beee43",
+      "name": "波霸紅茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 299,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 424,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "50lan-e54f1db3",
+      "name": "波霸綠茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 299,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 424,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "50lan-6d8a9821",
+      "name": "珍珠青茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 292,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 414,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "50lan-a0d889ea",
+      "name": "珍珠烏龍",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 292,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 414,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "50lan-55b361b1",
+      "name": "波霸奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 480,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 678,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-44592a72",
+      "name": "波霸奶綠",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 480,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 678,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-2d735230",
+      "name": "波霸烏龍奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 450,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 635,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "50lan-dede36d4",
+      "name": "珍珠奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 473,
+          "sugarG": 38
+        },
+        {
+          "name": "L",
+          "kcal": 668,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-6f09ce9e",
+      "name": "珍珠奶綠",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 473,
+          "sugarG": 38
+        },
+        {
+          "name": "L",
+          "kcal": 668,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-83012e45",
+      "name": "珍珠烏龍奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 443,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 626,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "50lan-bcfd4a61",
+      "name": "椰果奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 464,
+          "sugarG": 72
+        },
+        {
+          "name": "L",
+          "kcal": 655,
+          "sugarG": 102
+        }
+      ]
+    },
+    {
+      "id": "50lan-4d95a459",
+      "name": "布丁奶茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 376,
+          "sugarG": 39
+        },
+        {
+          "name": "L",
+          "kcal": 592,
+          "sugarG": 64
+        }
+      ]
+    },
+    {
+      "id": "50lan-6f2c88e0",
+      "name": "布丁奶綠",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 376,
+          "sugarG": 39
+        },
+        {
+          "name": "L",
+          "kcal": 592,
+          "sugarG": 64
+        }
+      ]
+    },
+    {
+      "id": "50lan-4259eaf1",
+      "name": "布丁紅茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 195,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 339,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-943401f4",
+      "name": "布丁綠茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 195,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 339,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-5c11f303",
+      "name": "布丁青茶",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 195,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 339,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-52b612d1",
+      "name": "布丁烏龍",
+      "series": "咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 195,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 339,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "50lan-d10daec5",
+      "name": "四季奶青瑪奇朵",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/50%E5%B5%90%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 450
+        },
+        {
+          "name": "L",
+          "kcal": 630,
+          "sugarG": 60
+        }
+      ]
+    }
+  ]
+}

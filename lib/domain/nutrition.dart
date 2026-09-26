@@ -174,7 +174,8 @@ enum NutrientValueType {
   /// say it is a maximum, the way the chains' own tables do.
   max('最高值'),
 
-  /// A general figure for this kind of thing, not this thing.
+  /// Not this thing's own label: a general figure for its kind, or one
+  /// borrowed from the same recipe in another size.
   estimate('估計值');
 
   const NutrientValueType(this.label);
@@ -325,6 +326,7 @@ class FoodItem {
     this.country = '',
     this.caffeineBasis = CaffeineBasis.serving,
     this.allergens,
+    this.barcode,
   });
 
   final String id;
@@ -409,6 +411,10 @@ class FoodItem {
   /// declares none, null when nobody said — not the same as none.
   final Set<Allergen>? allergens;
 
+  /// The number under the package's barcode (EAN-13 in Taiwan and
+  /// Japan); null when it is not known or the food has no package.
+  final String? barcode;
+
   /// Shipped with the app, and read-only.
   ///
   /// The app replaces this data wholesale when it updates, which is only
@@ -468,8 +474,10 @@ class FoodItem {
     String? country,
     CaffeineBasis? caffeineBasis,
     Set<Allergen>? allergens,
+    String? barcode,
   }) => FoodItem(
     allergens: allergens ?? this.allergens,
+    barcode: barcode ?? this.barcode,
     series: series ?? this.series,
     country: country ?? this.country,
     caffeineBasis: caffeineBasis ?? this.caffeineBasis,
@@ -528,6 +536,50 @@ enum NutrientUnit {
   final String label;
 }
 
+/// What a Japanese label (食品表示基準) calls a figure, so a food sold
+/// there reads as its own label does; null for one the label has no
+/// word for here.
+String? japaneseLabelOf(Nutrient nutrient) => switch (nutrient) {
+  Nutrient.sugar => '糖類',
+  Nutrient.netCarb => '糖質',
+  Nutrient.saltEquivalent => '食塩相当量',
+  Nutrient.saturatedFat => '飽和脂肪酸',
+  Nutrient.calcium => 'カルシウム',
+  Nutrient.iron => '鉄',
+  Nutrient.caffeine => 'カフェイン',
+  Nutrient.vitaminB6 => 'ビタミンB6',
+  Nutrient.vitaminB12 => 'ビタミンB12',
+  Nutrient.vitaminD => 'ビタミンD',
+  Nutrient.folate => '葉酸',
+  Nutrient.sodium => 'ナトリウム',
+  Nutrient.potassium => 'カリウム',
+  Nutrient.magnesium => 'マグネシウム',
+  Nutrient.phosphorus => 'リン',
+  Nutrient.zinc => '亜鉛',
+  Nutrient.niacin => 'ナイアシン',
+  Nutrient.pantothenicAcid => 'パントテン酸',
+  Nutrient.biotin => 'ビオチン',
+  Nutrient.vitaminA => 'ビタミンA',
+  Nutrient.vitaminB1 => 'ビタミンB1',
+  Nutrient.vitaminB2 => 'ビタミンB2',
+  Nutrient.vitaminC => 'ビタミンC',
+  Nutrient.vitaminE => 'ビタミンE',
+  Nutrient.vitaminK => 'ビタミンK',
+  Nutrient.leucine => 'ロイシン',
+  Nutrient.isoleucine => 'イソロイシン',
+  Nutrient.valine => 'バリン',
+  _ => null,
+};
+
+/// The five figures every label has, as a Japanese one names them.
+abstract final class JapaneseMacroLabel {
+  static const energy = '熱量';
+  static const protein = 'たんぱく質';
+  static const fat = '脂質';
+  static const carb = '炭水化物';
+  static const fibre = '食物繊維';
+}
+
 /// What the figures every food and meal carries are called on screen: in
 /// full, as the nutrition label prints them.
 abstract final class MacroLabel {
@@ -553,9 +605,21 @@ enum Nutrient {
   sugar('糖', NutrientUnit.gram),
   sodium('鈉', NutrientUnit.milligram),
 
+  // What a Japanese label prints instead, kept as printed: 糖質 is
+  // carbohydrate less fibre, not sugar, and salt is not converted to
+  // sodium.
+  netCarb('糖質', NutrientUnit.gram),
+  saltEquivalent('食鹽相當量', NutrientUnit.gram),
+
   // Commonly declared voluntarily.
   cholesterol('膽固醇', NutrientUnit.milligram),
   caffeine('咖啡因', NutrientUnit.milligram),
+
+  // The branched-chain amino acids a protein drink's label lists under
+  // its protein.
+  leucine('白胺酸', NutrientUnit.milligram),
+  isoleucine('異白胺酸', NutrientUnit.milligram),
+  valine('纈胺酸', NutrientUnit.milligram),
 
   // Minerals in the DRIs.
   calcium('鈣', NutrientUnit.milligram),

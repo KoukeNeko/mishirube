@@ -1,0 +1,486 @@
+{
+  "brand": "一沐日",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "yimuri-0084fff1",
+      "name": "手採高山青茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 200,
+      "sugarG": 48
+    },
+    {
+      "id": "yimuri-8d516887",
+      "name": "油切蕎麥茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 5,
+      "sugarG": 0
+    },
+    {
+      "id": "yimuri-b1c6958c",
+      "name": "炭焙烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 200,
+      "sugarG": 48
+    },
+    {
+      "id": "yimuri-6a7ecbbd",
+      "name": "島韻紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 200,
+      "sugarG": 48
+    },
+    {
+      "id": "yimuri-49d94a68",
+      "name": "糯米香茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 200,
+      "sugarG": 48
+    },
+    {
+      "id": "yimuri-31797bfe",
+      "name": "輕香烏龍綠",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 200,
+      "sugarG": 48
+    },
+    {
+      "id": "yimuri-8d95baa6",
+      "name": "奶蓋高山青茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 426,
+      "sugarG": 38
+    },
+    {
+      "id": "yimuri-53352f8f",
+      "name": "奶蓋蕎麥茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 226,
+      "sugarG": 2
+    },
+    {
+      "id": "yimuri-cdaeb786",
+      "name": "奶蓋烏龍茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 426,
+      "sugarG": 38
+    },
+    {
+      "id": "yimuri-332262a6",
+      "name": "奶蓋島韻紅茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 426,
+      "sugarG": 38
+    },
+    {
+      "id": "yimuri-c98f6af6",
+      "name": "奶蓋糯香茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 426,
+      "sugarG": 38
+    },
+    {
+      "id": "yimuri-4ce6a6bf",
+      "name": "奶蓋烏龍綠",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 427,
+      "sugarG": 42
+    },
+    {
+      "id": "yimuri-ea965072",
+      "name": "高山青鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 330,
+      "sugarG": 50
+    },
+    {
+      "id": "yimuri-c5d9da9a",
+      "name": "粉粿黑糖鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 480,
+      "sugarG": 52
+    },
+    {
+      "id": "yimuri-ba7bbc29",
+      "name": "極黑芝麻鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 503,
+      "sugarG": 57
+    },
+    {
+      "id": "yimuri-541d0f73",
+      "name": "島韻紅鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 324,
+      "sugarG": 50
+    },
+    {
+      "id": "yimuri-1a3ce514",
+      "name": "烏龍鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 324,
+      "sugarG": 50
+    },
+    {
+      "id": "yimuri-e16cf90d",
+      "name": "蕎麥鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 304,
+      "sugarG": 50
+    },
+    {
+      "id": "yimuri-1f1a62cd",
+      "name": "糯香鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 324,
+      "sugarG": 50
+    },
+    {
+      "id": "yimuri-ad14566e",
+      "name": "烏龍綠鮮奶茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 290,
+      "sugarG": 47
+    },
+    {
+      "id": "yimuri-4c24fbef",
+      "name": "桂花蕎麥茶",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 129,
+      "sugarG": 25
+    },
+    {
+      "id": "yimuri-0483e0f8",
+      "name": "檸檬高山青",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 385,
+      "sugarG": 87
+    },
+    {
+      "id": "yimuri-9651a49c",
+      "name": "檸檬紅茶",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 385,
+      "sugarG": 87
+    },
+    {
+      "id": "yimuri-adf7ce64",
+      "name": "荔枝蘆薈",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 267,
+      "sugarG": 59
+    },
+    {
+      "id": "yimuri-c3b62892",
+      "name": "荔枝烏龍",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 351,
+      "sugarG": 75
+    },
+    {
+      "id": "yimuri-c99aa2ef",
+      "name": "粉粿黑糖檸檬",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 354,
+      "sugarG": 76
+    },
+    {
+      "id": "yimuri-681063db",
+      "name": "粉粿桂花檸檬",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 359,
+      "sugarG": 76
+    },
+    {
+      "id": "yimuri-890d2ccd",
+      "name": "糯香檸檬茶",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 385,
+      "sugarG": 87
+    },
+    {
+      "id": "yimuri-3ca5fb56",
+      "name": "輕檸烏龍綠",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 203,
+      "sugarG": 46
+    },
+    {
+      "id": "yimuri-f01e15ea",
+      "name": "酸梅湯烏龍綠",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 166,
+      "sugarG": 35
+    },
+    {
+      "id": "yimuri-dc3764da",
+      "name": "粉粿牡丹檸檬",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 465,
+      "sugarG": 93
+    },
+    {
+      "id": "yimuri-f1a28cea",
+      "name": "牡丹蕎麥茶",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 129,
+      "sugarG": 26
+    },
+    {
+      "id": "yimuri-9f460e7a",
+      "name": "牡丹高山青",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 148,
+      "sugarG": 30
+    },
+    {
+      "id": "yimuri-8a759ec6",
+      "name": "粉粿牡丹紅柚",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 288,
+      "sugarG": 63
+    },
+    {
+      "id": "yimuri-bf72e3e9",
+      "name": "牡丹紅柚",
+      "series": "風味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 185,
+      "sugarG": 39
+    },
+    {
+      "id": "yimuri-88958333",
+      "name": "冬瓜烏龍茶",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 350,
+      "sugarG": 82
+    },
+    {
+      "id": "yimuri-36c574ff",
+      "name": "冬瓜蕎麥茶",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 350,
+      "sugarG": 82
+    },
+    {
+      "id": "yimuri-f18e3e70",
+      "name": "冬瓜仙草蜜",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 296,
+      "sugarG": 66
+    },
+    {
+      "id": "yimuri-b5c21715",
+      "name": "冬瓜檸檬",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 408,
+      "sugarG": 98
+    },
+    {
+      "id": "yimuri-232eed0d",
+      "name": "冬瓜青茶",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 350,
+      "sugarG": 82
+    },
+    {
+      "id": "yimuri-5fcac563",
+      "name": "冬瓜紅茶",
+      "series": "冬瓜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 350,
+      "sugarG": 82
+    },
+    {
+      "id": "yimuri-3333369d",
+      "name": "嫩仙草奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 362,
+      "sugarG": 38
+    },
+    {
+      "id": "yimuri-82c1c483",
+      "name": "高山青奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 495,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-f7d25d0d",
+      "name": "烏龍奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 500,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-14993b65",
+      "name": "島韻紅奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 500,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-9d787731",
+      "name": "極黑芝麻奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 554,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-83d933ff",
+      "name": "逮丸奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 630,
+      "sugarG": 74
+    },
+    {
+      "id": "yimuri-80033957",
+      "name": "黃金蕎麥奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 450,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-8895f36a",
+      "name": "粉粿黑糖奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 436,
+      "sugarG": 61
+    },
+    {
+      "id": "yimuri-138caa6c",
+      "name": "糯香奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 492,
+      "sugarG": 70
+    },
+    {
+      "id": "yimuri-080b60b3",
+      "name": "烏龍綠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "kcal": 495,
+      "sugarG": 63
+    },
+    {
+      "id": "yimuri-6fab7c34",
+      "name": "嫩仙草",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 88,
+          "sugarG": 20
+        }
+      ]
+    },
+    {
+      "id": "yimuri-810a08f1",
+      "name": "蘆薈",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 98,
+          "sugarG": 24
+        }
+      ]
+    },
+    {
+      "id": "yimuri-ca8e11d5",
+      "name": "琥珀粉圓",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 245,
+          "sugarG": 24
+        }
+      ]
+    },
+    {
+      "id": "yimuri-e290ec36",
+      "name": "招牌粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 155,
+          "sugarG": 34
+        }
+      ]
+    },
+    {
+      "id": "yimuri-e7478b64",
+      "name": "草仔粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%B8%80%E6%B2%90%E6%97%A5%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 281,
+          "sugarG": 24
+        }
+      ]
+    }
+  ]
+}

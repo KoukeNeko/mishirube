@@ -130,7 +130,7 @@ class FoodRepository {
           'size_name = ?, consumption_kind = ?, value_type = ?, '
           'source_url = ?, checked_at = ?, search_terms = ?, '
           'is_cup_capacity = ?, series = ?, country = ?, caffeine_basis = ?, '
-          'allergens = ?, '
+          'allergens = ?, barcode = ?, '
           'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
           'WHERE id = ?',
           [
@@ -156,6 +156,7 @@ class FoodRepository {
             food.country,
             food.caffeineBasis.name,
             _allergensColumn(food.allergens),
+            food.barcode,
             now,
             food.id,
           ],
@@ -166,10 +167,11 @@ class FoodRepository {
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
           'fibre_g, parent_id, size_name, consumption_kind, value_type, '
           'source_url, checked_at, search_terms, is_cup_capacity, series, '
-          'country, caffeine_basis, allergens, created_at, updated_at, '
+          'country, caffeine_basis, allergens, barcode, created_at, '
+          'updated_at, '
           'source) '
           'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-          '?, ?, ?, ?, ?)',
+          '?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -194,6 +196,7 @@ class FoodRepository {
             food.country,
             food.caffeineBasis.name,
             _allergensColumn(food.allergens),
+            food.barcode,
             now,
             now,
             source.name,
@@ -330,6 +333,7 @@ class FoodRepository {
             ?Allergen.values.asNameMap()[name],
         },
       },
+      barcode: row['barcode'] as String?,
     );
   }
 }

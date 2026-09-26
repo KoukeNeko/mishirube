@@ -1,0 +1,97 @@
+{
+  "brand": "喫茶小舖",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "chichashop-590b9854",
+      "name": "黃金美穀",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 119,
+          "sugarG": 16,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chichashop-5a57df31",
+      "name": "榖香冬瓜",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 234,
+          "sugarG": 52,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chichashop-310e71f5",
+      "name": "榖香鮮奶",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 369,
+          "sugarG": 35,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chichashop-6a27c376",
+      "name": "蜂蜜檸檬",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 319,
+          "sugarG": 65,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "chichashop-3be37b59",
+      "name": "鮮橙茉綠",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 429,
+          "sugarG": 58,
+          "caffeineMg": 99
+        }
+      ]
+    },
+    {
+      "id": "chichashop-33238226",
+      "name": "鮮橙桂花烏龍",
+      "series": "平台可核對品項",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/r9ye/chi-cha-xiao-pu-da-li-cheng-gong-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 429,
+          "sugarG": 58,
+          "caffeineMg": 99
+        }
+      ]
+    }
+  ]
+}

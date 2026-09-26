@@ -1,0 +1,169 @@
+{
+  "brand": "UG樂己",
+  "brandAliases": [
+    "UG"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "ug-5e6bacc0",
+      "name": "馥桂保庇茶",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 219,
+          "sugarG": 48.2,
+          "caffeineMg": 115
+        }
+      ]
+    },
+    {
+      "id": "ug-80ddc238",
+      "name": "哈瓜UG奶茶",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 203,
+          "sugarG": 28.8,
+          "caffeineMg": 110
+        }
+      ]
+    },
+    {
+      "id": "ug-9401998e",
+      "name": "哈瓜雲頂",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 324,
+          "sugarG": 26.7,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "ug-ac73356f",
+      "name": "茉窨極抹鮮奶茶",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 214,
+          "sugarG": 29.5,
+          "caffeineMg": 120
+        }
+      ]
+    },
+    {
+      "id": "ug-e7fb6361",
+      "name": "凝綠厚抹",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 288,
+          "sugarG": 31,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "ug-d4cdc60b",
+      "name": "凝綠厚抹鮮奶",
+      "series": "新品",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 240,
+          "sugarG": 30.7,
+          "caffeineMg": 80
+        }
+      ]
+    },
+    {
+      "id": "ug-cd36df9b",
+      "name": "三窨十五茉",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 116,
+          "sugarG": 27.3,
+          "caffeineMg": 125
+        }
+      ]
+    },
+    {
+      "id": "ug-1c49a4b8",
+      "name": "米香玉露菁",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 116,
+          "sugarG": 27.3,
+          "caffeineMg": 50
+        }
+      ]
+    },
+    {
+      "id": "ug-3b5fa4e5",
+      "name": "桂花輕烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 116,
+          "sugarG": 27.3,
+          "caffeineMg": 97
+        }
+      ]
+    },
+    {
+      "id": "ug-562cfb27",
+      "name": "茶花紅烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 107,
+          "sugarG": 25.1,
+          "caffeineMg": 155
+        }
+      ]
+    },
+    {
+      "id": "ug-3898eb48",
+      "name": "朱槿普洱紅",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/ug%E6%A8%82%E5%B7%B1%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 107,
+          "sugarG": 25.1,
+          "caffeineMg": 162
+        }
+      ]
+    }
+  ]
+}

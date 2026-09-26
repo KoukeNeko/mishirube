@@ -315,6 +315,34 @@
           "caffeineMg": 0.0
         }
       ]
+    },
+    {
+      "id": "7eleven-citytea-514b4d27",
+      "name": "冰琥珀小葉燕麥奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/7-11-%E7%8F%BE%E8%90%83%E8%8C%B6-city-tea-pearl-%E7%86%B1%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 324,
+          "sugarG": 48.3,
+          "caffeineMg": 282.8
+        }
+      ]
+    },
+    {
+      "id": "7eleven-citytea-00b68039",
+      "name": "冰梔子花燕麥奶青茶",
+      "sourceUrl": "https://dailydietitian.com.tw/7-11-%E7%8F%BE%E8%90%83%E8%8C%B6-city-tea-pearl-%E7%86%B1%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "特大杯・冰",
+          "millilitres": 655,
+          "kcal": 330.9,
+          "sugarG": 48.8,
+          "caffeineMg": 162.3
+        }
+      ]
     }
   ]
 }

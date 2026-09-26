@@ -1,0 +1,456 @@
+{
+  "brand": "萬波島嶼紅茶",
+  "brandAliases": [
+    "萬波"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "wanpo-0727c04b",
+      "name": "芒果冰沙",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 338,
+          "sugarG": 75
+        },
+        {
+          "name": "L",
+          "kcal": 420,
+          "sugarG": 93
+        }
+      ]
+    },
+    {
+      "id": "wanpo-7fafd745",
+      "name": "楊枝甘露",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 512,
+          "sugarG": 68
+        },
+        {
+          "name": "L",
+          "kcal": 717,
+          "sugarG": 95
+        }
+      ]
+    },
+    {
+      "id": "wanpo-687cc9f9",
+      "name": "草莓歐蕾",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 429,
+          "sugarG": 71
+        }
+      ]
+    },
+    {
+      "id": "wanpo-98c8b578",
+      "name": "米麻糬草莓歐蕾",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 487,
+          "sugarG": 72
+        }
+      ]
+    },
+    {
+      "id": "wanpo-de3ca25a",
+      "name": "奶蓋草莓綠茶",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 484,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "wanpo-268be75e",
+      "name": "草莓綠茶",
+      "series": "限定新品",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 254,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "wanpo-c991e5d8",
+      "name": "島嶼紅茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 202,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 246,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "wanpo-6a778f5e",
+      "name": "宣橋綠茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 202,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 246,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "wanpo-df91c92e",
+      "name": "烏龍鐵觀音",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 202,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 246,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "wanpo-1fd089df",
+      "name": "金萱青茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 202,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 246,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "wanpo-122e20a8",
+      "name": "麗雅烏龍",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 202,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 246,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "wanpo-e90d12fe",
+      "name": "織麥茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%90%AC%E6%B3%A2%E7%86%B1%E9%87%8F%E5%9C%96%E9%91%91-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 90,
+          "sugarG": 21
+        },
+        {
+          "name": "L",
+          "kcal": 135,
+          "sugarG": 32
+        }
+      ]
+    },
+    {
+      "id": "wanpo-a9ccb36b",
+      "name": "奶蓋紅茶",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 456,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "wanpo-2f66d2d1",
+      "name": "奶蓋綠茶",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 456,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "wanpo-a9f1db5b",
+      "name": "奶蓋青茶",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 456,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "wanpo-2507d7a2",
+      "name": "珍珠酸梅冰",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 375,
+          "sugarG": 58,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 491,
+          "sugarG": 77,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-90b01866",
+      "name": "愛玉酸梅冰",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 342,
+          "sugarG": 75
+        },
+        {
+          "name": "L・冷",
+          "kcal": 451,
+          "sugarG": 98
+        }
+      ]
+    },
+    {
+      "id": "wanpo-6c5eb118",
+      "name": "古早酸梅冰",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 322,
+          "sugarG": 68,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 406,
+          "sugarG": 86,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-c4227fe8",
+      "name": "蜂蜜金萱",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 294,
+          "sugarG": 56
+        },
+        {
+          "name": "L・冷",
+          "kcal": 473,
+          "sugarG": 92
+        }
+      ]
+    },
+    {
+      "id": "wanpo-6740bb4d",
+      "name": "杏花雨露",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 216,
+          "sugarG": 43
+        },
+        {
+          "name": "L・冷",
+          "kcal": 339,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "wanpo-b80f3ad7",
+      "name": "冬瓜金萱青",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 221,
+          "sugarG": 46
+        },
+        {
+          "name": "L・冷",
+          "kcal": 348,
+          "sugarG": 72
+        }
+      ]
+    },
+    {
+      "id": "wanpo-cfd097e2",
+      "name": "杏仁酸梅冰",
+      "series": "平台補充",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/mxi0/wan-bo-dao-yu-hong-cha-dan-shui-ying-zhuan-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 388,
+          "sugarG": 80,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 506,
+          "sugarG": 104,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-115dd247",
+      "name": "永良冬瓜露",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ltoo/wan-bo-dao-yu-hong-cha-dan-shui-dan-da-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 221,
+          "sugarG": 46,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 348,
+          "sugarG": 72,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-bb2be19e",
+      "name": "冬瓜檸檬",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ltoo/wan-bo-dao-yu-hong-cha-dan-shui-dan-da-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 332,
+          "sugarG": 68,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 461,
+          "sugarG": 94,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-7b3fa6e6",
+      "name": "甘蔗檸檬",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ltoo/wan-bo-dao-yu-hong-cha-dan-shui-dan-da-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 324,
+          "sugarG": 61,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 416,
+          "sugarG": 79,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "wanpo-51596222",
+      "name": "黑糖珍珠鮮奶",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ltoo/wan-bo-dao-yu-hong-cha-dan-shui-dan-da-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 402,
+          "sugarG": 39,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

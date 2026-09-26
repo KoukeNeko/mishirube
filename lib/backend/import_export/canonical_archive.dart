@@ -187,6 +187,7 @@ const _tables = [
     _Column('country', _Kind.text),
     _Column('caffeine_basis', _Kind.text),
     _Column('allergens', _Kind.text, isNullable: true),
+    _Column('barcode', _Kind.text, isNullable: true),
     ..._entity,
   ], orderBy: 'id'),
   _Table('foodFavorites', 'food_favorites', [

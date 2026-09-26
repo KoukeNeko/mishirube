@@ -1,0 +1,456 @@
+{
+  "brand": "先喝道",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "txtea-90d72b02",
+      "name": "夏日芒果冰茶",
+      "series": "季節限定",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 222,
+          "sugarG": 51
+        },
+        {
+          "name": "L・冷",
+          "kcal": 306,
+          "sugarG": 71
+        }
+      ]
+    },
+    {
+      "id": "txtea-ec69d791",
+      "name": "夏日芒果爆沙",
+      "series": "季節限定",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 247,
+          "sugarG": 50
+        },
+        {
+          "name": "L・冷",
+          "kcal": 339,
+          "sugarG": 69
+        }
+      ]
+    },
+    {
+      "id": "txtea-4ec52f30",
+      "name": "青梅四季春",
+      "series": "梅好時光",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 201,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "txtea-412bca7b",
+      "name": "鹹酸甜麻粿",
+      "series": "梅好時光",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 288,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "txtea-de2e6691",
+      "name": "太妃風味伯爵厚奶霜",
+      "series": "太妃厚奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 360,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "txtea-94e4ff6b",
+      "name": "太妃風味錫蘭厚奶霜",
+      "series": "太妃厚奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 360,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "txtea-a0114089",
+      "name": "四季春茶王",
+      "series": "人氣精選",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 182,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "txtea-91803728",
+      "name": "英式水果茶",
+      "series": "人氣精選",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 298,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "txtea-1c6b5634",
+      "name": "英式玫瑰拿鐵",
+      "series": "人氣精選",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 319,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "txtea-987b5910",
+      "name": "朵朵奶蓋伯爵茶",
+      "series": "人氣精選",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 385,
+          "sugarG": 63
+        }
+      ]
+    },
+    {
+      "id": "txtea-249f670e",
+      "name": "花開茉綠茶",
+      "series": "莊園好茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 182,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "txtea-8e72d9f9",
+      "name": "錫蘭高地莊園紅茶",
+      "series": "莊園好茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 182,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "txtea-64994667",
+      "name": "皇家伯爵茶",
+      "series": "莊園好茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 182,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "txtea-26776336",
+      "name": "英式玫瑰特調茶",
+      "series": "莊園好茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 182,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "txtea-93fb2956",
+      "name": "慢熬冬瓜茶",
+      "series": "莊園好茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 248,
+          "sugarG": 59,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "txtea-b44d11bf",
+      "name": "皇家伯爵水果茶",
+      "series": "招牌水果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 298,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "txtea-9c635ae3",
+      "name": "英式玫瑰水果茶",
+      "series": "招牌水果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 298,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "txtea-f2f890e7",
+      "name": "鮮橙翡翠",
+      "series": "招牌水果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 298,
+          "sugarG": 64
+        }
+      ]
+    },
+    {
+      "id": "txtea-0b01e411",
+      "name": "愛蜜荔錫蘭",
+      "series": "招牌水果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 309,
+          "sugarG": 71
+        }
+      ]
+    },
+    {
+      "id": "txtea-0fbfb702",
+      "name": "愛蜜荔茶王",
+      "series": "招牌水果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 309,
+          "sugarG": 71
+        }
+      ]
+    },
+    {
+      "id": "txtea-f42d25d0",
+      "name": "錫蘭莊園紅茶拿鐵",
+      "series": "英式鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 319,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "txtea-8a0f2937",
+      "name": "花開茉綠茶拿鐵",
+      "series": "英式鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 319,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "txtea-4e590cbd",
+      "name": "皇家伯爵拿鐵",
+      "series": "英式鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 319,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "txtea-57aef12d",
+      "name": "巧克力伯爵拿鐵",
+      "series": "英式鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 360,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "txtea-57a33bf2",
+      "name": "朵朵奶蓋四季春",
+      "series": "朵朵海鹽奶蓋",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 385,
+          "sugarG": 63
+        }
+      ]
+    },
+    {
+      "id": "txtea-4d96f26c",
+      "name": "玫瑰水",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 153,
+          "sugarG": 34,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "txtea-1f642fc1",
+      "name": "檸夏玫瑰冰茶",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 256,
+          "sugarG": 61,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "txtea-1827bd40",
+      "name": "冬瓜檸檬",
+      "series": "特調",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 222,
+          "sugarG": 50,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "txtea-2e7519da",
+      "name": "花開茉綠奶茶",
+      "series": "精選奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 480,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "txtea-3b42b635",
+      "name": "英式玫瑰奶茶",
+      "series": "精選奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 480,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "txtea-3f4af7a5",
+      "name": "錫蘭高地莊園奶茶",
+      "series": "精選奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 480,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "txtea-5ebab6fe",
+      "name": "皇家伯爵奶茶",
+      "series": "精選奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 480,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "txtea-301fda9e",
+      "name": "巧克力伯爵奶茶",
+      "series": "精選奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/ao77/xian-he-dao-zhu-ke-guang-fu-dian",
+      "sizes": [
+        {
+          "name": "L・冷",
+          "kcal": 569,
+          "sugarG": 65
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,615 @@
+{
+  "brand": "得正",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "oolongtea-8b3552c0",
+      "name": "紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 206,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 57.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-4780d256",
+      "name": "綠茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 206,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 57.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-b8650f1d",
+      "name": "春烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 206,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 57.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-4caf86b9",
+      "name": "輕烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 206,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 57.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-b3a2a543",
+      "name": "焙烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 206,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 57.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-ea7a5ff1",
+      "name": "檸檬春烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 231,
+          "sugarG": 49
+        },
+        {
+          "name": "L",
+          "kcal": 267,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-773f7a77",
+      "name": "香橙春烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 291,
+          "sugarG": 78
+        },
+        {
+          "name": "L",
+          "kcal": 389,
+          "sugarG": 85
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-cd4d5a7d",
+      "name": "甘蔗春烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 248,
+          "sugarG": 51.5
+        },
+        {
+          "name": "L",
+          "kcal": 317,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-5cefb87f",
+      "name": "優酪春烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 334,
+          "sugarG": 71
+        },
+        {
+          "name": "L",
+          "kcal": 432,
+          "sugarG": 93
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-c9e85baa",
+      "name": "青梅春烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 355,
+          "sugarG": 76
+        },
+        {
+          "name": "L",
+          "kcal": 439,
+          "sugarG": 96
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-a64c3ee1",
+      "name": "雙柚金烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 252,
+          "sugarG": 57
+        },
+        {
+          "name": "L",
+          "kcal": 341,
+          "sugarG": 77
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-9d4db802",
+      "name": "奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 436,
+          "sugarG": 47.5
+        },
+        {
+          "name": "L",
+          "kcal": 575.5,
+          "sugarG": 62.7
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-e42fa0e7",
+      "name": "焙烏龍奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 436,
+          "sugarG": 47.5
+        },
+        {
+          "name": "L",
+          "kcal": 575.5,
+          "sugarG": 62.7
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-30295ff8",
+      "name": "珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 545,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 620,
+          "sugarG": 52.4
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-8b550c3f",
+      "name": "黃金珍珠奶綠",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 518,
+          "sugarG": 41
+        },
+        {
+          "name": "L",
+          "kcal": 597,
+          "sugarG": 51.8
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-d70024d8",
+      "name": "紅茶鮮奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 310,
+          "sugarG": 55
+        },
+        {
+          "name": "L",
+          "kcal": 409,
+          "sugarG": 72.6
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-2405939a",
+      "name": "輕烏龍鮮奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 310,
+          "sugarG": 55
+        },
+        {
+          "name": "L",
+          "kcal": 409,
+          "sugarG": 72.6
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-43ce4b29",
+      "name": "焙烏龍鮮奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 310,
+          "sugarG": 55
+        },
+        {
+          "name": "L",
+          "kcal": 409,
+          "sugarG": 72.6
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-16c60062",
+      "name": "芝士奶蓋春烏龍",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 350,
+          "sugarG": 40
+        },
+        {
+          "name": "L",
+          "kcal": 435,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-3c26a9df",
+      "name": "芝士奶蓋焙烏龍",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 350,
+          "sugarG": 40
+        },
+        {
+          "name": "L",
+          "kcal": 435,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-d9ba73f6",
+      "name": "芝士奶蓋阿華田",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 398,
+          "sugarG": 47
+        },
+        {
+          "name": "L",
+          "kcal": 528,
+          "sugarG": 56.8
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-26db1d3e",
+      "name": "芝士奶蓋烘吉茶",
+      "series": "奶蓋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 351,
+          "sugarG": 43.5
+        },
+        {
+          "name": "L",
+          "kcal": 366,
+          "sugarG": 44
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-d1375ef2",
+      "name": "緋烏龍",
+      "series": "緋烏龍",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 160,
+          "sugarG": 40
+        },
+        {
+          "name": "L",
+          "kcal": 176.9,
+          "sugarG": 43.6
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-6b72b24b",
+      "name": "酸莓綠烏龍",
+      "series": "緋烏龍",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 169,
+          "sugarG": 38
+        },
+        {
+          "name": "L",
+          "kcal": 225.7,
+          "sugarG": 50.8
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-d72f98d6",
+      "name": "緋烏龍奶茶",
+      "series": "緋烏龍",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 382.5,
+          "sugarG": 44
+        },
+        {
+          "name": "L",
+          "kcal": 504.9,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-06f22980",
+      "name": "緋烏龍鮮奶",
+      "series": "緋烏龍",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 231.5,
+          "sugarG": 44.5
+        },
+        {
+          "name": "L",
+          "kcal": 305.6,
+          "sugarG": 58.7
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-891bf3f5",
+      "name": "芝士奶蓋緋烏龍",
+      "series": "緋烏龍",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 278.5,
+          "sugarG": 38.5
+        },
+        {
+          "name": "L",
+          "kcal": 367.6,
+          "sugarG": 50.8
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-85563995",
+      "name": "陳皮烏龍奶茶",
+      "series": "陳皮",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 353,
+          "sugarG": 43
+        },
+        {
+          "name": "L",
+          "kcal": 407.9,
+          "sugarG": 42.9
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-8459fc56",
+      "name": "陳皮烏龍鮮奶",
+      "series": "陳皮",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 244,
+          "sugarG": 48
+        },
+        {
+          "name": "L",
+          "kcal": 283.1,
+          "sugarG": 50.8
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-8e82f95b",
+      "name": "烘吉奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 459,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-ae88c47d",
+      "name": "烘吉鮮奶",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 378,
+          "sugarG": 141
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 191,
+          "sugarG": 10.3
+        },
+        {
+          "name": "L",
+          "kcal": 245,
+          "sugarG": 13.1
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-ecc91ce1",
+      "name": "黃金珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 175,
+          "sugarG": 9.8
+        },
+        {
+          "name": "L",
+          "kcal": 225,
+          "sugarG": 12.5
+        }
+      ]
+    },
+    {
+      "id": "oolongtea-fc937fa0",
+      "name": "焙烏龍茶凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%BE%97%E6%AD%A3%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 65,
+          "sugarG": 14.3
+        },
+        {
+          "name": "L",
+          "kcal": 83,
+          "sugarG": 18.4
+        }
+      ]
+    }
+  ]
+}

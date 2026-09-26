@@ -1,0 +1,520 @@
+{
+  "brand": "五桐號",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "wootea-afb6d287",
+      "name": "島嶼鳳梨桂花青",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 257.8,
+      "sugarG": 59.1
+    },
+    {
+      "id": "wootea-10cb98cd",
+      "name": "島嶼鳳梨水梨青",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 234.2,
+      "sugarG": 54.4
+    },
+    {
+      "id": "wootea-e393e0c6",
+      "name": "藍莓茉莉厚奶",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 405.6,
+      "sugarG": 42.6
+    },
+    {
+      "id": "wootea-3fca6807",
+      "name": "藍莓優格蜜桃雪泥",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 327.5,
+      "sugarG": 58
+    },
+    {
+      "id": "wootea-fc231c07",
+      "name": "麝香葡萄粉粿烏龍",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 338.7,
+      "sugarG": 71.1
+    },
+    {
+      "id": "wootea-d98c5d1e",
+      "name": "麝香葡萄柚子冰沙",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 378.1,
+      "sugarG": 82.7
+    },
+    {
+      "id": "wootea-f57fd61f",
+      "name": "經典五桐茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 78,
+      "sugarG": 17.6
+    },
+    {
+      "id": "wootea-f09e56dc",
+      "name": "杏仁凍五桐茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 194.6,
+      "sugarG": 36.7
+    },
+    {
+      "id": "wootea-4899c8dd",
+      "name": "一把青茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 171.7,
+      "sugarG": 39.5
+    },
+    {
+      "id": "wootea-1b122bc6",
+      "name": "茉莉香片",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 175.1,
+      "sugarG": 39.5
+    },
+    {
+      "id": "wootea-60015794",
+      "name": "老實人紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 173.4,
+      "sugarG": 39.5
+    },
+    {
+      "id": "wootea-de4ef4b2",
+      "name": "清香烏龍",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 173.4,
+      "sugarG": 39.5
+    },
+    {
+      "id": "wootea-f1386acb",
+      "name": "玄米蕎麥",
+      "series": "原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 23.6,
+      "sugarG": 4.6
+    },
+    {
+      "id": "wootea-8e208bb1",
+      "name": "五桐奶霜",
+      "series": "奶霜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 191.7,
+      "sugarG": 16.1
+    },
+    {
+      "id": "wootea-245d19e0",
+      "name": "老實人奶霜紅茶",
+      "series": "奶霜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 303.4,
+      "sugarG": 41.9
+    },
+    {
+      "id": "wootea-b571bb9b",
+      "name": "蕎麥奶霜",
+      "series": "奶霜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 320.3,
+      "sugarG": 46
+    },
+    {
+      "id": "wootea-5d832103",
+      "name": "茉莉奶霜",
+      "series": "奶霜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 304.6,
+      "sugarG": 41.9
+    },
+    {
+      "id": "wootea-07ba3a87",
+      "name": "烏龍奶霜",
+      "series": "奶霜",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 303.2,
+      "sugarG": 41.9
+    },
+    {
+      "id": "wootea-cc4cdaff",
+      "name": "濃煮拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 324.6,
+      "sugarG": 52.8
+    },
+    {
+      "id": "wootea-8fe49bb5",
+      "name": "綠茶凍濃煮拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 346.7,
+      "sugarG": 64
+    },
+    {
+      "id": "wootea-463643f9",
+      "name": "鐵觀音拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 322.3,
+      "sugarG": 52.8
+    },
+    {
+      "id": "wootea-98c2e3e8",
+      "name": "玄米蕎麥拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 285.2,
+      "sugarG": 52.5
+    },
+    {
+      "id": "wootea-cdbf5a7c",
+      "name": "琥珀烤茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 376.8,
+      "sugarG": 65.3
+    },
+    {
+      "id": "wootea-e10d349d",
+      "name": "茉莉綠茶拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 323,
+      "sugarG": 52.8
+    },
+    {
+      "id": "wootea-4cf02a81",
+      "name": "珍珠濃煮拿鐵",
+      "series": "鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 441.1,
+      "sugarG": 58.7
+    },
+    {
+      "id": "wootea-a95e3d01",
+      "name": "濃煮奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 467.1,
+      "sugarG": 46.3
+    },
+    {
+      "id": "wootea-0eed2f90",
+      "name": "綠茶凍濃煮奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 464,
+      "sugarG": 60.2
+    },
+    {
+      "id": "wootea-bd937420",
+      "name": "琥珀烤奶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 446.4,
+      "sugarG": 57.1
+    },
+    {
+      "id": "wootea-b509f6fe",
+      "name": "鐵觀音奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 416.1,
+      "sugarG": 45.2
+    },
+    {
+      "id": "wootea-2faef81b",
+      "name": "最完美手沖泰奶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 499.2,
+      "sugarG": 36.7
+    },
+    {
+      "id": "wootea-6e6b2f0a",
+      "name": "珍珠手沖泰奶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 490.5,
+      "sugarG": 46.4
+    },
+    {
+      "id": "wootea-b8fa3092",
+      "name": "玄米蕎麥奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 348.6,
+      "sugarG": 46.9
+    },
+    {
+      "id": "wootea-4bf8244d",
+      "name": "茉莉奶綠",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 420.1,
+      "sugarG": 45.2
+    },
+    {
+      "id": "wootea-30295ff8",
+      "name": "珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 558.4,
+      "sugarG": 54.8
+    },
+    {
+      "id": "wootea-2784546a",
+      "name": "粉粿青檸冬瓜",
+      "series": "古早味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 311.3,
+      "sugarG": 74
+    },
+    {
+      "id": "wootea-d7126bac",
+      "name": "農榨青檸冬瓜",
+      "series": "古早味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 253.5,
+      "sugarG": 59.5
+    },
+    {
+      "id": "wootea-386315e7",
+      "name": "老鹽梅子",
+      "series": "古早味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 300.1,
+      "sugarG": 68.1
+    },
+    {
+      "id": "wootea-49231720",
+      "name": "青梅烏龍凍飲",
+      "series": "古早味",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 388.2,
+      "sugarG": 90.3
+    },
+    {
+      "id": "wootea-975c12d9",
+      "name": "柚香荔枝凍飲",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 277.4,
+      "sugarG": 64
+    },
+    {
+      "id": "wootea-c7fbefb1",
+      "name": "山形蜜桃凍飲",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 318.7,
+      "sugarG": 71.3
+    },
+    {
+      "id": "wootea-714d3001",
+      "name": "桂花烏龍凍飲",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 334.1,
+      "sugarG": 76
+    },
+    {
+      "id": "wootea-2569365c",
+      "name": "紅柚青茶凍飲",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 277.3,
+      "sugarG": 65.7
+    },
+    {
+      "id": "wootea-d72c5223",
+      "name": "青檸青茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 316.6,
+      "sugarG": 72.1
+    },
+    {
+      "id": "wootea-804866f2",
+      "name": "紅心芭樂綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 294.8,
+      "sugarG": 62.1
+    },
+    {
+      "id": "wootea-3a3c0b60",
+      "name": "紅心芭樂烏龍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 276.3,
+      "sugarG": 59.2
+    },
+    {
+      "id": "wootea-3563bbab",
+      "name": "冬瓜汁",
+      "series": "無咖啡因",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 122.6,
+      "sugarG": 30.8
+    },
+    {
+      "id": "wootea-bb2be19e",
+      "name": "冬瓜檸檬",
+      "series": "無咖啡因",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 222.7,
+      "sugarG": 52.6
+    },
+    {
+      "id": "wootea-c7cd9c01",
+      "name": "冬瓜鮮奶",
+      "series": "無咖啡因",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 225.5,
+      "sugarG": 40.7
+    },
+    {
+      "id": "wootea-854ac520",
+      "name": "珍珠鮮奶",
+      "series": "無咖啡因",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 393.3,
+      "sugarG": 33.2
+    },
+    {
+      "id": "wootea-74de42ae",
+      "name": "粉粿濃煮奶茶",
+      "series": "隱藏/其他",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 477.1,
+      "sugarG": 63.4
+    },
+    {
+      "id": "wootea-28d9f75e",
+      "name": "粉粿芋圓青茶",
+      "series": "隱藏/其他",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 360.1,
+      "sugarG": 67.2
+    },
+    {
+      "id": "wootea-350eb111",
+      "name": "荔枝冰茶凍飲",
+      "series": "隱藏/其他",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "kcal": 316.8,
+      "sugarG": 72.7
+    },
+    {
+      "id": "wootea-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 195.9,
+          "sugarG": 19
+        }
+      ]
+    },
+    {
+      "id": "wootea-1c280e47",
+      "name": "綠茶凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 101.5,
+          "sugarG": 24.3
+        }
+      ]
+    },
+    {
+      "id": "wootea-46100b7e",
+      "name": "杏仁凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 135.5,
+          "sugarG": 23.4
+        }
+      ]
+    },
+    {
+      "id": "wootea-844df64b",
+      "name": "小芋圓",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 231.3,
+          "sugarG": 31.9
+        }
+      ]
+    },
+    {
+      "id": "wootea-03244ae9",
+      "name": "黑糖粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 114.7,
+          "sugarG": 27.6
+        }
+      ]
+    },
+    {
+      "id": "wootea-9a73411c",
+      "name": "奶霜",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 131,
+          "sugarG": 2.4
+        }
+      ]
+    },
+    {
+      "id": "wootea-46def4f8",
+      "name": "桂花粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E4%BA%94%E6%A1%90%E8%99%9F%E8%8F%9C%E5%96%AE-%E5%83%B9%E7%9B%AE%E8%A1%A8-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0/",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 152.5,
+          "sugarG": 32
+        }
+      ]
+    }
+  ]
+}

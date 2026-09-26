@@ -1,0 +1,856 @@
+{
+  "brand": "ローソン",
+  "brandAliases": [
+    "LAWSON",
+    "Lawson",
+    "羅森"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "包裝飲品",
+  "sourceUrl": "https://www.lawson.co.jp/",
+  "note": "栄養成分表示は原文の表示単位のまま（100ml当たり、コップ1杯(200ml)当たり、1本当たり、1杯当たり）。幅のある値、未満、検出せず、「-」は収録しない。カフェインは mg に換算。",
+  "drinks": [
+    {
+      "id": "lawson-drinks-d90e6503",
+      "name": "コカ・コーラ　ジョージア　カフェウォーター　ブラック　500ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0.5,
+      "sugarG": 0,
+      "saltG": 0.04,
+      "caffeineMg": 20,
+      "sourceUrl": "https://www.coca-cola.com/jp/ja/brands/georgia/products"
+    },
+    {
+      "id": "lawson-drinks-37ca1bb2",
+      "name": "コカ・コーラ　アクエリアス　950ml",
+      "millilitres": 100,
+      "kcal": 19,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 4.7,
+      "saltG": 0.1,
+      "nutrients": {
+        "magnesium": 1.2,
+        "potassium": 8
+      },
+      "sourceUrl": "https://www.coca-cola.com/jp/ja/brands/aquarius-test"
+    },
+    {
+      "id": "lawson-drinks-78d89b46",
+      "name": "コカ・コーラ　綾鷹　950ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.02,
+      "sourceUrl": "https://www.coca-cola.com/jp/ja/brands/ayataka/products"
+    },
+    {
+      "id": "lawson-drinks-85e5c5d8",
+      "name": "UCC　職人の珈琲　無糖　PET　900ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0.3,
+      "sugarG": 0,
+      "sourceUrl": "https://www.ucc.co.jp/product/drink/coffee/meister/meister-no-sugar.html"
+    },
+    {
+      "id": "lawson-drinks-f80f3a8a",
+      "name": "キリン　午後の紅茶　アイスミルクティー　デ　モーニング　500ml",
+      "millilitres": 100,
+      "kcal": 31,
+      "carbG": 6.1,
+      "saltG": 0.09,
+      "caffeineMg": 21,
+      "nutrients": {
+        "phosphorus": 14,
+        "potassium": 34
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-70fb43d7",
+      "name": "キリン　午後の紅茶　おいしい無糖　香るレモン　600ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "sugarG": 0,
+      "saltG": 0.02,
+      "caffeineMg": 11,
+      "nutrients": {
+        "potassium": 8
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-f78629af",
+      "name": "キリン　午後の紅茶　FRUITS＆ICE TEA　白ぶどうとレモン　500ml",
+      "millilitres": 100,
+      "kcal": 34,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 8.6,
+      "saltG": 0.02,
+      "nutrients": {
+        "potassium": 3
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-6780126c",
+      "name": "キリン　キリンレモン　500ml",
+      "millilitres": 100,
+      "kcal": 33,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 8.3,
+      "saltG": 0.06,
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-ea18ce7d",
+      "name": "キリン　メッツコーラ　480ml",
+      "millilitres": 480,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 6.7,
+      "netCarbG": 1.3,
+      "sugarG": 0,
+      "fibreG": 5.4,
+      "saltG": 0,
+      "caffeineMg": 48,
+      "nutrients": {
+        "phosphorus": 77,
+        "potassium": 29
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-c449ef60",
+      "name": "キリン　iMUSE　ヨーグルトテイスト　500ml",
+      "millilitres": 500,
+      "kcal": 200,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 50,
+      "saltG": 0.3,
+      "nutrients": {
+        "phosphorus": 25,
+        "potassium": 45
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-96c5b3cb",
+      "name": "キリン　トロピカーナ　エッセンシャルズ　マルチビタミン　330ml",
+      "millilitres": 330,
+      "kcal": 132,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 33,
+      "sugarG": 31,
+      "saltG": 0.04,
+      "nutrients": {
+        "vitaminA": 500,
+        "phosphorus": 10,
+        "potassium": 112
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-09f55a41",
+      "name": "キリン　トロピカーナ　エッセンシャルズ　鉄分　330ml",
+      "millilitres": 330,
+      "kcal": 160,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 40,
+      "sugarG": 36,
+      "saltG": 0.02,
+      "nutrients": {
+        "iron": 5.3,
+        "phosphorus": 13,
+        "potassium": 92
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-d32230ca",
+      "name": "キリン　トロピカーナ　エッセンシャルズ　食物繊維　330ml",
+      "millilitres": 330,
+      "kcal": 172,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 46,
+      "netCarbG": 40,
+      "sugarG": 36,
+      "fibreG": 6,
+      "saltG": 0.11,
+      "nutrients": {
+        "phosphorus": 10,
+        "potassium": 198
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-5deb78fa",
+      "name": "キリン　トロピカーナ　エッセンシャルズ　マルチミネラル　330ml",
+      "millilitres": 330,
+      "kcal": 172,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 43,
+      "sugarG": 40,
+      "saltG": 0.41,
+      "nutrients": {
+        "potassium": 960,
+        "iron": 5,
+        "magnesium": 150,
+        "phosphorus": 160
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-3e165fcb",
+      "name": "キリン　おいしい免疫ケア　100ml",
+      "millilitres": 100,
+      "kcal": 47,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 11,
+      "saltG": 0.07,
+      "nutrients": {
+        "phosphorus": 22,
+        "potassium": 41
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-8cb66b9a",
+      "name": "キリン　おいしい免疫ケア　カロリーオフ　100ml",
+      "millilitres": 100,
+      "kcal": 21,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 4.8,
+      "saltG": 0.08,
+      "nutrients": {
+        "phosphorus": 16,
+        "potassium": 30
+      },
+      "sourceUrl": "https://products.kirin.co.jp/softdrink/nutrition/softdrink/"
+    },
+    {
+      "id": "lawson-drinks-1d40281a",
+      "name": "サントリー　NOPE　ギルティ炭酸　600ml",
+      "millilitres": 100,
+      "kcal": 56,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 14,
+      "saltG": 0.04,
+      "caffeineMg": 10,
+      "nutrients": {
+        "phosphorus": 20
+      },
+      "sourceUrl": "https://products.suntory.co.jp/d/4901777446861/"
+    },
+    {
+      "id": "lawson-drinks-31c7c109",
+      "name": "サントリー　クラフトボス　世界のTEA　フルーツティーエード　600ml",
+      "millilitres": 100,
+      "kcal": 33,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 8.3,
+      "saltG": 0.04,
+      "nutrients": {
+        "potassium": 10
+      },
+      "sourceUrl": "https://products.suntory.co.jp/d/4901777430969/"
+    },
+    {
+      "id": "lawson-drinks-dfc7697b",
+      "name": "サントリー　クラフトボス　シークワーサー＆ウメ　500ml",
+      "millilitres": 100,
+      "kcal": 37,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 9.3,
+      "saltG": 0.13,
+      "nutrients": {
+        "niacin": 2.6,
+        "potassium": 10,
+        "phosphorus": 20
+      },
+      "sourceUrl": "https://products.suntory.co.jp/softdrink/ingredient.html?ke=hd"
+    },
+    {
+      "id": "lawson-drinks-306dfdea",
+      "name": "サントリー　クラフトボス　世界のTEA　チャイラテ　600ml",
+      "millilitres": 100,
+      "kcal": 39,
+      "proteinG": 0.8,
+      "fatG": 0.9,
+      "carbG": 7,
+      "nutrients": {
+        "potassium": 60,
+        "phosphorus": 20
+      },
+      "sourceUrl": "https://products.suntory.co.jp/d/4901777446649/"
+    },
+    {
+      "id": "lawson-drinks-9e47b48a",
+      "name": "サントリー　クラフトボス　世界のTEA　贅沢ミルクティー　950ml",
+      "millilitres": 100,
+      "kcal": 32,
+      "proteinG": 0.4,
+      "fatG": 0.5,
+      "carbG": 6.4,
+      "caffeineMg": 20,
+      "nutrients": {
+        "phosphorus": 10,
+        "potassium": 40
+      },
+      "sourceUrl": "https://products.suntory.co.jp/softdrink/ingredient.html?ke=hd"
+    },
+    {
+      "id": "lawson-drinks-ce8f507c",
+      "name": "サントリー　天然水　きりっと果実　オレンジ＆マンゴー　950ml",
+      "millilitres": 100,
+      "kcal": 31,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 7.8,
+      "saltG": 0.11,
+      "nutrients": {
+        "niacin": 2.5,
+        "vitaminB6": 0.25,
+        "potassium": 30,
+        "phosphorus": 10
+      },
+      "sourceUrl": "https://products.suntory.co.jp/d/4901777448261/"
+    },
+    {
+      "id": "lawson-drinks-51401093",
+      "name": "サントリー　天然水　うめソルティ　540ml",
+      "millilitres": 100,
+      "kcal": 27,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 6.8,
+      "saltG": 0.11,
+      "sourceUrl": "https://products.suntory.co.jp/d/4901777338685/"
+    },
+    {
+      "id": "lawson-drinks-addc621a",
+      "name": "アサヒ　三ツ矢　ウルトラストロングレモン　600ml",
+      "millilitres": 100,
+      "kcal": 38,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 9.8,
+      "saltG": 0.19,
+      "nutrients": {
+        "potassium": 110
+      },
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/list/nutrition/"
+    },
+    {
+      "id": "lawson-drinks-f73cef97",
+      "name": "アサヒ　ウィルキンソン　タンサン　エクストラ　490ml",
+      "millilitres": 490,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "sugarG": 0,
+      "saltG": 0,
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/carbonated/wilkinson_tansan_extra/"
+    },
+    {
+      "id": "lawson-drinks-9186a8fa",
+      "name": "アサヒ　ウィルキンソン　タンサン　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "sugarG": 0,
+      "saltG": 0,
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/list/nutrition/"
+    },
+    {
+      "id": "lawson-drinks-4d729578",
+      "name": "アサヒ　ウィルキンソン　タンサン　レモン　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "sugarG": 0,
+      "saltG": 0,
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/list/nutrition/"
+    },
+    {
+      "id": "lawson-drinks-af27aa0e",
+      "name": "アサヒ　三ツ矢　特濃オレンジスカッシュ　500ml",
+      "millilitres": 100,
+      "kcal": 50,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 12,
+      "saltG": 0.2,
+      "nutrients": {
+        "potassium": 40
+      },
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/list/nutrition/"
+    },
+    {
+      "id": "lawson-drinks-598d1f2b",
+      "name": "アサヒ　三ツ矢　特濃ピーチスカッシュ　500ml",
+      "millilitres": 100,
+      "kcal": 52,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 13,
+      "saltG": 0.04,
+      "nutrients": {
+        "potassium": 10
+      },
+      "sourceUrl": "https://www.asahiinryo.co.jp/products/list/nutrition/"
+    },
+    {
+      "id": "lawson-drinks-8bdaa350",
+      "name": "伊藤園　お〜いお茶　ほうじ茶　600ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.02,
+      "caffeineMg": 13,
+      "sourceUrl": "https://www.itoen.jp/products/41604/"
+    },
+    {
+      "id": "lawson-drinks-67e81203",
+      "name": "伊藤園　お〜いお茶　玄米茶　600ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.02,
+      "caffeineMg": 5,
+      "sourceUrl": "https://www.itoen.jp/products/41152/"
+    },
+    {
+      "id": "lawson-drinks-04cf3307",
+      "name": "伊藤園　TULLY’S　キリマンジャロ　ブラック　390ml",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0.6,
+      "sugarG": 0,
+      "saltG": 0.05,
+      "caffeineMg": 42,
+      "nutrients": {
+        "potassium": 56
+      },
+      "sourceUrl": "https://www.itoen.jp/products/50925/"
+    },
+    {
+      "id": "lawson-drinks-78c69114",
+      "name": "伊藤園　健康ミネラル黒豆麦茶　670ml",
+      "millilitres": 670,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.2,
+      "caffeineMg": 0,
+      "nutrients": {
+        "magnesium": 4,
+        "potassium": 92,
+        "phosphorus": 6.7
+      },
+      "sourceUrl": "https://www.itoen.jp/products/50898/"
+    },
+    {
+      "id": "lawson-drinks-87d15aa8",
+      "name": "伊藤園　お〜いお茶　緑茶　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.02,
+      "caffeineMg": 13,
+      "sourceUrl": "https://www.itoen.jp/products/41922/"
+    },
+    {
+      "id": "lawson-drinks-297da5c3",
+      "name": "伊藤園　お〜いお茶　ほうじ茶　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.03,
+      "caffeineMg": 13,
+      "sourceUrl": "https://www.itoen.jp/products/51204/"
+    },
+    {
+      "id": "lawson-drinks-a23919a3",
+      "name": "伊藤園　ヘルシールイボスティー　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.02,
+      "caffeineMg": 0,
+      "sourceUrl": "https://www.itoen.jp/products/51197/"
+    },
+    {
+      "id": "lawson-drinks-4fb7d94e",
+      "name": "伊藤園　健康ミネラルむぎ茶　1L",
+      "millilitres": 100,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.03,
+      "caffeineMg": 0,
+      "nutrients": {
+        "magnesium": 0.5,
+        "potassium": 12,
+        "phosphorus": 1.3
+      },
+      "sourceUrl": "https://www.itoen.jp/products/41924/"
+    },
+    {
+      "id": "lawson-drinks-61c551cc",
+      "name": "伊藤園　お〜いお茶　濃い茶　1L",
+      "millilitres": 1200,
+      "kcal": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 0,
+      "saltG": 0.2,
+      "sourceUrl": "https://www.itoen.jp/products/41128/"
+    },
+    {
+      "id": "lawson-drinks-fd97ec3d",
+      "name": "伊藤園　1日分の野菜　200ml",
+      "millilitres": 200,
+      "kcal": 75,
+      "proteinG": 2.3,
+      "fatG": 0,
+      "carbG": 16.5,
+      "netCarbG": 14.2,
+      "sugarG": 11,
+      "nutrients": {
+        "potassium": 644,
+        "calcium": 139,
+        "magnesium": 60
+      },
+      "sourceUrl": "https://www.itoen.jp/products/41245/"
+    },
+    {
+      "id": "lawson-drinks-810dc5b0",
+      "name": "伊藤園　栄養強化型　1日分の野菜　200ml",
+      "millilitres": 200,
+      "kcal": 91,
+      "proteinG": 1.9,
+      "fatG": 0,
+      "carbG": 24.5,
+      "netCarbG": 17.7,
+      "sugarG": 13.1,
+      "fibreG": 6.9,
+      "nutrients": {
+        "potassium": 646,
+        "calcium": 135,
+        "magnesium": 53
+      },
+      "sourceUrl": "https://www.itoen.jp/products/41561/"
+    },
+    {
+      "id": "lawson-drinks-57ca1be0",
+      "name": "伊藤園　ビタミン野菜　200ml",
+      "millilitres": 200,
+      "kcal": 79,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 17.9,
+      "sugarG": 14.5,
+      "nutrients": {
+        "niacin": 13,
+        "biotin": 50,
+        "vitaminB2": 1.4,
+        "vitaminC": 1000,
+        "vitaminD": 5.5,
+        "vitaminE": 8
+      },
+      "sourceUrl": "https://www.itoen.jp/products/41265/"
+    },
+    {
+      "id": "lawson-drinks-b21e6506",
+      "name": "伊藤園　朝活野菜　200ml",
+      "millilitres": 200,
+      "kcal": 77,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 19.6,
+      "netCarbG": 15.9,
+      "sugarG": 12.9,
+      "fibreG": 3.7,
+      "sourceUrl": "https://www.itoen.jp/products/60684/"
+    },
+    {
+      "id": "lawson-drinks-89bb1387",
+      "name": "カゴメ　野菜一日これ一本　200ml",
+      "millilitres": 200,
+      "kcal": 61,
+      "proteinG": 2.1,
+      "fatG": 0,
+      "carbG": 14.2,
+      "netCarbG": 12,
+      "sugarG": 9.7,
+      "nutrients": {
+        "potassium": 590,
+        "calcium": 44,
+        "magnesium": 24
+      },
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A3363/"
+    },
+    {
+      "id": "lawson-drinks-8807580b",
+      "name": "カゴメ　野菜一日これ一本　トリプルケア　200ml",
+      "millilitres": 200,
+      "kcal": 75,
+      "proteinG": 3,
+      "fatG": 0,
+      "carbG": 16.8,
+      "netCarbG": 14.5,
+      "sugarG": 11.4,
+      "nutrients": {
+        "potassium": 780
+      },
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A8897/"
+    },
+    {
+      "id": "lawson-drinks-49bbc320",
+      "name": "カゴメ　トマトジュース　食塩無添加　200ml",
+      "millilitres": 200,
+      "kcal": 39,
+      "proteinG": 1.8,
+      "fatG": 0,
+      "carbG": 8.7,
+      "netCarbG": 7.1,
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A2404/"
+    },
+    {
+      "id": "lawson-drinks-eea2898f",
+      "name": "カゴメ　野菜生活100　オリジナル　200ml",
+      "millilitres": 200,
+      "kcal": 65,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 16,
+      "netCarbG": 15.1,
+      "sugarG": 13,
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A7257/"
+    },
+    {
+      "id": "lawson-drinks-90d4d3e3",
+      "name": "カゴメ　野菜生活100　ベリーサラダ　200ml",
+      "millilitres": 200,
+      "kcal": 78,
+      "proteinG": 0.8,
+      "fatG": 0,
+      "carbG": 18.9,
+      "netCarbG": 18.3,
+      "sugarG": 15.7,
+      "nutrients": {
+        "potassium": 340
+      },
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A7258/"
+    },
+    {
+      "id": "lawson-drinks-4e2b772e",
+      "name": "カゴメ　野菜生活100　マンゴーサラダ　200ml",
+      "millilitres": 200,
+      "kcal": 74,
+      "proteinG": 0.6,
+      "fatG": 0,
+      "carbG": 18.3,
+      "netCarbG": 17.7,
+      "sugarG": 15.1,
+      "nutrients": {
+        "vitaminA": 44,
+        "vitaminE": 0.4
+      },
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A7259/"
+    },
+    {
+      "id": "lawson-drinks-b2ff7d09",
+      "name": "カゴメ　野菜生活100　長野シャインマスカットミックス　195ml",
+      "millilitres": 195,
+      "kcal": 81,
+      "proteinG": 0.4,
+      "fatG": 0,
+      "carbG": 20,
+      "netCarbG": 19.8,
+      "sugarG": 17.2,
+      "fibreG": 0.2,
+      "sourceUrl": "https://www.kagome.co.jp/products/drink/A0881/"
+    },
+    {
+      "id": "lawson-drinks-f2a350c1",
+      "name": "森永乳業　マウントレーニア　カフェラッテ　240ml",
+      "millilitres": 240,
+      "kcal": 162,
+      "proteinG": 5.9,
+      "fatG": 6.9,
+      "carbG": 19.1,
+      "saltG": 0.21,
+      "nutrients": {
+        "calcium": 197
+      },
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/drink/mtr_caffelatte/29.html"
+    },
+    {
+      "id": "lawson-drinks-9780d03e",
+      "name": "森永乳業　マウントレーニア　カフェラッテ　クリーミーラテ　240ml",
+      "millilitres": 240,
+      "kcal": 173,
+      "proteinG": 6.7,
+      "fatG": 7.8,
+      "carbG": 18.9,
+      "saltG": 0.23,
+      "nutrients": {
+        "calcium": 232
+      },
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/drink/mtr_caffelatte/1589.html"
+    },
+    {
+      "id": "lawson-drinks-c3dea120",
+      "name": "森永乳業　リプトン　CREAMY　紅茶ラテ　240ml",
+      "millilitres": 240,
+      "kcal": 134,
+      "proteinG": 3.8,
+      "fatG": 3.6,
+      "carbG": 21.5,
+      "saltG": 0.14,
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/drink/lipton/2815.html"
+    },
+    {
+      "id": "lawson-drinks-649c03a1",
+      "name": "森永乳業　リプトン　ジャスミンミルクティー　240ml",
+      "millilitres": 240,
+      "kcal": 124,
+      "proteinG": 4.2,
+      "fatG": 2.3,
+      "carbG": 21.6,
+      "saltG": 0.13,
+      "sourceUrl": "https://www.morinagamilk.co.jp/products/drink/lipton/8497.html"
+    },
+    {
+      "id": "lawson-drinks-f1c5266c",
+      "name": "明治　ザバス　MILK PROTEIN　脂肪0　チョコレート風味　200ml",
+      "millilitres": 200,
+      "kcal": 107,
+      "proteinG": 20,
+      "fatG": 0,
+      "carbG": 6.9,
+      "netCarbG": 6.6,
+      "sugarG": 5.9,
+      "saltG": 0.19,
+      "nutrients": {
+        "calcium": 600,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705068087.html"
+    },
+    {
+      "id": "lawson-drinks-7e97b501",
+      "name": "明治　ザバス　MILK PROTEIN　脂肪0　キャラメル風味　200ml",
+      "millilitres": 200,
+      "kcal": 107,
+      "proteinG": 20,
+      "fatG": 0,
+      "carbG": 6.8,
+      "netCarbG": 6.5,
+      "sugarG": 5.9,
+      "saltG": 0.19,
+      "nutrients": {
+        "calcium": 600,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705095465.html"
+    },
+    {
+      "id": "lawson-drinks-f1da2e50",
+      "name": "明治　ザバス　MILK PROTEIN　脂肪0　バナナ風味　200ml",
+      "millilitres": 200,
+      "kcal": 103,
+      "proteinG": 15,
+      "fatG": 0,
+      "carbG": 10.8,
+      "netCarbG": 10.5,
+      "sugarG": 9.7,
+      "saltG": 0.26,
+      "nutrients": {
+        "calcium": 476,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705018099.html"
+    },
+    {
+      "id": "lawson-drinks-ea6382d6",
+      "name": "明治　ザバス　MILK PROTEIN　脂肪0　ココア風味　200ml",
+      "millilitres": 200,
+      "kcal": 103,
+      "proteinG": 15,
+      "fatG": 0,
+      "carbG": 10.8,
+      "netCarbG": 10.5,
+      "sugarG": 9.7,
+      "saltG": 0.26,
+      "nutrients": {
+        "calcium": 476,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705014541.html"
+    },
+    {
+      "id": "lawson-drinks-8822d790",
+      "name": "明治　ザバス　MILK PROTEIN　脂肪0　イチゴ風味　200ml",
+      "millilitres": 200,
+      "kcal": 102,
+      "proteinG": 15,
+      "fatG": 0,
+      "carbG": 10.7,
+      "netCarbG": 10.4,
+      "sugarG": 9,
+      "saltG": 0.26,
+      "nutrients": {
+        "calcium": 476,
+        "vitaminB6": 0.65
+      },
+      "sourceUrl": "https://www.meiji.co.jp/products/sports/4902705127555.html"
+    }
+  ]
+}

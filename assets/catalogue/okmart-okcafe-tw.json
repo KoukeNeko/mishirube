@@ -1,0 +1,71 @@
+{
+  "brand": "OKmart",
+  "brandAliases": [
+    "OK超商",
+    "OK便利商店",
+    "OK mart"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "volumeIs": "cup",
+  "series": "OK CAFE",
+  "sourceUrl": "https://www.okmart.com.tw/hotProducts_purchase?ID=51",
+  "note": "臺北市食材登錄平台公布的每杯熱量，平台註明現場調製僅供參考；容量為杯子容量。",
+  "drinks": [
+    {
+      "id": "okmart-okcafe-d5682b3e",
+      "name": "莊園級拿鐵",
+      "sourceUrl": "https://foodtracer.health.gov.taipei/UniPages/CustPageView?company_id=22853565&fid=98e445de-1314-4f3c-99bb-0abd8d7c5296&itemno=167&mid=e85a79c7-cd54-4aa5-9719-c8a9d0e575ce",
+      "sizes": [
+        {
+          "name": "中杯・冰",
+          "millilitres": 360,
+          "kcal": 87.2
+        },
+        {
+          "name": "中杯・熱",
+          "millilitres": 360,
+          "kcal": 159.9
+        },
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 119.9
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 181.7
+        },
+        {
+          "name": "特大杯・冰",
+          "millilitres": 650,
+          "kcal": 201
+        },
+        {
+          "name": "特大杯・熱",
+          "millilitres": 650,
+          "kcal": 313
+        }
+      ]
+    },
+    {
+      "id": "okmart-okcafe-98e82b3f",
+      "name": "錫蘭紅茶拿鐵",
+      "sourceUrl": "https://foodtracer.health.gov.taipei/UniPages/CustPageView?company_id=22853565&fid=98e445de-1314-4f3c-99bb-0abd8d7c5296&itemno=143&mid=e85a79c7-cd54-4aa5-9719-c8a9d0e575ce&pt=FLAVOR+DRINK+%E9%A2%A8%E5%91%B3%E9%A3%B2%E5%93%81",
+      "sizes": [
+        {
+          "name": "大杯・冰",
+          "millilitres": 480,
+          "kcal": 292
+        },
+        {
+          "name": "大杯・熱",
+          "millilitres": 480,
+          "kcal": 342.8
+        }
+      ]
+    }
+  ]
+}

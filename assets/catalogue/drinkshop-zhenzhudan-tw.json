@@ -1,0 +1,103 @@
+{
+  "brand": "珍煮丹",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/w082/zhen-zhu-dan-tai-bei-liao-zhu-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "zhenzhudan-c2b0d6a3",
+      "name": "煮母奶茶",
+      "series": "煮丹私房奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/w082/zhen-zhu-dan-tai-bei-liao-zhu-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 284,
+          "sugarG": 38,
+          "caffeineMg": 115
+        },
+        {
+          "name": "M・熱",
+          "kcal": 284,
+          "sugarG": 38,
+          "caffeineMg": 201
+        },
+        {
+          "name": "L・冷",
+          "kcal": 406,
+          "sugarG": 52,
+          "caffeineMg": 159
+        },
+        {
+          "name": "L・熱",
+          "kcal": 406,
+          "sugarG": 52,
+          "caffeineMg": 241
+        }
+      ]
+    },
+    {
+      "id": "zhenzhudan-5f43b49e",
+      "name": "珍珠奶茶",
+      "series": "煮丹私房奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/w082/zhen-zhu-dan-tai-bei-liao-zhu-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 547,
+          "sugarG": 55,
+          "caffeineMg": 52
+        },
+        {
+          "name": "M・熱",
+          "kcal": 547,
+          "sugarG": 55,
+          "caffeineMg": 135
+        },
+        {
+          "name": "L",
+          "kcal": 738,
+          "sugarG": 76,
+          "caffeineMg": 86
+        }
+      ]
+    },
+    {
+      "id": "zhenzhudan-4a835c6e",
+      "name": "泰泰鮮奶茶",
+      "series": "煮丹私房奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/w082/zhen-zhu-dan-tai-bei-liao-zhu-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 252,
+          "sugarG": 31,
+          "caffeineMg": 132
+        },
+        {
+          "name": "M・熱",
+          "kcal": 252,
+          "sugarG": 31,
+          "caffeineMg": 192
+        },
+        {
+          "name": "L・冷",
+          "kcal": 336,
+          "sugarG": 41,
+          "caffeineMg": 188
+        },
+        {
+          "name": "L・熱",
+          "kcal": 336,
+          "sugarG": 41,
+          "caffeineMg": 248
+        }
+      ]
+    }
+  ]
+}

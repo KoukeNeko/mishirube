@@ -50,6 +50,52 @@ Future<FoodItem?> pickCupSize(
   ),
 );
 
+/// [portion] as a Japanese label lays it out: 熱量, たんぱく質, 脂質,
+/// 炭水化物 with 糖質 and 食物繊維 under it, 食塩相当量, then the rest.
+List<Widget> _japaneseLabel(FoodPortion portion) {
+  final nutrients = portion.nutrients;
+  const underCarb = [Nutrient.netCarb];
+  const afterCarb = [Nutrient.saltEquivalent];
+  final food = portion.food;
+  // The label prints tenths of a gram; the log's whole grams would turn
+  // a coffee's 0.4 g of protein into 0.
+  String grams(double? perServing) => perServing == null
+      ? '—'
+      : '${_asPrinted(perServing * portion.servings)} g';
+  KeyValueRow row(Nutrient nutrient) => KeyValueRow(
+    label: japaneseLabelOf(nutrient) ?? nutrient.label,
+    value: '${_asPrinted(nutrients[nutrient]!)} ${nutrient.unit.label}',
+  );
+  return [
+    KeyValueRow(
+      label: JapaneseMacroLabel.energy,
+      value: '${formatKcalOrDash(portion.kcal)} kcal',
+    ),
+    KeyValueRow(
+      label: JapaneseMacroLabel.protein,
+      value: grams(food.proteinGrams),
+    ),
+    KeyValueRow(label: JapaneseMacroLabel.fat, value: grams(food.fatGrams)),
+    KeyValueRow(label: JapaneseMacroLabel.carb, value: grams(food.carbGrams)),
+    for (final nutrient in underCarb)
+      if (nutrients.containsKey(nutrient)) row(nutrient),
+    if (food.fibreGrams != null)
+      KeyValueRow(
+        label: JapaneseMacroLabel.fibre,
+        value: grams(food.fibreGrams),
+      ),
+    for (final nutrient in afterCarb)
+      if (nutrients.containsKey(nutrient)) row(nutrient),
+    for (final nutrient in nutrients.keys)
+      if (!underCarb.contains(nutrient) && !afterCarb.contains(nutrient))
+        row(nutrient),
+  ];
+}
+
+/// As a Japanese label prints it, to at most three decimals: `0.054`, `0.4`.
+String _asPrinted(double amount) =>
+    amount.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
+
 /// A cup per size, smallest first; sizes past the last share it.
 const _cupIcons = [
   Icons.coffee_outlined,
@@ -270,46 +316,52 @@ class _PortionScreenState extends State<PortionScreen> {
               onTap: _pickUnit,
             ),
           ),
-        Gutter(child: const SectionLabel('這一份是')),
+        Gutter(child: const SectionLabel('營養標示')),
         Gutter(
           child: AppCard(
             padding: EdgeInsets.zero,
             child: Column(
               children: [
-                KeyValueRow(
-                  label: MacroLabel.energy,
-                  value: '${formatKcalOrDash(portion.kcal)} kcal',
-                ),
-                KeyValueRow(
-                  label: MacroLabel.protein,
-                  value: _grams(portion.proteinGrams),
-                ),
-                KeyValueRow(
-                  label: MacroLabel.carb,
-                  value: _grams(portion.carbGrams),
-                ),
-                KeyValueRow(
-                  label: MacroLabel.fat,
-                  value: _grams(portion.fatGrams),
-                ),
-                if (portion.fibreGrams != null)
+                if (food.country == 'JP')
+                  ..._japaneseLabel(portion)
+                else ...[
                   KeyValueRow(
-                    label: MacroLabel.fibre,
-                    value: _grams(portion.fibreGrams),
+                    label: MacroLabel.energy,
+                    value: '${formatKcalOrDash(portion.kcal)} kcal',
                   ),
-                // Everything else the food holds. A brand drink often
-                // knows its caffeine and nothing else, and a screen that
-                // showed only the five would show it as four dashes.
-                for (final MapEntry(key: nutrient, value: amount)
-                    in portion.nutrients.entries)
                   KeyValueRow(
-                    label: nutrient.label,
-                    value: nutrient.format(amount),
+                    label: MacroLabel.protein,
+                    value: _grams(portion.proteinGrams),
                   ),
+                  KeyValueRow(
+                    label: MacroLabel.carb,
+                    value: _grams(portion.carbGrams),
+                  ),
+                  KeyValueRow(
+                    label: MacroLabel.fat,
+                    value: _grams(portion.fatGrams),
+                  ),
+                  if (portion.fibreGrams != null)
+                    KeyValueRow(
+                      label: MacroLabel.fibre,
+                      value: _grams(portion.fibreGrams),
+                    ),
+                  // Everything else the food holds. A brand drink often
+                  // knows its caffeine and nothing else, and a screen that
+                  // showed only the five would show it as four dashes.
+                  for (final MapEntry(key: nutrient, value: amount)
+                      in portion.nutrients.entries)
+                    KeyValueRow(
+                      label: nutrient.label,
+                      value: nutrient.format(amount),
+                    ),
+                ],
                 if (portion.millilitres case final volume?)
                   KeyValueRow(label: '容量', value: '$volume mL'),
                 // As the maker declares them; a food nobody declared them
                 // for says nothing rather than 無.
+                if (food.barcode case final barcode?)
+                  KeyValueRow(label: '條碼', value: barcode),
                 if (food.allergens case final allergens?)
                   KeyValueRow(
                     label: '過敏原',
@@ -328,7 +380,7 @@ class _PortionScreenState extends State<PortionScreen> {
           Gutter(
             child: Text(switch (type) {
               NutrientValueType.max => '標示上限值，實際可能較低。',
-              NutrientValueType.estimate => '同類食物的概估值。',
+              NutrientValueType.estimate => '估計值',
               NutrientValueType.declared => '',
             }, style: AppTextStyles.caption),
           ),
@@ -352,9 +404,9 @@ class _PortionScreenState extends State<PortionScreen> {
   }
 }
 
-/// ` · 查核 2026/9/21`, or nothing when the figure has no date. A figure
-/// nobody can date is a figure nobody can check.
-String _checked(DateTime? at) => at == null ? '' : ' · 查證 ${formatDate(at)}';
+/// `更新 2026/9/21` on a line of its own, or nothing when the figure has
+/// no date. A figure nobody can date is a figure nobody can check.
+String _checked(DateTime? at) => at == null ? '' : '\n更新 ${formatDate(at)}';
 
 /// `31 g`, or a dash when the food has no figure for it.
 String _grams(int? amount) => amount == null ? '—' : '$amount g';

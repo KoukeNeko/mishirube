@@ -1,0 +1,123 @@
+{
+  "brand": "セイコーマート",
+  "brandAliases": [
+    "Seicomart",
+    "セコマ"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "",
+  "sourceUrl": "https://online.seicomart.co.jp/",
+  "note": "栄養成分表示は原文の表示単位のまま。幅のある値、未満、検出せずは収録しない。",
+  "drinks": [
+    {
+      "id": "seicomart-jp-a1d3fb3b",
+      "name": "Secoma しょうゆヌードル 12個入",
+      "series": "カップ麺",
+      "kind": "food",
+      "grams": 63,
+      "kcal": 281,
+      "proteinG": 6.9,
+      "fatG": 10.5,
+      "carbG": 39.7,
+      "saltG": 4.1,
+      "nutrients": {
+        "vitaminB1": 0.25,
+        "vitaminB2": 0.19
+      },
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?o_no=721000000001"
+    },
+    {
+      "id": "seicomart-jp-76144791",
+      "name": "Secoma 辛味噌ラーメン 12個入",
+      "series": "カップ麺",
+      "kind": "food",
+      "grams": 67,
+      "kcal": 267,
+      "proteinG": 6.4,
+      "fatG": 7.7,
+      "carbG": 43.1,
+      "saltG": 4.6,
+      "nutrients": {
+        "vitaminB1": 0.43,
+        "vitaminB2": 0.33
+      },
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?disp_flg=pc&o_no=724500000001"
+    },
+    {
+      "id": "seicomart-jp-8bb23ddb",
+      "name": "Secoma エナジードリンク 500ml 24本入",
+      "series": "飲料",
+      "kind": "beverage",
+      "millilitres": 500,
+      "kcal": 235,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 59.5,
+      "saltG": 0.1,
+      "caffeineMg": 50,
+      "nutrients": {
+        "vitaminC": 500,
+        "vitaminB2": 4.8,
+        "vitaminB6": 6
+      },
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?disp_flg=pc&o_no=704900000001"
+    },
+    {
+      "id": "seicomart-jp-57b9acec",
+      "name": "Secoma ドリンクゼリー エネルギー(マスカット味) 180g 24個入",
+      "series": "ゼリー飲料",
+      "kind": "beverage",
+      "grams": 180,
+      "kcal": 180,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 45.2,
+      "saltG": 0.3,
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?disp_flg=pc&o_no=706600000001"
+    },
+    {
+      "id": "seicomart-jp-a52a160e",
+      "name": "塩のしあたりめ",
+      "series": "珍味",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 297,
+      "proteinG": 67,
+      "fatG": 2.6,
+      "carbG": 1.3,
+      "saltG": 2.8,
+      "valueType": "estimate",
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?o_no=681200000005"
+    },
+    {
+      "id": "seicomart-jp-b30dda7d",
+      "name": "細切りたらとば",
+      "series": "珍味",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 273,
+      "proteinG": 43.8,
+      "fatG": 0.5,
+      "carbG": 23.3,
+      "saltG": 6.1,
+      "valueType": "estimate",
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?o_no=682600000005"
+    },
+    {
+      "id": "seicomart-jp-f103ba5a",
+      "name": "むきむきサーモン",
+      "series": "珍味",
+      "kind": "food",
+      "grams": 100,
+      "kcal": 274,
+      "proteinG": 43.6,
+      "fatG": 3.1,
+      "carbG": 18,
+      "saltG": 4.6,
+      "valueType": "estimate",
+      "sourceUrl": "https://online.seicomart.co.jp/delivery/goods_list/goods_list_3.php?disp_flg=pc&o_no=681600000005"
+    }
+  ]
+}

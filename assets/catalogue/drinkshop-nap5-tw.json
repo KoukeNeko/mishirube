@@ -1,0 +1,588 @@
+{
+  "brand": "再睡5分鐘",
+  "brandAliases": [
+    "再睡五分鐘"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "nap5-40769afb",
+      "name": "日安紅",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-d3bf8639",
+      "name": "午茉綠",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-c72f8f7c",
+      "name": "四季金萱",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-fc9c08eb",
+      "name": "金萱午茉",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-6cef027f",
+      "name": "深焙烏龍",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-6410ba39",
+      "name": "熟八蕎麥",
+      "series": "簡單喝原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/hwb3/zai-shui-5fen-zhong-tai-bei-zhu-xia-dian/reviews",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 214.2,
+          "sugarG": 50.3,
+          "caffeineMg": 0
+        },
+        {
+          "name": "熱",
+          "kcal": 168.3,
+          "sugarG": 39.5,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-74765cef",
+      "name": "棉被日安紅",
+      "series": "棉被厚奶蓋",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 382.1,
+          "sugarG": 54.4
+        }
+      ]
+    },
+    {
+      "id": "nap5-9fbd42ea",
+      "name": "棉被午茉綠",
+      "series": "棉被厚奶蓋",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 380.5,
+          "sugarG": 54.4
+        }
+      ]
+    },
+    {
+      "id": "nap5-f755541f",
+      "name": "棉被四季金萱",
+      "series": "棉被厚奶蓋",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 380.5,
+          "sugarG": 54.4
+        }
+      ]
+    },
+    {
+      "id": "nap5-f52de490",
+      "name": "棉被深焙烏龍",
+      "series": "棉被厚奶蓋",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 382.1,
+          "sugarG": 54.4
+        }
+      ]
+    },
+    {
+      "id": "nap5-44ec1398",
+      "name": "棉被熟八蕎麥",
+      "series": "棉被厚奶蓋",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 380.5,
+          "sugarG": 54.4,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-d09e30e4",
+      "name": "日安紅歐蕾（鮮奶）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 461.3,
+          "sugarG": 44.4
+        },
+        {
+          "name": "熱",
+          "kcal": 310.7,
+          "sugarG": 29.9
+        }
+      ]
+    },
+    {
+      "id": "nap5-2a1da3b2",
+      "name": "日安紅歐蕾（燕麥）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 469,
+          "sugarG": 45.3
+        },
+        {
+          "name": "熱",
+          "kcal": 379,
+          "sugarG": 36.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-fe8863aa",
+      "name": "午茉綠歐蕾（鮮奶）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 417.9,
+          "sugarG": 40.2
+        },
+        {
+          "name": "熱",
+          "kcal": 310.7,
+          "sugarG": 29.9
+        }
+      ]
+    },
+    {
+      "id": "nap5-534a86fd",
+      "name": "午茉綠歐蕾（燕麥）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 469,
+          "sugarG": 45.3
+        },
+        {
+          "name": "熱",
+          "kcal": 379,
+          "sugarG": 36.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-35fb4617",
+      "name": "深焙烏龍歐蕾（鮮奶）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 461.3,
+          "sugarG": 44.4
+        },
+        {
+          "name": "熱",
+          "kcal": 310.7,
+          "sugarG": 29.9
+        }
+      ]
+    },
+    {
+      "id": "nap5-93f93d91",
+      "name": "深焙烏龍歐蕾（燕麥）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 469,
+          "sugarG": 45.3
+        },
+        {
+          "name": "熱",
+          "kcal": 379,
+          "sugarG": 36.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-9220e9de",
+      "name": "熟八蕎麥歐蕾（鮮奶）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 417.9,
+          "sugarG": 40.2
+        },
+        {
+          "name": "熱",
+          "kcal": 310.7,
+          "sugarG": 29.9
+        }
+      ]
+    },
+    {
+      "id": "nap5-b0c46ede",
+      "name": "熟八蕎麥歐蕾（燕麥）",
+      "series": "躺著喝歐蕾",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 469,
+          "sugarG": 45.3
+        },
+        {
+          "name": "熱",
+          "kcal": 379,
+          "sugarG": 36.5
+        }
+      ]
+    },
+    {
+      "id": "nap5-1a48a5df",
+      "name": "檸檬日安",
+      "series": "清爽喝果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 315.3,
+          "sugarG": 72.2
+        }
+      ]
+    },
+    {
+      "id": "nap5-4cd3252d",
+      "name": "檸檬午茉",
+      "series": "清爽喝果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 315.3,
+          "sugarG": 72.2
+        }
+      ]
+    },
+    {
+      "id": "nap5-32380cce",
+      "name": "深焙烏龍奶茶（濃茶）",
+      "series": "療癒喝奶茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 400.8,
+          "sugarG": 64.5
+        },
+        {
+          "name": "熱",
+          "kcal": 283.3,
+          "sugarG": 48.7
+        }
+      ]
+    },
+    {
+      "id": "nap5-d07c880c",
+      "name": "深焙烏龍奶茶（厚奶）",
+      "series": "療癒喝奶茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 494.5,
+          "sugarG": 69.1
+        },
+        {
+          "name": "熱",
+          "kcal": 373.9,
+          "sugarG": 53.2
+        }
+      ]
+    },
+    {
+      "id": "nap5-e384a349",
+      "name": "熟八蕎麥奶茶（濃茶）",
+      "series": "療癒喝奶茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 444.2,
+          "sugarG": 68.7,
+          "caffeineMg": 0
+        },
+        {
+          "name": "熱",
+          "kcal": 326.8,
+          "sugarG": 53,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-5c2711e9",
+      "name": "熟八蕎麥奶茶（厚奶）",
+      "series": "療癒喝奶茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 494.5,
+          "sugarG": 69.1,
+          "caffeineMg": 0
+        },
+        {
+          "name": "熱",
+          "kcal": 373.9,
+          "sugarG": 53.2,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-ad01fb88",
+      "name": "黑糖珍珠厚奶（厚奶）",
+      "series": "療癒喝厚奶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 575.9,
+          "sugarG": 66.7,
+          "caffeineMg": 0
+        },
+        {
+          "name": "熱",
+          "kcal": 521.6,
+          "sugarG": 61.3,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-802a1061",
+      "name": "黑糖珍珠厚奶（純鮮奶升級）",
+      "series": "療癒喝厚奶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 523.2,
+          "sugarG": 58.6,
+          "caffeineMg": 0
+        },
+        {
+          "name": "熱",
+          "kcal": 523.2,
+          "sugarG": 58.6,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 259.3,
+          "sugarG": 22.9,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-1d81d771",
+      "name": "話梅",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 2.8,
+          "sugarG": 0.1,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-b8dd7c2c",
+      "name": "咕嚕茶凍（午茉綠風味）",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 101,
+          "sugarG": 25.1
+        }
+      ]
+    },
+    {
+      "id": "nap5-6fab7c34",
+      "name": "嫩仙草",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 57,
+          "sugarG": 12.6,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-3f7fd1e1",
+      "name": "芋圓啵啵",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 261,
+          "sugarG": 20.3,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-2b0a730f",
+      "name": "小湯圓",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 278.7,
+          "sugarG": 28.4,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-4ae8efc4",
+      "name": "水果凍（檸檬風味）",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 130.6,
+          "sugarG": 31.8,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "nap5-f51581c5",
+      "name": "布丁",
+      "series": "加料",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E5%86%8D%E7%9D%A15%E5%88%86%E9%90%98-%E5%8F%B0%E5%8C%97%E6%B1%9F%E5%8D%97%E5%BA%97/bVhTAL_AVve_9cnqzX9oeg",
+      "sizes": [
+        {
+          "name": "一份",
+          "kcal": 165,
+          "sugarG": 24,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

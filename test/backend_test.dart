@@ -1334,6 +1334,104 @@ void main() {
       expect(water.nutrients, isEmpty);
     });
 
+    test('fibre on a label is kept', () {
+      final soyMilk = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/7eleven-bottled-tw.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      ).firstWhere((food) => food.name == '統一陽光 無加糖高纖豆漿');
+      expect(
+        soyMilk.fibreGrams,
+        closeTo(8.5, 0.001),
+        reason: '2.125 g per 100 mL × 400 mL',
+      );
+    });
+
+    test('a figure borrowed from another size is an estimate', () {
+      final parsed = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/hilife-bottled-tw.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      FoodItem named(String name) =>
+          parsed.firstWhere((food) => food.name == name);
+      expect(named('可口可樂 600 mL').valueType, NutrientValueType.declared);
+      final smaller = named('可口可樂 435 mL');
+      expect(
+        smaller.valueType,
+        NutrientValueType.estimate,
+        reason: 'scaled from the 600 mL label',
+      );
+      expect(smaller.kcal, 183, reason: '42 kcal per 100 mL × 435 mL');
+    });
+
+    test('a Japanese label keeps its basis, salt and 糖質', () {
+      final parsed = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/7eleven-drinks-jp.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      final pilkul = parsed.firstWhere(
+        (food) => food.name == '日清ヨーク　ピルクル４００鉄分　４５５ｍｌ',
+      );
+      expect(pilkul.country, 'JP');
+      expect(pilkul.brandLabel, 'セブン‐イレブン（日本）');
+      expect(pilkul.servingAmount, 195, reason: 'コップ1杯 195ml あたり');
+      expect(pilkul.nutrients[Nutrient.saltEquivalent], 0.09);
+      expect(pilkul.nutrients[Nutrient.sodium], isNull);
+      expect(pilkul.nutrients[Nutrient.iron], 7.2);
+      expect(
+        pilkul.nutrients[Nutrient.folate],
+        isNull,
+        reason: 'printed as a range, 36～106 μg',
+      );
+      final yogurt = parsed.firstWhere(
+        (food) => food.name == '７プレミアム　のむヨーグルト　いちご　１９０ｇ',
+      );
+      expect(yogurt.nutrients[Nutrient.netCarb], 23.6);
+      expect(yogurt.servingUnit, ServingUnit.serving, reason: 'no basis given');
+    });
+
+    test('a label per 100 mL stays per 100 mL', () {
+      final drinks = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/lawson-drinks-jp.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      final aquarius = drinks.firstWhere(
+        (food) => food.name == 'コカ・コーラ　アクエリアス　950ml',
+      );
+      expect(aquarius.servingAmount, 100, reason: '栄養成分表示 100ml当たり');
+      expect(aquarius.kcal, 19);
+      expect(aquarius.nutrients[Nutrient.potassium], 8);
+    });
+
+    test('a barcode is kept with the food it is printed on', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final foods = backend.storage.foods;
+      foods.save(
+        const FoodItem(id: 'tea', name: '麥萃無糖麥茶', barcode: '4710421075926'),
+        source: ChangeSource.local,
+      );
+      foods.save(
+        const FoodItem(id: 'soup', name: '味噌湯'),
+        source: ChangeSource.local,
+      );
+      expect(foods.byId('tea')!.barcode, '4710421075926');
+      expect(foods.byId('soup')!.barcode, isNull);
+
+      final okmart = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/okmart-bottled-tw.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      expect(
+        okmart.firstWhere((food) => food.name == '御茶園 麥萃無糖麥茶').barcode,
+        '4710421075926',
+      );
+    });
+
     test('allergens keep "none declared" apart from "nobody said"', () {
       final backend = openFile();
       addTearDown(backend.close);

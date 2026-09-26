@@ -24,10 +24,57 @@ const catalogueFiles = [
   'assets/catalogue/7eleven-citypearl-tw.json',
   'assets/catalogue/7eleven-reserve-tw.json',
   'assets/catalogue/7eleven-teabar-tw.json',
+  'assets/catalogue/7eleven-bottled-tw.json',
   'assets/catalogue/ikea-bistro-tw.json',
   'assets/catalogue/familymart-letstea-tw.json',
   'assets/catalogue/familymart-letscafe-tw.json',
   'assets/catalogue/familymart-bottled-tw.json',
+  'assets/catalogue/hilife-hicafe-tw.json',
+  'assets/catalogue/hilife-bottled-tw.json',
+  'assets/catalogue/pxmart-bottled-tw.json',
+  'assets/catalogue/okmart-bottled-tw.json',
+  'assets/catalogue/okmart-okcafe-tw.json',
+  'assets/catalogue/drinkshop-50lan-tw.json',
+  'assets/catalogue/drinkshop-coco-tw.json',
+  'assets/catalogue/drinkshop-milksha-tw.json',
+  'assets/catalogue/drinkshop-macu-tw.json',
+  'assets/catalogue/drinkshop-oolongtea-tw.json',
+  'assets/catalogue/drinkshop-wootea-tw.json',
+  'assets/catalogue/drinkshop-yimuri-tw.json',
+  'assets/catalogue/drinkshop-chingshin-tw.json',
+  'assets/catalogue/drinkshop-kebuke-tw.json',
+  'assets/catalogue/drinkshop-guiji-tw.json',
+  'assets/catalogue/drinkshop-chichashop-tw.json',
+  'assets/catalogue/drinkshop-laolai-tw.json',
+  'assets/catalogue/drinkshop-daming-tw.json',
+  'assets/catalogue/drinkshop-ug-tw.json',
+  'assets/catalogue/drinkshop-wanpo-tw.json',
+  'assets/catalogue/drinkshop-comebuy-tw.json',
+  'assets/catalogue/drinkshop-tp-tea-tw.json',
+  'assets/catalogue/drinkshop-zhenzhudan-tw.json',
+  'assets/catalogue/drinkshop-dayungs-tw.json',
+  'assets/catalogue/drinkshop-txtea-tw.json',
+  'assets/catalogue/drinkshop-chaju-tw.json',
+  'assets/catalogue/drinkshop-hechalou-tw.json',
+  'assets/catalogue/drinkshop-nap5-tw.json',
+  'assets/catalogue/drinkshop-mrwish-tw.json',
+  'assets/catalogue/7eleven-sevencafe-jp.json',
+  'assets/catalogue/7eleven-drinks-jp.json',
+  'assets/catalogue/lawson-original-jp.json',
+  'assets/catalogue/lawson-chilled-jp.json',
+  'assets/catalogue/lawson-machicafe-jp.json',
+  'assets/catalogue/lawson-drinks-jp.json',
+  'assets/catalogue/newdays-drinks-jp.json',
+  'assets/catalogue/muji-jp.json',
+  'assets/catalogue/muji-tw.json',
+  'assets/catalogue/sukiya-jp.json',
+  'assets/catalogue/costco-tw.json',
+  'assets/catalogue/7eleven-bread-jp.json',
+  'assets/catalogue/familymart-jp.json',
+  'assets/catalogue/ministop-jp.json',
+  'assets/catalogue/newdays-food-jp.json',
+  'assets/catalogue/seicomart-jp.json',
+  'assets/catalogue/dailyyamazaki-jp.json',
 ];
 
 /// Reads every bundled catalogue into [foods], replacing what is there.
@@ -86,6 +133,12 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
         final id = drink['id']! as String;
         final sizes = (drink['sizes'] as List<dynamic>? ?? const [])
             .cast<Map<String, dynamic>>();
+        // An item whose figures were borrowed — the same recipe in another
+        // size, a label matched by name — says so for itself.
+        final itemValueType = switch (drink['valueType']) {
+          final String name => NutrientValueType.values.byName(name),
+          _ => valueType,
+        };
 
         FoodItem build({
           required String itemId,
@@ -104,7 +157,8 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
             id: itemId,
             name: drink['name']! as String,
             brand: brand,
-            series: series,
+            // A drink shop's lines (原茶, 奶茶) share one file.
+            series: drink['series'] as String? ?? series,
             country: country,
             searchTerms: searchTerms,
             isCupCapacity: volumeIsCup && millilitres != null,
@@ -122,13 +176,14 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
                 : grams != null
                 ? ServingUnit.gram
                 : ServingUnit.serving,
-            valueType: valueType,
+            valueType: itemValueType,
             sourceUrl: drink['sourceUrl'] as String? ?? sourceUrl,
             checkedAt: checkedAt,
-            kcal: _wholeKcal(figure('kcal'), valueType)?.toDouble(),
+            kcal: _wholeKcal(figure('kcal'), itemValueType)?.toDouble(),
             proteinGrams: figure('proteinG'),
             carbGrams: figure('carbG'),
             fatGrams: figure('fatG'),
+            fibreGrams: figure('fibreG'),
             // A size with no published figure holds none: an absent
             // nutrient is nobody having written it down, not a zero.
             nutrients: {
@@ -137,9 +192,18 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
               Nutrient.sugar: ?figure('sugarG'),
               Nutrient.sodium: ?figure('sodiumMg'),
               Nutrient.caffeine: ?figure('caffeineMg'),
+              Nutrient.calcium: ?figure('calciumMg'),
+              Nutrient.netCarb: ?figure('netCarbG'),
+              Nutrient.saltEquivalent: ?figure('saltG'),
+              // Anything else the label prints, by the nutrient's name.
+              for (final MapEntry(:key, :value)
+                  in (figures['nutrients'] as Map<String, dynamic>? ?? const {})
+                      .entries)
+                Nutrient.values.byName(key): (value as num) * scale.toDouble(),
             },
             // Declared per item; a file that says nothing of them leaves
             // them unknown.
+            barcode: drink['barcode'] as String?,
             allergens: switch (drink['allergens']) {
               final List<dynamic> names => {
                 for (final name in names)

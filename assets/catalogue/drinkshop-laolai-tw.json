@@ -1,0 +1,417 @@
+{
+  "brand": "老賴茶棧",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "laolai-91d06b2e",
+      "name": "老賴紅茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 364,
+      "sugarG": 88
+    },
+    {
+      "id": "laolai-71a3b672",
+      "name": "老賴豆漿",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 380,
+      "sugarG": 61
+    },
+    {
+      "id": "laolai-a17a4a04",
+      "name": "豆香紅茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 399,
+      "sugarG": 78
+    },
+    {
+      "id": "laolai-c4f28efc",
+      "name": "太后牛乳",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 455,
+      "sugarG": 86
+    },
+    {
+      "id": "laolai-9d5285ab",
+      "name": "珍珠紅茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 361,
+      "sugarG": 56
+    },
+    {
+      "id": "laolai-9c08ddbe",
+      "name": "珍珠奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 579,
+      "sugarG": 68
+    },
+    {
+      "id": "laolai-606dd702",
+      "name": "烏梅紅茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 471,
+      "sugarG": 112
+    },
+    {
+      "id": "laolai-9bb3c1da",
+      "name": "冬瓜檸檬",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 256,
+      "sugarG": 55
+    },
+    {
+      "id": "laolai-b2bf7cb9",
+      "name": "白桃烏龍",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 180,
+      "sugarG": 43
+    },
+    {
+      "id": "laolai-fc96b580",
+      "name": "桃桃烏龍",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 432,
+      "sugarG": 102
+    },
+    {
+      "id": "laolai-8c6d0a2e",
+      "name": "桃桃烏龍奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 602,
+      "sugarG": 104
+    },
+    {
+      "id": "laolai-410d79ce",
+      "name": "奶蓋桃桃烏龍",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 429,
+      "sugarG": 65
+    },
+    {
+      "id": "laolai-e7bd224d",
+      "name": "招牌奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 626,
+      "sugarG": 79
+    },
+    {
+      "id": "laolai-de453d03",
+      "name": "香綠奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 466,
+      "sugarG": 46
+    },
+    {
+      "id": "laolai-088f36e1",
+      "name": "烏龍奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 373,
+      "sugarG": 30
+    },
+    {
+      "id": "laolai-74dfe137",
+      "name": "蜂蜜奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 440,
+      "sugarG": 56
+    },
+    {
+      "id": "laolai-352768e0",
+      "name": "布丁太后牛乳",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 345,
+      "sugarG": 51
+    },
+    {
+      "id": "laolai-940800e4",
+      "name": "黑芝麻豆漿",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 374,
+      "sugarG": 42
+    },
+    {
+      "id": "laolai-fa2ff3b6",
+      "name": "黑芝麻奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 582,
+      "sugarG": 47
+    },
+    {
+      "id": "laolai-ba139f09",
+      "name": "黑芝麻珍珠奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 578,
+      "sugarG": 45
+    },
+    {
+      "id": "laolai-f665ab90",
+      "name": "黑芝麻胚芽奶茶",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 687,
+      "sugarG": 52
+    },
+    {
+      "id": "laolai-dcc26af6",
+      "name": "黑芝麻太后牛乳",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 459,
+      "sugarG": 62
+    },
+    {
+      "id": "laolai-7fb62d4d",
+      "name": "烤糖奶蓋紅",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 466,
+      "sugarG": 62
+    },
+    {
+      "id": "laolai-29ea943b",
+      "name": "烤糖奶蓋綠",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 420,
+      "sugarG": 57
+    },
+    {
+      "id": "laolai-5181d3e0",
+      "name": "烤糖奶蓋青",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 436,
+      "sugarG": 55
+    },
+    {
+      "id": "laolai-f598ca18",
+      "name": "烤糖奶蓋烏",
+      "series": "一般",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "kcal": 436,
+      "sugarG": 56
+    },
+    {
+      "id": "laolai-0ee1c640",
+      "name": "老賴紅茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1102,
+          "sugarG": 265
+        }
+      ]
+    },
+    {
+      "id": "laolai-5b5cc99d",
+      "name": "老賴豆漿",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1151,
+          "sugarG": 184
+        }
+      ]
+    },
+    {
+      "id": "laolai-ad4d85b3",
+      "name": "豆香紅茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1208,
+          "sugarG": 237
+        }
+      ]
+    },
+    {
+      "id": "laolai-48f9fa77",
+      "name": "太后牛乳",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1380,
+          "sugarG": 259
+        }
+      ]
+    },
+    {
+      "id": "laolai-427d7cac",
+      "name": "烏梅紅茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1429,
+          "sugarG": 339
+        }
+      ]
+    },
+    {
+      "id": "laolai-3801f27a",
+      "name": "冬瓜檸檬",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 996,
+          "sugarG": 220
+        }
+      ]
+    },
+    {
+      "id": "laolai-ced1d2a3",
+      "name": "冷香青茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 558,
+          "sugarG": 132
+        }
+      ]
+    },
+    {
+      "id": "laolai-b21387c4",
+      "name": "茉翠香綠",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 558,
+          "sugarG": 120
+        }
+      ]
+    },
+    {
+      "id": "laolai-1a4a6292",
+      "name": "文清烏龍",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 604,
+          "sugarG": 132
+        }
+      ]
+    },
+    {
+      "id": "laolai-8f4d92d1",
+      "name": "鮮檸紅茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1200,
+          "sugarG": 269
+        }
+      ]
+    },
+    {
+      "id": "laolai-a1c56d61",
+      "name": "鮮檸香綠",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1074,
+          "sugarG": 252
+        }
+      ]
+    },
+    {
+      "id": "laolai-b250ea63",
+      "name": "鮮檸冷香青",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1080,
+          "sugarG": 258
+        }
+      ]
+    },
+    {
+      "id": "laolai-f744a1cb",
+      "name": "熬煮冬瓜茶",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 1029,
+          "sugarG": 253
+        }
+      ]
+    },
+    {
+      "id": "laolai-acc030ee",
+      "name": "冬瓜冷香青",
+      "series": "2000ml瓶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/fzkj/lao-lai-cha-zhan-tai-bei-nan-gang-dian",
+      "sizes": [
+        {
+          "name": "2000ml",
+          "millilitres": 2000,
+          "kcal": 789,
+          "sugarG": 183
+        }
+      ]
+    }
+  ]
+}

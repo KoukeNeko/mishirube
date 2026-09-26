@@ -1,0 +1,1409 @@
+{
+  "brand": "ミニストップ",
+  "brandAliases": [
+    "MINISTOP"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "",
+  "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/",
+  "note": "栄養成分表示は原文の表示単位のまま。幅のある値、未満、検出せずは収録しない。",
+  "drinks": [
+    {
+      "id": "ministop-jp-7856b8ed",
+      "name": "黒ごまバナナジュース　※一部店舗限定",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 217,
+      "proteinG": 6.7,
+      "fatG": 7.4,
+      "carbG": 30.9,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 48
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-e7c9d6f0",
+      "name": "バナナジュース　※一部店舗限定",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 191,
+      "proteinG": 5.5,
+      "fatG": 5.8,
+      "carbG": 29.1,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 49
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-e25485c4",
+      "name": "きな粉バナナジュース　※一部店舗限定",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 208,
+      "proteinG": 7.1,
+      "fatG": 6.2,
+      "carbG": 31,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 47
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-9a0df750",
+      "name": "FRUITS TEA 苺マンゴー＆ジャスミンティー　※一部店舗限定",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 58,
+      "proteinG": 0.3,
+      "fatG": 0,
+      "carbG": 14.1,
+      "saltG": 0.01,
+      "nutrients": {
+        "sodium": 5
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-e46560d8",
+      "name": "FRUITS TEA パインパッション&ジャスミンティー　※一部店舗限定",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 62,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 14.9,
+      "saltG": 0.01,
+      "nutrients": {
+        "sodium": 5
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-f7467657",
+      "name": "ミルクコーヒーフロート",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 155,
+      "proteinG": 4.8,
+      "fatG": 6.5,
+      "carbG": 19.2,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 77
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-4c7df62f",
+      "name": "いちごミルクフロート",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 212,
+      "proteinG": 5.6,
+      "fatG": 8,
+      "carbG": 29.5,
+      "saltG": 0.3,
+      "nutrients": {
+        "sodium": 100
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-8b3baf40",
+      "name": "まぜてのむ ほろにがコーヒーゼリー",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 204,
+      "proteinG": 4.1,
+      "fatG": 4.6,
+      "carbG": 36.5,
+      "saltG": 0.4,
+      "nutrients": {
+        "sodium": 140
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-8519f0f1",
+      "name": "フェアトレード ホットカフェラテ",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 100,
+      "proteinG": 4,
+      "fatG": 5.5,
+      "carbG": 8.7,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 53
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-0166e75a",
+      "name": "フェアトレード　アイスカフェラテ",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 70,
+      "proteinG": 3.9,
+      "fatG": 4.2,
+      "carbG": 4.2,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 39
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-323ac999",
+      "name": "フェアトレード　アイスコーヒー",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 9,
+      "proteinG": 0.6,
+      "fatG": 0.3,
+      "carbG": 1,
+      "saltG": 0,
+      "nutrients": {
+        "sodium": 4
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-29a1e5c9",
+      "name": "フェアトレード　アメリカンコーヒー（ホット）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 9,
+      "proteinG": 0.5,
+      "fatG": 0.2,
+      "carbG": 1.4,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 7
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-8301786c",
+      "name": "フェアトレード　ホットコーヒー",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 11,
+      "proteinG": 0.7,
+      "fatG": 0.2,
+      "carbG": 1.6,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 7
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-2fdde73d",
+      "name": "ホットプレミアムコーヒー-グアテマラ100％-",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 8,
+      "proteinG": 0.6,
+      "fatG": 0,
+      "carbG": 1.3,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 8
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-b5a75bf8",
+      "name": "アイスプレミアムコーヒー-グアテマラ100％-",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 6,
+      "proteinG": 0.5,
+      "fatG": 0,
+      "carbG": 1,
+      "saltG": 0.01,
+      "nutrients": {
+        "sodium": 5
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-448bc708",
+      "name": "こだわりミルクのホットカフェラテ ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 98,
+      "proteinG": 4.8,
+      "fatG": 5.3,
+      "carbG": 7.7,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 55
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-a00746fd",
+      "name": "こだわりミルクのアイスカフェラテ ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 69,
+      "proteinG": 3.7,
+      "fatG": 3.7,
+      "carbG": 5.3,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 40
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-8a05b0a8",
+      "name": "アイスコーヒーL ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 14,
+      "proteinG": 0.9,
+      "fatG": 0.5,
+      "carbG": 1.4,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 9
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-8436719f",
+      "name": "アイスコーヒーM ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 8,
+      "proteinG": 0.6,
+      "fatG": 0.3,
+      "carbG": 0.7,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 6
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-70b46371",
+      "name": "アイスコーヒーＳ ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 7,
+      "proteinG": 0.5,
+      "fatG": 0.2,
+      "carbG": 0.7,
+      "saltG": 0.01,
+      "nutrients": {
+        "sodium": 5
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-0de8e77f",
+      "name": "ホットコーヒーM ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 8,
+      "proteinG": 0.5,
+      "fatG": 0.2,
+      "carbG": 1,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 9
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-f2b19a3a",
+      "name": "ホットコーヒーＳ ※高速道路店除く（2024年リニューアル）",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 5,
+      "proteinG": 0.3,
+      "fatG": 0.2,
+      "carbG": 0.6,
+      "saltG": 0.02,
+      "nutrients": {
+        "sodium": 7
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-197b45b8",
+      "name": "コーヒーホワイト",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 12,
+      "proteinG": 0.2,
+      "fatG": 1.1,
+      "carbG": 0.2,
+      "saltG": 0,
+      "nutrients": {
+        "sodium": 12
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-4b65cac1",
+      "name": "シュガーシロップ",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 22,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 5.5,
+      "saltG": 0,
+      "nutrients": {
+        "sodium": 0
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-a736979f",
+      "name": "シュガー",
+      "series": "店内加工ドリンク",
+      "kind": "beverage",
+      "kcal": 12,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 3,
+      "saltG": 0,
+      "nutrients": {
+        "sodium": 0
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E5%BA%97%E5%86%85%E5%8A%A0%E5%B7%A5%E3%83%89%E3%83%AA%E3%83%B3%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-48c0670c",
+      "name": "クランキーチキン天乃屋の歌舞伎揚®味・ポテトセット",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1236,
+      "proteinG": 40.2,
+      "fatG": 66,
+      "carbG": 120.2,
+      "saltG": 4,
+      "nutrients": {
+        "sodium": 1580
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-d7b27a06",
+      "name": "無限クランキーチキン天乃屋の歌舞伎揚®味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1168,
+      "proteinG": 66.8,
+      "fatG": 56.4,
+      "carbG": 98,
+      "saltG": 6.9,
+      "nutrients": {
+        "sodium": 2720
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-70d023dd",
+      "name": "得盛Xフライドポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 652,
+      "proteinG": 6.8,
+      "fatG": 37.8,
+      "carbG": 71.2,
+      "saltG": 0.6,
+      "nutrients": {
+        "sodium": 220
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-353deedf",
+      "name": "Xフライドポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 326,
+      "proteinG": 3.4,
+      "fatG": 18.9,
+      "carbG": 35.6,
+      "saltG": 0.3,
+      "nutrients": {
+        "sodium": 110
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-12e7d47f",
+      "name": "無限シューストポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 985,
+      "proteinG": 14.1,
+      "fatG": 49.8,
+      "carbG": 120,
+      "saltG": 1.5,
+      "nutrients": {
+        "sodium": 600
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-ccfb9aa0",
+      "name": "得盛シューストポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 656,
+      "proteinG": 9.4,
+      "fatG": 33.2,
+      "carbG": 80,
+      "saltG": 1,
+      "nutrients": {
+        "sodium": 400
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-337e762b",
+      "name": "ナゲッツ★レモンタルタルソース",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 215,
+      "proteinG": 14.7,
+      "fatG": 12.2,
+      "carbG": 11.7,
+      "saltG": 1.7,
+      "nutrients": {
+        "sodium": 650
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-390cc805",
+      "name": "クリスピーケイジャンポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 314,
+      "proteinG": 4.5,
+      "fatG": 16.4,
+      "carbG": 37.2,
+      "saltG": 1.3,
+      "nutrients": {
+        "sodium": 510
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-5aff87a1",
+      "name": "ブルダックチーズハットグ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 350,
+      "proteinG": 8.5,
+      "fatG": 17.5,
+      "carbG": 39.4,
+      "saltG": 1.8,
+      "nutrients": {
+        "sodium": 718
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-1079737b",
+      "name": "クランキー唐揚げ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 363,
+      "proteinG": 15.4,
+      "fatG": 25.3,
+      "carbG": 18.3,
+      "saltG": 3,
+      "nutrients": {
+        "sodium": 1200
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-ab63e3d5",
+      "name": "さくさく細切りポテト　※一部店舗限定",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 381,
+      "proteinG": 3.5,
+      "fatG": 27.8,
+      "carbG": 29.3,
+      "saltG": 1.4,
+      "nutrients": {
+        "sodium": 560
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-56848426",
+      "name": "ザクポテチーズハットグ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 350,
+      "proteinG": 8.6,
+      "fatG": 17.2,
+      "carbG": 40.1,
+      "saltG": 1.9,
+      "nutrients": {
+        "sodium": 742
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-70a1ee76",
+      "name": "フランクフルト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 216,
+      "proteinG": 10.9,
+      "fatG": 14.5,
+      "carbG": 10.2,
+      "saltG": 2.8,
+      "nutrients": {
+        "sodium": 1082
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-921d5698",
+      "name": "ミニちきちゃん 辛口",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 321,
+      "proteinG": 13.7,
+      "fatG": 21.8,
+      "carbG": 17.6,
+      "saltG": 2.5,
+      "nutrients": {
+        "sodium": 1000
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-4cdfc7c2",
+      "name": "ミニちきちゃん プレーン",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 253,
+      "proteinG": 12.6,
+      "fatG": 17.1,
+      "carbG": 12.1,
+      "saltG": 2.4,
+      "nutrients": {
+        "sodium": 950
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-de9852a5",
+      "name": "十勝ハッシュドポテト サワークリームオニオン風味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 312,
+      "proteinG": 3.2,
+      "fatG": 20.2,
+      "carbG": 29.3,
+      "saltG": 2.4,
+      "nutrients": {
+        "sodium": 950
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-b1ae9fb3",
+      "name": "北海道ウェーブポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 305,
+      "proteinG": 2.9,
+      "fatG": 18,
+      "carbG": 32.9,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 60
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-598922a3",
+      "name": "じゃがいもまん（カムジャパン風）",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 212,
+      "proteinG": 3.1,
+      "fatG": 10.7,
+      "carbG": 25.8,
+      "saltG": 0.7,
+      "nutrients": {
+        "sodium": 290
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-b1740b2f",
+      "name": "トルネードポテト うま塩味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 106,
+      "proteinG": 1.3,
+      "fatG": 5.3,
+      "carbG": 13.3,
+      "saltG": 0.5,
+      "nutrients": {
+        "sodium": 180
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-cbe0e0cf",
+      "name": "チーズハットグ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 354,
+      "proteinG": 9.5,
+      "fatG": 21.2,
+      "carbG": 31.2,
+      "saltG": 1.8,
+      "nutrients": {
+        "sodium": 692
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-fca093ff",
+      "name": "ロックポーク ガーリック&ペッパー",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 174,
+      "proteinG": 10.8,
+      "fatG": 11.6,
+      "carbG": 6.6,
+      "saltG": 1.8,
+      "nutrients": {
+        "sodium": 690
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-5c0eeb1a",
+      "name": "北海道ウェーブポテト しあわせバタ～",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 324,
+      "proteinG": 3.4,
+      "fatG": 18.8,
+      "carbG": 35.3,
+      "saltG": 1.3,
+      "nutrients": {
+        "sodium": 503
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-cd5704dd",
+      "name": "クランキーチキン天乃屋の歌舞伎揚®味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 292,
+      "proteinG": 16.7,
+      "fatG": 14.1,
+      "carbG": 24.5,
+      "saltG": 1.7,
+      "nutrients": {
+        "sodium": 680
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-de5b0893",
+      "name": "豚角煮パオ(ミミップくん)",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 242,
+      "proteinG": 8.3,
+      "fatG": 12.2,
+      "carbG": 24.8,
+      "saltG": 0.8,
+      "nutrients": {
+        "sodium": 310
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-7b84f878",
+      "name": "きのこクリーミィドッグ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 307,
+      "proteinG": 12.3,
+      "fatG": 14.5,
+      "carbG": 31.7,
+      "saltG": 2.2,
+      "nutrients": {
+        "sodium": 875
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-86034f00",
+      "name": "Ｘフライドポテト ベビースターラーメン チキン風味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 337,
+      "proteinG": 3.9,
+      "fatG": 18.9,
+      "carbG": 37.7,
+      "saltG": 1.4,
+      "nutrients": {
+        "sodium": 564
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-b7339809",
+      "name": "直火焼 ハーブのローストチキン",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 221,
+      "proteinG": 20.1,
+      "fatG": 13.1,
+      "carbG": 5.7,
+      "saltG": 2.4,
+      "nutrients": {
+        "sodium": 960
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-742a2e49",
+      "name": "フィレチキン タバスコ®ソースフレーバー",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 261,
+      "proteinG": 17.1,
+      "fatG": 14.2,
+      "carbG": 16.2,
+      "saltG": 1.5,
+      "nutrients": {
+        "sodium": 600
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-289d414c",
+      "name": "ホットドッグ (プレーン)",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 262,
+      "proteinG": 10.4,
+      "fatG": 12.9,
+      "carbG": 25.9,
+      "saltG": 1.5,
+      "nutrients": {
+        "sodium": 588
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-fdf5e45c",
+      "name": "サルサドッグ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 274,
+      "proteinG": 10.7,
+      "fatG": 12.9,
+      "carbG": 28.8,
+      "saltG": 1.7,
+      "nutrients": {
+        "sodium": 665
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-23c05d95",
+      "name": "十勝ハッシュスティック",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 342,
+      "proteinG": 2.7,
+      "fatG": 19.8,
+      "carbG": 38.3,
+      "saltG": 1.7,
+      "nutrients": {
+        "sodium": 660
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-bcbb2d43",
+      "name": "本格肉まん(復刻版)",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 239,
+      "proteinG": 9,
+      "fatG": 7.5,
+      "carbG": 33.9,
+      "saltG": 1,
+      "nutrients": {
+        "sodium": 410
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-22351d9c",
+      "name": "鶏五目ちまき(復刻版)",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 195,
+      "proteinG": 10.8,
+      "fatG": 5.2,
+      "carbG": 26.2,
+      "saltG": 1.3,
+      "nutrients": {
+        "sodium": 500
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-a006763b",
+      "name": "シューストポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 328,
+      "proteinG": 4.7,
+      "fatG": 16.6,
+      "carbG": 40,
+      "saltG": 0.5,
+      "nutrients": {
+        "sodium": 200
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-6f67e429",
+      "name": "無限ミックスクランキーチキン",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1152,
+      "proteinG": 56.2,
+      "fatG": 65.8,
+      "carbG": 83.8,
+      "saltG": 7.7,
+      "nutrients": {
+        "sodium": 3040
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-094633ea",
+      "name": "クリスピーチリポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 318,
+      "proteinG": 4.6,
+      "fatG": 16.5,
+      "carbG": 37.7,
+      "saltG": 2.1,
+      "nutrients": {
+        "sodium": 840
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-f9a9ab1b",
+      "name": "Vカットポテト",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 336,
+      "proteinG": 3.9,
+      "fatG": 18.9,
+      "carbG": 37.6,
+      "saltG": 1.1,
+      "nutrients": {
+        "sodium": 450
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-2509c956",
+      "name": "クランキーチキン辛旨・ポテトセット",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1224,
+      "proteinG": 35.6,
+      "fatG": 71.2,
+      "carbG": 110.2,
+      "saltG": 5.2,
+      "nutrients": {
+        "sodium": 2060
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-e4215c98",
+      "name": "無限クランキーチキン辛旨味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1144,
+      "proteinG": 57.6,
+      "fatG": 66.8,
+      "carbG": 78,
+      "saltG": 9.3,
+      "nutrients": {
+        "sodium": 3680
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-d38e11f6",
+      "name": "無限クランキーチキンうま塩味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1160,
+      "proteinG": 54.8,
+      "fatG": 64.8,
+      "carbG": 89.6,
+      "saltG": 6.1,
+      "nutrients": {
+        "sodium": 2400
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-50817c1f",
+      "name": "クランキーチキンうま塩・ポテトセット",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 1232,
+      "proteinG": 34.2,
+      "fatG": 70.2,
+      "carbG": 116,
+      "saltG": 3.6,
+      "nutrients": {
+        "sodium": 1420
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-865999bc",
+      "name": "トマトケチャップ",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 20,
+      "proteinG": 0.3,
+      "fatG": 0,
+      "carbG": 4.6,
+      "saltG": 0.6,
+      "nutrients": {
+        "sodium": 236
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-e6a925a3",
+      "name": "クランキーチキン辛旨味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 286,
+      "proteinG": 14.4,
+      "fatG": 16.7,
+      "carbG": 19.5,
+      "saltG": 2.3,
+      "nutrients": {
+        "sodium": 920
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-7caedf4e",
+      "name": "クランキーチキンうま塩味",
+      "series": "ホットスナック",
+      "kind": "food",
+      "kcal": 290,
+      "proteinG": 13.7,
+      "fatG": 16.2,
+      "carbG": 22.4,
+      "saltG": 1.5,
+      "nutrients": {
+        "sodium": 600
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%83%9B%E3%83%83%E3%83%88%E3%82%B9%E3%83%8A%E3%83%83%E3%82%AF"
+    },
+    {
+      "id": "ministop-jp-f906497b",
+      "name": "ハロハロ 果実氷温州みかん",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 200,
+      "proteinG": 2.9,
+      "fatG": 4.9,
+      "carbG": 36,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 65
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-144e0be4",
+      "name": "香る洋梨パフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 206,
+      "proteinG": 2.9,
+      "fatG": 4.5,
+      "carbG": 38.4,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 59
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-9c704b2d",
+      "name": "得盛洋梨パフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 317,
+      "proteinG": 2.9,
+      "fatG": 4.4,
+      "carbG": 66.5,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 73
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-3cc5140b",
+      "name": "得盛白桃パフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 296,
+      "proteinG": 3.6,
+      "fatG": 4.7,
+      "carbG": 59.9,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 62
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-d0c043df",
+      "name": "完熟白桃パフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 183,
+      "proteinG": 3.2,
+      "fatG": 4.2,
+      "carbG": 33.1,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 56
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-449f7383",
+      "name": "ハロハロ パチパチシャインマスカット",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 271,
+      "proteinG": 2.5,
+      "fatG": 5.3,
+      "carbG": 53.2,
+      "saltG": 0.3,
+      "nutrients": {
+        "sodium": 110
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-6375540d",
+      "name": "ハロハロ 果実氷ゴールデンキウイ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 193,
+      "proteinG": 3.4,
+      "fatG": 3.1,
+      "carbG": 37.9,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 54
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-b011375e",
+      "name": "プリン3倍！パフェ（2026年夏）",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 717,
+      "proteinG": 13.9,
+      "fatG": 40.4,
+      "carbG": 74.5,
+      "saltG": 0.7,
+      "nutrients": {
+        "sodium": 270
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-df903add",
+      "name": "得盛プリンパフェ（2026年夏）",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 504,
+      "proteinG": 10.7,
+      "fatG": 27.8,
+      "carbG": 52.7,
+      "saltG": 0.5,
+      "nutrients": {
+        "sodium": 210
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-4a8dc1ea",
+      "name": "なめらかプリンパフェ -ロレーヌ岩塩使用-",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 308,
+      "proteinG": 6.5,
+      "fatG": 16.4,
+      "carbG": 33.7,
+      "saltG": 0.4,
+      "nutrients": {
+        "sodium": 140
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-34918984",
+      "name": "ハロハロ パチパチコーラ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 278,
+      "proteinG": 2.6,
+      "fatG": 4.9,
+      "carbG": 55.8,
+      "saltG": 0.3,
+      "nutrients": {
+        "sodium": 100
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-a4d9f1ee",
+      "name": "ハロハロ 果実氷ダブルメロン",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 174,
+      "proteinG": 3.4,
+      "fatG": 4.7,
+      "carbG": 29.5,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 83
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-b1d747a3",
+      "name": "ハロハロ 果実氷練乳いちご",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 174,
+      "proteinG": 3,
+      "fatG": 4.5,
+      "carbG": 30.4,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 48
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-f33231ac",
+      "name": "ハロハロ パチパチラムネ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 264,
+      "proteinG": 2.7,
+      "fatG": 3.9,
+      "carbG": 54.6,
+      "saltG": 0.3,
+      "nutrients": {
+        "sodium": 100
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-84362d02",
+      "name": "得盛マンゴーパフェ　※近畿・四国・九州エリア",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 275,
+      "proteinG": 3.7,
+      "fatG": 2.8,
+      "carbG": 59,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 49
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-c23950f2",
+      "name": "得盛マンゴーパフェ　※東北・関東・東海エリア",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 275,
+      "proteinG": 3.7,
+      "fatG": 2.8,
+      "carbG": 59,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 49
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-82c113fb",
+      "name": "完熟アップルマンゴーパフェ　※近畿・四国・九州エリア",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 174,
+      "proteinG": 3.1,
+      "fatG": 2.2,
+      "carbG": 35.5,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 49
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-465ba676",
+      "name": "完熟アップルマンゴーパフェ　※東北・関東・東海エリア",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 174,
+      "proteinG": 3.1,
+      "fatG": 2.2,
+      "carbG": 35.5,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 49
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-85037db6",
+      "name": "得盛ブルーベリーヨーグルトパフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 218,
+      "proteinG": 5.8,
+      "fatG": 6.4,
+      "carbG": 34.3,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 87
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-e9996446",
+      "name": "ブルーベリーヨーグルトパフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 204,
+      "proteinG": 5.7,
+      "fatG": 6.4,
+      "carbG": 30.9,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 87
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-f84ecd07",
+      "name": "得盛いちごパフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 246,
+      "proteinG": 4.1,
+      "fatG": 5.1,
+      "carbG": 45.9,
+      "saltG": 0.2,
+      "nutrients": {
+        "sodium": 68
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-746e3cf2",
+      "name": "紅ほっぺいちごのパフェ",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 175,
+      "proteinG": 3.4,
+      "fatG": 4.6,
+      "carbG": 30,
+      "saltG": 0.1,
+      "nutrients": {
+        "sodium": 55
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-fcc73042",
+      "name": "ミニストッピング ダブルチョコソース",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 27,
+      "proteinG": 0.2,
+      "fatG": 1.4,
+      "carbG": 3.3,
+      "saltG": 0.01,
+      "nutrients": {
+        "sodium": 5
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    },
+    {
+      "id": "ministop-jp-0d7d3e75",
+      "name": "ミニストッピング カラーシュガー",
+      "series": "コールドスイーツ",
+      "kind": "food",
+      "kcal": 10,
+      "proteinG": 0,
+      "fatG": 0,
+      "carbG": 2,
+      "saltG": 0,
+      "nutrients": {
+        "sodium": 0.1
+      },
+      "sourceUrl": "https://www.ministop.co.jp/syohin/nutrition/results.html?search_category%5B%5D=%E3%82%B3%E3%83%BC%E3%83%AB%E3%83%89%E3%82%B9%E3%82%A4%E3%83%BC%E3%83%84"
+    }
+  ]
+}

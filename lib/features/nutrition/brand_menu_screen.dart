@@ -74,7 +74,7 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
         subtitle: [
           '${menu.length} 款',
           '官方資料',
-          if (record?.checkedAt case final at?) '查證 ${formatDate(at)}',
+          if (record?.checkedAt case final at?) '更新 ${formatDate(at)}',
         ].join(' · '),
       ),
       footer: widget.footer(),

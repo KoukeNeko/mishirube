@@ -1,0 +1,294 @@
+{
+  "brand": "Mr.Wish",
+  "brandAliases": [
+    "Mr. Wish"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "mrwish-4c1f9d4c",
+      "name": "五窨冰萃柳橙綠",
+      "series": "鮮．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 275,
+          "sugarG": 60,
+          "caffeineMg": 42
+        }
+      ]
+    },
+    {
+      "id": "mrwish-0fc4c210",
+      "name": "招牌水果茶",
+      "series": "鮮．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 345,
+          "sugarG": 77,
+          "caffeineMg": 124
+        }
+      ]
+    },
+    {
+      "id": "mrwish-13bb498d",
+      "name": "柳橙綠茶",
+      "series": "鮮．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 151,
+          "sugarG": 34,
+          "caffeineMg": 203
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 274,
+          "sugarG": 62,
+          "caffeineMg": 271
+        }
+      ]
+    },
+    {
+      "id": "mrwish-16fa633c",
+      "name": "葡萄果茶",
+      "series": "鮮．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 365,
+          "sugarG": 54,
+          "caffeineMg": 203
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 548,
+          "sugarG": 86,
+          "caffeineMg": 271
+        }
+      ]
+    },
+    {
+      "id": "mrwish-2dee8465",
+      "name": "蜜桃果粒茶",
+      "series": "鮮．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%85%AC%E9%A4%A8%E6%B0%B4%E6%BA%90%E5%BA%97/YtBQQhl6Wm2Qghal_F7KvQ",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 272,
+          "sugarG": 59,
+          "caffeineMg": 113
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 483,
+          "sugarG": 106,
+          "caffeineMg": 158
+        }
+      ]
+    },
+    {
+      "id": "mrwish-9b7bc136",
+      "name": "香蘋紅茶",
+      "series": "北歐日曬．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 192,
+          "sugarG": 44,
+          "caffeineMg": 45
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 291,
+          "sugarG": 66,
+          "caffeineMg": 68
+        }
+      ]
+    },
+    {
+      "id": "mrwish-3c8691bb",
+      "name": "蜜桃紅茶",
+      "series": "北歐日曬．果茶",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 184,
+          "sugarG": 43,
+          "caffeineMg": 45
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 275,
+          "sugarG": 65,
+          "caffeineMg": 68
+        }
+      ]
+    },
+    {
+      "id": "mrwish-94be559c",
+      "name": "荔枝小焙烏龍",
+      "series": "荔枝飲品",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 324,
+          "sugarG": 79,
+          "caffeineMg": 160
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 555,
+          "sugarG": 135,
+          "caffeineMg": 260
+        }
+      ]
+    },
+    {
+      "id": "mrwish-639febf9",
+      "name": "荔枝橙橙",
+      "series": "荔枝飲品",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 252,
+          "sugarG": 60,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "mrwish-7d6724cc",
+      "name": "荔枝香檸啵啵",
+      "series": "荔枝飲品",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 420,
+          "sugarG": 100,
+          "caffeineMg": 135.6
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 702,
+          "sugarG": 165,
+          "caffeineMg": 220.4
+        }
+      ]
+    },
+    {
+      "id": "mrwish-ae5c222f",
+      "name": "可可鮮奶",
+      "series": "酪農．鮮乳",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E9%AE%AE%E6%9E%9C%E8%8C%B6%E7%8E%A9%E5%AE%B6%E9%AB%98%E9%9B%84%E8%A3%95%E8%AA%A0%E5%BA%97/IpZtBFxRWK2M-o1ml6q7rg",
+      "sizes": [
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 434,
+          "sugarG": 46,
+          "caffeineMg": 11
+        },
+        {
+          "name": "瓶裝約960ml・冷",
+          "kcal": 663,
+          "sugarG": 77,
+          "caffeineMg": 17
+        }
+      ]
+    },
+    {
+      "id": "mrwish-bcebca82",
+      "name": "楊枝甘露",
+      "series": "夏遇愛文",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%8F%B0%E5%8C%97%E5%8C%97%E9%86%AB%E5%BA%97/hXnVhH_lWcekPXJE74pNcQ",
+      "sizes": [
+        {
+          "name": "M 500ml・冷",
+          "millilitres": 500,
+          "kcal": 450,
+          "sugarG": 54,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 670,
+          "sugarG": 76,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "mrwish-702fdaf5",
+      "name": "愛文芒果優格冰沙",
+      "series": "夏遇愛文",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%8F%B0%E5%8C%97%E5%8C%97%E9%86%AB%E5%BA%97/hXnVhH_lWcekPXJE74pNcQ",
+      "sizes": [
+        {
+          "name": "M 500ml・冷",
+          "millilitres": 500,
+          "kcal": 247,
+          "sugarG": 37,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 339,
+          "sugarG": 51,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "mrwish-c6e15aa2",
+      "name": "芒果厚奶",
+      "series": "夏遇愛文",
+      "sourceUrl": "https://www.ubereats.com/tw/store/mrwish-%E5%B8%8C%E6%9C%9B%E5%A5%BD%E8%8C%B6-%E5%8F%B0%E5%8C%97%E5%8C%97%E9%86%AB%E5%BA%97/hXnVhH_lWcekPXJE74pNcQ",
+      "sizes": [
+        {
+          "name": "M 500ml・冷",
+          "millilitres": 500,
+          "kcal": 359,
+          "sugarG": 50,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L 700ml・冷",
+          "millilitres": 700,
+          "kcal": 543,
+          "sugarG": 76,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

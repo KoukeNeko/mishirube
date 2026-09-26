@@ -511,17 +511,21 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// The chains whose menus ship with the app: one row each, however long
   /// the menu, so a chain never takes over the list.
   List<Widget> _brands(AppStore store) => [
-    if (store.catalogues case final catalogues when catalogues.isNotEmpty) ...[
-      Gutter(child: const SectionLabel('連鎖品牌')),
-      for (final catalogue in catalogues)
+    // By country: the same chain sells different things in each.
+    for (final country in {
+      for (final catalogue in store.catalogues) catalogue.country,
+    }) ...[
+      Gutter(child: SectionLabel(countryName(country))),
+      for (final catalogue in store.catalogues.where(
+        (catalogue) => catalogue.country == country,
+      ))
         Gutter(
           child: NavCard(
             title: catalogue.label,
             subtitle: [
-              '${catalogue.products} 款',
-              '官方資料',
-              if (catalogue.checkedAt case final at?) '查證 ${formatDate(at)}',
-            ].join(' · '),
+              '${catalogue.products} 款 · 官方資料',
+              if (catalogue.checkedAt case final at?) '更新 ${formatDate(at)}',
+            ].join('\n'),
             onTap: () => _openBrand(catalogue.brand),
           ),
         ),

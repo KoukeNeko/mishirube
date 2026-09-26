@@ -1,0 +1,177 @@
+{
+  "brand": "龜記",
+  "brandAliases": [
+    "龜記茗品"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "guiji-15c1d23b",
+      "name": "極品紅茶",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 207,
+          "sugarG": 46,
+          "caffeineMg": 200
+        },
+        {
+          "name": "熱",
+          "kcal": 174,
+          "sugarG": 38,
+          "caffeineMg": 217
+        }
+      ]
+    },
+    {
+      "id": "guiji-4c0095e8",
+      "name": "翡翠綠茶",
+      "series": "原茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 205,
+          "sugarG": 46,
+          "caffeineMg": 177
+        },
+        {
+          "name": "熱",
+          "kcal": 171,
+          "sugarG": 38,
+          "caffeineMg": 192
+        }
+      ]
+    },
+    {
+      "id": "guiji-a95904cc",
+      "name": "紅柚翡翠",
+      "series": "果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 285,
+          "sugarG": 63,
+          "caffeineMg": 126
+        }
+      ]
+    },
+    {
+      "id": "guiji-223ce514",
+      "name": "百香紅茶",
+      "series": "果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 339,
+          "sugarG": 69,
+          "caffeineMg": 167
+        }
+      ]
+    },
+    {
+      "id": "guiji-f8424c56",
+      "name": "百香綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 337,
+          "sugarG": 69,
+          "caffeineMg": 148
+        }
+      ]
+    },
+    {
+      "id": "guiji-026582b3",
+      "name": "茶王奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 487,
+          "sugarG": 47,
+          "caffeineMg": 107
+        },
+        {
+          "name": "熱",
+          "kcal": 496,
+          "sugarG": 47,
+          "caffeineMg": 194
+        }
+      ]
+    },
+    {
+      "id": "guiji-5e161c7f",
+      "name": "極品奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 484,
+          "sugarG": 47,
+          "caffeineMg": 183
+        },
+        {
+          "name": "熱",
+          "kcal": 490,
+          "sugarG": 47,
+          "caffeineMg": 333
+        }
+      ]
+    },
+    {
+      "id": "guiji-76f076cf",
+      "name": "巧克鮮乳茶",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 341,
+          "sugarG": 52,
+          "caffeineMg": 135
+        },
+        {
+          "name": "熱",
+          "kcal": 361,
+          "sugarG": 53,
+          "caffeineMg": 135
+        }
+      ]
+    },
+    {
+      "id": "guiji-a01b8eef",
+      "name": "碎銀普洱鮮乳",
+      "series": "鮮奶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x73j/gui-ji-tai-bei-xin-yi-dian",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 304,
+          "sugarG": 53,
+          "caffeineMg": 138
+        },
+        {
+          "name": "熱",
+          "kcal": 273,
+          "sugarG": 45,
+          "caffeineMg": 220
+        }
+      ]
+    }
+  ]
+}

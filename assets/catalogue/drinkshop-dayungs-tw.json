@@ -1,0 +1,1006 @@
+{
+  "brand": "大苑子",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "dayungs-5ad36373",
+      "name": "黑葉荔枝葡萄雪沙",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 218,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "dayungs-228f763b",
+      "name": "黑葉荔枝冰茶",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 227,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "dayungs-c3770e79",
+      "name": "百變火龍冰沙",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 364,
+          "sugarG": 77
+        }
+      ]
+    },
+    {
+      "id": "dayungs-73a85aac",
+      "name": "火龍果翡翠",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 248,
+          "sugarG": 53
+        }
+      ]
+    },
+    {
+      "id": "dayungs-03981347",
+      "name": "甜橙火龍果",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 265,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "dayungs-59f0e9be",
+      "name": "愛文芒果冰沙",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 287,
+          "sugarG": 59
+        },
+        {
+          "name": "L",
+          "kcal": 393,
+          "sugarG": 81
+        }
+      ]
+    },
+    {
+      "id": "dayungs-847c7b4b",
+      "name": "愛文翡翠",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 290,
+          "sugarG": 65
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 386,
+          "sugarG": 87
+        }
+      ]
+    },
+    {
+      "id": "dayungs-ab8180bf",
+      "name": "巨峰葡萄芭樂",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 298,
+          "sugarG": 65
+        }
+      ]
+    },
+    {
+      "id": "dayungs-fc0bccdb",
+      "name": "巨峰葡萄冰茶",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 240,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "dayungs-9ae347f9",
+      "name": "巨峰葡萄雪沙",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 344,
+          "sugarG": 79
+        }
+      ]
+    },
+    {
+      "id": "dayungs-33a9d932",
+      "name": "大苑子水果茶",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 317,
+          "sugarG": 70
+        }
+      ]
+    },
+    {
+      "id": "dayungs-c893bc07",
+      "name": "春熙柳丁翡翠",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 281,
+          "sugarG": 63
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 412,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "dayungs-19323412",
+      "name": "台灣檸檬春烏龍",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 254,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "dayungs-17f97c7c",
+      "name": "翡翠檸檬",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 329,
+          "sugarG": 68
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 474,
+          "sugarG": 98
+        }
+      ]
+    },
+    {
+      "id": "dayungs-c3f0bec4",
+      "name": "埔里百香果綠",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 260,
+          "sugarG": 55
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 372,
+          "sugarG": 78
+        }
+      ]
+    },
+    {
+      "id": "dayungs-c86dbd8b",
+      "name": "鮮榨葡萄柚綠",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 288,
+          "sugarG": 64
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 402,
+          "sugarG": 90
+        }
+      ]
+    },
+    {
+      "id": "dayungs-1131b4b2",
+      "name": "羽衣甘藍5蔬果汁",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 97,
+          "sugarG": 20
+        }
+      ]
+    },
+    {
+      "id": "dayungs-9b90367d",
+      "name": "天天5蔬果汁",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 136,
+          "sugarG": 26
+        }
+      ]
+    },
+    {
+      "id": "dayungs-b770c550",
+      "name": "芭樂甜橙",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 268,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "dayungs-9da54c1f",
+      "name": "芭樂甘草",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 205,
+          "sugarG": 42
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 328,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "dayungs-2a624ed9",
+      "name": "芭樂檸檬",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 271,
+          "sugarG": 58
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 395,
+          "sugarG": 84
+        }
+      ]
+    },
+    {
+      "id": "dayungs-7c5db9c8",
+      "name": "芭樂梅",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 221,
+          "sugarG": 44
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 356,
+          "sugarG": 72
+        }
+      ]
+    },
+    {
+      "id": "dayungs-1aa1a5fd",
+      "name": "番茄梅",
+      "series": "果茶/鮮榨",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 254,
+          "sugarG": 54
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 376,
+          "sugarG": 81
+        }
+      ]
+    },
+    {
+      "id": "dayungs-7e08149b",
+      "name": "許慶良珍珠鮮奶茶/鮮奶綠",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 436,
+          "sugarG": 55
+        },
+        {
+          "name": "L",
+          "kcal": 603,
+          "sugarG": 72
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 885,
+          "sugarG": 102
+        }
+      ]
+    },
+    {
+      "id": "dayungs-ad10454f",
+      "name": "許慶良鮮奶茶/鮮奶綠",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 303,
+          "sugarG": 53
+        },
+        {
+          "name": "L",
+          "kcal": 409,
+          "sugarG": 72
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 562,
+          "sugarG": 96
+        }
+      ]
+    },
+    {
+      "id": "dayungs-f5ac8203",
+      "name": "許慶良鮮奶冬瓜",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 208,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 287,
+          "sugarG": 49
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 404,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "dayungs-8a915e6f",
+      "name": "許慶良觀音拿鐵",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 303,
+          "sugarG": 53
+        },
+        {
+          "name": "L",
+          "kcal": 409,
+          "sugarG": 72
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 562,
+          "sugarG": 96
+        }
+      ]
+    },
+    {
+      "id": "dayungs-5411adeb",
+      "name": "許慶良奶酪鮮奶茶",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 485,
+          "sugarG": 77
+        }
+      ]
+    },
+    {
+      "id": "dayungs-f5511ab6",
+      "name": "珍珠奶茶",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 512,
+          "sugarG": 52
+        },
+        {
+          "name": "L",
+          "kcal": 704,
+          "sugarG": 69
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 1020,
+          "sugarG": 98
+        }
+      ]
+    },
+    {
+      "id": "dayungs-57416085",
+      "name": "奶茶",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 405,
+          "sugarG": 50
+        },
+        {
+          "name": "L",
+          "kcal": 545,
+          "sugarG": 68
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 765,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "dayungs-b372f0e5",
+      "name": "纖活奶綠",
+      "series": "許慶良鮮乳/奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 405,
+          "sugarG": 50
+        },
+        {
+          "name": "L",
+          "kcal": 545,
+          "sugarG": 68
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 765,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "dayungs-840556a0",
+      "name": "能量小白桃",
+      "series": "Red Bull能量",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 203,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "dayungs-adb4b6c3",
+      "name": "能量小柳丁",
+      "series": "Red Bull能量",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 157,
+          "sugarG": 38
+        }
+      ]
+    },
+    {
+      "id": "dayungs-55bead52",
+      "name": "能量小葡丁",
+      "series": "Red Bull能量",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 212,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "dayungs-1fe0c8c1",
+      "name": "能量大巨峰",
+      "series": "Red Bull能量",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 210,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "dayungs-bbb357d3",
+      "name": "能量小巨峰",
+      "series": "Red Bull能量",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 203,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "dayungs-3451e955",
+      "name": "古城錫蘭紅茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 264,
+          "sugarG": 56
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 363,
+          "sugarG": 77
+        }
+      ]
+    },
+    {
+      "id": "dayungs-c51742a6",
+      "name": "文山青茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 154,
+          "sugarG": 35
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 245,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "dayungs-0266063e",
+      "name": "纖活綠茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 154,
+          "sugarG": 35
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 245,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "dayungs-39a71614",
+      "name": "百年仙草干茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 243,
+          "sugarG": 51
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 344,
+          "sugarG": 72
+        }
+      ]
+    },
+    {
+      "id": "dayungs-3d46e44e",
+      "name": "古早味冬瓜茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 233,
+          "sugarG": 55
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 350,
+          "sugarG": 82
+        }
+      ]
+    },
+    {
+      "id": "dayungs-2664a3d6",
+      "name": "蘋果醋冰茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 299,
+          "sugarG": 71
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 488,
+          "sugarG": 115
+        }
+      ]
+    },
+    {
+      "id": "dayungs-4b930885",
+      "name": "百年蜜仙草",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 250,
+          "sugarG": 53
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 419,
+          "sugarG": 89
+        }
+      ]
+    },
+    {
+      "id": "dayungs-47517706",
+      "name": "百香愛玉",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 229,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "dayungs-2e4145e1",
+      "name": "檸檬愛玉",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 208,
+          "sugarG": 47
+        }
+      ]
+    },
+    {
+      "id": "dayungs-4eb2e4d9",
+      "name": "冬瓜檸檬",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 242,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "dayungs-a62b0627",
+      "name": "冬瓜檸檬奇亞籽",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 201,
+          "sugarG": 38
+        }
+      ]
+    },
+    {
+      "id": "dayungs-f0cece11",
+      "name": "養樂多綠茶",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 273,
+          "sugarG": 57
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 436,
+          "sugarG": 93
+        }
+      ]
+    },
+    {
+      "id": "dayungs-3e55fc25",
+      "name": "蘋果多輕飲",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 278,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "dayungs-799bba79",
+      "name": "蜂蜜檸檬",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 313,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "dayungs-885a6b57",
+      "name": "蜂蜜檸檬奇亞籽",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 282,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "dayungs-67f9a4df",
+      "name": "柚美粒",
+      "series": "好茶/特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 224,
+          "sugarG": 49
+        },
+        {
+          "name": "分享瓶",
+          "kcal": 357,
+          "sugarG": 79
+        }
+      ]
+    },
+    {
+      "id": "dayungs-f6e82014",
+      "name": "窯燒桂圓紅棗茶",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 254,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "dayungs-80dc3ccd",
+      "name": "窯燒桂圓蜜朵朵",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 192,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "dayungs-a3023e56",
+      "name": "許慶良窯燒桂圓鮮奶茶",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 360,
+          "sugarG": 64
+        }
+      ]
+    },
+    {
+      "id": "dayungs-1d6a67be",
+      "name": "許慶良紫米紅豆鮮奶",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 396,
+          "sugarG": 47
+        },
+        {
+          "name": "L",
+          "kcal": 457,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "dayungs-dc39fe77",
+      "name": "紫米紅豆奶茶",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 411,
+          "sugarG": 41
+        },
+        {
+          "name": "L",
+          "kcal": 505,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "dayungs-8a59d499",
+      "name": "許慶良芋頭鮮奶",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 302,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 405,
+          "sugarG": 44
+        }
+      ]
+    },
+    {
+      "id": "dayungs-07c1383f",
+      "name": "芋頭奶綠",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 357,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 493,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "dayungs-e2597688",
+      "name": "冰釀蜜朵朵",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 199,
+          "sugarG": 52,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "dayungs-553b0f2a",
+      "name": "錫蘭紅茶蜜朵朵",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 210,
+          "sugarG": 52
+        }
+      ]
+    },
+    {
+      "id": "dayungs-7b2a003d",
+      "name": "鮮榨蘋果蜜朵朵",
+      "series": "暖冬/銀耳",
+      "sourceUrl": "https://dailydietitian.com.tw/%E5%A4%A7%E8%8B%91%E5%AD%90%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%92%96%E5%95%A1%E5%9B%A0-%E5%83%B9%E7%9B%AE%E8%A1%A8/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 251,
+          "sugarG": 63,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

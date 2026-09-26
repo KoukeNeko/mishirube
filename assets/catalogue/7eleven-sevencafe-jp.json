@@ -1,0 +1,121 @@
+{
+  "brand": "セブン‐イレブン",
+  "brandAliases": [
+    "7-ELEVEN",
+    "7-11",
+    "セブンイレブン",
+    "Seven-Eleven"
+  ],
+  "market": "jp",
+  "checkedAt": "2026-09-26",
+  "valueType": "declared",
+  "series": "セブンカフェ",
+  "sourceUrl": "https://www.sej.co.jp/products/a/sevencafe/",
+  "note": "商品ページ掲載値、1杯あたり。杯の容量は掲載なし。",
+  "drinks": [
+    {
+      "id": "7eleven-jp-sevencafe-1537c7f8",
+      "name": "セブンカフェ　ホットコーヒー",
+      "sizes": [
+        {
+          "name": "R",
+          "kcal": 6,
+          "proteinG": 0.4,
+          "fatG": 0,
+          "carbG": 1.3,
+          "netCarbG": 1.1,
+          "fibreG": 0.2,
+          "saltG": 0.01
+        },
+        {
+          "name": "L",
+          "kcal": 10,
+          "proteinG": 0.6,
+          "fatG": 0.1,
+          "carbG": 1.9,
+          "netCarbG": 1.6,
+          "fibreG": 0.4,
+          "saltG": 0.01
+        }
+      ]
+    },
+    {
+      "id": "7eleven-jp-sevencafe-57fe91f1",
+      "name": "セブンカフェ　アイスコーヒー",
+      "sizes": [
+        {
+          "name": "R",
+          "kcal": 7,
+          "proteinG": 0.4,
+          "fatG": 0.1,
+          "carbG": 1.3,
+          "netCarbG": 1,
+          "fibreG": 0.2,
+          "saltG": 0.01
+        },
+        {
+          "name": "L",
+          "kcal": 11,
+          "proteinG": 0.6,
+          "fatG": 0.1,
+          "carbG": 2.2,
+          "netCarbG": 1.8,
+          "fibreG": 0.4,
+          "saltG": 0.01
+        }
+      ]
+    },
+    {
+      "id": "7eleven-jp-sevencafe-d574599d",
+      "name": "７カフェ　ホットカフェラテ",
+      "sizes": [
+        {
+          "name": "R",
+          "kcal": 87,
+          "proteinG": 4.6,
+          "fatG": 4.5,
+          "carbG": 7.3,
+          "netCarbG": 7.1,
+          "fibreG": 0.2,
+          "saltG": 0.14
+        },
+        {
+          "name": "L",
+          "kcal": 133,
+          "proteinG": 6.9,
+          "fatG": 6.8,
+          "carbG": 11.1,
+          "netCarbG": 10.8,
+          "fibreG": 0.3,
+          "saltG": 0.21
+        }
+      ]
+    },
+    {
+      "id": "7eleven-jp-sevencafe-2181b03b",
+      "name": "７カフェ　アイスカフェラテ",
+      "sizes": [
+        {
+          "name": "R",
+          "kcal": 76,
+          "proteinG": 4,
+          "fatG": 3.9,
+          "carbG": 6.5,
+          "netCarbG": 6.4,
+          "fibreG": 0.1,
+          "saltG": 0.12
+        },
+        {
+          "name": "L",
+          "kcal": 117,
+          "proteinG": 6.1,
+          "fatG": 5.9,
+          "carbG": 10,
+          "netCarbG": 9.7,
+          "fibreG": 0.3,
+          "saltG": 0.19
+        }
+      ]
+    }
+  ]
+}

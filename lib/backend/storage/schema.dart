@@ -729,6 +729,10 @@ final List<String> _migrations = [
   -- by commas: empty for none declared, null for nobody having said.
   ALTER TABLE foods ADD COLUMN allergens TEXT;
   ''',
+  '''
+  -- The number under a packaged food's barcode; null when not known.
+  ALTER TABLE foods ADD COLUMN barcode TEXT;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

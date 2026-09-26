@@ -1,0 +1,542 @@
+{
+  "brand": "茶湯會",
+  "brandAliases": [
+    "TP TEA"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "tp-tea-593b25c8",
+      "name": "素妍紅茶",
+      "series": "紅茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "kcal": 108,
+      "sugarG": 25,
+      "caffeineMg": 142
+    },
+    {
+      "id": "tp-tea-3492dab2",
+      "name": "蔗香紅茶(錫蘭)",
+      "series": "紅茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 193,
+          "sugarG": 45,
+          "caffeineMg": 190
+        },
+        {
+          "name": "熱",
+          "kcal": 139,
+          "sugarG": 32,
+          "caffeineMg": 172
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-c4a1c8d9",
+      "name": "功夫紅茶",
+      "series": "紅茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 195,
+          "sugarG": 45,
+          "caffeineMg": 187
+        },
+        {
+          "name": "熱",
+          "kcal": 139,
+          "sugarG": 32,
+          "caffeineMg": 160
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-7361c01b",
+      "name": "珍珠紅茶",
+      "series": "紅茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 361,
+          "sugarG": 43,
+          "caffeineMg": 206
+        },
+        {
+          "name": "熱",
+          "kcal": 342,
+          "sugarG": 45,
+          "caffeineMg": 122
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-51e6c75c",
+      "name": "蔗香奶茶(錫蘭)",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 615,
+          "sugarG": 51,
+          "caffeineMg": 307
+        },
+        {
+          "name": "熱",
+          "kcal": 579,
+          "sugarG": 43,
+          "caffeineMg": 269
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-30295ff8",
+      "name": "珍珠奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 793,
+          "sugarG": 43,
+          "caffeineMg": 268
+        },
+        {
+          "name": "熱",
+          "kcal": 645,
+          "sugarG": 35,
+          "caffeineMg": 224
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-b7159312",
+      "name": "布丁奶茶",
+      "series": "奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 686,
+          "sugarG": 49,
+          "caffeineMg": 268
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-50b9e8b3",
+      "name": "豆漿紅茶",
+      "series": "豆漿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 308,
+          "sugarG": 47,
+          "caffeineMg": 134
+        },
+        {
+          "name": "熱",
+          "kcal": 260,
+          "sugarG": 39,
+          "caffeineMg": 121
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-f1b10e36",
+      "name": "豆漿奶茶",
+      "series": "豆漿",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 535,
+          "sugarG": 43,
+          "caffeineMg": 160
+        },
+        {
+          "name": "熱",
+          "kcal": 477,
+          "sugarG": 32,
+          "caffeineMg": 175
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-e6145290",
+      "name": "錫蘭烏龍檸檬紅茶",
+      "series": "調和茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 333,
+          "sugarG": 73,
+          "caffeineMg": 184
+        },
+        {
+          "name": "熱",
+          "kcal": 208,
+          "sugarG": 45,
+          "caffeineMg": 71
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-bd96c1ba",
+      "name": "紅茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 294,
+          "sugarG": 49,
+          "caffeineMg": 224
+        },
+        {
+          "name": "熱",
+          "kcal": 309,
+          "sugarG": 46,
+          "caffeineMg": 170
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-26cd0edd",
+      "name": "紅茶珍珠拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 484,
+          "sugarG": 55,
+          "caffeineMg": 188
+        },
+        {
+          "name": "熱",
+          "kcal": 394,
+          "sugarG": 37,
+          "caffeineMg": 125
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-c8fb9b0c",
+      "name": "紅豆拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 523,
+          "sugarG": 48,
+          "caffeineMg": 157
+        },
+        {
+          "name": "熱",
+          "kcal": 344,
+          "sugarG": 43,
+          "caffeineMg": 134
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-7b6f9d66",
+      "name": "珍珠紅豆拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 746,
+          "sugarG": 59,
+          "caffeineMg": 127
+        },
+        {
+          "name": "熱",
+          "kcal": 483,
+          "sugarG": 46,
+          "caffeineMg": 107
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-0288c96d",
+      "name": "功夫茶拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 295,
+          "sugarG": 49,
+          "caffeineMg": 215
+        },
+        {
+          "name": "熱",
+          "kcal": 311,
+          "sugarG": 46,
+          "caffeineMg": 157
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-8d7635e8",
+      "name": "功夫珍珠拿鐵",
+      "series": "拿鐵",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 467,
+          "sugarG": 55,
+          "caffeineMg": 156
+        },
+        {
+          "name": "熱",
+          "kcal": 396,
+          "sugarG": 38,
+          "caffeineMg": 115
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-96bd3d44",
+      "name": "蜜香紅茶",
+      "series": "蜜香",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 193,
+          "sugarG": 45,
+          "caffeineMg": 138
+        },
+        {
+          "name": "熱",
+          "kcal": 139,
+          "sugarG": 32,
+          "caffeineMg": 98
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-357fe353",
+      "name": "蜜香珍珠紅茶",
+      "series": "蜜香",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 342,
+          "sugarG": 43,
+          "caffeineMg": 90
+        },
+        {
+          "name": "熱",
+          "kcal": 326,
+          "sugarG": 45,
+          "caffeineMg": 77
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-96cf6392",
+      "name": "蜜香奶茶",
+      "series": "蜜香",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 560,
+          "sugarG": 51,
+          "caffeineMg": 172
+        },
+        {
+          "name": "熱",
+          "kcal": 524,
+          "sugarG": 42,
+          "caffeineMg": 149
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-39c5483b",
+      "name": "蜜香珍珠奶茶",
+      "series": "蜜香",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%9C%80%E6%96%B0%E8%8C%B6%E6%B9%AF%E6%9C%83%E8%8F%9C%E5%96%AE%E5%83%B9%E6%A0%BC-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F/",
+      "sizes": [
+        {
+          "name": "冷",
+          "kcal": 678,
+          "sugarG": 42,
+          "caffeineMg": 144
+        },
+        {
+          "name": "熱",
+          "kcal": 528,
+          "sugarG": 34,
+          "caffeineMg": 120
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-6b944390",
+      "name": "愛文芒果綠",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 354,
+          "sugarG": 70,
+          "caffeineMg": 113
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-6eeb9407",
+      "name": "果果四季春",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 458,
+          "sugarG": 84,
+          "caffeineMg": 88
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-402f0251",
+      "name": "蜜柑鐵觀音",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 302,
+          "sugarG": 66,
+          "caffeineMg": 122
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-f82313aa",
+      "name": "蜜柑愛玉鐵觀音",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 379,
+          "sugarG": 81,
+          "caffeineMg": 98
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-ce15a4a4",
+      "name": "蜜柑寒天鐵觀音",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 413,
+          "sugarG": 85,
+          "caffeineMg": 112
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-94d87740",
+      "name": "蜜柑咖啡凍鐵觀音",
+      "series": "季節限定",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 339,
+          "sugarG": 75,
+          "caffeineMg": 98
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-2ec8808e",
+      "name": "黃金蕎麥",
+      "series": "蕎麥",
+      "sourceUrl": "https://www.ubereats.com/tw-en/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 109,
+          "sugarG": 25,
+          "caffeineMg": 0
+        },
+        {
+          "name": "16oz・熱",
+          "kcal": 72,
+          "sugarG": 17,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-6e83e6fa",
+      "name": "蕎麥四季春",
+      "series": "蕎麥",
+      "sourceUrl": "https://www.ubereats.com/tw-en/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 109,
+          "sugarG": 25,
+          "caffeineMg": 31
+        },
+        {
+          "name": "16oz・熱",
+          "kcal": 78,
+          "sugarG": 18,
+          "caffeineMg": 26
+        }
+      ]
+    },
+    {
+      "id": "tp-tea-4ce11183",
+      "name": "金桂蕎麥",
+      "series": "蕎麥",
+      "sourceUrl": "https://www.ubereats.com/tw-en/store/%E8%8C%B6%E6%B9%AF%E6%9C%83tp-tea-%E9%B3%B3%E5%B1%B1%E9%9D%92%E5%B9%B4%E4%BA%8C%E5%BA%97/GrhoGCttRLOlc1karxsVSg",
+      "sizes": [
+        {
+          "name": "22oz・冷",
+          "kcal": 99,
+          "sugarG": 24,
+          "caffeineMg": 0
+        },
+        {
+          "name": "16oz・熱",
+          "kcal": 68,
+          "sugarG": 17,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

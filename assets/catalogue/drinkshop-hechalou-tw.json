@@ -1,0 +1,333 @@
+{
+  "brand": "鶴茶樓",
+  "brandAliases": [],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x97s/he-cha-lou-he-ding-hong-cha-shang-dian-da-an-tong-hua-dian",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "hechalou-444480e5",
+      "name": "鶴頂紅茶-順口",
+      "series": "私藏古法",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x97s/he-cha-lou-he-ding-hong-cha-shang-dian-da-an-tong-hua-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 129,
+          "sugarG": 30
+        },
+        {
+          "name": "L",
+          "kcal": 174,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "hechalou-2b56abf2",
+      "name": "綺夢紅茶",
+      "series": "私藏古法",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x97s/he-cha-lou-he-ding-hong-cha-shang-dian-da-an-tong-hua-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 129,
+          "sugarG": 30
+        },
+        {
+          "name": "L",
+          "kcal": 174,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "hechalou-f3829787",
+      "name": "舶來紅茶",
+      "series": "私藏古法",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/x97s/he-cha-lou-he-ding-hong-cha-shang-dian-da-an-tong-hua-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 129,
+          "sugarG": 30
+        },
+        {
+          "name": "L",
+          "kcal": 174,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "hechalou-65271aa9",
+      "name": "青檸蘭香綠茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 198,
+          "sugarG": 45
+        },
+        {
+          "name": "L・冷",
+          "kcal": 250,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "hechalou-452043e1",
+      "name": "蘋果鶴頂紅茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 210,
+          "sugarG": 47
+        },
+        {
+          "name": "L・冷",
+          "kcal": 282,
+          "sugarG": 64
+        }
+      ]
+    },
+    {
+      "id": "hechalou-d8e06b06",
+      "name": "荔枝鶴頂紅茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 203,
+          "sugarG": 42
+        },
+        {
+          "name": "L・冷",
+          "kcal": 271,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "hechalou-5728f187",
+      "name": "鶴氏姥姥水果茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 142,
+          "sugarG": 30
+        },
+        {
+          "name": "L・冷",
+          "kcal": 173,
+          "sugarG": 37
+        }
+      ]
+    },
+    {
+      "id": "hechalou-87dccd57",
+      "name": "蜜桃藝伎紅茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 240,
+          "sugarG": 46
+        },
+        {
+          "name": "L・冷",
+          "kcal": 259,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "hechalou-408c9389",
+      "name": "柳丁蘭香綠茶",
+      "series": "秘製鮮果茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/rgiv/he-cha-lou-he-ding-hong-cha-shang-dian-gao-xiong-rui-long-dian",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 233,
+          "sugarG": 53
+        },
+        {
+          "name": "L・冷",
+          "kcal": 295,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "hechalou-ffa8de20",
+      "name": "鶴頂那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 211,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 290,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "hechalou-dd3f11b0",
+      "name": "舶來那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 211,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 290,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "hechalou-2558f831",
+      "name": "藝伎那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 211,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 290,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "hechalou-8231008d",
+      "name": "綺夢那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 211,
+          "sugarG": 36
+        },
+        {
+          "name": "L",
+          "kcal": 290,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "hechalou-c00b9e60",
+      "name": "綺夢珍珠那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 340,
+          "sugarG": 40
+        },
+        {
+          "name": "L",
+          "kcal": 490,
+          "sugarG": 54
+        }
+      ]
+    },
+    {
+      "id": "hechalou-48c801b0",
+      "name": "神濃氏那堤",
+      "series": "鍋煮鮮奶茶",
+      "sourceUrl": "https://www.foodpanda.com.tw/restaurant/bsc7/he-cha-lou-tai-bei-nei-hu-dian",
+      "kcal": 176,
+      "sugarG": 36
+    },
+    {
+      "id": "hechalou-414c23c7",
+      "name": "883蕎麥茶王杏仁凍",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E9%B6%B4%E8%8C%B6%E6%A8%93-%E9%B6%B4%E9%A0%82%E7%B4%85%E8%8C%B6%E5%95%86%E5%BA%97-%E5%8F%B0%E5%8D%97%E6%96%B0%E5%B8%82%E5%BA%97/kfYyDFYOV0qbPgc5phmXMw",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 172,
+          "sugarG": 35,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 227,
+          "sugarG": 43,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hechalou-6c3723e6",
+      "name": "883蕎麥茶王那堤",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E9%B6%B4%E8%8C%B6%E6%A8%93-%E9%B6%B4%E9%A0%82%E7%B4%85%E8%8C%B6%E5%95%86%E5%BA%97-%E5%8F%B0%E5%8D%97%E6%96%B0%E5%B8%82%E5%BA%97/kfYyDFYOV0qbPgc5phmXMw",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 211,
+          "sugarG": 36,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 290,
+          "sugarG": 49,
+          "caffeineMg": 0
+        }
+      ]
+    },
+    {
+      "id": "hechalou-8536ff39",
+      "name": "883蕎麥茶王",
+      "series": "無咖啡因",
+      "sourceUrl": "https://www.ubereats.com/tw/store/%E9%B6%B4%E8%8C%B6%E6%A8%93-%E9%B6%B4%E9%A0%82%E7%B4%85%E8%8C%B6%E5%95%86%E5%BA%97-%E5%8F%B0%E5%8D%97%E6%96%B0%E5%B8%82%E5%BA%97/kfYyDFYOV0qbPgc5phmXMw",
+      "sizes": [
+        {
+          "name": "M・冷",
+          "kcal": 129,
+          "sugarG": 30,
+          "caffeineMg": 0
+        },
+        {
+          "name": "L・冷",
+          "kcal": 174,
+          "sugarG": 40,
+          "caffeineMg": 0
+        }
+      ]
+    }
+  ]
+}

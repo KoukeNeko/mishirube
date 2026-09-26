@@ -1,0 +1,1266 @@
+{
+  "brand": "迷客夏",
+  "brandAliases": [
+    "Milksha"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "milksha-a360f990",
+      "name": "蘭韻金萱",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 38,
+          "caffeineMg": 144
+        }
+      ]
+    },
+    {
+      "id": "milksha-3a626a95",
+      "name": "蘭韻金萱拿鐵",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 243,
+          "sugarG": 42,
+          "caffeineMg": 98
+        }
+      ]
+    },
+    {
+      "id": "milksha-4f3e6790",
+      "name": "慕斯蘭韻金萱",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 170,
+          "sugarG": 38,
+          "caffeineMg": 144
+        }
+      ]
+    },
+    {
+      "id": "milksha-4b0f7adb",
+      "name": "慕斯金萱拿鐵",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 282,
+          "sugarG": 51,
+          "caffeineMg": 105
+        }
+      ]
+    },
+    {
+      "id": "milksha-06bfa671",
+      "name": "海鹽芒果綠",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 279,
+          "sugarG": 63,
+          "caffeineMg": 104
+        }
+      ]
+    },
+    {
+      "id": "milksha-c0e385fe",
+      "name": "夏嶼果茶",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 263,
+          "sugarG": 59,
+          "caffeineMg": 76
+        }
+      ]
+    },
+    {
+      "id": "milksha-59b07ce9",
+      "name": "蜜桃烏龍",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 257,
+          "sugarG": 61,
+          "caffeineMg": 74
+        }
+      ]
+    },
+    {
+      "id": "milksha-551dd77c",
+      "name": "蜜桃茉莉",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 287,
+          "sugarG": 68,
+          "caffeineMg": 148
+        }
+      ]
+    },
+    {
+      "id": "milksha-13925286",
+      "name": "蔗杯紅柚凍飲",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 343,
+          "sugarG": 77,
+          "caffeineMg": 88
+        }
+      ]
+    },
+    {
+      "id": "milksha-0b7e1bf0",
+      "name": "荔荔茉莉",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 263,
+          "sugarG": 63,
+          "caffeineMg": 141
+        }
+      ]
+    },
+    {
+      "id": "milksha-59b972f7",
+      "name": "荔荔蜜桃椰果",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 284,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "milksha-12411173",
+      "name": "荔多鮮奶果昔",
+      "series": "季節限定",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 297,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "milksha-719cad8f",
+      "name": "輕纖蕎麥茶",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 114,
+          "sugarG": 26
+        }
+      ]
+    },
+    {
+      "id": "milksha-934f6085",
+      "name": "輕纖蕎麥拿鐵",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 198,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 254,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "milksha-5c40b973",
+      "name": "原鄉冬瓜茶",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 289,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "milksha-e4fcc11c",
+      "name": "焙香決明大麥",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 147,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-6d986c4b",
+      "name": "焙香大麥拿鐵",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 145,
+          "sugarG": 24
+        },
+        {
+          "name": "L",
+          "kcal": 203,
+          "sugarG": 32
+        }
+      ]
+    },
+    {
+      "id": "milksha-34285da5",
+      "name": "冬瓜檸檬",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 364,
+          "sugarG": 82
+        }
+      ]
+    },
+    {
+      "id": "milksha-1fa103d6",
+      "name": "冬瓜麥茶",
+      "series": "無咖啡因/穀物",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 206,
+          "sugarG": 47
+        }
+      ]
+    },
+    {
+      "id": "milksha-7a623058",
+      "name": "娜杯紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 218,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "milksha-71e208de",
+      "name": "奶霜紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 276,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "milksha-ade79bea",
+      "name": "伯爵紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 191,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 250,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "milksha-23d52e01",
+      "name": "大正紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 203,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 261,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "milksha-104c6d32",
+      "name": "琥珀烏龍拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 185,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 242,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "milksha-76e8d1d8",
+      "name": "茉香綠茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 186,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 243,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "milksha-56b22db9",
+      "name": "原片青茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 186,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 243,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "milksha-710416b8",
+      "name": "珍珠伯爵紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 324,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 435,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "milksha-af8e48d3",
+      "name": "珍珠大正紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 322,
+          "sugarG": 33
+        },
+        {
+          "name": "L",
+          "kcal": 433,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "milksha-f27152a3",
+      "name": "珍珠娜杯紅茶拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 323,
+          "sugarG": 33
+        },
+        {
+          "name": "L",
+          "kcal": 435,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "milksha-a835d2e7",
+      "name": "伯爵可可拿鐵",
+      "series": "鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 274,
+          "sugarG": 42,
+          "caffeineMg": 65
+        },
+        {
+          "name": "L",
+          "kcal": 368,
+          "sugarG": 56,
+          "caffeineMg": 82
+        }
+      ]
+    },
+    {
+      "id": "milksha-273f0530",
+      "name": "芋頭鮮奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 349,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 470,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "milksha-67618ca4",
+      "name": "珍珠鮮奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 362,
+          "sugarG": 20
+        },
+        {
+          "name": "L",
+          "kcal": 486,
+          "sugarG": 26
+        }
+      ]
+    },
+    {
+      "id": "milksha-0ee66575",
+      "name": "手炒黑糖鮮奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 338,
+          "sugarG": 42
+        },
+        {
+          "name": "L",
+          "kcal": 441,
+          "sugarG": 57
+        }
+      ]
+    },
+    {
+      "id": "milksha-aacfe657",
+      "name": "嫩仙草凍奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 307,
+          "sugarG": 41
+        },
+        {
+          "name": "L",
+          "kcal": 399,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "milksha-af9ea9f9",
+      "name": "玄米抹茶鮮奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 285,
+          "sugarG": 35
+        },
+        {
+          "name": "L",
+          "kcal": 393,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "milksha-87c4a963",
+      "name": "法芙娜可可鮮奶",
+      "series": "綠光牧場鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 355,
+          "sugarG": 45
+        },
+        {
+          "name": "L",
+          "kcal": 490,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "milksha-b3066571",
+      "name": "水之森玄米抹茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 144,
+          "sugarG": 30
+        }
+      ]
+    },
+    {
+      "id": "milksha-088deb57",
+      "name": "娜杯紅茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 176,
+          "sugarG": 39
+        }
+      ]
+    },
+    {
+      "id": "milksha-bdef7879",
+      "name": "英倫伯爵紅茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 225,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "milksha-021649ac",
+      "name": "大正醇香紅茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 221,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "milksha-c0723b34",
+      "name": "原片初露青茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 146,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-853e914a",
+      "name": "茉莉原淬綠茶",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 146,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-80a21bf6",
+      "name": "琥珀高峰烏龍",
+      "series": "原葉茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 144,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-e2130819",
+      "name": "熟釀青梅綠",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 201,
+          "sugarG": 47
+        }
+      ]
+    },
+    {
+      "id": "milksha-5fd3c34b",
+      "name": "熟釀青梅檸",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 255,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "milksha-b0ee0cb7",
+      "name": "白甘蔗青茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 255,
+          "sugarG": 60
+        }
+      ]
+    },
+    {
+      "id": "milksha-6f6ec50f",
+      "name": "冬瓜青茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 262,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "milksha-f4fc19af",
+      "name": "柳丁綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 297,
+          "sugarG": 66
+        }
+      ]
+    },
+    {
+      "id": "milksha-10b5c13c",
+      "name": "柳丁青茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 297,
+          "sugarG": 66
+        }
+      ]
+    },
+    {
+      "id": "milksha-ed159993",
+      "name": "青檸香茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 257,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "milksha-102d3aef",
+      "name": "蜂蜜檸檬晶凍",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 251,
+          "sugarG": 55
+        }
+      ]
+    },
+    {
+      "id": "milksha-dd8d1115",
+      "name": "香柚綠茶",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 329,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "milksha-453dadb6",
+      "name": "養樂多綠",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 302,
+          "sugarG": 63
+        }
+      ]
+    },
+    {
+      "id": "milksha-08d0a8a4",
+      "name": "冰萃柳丁",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 302,
+          "sugarG": 68
+        }
+      ]
+    },
+    {
+      "id": "milksha-41888cdc",
+      "name": "冰萃檸檬",
+      "series": "果茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 344,
+          "sugarG": 76
+        }
+      ]
+    },
+    {
+      "id": "milksha-b4f130d7",
+      "name": "黃金蕎麥拿鐵",
+      "series": "Milksha Plus鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 221,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 283,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "milksha-a42bce75",
+      "name": "朝露綠茶拿鐵",
+      "series": "Milksha Plus鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 201,
+          "sugarG": 37
+        },
+        {
+          "name": "L",
+          "kcal": 258,
+          "sugarG": 45
+        }
+      ]
+    },
+    {
+      "id": "milksha-9525e390",
+      "name": "果香烏龍拿鐵",
+      "series": "Milksha Plus鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 187,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 244,
+          "sugarG": 42
+        }
+      ]
+    },
+    {
+      "id": "milksha-bb41f3c4",
+      "name": "香緹紅茶拿鐵",
+      "series": "Milksha Plus鮮奶茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 217,
+          "sugarG": 40
+        },
+        {
+          "name": "L",
+          "kcal": 275,
+          "sugarG": 49
+        }
+      ]
+    },
+    {
+      "id": "milksha-4034dcb3",
+      "name": "珍珠朝露綠茶拿鐵",
+      "series": "Milksha Plus咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 321,
+          "sugarG": 33
+        },
+        {
+          "name": "L",
+          "kcal": 431,
+          "sugarG": 40
+        }
+      ]
+    },
+    {
+      "id": "milksha-a8445e56",
+      "name": "珍珠香緹紅茶拿鐵",
+      "series": "Milksha Plus咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 322,
+          "sugarG": 33
+        },
+        {
+          "name": "L",
+          "kcal": 433,
+          "sugarG": 43
+        }
+      ]
+    },
+    {
+      "id": "milksha-293c7957",
+      "name": "QQ蜂蜜青梅",
+      "series": "Milksha Plus咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 287,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "milksha-3237bc63",
+      "name": "粉粿蜜桃梅冰茶",
+      "series": "Milksha Plus咀嚼",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 271,
+          "sugarG": 62
+        }
+      ]
+    },
+    {
+      "id": "milksha-4fb489a8",
+      "name": "焦糖鮮奶",
+      "series": "Milksha Plus鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 346,
+          "sugarG": 41
+        }
+      ]
+    },
+    {
+      "id": "milksha-aaf7f534",
+      "name": "珍珠焦糖鮮奶",
+      "series": "Milksha Plus鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 449,
+          "sugarG": 39
+        }
+      ]
+    },
+    {
+      "id": "milksha-1bec7567",
+      "name": "珍珠鮮奶",
+      "series": "Milksha Plus鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 390,
+          "sugarG": 22
+        }
+      ]
+    },
+    {
+      "id": "milksha-7c42c255",
+      "name": "雙Q鮮奶",
+      "series": "Milksha Plus鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 413,
+          "sugarG": 35
+        }
+      ]
+    },
+    {
+      "id": "milksha-40a5c1e1",
+      "name": "嫩仙草凍奶",
+      "series": "Milksha Plus鮮奶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 268,
+          "sugarG": 34
+        }
+      ]
+    },
+    {
+      "id": "milksha-79e68eb6",
+      "name": "水之森玄米抹茶",
+      "series": "Milksha Plus原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 143,
+          "sugarG": 30
+        }
+      ]
+    },
+    {
+      "id": "milksha-a7d4853a",
+      "name": "黃金蕎麥茶",
+      "series": "Milksha Plus原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 152,
+          "sugarG": 26
+        }
+      ]
+    },
+    {
+      "id": "milksha-dfa2a4f1",
+      "name": "香緹紅茶",
+      "series": "Milksha Plus原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 175,
+          "sugarG": 39
+        }
+      ]
+    },
+    {
+      "id": "milksha-2211e8fc",
+      "name": "果香烏龍",
+      "series": "Milksha Plus原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 147,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-07c0347d",
+      "name": "朝露茉香綠茶",
+      "series": "Milksha Plus原茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 147,
+          "sugarG": 33
+        }
+      ]
+    },
+    {
+      "id": "milksha-d9e8224d",
+      "name": "柳丁朝露綠茶",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 301,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "milksha-639ed6e6",
+      "name": "柳丁香緹",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 273,
+          "sugarG": 61
+        }
+      ]
+    },
+    {
+      "id": "milksha-9640c051",
+      "name": "青檸香茶",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 258,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "milksha-e9309fca",
+      "name": "芒果綠茶",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 252,
+          "sugarG": 59
+        }
+      ]
+    },
+    {
+      "id": "milksha-bcb491e2",
+      "name": "芒果梅冰沙",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 281,
+          "sugarG": 67
+        }
+      ]
+    },
+    {
+      "id": "milksha-70e73885",
+      "name": "蜂蜜青梅",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 220,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "milksha-bcebcf5f",
+      "name": "蜜桃冰茶",
+      "series": "Milksha Plus特調",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 249,
+          "sugarG": 58
+        }
+      ]
+    },
+    {
+      "id": "milksha-20c9512c",
+      "name": "珍珠",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "80g",
+          "grams": 80,
+          "kcal": 163,
+          "sugarG": 6
+        }
+      ]
+    },
+    {
+      "id": "milksha-0fec013b",
+      "name": "仙草凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "80g",
+          "grams": 80,
+          "kcal": 49,
+          "sugarG": 11
+        }
+      ]
+    },
+    {
+      "id": "milksha-1c280e47",
+      "name": "綠茶凍",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "80g",
+          "grams": 80,
+          "kcal": 40,
+          "sugarG": 9
+        }
+      ]
+    },
+    {
+      "id": "milksha-0eda8730",
+      "name": "脆啵啵球",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "60g",
+          "grams": 60,
+          "kcal": 55,
+          "sugarG": 12
+        }
+      ]
+    },
+    {
+      "id": "milksha-93681815",
+      "name": "桂香粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "80g",
+          "grams": 80,
+          "kcal": 60,
+          "sugarG": 13
+        }
+      ]
+    },
+    {
+      "id": "milksha-35f929e0",
+      "name": "蜂蜜黑糖粉粿",
+      "series": "加料",
+      "sourceUrl": "https://dailydietitian.com.tw/%E8%BF%B7%E5%AE%A2%E5%A4%8F%E5%AE%8C%E6%95%B4%E8%8F%9C%E5%96%AE-%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC/",
+      "sizes": [
+        {
+          "name": "80g",
+          "grams": 80,
+          "kcal": 79,
+          "sugarG": 17
+        }
+      ]
+    }
+  ]
+}

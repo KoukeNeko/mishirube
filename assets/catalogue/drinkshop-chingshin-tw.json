@@ -1,0 +1,477 @@
+{
+  "brand": "清心福全",
+  "brandAliases": [
+    "清心"
+  ],
+  "market": "tw",
+  "checkedAt": "2026-09-26",
+  "valueType": "max",
+  "volumeIs": "cup",
+  "series": "",
+  "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+  "note": "現調飲料的每杯總熱量、總糖量（全糖／最高值）與咖啡因，多為第三方依官方資料彙整或外送平台門市標示；各門市可能不同。咖啡因只收精確數字，色帶區間不收。",
+  "drinks": [
+    {
+      "id": "chingshin-d4da74a0",
+      "name": "烏龍綠茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 149,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "chingshin-7161c4be",
+      "name": "特級綠茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 135,
+          "sugarG": 30
+        },
+        {
+          "name": "L",
+          "kcal": 205,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "chingshin-f18167fe",
+      "name": "錫蘭紅茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 139,
+          "sugarG": 32
+        },
+        {
+          "name": "L",
+          "kcal": 211,
+          "sugarG": 48
+        }
+      ]
+    },
+    {
+      "id": "chingshin-242565f7",
+      "name": "極品菁茶",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 149,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "chingshin-fe416afd",
+      "name": "原鄉四季",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 84,
+          "sugarG": 18
+        },
+        {
+          "name": "L",
+          "kcal": 128,
+          "sugarG": 28
+        }
+      ]
+    },
+    {
+      "id": "chingshin-1f4ab22f",
+      "name": "特選普洱",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 133,
+          "sugarG": 30
+        },
+        {
+          "name": "L",
+          "kcal": 202,
+          "sugarG": 46
+        }
+      ]
+    },
+    {
+      "id": "chingshin-5228b510",
+      "name": "翡翠烏龍",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 149,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "chingshin-87977125",
+      "name": "嚴選高山",
+      "series": "純茶",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 149,
+          "sugarG": 34
+        },
+        {
+          "name": "L",
+          "kcal": 226,
+          "sugarG": 51
+        }
+      ]
+    },
+    {
+      "id": "chingshin-6eff5f0a",
+      "name": "冰淇淋紅茶",
+      "series": "冰淇淋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 351,
+          "sugarG": 57
+        },
+        {
+          "name": "L",
+          "kcal": 532,
+          "sugarG": 86
+        }
+      ]
+    },
+    {
+      "id": "chingshin-2672dfeb",
+      "name": "冰淇淋奶茶",
+      "series": "冰淇淋",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 494,
+          "sugarG": 47
+        },
+        {
+          "name": "L",
+          "kcal": 750,
+          "sugarG": 71
+        }
+      ]
+    },
+    {
+      "id": "chingshin-714336ad",
+      "name": "蘋果醋",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 247,
+          "sugarG": 57
+        },
+        {
+          "name": "L",
+          "kcal": 374,
+          "sugarG": 86
+        }
+      ]
+    },
+    {
+      "id": "chingshin-0627a922",
+      "name": "蘋果醋紅",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 255,
+          "sugarG": 58
+        },
+        {
+          "name": "L",
+          "kcal": 386,
+          "sugarG": 88
+        }
+      ]
+    },
+    {
+      "id": "chingshin-e105875d",
+      "name": "蜂蜜蘋果醋",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 325,
+          "sugarG": 72
+        },
+        {
+          "name": "L",
+          "kcal": 493,
+          "sugarG": 109
+        }
+      ]
+    },
+    {
+      "id": "chingshin-80f3bf86",
+      "name": "藍莓醋",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 235,
+          "sugarG": 54
+        },
+        {
+          "name": "L",
+          "kcal": 356,
+          "sugarG": 82
+        }
+      ]
+    },
+    {
+      "id": "chingshin-c80158af",
+      "name": "蜂蜜藍莓醋",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 317,
+          "sugarG": 73
+        },
+        {
+          "name": "L",
+          "kcal": 481,
+          "sugarG": 111
+        }
+      ]
+    },
+    {
+      "id": "chingshin-235b972f",
+      "name": "蜂蜜蘋果醋紅茶",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 348,
+          "sugarG": 76
+        },
+        {
+          "name": "L",
+          "kcal": 528,
+          "sugarG": 116
+        }
+      ]
+    },
+    {
+      "id": "chingshin-46649cd9",
+      "name": "藍莓醋紅茶",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "M",
+          "kcal": 254,
+          "sugarG": 57
+        },
+        {
+          "name": "L",
+          "kcal": 385,
+          "sugarG": 87
+        }
+      ]
+    },
+    {
+      "id": "chingshin-8fff934c",
+      "name": "紅心芭樂優多",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 485,
+          "sugarG": 110
+        }
+      ]
+    },
+    {
+      "id": "chingshin-0e7aa2b7",
+      "name": "優多莓莓",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 390,
+          "sugarG": 89
+        }
+      ]
+    },
+    {
+      "id": "chingshin-4878da72",
+      "name": "優多百香綠",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 446,
+          "sugarG": 91
+        }
+      ]
+    },
+    {
+      "id": "chingshin-28db5fc6",
+      "name": "優多鮮橙",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 339,
+          "sugarG": 74
+        }
+      ]
+    },
+    {
+      "id": "chingshin-6fb9293a",
+      "name": "優多綠茶",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 330,
+          "sugarG": 72
+        }
+      ]
+    },
+    {
+      "id": "chingshin-d1804fac",
+      "name": "蘆薈優多綠",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 368,
+          "sugarG": 88
+        }
+      ]
+    },
+    {
+      "id": "chingshin-8dcbfbcd",
+      "name": "優多檸檬",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 333,
+          "sugarG": 73
+        }
+      ]
+    },
+    {
+      "id": "chingshin-3a74fab5",
+      "name": "優多葡萄柚",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 345,
+          "sugarG": 80
+        }
+      ]
+    },
+    {
+      "id": "chingshin-c5d073e9",
+      "name": "紅茶三兄弟",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 648,
+          "sugarG": 73
+        }
+      ]
+    },
+    {
+      "id": "chingshin-d6ee5cc8",
+      "name": "蘆薈蘋果醋",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 484,
+          "sugarG": 118
+        }
+      ]
+    },
+    {
+      "id": "chingshin-f0503527",
+      "name": "優多藍莓醋",
+      "series": "單一規格/大杯",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 416,
+          "sugarG": 97
+        }
+      ]
+    },
+    {
+      "id": "chingshin-17599eae",
+      "name": "蘆薈藍莓醋",
+      "series": "醋飲",
+      "sourceUrl": "https://dailydietitian.com.tw/%E6%B8%85%E5%BF%83%E7%A6%8F%E5%85%A8%E7%86%B1%E9%87%8F-%E7%B3%96%E9%87%8F-%E5%83%B9%E6%A0%BC-%E7%87%9F%E9%A4%8A%E5%B8%AB%E5%BB%BA%E8%AD%B0/",
+      "sizes": [
+        {
+          "name": "L",
+          "kcal": 106,
+          "sugarG": 106
+        }
+      ]
+    }
+  ]
+}
