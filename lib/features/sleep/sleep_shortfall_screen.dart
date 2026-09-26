@@ -13,6 +13,15 @@ import 'sleep_view_model.dart';
 /// period after which a short night stops counting.
 const shortfallDays = 14;
 
+/// Days recorded, of the 14, before the sum is shown: Banks 2010 saw five
+/// short nights already add up, and Oura asks as many. Fewer are a night
+/// or two, not a debt.
+const minimumShortfallDays = 5;
+
+/// Days recorded before the sum stops being preliminary: a whole week,
+/// working days and days off both.
+const settledShortfallDays = 7;
+
 /// 睡眠債: the last 14 days against the sleep goal, how far short they
 /// fell, how that sum moved day by day, and each day's sleep. Called a
 /// debt as other apps call it; it is the sum of the goal's shortfall,
@@ -97,26 +106,27 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
     },
   );
 
-  /// The 14-day sum as of each day; a day whose 14 days hold no record
-  /// is a gap, not a zero.
+  /// The 14-day sum as of each day; a day whose 14 days hold too few
+  /// records is a gap, not a zero.
   Widget _chart(List<DateTime> days, List<SleepShortfall> sums) {
-    double? hours(SleepShortfall sum) =>
-        sum.recorded == 0 ? null : sum.short.inMinutes / 60;
-    final values = [for (final sum in sums) hours(sum)];
+    bool isShown(SleepShortfall sum) => sum.recorded >= minimumShortfallDays;
+    final values = [
+      for (final sum in sums) isShown(sum) ? sum.short.inMinutes / 60 : null,
+    ];
     final known = [
       for (final sum in sums)
-        if (sum.recorded > 0) sum.short,
+        if (isShown(sum)) sum.short,
     ];
     return ChartScrubber(
       count: sums.length,
       indexAt: ChartScrubber.points(sums.length),
       idle: known.isEmpty
-          ? '沒有紀錄'
+          ? '紀錄不足'
           : '最高 ${_hours(known.reduce((a, b) => a > b ? a : b))}'
                 ' · 最低 ${_hours(known.reduce((a, b) => a < b ? a : b))}',
       readoutOf: (index) => [
         _date(days[index]),
-        if (sums[index].recorded == 0) '沒有紀錄' else _hours(sums[index].short),
+        if (isShown(sums[index])) _hours(sums[index].short) else '紀錄不足',
       ].join(' · '),
       builder: (context, selected) => Sparkline(
         values: values,
@@ -130,7 +140,9 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
 
 /// The 14 and 7 days ending with the model's day: time short of the
 /// goal and time over it, kept apart, with the goal they are read
-/// against and how many days had no record.
+/// against and how many days had no record. Below
+/// [minimumShortfallDays] recorded days there is no sum, only how many
+/// more it takes.
 class SleepShortfallCard extends StatelessWidget {
   const SleepShortfallCard({super.key, required this.model, this.onTap});
 
@@ -141,12 +153,14 @@ class SleepShortfallCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fortnight = model.shortfall(shortfallDays);
     final week = model.shortfall(DateTime.daysPerWeek);
+    final isShown = fortnight.recorded >= minimumShortfallDays;
     final tags = [
+      if (isShown && fortnight.recorded < settledShortfallDays) '初步',
       if (model.goal == null)
         '以 ${formatHoursMinutes(model.need)} 計'
       else
         '目標 ${formatHoursMinutes(model.need)}',
-      if (fortnight.missing > 0) '${fortnight.missing} 天沒有紀錄',
+      if (isShown && fortnight.missing > 0) '${fortnight.missing} 天沒有紀錄',
     ];
     return AppCard(
       onTap: onTap,
@@ -154,15 +168,20 @@ class SleepShortfallCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ValueWithUnit(
-            value: _number(fortnight.short),
+            value: isShown ? _number(fortnight.short) : '—',
             unit: '小時',
-            style: AppTextStyles.hugeNumber.copyWith(color: AppColors.wellness),
+            style: AppTextStyles.hugeNumber.copyWith(
+              color: isShown ? AppColors.wellness : AppColors.textTertiary,
+            ),
           ),
           Text(
-            '近 14 天 · 多睡 ${_hours(fortnight.extra)}',
+            isShown
+                ? '近 14 天 · 多睡 ${_hours(fortnight.extra)}'
+                : '需要近 14 天有 $minimumShortfallDays 天紀錄'
+                      '（目前 ${fortnight.recorded} 天）',
             style: AppTextStyles.caption,
           ),
-          if (week.recorded > 0)
+          if (isShown && week.recorded > 0)
             Text(
               '近 7 天 ${_hours(week.short)} · 多睡 ${_hours(week.extra)}',
               style: AppTextStyles.caption,

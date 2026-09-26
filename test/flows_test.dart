@@ -1049,29 +1049,40 @@ void main() {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     final now = store.now();
-    for (final (back, hours) in [(0, 7), (1, 9), (2, 5)]) {
-      final woke = DateTime(now.year, now.month, now.day - back, 7);
-      store.backend.journal.recordSleep(
-        Duration(hours: hours),
-        at: woke,
-        startedAt: woke.subtract(Duration(hours: hours)),
-      );
+    void slept(List<(int, int)> nights) {
+      for (final (back, hours) in nights) {
+        final woke = DateTime(now.year, now.month, now.day - back, 7);
+        store.backend.journal.recordSleep(
+          Duration(hours: hours),
+          at: woke,
+          startedAt: woke.subtract(Duration(hours: hours)),
+        );
+      }
     }
-    await pumpScreen(tester, const SleepScreen(), store: store);
 
+    slept([(0, 7), (1, 9), (2, 5)]);
+    await pumpScreen(tester, const SleepScreen(), store: store);
+    final needs = find.text('需要近 14 天有 5 天紀錄（目前 3 天）');
+    await tester.scrollUntilVisible(needs, 200, scrollable: _pageScroll);
+    expect(find.text('— 小時'), findsOneWidget, reason: 'three nights');
+    await disposeTree(tester);
+
+    slept([(3, 8), (4, 8)]);
+    await pumpScreen(tester, const SleepScreen(), store: store);
     final line = find.text('近 14 天 · 多睡 1.0 小時');
     await tester.scrollUntilVisible(line, 200, scrollable: _pageScroll);
     expect(find.widgetWithText(PageSection, '睡眠債'), findsOneWidget);
     expect(find.text('4.0 小時'), findsOneWidget, reason: '1 + 3, not net of 1');
     expect(find.text('近 7 天 4.0 小時 · 多睡 1.0 小時'), findsOneWidget);
+    expect(find.text('初步'), findsOneWidget, reason: 'under a week');
     expect(find.text('以 8:00 計'), findsOneWidget);
-    expect(find.text('11 天沒有紀錄'), findsOneWidget);
+    expect(find.text('9 天沒有紀錄'), findsOneWidget);
 
     await tester.tap(line);
     await tester.pumpAndSettle();
     expect(find.text('7:00 · 少 1:00'), findsOneWidget);
     expect(find.text('9:00 · 多 1:00'), findsOneWidget);
-    expect(find.text('沒有紀錄'), findsNWidgets(11));
+    expect(find.text('沒有紀錄'), findsNWidgets(9));
     await disposeTree(tester);
   });
 
