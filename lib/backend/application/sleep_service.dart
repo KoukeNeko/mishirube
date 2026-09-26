@@ -75,6 +75,24 @@ class SleepService {
   void setGoal(Duration? goal) =>
       _db.setSetting(_goalKey, goal == null ? '' : '${goal.inMinutes}');
 
+  /// The night each day is read against: the goal, or [defaultSleepNeed]
+  /// until one is set.
+  Duration get need => goal ?? defaultSleepNeed;
+
+  /// Each of the [count] days ending with [last], oldest first, with its
+  /// time asleep.
+  List<SleepDay> sleepDays(DateTime last, int count) {
+    final first = DateTime(last.year, last.month, last.day - count + 1);
+    return sleepDaysOf(
+      _journal.sleepBetween(
+        first,
+        DateTime(last.year, last.month, last.day + 1),
+      ),
+      first,
+      count,
+    );
+  }
+
   /// When to sleep tonight for the goal and wake as usual; null without
   /// a goal or enough recent nights to have a usual waking.
   ({DateTime bedtime, DateTime wake})? tonightPlan() {

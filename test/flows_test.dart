@@ -1007,6 +1007,9 @@ void main() {
 
     final chart = find.byType(MiniBarChart);
     await tester.scrollUntilVisible(chart, 200, scrollable: _pageScroll);
+    // Mid-screen: found at the bottom edge, most of it is still below.
+    await Scrollable.ensureVisible(tester.element(chart), alignment: 0.5);
+    await tester.pumpAndSettle();
     expect(find.text('平均 7:00 · 1 晚'), findsOneWidget);
     await tester.tapAt(tester.getRect(chart).centerRight - const Offset(4, 0));
     await tester.pump();
@@ -1037,6 +1040,38 @@ void main() {
       scrollable: _pageScroll,
     );
     expect(find.text('目標 8:00 · 少 1:00'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the sleep debt sums 14 days apart from extra sleep', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final now = store.now();
+    for (final (back, hours) in [(0, 7), (1, 9), (2, 5)]) {
+      final woke = DateTime(now.year, now.month, now.day - back, 7);
+      store.backend.journal.recordSleep(
+        Duration(hours: hours),
+        at: woke,
+        startedAt: woke.subtract(Duration(hours: hours)),
+      );
+    }
+    await pumpScreen(tester, const SleepScreen(), store: store);
+
+    final line = find.text('近 14 天 · 多睡 1.0 小時');
+    await tester.scrollUntilVisible(line, 200, scrollable: _pageScroll);
+    expect(find.widgetWithText(PageSection, '睡眠債'), findsOneWidget);
+    expect(find.text('4.0 小時'), findsOneWidget, reason: '1 + 3, not net of 1');
+    expect(find.text('近 7 天 4.0 小時 · 多睡 1.0 小時'), findsOneWidget);
+    expect(find.text('以 8:00 計'), findsOneWidget);
+    expect(find.text('11 天沒有紀錄'), findsOneWidget);
+
+    await tester.tap(line);
+    await tester.pumpAndSettle();
+    expect(find.text('7:00 · 少 1:00'), findsOneWidget);
+    expect(find.text('9:00 · 多 1:00'), findsOneWidget);
+    expect(find.text('沒有紀錄'), findsNWidgets(11));
     await disposeTree(tester);
   });
 

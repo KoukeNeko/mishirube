@@ -169,12 +169,90 @@ Duration _clockSpread(List<DateTime> times, int fromHour) {
   return Duration(minutes: math.sqrt(variance).round());
 }
 
-/// How far [nights] fell short of [goal] in total, net of nights that
-/// went over it: positive is less sleep than the goal. A model of the
-/// goal, not a debt the body keeps. Nights not recorded are left out,
-/// rather than counted as none.
-Duration shortfall(List<SleepEntry> nights, Duration goal) =>
-    nights.fold(Duration.zero, (sum, night) => sum + (goal - night.duration));
+/// The night a day's sleep is read against until the user sets a goal:
+/// a choice, not a finding. The AASM/SRS consensus says only "7 hours or
+/// more" for adults; the studies that looked for a need land near 8.
+const defaultSleepNeed = Duration(hours: 8);
+
+/// One day's sleep: time asleep that night and in the day's naps, or
+/// null when no night asleep was recorded. A day without a record is
+/// unknown, not a day without sleep.
+class SleepDay {
+  const SleepDay(this.day, this.slept);
+
+  /// Midnight of the morning the night ended on.
+  final DateTime day;
+  final Duration? slept;
+}
+
+/// The days from [first] for [count] days, each with its sleep from
+/// [sleeps]. Only time asleep counts: time in bed is not sleep, and a
+/// nap is added minute for minute, with no exchange rate.
+List<SleepDay> sleepDaysOf(List<SleepEntry> sleeps, DateTime first, int count) {
+  final asleep = <DateTime, Duration>{};
+  final hadNight = <DateTime>{};
+  for (final sleep in sleeps) {
+    if (sleep.measure != SleepMeasure.asleep) continue;
+    final day = DateTime(
+      sleep.sleptAt.year,
+      sleep.sleptAt.month,
+      sleep.sleptAt.day,
+    );
+    asleep.update(
+      day,
+      (sum) => sum + sleep.duration,
+      ifAbsent: () => sleep.duration,
+    );
+    if (sleep.kind == SleepKind.night) hadNight.add(day);
+  }
+  final days = <SleepDay>[];
+  for (var i = 0; i < count; i++) {
+    final day = DateTime(first.year, first.month, first.day + i);
+    days.add(SleepDay(day, hadNight.contains(day) ? asleep[day] : null));
+  }
+  return days;
+}
+
+/// How [days] went against [need]: the time short of it and the time
+/// over it, summed apart. They are not netted, because sleeping longer
+/// does not pay back a short night hour for hour, and nothing decays,
+/// because no study gives a rate. A sum of the goal's shortfall, not a
+/// debt the body keeps.
+class SleepShortfall {
+  const SleepShortfall({
+    required this.short,
+    required this.extra,
+    required this.recorded,
+    required this.days,
+  });
+
+  final Duration short;
+  final Duration extra;
+
+  /// Days with a night asleep recorded, of [days].
+  final int recorded;
+  final int days;
+
+  int get missing => days - recorded;
+}
+
+SleepShortfall shortfallOf(List<SleepDay> days, Duration need) {
+  var short = Duration.zero;
+  var extra = Duration.zero;
+  var recorded = 0;
+  for (final SleepDay(:slept) in days) {
+    if (slept == null) continue;
+    recorded++;
+    if (slept < need) short += need - slept;
+    if (slept > need) extra += slept - need;
+  }
+  return SleepShortfall(
+    short: short,
+    extra: extra,
+    recorded: recorded,
+    days: days.length,
+  );
+}
 
 /// When to go to bed tonight to sleep [goal] and wake as usual: the
 /// usual waking is the middle one of [nights]. Null with too few nights

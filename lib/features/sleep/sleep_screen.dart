@@ -13,6 +13,7 @@ import '../../shared/widgets/widgets.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
 import 'sleep_schedule_chart.dart';
+import 'sleep_shortfall_screen.dart';
 import 'sleep_stage_chart.dart';
 import 'sleep_goal_rows.dart';
 import 'sleep_view_model.dart';
@@ -143,6 +144,19 @@ class _SleepScreenState extends State<SleepScreen> {
             to: _seriesFor!.$2,
           ),
         ],
+        if (_model.shortfall(shortfallDays).recorded > 0)
+          PageSection(
+            label: '睡眠債',
+            children: [
+              Gutter(
+                child: SleepShortfallCard(
+                  model: _model,
+                  onTap: () =>
+                      pushPage(context, SleepShortfallScreen(day: day)),
+                ),
+              ),
+            ],
+          ),
         ..._tonight(),
         if (naps.isNotEmpty)
           PageSection(
@@ -282,12 +296,10 @@ class _SleepScreenState extends State<SleepScreen> {
     ];
   }
 
-  /// When to sleep tonight for the goal, and how the week has gone
-  /// against it; only on today, with a goal.
+  /// When to sleep tonight for the goal; only on today, with a goal.
   List<Widget> _tonight() {
     final plan = _model.tonightPlan;
-    final shortfall = _model.weekShortfall;
-    if (plan == null && shortfall == null) return const [];
+    if (plan == null) return const [];
     return [
       PageSection(
         label: '今晚',
@@ -295,26 +307,16 @@ class _SleepScreenState extends State<SleepScreen> {
           Gutter(
             child: GroupedCard(
               children: [
-                if (plan != null)
-                  KeyValueRow(
-                    label: '建議就寢',
-                    value:
-                        '${formatTimeOfDay(plan.bedtime)} · '
-                        '${formatTimeOfDay(plan.wake)} 起床',
-                  ),
-                if (shortfall != null)
-                  KeyValueRow(
-                    label: '近 7 晚與目標',
-                    value: shortfall.isNegative
-                        ? '多 ${formatHoursMinutes(-shortfall)}'
-                        : shortfall == Duration.zero
-                        ? '相同'
-                        : '少 ${formatHoursMinutes(shortfall)}',
-                  ),
+                KeyValueRow(
+                  label: '建議就寢',
+                  value:
+                      '${formatTimeOfDay(plan.bedtime)} · '
+                      '${formatTimeOfDay(plan.wake)} 起床',
+                ),
               ],
             ),
           ),
-          if (plan != null) Gutter(child: const TagWrap(labels: ['依平常的起床時間'])),
+          Gutter(child: const TagWrap(labels: ['依平常的起床時間'])),
         ],
       ),
     ];

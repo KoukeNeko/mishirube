@@ -52,7 +52,8 @@ void main() {
 
   test('a goal is kept, and the week is read against it', () {
     expect(model.goal, isNull);
-    expect(model.weekShortfall, isNull, reason: 'no goal, no shortfall');
+    expect(model.need, const Duration(hours: 8), reason: 'the default');
+    expect(model.shortfall(7).recorded, 0);
 
     final now = backend.db.now();
     for (var night = 0; night < 3; night++) {
@@ -66,7 +67,10 @@ void main() {
     model.setGoal(const Duration(hours: 8));
 
     expect(model.goal, const Duration(hours: 8));
-    expect(model.weekShortfall, const Duration(hours: 3));
+    final week = model.shortfall(7);
+    expect(week.short, const Duration(hours: 3));
+    expect(week.recorded, 3);
+    expect(week.missing, 4);
     final plan = model.tonightPlan!;
     expect(plan.wake.hour, 7, reason: 'the usual waking');
     expect(plan.wake.difference(plan.bedtime), const Duration(hours: 8));

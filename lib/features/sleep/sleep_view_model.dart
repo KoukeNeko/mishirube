@@ -88,14 +88,15 @@ class SleepViewModel extends ViewModel {
 
   void setGoal(Duration? goal) => backend.sleep.setGoal(goal);
 
-  /// How far the last seven nights fell short of the goal, net; null
-  /// without a goal or a night.
-  Duration? get weekShortfall {
-    final goal = this.goal;
-    final nights = nightsAsleep(DateTime.daysPerWeek);
-    if (goal == null || nights.isEmpty) return null;
-    return shortfall(nights, goal);
-  }
+  /// The night each day is read against: the goal, or a default.
+  Duration get need => backend.sleep.need;
+
+  /// The [count] days ending with the day shown, oldest first, each with
+  /// its time asleep.
+  List<SleepDay> sleepDays(int count) => backend.sleep.sleepDays(_day, count);
+
+  /// The [days] ending with the day shown against [need].
+  SleepShortfall shortfall(int days) => shortfallOf(sleepDays(days), need);
 
   /// When to sleep tonight to reach the goal and wake as usual; only on
   /// today, with a goal and enough nights.

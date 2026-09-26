@@ -75,16 +75,76 @@ void main() {
     });
   });
 
-  test('the shortfall is net of nights over the goal', () {
-    final nights = [
-      _slept(21, bed: 0, wake: 0, hours: 6),
-      _slept(22, bed: 0, wake: 0, hours: 9),
-      _slept(23, bed: 0, wake: 0, hours: 6),
-    ];
-    expect(
-      shortfall(nights, const Duration(hours: 8)),
-      const Duration(hours: 3),
-    );
+  group('shortfall', () {
+    const need = Duration(hours: 8);
+
+    test('short and extra are summed apart, never netted', () {
+      final days = sleepDaysOf(
+        [
+          _slept(21, bed: 0, wake: 0, hours: 6),
+          _slept(22, bed: 0, wake: 0, hours: 9),
+          _slept(23, bed: 0, wake: 0, hours: 6),
+        ],
+        DateTime(2026, 9, 21),
+        3,
+      );
+      final sum = shortfallOf(days, need);
+
+      expect(sum.short, const Duration(hours: 4));
+      expect(sum.extra, const Duration(hours: 1));
+      expect(sum.missing, 0);
+    });
+
+    test('a day without a night is unknown, not a day without sleep', () {
+      final days = sleepDaysOf(
+        [
+          _slept(21, bed: 0, wake: 0, hours: 6),
+          SleepEntry(
+            id: 'nap',
+            sleptAt: DateTime(2026, 9, 22, 14),
+            duration: const Duration(hours: 1),
+            kind: SleepKind.nap,
+          ),
+        ],
+        DateTime(2026, 9, 21),
+        3,
+      );
+
+      expect(
+        [for (final day in days) day.slept],
+        [const Duration(hours: 6), null, null],
+        reason: 'a nap alone does not make the day known',
+      );
+      final sum = shortfallOf(days, need);
+      expect(sum.short, const Duration(hours: 2));
+      expect(sum.recorded, 1);
+      expect(sum.missing, 2);
+    });
+
+    test('naps add minute for minute; time in bed is not sleep', () {
+      final days = sleepDaysOf(
+        [
+          _slept(21, bed: 0, wake: 0, hours: 6),
+          SleepEntry(
+            id: 'nap',
+            sleptAt: DateTime(2026, 9, 21, 14),
+            duration: const Duration(minutes: 40),
+            kind: SleepKind.nap,
+          ),
+          SleepEntry(
+            id: 'bed',
+            sleptAt: DateTime(2026, 9, 22, 7),
+            duration: const Duration(hours: 9),
+            measure: SleepMeasure.inBed,
+          ),
+        ],
+        DateTime(2026, 9, 21),
+        2,
+      );
+
+      expect(days.first.slept, const Duration(hours: 6, minutes: 40));
+      expect(days.last.slept, isNull);
+    });
   });
 
   test('tonight works back from the usual waking', () {

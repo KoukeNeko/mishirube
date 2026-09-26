@@ -52,6 +52,7 @@ import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/sleep/sleep_shortfall_screen.dart';
 import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/features/activity/activity_metric_screen.dart';
@@ -292,6 +293,10 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'sleep': ((_) => const SleepScreen(), _withStagedNight),
+  'sleep shortfall': (
+    (store) => SleepShortfallScreen(day: store.now()),
+    _withStagedNight,
+  ),
   'activity': (
     (_) => const DailyActivityScreen(),
     (store) {

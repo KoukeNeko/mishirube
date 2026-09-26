@@ -131,6 +131,31 @@ const List<(String, List<_Reference>)> _references = [
     ],
   ),
   (
+    '睡眠債',
+    [
+      (
+        citation: 'Consensus Conference Panel, Watson NF, Badr MS, Belenky G, Bliwise DL, Buxton OM, et al. Recommended Amount of Sleep for a Healthy Adult: A Joint Consensus Statement of the American Academy of Sleep Medicine and Sleep Research Society. J Clin Sleep Med. 2015;11(6):591-2.',
+        use: '未設定目標時以每晚 8 小時計（共識為 7 小時以上）',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/25979105/',
+      ),
+      (
+        citation: 'Van Dongen HP, Maislin G, Mullington JM, Dinges DF. The cumulative cost of additional wakefulness: dose-response effects on neurobehavioral functions and sleep physiology from chronic sleep restriction and total sleep deprivation. Sleep. 2003;26(2):117-26.',
+        use: '少睡的影響在 14 天內持續累積',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/12683469/',
+      ),
+      (
+        citation: 'Banks S, Van Dongen HP, Maislin G, Dinges DF. Neurobehavioral dynamics following chronic sleep restriction: dose-response effects of one night for recovery. Sleep. 2010;33(8):1013-26.',
+        use: '多睡不以一比一抵銷少睡',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/20815182/',
+      ),
+      (
+        citation: 'Guzzetti JR, Banks S. Dynamics of recovery sleep from chronic sleep restriction. Sleep Adv. 2023;4(1):zpac044.',
+        use: '恢復沒有公認的速率，不設衰減',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37193276/',
+      ),
+    ],
+  ),
+  (
     '訓練與趨勢',
     [
       (
