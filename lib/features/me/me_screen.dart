@@ -21,6 +21,7 @@ import 'ai_settings_screen.dart';
 import 'data_sources_screen.dart';
 import 'export_screen.dart';
 import 'privacy_screen.dart';
+import 'references_screen.dart';
 
 /// Who the user is to the app and how it is set up: what they have done
 /// so far, what the app knows about them, their goals and reminders, the
@@ -251,6 +252,10 @@ class _MeScreenState extends State<MeScreen> {
                     const KeyValueRow(
                       label: '動作圖',
                       value: 'Workout Guide · CC BY-SA 4.0',
+                    ),
+                    NavRow(
+                      title: '文獻來源',
+                      onTap: () => pushPage(context, const ReferencesScreen()),
                     ),
                     NavRow(
                       title: '開源授權',

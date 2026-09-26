@@ -25,6 +25,7 @@ import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/me/data_sources_screen.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
 import 'package:mishirube/features/me/export_screen.dart';
+import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/brand_menu_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
@@ -493,6 +494,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'body reading entry': ((_) => const BodyReadingEntryScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
   'export': ((_) => const ExportScreen(), _noSetup),
+  'references': ((_) => const ReferencesScreen(), _noSetup),
 };
 
 /// Pages that intentionally skip the shared app bar.
