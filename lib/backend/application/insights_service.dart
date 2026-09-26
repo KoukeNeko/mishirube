@@ -202,6 +202,47 @@ class InsightsService {
     );
   }
 
+  /// What the body burned a day over the [energyWindowDays] up to [day],
+  /// from the complete food days and the trend weight; null without
+  /// enough of either. The Trends page shows it, and the daily targets
+  /// take it as maintenance once the records support it.
+  EnergyBalance? energyOn(DateTime day) {
+    final now = _db.now();
+    final end = DateTime(day.year, day.month, day.day + 1);
+    final until = end.isBefore(_db.nowInclusive) ? end : _db.nowInclusive;
+    // The weight's trend needs the months before the window to settle;
+    // the food needs only the window.
+    final weightsFrom = _dayOf(day)
+        .subtract(const Duration(days: trendHistoryDays - 1));
+    final foodFrom = _dayOf(day)
+        .subtract(const Duration(days: energyWindowDays - 1));
+    final (:kcal, protein: _, daysTracked: _) = _completeFoodDays(
+      foodFrom,
+      until,
+      now,
+    );
+    final basal = dailyValues(
+      _samples.between(
+        ActivityMetric.basalEnergy,
+        foodFrom.subtract(const Duration(days: 1)),
+        until,
+      ),
+    );
+    return energyBalance(
+      completeDays: kcal,
+      trendWeights: [
+        for (final (at, _, value) in trendOf(
+          _journal.weightsBetween(weightsFrom, until),
+        ))
+          (at, value),
+      ],
+      today: day,
+      basalKcal: basal.length < _minimumBasalDays
+          ? null
+          : basal.fold(0.0, (sum, day) => sum + day.$2) / basal.length,
+    );
+  }
+
   /// The changes worth noticing, a relation between sleep and training
   /// when the records support one, and each area's long-run line, each
   /// read over the last [trendHistoryDays] against its own baseline.
@@ -223,21 +264,7 @@ class InsightsService {
     );
     final (:kcal, :protein, :daysTracked) = _completeFoodDays(from, until, now);
     final trend = [for (final (at, _, value) in trendOf(weights)) (at, value)];
-    final basal = dailyValues(
-      _samples.between(
-        ActivityMetric.basalEnergy,
-        now.subtract(const Duration(days: energyWindowDays)),
-        until,
-      ),
-    );
-    final energy = energyBalance(
-      completeDays: kcal,
-      trendWeights: trend,
-      today: now,
-      basalKcal: basal.length < _minimumBasalDays
-          ? null
-          : basal.fold(0.0, (sum, day) => sum + day.$2) / basal.length,
-    );
+    final energy = energyOn(now);
     final energyStart = _dayOf(now)
         .subtract(const Duration(days: energyWindowDays - 1));
     final recentStart = now.subtract(const Duration(days: patternWindowDays));

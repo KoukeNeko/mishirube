@@ -12,6 +12,7 @@ import '../engines/nutrition_targets.dart';
 import '../storage/database.dart';
 import '../storage/food_repository.dart';
 import '../storage/meal_repository.dart';
+import 'insights_service.dart';
 import 'journal_service.dart';
 
 /// An exploded dish, kept so the change can be undone.
@@ -66,7 +67,13 @@ class RecentFood {
 
 /// Logging food and changing how a meal is structured.
 class NutritionService {
-  NutritionService(this._db, this._meals, this._foods, this._journal);
+  NutritionService(
+    this._db,
+    this._meals,
+    this._foods,
+    this._journal,
+    this._insights,
+  );
 
   final AppDatabase _db;
   final MealRepository _meals;
@@ -74,6 +81,7 @@ class NutritionService {
 
   /// Where the body the targets are worked out from is kept.
   final JournalService _journal;
+  final InsightsService _insights;
 
   static const _targetsKey = 'nutrition.targets';
 
@@ -98,6 +106,7 @@ class NutritionService {
           ActivityLevel.moderate,
       goal:
           WeightGoal.values.asNameMap()[fields['goal']] ?? WeightGoal.maintain,
+      weeklyPercent: (fields['weeklyPercent'] as num?)?.toDouble(),
       proteinPerKg: protein,
       fatPercent: fat,
     );
@@ -110,19 +119,28 @@ class NutritionService {
       'customKcal': settings.customKcal,
       'activity': settings.activity.name,
       'goal': settings.goal.name,
+      'weeklyPercent': settings.weeklyPercent,
       'proteinPerKg': settings.proteinPerKg,
       'fatPercent': settings.fatPercent,
     }),
   );
 
-  /// The targets for [day], from the body as it was then.
-  NutritionTargets targetsOn(DateTime day) => nutritionTargets(
-    targetSettings,
-    weightKg: _journal.weightOn(day)?.weightKg,
-    heightCm: _journal.heightCm,
-    age: _journal.ageOn(day),
-    sex: _journal.sex,
-  );
+  /// The targets for [day], from the body as it was then and, once the
+  /// records show it, what the user really burns.
+  NutritionTargets targetsOn(DateTime day) {
+    final energy = _insights.energyOn(day);
+    return nutritionTargets(
+      targetSettings,
+      weightKg: _journal.weightOn(day)?.weightKg,
+      heightCm: _journal.heightCm,
+      age: _journal.ageOn(day),
+      sex: _journal.sex,
+      measuredMaintenanceKcal:
+          energy == null || energy.isIntakeLikelyUnderlogged
+          ? null
+          : energy.expenditure,
+    );
+  }
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
 

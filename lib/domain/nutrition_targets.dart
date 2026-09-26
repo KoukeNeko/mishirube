@@ -18,20 +18,35 @@ enum ActivityLevel {
   final double factor;
 }
 
-/// What the energy target is for: a daily offset from maintenance, and
-/// the protein a day aimed at this usually takes, which the user can
-/// override. More protein while losing fat keeps more lean mass
-/// (Helms 2014, Longland 2016); 1.6 g per kg is where gains level off
-/// otherwise (Morton 2018), a little above it while gaining.
+/// What the energy target is for: how fast body weight should move, as
+/// a share of it a week, and the protein a day aimed at this usually
+/// takes, both of which the user can override.
+///
+/// A rate rather than a fixed offset, because 500 kcal a day means more
+/// to someone of 60 kg than of 100 kg. Losing 0.5–1 % a week keeps most
+/// lean mass (Helms 2014, Garthe 2011), toward the slow end the leaner
+/// someone is; gaining faster than about 0.25 % a week adds mostly fat
+/// once someone has trained a while (Helms 2023). More protein while
+/// losing keeps more lean mass (Helms 2014, Longland 2016); 1.6 g per kg
+/// is where gains level off otherwise (Morton 2018), a little above it
+/// while gaining.
 enum WeightGoal {
-  lose('減脂', -500, 2.2),
-  maintain('維持', 0, 1.6),
-  gain('增肌', 300, 1.8);
+  lose('減脂', [-0.25, -0.5, -0.75], -0.5, 2.2),
+  maintain('維持', [0], 0, 1.6),
+  gain('增肌', [0.1, 0.25], 0.25, 1.8);
 
-  const WeightGoal(this.label, this.kcalOffset, this.proteinPerKg);
+  const WeightGoal(
+    this.label,
+    this.weeklyPercents,
+    this.defaultWeeklyPercent,
+    this.proteinPerKg,
+  );
 
   final String label;
-  final int kcalOffset;
+
+  /// The rates offered, % of body weight a week; negative is losing.
+  final List<double> weeklyPercents;
+  final double defaultWeeklyPercent;
 
   /// Protein a day per kg of body weight.
   final double proteinPerKg;
@@ -45,6 +60,7 @@ class NutritionTargetSettings {
     this.customKcal,
     this.activity = ActivityLevel.moderate,
     this.goal = WeightGoal.maintain,
+    this.weeklyPercent,
     this.proteinPerKg,
     this.fatPercent,
   });
@@ -58,6 +74,10 @@ class NutritionTargetSettings {
   final ActivityLevel activity;
   final WeightGoal goal;
 
+  /// The rate the user picked from [WeightGoal.weeklyPercents]; null
+  /// for the goal's default.
+  final double? weeklyPercent;
+
   /// Protein per kg the user set; null to follow [goal].
   final double? proteinPerKg;
 
@@ -66,6 +86,12 @@ class NutritionTargetSettings {
 
   bool get isCustom => customKcal != null;
 
+  /// The rate in use: the one picked, when it is one this goal offers.
+  double get weeklyPercentInUse => switch (weeklyPercent) {
+    final picked? when goal.weeklyPercents.contains(picked) => picked,
+    _ => goal.defaultWeeklyPercent,
+  };
+
   double get proteinPerKgInUse => proteinPerKg ?? goal.proteinPerKg;
   int get fatPercentInUse => fatPercent ?? defaultFatPercent;
 
@@ -73,15 +99,27 @@ class NutritionTargetSettings {
     int? Function()? customKcal,
     ActivityLevel? activity,
     WeightGoal? goal,
+    double? Function()? weeklyPercent,
     double? Function()? proteinPerKg,
     int? Function()? fatPercent,
   }) => NutritionTargetSettings(
     customKcal: customKcal == null ? this.customKcal : customKcal(),
     activity: activity ?? this.activity,
     goal: goal ?? this.goal,
+    weeklyPercent: weeklyPercent == null ? this.weeklyPercent : weeklyPercent(),
     proteinPerKg: proteinPerKg == null ? this.proteinPerKg : proteinPerKg(),
     fatPercent: fatPercent == null ? this.fatPercent : fatPercent(),
   );
+}
+
+/// Where a day's maintenance energy came from.
+enum MaintenanceSource {
+  /// Resting energy by equation times the activity level.
+  formula,
+
+  /// Energy eaten less what the body stored or gave up, over the recent
+  /// weeks of complete food days and weighings.
+  measured,
 }
 
 /// What working out the energy target still needs.
@@ -106,6 +144,8 @@ class NutritionTargets {
     this.fatGrams,
     this.fibreGrams,
     this.restingKcal,
+    this.maintenanceKcal,
+    this.maintenanceSource,
     this.missing = const [],
   });
 
@@ -117,6 +157,13 @@ class NutritionTargets {
 
   /// Resting energy from the equation, when the target was worked out.
   final int? restingKcal;
+
+  /// Energy to keep weight where it is, when the target was worked out:
+  /// what the goal's rate moves away from.
+  final int? maintenanceKcal;
+
+  /// How [maintenanceKcal] was worked out; null without it.
+  final MaintenanceSource? maintenanceSource;
 
   /// What working out the energy target lacks; empty when it did not
   /// need to (a typed-in target) or had everything.

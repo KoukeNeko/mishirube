@@ -2336,6 +2336,43 @@ void main() {
       expect(targets.kcal, isNotNull);
     });
 
+    test('three weeks of records set maintenance from what was burned', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final today = clock.now();
+      backend.journal
+        ..setSex(Sex.male)
+        ..setBirthYear(1996)
+        ..recordBodyReadings({BodyMetric.height: 175});
+      for (var back = 20; back >= 0; back--) {
+        final day = DateTime(today.year, today.month, today.day - back);
+        // Steady weight on 2,700 kcal a day: that is what the body burns.
+        backend.journal.recordWeight(70, at: day.add(const Duration(hours: 7)));
+        for (final hour in [8, 13, 19]) {
+          backend.nutrition.logMeal(
+            MealEvent(
+              id: '$back-$hour',
+              name: '一餐',
+              timeLabel: '$hour:00',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: 900,
+            ),
+            eatenAt: day.add(Duration(hours: hour)),
+          );
+        }
+      }
+
+      final targets = backend.nutrition.targetsOn(today);
+      expect(targets.maintenanceSource, MaintenanceSource.measured);
+      expect(targets.maintenanceKcal, closeTo(2700, 5));
+      expect(
+        backend.insights.energyOn(today)?.expenditure,
+        targets.maintenanceKcal,
+        reason: 'the Trends page shows the same figure',
+      );
+    });
+
     test('targets saved before the split followed the goal now follow it', () {
       final backend = openFile();
       addTearDown(backend.close);

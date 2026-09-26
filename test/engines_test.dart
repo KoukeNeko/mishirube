@@ -1787,17 +1787,94 @@ void main() {
         age: 30,
         sex: Sex.male,
       );
-      // 1649 x 1.55 = 2556, less 500 for losing fat.
-      expect(targets.kcal, 2056);
+      // 1649 x 1.55 = 2556 to keep weight; losing 0.5 % of 70 kg a
+      // week is 0.35 kg x 7,700 kcal / 7 days = 385 kcal a day less.
+      expect(targets.maintenanceKcal, 2556);
+      expect(targets.kcal, 2171);
       expect(targets.proteinGrams, 154, reason: '2.2 g per kg, losing fat');
-      expect(targets.fatGrams, 57, reason: '25 % of energy');
+      expect(targets.fatGrams, 60, reason: '25 % of energy');
       expect(
         targets.carbGrams,
-        232,
-        reason: 'the rest of the energy: (2056 - 154 x 4 - 57 x 9) / 4',
+        254,
+        reason: 'the rest of the energy: (2171 - 154 x 4 - 60 x 9) / 4',
       );
-      expect(targets.fibreGrams, 29, reason: '14 g per 1,000 kcal');
+      expect(targets.fibreGrams, 30, reason: '14 g per 1,000 kcal');
       expect(targets.missing, isEmpty);
+    });
+
+    test('the goal moves energy by a share of body weight a week', () {
+      int? kcal(NutritionTargetSettings settings, double weightKg) =>
+          nutritionTargets(
+            settings,
+            weightKg: weightKg,
+            heightCm: 175,
+            age: 30,
+            sex: Sex.male,
+          ).kcal;
+      int? difference(NutritionTargetSettings settings, double weightKg) =>
+          kcal(settings, weightKg)! -
+          kcal(const NutritionTargetSettings(), weightKg)!;
+
+      expect(
+        difference(const NutritionTargetSettings(goal: WeightGoal.gain), 70),
+        193,
+        reason: '0.25 % of 70 kg a week',
+      );
+      expect(
+        difference(const NutritionTargetSettings(goal: WeightGoal.lose), 100),
+        -550,
+        reason: 'the same rate is a bigger deficit for a bigger body',
+      );
+      expect(
+        difference(
+          const NutritionTargetSettings(
+            goal: WeightGoal.lose,
+            weeklyPercent: -0.25,
+          ),
+          100,
+        ),
+        -275,
+      );
+      expect(
+        difference(
+          const NutritionTargetSettings(
+            goal: WeightGoal.gain,
+            weeklyPercent: -0.5,
+          ),
+          70,
+        ),
+        193,
+        reason: 'a losing rate is not a gaining one: the default stands',
+      );
+    });
+
+    test('maintenance the records show replaces the equation', () {
+      NutritionTargets targets({int? measured, double? heightCm = 175}) =>
+          nutritionTargets(
+            const NutritionTargetSettings(goal: WeightGoal.lose),
+            weightKg: 70,
+            heightCm: heightCm,
+            age: 30,
+            sex: Sex.male,
+            measuredMaintenanceKcal: measured,
+          );
+
+      final shown = targets(measured: 2800);
+      expect(shown.maintenanceKcal, 2800);
+      expect(shown.maintenanceSource, MaintenanceSource.measured);
+      expect(shown.kcal, 2800 - 385, reason: 'the goal moves it the same');
+
+      final underlogged = targets(measured: 1500);
+      expect(
+        underlogged.maintenanceSource,
+        MaintenanceSource.formula,
+        reason: 'below the 1,649 kcal of rest is food left out, not the body',
+      );
+      expect(underlogged.maintenanceKcal, 2556);
+
+      final noHeight = targets(measured: 2800, heightCm: null);
+      expect(noHeight.kcal, 2415, reason: 'the records need only the weight');
+      expect(noHeight.missing, isEmpty);
     });
 
     test('protein follows the goal unless it was set', () {

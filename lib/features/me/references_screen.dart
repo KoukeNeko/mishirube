@@ -99,13 +99,28 @@ const List<(String, List<_Reference>)> _references = [
       ),
       (
         citation: 'Helms, E. R., Aragon, A. A., & Fitschen, P. J. (2014). Evidence-based recommendations for natural bodybuilding contest preparation: Nutrition and supplementation. Journal of the International Society of Sports Nutrition, 11, Article 20.',
-        use: '減脂時提高蛋白質、脂肪占熱量 15–30%',
+        use: '減脂每週 0.5–1% 體重、提高蛋白質、脂肪占熱量 15–30%',
         url: 'https://doi.org/10.1186/1550-2783-11-20',
       ),
       (
         citation: 'Longland, T. M., Oikawa, S. Y., Mitchell, C. J., Devries, M. C., & Phillips, S. M. (2016). Higher compared with lower dietary protein during an energy deficit combined with intense exercise promotes greater lean mass gain and fat mass loss: A randomized trial. The American Journal of Clinical Nutrition, 103(3), 738–746.',
         use: '減脂的蛋白質每公斤 2.2 g',
         url: 'https://doi.org/10.3945/ajcn.115.119339',
+      ),
+      (
+        citation: 'Garthe, I., Raastad, T., Refsnes, P. E., Koivisto, A., & Sundgot-Borgen, J. (2011). Effect of two different weight-loss rates on body composition and strength and power-related performance in elite athletes. International Journal of Sport Nutrition and Exercise Metabolism, 21(2), 97–104.',
+        use: '減脂預設每週 0.5% 體重，慢一點保留較多去脂體重',
+        url: 'https://doi.org/10.1123/ijsnem.21.2.97',
+      ),
+      (
+        citation: 'Helms, E. R., Spence, A.-J., Sousa, C., Kreiger, J., Taylor, S., Oranchuk, D. J., Dieter, B. P., & Watkins, C. M. (2023). Effect of small and large energy surpluses on strength, muscle, and skinfold thickness in resistance-trained individuals: A parallel groups design. Sports Medicine – Open, 9(1), Article 102.',
+        use: '增肌只用小盈餘，預設每週 0.25% 體重',
+        url: 'https://doi.org/10.1186/s40798-023-00651-y',
+      ),
+      (
+        citation: 'Hall, K. D. (2008). What is the required energy deficit per unit weight loss? International Journal of Obesity, 32(3), 573–576.',
+        use: '每公斤體重約 7,700 kcal 只是粗略的起點',
+        url: 'https://doi.org/10.1038/sj.ijo.0803720',
       ),
       (
         citation: 'Institute of Medicine. (2005). Dietary reference intakes for energy, carbohydrate, fiber, fat, fatty acids, cholesterol, protein, and amino acids. The National Academies Press.',

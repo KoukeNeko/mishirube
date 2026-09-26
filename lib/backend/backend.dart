@@ -80,7 +80,6 @@ class Backend {
       storage.routines,
     );
     journal = JournalService(db, storage.journal);
-    nutrition = NutritionService(db, storage.meals, storage.foods, journal);
     activity = ActivityService(db, storage.activities, storage.activitySamples);
     sleep = SleepService(db, storage.journal, storage.workouts, storage.meals);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
@@ -92,6 +91,14 @@ class Backend {
       storage.meals,
       storage.journal,
       storage.activitySamples,
+    );
+    // Daily targets take maintenance from what the records show.
+    nutrition = NutritionService(
+      db,
+      storage.meals,
+      storage.foods,
+      journal,
+      insights,
     );
   }
 

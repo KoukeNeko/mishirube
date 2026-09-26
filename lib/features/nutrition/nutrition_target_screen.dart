@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/trend_insights.dart' show energyWindowDays;
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -91,6 +92,29 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
       return;
     }
     onValue(value);
+  }
+
+  /// Picks how fast the goal moves body weight, from the rates it offers.
+  Future<void> _pickRate(
+    NutritionTargetSettings settings,
+    double? weightKg,
+  ) async {
+    final rate = await showAppDialog<double>(
+      context,
+      AppDialog(
+        title: '每週變化',
+        isChoiceList: true,
+        actions: [
+          for (final rate in settings.goal.weeklyPercents)
+            DialogAction(
+              label: _rateLabel(rate, weightKg),
+              isSelected: rate == settings.weeklyPercentInUse,
+              onTap: () => Navigator.of(context).pop(rate),
+            ),
+        ],
+      ),
+    );
+    if (rate != null) _update(settings.copyWith(weeklyPercent: () => rate));
   }
 
   @override
@@ -198,16 +222,32 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
               Gutter(
                 child: ChipWrap(
                   options: WeightGoal.values,
-                  labelOf: (goal) => goal.kcalOffset == 0
-                      ? goal.label
-                      : '${goal.label} '
-                            '${goal.kcalOffset > 0 ? '+' : '−'}'
-                            '${goal.kcalOffset.abs()} kcal',
+                  labelOf: (goal) => goal.label,
                   isSelected: (goal) => goal == settings.goal,
-                  onTap: (goal) => _update(settings.copyWith(goal: goal)),
+                  // A rate picked for one goal means nothing for another.
+                  onTap: (goal) => _update(
+                    settings.copyWith(goal: goal, weeklyPercent: () => null),
+                  ),
                   selectedColor: AppColors.nutrition,
                 ),
               ),
+              if (settings.goal.weeklyPercents.length > 1)
+                Gutter(
+                  child: GroupedCard(
+                    children: [
+                      NavRow(
+                        title: '每週變化',
+                        trailing: _value(
+                          _rateLabel(
+                            settings.weeklyPercentInUse,
+                            weight?.weightKg,
+                          ),
+                        ),
+                        onTap: () => _pickRate(settings, weight?.weightKg),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ],
@@ -273,6 +313,12 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                       label: '基礎代謝',
                       value: '${formatKcal(resting)} kcal',
                     ),
+                  if (targets.maintenanceKcal case final maintenance?
+                      when settings.goal != WeightGoal.maintain)
+                    KeyValueRow(
+                      label: '維持熱量',
+                      value: '${formatKcal(maintenance)} kcal',
+                    ),
                   KeyValueRow(
                     label: '每日熱量',
                     value: switch (targets.kcal) {
@@ -293,9 +339,17 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                 ],
               ),
             ),
-            if (targets.restingKcal != null)
+            if (targets.maintenanceSource case final source?)
               Gutter(
-                child: Text('Mifflin-St Jeor 估計', style: AppTextStyles.caption),
+                child: TagWrap(
+                  labels: [
+                    switch (source) {
+                      MaintenanceSource.measured =>
+                        '依近 $energyWindowDays 天飲食與體重',
+                      MaintenanceSource.formula => 'Mifflin-St Jeor 估計',
+                    },
+                  ],
+                ),
               ),
           ],
         ),
@@ -307,3 +361,19 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
 Widget _value(String text) => Text(text, style: AppTextStyles.caption);
 
 String _grams(int? grams) => grams == null ? '—' : '$grams g';
+
+/// `−0.5% · 約 −0.35 kg`: a weekly rate, and what it is for this body
+/// when its weight is known.
+String _rateLabel(double weeklyPercent, double? weightKg) {
+  String signed(num value, String text) => '${value < 0 ? '−' : '+'}$text';
+  // Two places, trailing zeros dropped: the rates are 0.1, 0.25 and
+  // 0.75, which one decimal would round away.
+  final digits = weeklyPercent
+      .abs()
+      .toStringAsFixed(2)
+      .replaceFirst(RegExp(r'\.?0+$'), '');
+  final percent = signed(weeklyPercent, '$digits%');
+  if (weightKg == null) return percent;
+  final kg = weightKg * weeklyPercent / 100;
+  return '$percent · 約 ${signed(kg, kg.abs().toStringAsFixed(2))} kg';
+}

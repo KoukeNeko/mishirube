@@ -9,6 +9,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_target_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/app/navigation.dart';
@@ -2594,6 +2595,33 @@ void main() {
       tester.getSize(find.widgetWithText(SectionLabel, '每日指標')),
       reason: 'the 變更 link does not push its card further down',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('losing fat is set as a share of body weight a week', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.journal
+      ..setSex(Sex.female)
+      ..setBirthYear(1996)
+      ..recordBodyReadings({BodyMetric.height: 165});
+    await pumpScreen(tester, const NutritionTargetScreen(), store: store);
+
+    await _tapText(tester, '減脂');
+    // The kg follows the latest weight the demo records hold.
+    expect(find.textContaining('−0.5% · 約 −'), findsOneWidget);
+    await _tapText(tester, '每週變化');
+    expect(
+      find.textContaining('−0.75% · 約 −', findRichText: true),
+      findsOneWidget,
+      reason: 'the rate as it is, not rounded to one place',
+    );
+    await tester.tap(find.textContaining('−0.25% · 約 −', findRichText: true));
+    await tester.pumpAndSettle();
+    expect(store.backend.nutrition.targetSettings.weeklyPercent, -0.25);
+    expect(find.text('維持熱量'), findsOneWidget);
     await disposeTree(tester);
   });
 
