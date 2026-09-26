@@ -166,13 +166,21 @@ class SquareIconButton extends StatelessWidget {
       child: IconButton.filled(
         tooltip: tooltip,
         onPressed: _withTap(onPressed),
+        // Sized to the square, not to Material's 48-point minimum with
+        // its padding: in a smaller square that pushed the icon off
+        // centre.
         style: IconButton.styleFrom(
           backgroundColor: AppColors.surfaceRaised,
           foregroundColor: color,
+          padding: EdgeInsets.zero,
+          minimumSize: Size.square(size),
+          maximumSize: Size.square(size),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
         ),
+        iconSize: size / 2,
         icon: Icon(icon),
       ),
     );
