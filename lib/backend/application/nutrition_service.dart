@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/domain.dart';
 // The one place that decides how a typed search term is normalised; a
 // food is searched the same way an exercise is.
@@ -6,9 +8,11 @@ import '../engines/food_portion.dart';
 import '../../shared/format.dart';
 import '../engines/meal_type_suggestion.dart';
 import '../engines/nutrition_summary.dart';
+import '../engines/nutrition_targets.dart';
 import '../storage/database.dart';
 import '../storage/food_repository.dart';
 import '../storage/meal_repository.dart';
+import 'journal_service.dart';
 
 /// An exploded dish, kept so the change can be undone.
 class DishSplitSnapshot {
@@ -62,11 +66,57 @@ class RecentFood {
 
 /// Logging food and changing how a meal is structured.
 class NutritionService {
-  NutritionService(this._db, this._meals, this._foods);
+  NutritionService(this._db, this._meals, this._foods, this._journal);
 
   final AppDatabase _db;
   final MealRepository _meals;
   final FoodRepository _foods;
+
+  /// Where the body the targets are worked out from is kept.
+  final JournalService _journal;
+
+  static const _targetsKey = 'nutrition.targets';
+
+  /// What the user chose for their daily targets.
+  NutritionTargetSettings get targetSettings {
+    final raw = _db.setting(_targetsKey);
+    if (raw == null || raw.isEmpty) return const NutritionTargetSettings();
+    final fields = jsonDecode(raw) as Map<String, dynamic>;
+    return NutritionTargetSettings(
+      customKcal: fields['customKcal'] as int?,
+      activity:
+          ActivityLevel.values.asNameMap()[fields['activity']] ??
+          ActivityLevel.moderate,
+      goal:
+          WeightGoal.values.asNameMap()[fields['goal']] ?? WeightGoal.maintain,
+      proteinPerKg:
+          (fields['proteinPerKg'] as num?)?.toDouble() ??
+          NutritionTargetSettings.defaultProteinPerKg,
+      fatPercent:
+          fields['fatPercent'] as int? ??
+          NutritionTargetSettings.defaultFatPercent,
+    );
+  }
+
+  void setTargetSettings(NutritionTargetSettings settings) => _db.setSetting(
+    _targetsKey,
+    jsonEncode({
+      'customKcal': settings.customKcal,
+      'activity': settings.activity.name,
+      'goal': settings.goal.name,
+      'proteinPerKg': settings.proteinPerKg,
+      'fatPercent': settings.fatPercent,
+    }),
+  );
+
+  /// The targets for [day], from the body as it was then.
+  NutritionTargets targetsOn(DateTime day) => nutritionTargets(
+    targetSettings,
+    weightKg: _journal.weightOn(day)?.weightKg,
+    heightCm: _journal.heightCm,
+    age: _journal.ageOn(day),
+    sex: _journal.sex,
+  );
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
 

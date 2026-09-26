@@ -11,6 +11,7 @@ export 'content/charts.dart';
 export 'content/feedback.dart';
 export 'content/insight_card.dart';
 export 'content/month_grid.dart';
+export 'content/progress_ring.dart';
 export 'content/rows.dart';
 export 'content/stats.dart';
 // Interactive controls.
@@ -22,6 +23,7 @@ export 'controls/month_popover.dart';
 export 'controls/pill.dart';
 export 'controls/step_slider.dart';
 export 'controls/swipe_action.dart';
+export 'controls/week_day_strip.dart';
 // Page frame: app bar, collapsing header, edge-to-edge layout, footers.
 export 'page/collapsing_header.dart';
 export 'page/collapsing_page.dart';

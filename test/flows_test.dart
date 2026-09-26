@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
+import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
@@ -80,6 +84,14 @@ Future<void> _enterBeside(
   );
   await tester.pump();
 }
+
+/// The page's own list, not a sideways row such as the week strip.
+final _pageScroll = find
+    .byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    )
+    .first;
 
 /// Opens [screen] on top of a blank page, so a screen that closes itself
 /// when it is done has somewhere to go back to.
@@ -994,7 +1006,7 @@ void main() {
     await pumpScreen(tester, const SleepScreen(), store: store);
 
     final chart = find.byType(MiniBarChart);
-    await tester.scrollUntilVisible(chart, 200);
+    await tester.scrollUntilVisible(chart, 200, scrollable: _pageScroll);
     expect(find.text('平均 7:00 · 1 晚'), findsOneWidget);
     await tester.tapAt(tester.getRect(chart).centerRight - const Offset(4, 0));
     await tester.pump();
@@ -1009,12 +1021,21 @@ void main() {
     store.backend.journal.recordSleep(const Duration(hours: 7));
     await pumpScreen(tester, const SleepScreen(), store: store);
 
+    await tester.scrollUntilVisible(
+      find.text('未設定'),
+      200,
+      scrollable: _pageScroll,
+    );
     expect(find.text('未設定'), findsOneWidget);
     await _tapText(tester, '睡眠目標');
     await _tapText(tester, '儲存');
     expect(store.backend.sleep.goal, const Duration(hours: 8));
     // The summary is at the top, above the goal row.
-    await tester.scrollUntilVisible(find.text('目標 8:00 · 少 1:00'), -200);
+    await tester.scrollUntilVisible(
+      find.text('目標 8:00 · 少 1:00'),
+      -200,
+      scrollable: _pageScroll,
+    );
     expect(find.text('目標 8:00 · 少 1:00'), findsOneWidget);
     await disposeTree(tester);
   });
@@ -1892,7 +1913,7 @@ void main() {
     await _openFromHost(tester, const FoodSearchScreen(), store);
 
     expect(
-      find.text('連鎖品牌'),
+      find.widgetWithText(SectionLabel, '台灣'),
       findsNothing,
       reason: '「全部」is for what the user eats; chains have their scope',
     );
@@ -1907,6 +1928,11 @@ void main() {
     );
     await tester.tap(find.text('品牌'));
     await tester.pump();
+    expect(
+      find.widgetWithText(SectionLabel, '台灣'),
+      findsOneWidget,
+      reason: 'chains are listed by the country their menu is for',
+    );
     expect(find.text('星巴克（台灣）'), findsOneWidget);
     expect(
       find.text('那堤'),
@@ -2004,12 +2030,44 @@ void main() {
     })) {
       store.backend.storage.foods.save(food, source: ChangeSource.catalogue);
     }
+    for (final food in parseCatalogue({
+      'brand': 'すき家',
+      'market': 'jp',
+      'sourceUrl': 'https://example.com',
+      'checkedAt': '2026-09-08',
+      'valueType': 'declared',
+      'drinks': [
+        {'id': 'gyudon', 'name': '牛丼', 'kind': 'food', 'kcal': 695},
+      ],
+    })) {
+      store.backend.storage.foods.save(food, source: ChangeSource.catalogue);
+    }
     await pumpScreen(tester, const MeScreen(), store: store);
 
     await _tapText(tester, '食物庫');
     await tester.pumpAndSettle();
     expect(find.text('自煮雞胸'), findsOneWidget, reason: 'own foods listed');
     expect(find.text('星巴克（台灣）'), findsOneWidget, reason: 'brands listed');
+    expect(find.text('すき家（日本）'), findsOneWidget);
+
+    // A country's chip keeps to its chains.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FilterChipBar<String>),
+        matching: find.text('日本'),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('すき家（日本）'), findsOneWidget);
+    expect(find.text('星巴克（台灣）'), findsNothing);
+    expect(find.text('自煮雞胸'), findsNothing);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(FilterChipBar<String>),
+        matching: find.text('全部'),
+      ),
+    );
+    await tester.pump();
 
     // Searching narrows both.
     await tester.enterText(find.byType(TextField), '雞胸');
@@ -2168,6 +2226,276 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('meals logged apart are picked and merged, undoably', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    nutrition.deleteMeals([
+      for (final meal in nutrition.mealsOn(today)) meal.id,
+    ]);
+    for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)]) {
+      nutrition.logMeal(
+        MealEvent(
+          id: name,
+          name: name,
+          timeLabel: '08:00',
+          qualityTag: '手動',
+          dishes: const [],
+          kcal: kcal,
+        ),
+        eatenAt: today,
+      );
+    }
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+
+    await tester.tap(find.text('合併'));
+    await tester.pump();
+    expect(
+      tester.widget<PrimaryButton>(find.byType(PrimaryButton)).onPressed,
+      isNull,
+      reason: 'one meal is nothing to merge',
+    );
+    await tester.tap(find.text('蛋餅'));
+    await tester.tap(find.text('冰奶茶'));
+    await tester.pump();
+    await tester.tap(find.text('合併 2 筆成一餐'));
+    await tester.pump();
+
+    expect(nutrition.mealsOn(today), hasLength(1));
+    expect(nutrition.mealsOn(today).single.kcal, 550);
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(nutrition.mealsOn(today), hasLength(2), reason: 'undo splits it');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a logged meal is deleted from its editor, undoably', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final meal = nutrition.logMeal(
+      const MealEvent(
+        id: 'toast',
+        name: '吐司',
+        timeLabel: '08:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 180,
+      ),
+      eatenAt: store.now(),
+    );
+    final before = nutrition.mealsOn(store.now()).length;
+    await _openFromHost(tester, MealEditScreen(meal: meal), store);
+
+    await tester.scrollUntilVisible(
+      find.text('刪除這一餐'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(MealEditScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.tap(find.text('刪除這一餐'));
+    // Not settled: the undo's countdown would run out.
+    await tester.pump();
+    await tester.pump(_pageTransition);
+    expect(nutrition.mealsOn(store.now()), hasLength(before - 1));
+
+    await tester.tap(find.text('復原'));
+    await tester.pump();
+    expect(nutrition.mealsOn(store.now()), hasLength(before));
+    await disposeTree(tester);
+  });
+
+  testWidgets('a meal\'s every nutrient is shown and corrected', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final meal = nutrition.logMeal(
+      const MealEvent(
+        id: 'shake',
+        name: '乳清蛋白飲',
+        timeLabel: '18:20',
+        qualityTag: 'AI 估計',
+        dishes: [],
+        kcal: 186,
+        nutrients: {Nutrient.sugar: 14.4, Nutrient.leucine: 1571},
+      ),
+      eatenAt: store.now(),
+    );
+    await _openFromHost(tester, MealEditScreen(meal: meal), store);
+
+    final sugar = find.descendant(
+      of: find.ancestor(of: find.text('糖'), matching: find.byType(Row)).first,
+      matching: find.byType(TextField),
+    );
+    expect(
+      tester.widget<TextField>(sugar).controller!.text,
+      '14.4',
+      reason: 'a decimal kept as printed',
+    );
+    await tester.enterText(sugar, '12');
+    await tester.scrollUntilVisible(
+      find.text('白胺酸'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(MealEditScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+
+    final saved = nutrition
+        .mealsOn(store.now())
+        .firstWhere((logged) => logged.id == meal.id);
+    expect(saved.nutrients[Nutrient.sugar], 12);
+    expect(saved.nutrients[Nutrient.leucine], 1571, reason: 'kept as it was');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a meal moves to when it was eaten, and water stays water', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final glass = nutrition.logWater(250);
+    final viewModel = NutritionViewModel(store.backend);
+    addTearDown(viewModel.dispose);
+
+    final evening = clock.now().subtract(const Duration(days: 1));
+    viewModel.retimeMeal(glass.id, evening);
+    expect(
+      nutrition.mealsOn(evening).map((meal) => meal.id),
+      contains(glass.id),
+    );
+    expect(
+      nutrition.mealsOn(clock.now()).map((meal) => meal.id),
+      isNot(contains(glass.id)),
+    );
+
+    final moved = nutrition
+        .mealsOn(evening)
+        .firstWhere((meal) => meal.id == glass.id);
+    await _openFromHost(tester, MealEditScreen(meal: moved), store);
+    await tester.enterText(
+      find
+          .descendant(
+            of: find.byType(MealEditScreen),
+            matching: find.byType(TextField),
+          )
+          .at(1),
+      '300',
+    );
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    final saved = nutrition
+        .mealsOn(evening)
+        .firstWhere((meal) => meal.id == glass.id);
+    expect(saved.millilitres, 300);
+    expect(saved.isWater, isTrue, reason: 'a corrected glass is still water');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a reference asks before leaving for its link', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const ReferencesScreen(), store: store);
+
+    await tester.tap(find.textContaining('Mifflin MD'));
+    await tester.pumpAndSettle();
+    expect(find.text('開啟連結'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppDialog),
+        matching: find.text('https://pubmed.ncbi.nlm.nih.gov/2305711/'),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDialog), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the week strip runs on past the screen\'s edges', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+
+    // 19 September is a Saturday: its week is 14–20, and 13 belongs to
+    // the week before, showing in the left margin.
+    final monday = tester.getRect(find.bySemanticsLabel(RegExp('^9 月 14 日')));
+    final before = tester.getRect(find.bySemanticsLabel(RegExp('^9 月 13 日')));
+    expect(monday.left, closeTo(AppSpacing.screenGutter, 1));
+    expect(before.right, closeTo(AppSpacing.screenGutter, 1));
+    expect(before.left, lessThan(0), reason: 'cut off by the edge');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the day\'s cards keep one inset', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+
+    double insetOf(Finder text) {
+      final card = find.ancestor(of: text, matching: find.byType(AppCard));
+      return tester.getTopLeft(text).dy - tester.getTopLeft(card.first).dy;
+    }
+
+    final energy = insetOf(find.textContaining(' kcal').first);
+    final indicators = insetOf(find.text(MacroLabel.fibre));
+    expect(
+      (energy - indicators).abs(),
+      lessThan(3),
+      reason: 'a card\'s first line sits its inset from the top, not more',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('water is counted under 飲品, not listed as a meal', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final today = store.now();
+    store.backend.nutrition.deleteMeals([
+      for (final meal in store.backend.nutrition.mealsOn(today)) meal.id,
+    ]);
+    store.backend.nutrition.logWater(250);
+    store.backend.nutrition.logWater(250);
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+
+    expect(
+      find.text('500 mL · 2 筆'),
+      findsOneWidget,
+      reason: 'the day\'s water total',
+    );
+    await tester.scrollUntilVisible(
+      find.text('這一天沒有記錄任何一餐'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('這一天沒有記錄任何一餐'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a glass of water is one tap and one kind of record', (
     tester,
   ) async {
@@ -2184,6 +2512,31 @@ void main() {
       summariseDay(store.todayMeals.where((m) => m.name != '水')).mealCount,
       reason: 'a glass of water is not a meal',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a Japanese drink reads as its Japanese label', (tester) async {
+    usePhoneViewport(tester);
+    final coffee = parseCatalogue(
+      jsonDecode(
+        File('assets/catalogue/7eleven-sevencafe-jp.json').readAsStringSync(),
+      ) as Map<String, dynamic>,
+    ).firstWhere((food) => food.sizeName == 'R');
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, PortionScreen(food: coffee), store: store);
+
+    for (final (label, value) in [
+      ('たんぱく質', '0.4 g'),
+      ('脂質', '0 g'),
+      ('炭水化物', '1.3 g'),
+      ('糖質', '1.1 g'),
+      ('食物繊維', '0.2 g'),
+      ('食塩相当量', '0.01 g'),
+    ]) {
+      expect(find.text(label), findsOneWidget);
+      expect(find.text(value), findsWidgets, reason: label);
+    }
+    expect(find.text('鈉'), findsNothing, reason: 'salt is not converted');
     await disposeTree(tester);
   });
 

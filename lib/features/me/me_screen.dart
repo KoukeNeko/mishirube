@@ -50,27 +50,6 @@ class _MeScreenState extends State<MeScreen> {
     super.dispose();
   }
 
-  Future<void> _editBirthYear() async {
-    final store = AppStoreScope.read(context);
-    final typed = await showTextDialog(
-      context,
-      title: '出生年',
-      initial: '${store.birthYear ?? ''}',
-      hint: '例如 1995',
-    );
-    if (typed == null) return;
-    final text = typed.trim();
-    final year = int.tryParse(text);
-    final thisYear = store.now().year;
-    if (text.isEmpty) {
-      store.setBirthYear(null);
-    } else if (year != null && year >= thisYear - 120 && year <= thisYear) {
-      store.setBirthYear(year);
-    } else if (mounted) {
-      showToast(context, '出生年請填 4 位數西元年。', kind: ToastKind.warning);
-    }
-  }
-
   Future<void> _pickFigure() async {
     final figure = await showAppDialog<MuscleFigure>(
       context,
@@ -128,7 +107,12 @@ class _MeScreenState extends State<MeScreen> {
                       final year? => '$year 年',
                       null => '未設定',
                     }),
-                    onTap: _editBirthYear,
+                    onTap: () => editBirthYear(context),
+                  ),
+                  NavRow(
+                    title: '性別',
+                    trailing: _value(store.backend.journal.sex?.label ?? '未設定'),
+                    onTap: () => pickSex(context),
                   ),
                   NavRow(
                     title: '人體圖',
@@ -336,3 +320,48 @@ String _foodLibrarySummary(AppStore store) {
 /// byte count would read as more precise than it is useful.
 String _megabytes(int bytes) =>
     '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+
+/// Asks for the year the user was born; empty clears it.
+Future<void> editBirthYear(BuildContext context) async {
+  final store = AppStoreScope.read(context);
+  final typed = await showTextDialog(
+    context,
+    title: '出生年',
+    keyboardType: TextInputType.number,
+    initial: '${store.birthYear ?? ''}',
+    hint: '例如 1995',
+  );
+  if (typed == null) return;
+  final text = typed.trim();
+  final year = int.tryParse(text);
+  final thisYear = store.now().year;
+  if (text.isEmpty) {
+    store.setBirthYear(null);
+  } else if (year != null && year >= thisYear - 120 && year <= thisYear) {
+    store.setBirthYear(year);
+  } else if (context.mounted) {
+    showToast(context, '出生年請填 4 位數西元年。', kind: ToastKind.warning);
+  }
+}
+
+/// Asks for sex, which only the energy equations use.
+Future<void> pickSex(BuildContext context) async {
+  final journal = AppStoreScope.read(context).backend.journal;
+  final sex = await showAppDialog<Sex>(
+    context,
+    AppDialog(
+      title: '性別',
+      message: '只用來估算每日熱量。',
+      isChoiceList: true,
+      actions: [
+        for (final sex in Sex.values)
+          DialogAction(
+            label: sex.label,
+            isSelected: sex == journal.sex,
+            onTap: () => Navigator.of(context).pop(sex),
+          ),
+      ],
+    ),
+  );
+  if (sex != null) journal.setSex(sex);
+}

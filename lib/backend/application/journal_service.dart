@@ -7,6 +7,20 @@ class JournalService {
   JournalService(this._db, this._journal);
 
   static const _birthYearKey = 'profile.birth_year';
+  static const _sexKey = 'profile.sex';
+
+  /// Sex as the energy equations take it; null until the user says.
+  Sex? get sex => Sex.values.asNameMap()[_db.setting(_sexKey)];
+
+  void setSex(Sex? sex) => _db.setSetting(_sexKey, sex?.name ?? '');
+
+  /// The last weighing on or before [day].
+  BodyWeight? weightOn(DateTime day) =>
+      _journal.latestWeightBefore(DateTime(day.year, day.month, day.day + 1));
+
+  /// The latest height recorded.
+  double? get heightCm =>
+      _journal.latestBodyReadings()[BodyMetric.height]?.value;
 
   /// The year the user was born, as they gave it; null until then.
   int? get birthYear => int.tryParse(_db.setting(_birthYearKey) ?? '');

@@ -45,6 +45,11 @@ abstract final class AppColors {
   static const destructive = Color(0xFFFF453A);
 
   static const warning = Color(0xFFE8B94A);
+
+  // The three macronutrients, told apart wherever they sit side by side.
+  static const macroCarb = Color(0xFFF2C66D);
+  static const macroProtein = Color(0xFFEF7B5C);
+  static const macroFat = Color(0xFF7BD6A0);
   static const warningSurface = Color(0xFF2A2412);
   static const warningOutline = Color(0xFF5A4A1E);
 }

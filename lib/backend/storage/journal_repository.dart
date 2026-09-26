@@ -482,6 +482,16 @@ class JournalRepository {
     note: row['note']! as String,
   );
 
+  /// The last weighing before [end]; null when there is none.
+  BodyWeight? latestWeightBefore(DateTime end) {
+    final rows = _db.select(
+      'SELECT * FROM body_weights WHERE deleted_at IS NULL '
+      'AND measured_at < ? ORDER BY measured_at DESC LIMIT 1',
+      [end.millisecondsSinceEpoch],
+    );
+    return rows.isEmpty ? null : _weightFrom(rows.first);
+  }
+
   List<BodyWeight> weightsBetween(DateTime start, DateTime end) => [
     for (final row in _db.select(
       'SELECT * FROM body_weights WHERE deleted_at IS NULL '

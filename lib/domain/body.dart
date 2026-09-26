@@ -84,3 +84,14 @@ class BodyReading {
   final double value;
   final String note;
 }
+
+/// Sex as the energy equations take it: they differ by a constant, and
+/// nothing else in the app asks.
+enum Sex {
+  female('女性'),
+  male('男性');
+
+  const Sex(this.label);
+
+  final String label;
+}

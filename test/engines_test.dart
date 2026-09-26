@@ -9,6 +9,7 @@ import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
+import 'package:mishirube/backend/engines/nutrition_targets.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
@@ -1758,5 +1759,69 @@ void main() {
       '1 項沒有熱量',
     );
     expect(plateKcalLabel([one(100, declared), one(null, declared)]), '100');
+  });
+
+  group('nutrition targets', () {
+    test('resting energy is Mifflin-St Jeor', () {
+      // 70 kg, 175 cm, 30 years: 700 + 1093.75 - 150, +5 or -161.
+      expect(
+        restingEnergyKcal(weightKg: 70, heightCm: 175, age: 30, sex: Sex.male),
+        1649,
+      );
+      expect(
+        restingEnergyKcal(
+          weightKg: 70,
+          heightCm: 175,
+          age: 30,
+          sex: Sex.female,
+        ),
+        1483,
+      );
+    });
+
+    test('an energy target from the body splits into the macros', () {
+      final targets = nutritionTargets(
+        const NutritionTargetSettings(goal: WeightGoal.lose),
+        weightKg: 70,
+        heightCm: 175,
+        age: 30,
+        sex: Sex.male,
+      );
+      // 1649 x 1.55 = 2556, less 500 for losing fat.
+      expect(targets.kcal, 2056);
+      expect(targets.proteinGrams, 112, reason: '1.6 g per kg');
+      expect(targets.fatGrams, 57, reason: '25 % of energy');
+      expect(
+        targets.carbGrams,
+        274,
+        reason: 'the rest of the energy: (2056 - 112 x 4 - 57 x 9) / 4',
+      );
+      expect(targets.fibreGrams, 29, reason: '14 g per 1,000 kcal');
+      expect(targets.missing, isEmpty);
+    });
+
+    test('without the body there is no energy target, and it says why', () {
+      final targets = nutritionTargets(
+        const NutritionTargetSettings(),
+        weightKg: 70,
+      );
+      expect(targets.kcal, isNull);
+      expect(targets.carbGrams, isNull);
+      expect(targets.proteinGrams, 112, reason: 'protein needs only weight');
+      expect(targets.missing, [
+        TargetInput.height,
+        TargetInput.birthYear,
+        TargetInput.sex,
+      ]);
+    });
+
+    test('a typed-in energy target needs no body', () {
+      final targets = nutritionTargets(
+        const NutritionTargetSettings(customKcal: 2200),
+      );
+      expect(targets.kcal, 2200);
+      expect(targets.missing, isEmpty);
+      expect(targets.restingKcal, isNull);
+    });
   });
 }

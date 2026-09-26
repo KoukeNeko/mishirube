@@ -163,6 +163,10 @@ double measurePinnedControlHeight(BuildContext context) {
   return pillHeight(context) + _pinnedVerticalPadding * 2;
 }
 
+/// Height of a pinned row holding something [content] tall.
+double measurePinnedHeight(double content) =>
+    content + _pinnedVerticalPadding * 2;
+
 /// Height of a pinned row holding a [SearchField].
 double measurePinnedSearchHeight() =>
     searchFieldHeight + _pinnedVerticalPadding * 2;

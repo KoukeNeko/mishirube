@@ -14,6 +14,7 @@ export 'health.dart';
 export 'history.dart';
 export 'note.dart';
 export 'nutrition.dart';
+export 'nutrition_targets.dart';
 export 'records.dart';
 export 'session.dart';
 export 'time.dart';

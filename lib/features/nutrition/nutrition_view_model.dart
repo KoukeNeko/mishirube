@@ -18,6 +18,34 @@ class NutritionViewModel extends ViewModel {
   /// Meals eaten on [day].
   List<MealEvent> mealsOn(DateTime day) => backend.nutrition.mealsOn(day);
 
+  /// The day's targets, from the body as it was then.
+  NutritionTargets targetsOn(DateTime day) => backend.nutrition.targetsOn(day);
+
+  NutritionTargetSettings get targetSettings =>
+      backend.nutrition.targetSettings;
+
+  void setTargetSettings(NutritionTargetSettings settings) =>
+      backend.nutrition.setTargetSettings(settings);
+
+  /// What the energy target is worked out from.
+  Sex? get sex => backend.journal.sex;
+
+  void setSex(Sex? sex) => backend.journal.setSex(sex);
+
+  int? get birthYear => backend.journal.birthYear;
+
+  void setBirthYear(int? year) => backend.journal.setBirthYear(year);
+
+  double? get heightCm => backend.journal.heightCm;
+
+  BodyWeight? weightOn(DateTime day) => backend.journal.weightOn(day);
+
+  /// Which of [days] have anything eaten or drunk logged.
+  Set<DateTime> daysWithMeals(Iterable<DateTime> days) => {
+    for (final day in days)
+      if (backend.nutrition.mealsOn(day).isNotEmpty) day,
+  };
+
   /// Food totals for [day] and how complete its log is.
   DaySummary summaryOf(DateTime day) => backend.nutrition.summaryOf(day);
 

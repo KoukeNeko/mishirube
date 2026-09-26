@@ -2128,6 +2128,113 @@ void main() {
       expect(backend.journal.birthYear, isNull);
     });
 
+    test('meals logged apart go back together as one, and apart again', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final nutrition = backend.nutrition;
+      final noon = DateTime(2026, 9, 19, 12, 10);
+      final rice = nutrition.logMeal(
+        const MealEvent(
+          id: 'rice',
+          name: '白飯',
+          timeLabel: '12:10',
+          qualityTag: 'AI 估計',
+          dishes: [],
+          kcal: 280,
+          proteinGrams: 5,
+          fatGrams: 1,
+          kind: ConsumptionKind.food,
+          isEstimated: true,
+          valueType: NutrientValueType.estimate,
+        ),
+        eatenAt: noon,
+      );
+      final tea = nutrition.logMeal(
+        const MealEvent(
+          id: 'tea',
+          name: '紅茶',
+          timeLabel: '12:30',
+          qualityTag: '手動',
+          dishes: [],
+          kcal: 90,
+          proteinGrams: 0,
+          millilitres: 500,
+          kind: ConsumptionKind.beverage,
+        ),
+        eatenAt: noon.add(const Duration(minutes: 20)),
+      );
+
+      final merged = nutrition.mergeMeals([tea, rice]);
+
+      expect(nutrition.mealsOn(noon).map((meal) => meal.id), [merged.id]);
+      expect(merged.name, '紅茶、白飯');
+      expect(merged.dishes.map((dish) => dish.name), ['紅茶', '白飯']);
+      expect(merged.timeLabel, '12:10', reason: 'when the first was eaten');
+      expect(merged.kcal, 370);
+      expect(merged.proteinGrams, 5);
+      expect(merged.fatGrams, isNull, reason: 'the tea gave none');
+      expect(merged.millilitres, 500, reason: 'only the tea is drunk');
+      expect(merged.kind, ConsumptionKind.food);
+      expect(merged.valueType, NutrientValueType.estimate);
+      expect(merged.qualityTag, mergedQualityTag);
+
+      nutrition.unmergeMeals(merged, [tea, rice]);
+      expect(nutrition.mealsOn(noon).map((meal) => meal.id).toSet(), {
+        rice.id,
+        tea.id,
+      }, reason: 'the parts come back as they were');
+    });
+
+    test('a draft item keeps every nutrient when logged', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      const item = DraftItem(
+        name: '乳清蛋白飲',
+        amount: '250 ml',
+        kcal: 186,
+        fibreGrams: 1,
+        nutrients: {Nutrient.sugar: 14.4, Nutrient.calcium: 667},
+      );
+      final meal = backend.nutrition.logDraft(
+        const MealDraft(
+          items: [item],
+          provider: AiProviderKind.ollamaCloud,
+          model: 'm',
+        ),
+        [item],
+      ).single;
+      final stored = backend.nutrition
+          .mealsOn(backend.db.now())
+          .firstWhere((logged) => logged.id == meal.id);
+      expect(stored.nutrients, {Nutrient.sugar: 14.4, Nutrient.calcium: 667});
+      expect(stored.fibreGrams, 1);
+    });
+
+    test('the targets are kept, and worked out from the body', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      backend.nutrition.setTargetSettings(
+        const NutritionTargetSettings(
+          activity: ActivityLevel.light,
+          goal: WeightGoal.gain,
+          proteinPerKg: 2,
+        ),
+      );
+      backend.journal
+        ..setSex(Sex.female)
+        ..setBirthYear(1996)
+        ..recordWeight(60, at: DateTime(2026, 9, 1))
+        ..recordBodyReadings({BodyMetric.height: 165});
+
+      final settings = backend.nutrition.targetSettings;
+      expect(settings.activity, ActivityLevel.light);
+      expect(settings.goal, WeightGoal.gain);
+      final targets = backend.nutrition.targetsOn(DateTime(2026, 9, 20));
+      expect(targets.missing, isEmpty);
+      expect(targets.proteinGrams, 120);
+      expect(targets.kcal, isNotNull);
+    });
+
     test('water shows on the timeline as how much of it', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

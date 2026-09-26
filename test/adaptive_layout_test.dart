@@ -307,6 +307,11 @@ void main() {
     }
 
     await pumpScreen(tester, const MeScreen(), store: _store());
+    await tester.scrollUntilVisible(
+      find.text('功能'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(
       gapUnder('功能'),
       pageItemSpacing,
