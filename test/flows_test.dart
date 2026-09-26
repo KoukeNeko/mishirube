@@ -2494,7 +2494,8 @@ void main() {
       return tester.getTopLeft(text).dy - tester.getTopLeft(card.first).dy;
     }
 
-    final energy = insetOf(find.textContaining(' kcal').first);
+    // The ring sits centred beside the macros, whose first line leads.
+    final energy = insetOf(find.text(MacroLabel.carb).first);
     final indicators = insetOf(find.text(MacroLabel.fibre));
     expect(
       (energy - indicators).abs(),

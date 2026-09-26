@@ -449,49 +449,46 @@ class _EnergyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            target == null
-                ? '$mark${formatKcal(eaten)} kcal'
-                : '$mark${formatKcal(eaten)} / ${formatKcal(target)} kcal',
-            style: AppTextStyles.body.copyWith(fontSize: 20),
-          ),
-          if (summary.mealsWithoutFigures > 0)
+          if (summary.mealsWithoutFigures > 0) ...[
             Text(
               '${summary.mealsWithoutFigures} 筆沒有熱量，實際更多',
               style: AppTextStyles.caption,
             ),
-          const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.md),
+          ],
           LayoutBuilder(
             builder: (context, space) {
               // Side by side where there is room; the ring above the
               // macros at large text sizes.
               final isWide = space.maxWidth >= 300;
+              final color = left != null && left < 0
+                  ? AppColors.warning
+                  : AppColors.nutrition;
               final ring = ProgressRing(
                 progress: target == null || target <= 0 ? 0 : eaten / target,
-                color: left != null && left < 0
-                    ? AppColors.warning
-                    : AppColors.nutrition,
+                color: color,
                 semanticLabel: target == null
                     ? '已吃 ${formatKcal(eaten)} kcal'
                     : '已吃 ${formatKcal(eaten)} kcal，目標 ${formatKcal(target)} kcal',
-                size: 132,
-                strokeWidth: 12,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      left == null ? formatKcal(eaten) : formatKcal(left.abs()),
-                      style: AppTextStyles.bigNumber.copyWith(fontSize: 24),
-                    ),
-                    Text(
-                      left == null
-                          ? 'kcal'
-                          : left >= 0
-                          ? '剩餘 kcal'
-                          : '超過 kcal',
-                      style: AppTextStyles.caption,
-                    ),
-                  ],
+                size: 148,
+                strokeWidth: 18,
+                title: left == null
+                    ? '已吃 kcal'
+                    : left >= 0
+                    ? '剩餘 kcal'
+                    : '超過 kcal',
+                footer: target == null
+                    ? null
+                    : Text(
+                        '$mark${formatKcal(eaten)}/${formatKcal(target)}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: color,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                child: Text(
+                  '$mark${formatKcal(left?.abs() ?? eaten)}',
+                  style: AppTextStyles.bigNumber.copyWith(fontSize: 28),
                 ),
               );
               final macros = Column(
