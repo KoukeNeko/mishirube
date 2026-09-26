@@ -733,6 +733,51 @@ final List<String> _migrations = [
   -- The number under a packaged food's barcode; null when not known.
   ALTER TABLE foods ADD COLUMN barcode TEXT;
   ''',
+  '''
+  -- Withdrawn before release: a development build moved records made
+  -- before 04:00 to the day before. Kept as a step so a database that
+  -- ran it is not newer than the app; the next step undoes it.
+  SELECT 1;
+  ''',
+  '''
+  -- Each record's day by the calendar it was made on, from its own
+  -- instant and offset: puts back rows the withdrawn step above moved.
+  UPDATE meals SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', eaten_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', eaten_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE workouts SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', started_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', started_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE activities SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', started_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', started_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE body_weights SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', measured_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', measured_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE body_measurements SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', measured_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', measured_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE body_readings SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', measured_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', measured_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  UPDATE wellness_entries SET local_day = CAST(CASE
+    WHEN utc_offset_minutes IS NULL
+    THEN strftime('%Y%m%d', recorded_at / 1000, 'unixepoch', 'localtime')
+    ELSE strftime('%Y%m%d', recorded_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
+  END AS INTEGER) WHERE local_day IS NOT NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
