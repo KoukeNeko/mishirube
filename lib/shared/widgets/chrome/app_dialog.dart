@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
@@ -96,51 +98,67 @@ class AppDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _maxDialogWidth),
-          child: ChromeSurface(
-            radius: _dialogRadius,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: _titleStyle),
-                      if (message case final message?) ...[
-                        const SizedBox(height: AppSpacing.xxs + 2),
-                        Text(message, style: _messageStyle),
+    // Clear of the status bar and home indicator, and never taller than
+    // most of what is left: a long list of choices scrolls inside a
+    // dialog that still reads as one, with the page showing around it.
+    // The keyboard takes the bottom when it is up: the dialog then sits
+    // in what is left above it, and moves with it.
+    final insets = MediaQuery.paddingOf(context);
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    return AnimatedPadding(
+      duration: chromeDuration(context, _keyboardShift),
+      curve: Curves.easeOutCubic,
+      padding:
+          insets.copyWith(bottom: math.max(insets.bottom, keyboard)) +
+          const EdgeInsets.all(AppSpacing.lg),
+      child: LayoutBuilder(
+        builder: (context, space) => Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: _maxDialogWidth,
+              maxHeight: space.maxHeight * _maxHeightShare,
+            ),
+            child: ChromeSurface(
+              radius: _dialogRadius,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: _titleStyle),
+                        if (message case final message?) ...[
+                          const SizedBox(height: AppSpacing.xxs + 2),
+                          Text(message, style: _messageStyle),
+                        ],
+                        if (content case final content?) ...[
+                          const SizedBox(height: AppSpacing.md),
+                          content,
+                        ],
                       ],
-                      if (content case final content?) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        content,
-                      ],
-                    ],
-                  ),
-                ),
-                // A long list of choices — every model a provider offers —
-                // scrolls inside the dialog instead of growing past it.
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) =>
-                          _actionArea(context, constraints.maxWidth),
                     ),
                   ),
-                ),
-              ],
+                  // A long list of choices — every model a provider offers —
+                  // scrolls inside the dialog instead of growing past it.
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) =>
+                            _actionArea(context, constraints.maxWidth),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -207,6 +225,12 @@ class AppDialog extends StatelessWidget {
 }
 
 const _dialogRadius = 24.0;
+
+/// How long the dialog takes to move out of the keyboard's way.
+const _keyboardShift = Duration(milliseconds: 250);
+
+/// The most of the space inside the safe area a dialog takes.
+const _maxHeightShare = 0.7;
 
 /// One device pixel, whichever device it is.
 const _hairline = 1.0;
@@ -359,6 +383,14 @@ class _AppDialogRoute<T> extends RawDialogRoute<T> {
 
   @override
   Duration get reverseTransitionDuration => reverseDuration;
+
+  /// The keyboard goes as the dialog does, not after its fade: a field
+  /// still animating away keeps focus otherwise, and the keyboard with it.
+  @override
+  bool didPop(T? result) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    return super.didPop(result);
+  }
 }
 
 /// Asks for one line of text and returns it, or null when the user
@@ -371,6 +403,7 @@ Future<String?> showTextDialog(
   String hint = '',
   String confirmLabel = '儲存',
   int maxLines = 1,
+  TextInputType? keyboardType,
 }) {
   return showAppDialog<String>(
     context,
@@ -380,6 +413,7 @@ Future<String?> showTextDialog(
       hint: hint,
       confirmLabel: confirmLabel,
       maxLines: maxLines,
+      keyboardType: keyboardType,
     ),
   );
 }
@@ -391,6 +425,7 @@ class _TextDialog extends StatefulWidget {
     required this.hint,
     required this.confirmLabel,
     required this.maxLines,
+    required this.keyboardType,
   });
 
   final String title;
@@ -398,6 +433,7 @@ class _TextDialog extends StatefulWidget {
   final String hint;
   final String confirmLabel;
   final int maxLines;
+  final TextInputType? keyboardType;
 
   @override
   State<_TextDialog> createState() => _TextDialogState();
@@ -421,6 +457,7 @@ class _TextDialogState extends State<_TextDialog> {
         autofocus: true,
         hint: widget.hint,
         maxLines: widget.maxLines,
+        keyboardType: widget.keyboardType,
       ),
       actions: [
         DialogAction(
