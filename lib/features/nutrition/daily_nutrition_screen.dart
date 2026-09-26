@@ -480,13 +480,7 @@ class _EnergyCard extends StatelessWidget {
                     : '超過 kcal',
                 footer: target == null
                     ? null
-                    : Text(
-                        '$mark${formatKcal(eaten)}/${formatKcal(target)}',
-                        style: AppTextStyles.caption.copyWith(
-                          color: color,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                    : '$mark${formatKcal(eaten)}/${formatKcal(target)}',
                 child: Text(
                   '$mark${formatKcal(left?.abs() ?? eaten)}',
                   style: AppTextStyles.bigNumber.copyWith(fontSize: 28),
