@@ -399,43 +399,56 @@ class _MealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No padding on the card: each row that can be pressed pads itself,
+    // so its highlight reaches the card's edges.
     return AppCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // The meal opens to what it was, as a list row does.
           InkWell(
             onTap: () => pushPage(context, MealDetailScreen(meal: meal)),
-            child: Row(
-              children: [
-                const AccentBar(color: AppColors.nutrition),
-                const SizedBox(width: AppSpacing.sm),
-                // The name takes the row and wraps; the time goes under
-                // it so a long name is not squeezed into a column.
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(meal.name, style: AppTextStyles.itemTitle),
-                      Text(
-                        '${meal.timeLabel} · ${meal.qualityTag}',
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                children: [
+                  const AccentBar(color: AppColors.nutrition),
+                  const SizedBox(width: AppSpacing.sm),
+                  // The name takes the row and wraps; the time goes under
+                  // it so a long name is not squeezed into a column.
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(meal.name, style: AppTextStyles.itemTitle),
+                        Text(
+                          '${meal.timeLabel} · ${meal.qualityTag}',
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                ValueWithUnit(
-                  value: formatKcalOrDash(meal.kcal),
-                  unit: 'kcal',
-                  style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-                ),
-                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
-              ],
+                  const SizedBox(width: AppSpacing.sm),
+                  ValueWithUnit(
+                    value: formatKcalOrDash(meal.kcal),
+                    unit: 'kcal',
+                    style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textTertiary,
+                  ),
+                ],
+              ),
             ),
           ),
           for (var i = 0; i < meal.dishes.length; i++) ...[
-            if (i > 0) const Divider(height: 1),
+            const Divider(
+              height: 1,
+              indent: AppSpacing.md,
+              endIndent: AppSpacing.md,
+            ),
             _DishRow(
               dish: meal.dishes[i],
               isExpanded: isExpanded(meal.dishes[i]),
@@ -471,7 +484,7 @@ class _DishRow extends StatelessWidget {
         InkWell(
           onTap: canExpand ? onToggle : null,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Row(
               children: [
                 Expanded(
@@ -498,20 +511,31 @@ class _DishRow extends StatelessWidget {
             ),
           ),
         ),
-        if (canExpand && isExpanded) ...[
-          ComponentList(components: dish.components),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              ChipButton(
-                label: '拆成獨立紀錄',
-                tone: TagTone.nutrition,
-                onTap: onSplit,
-              ),
-            ],
+        if (canExpand && isExpanded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              0,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ComponentList(components: dish.components),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    ChipButton(
+                      label: '拆成獨立紀錄',
+                      tone: TagTone.nutrition,
+                      onTap: onSplit,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: AppSpacing.md),
-        ],
       ],
     );
   }

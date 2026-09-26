@@ -220,6 +220,10 @@ In particular, do not create a parallel version of:
 - Card content sits `AppSpacing.md` in from the card's edge, the
   `AppCard` default and the inset of rows in a `GroupedCard`. Do not pass
   another padding for an ordinary card.
+- A pressable row or area pads itself: the padding goes inside its
+  `InkWell`, never on the container around it, so the pressed highlight
+  reaches the container's edges. A card holding pressable rows takes
+  `padding: EdgeInsets.zero`, as `GroupedCard` does.
 - Never size a page element from `MediaQuery.sizeOf`: in a list pane or
   beside a fold a page element has less room than the window.
   Measure the space it is given (`LayoutBuilder`, `ToolbarWidth`).

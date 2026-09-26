@@ -2327,6 +2327,55 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a meal\'s row presses from edge to edge of its card', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    nutrition.deleteMeals([
+      for (final meal in nutrition.mealsOn(today)) meal.id,
+    ]);
+    nutrition.logMeal(
+      MealEvent(
+        id: 'bento',
+        name: '雞腿便當',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: const [
+          DishEntry(name: '雞腿', quantityLabel: '1 隻', subtitle: '手動'),
+        ],
+        kcal: 780,
+      ),
+      eatenAt: today,
+    );
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.text('雞腿便當'),
+      200,
+      scrollable: _pageScroll,
+    );
+
+    final card = tester.getRect(
+      find.ancestor(of: find.text('雞腿便當'), matching: find.byType(AppCard)),
+    );
+    for (final text in ['雞腿便當', '雞腿']) {
+      final pressed = tester.getRect(
+        find
+            .ancestor(of: find.text(text), matching: find.byType(InkWell))
+            .first,
+      );
+      expect(
+        pressed.left,
+        card.left,
+        reason: '$text: no inset to press around',
+      );
+      expect(pressed.right, card.right, reason: text);
+    }
+    await disposeTree(tester);
+  });
+
   testWidgets('a meal opens to what it was, and the pencil edits it', (
     tester,
   ) async {
