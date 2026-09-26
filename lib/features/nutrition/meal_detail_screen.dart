@@ -154,8 +154,8 @@ class MealSummaryCard extends StatelessWidget {
 
 /// Everything in the meal that carries energy, as shares of it: one bar
 /// split by colour, the three macronutrients under it with their grams
-/// and energy, and what else the meal holds of fibre, sugar alcohols
-/// and alcohol, the smaller parts, in a quieter row below. The energy
+/// and energy, and fibre, sugar alcohols and alcohol, the smaller parts,
+/// in a quieter row below, 0 for what is not on record. The energy
 /// is [energyParts]'s, worked out from the grams; a label's own
 /// carbohydrate grams are shown as printed.
 class _Macros extends StatelessWidget {
@@ -176,23 +176,22 @@ class _Macros extends StatelessWidget {
       ),
       (MacroLabel.fat, AppColors.macroFat, meal.fatGrams, energy.fat),
     ];
+    // Always all three, and nothing on record reads as none: most food
+    // has no alcohol or sugar alcohols, and a label that has them says so.
     final minor = [
-      if (meal.fibreGrams case final grams?)
-        (MacroLabel.fibre, AppColors.macroFibre, grams, energy.fibre!),
-      if (meal.nutrients[Nutrient.polyols] case final grams?)
-        (
-          Nutrient.polyols.label,
-          AppColors.macroPolyols,
-          grams,
-          energy.polyols!,
-        ),
-      if (meal.nutrients[Nutrient.alcohol] case final grams?)
-        (
-          Nutrient.alcohol.label,
-          AppColors.macroAlcohol,
-          grams,
-          energy.alcohol!,
-        ),
+      (MacroLabel.fibre, AppColors.macroFibre, meal.fibreGrams, energy.fibre),
+      (
+        Nutrient.polyols.label,
+        AppColors.macroPolyols,
+        meal.nutrients[Nutrient.polyols],
+        energy.polyols,
+      ),
+      (
+        Nutrient.alcohol.label,
+        AppColors.macroAlcohol,
+        meal.nutrients[Nutrient.alcohol],
+        energy.alcohol,
+      ),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +200,8 @@ class _Macros extends StatelessWidget {
           segments: [
             for (final (_, color, _, kcal) in main)
               ((kcal ?? 0).toDouble(), color),
-            for (final (_, color, _, kcal) in minor) (kcal.toDouble(), color),
+            for (final (_, color, _, kcal) in minor)
+              ((kcal ?? 0).toDouble(), color),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -210,67 +210,71 @@ class _Macros extends StatelessWidget {
           children: [
             for (final (label, color, grams, kcal) in main)
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CategoryLabel(label: label, color: color),
-                    // Under the name, not the dot.
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        start: CategoryLabel.textInset,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            grams == null ? '—' : '$grams g',
-                            style: AppTextStyles.itemTitle,
-                          ),
-                          if (kcal != null)
-                            Text(
-                              '${formatKcal(kcal)} kcal',
-                              style: AppTextStyles.caption,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
+                child: _MacroColumn(
+                  label: label,
+                  color: color,
+                  amount: grams == null ? '—' : '$grams g',
+                  kcal: kcal,
                 ),
               ),
           ],
         ),
-        if (minor.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.sm),
-          // On the same three columns as the row above, from its left.
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final (label, color, grams, kcal) in minor)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CategoryLabel(label: label, color: color),
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: CategoryLabel.textInset,
-                        ),
-                        child: Text(
-                          '${formatAmount(grams.toDouble())} g · '
-                          '${formatKcal(kcal)} kcal',
-                          style: AppTextStyles.caption,
-                        ),
-                      ),
-                    ],
-                  ),
+        const SizedBox(height: AppSpacing.sm),
+        // On the same three columns as the row above.
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final (label, color, grams, kcal) in minor)
+              Expanded(
+                child: _MacroColumn(
+                  label: label,
+                  color: color,
+                  amount: '${formatAmount((grams ?? 0).toDouble())} g',
+                  kcal: kcal ?? 0,
                 ),
-              if (minor.length < 3) Spacer(flex: 3 - minor.length),
-            ],
-          ),
-        ],
+              ),
+          ],
+        ),
       ],
     );
   }
+}
+
+/// One part of a meal's energy: its name, then its grams and the energy
+/// they carry under the name, not the dot.
+class _MacroColumn extends StatelessWidget {
+  const _MacroColumn({
+    required this.label,
+    required this.color,
+    required this.amount,
+    required this.kcal,
+  });
+
+  final String label;
+  final Color color;
+  final String amount;
+  final int? kcal;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      CategoryLabel(label: label, color: color),
+      Padding(
+        padding: const EdgeInsetsDirectional.only(
+          start: CategoryLabel.textInset,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(amount, style: AppTextStyles.itemTitle),
+            if (kcal case final kcal?)
+              Text('${formatKcal(kcal)} kcal', style: AppTextStyles.caption),
+          ],
+        ),
+      ),
+    ],
+  );
 }
 
 /// The nutrients [MealSummaryCard] shows with their energy, which a
