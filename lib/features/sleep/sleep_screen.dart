@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
@@ -465,6 +467,13 @@ String _number(OvernightMeasure measure, double value) => switch (measure) {
   _ => value.round().toString(),
 };
 
+/// `52–68`, or one value when both ends read the same.
+String _range(OvernightMeasure measure, double low, double high) {
+  final lowText = _number(measure, low);
+  final highText = _number(measure, high);
+  return lowText == highText ? lowText : '$lowText–$highText';
+}
+
 /// What was measured, as the platform reports it: a range, or one value
 /// when the range is a single one; Apple's own reading for breathing
 /// disturbances.
@@ -477,9 +486,7 @@ String overnightValue(OvernightReading reading) {
       null => formatAmount(reading.average),
     };
   }
-  final low = _number(measure, reading.minimum);
-  final high = _number(measure, reading.maximum);
-  final range = low == high ? low : '$low–$high';
+  final range = _range(measure, reading.minimum, reading.maximum);
   return measure.unit.isEmpty ? range : '$range ${measure.unit}';
 }
 
@@ -936,8 +943,9 @@ class _NightChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final values = [for (final (_, value) in points) value];
-    final lowText = _number(measure, values.reduce((a, b) => a < b ? a : b));
-    final highText = _number(measure, values.reduce((a, b) => a > b ? a : b));
+    final ranges = rangeBins(points, from, to);
+    // Each bar is an equal share of the night.
+    final stretch = to.difference(from) ~/ ranges.length;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -945,17 +953,35 @@ class _NightChartCard extends StatelessWidget {
           CategoryLabel(label: title, color: color),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${lowText == highText ? lowText : '$lowText–$highText'} '
+            '${_range(measure, values.reduce(math.min), values.reduce(math.max))} '
             '${measure.unit}',
             style: AppTextStyles.itemTitle,
           ),
           const SizedBox(height: AppSpacing.md),
-          RangeBarChart(
-            ranges: rangeBins(points, from, to),
-            color: color,
-            labelOf: (value) => _number(measure, value),
-            start: formatTimeOfDay(from),
-            end: formatTimeOfDay(to),
+          ChartScrubber(
+            count: ranges.length,
+            indexAt: ChartScrubber.slots(ranges.length),
+            idle: '每 ${(stretch.inSeconds / 60).round()} 分',
+            readoutOf: (index) {
+              final start = from.add(stretch * index);
+              return [
+                '${formatTimeOfDay(start)}–'
+                    '${formatTimeOfDay(start.add(stretch))}',
+                switch (ranges[index]) {
+                  (final low, final high) =>
+                    '${_range(measure, low, high)} ${measure.unit}',
+                  null => '沒有紀錄',
+                },
+              ].join(' · ');
+            },
+            builder: (context, selected) => RangeBarChart(
+              ranges: ranges,
+              color: color,
+              labelOf: (value) => _number(measure, value),
+              start: formatTimeOfDay(from),
+              end: formatTimeOfDay(to),
+              selected: selected,
+            ),
           ),
         ],
       ),

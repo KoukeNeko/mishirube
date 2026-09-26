@@ -7,6 +7,7 @@ import 'package:mishirube/backend/health/health_source.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
 
@@ -78,6 +79,21 @@ void main() {
     );
     expect(find.text('50–61 次/分'), findsOneWidget);
     expect(find.text('睡眠時呼吸速率'), findsNothing, reason: 'no samples');
+
+    // Touching a bar reads out its half hour.
+    final chart = find.byType(RangeBarChart);
+    await tester.scrollUntilVisible(
+      chart,
+      200,
+      scrollable: find.byType(Scrollable).hitTestable().first,
+    );
+    await Scrollable.ensureVisible(tester.element(chart), alignment: 0.5);
+    await tester.pumpAndSettle();
+    expect(find.text('每 30 分'), findsOneWidget);
+    await tester.tapAt(tester.getRect(chart).centerLeft + const Offset(4, 0));
+    await tester.pump();
+    expect(find.textContaining('· 50–52 次/分'), findsOneWidget);
+    expect(find.text('每 30 分'), findsNothing);
     await disposeTree(tester);
   });
 }

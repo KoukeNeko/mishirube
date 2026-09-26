@@ -265,6 +265,7 @@ class RangeBarChart extends StatelessWidget {
     required this.start,
     required this.end,
     this.height = 180,
+    this.selected,
   });
 
   final List<(double, double)?> ranges;
@@ -273,6 +274,9 @@ class RangeBarChart extends StatelessWidget {
   final String start;
   final String end;
   final double height;
+
+  /// The stretch a reading picks; the others dim while one is picked.
+  final int? selected;
 
   @override
   Widget build(BuildContext context) {
@@ -285,6 +289,7 @@ class RangeBarChart extends StatelessWidget {
             painter: _RangeBarPainter(
               ranges: ranges,
               color: color,
+              selected: selected,
               labelOf: labelOf,
               labelStyle: AppTextStyles.caption.copyWith(color: color),
             ),
@@ -309,6 +314,7 @@ class _RangeBarPainter extends CustomPainter {
     required this.color,
     required this.labelOf,
     required this.labelStyle,
+    required this.selected,
   });
 
   /// Room kept above and below the bars for the labels of the extremes.
@@ -320,6 +326,7 @@ class _RangeBarPainter extends CustomPainter {
   final Color color;
   final String Function(double value) labelOf;
   final TextStyle labelStyle;
+  final int? selected;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -348,11 +355,15 @@ class _RangeBarPainter extends CustomPainter {
       ..color = color
       ..strokeWidth = barWidth
       ..strokeCap = StrokeCap.round;
+    final dimmed = Paint()
+      ..color = color.withValues(alpha: 0.35)
+      ..strokeWidth = barWidth
+      ..strokeCap = StrokeCap.round;
     for (final (index, (bottomValue, topValue)) in known) {
       canvas.drawLine(
         Offset(xOf(index), yOf(topValue)),
         Offset(xOf(index), yOf(bottomValue)),
-        paint,
+        selected == null || selected == index ? paint : dimmed,
       );
     }
 
@@ -381,5 +392,5 @@ class _RangeBarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RangeBarPainter old) =>
-      old.ranges != ranges || old.color != color;
+      old.ranges != ranges || old.color != color || old.selected != selected;
 }
