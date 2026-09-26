@@ -13,6 +13,8 @@ import '../goal/goal_screen.dart';
 import '../goal/goal_view_model.dart';
 import '../journal/body_reading_entry_screen.dart';
 import '../nutrition/food_library_screen.dart';
+import '../nutrition/nutrition_target_screen.dart';
+import '../nutrition/nutrition_view_model.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../sleep/sleep_goal_rows.dart';
 import '../sleep/sleep_view_model.dart';
@@ -40,11 +42,12 @@ class _MeScreenState extends State<MeScreen> {
   late final _sleep = SleepViewModel(_backend);
   late final _trends = TrendsViewModel(_backend);
   late final _body = BodyViewModel(_backend);
+  late final _nutrition = NutritionViewModel(_backend);
   late final _version = appVersion();
 
   @override
   void dispose() {
-    for (final model in [_goal, _sleep, _trends, _body]) {
+    for (final model in [_goal, _sleep, _trends, _body, _nutrition]) {
       model.dispose();
     }
     super.dispose();
@@ -71,7 +74,7 @@ class _MeScreenState extends State<MeScreen> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Listenable.merge([_goal, _sleep, _trends, _body]),
+    listenable: Listenable.merge([_goal, _sleep, _trends, _body, _nutrition]),
     builder: (context, _) => _page(context),
   );
 
@@ -134,6 +137,12 @@ class _MeScreenState extends State<MeScreen> {
                     title: '每週目標',
                     subtitle: _goalSummary(_goal),
                     onTap: () => pushPage(context, const GoalScreen()),
+                  ),
+                  NavRow(
+                    title: '每日目標',
+                    subtitle: _nutritionTargetSummary(_nutrition),
+                    onTap: () =>
+                        pushPage(context, const NutritionTargetScreen()),
                   ),
                   ...sleepGoalRows(context, _sleep),
                 ],
@@ -305,6 +314,18 @@ String _goalSummary(GoalViewModel goal) {
   if (overview.isPaused) return '已暫停';
   final week = overview.thisWeek;
   return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';
+}
+
+/// `2,100 kcal · 蛋白質 96 g`: today's targets, or 未設定 while the body
+/// they are worked out from is not known.
+String _nutritionTargetSummary(NutritionViewModel nutrition) {
+  final targets = nutrition.targetsOn(nutrition.now());
+  final kcal = targets.kcal;
+  if (kcal == null) return '未設定';
+  return [
+    '${formatKcal(kcal)} kcal',
+    if (targets.proteinGrams case final protein?) '蛋白質 $protein g',
+  ].join(' · ');
 }
 
 /// `自己的 3 種 · 品牌 2 家`: what is in the library without opening it.

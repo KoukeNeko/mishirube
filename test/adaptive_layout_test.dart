@@ -12,6 +12,7 @@ import 'package:mishirube/features/me/export_screen.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
+import 'package:mishirube/features/nutrition/nutrition_target_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/app_bottom_chrome.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
@@ -488,6 +489,21 @@ void main() {
       expect(
         tester.getRect(find.byType(WorkoutSummaryScreen)).left,
         greaterThanOrEqualTo(list.right),
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('the daily targets open beside 我的', (tester) async {
+      final store = _store();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+      store.selectTab(HomeTab.me);
+      await tester.pumpAndSettle();
+
+      await _tapRow(tester, '每日目標');
+
+      expect(
+        tester.getRect(find.byType(NutritionTargetScreen)).left,
+        greaterThanOrEqualTo(tester.getRect(find.byType(MeScreen)).right),
       );
       await disposeTree(tester);
     });
