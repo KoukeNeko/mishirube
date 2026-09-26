@@ -6,16 +6,27 @@ import '../../domain/domain.dart';
 /// Ollama's are given the same job. Apple's side also constrains the
 /// answer to [DraftItem]'s shape; Ollama Cloud cannot, so the shape is
 /// spelled out here too.
-const mealDraftInstructions = '''
+final mealDraftInstructions =
+    '''
 你把使用者描述的一餐拆成一項一項的食物或飲料。
 只回傳 JSON，不要任何說明文字，格式：
-{"items":[{"name":"品名","amount":"份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"is_drink":false}]}
+{"items":[{"name":"品名","amount":"份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
 規則：
 - name 用使用者的說法，繁體中文。
 - amount 照使用者說的份量；沒說就寫「一份」。
-- kcal、protein_g、carb_g、fat_g 是你對這個份量的估計，不確定就填 null。
+- kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計，不確定就填 null。
+$_nutrientRules
 - 飲料的 is_drink 是 true。
 - 使用者沒提到的東西不要加。''';
+
+/// How every prompt asks for the nutrients beyond the five: under keys
+/// that carry their unit, taken from [Nutrient] so the list is the
+/// app's own.
+final _nutrientRules =
+    '''
+- nutrients 放其他營養素，鍵只能用這些（單位在鍵名裡：g 公克、mg 毫克、ug 微克）：
+  ${Nutrient.values.map(nutrientAnswerKey).join('、')}
+- 使用者給了營養標示、或照片裡看得到營養標示時，標示上的每一列都要填（例如糖、鈉、飽和脂肪、鈣、白胺酸），數字照標示的「每份」；沒有依據就不要填，不要猜。''';
 
 /// Figures past these are not a meal but a misreading: a number the
 /// model wrote in the wrong unit, or invented.
@@ -42,15 +53,18 @@ MealDraft parseMealDraft(
 /// What every provider is asked about a food photo. It returns the same
 /// items as [mealDraftInstructions], so the review and logging are the
 /// same, plus what the photo cannot show.
-const mealPhotoInstructions = '''
+final mealPhotoInstructions =
+    '''
 你會看到一張食物照片，可能還有使用者補充的一句話。辨識照片裡每一項食物或飲料，估計份量與營養。
 只回傳 JSON，不要任何說明文字，格式：
-{"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
+{"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
 規則：
 - name 用台灣常用的說法，繁體中文。便當、自助餐拆成看得到的每一項（白飯、雞腿、青菜），一碗滷肉飯這種一道菜就算一項。
 - amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
 - 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。
-- kcal、protein_g、carb_g、fat_g 是你對這個份量的估計；不確定就填 null，不要填 0。
+- kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計；不確定就填 null，不要填 0。
+- 照片裡是包裝的營養標示時，kcal 等數字照標示的「每份」填，不要估計。
+$_nutrientRules
 - 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
 - 同一份食物只算一次，只列照片裡看得到的東西。
 - 照片裡沒有食物或飲料時回傳 {"items":[],"notes":[]}。''';
@@ -114,6 +128,8 @@ List<DraftItem> _itemsOf(Object? decoded, String answer) {
           proteinGrams: _figure(entry['protein_g'], _maxGrams),
           carbGrams: _figure(entry['carb_g'], _maxGrams),
           fatGrams: _figure(entry['fat_g'], _maxGrams),
+          fibreGrams: _figure(entry['fibre_g'], _maxGrams),
+          nutrients: _nutrientsOf(entry['nutrients']),
           isDrink: entry['is_drink'] == true,
         ),
   ];
@@ -141,4 +157,23 @@ String? _energyWarning(DraftItem item) {
 int? _figure(Object? value, int max) => switch (value) {
   final num number when number >= 0 && number <= max => number.round(),
   _ => null,
+};
+
+/// The nutrients a model gave under their answer keys; an unknown key or
+/// a figure no portion could hold is left out.
+Nutrients _nutrientsOf(Object? value) {
+  if (value is! Map<String, dynamic>) return const {};
+  return {
+    for (final nutrient in Nutrient.values)
+      if (value[nutrientAnswerKey(nutrient)] case final num amount
+          when amount >= 0 && amount <= _maxNutrient[nutrient.unit]!)
+        nutrient: amount.toDouble(),
+  };
+}
+
+/// More than a day's food could hold, by unit.
+const _maxNutrient = {
+  NutrientUnit.gram: 500.0,
+  NutrientUnit.milligram: 50000.0,
+  NutrientUnit.microgram: 50000.0,
 };

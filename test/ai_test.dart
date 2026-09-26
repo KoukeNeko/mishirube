@@ -179,6 +179,36 @@ void main() {
       expect(item.carbGrams, isNull, reason: 'unknown stays unknown');
     });
 
+    test('keeps every row a printed label gave', () {
+      final item = parse(
+        '{"items":[{"name":"巧克力乳清蛋白飲","amount":"250 ml","kcal":186,'
+        '"protein_g":21,"carb_g":21,"fat_g":2,"fibre_g":null,'
+        '"nutrients":{"saturated_fat_g":1.5,"trans_fat_g":0,"sugar_g":14.4,'
+        '"sodium_mg":79,"calcium_mg":667,"valine_mg":1047,'
+        '"isoleucine_mg":867,"leucine_mg":1571,"sparkle_g":3},'
+        '"is_drink":true}]}',
+      ).items.single;
+      expect(item.nutrients, {
+        Nutrient.saturatedFat: 1.5,
+        Nutrient.transFat: 0,
+        Nutrient.sugar: 14.4,
+        Nutrient.sodium: 79,
+        Nutrient.calcium: 667,
+        Nutrient.valine: 1047,
+        Nutrient.isoleucine: 867,
+        Nutrient.leucine: 1571,
+      }, reason: 'a key the app does not know is left out');
+      expect(item.fibreGrams, isNull);
+    });
+
+    test('the prompts ask for nutrients under the keys the parser reads', () {
+      for (final prompt in [mealDraftInstructions, mealPhotoInstructions]) {
+        expect(prompt, contains('sugar_g'));
+        expect(prompt, contains('leucine_mg'));
+      }
+      expect(foodLabelInstructions, contains('calcium_mg'));
+    });
+
     test('drops a figure no meal could have instead of trusting it', () {
       final item = parse(
         '{"items":[{"name":"雞排","kcal":23000,"protein_g":-4}]}',
@@ -1114,6 +1144,48 @@ void main() {
         });
       },
     );
+
+    test('a draft of several items can be one meal, its figures summed', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      final before = store.todayMeals.length;
+      const rice = DraftItem(
+        name: '白飯',
+        amount: '一碗',
+        kcal: 280,
+        proteinGrams: 5,
+        carbGrams: 62,
+        fatGrams: 1,
+      );
+      const soup = DraftItem(
+        name: '味噌湯',
+        amount: '一碗',
+        kcal: 40,
+        proteinGrams: 3,
+        carbGrams: 4,
+      );
+      const draft = MealDraft(
+        items: [rice, soup],
+        provider: AiProviderKind.ollamaCloud,
+        model: 'gemma4:31b',
+      );
+
+      final meal = store.backend.nutrition.logDraft(draft, [
+        rice,
+        soup,
+      ], asOneMeal: true).single;
+
+      expect(store.todayMeals, hasLength(before + 1));
+      expect(meal.name, '白飯、味噌湯');
+      expect(meal.dishes.map((dish) => dish.name), ['白飯', '味噌湯']);
+      expect(meal.kcal, 320);
+      expect(meal.proteinGrams, 8);
+      expect(
+        meal.fatGrams,
+        isNull,
+        reason: 'the soup gave none, so a sum would undercount',
+      );
+      expect(meal.isEstimated, isTrue);
+    });
   });
 
   testWidgets('a sentence becomes a draft, and only the kept part is logged', (
@@ -1152,6 +1224,25 @@ void main() {
       find.widgetWithText(DraftAttribution, 'Ollama Cloud / fake-1'),
       findsOneWidget,
     );
+    expect(
+      find.text('蛋白質 — · 碳水化合物 — · 脂肪 —'),
+      findsNWidgets(2),
+      reason: 'figures the model did not give read as dashes, not 0',
+    );
+
+    // Every figure is corrected in one place, not just the energy.
+    await tester.tap(find.text('蛋餅'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.descendant(
+        of: find.widgetWithText(NumberFieldRow, '蛋白質'),
+        matching: find.byType(TextField),
+      ),
+      '9',
+    );
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    expect(find.text('蛋白質 9 g · 碳水化合物 — · 脂肪 —'), findsOneWidget);
 
     await tester.drag(find.text('冰奶茶'), const Offset(-300, 0));
     await tester.pumpAndSettle();
@@ -1163,6 +1254,7 @@ void main() {
 
     expect(store.todayMeals, hasLength(before + 1));
     expect(store.todayMeals.last.name, '蛋餅（一份）');
+    expect(store.todayMeals.last.proteinGrams, 9);
     await disposeTree(tester);
   });
 

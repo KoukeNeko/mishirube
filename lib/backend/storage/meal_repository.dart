@@ -97,6 +97,40 @@ class MealRepository {
       ),
   ];
 
+  /// When meal [id] was eaten; null when there is no such meal.
+  DateTime? eatenAtOf(String id) {
+    final rows = _db.select('SELECT eaten_at FROM meals WHERE id = ?', [id]);
+    return rows.isEmpty
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(rows.first['eaten_at']! as int);
+  }
+
+  /// Moves meal [id] to when it was really eaten: its time, its day and
+  /// the offset it is read in all follow. The old time is audited.
+  void retime(String id, DateTime eatenAt) {
+    _db.transaction(() {
+      final previous = eatenAtOf(id);
+      _db.execute(
+        'UPDATE meals SET eaten_at = ?, local_day = ?, '
+        'utc_offset_minutes = ?, updated_at = ?, revision = revision + 1 '
+        'WHERE id = ?',
+        [
+          eatenAt.millisecondsSinceEpoch,
+          localDayOf(eatenAt),
+          eatenAt.timeZoneOffset.inMinutes,
+          _db.now().millisecondsSinceEpoch,
+          id,
+        ],
+      );
+      _db.audit(
+        entityType: 'meal',
+        entityId: id,
+        action: 'retime',
+        payload: {'previous': previous?.toUtc().toIso8601String()},
+      );
+    });
+  }
+
   /// Removes a logged meal; [restore] takes it back. A tombstone, like
   /// every other record.
   void delete(String id) => _setDeleted(id, deleted: true);
@@ -210,8 +244,9 @@ class MealRepository {
     _db.transaction(() {
       _db.execute(
         'UPDATE meals SET name = ?, kcal = ?, protein_g = ?, carb_g = ?, '
-        'fat_g = ?, fibre_g = ?, is_estimated = ?, quality_tag = ?, '
-        'meal_type = ?, updated_at = ?, revision = revision + 1 WHERE id = ?',
+        'fat_g = ?, fibre_g = ?, millilitres = ?, is_estimated = ?, '
+        'quality_tag = ?, meal_type = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
         [
           meal.name,
           meal.kcal,
@@ -219,6 +254,7 @@ class MealRepository {
           meal.carbGrams,
           meal.fatGrams,
           meal.fibreGrams,
+          meal.millilitres,
           meal.isEstimated ? 1 : 0,
           meal.qualityTag,
           meal.mealType?.name,
@@ -226,6 +262,9 @@ class MealRepository {
           meal.id,
         ],
       );
+      // The other nutrients are the meal's too; an edit that left them
+      // out kept the old ones under new totals.
+      _writeNutrients(meal);
       _db.audit(
         entityType: 'meal',
         entityId: meal.id,
@@ -237,7 +276,14 @@ class MealRepository {
             'protein_g': previous.proteinGrams,
             'carb_g': previous.carbGrams,
             'fat_g': previous.fatGrams,
+            'fibre_g': previous.fibreGrams,
+            'millilitres': previous.millilitres,
             'meal_type': previous.mealType?.name,
+            'nutrients': {
+              for (final MapEntry(key: nutrient, value: amount)
+                  in previous.nutrients.entries)
+                nutrient.name: amount,
+            },
           },
         },
       );

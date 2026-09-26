@@ -5,7 +5,8 @@ import '../../domain/domain.dart';
 /// What every provider is asked when reading a nutrition label. The
 /// label arrives as text already read off the photo on the phone, one
 /// table row per line.
-const foodLabelInstructions = '''
+final foodLabelInstructions =
+    '''
 你會拿到一張台灣食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。
 台灣的營養標示長這樣（每 100 那一欄有時是「每日參考值百分比」，有時兩欄都有）：
 營養標示
@@ -26,7 +27,8 @@ const foodLabelInstructions = '''
 把它整理成 JSON，不要任何說明文字，數字只填數字本身、不要加單位，格式：
 {"name":"品名","brand":"品牌","serving_amount":數字,"serving_unit":"g 或 ml",
 "kcal":數字,"kcal_per_100":數字,"protein_g":數字,"fat_g":數字,"saturated_fat_g":數字,"trans_fat_g":數字,
-"carb_g":數字,"sugar_g":數字,"sodium_mg":數字,"fibre_g":數字,"caffeine_mg":數字}
+"carb_g":數字,"sugar_g":數字,"sodium_mg":數字,"fibre_g":數字,"caffeine_mg":數字,
+"nutrients":{"calcium_mg":數字}}
 規則：
 - 一律用「每份」那一欄，不要用「每100公克」或「每100毫升」那一欄。只有每100一欄時，數字照填，serving_amount 填 100。
 - 「每日參考值百分比」那一欄是百分比，不是份量，不要填進任何欄位。
@@ -37,7 +39,10 @@ const foodLabelInstructions = '''
 - 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。標示上沒有的列（例如沒有膳食纖維那一列）填 null，不要填 0。
 - 照片可能歪斜，一行文字裡的數字可能屬於上一列或下一列。照營養素的順序對齊：每一欄由上到下依序是熱量、蛋白質、脂肪、飽和脂肪、反式脂肪、碳水化合物、糖、鈉；飽和脂肪與反式脂肪不會大於脂肪，糖不會大於碳水化合物。
 - 看不到或不確定的欄位填 null，不要猜。
-- 辨識錯字要照上下文判斷，例如把字母 O 當成 0；但無法判斷就填 null。''';
+- 辨識錯字要照上下文判斷，例如把字母 O 當成 0；但無法判斷就填 null。
+- 上面沒有欄位的列（鈣、膽固醇、胺基酸、維生素等）照「每份」放進 nutrients，鍵只能用這些（單位在鍵名裡：g 公克、mg 毫克、ug 微克）：
+  ${Nutrient.values.map(nutrientAnswerKey).join('、')}
+  例如白胺酸 1571 毫克是 "leucine_mg":1571，纈胺酸是 valine_mg，異白胺酸是 isoleucine_mg。''';
 
 /// Figures past these are a misread, not a food.
 const _limits = {
@@ -130,6 +135,17 @@ FoodLabelDraft parseFoodLabel(
     carbGrams: carb,
     fibreGrams: partOf('fibre_g', carb),
     nutrients: {
+      // The rows with no field of their own first, so the checked ones
+      // below win where a model gave both.
+      ...?switch (fields['nutrients']) {
+        final Map<String, dynamic> extra => {
+          for (final nutrient in Nutrient.values)
+            if (extra[nutrientAnswerKey(nutrient)] case final num amount
+                when amount >= 0 && amount <= 50000)
+              nutrient: amount.toDouble(),
+        },
+        _ => null,
+      },
       Nutrient.saturatedFat: ?partOf('saturated_fat_g', fat),
       Nutrient.transFat: ?partOf('trans_fat_g', fat),
       Nutrient.sugar: ?partOf('sugar_g', carb),

@@ -150,6 +150,8 @@ class DraftItem {
     this.proteinGrams,
     this.carbGrams,
     this.fatGrams,
+    this.fibreGrams,
+    this.nutrients = const {},
     this.isDrink = false,
   });
 
@@ -161,17 +163,12 @@ class DraftItem {
   final int? proteinGrams;
   final int? carbGrams;
   final int? fatGrams;
-  final bool isDrink;
+  final int? fibreGrams;
 
-  DraftItem copyWith({int? kcal}) => DraftItem(
-    name: name,
-    amount: amount,
-    kcal: kcal ?? this.kcal,
-    proteinGrams: proteinGrams,
-    carbGrams: carbGrams,
-    fatGrams: fatGrams,
-    isDrink: isDrink,
-  );
+  /// Everything else a printed label gave: sugar, sodium, calcium, the
+  /// amino acids. Absent is unknown, as on a food.
+  final Nutrients nutrients;
+  final bool isDrink;
 }
 
 /// One line of text read off a photo, with where it sat, as a fraction

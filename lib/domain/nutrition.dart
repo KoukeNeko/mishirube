@@ -33,6 +33,10 @@ class DishEntry {
 /// 「水」, which comes through a portion instead.
 const waterQualityTag = '水';
 
+/// How a meal put together from separately logged ones is marked when
+/// they carried different marks.
+const mergedQualityTag = '合併';
+
 class MealEvent {
   const MealEvent({
     required this.id,
@@ -654,6 +658,17 @@ enum Nutrient {
   /// Written as `12.4 mg`.
   String format(double amount) => '${formatAmount(amount)} ${unit.label}';
 }
+
+/// The key a model's answer gives [nutrient] under: its name in
+/// snake_case and its unit, `saturated_fat_g`, `sodium_mg`,
+/// `vitamin_d_ug`, the way the label's own keys read, so the unit is
+/// never a guess.
+String nutrientAnswerKey(Nutrient nutrient) =>
+    '${nutrient.name.replaceAllMapped(RegExp('[A-Z]'), (match) => '_${match[0]!.toLowerCase()}')}_${switch (nutrient.unit) {
+      NutrientUnit.gram => 'g',
+      NutrientUnit.milligram => 'mg',
+      NutrientUnit.microgram => 'ug',
+    }}';
 
 /// What is known about a food's nutrients, per serving.
 ///

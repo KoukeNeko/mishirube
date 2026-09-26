@@ -111,17 +111,14 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
 
   Future<bool> _askConsent() => askCloudConsent(context);
 
-  Future<void> _editKcal(int index) async {
-    final item = _items[index];
-    final typed = await showTextDialog(
+  /// Corrects the model's figures for one item.
+  Future<void> _editFigures(int index) async {
+    final edited = await showAppDialog<DraftItem>(
       context,
-      title: '${item.name} 的熱量',
-      initial: item.kcal == null ? '' : '${item.kcal}',
-      hint: 'kcal',
+      _FiguresDialog(item: _items[index]),
     );
-    final kcal = int.tryParse(typed?.trim() ?? '');
-    if (kcal == null) return;
-    setState(() => _items = [..._items]..[index] = item.copyWith(kcal: kcal));
+    if (edited == null || !mounted) return;
+    setState(() => _items = [..._items]..[index] = edited);
   }
 
   void _remove(int index) {
@@ -140,11 +137,38 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     );
   }
 
-  void _log() {
+  /// Several items are one meal or several, as the user says. A draft
+  /// handed over from 新增食物 was already split there.
+  Future<void> _log() async {
+    var asOneMeal = false;
+    if (_items.length > 1 && widget.draft == null) {
+      final choice = await showAppDialog<bool>(
+        context,
+        AppDialog(
+          title: '${_items.length} 項',
+          message: _items.map((item) => item.name).join('、'),
+          actions: [
+            DialogAction(
+              label: '合併成一餐',
+              onTap: () => Navigator.of(context).pop(true),
+            ),
+            DialogAction(
+              label: '逐項記錄',
+              tone: DialogTone.primary,
+              onTap: () => Navigator.of(context).pop(false),
+            ),
+            DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          ],
+        ),
+      );
+      if (choice == null || !mounted) return;
+      asOneMeal = choice;
+    }
     final logged = _nutrition.logDraft(
       _draft!,
       _items,
       mealType: widget.mealType,
+      asOneMeal: asOneMeal,
     );
     Navigator.of(context).pop(logged);
   }
@@ -227,7 +251,8 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
                   subtitle:
                       '${item.amount} · '
                       '${formatKcalOrDash(item.kcal)} kcal',
-                  onTap: () => _editKcal(index),
+                  detail: _macrosOf(item),
+                  onTap: () => _editFigures(index),
                 ),
               ),
             ),
@@ -241,6 +266,104 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               child: RewriteLink(onTap: () => setState(() => _draft = null)),
             ),
         ],
+      ],
+    );
+  }
+}
+
+/// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, a dash for a figure the
+/// model did not give; then, on a line of its own, whatever else a label
+/// gave: `糖 14.4 g · 鈉 79 mg · 鈣 667 mg`.
+String _macrosOf(DraftItem item) {
+  String grams(int? value) => value == null ? '—' : '$value g';
+  final more = [
+    if (item.fibreGrams case final fibre?) '${MacroLabel.fibre} $fibre g',
+    for (final MapEntry(key: nutrient, value: amount) in item.nutrients.entries)
+      '${nutrient.label} ${nutrient.format(amount)}',
+  ];
+  return [
+    [
+      '${MacroLabel.protein} ${grams(item.proteinGrams)}',
+      '${MacroLabel.carb} ${grams(item.carbGrams)}',
+      '${MacroLabel.fat} ${grams(item.fatGrams)}',
+    ].join(' · '),
+    if (more.isNotEmpty) more.join(' · '),
+  ].join('\n');
+}
+
+/// One item's energy and macronutrients, as the model gave them, to
+/// correct. Owns its fields, so they outlive the dialog's closing. A
+/// field left empty is a figure nobody knows, not zero.
+class _FiguresDialog extends StatefulWidget {
+  const _FiguresDialog({required this.item});
+
+  final DraftItem item;
+
+  @override
+  State<_FiguresDialog> createState() => _FiguresDialogState();
+}
+
+class _FiguresDialogState extends State<_FiguresDialog> {
+  late final _kcal = _field(widget.item.kcal);
+  late final _protein = _field(widget.item.proteinGrams);
+  late final _carb = _field(widget.item.carbGrams);
+  late final _fat = _field(widget.item.fatGrams);
+
+  static TextEditingController _field(int? value) =>
+      TextEditingController(text: value == null ? '' : '$value');
+
+  static int? _read(TextEditingController field) =>
+      double.tryParse(field.text.trim())?.round();
+
+  @override
+  void dispose() {
+    for (final field in [_kcal, _protein, _carb, _fat]) {
+      field.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final item = widget.item;
+    return AppDialog(
+      title: item.name,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          NumberFieldRow(
+            label: MacroLabel.energy,
+            unit: 'kcal',
+            controller: _kcal,
+          ),
+          NumberFieldRow(
+            label: MacroLabel.protein,
+            unit: 'g',
+            controller: _protein,
+          ),
+          NumberFieldRow(label: MacroLabel.carb, unit: 'g', controller: _carb),
+          NumberFieldRow(label: MacroLabel.fat, unit: 'g', controller: _fat),
+        ],
+      ),
+      actions: [
+        DialogAction(
+          label: '儲存',
+          tone: DialogTone.primary,
+          onTap: () => Navigator.of(context).pop(
+            DraftItem(
+              name: item.name,
+              amount: item.amount,
+              kcal: _read(_kcal),
+              proteinGrams: _read(_protein),
+              carbGrams: _read(_carb),
+              fatGrams: _read(_fat),
+              fibreGrams: item.fibreGrams,
+              nutrients: item.nutrients,
+              isDrink: item.isDrink,
+            ),
+          ),
+        ),
+        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
       ],
     );
   }

@@ -258,6 +258,14 @@ enum AppleIntelligence {
     var fibreGrams: Double?
     @Guide(description: "每份的咖啡因，毫克；沒有就留空")
     var caffeineMilligrams: Double?
+    @Guide(description: "「每份」那一欄的鈣，毫克；沒有就留空")
+    var calciumMilligrams: Double?
+    @Guide(description: "「每份」那一欄的白胺酸，毫克；沒有就留空")
+    var leucineMilligrams: Double?
+    @Guide(description: "「每份」那一欄的異白胺酸，毫克；沒有就留空")
+    var isoleucineMilligrams: Double?
+    @Guide(description: "「每份」那一欄的纈胺酸，毫克；沒有就留空")
+    var valineMilligrams: Double?
 
     /// The JSON `parseFoodLabel` reads, with the keys every provider uses.
     func json() throws -> String {
@@ -272,6 +280,12 @@ enum AppleIntelligence {
         "carb_g": value(carbGrams), "sugar_g": value(sugarGrams),
         "sodium_mg": value(sodiumMilligrams), "fibre_g": value(fibreGrams),
         "caffeine_mg": value(caffeineMilligrams),
+        "nutrients": [
+          "calcium_mg": value(calciumMilligrams),
+          "leucine_mg": value(leucineMilligrams),
+          "isoleucine_mg": value(isoleucineMilligrams),
+          "valine_mg": value(valineMilligrams),
+        ],
       ]
       let data = try JSONSerialization.data(withJSONObject: fields)
       return String(decoding: data, as: UTF8.self)
@@ -298,6 +312,12 @@ enum AppleIntelligence {
       var carbGrams: Int?
       @Guide(description: "脂肪估計，單位公克；不確定就留空")
       var fatGrams: Int?
+      @Guide(description: "膳食纖維估計，單位公克；不確定就留空")
+      var fibreGrams: Int?
+      @Guide(description: "糖，單位公克；有營養標示依據才填，否則留空")
+      var sugarGrams: Double?
+      @Guide(description: "鈉，單位毫克；有營養標示依據才填，否則留空")
+      var sodiumMilligrams: Double?
       @Guide(description: "是飲料就是 true")
       var isDrink: Bool
     }
@@ -312,6 +332,11 @@ enum AppleIntelligence {
           "protein_g": item.proteinGrams as Any? ?? NSNull(),
           "carb_g": item.carbGrams as Any? ?? NSNull(),
           "fat_g": item.fatGrams as Any? ?? NSNull(),
+          "fibre_g": item.fibreGrams as Any? ?? NSNull(),
+          "nutrients": [
+            "sugar_g": item.sugarGrams as Any? ?? NSNull(),
+            "sodium_mg": item.sodiumMilligrams as Any? ?? NSNull(),
+          ],
           "is_drink": item.isDrink,
         ]
       }
@@ -382,6 +407,12 @@ enum AppleIntelligence {
       var carbGrams: Int?
       @Guide(description: "脂肪估計，單位公克；不確定就留空")
       var fatGrams: Int?
+      @Guide(description: "膳食纖維估計，單位公克；不確定就留空")
+      var fibreGrams: Int?
+      @Guide(description: "糖，單位公克；有營養標示依據才填，否則留空")
+      var sugarGrams: Double?
+      @Guide(description: "鈉，單位毫克；有營養標示依據才填，否則留空")
+      var sodiumMilligrams: Double?
       @Guide(description: "是飲料就是 true")
       var isDrink: Bool
     }
@@ -396,6 +427,11 @@ enum AppleIntelligence {
           "protein_g": item.proteinGrams as Any? ?? NSNull(),
           "carb_g": item.carbGrams as Any? ?? NSNull(),
           "fat_g": item.fatGrams as Any? ?? NSNull(),
+          "fibre_g": item.fibreGrams as Any? ?? NSNull(),
+          "nutrients": [
+            "sugar_g": item.sugarGrams as Any? ?? NSNull(),
+            "sodium_mg": item.sodiumMilligrams as Any? ?? NSNull(),
+          ],
           "is_drink": item.isDrink,
         ]
       }

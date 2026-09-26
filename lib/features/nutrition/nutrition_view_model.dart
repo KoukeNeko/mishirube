@@ -51,7 +51,13 @@ class NutritionViewModel extends ViewModel {
     MealDraft draft,
     List<DraftItem> items, {
     MealType? mealType,
-  }) => backend.nutrition.logDraft(draft, items, mealType: mealType);
+    bool asOneMeal = false,
+  }) => backend.nutrition.logDraft(
+    draft,
+    items,
+    mealType: mealType,
+    asOneMeal: asOneMeal,
+  );
 
   /// Logs a plate: every portion, as one action.
   List<MealEvent> logPortions(
@@ -69,6 +75,18 @@ class NutritionViewModel extends ViewModel {
 
   void restoreMeals(List<MealEvent> meals) =>
       backend.nutrition.restoreMeals(meals.map((meal) => meal.id));
+
+  DateTime? eatenAtOf(String id) => backend.nutrition.eatenAtOf(id);
+
+  void retimeMeal(String id, DateTime eatenAt) =>
+      backend.nutrition.retimeMeal(id, eatenAt);
+
+  /// Puts separately logged [meals] back together as one.
+  MealEvent mergeMeals(List<MealEvent> meals) =>
+      backend.nutrition.mergeMeals(meals);
+
+  void unmergeMeals(MealEvent merged, List<MealEvent> parts) =>
+      backend.nutrition.unmergeMeals(merged, parts);
 
   /// Splits one dish of a meal on [day] into a record of its own.
   DishSplitSnapshot? splitDish({

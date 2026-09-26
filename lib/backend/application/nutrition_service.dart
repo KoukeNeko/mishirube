@@ -131,6 +131,99 @@ class NutritionService {
     ],
   );
 
+  /// Puts separately logged [meals] back together as one, eaten when the
+  /// first of them was: each becomes a dish of it, and its figures are
+  /// their sum — a figure any of them lacks is left empty rather than
+  /// undercounted. The parts are tombstoned, not rewritten, so
+  /// [unmergeMeals] brings them back as they were.
+  MealEvent mergeMeals(List<MealEvent> meals) {
+    assert(meals.length > 1, 'merging needs two meals or more');
+    return _db.transaction(() {
+      final timed = [
+        for (final meal in meals) (_meals.eatenAtOf(meal.id)!, meal),
+      ]..sort((a, b) => a.$1.compareTo(b.$1));
+      final (eatenAt, first) = timed.first;
+      int? total(int? Function(MealEvent) figure) {
+        final figures = meals.map(figure);
+        if (figures.any((value) => value == null)) return null;
+        return figures.fold<int>(0, (sum, value) => sum + value!);
+      }
+
+      final volumes = [for (final meal in meals) ?meal.millilitres];
+      final tags = {for (final meal in meals) meal.qualityTag};
+      final merged = MealEvent(
+        id: _db.newId(),
+        name: meals.map((meal) => meal.name).join('、'),
+        timeLabel: first.timeLabel,
+        qualityTag: tags.length == 1 ? tags.single : mergedQualityTag,
+        dishes: [
+          for (final meal in meals)
+            ...meal.dishes.isEmpty
+                ? [
+                    DishEntry(
+                      name: meal.name,
+                      quantityLabel: '',
+                      subtitle: meal.qualityTag,
+                    ),
+                  ]
+                : meal.dishes,
+        ],
+        kcal: total((meal) => meal.kcal),
+        proteinGrams: total((meal) => meal.proteinGrams),
+        carbGrams: total((meal) => meal.carbGrams),
+        fatGrams: total((meal) => meal.fatGrams),
+        fibreGrams: total((meal) => meal.fibreGrams),
+        nutrients: {
+          for (final nutrient in Nutrient.values)
+            if (meals.every((meal) => meal.nutrients.containsKey(nutrient)))
+              nutrient: meals.fold(
+                0.0,
+                (sum, meal) => sum + meal.nutrients[nutrient]!,
+              ),
+        },
+        // Volume is what was drunk: a sandwich adds none to a coffee.
+        millilitres: volumes.isEmpty
+            ? null
+            : volumes.fold<int>(0, (sum, volume) => sum + volume),
+        kind: meals.every((meal) => meal.kind == ConsumptionKind.beverage)
+            ? ConsumptionKind.beverage
+            : ConsumptionKind.food,
+        mealType: first.mealType,
+        isEstimated: meals.any((meal) => meal.isEstimated),
+        valueType:
+            meals.any((meal) => meal.valueType == NutrientValueType.estimate)
+            ? NutrientValueType.estimate
+            : first.valueType,
+      );
+      for (final meal in meals) {
+        _meals.delete(meal.id);
+      }
+      _meals.insert(
+        merged,
+        eatenAt: eatenAt,
+        auditPayload: {
+          'mergedFrom': [for (final meal in meals) meal.id],
+        },
+      );
+      return merged;
+    });
+  }
+
+  /// When meal [id] was eaten.
+  DateTime? eatenAtOf(String id) => _meals.eatenAtOf(id);
+
+  /// Moves a meal to when it was really eaten, another day included.
+  void retimeMeal(String id, DateTime eatenAt) => _meals.retime(id, eatenAt);
+
+  /// Takes a merge back: the merged meal goes, its parts return.
+  void unmergeMeals(MealEvent merged, List<MealEvent> parts) =>
+      _db.transaction(() {
+        _meals.delete(merged.id);
+        for (final part in parts) {
+          _meals.restore(part.id);
+        }
+      });
+
   /// Removes logged meals; [restoreMeals] takes them back.
   void deleteMeals(Iterable<String> ids) =>
       _db.transaction(() => ids.forEach(_meals.delete));
@@ -310,12 +403,67 @@ class NutritionService {
   /// Logs the items of a draft the user confirmed, as eaten now and all
   /// or none. Each is marked as an estimate from an AI draft, and the
   /// audit trail keeps which provider and model it came from.
+  ///
+  /// [asOneMeal] logs the items as the dishes of one meal, its figures
+  /// their sum — a figure any item lacks is left empty rather than
+  /// undercounted; otherwise each item is a meal of its own.
   List<MealEvent> logDraft(
     MealDraft draft,
     List<DraftItem> items, {
     MealType? mealType,
+    bool asOneMeal = false,
   }) {
     final eatenAt = _db.now();
+    if (asOneMeal && items.length > 1) {
+      int? total(int? Function(DraftItem) figure) {
+        final figures = items.map(figure);
+        if (figures.any((value) => value == null)) return null;
+        return figures.fold<int>(0, (sum, value) => sum + value!);
+      }
+
+      final meal = MealEvent(
+        id: _db.newId(),
+        name: items.map((item) => item.name).join('、'),
+        timeLabel: formatTimeOfDay(eatenAt),
+        qualityTag: aiDraftQualityTag,
+        dishes: [
+          for (final item in items)
+            DishEntry(
+              name: item.name,
+              quantityLabel: item.amount,
+              subtitle: aiDraftQualityTag,
+            ),
+        ],
+        kind: items.every((item) => item.isDrink)
+            ? ConsumptionKind.beverage
+            : ConsumptionKind.food,
+        kcal: total((item) => item.kcal),
+        proteinGrams: total((item) => item.proteinGrams),
+        carbGrams: total((item) => item.carbGrams),
+        fatGrams: total((item) => item.fatGrams),
+        fibreGrams: total((item) => item.fibreGrams),
+        nutrients: {
+          for (final nutrient in Nutrient.values)
+            if (items.every((item) => item.nutrients.containsKey(nutrient)))
+              nutrient: items.fold(
+                0.0,
+                (sum, item) => sum + item.nutrients[nutrient]!,
+              ),
+        },
+        mealType: mealType,
+        isEstimated: true,
+        valueType: NutrientValueType.estimate,
+      );
+      _db.transaction(
+        () => _meals.insert(
+          meal,
+          eatenAt: eatenAt,
+          source: ChangeSource.aiDraft,
+          auditPayload: {'provider': draft.provider.name, 'model': draft.model},
+        ),
+      );
+      return [meal];
+    }
     return _db.transaction(
       () => [
         for (final item in items)
@@ -335,6 +483,8 @@ class NutritionService {
               proteinGrams: item.proteinGrams,
               carbGrams: item.carbGrams,
               fatGrams: item.fatGrams,
+              fibreGrams: item.fibreGrams,
+              nutrients: item.nutrients,
               mealType: mealType,
               isEstimated: true,
               valueType: NutrientValueType.estimate,
