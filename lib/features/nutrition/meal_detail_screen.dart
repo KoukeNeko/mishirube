@@ -214,15 +214,26 @@ class _Macros extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CategoryLabel(label: label, color: color),
-                    Text(
-                      grams == null ? '—' : '$grams g',
-                      style: AppTextStyles.itemTitle,
-                    ),
-                    if (kcal != null)
-                      Text(
-                        '${formatKcal(kcal)} kcal',
-                        style: AppTextStyles.caption,
+                    // Under the name, not the dot.
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: CategoryLabel.textInset,
                       ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            grams == null ? '—' : '$grams g',
+                            style: AppTextStyles.itemTitle,
+                          ),
+                          if (kcal != null)
+                            Text(
+                              '${formatKcal(kcal)} kcal',
+                              style: AppTextStyles.caption,
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -240,10 +251,15 @@ class _Macros extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CategoryLabel(label: label, color: color),
-                      Text(
-                        '${formatAmount(grams.toDouble())} g · '
-                        '${formatKcal(kcal)} kcal',
-                        style: AppTextStyles.caption,
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: CategoryLabel.textInset,
+                        ),
+                        child: Text(
+                          '${formatAmount(grams.toDouble())} g · '
+                          '${formatKcal(kcal)} kcal',
+                          style: AppTextStyles.caption,
+                        ),
                       ),
                     ],
                   ),

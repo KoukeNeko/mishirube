@@ -201,17 +201,24 @@ class CategoryLabel extends StatelessWidget {
   final String label;
   final Color color;
 
+  static const _dot = 7.0;
+  static const _gap = 6.0;
+
+  /// How far in the label's text starts: lines under it indent this far
+  /// to line up with the text rather than the dot.
+  static const textInset = _dot + _gap;
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 7,
-          height: 7,
+          width: _dot,
+          height: _dot,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: _gap),
         Text(
           label,
           style: const TextStyle(

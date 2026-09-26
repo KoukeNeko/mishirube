@@ -2367,6 +2367,15 @@ void main() {
     // The energy each carries: 4 kcal a gram for carbohydrate less its
     // fibre and for protein, 9 for fat, 2 for the fibre itself.
     expect(find.text('95 g'), findsOneWidget, reason: 'as the label has it');
+    expect(
+      tester.getTopLeft(find.text('95 g')).dx,
+      tester.getTopLeft(find.text(MacroLabel.carb).last).dx,
+      reason: 'the figures line up with the name, not its dot',
+    );
+    expect(
+      tester.getTopLeft(find.text('5 g · 10 kcal')).dx,
+      tester.getTopLeft(find.text(MacroLabel.fibre).last).dx,
+    );
     expect(find.text('360 kcal'), findsOneWidget);
     expect(find.text('140 kcal'), findsOneWidget);
     expect(find.text('252 kcal'), findsOneWidget);
