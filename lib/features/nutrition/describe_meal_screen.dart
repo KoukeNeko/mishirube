@@ -25,11 +25,15 @@ class DescribeMealScreen extends StatefulWidget {
     this.mealType,
     this.draft,
     this.photoPath,
+    this.at,
   });
 
   final MealType? mealType;
   final MealDraft? draft;
   final String? photoPath;
+
+  /// When what is logged was eaten; now when null.
+  final DateTime? at;
 
   bool get _isPhoto => draft != null || photoPath != null;
 
@@ -169,6 +173,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       _items,
       mealType: widget.mealType,
       asOneMeal: asOneMeal,
+      at: widget.at,
     );
     Navigator.of(context).pop(logged);
   }

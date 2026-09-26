@@ -68,7 +68,8 @@ class NutritionViewModel extends ViewModel {
       backend.nutrition.logMeal(meal, eatenAt: now());
 
   /// Logs a meal eaten before all over again.
-  MealEvent copyMeal(MealEvent meal) => backend.nutrition.copy(meal);
+  MealEvent copyMeal(MealEvent meal, {DateTime? at}) =>
+      backend.nutrition.copy(meal, at: at);
 
   /// Saves a correction to a meal.
   void updateMeal(MealEvent previous, MealEvent corrected) =>
@@ -80,22 +81,29 @@ class NutritionViewModel extends ViewModel {
     List<DraftItem> items, {
     MealType? mealType,
     bool asOneMeal = false,
+    DateTime? at,
   }) => backend.nutrition.logDraft(
     draft,
     items,
     mealType: mealType,
     asOneMeal: asOneMeal,
+    at: at,
   );
 
   /// Logs a plate: every portion, as one action.
   List<MealEvent> logPortions(
     List<FoodPortion> portions, {
     MealType? mealType,
-  }) => backend.nutrition.logPortions(portions, mealType: mealType);
+    DateTime? at,
+  }) => backend.nutrition.logPortions(portions, mealType: mealType, at: at);
 
   /// Logs one serving of [food] without keeping the food: 快速記錄.
-  MealEvent logOnce(FoodItem food, {MealType? mealType}) =>
-      backend.nutrition.logOnce(FoodPortion(food, 1), mealType: mealType);
+  MealEvent logOnce(FoodItem food, {MealType? mealType, DateTime? at}) =>
+      backend.nutrition.logOnce(
+        FoodPortion(food, 1),
+        mealType: mealType,
+        at: at,
+      );
 
   /// Takes logged meals back out; [restoreMeals] puts them back.
   void deleteMeals(List<MealEvent> meals) =>

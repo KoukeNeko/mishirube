@@ -54,7 +54,10 @@ enum _Scope {
 /// shared database behind it yet, so the screen says so rather than
 /// implying a search that came up empty was a search of everything.
 class FoodSearchScreen extends StatefulWidget {
-  const FoodSearchScreen({super.key});
+  const FoodSearchScreen({super.key, this.day});
+
+  /// The day what is picked here goes to; today when null.
+  final DateTime? day;
 
   @override
   State<FoodSearchScreen> createState() => _FoodSearchScreenState();
@@ -62,6 +65,19 @@ class FoodSearchScreen extends StatefulWidget {
 
 class _FoodSearchScreenState extends State<FoodSearchScreen> {
   late final NutritionViewModel _nutrition;
+
+  /// When what is picked here was eaten: now on today, and on another
+  /// day at this time of day, which the meal's editor can change. Null
+  /// for now, read when it is logged.
+  DateTime? get _at {
+    final day = widget.day;
+    if (day == null) return null;
+    final now = _nutrition.now();
+    if (day.year == now.year && day.month == now.month && day.day == now.day) {
+      return null;
+    }
+    return DateTime(day.year, day.month, day.day, now.hour, now.minute);
+  }
 
   /// How many recent or starred foods 「全部」 shows before the rest.
   static const _preview = 4;
@@ -185,7 +201,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final navigator = Navigator.of(context);
     final ownRoute = ModalRoute.of(context);
     final count = _plate.length;
-    final logged = _nutrition.logPortions(List.of(_plate), mealType: _mealType);
+    final logged = _nutrition.logPortions(
+      List.of(_plate),
+      mealType: _mealType,
+      at: _at,
+    );
     navigator
       ..popUntil((route) => route == ownRoute)
       ..pop();
@@ -259,7 +279,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final toast = ToastScope.read(context);
     final logged = await pushPage<List<MealEvent>>(
       context,
-      DescribeMealScreen(mealType: _mealType, photoPath: photoPath),
+      DescribeMealScreen(mealType: _mealType, photoPath: photoPath, at: _at),
     );
     if (logged == null || logged.isEmpty || !mounted) return;
     Navigator.of(context).pop();
@@ -281,14 +301,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   Future<void> _quickAdd() async {
     final logged = await pushPage<FoodItem>(
       context,
-      FoodEditScreen(initialName: _query.text.trim(), logsOnce: true),
+      FoodEditScreen(initialName: _query.text.trim(), logsOnce: true, at: _at),
     );
     if (logged == null || !mounted) return;
     showToast(context, '已記錄', kind: ToastKind.success);
   }
 
   void _logAgain(RecentMeal recent) {
-    final logged = _nutrition.copyMeal(recent.meal);
+    final logged = _nutrition.copyMeal(recent.meal, at: _at);
     ToastScope.read(context).showUndo(
       '已記錄「${recent.label}」',
       onUndo: () => _nutrition.deleteMeals([logged]),

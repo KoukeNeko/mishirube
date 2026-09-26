@@ -139,10 +139,11 @@ class MealEvent {
     ConsumptionKind? kind,
     MealType? mealType,
     NutrientValueType? valueType,
+    String? Function()? groupId,
   }) => MealEvent(
     foodId: foodId,
     servings: servings,
-    groupId: groupId,
+    groupId: groupId == null ? this.groupId : groupId(),
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,

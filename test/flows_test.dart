@@ -1862,6 +1862,33 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('新增紀錄 on another day logs to that day', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    final yesterday = DateTime(today.year, today.month, today.day - 1);
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    await tester.tap(
+      find.bySemanticsLabel(RegExp('^${yesterday.month} 月 ${yesterday.day} 日')),
+    );
+    await tester.pumpAndSettle();
+    final before = nutrition.mealsOn(yesterday).length;
+    final todayBefore = nutrition.mealsOn(today).length;
+
+    await _tapText(tester, '新增紀錄');
+    await tester.pumpAndSettle();
+    expect(find.byType(FoodSearchScreen), findsOneWidget);
+    await tester.tap(find.byTooltip(RegExp('^加入(?!收藏)')).first);
+    await tester.pump();
+
+    expect(nutrition.mealsOn(yesterday), hasLength(before + 1));
+    expect(nutrition.mealsOn(today), hasLength(todayBefore));
+    final logged = nutrition.mealsOn(yesterday).last;
+    expect(logged.groupId, isNull, reason: 'a copy is a meal on its own');
+    await disposeTree(tester);
+  });
+
   testWidgets('a night in the log opens its sleep page', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     store.backend.journal.recordSleep(const Duration(hours: 7), score: 4);

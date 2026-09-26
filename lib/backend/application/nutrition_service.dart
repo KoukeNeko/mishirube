@@ -194,14 +194,16 @@ class NutritionService {
     return recent.values.toList();
   }
 
-  /// Logs several portions as eaten now, all or none: a plate is one
-  /// action, so it is written in one transaction and undone as one.
+  /// Logs several portions as eaten now, or [at], all or none: a plate
+  /// is one action, so it is written in one transaction and undone as one.
   List<MealEvent> logPortions(
     List<FoodPortion> portions, {
     MealType? mealType,
+    DateTime? at,
   }) => _db.transaction(
     () => [
-      for (final portion in portions) logPortion(portion, mealType: mealType),
+      for (final portion in portions)
+        logPortion(portion, mealType: mealType, at: at),
     ],
   );
 
@@ -301,14 +303,23 @@ class NutritionService {
   List<(DateTime, MealEvent)> between(DateTime start, DateTime end) =>
       _meals.between(start, end);
 
-  /// Logs [meal] again, as eaten now: a copy, not a link, so editing one
-  /// never changes the other.
+  /// Logs [meal] again, as eaten now or [at]: a copy, not a link, so
+  /// editing one never changes the other.
   /// The star stays on the meal that was starred, so logging a
   /// favourite again does not quietly star the copy too.
-  MealEvent copy(MealEvent meal) => logMeal(
-    meal.copyWith(id: _db.newId(), isFavorite: false),
-    eatenAt: _db.now(),
-  );
+  MealEvent copy(MealEvent meal, {DateTime? at}) {
+    final eatenAt = at ?? _db.now();
+    return logMeal(
+      // On its own: the meal it was part of was eaten then, not now.
+      meal.copyWith(
+        id: _db.newId(),
+        isFavorite: false,
+        timeLabel: formatTimeOfDay(eatenAt),
+        groupId: () => null,
+      ),
+      eatenAt: eatenAt,
+    );
+  }
 
   /// Stores [meal] eaten at [eatenAt], keeping its id free of collisions
   /// with a meal logged on another day.
@@ -454,8 +465,9 @@ class NutritionService {
     List<DraftItem> items, {
     MealType? mealType,
     bool asOneMeal = false,
+    DateTime? at,
   }) {
-    final eatenAt = _db.now();
+    final eatenAt = at ?? _db.now();
     final groupId = asOneMeal && items.length > 1 ? _db.newId() : null;
     return _db.transaction(
       () => [
@@ -559,21 +571,25 @@ class NutritionService {
   /// The numbers are copied, not linked: correcting the food later is not
   /// a claim about what was eaten last Tuesday. They are also not marked
   /// as estimated — the user typed them and chose the portion.
-  MealEvent logPortion(FoodPortion portion, {MealType? mealType}) =>
-      _logPortion(portion, mealType: mealType, keepsFood: true);
+  MealEvent logPortion(
+    FoodPortion portion, {
+    MealType? mealType,
+    DateTime? at,
+  }) => _logPortion(portion, mealType: mealType, keepsFood: true, at: at);
 
   /// Logs [portion] of a food typed for this one meal and not kept, as
   /// 快速記錄 does: the same record as [logPortion], with nothing tying it
   /// to a food the list would offer again.
-  MealEvent logOnce(FoodPortion portion, {MealType? mealType}) =>
-      _logPortion(portion, mealType: mealType, keepsFood: false);
+  MealEvent logOnce(FoodPortion portion, {MealType? mealType, DateTime? at}) =>
+      _logPortion(portion, mealType: mealType, keepsFood: false, at: at);
 
   MealEvent _logPortion(
     FoodPortion portion, {
     required MealType? mealType,
     required bool keepsFood,
+    DateTime? at,
   }) {
-    final eatenAt = _db.now();
+    final eatenAt = at ?? _db.now();
     final food = portion.food;
     final tag = keepsFood ? '自訂食物' : '快速記錄';
     return logMeal(

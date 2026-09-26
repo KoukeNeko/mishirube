@@ -27,6 +27,7 @@ class FoodEditScreen extends StatefulWidget {
     this.takePhoto,
     this.logsOnce = false,
     this.meal,
+    this.at,
   });
 
   /// The food being corrected; null when adding a new one.
@@ -57,6 +58,9 @@ class FoodEditScreen extends StatefulWidget {
   /// confirms the figures, so an estimate stops being one. Pops `true`
   /// when the meal was deleted.
   final MealEvent? meal;
+
+  /// When a quick record was eaten; now when null.
+  final DateTime? at;
 
   @override
   State<FoodEditScreen> createState() => _FoodEditScreenState();
@@ -501,9 +505,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     final food = _food();
     if (_keepsFood) {
       _nutrition.saveFood(food);
-      _nutrition.logPortions([FoodPortion(food, 1)], mealType: _mealType);
+      _nutrition.logPortions(
+        [FoodPortion(food, 1)],
+        mealType: _mealType,
+        at: widget.at,
+      );
     } else {
-      _nutrition.logOnce(food, mealType: _mealType);
+      _nutrition.logOnce(food, mealType: _mealType, at: widget.at);
     }
     Navigator.of(context).pop(food);
   }

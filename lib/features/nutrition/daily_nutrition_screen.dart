@@ -9,6 +9,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
+import 'food_search_screen.dart';
 import 'meal_detail_screen.dart';
 import 'meal_group_screen.dart';
 import 'nutrition_target_screen.dart';
@@ -293,6 +294,16 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           Gutter(child: const SectionLabel('其他營養素')),
           Gutter(child: _NutrientTotals(totals: rest)),
         ],
+        // Logs to the day shown, as the training page's 新增課表 adds a
+        // routine: another day is a swipe away on the strip above.
+        if (merging == null)
+          Gutter(
+            child: DashedActionCard(
+              label: '新增紀錄',
+              color: AppColors.nutrition,
+              onTap: () => pushPage(context, FoodSearchScreen(day: day)),
+            ),
+          ),
       ],
     );
   }
