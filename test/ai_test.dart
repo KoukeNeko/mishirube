@@ -208,6 +208,17 @@ void main() {
         expect(prompt, contains('leucine_mg'));
       }
       expect(foodLabelInstructions, contains('calcium_mg'));
+      expect(foodLabelInstructions, contains('polyols_g'));
+    });
+
+    test('a drink with alcohol carries its grams', () {
+      expect(mealDraftInstructions, contains('alcohol_g'));
+      final beer = parse(
+        '{"items":[{"name":"啤酒","amount":"330 ml","kcal":142,'
+        '"protein_g":1,"carb_g":12,"fat_g":0,'
+        '"nutrients":{"alcohol_g":13},"is_drink":true}]}',
+      ).items.single;
+      expect(beer.nutrients[Nutrient.alcohol], 13);
     });
 
     test('drops a figure no meal could have instead of trusting it', () {

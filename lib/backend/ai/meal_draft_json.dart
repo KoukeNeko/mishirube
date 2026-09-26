@@ -26,7 +26,8 @@ final _nutrientRules =
     '''
 - nutrients 放其他營養素，鍵只能用這些（單位在鍵名裡：g 公克、mg 毫克、ug 微克）：
   ${Nutrient.values.map(nutrientAnswerKey).join('、')}
-- 使用者給了營養標示、或照片裡看得到營養標示時，標示上的每一列都要填（例如糖、鈉、飽和脂肪、鈣、白胺酸），數字照標示的「每份」；沒有依據就不要填，不要猜。''';
+- 使用者給了營養標示、或照片裡看得到營養標示時，標示上的每一列都要填（例如糖、鈉、飽和脂肪、鈣、白胺酸），數字照標示的「每份」；沒有依據就不要填，不要猜。
+- 含酒精的飲料要填 alcohol_g：容量（毫升）× 酒精度 × 0.789，酒精度照使用者說的或這種酒常見的度數。''';
 
 /// Figures past these are not a meal but a misreading: a number the
 /// model wrote in the wrong unit, or invented.

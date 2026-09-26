@@ -50,6 +50,12 @@ abstract final class AppColors {
   static const macroCarb = Color(0xFFF2C66D);
   static const macroProtein = Color(0xFFEF7B5C);
   static const macroFat = Color(0xFF7BD6A0);
+
+  /// What else carries energy beside them: fibre and sugar alcohols
+  /// inside the carbohydrate, and alcohol.
+  static const macroFibre = Color(0xFFB39DDB);
+  static const macroPolyols = Color(0xFF8CC8E8);
+  static const macroAlcohol = Color(0xFFD98BC4);
   static const warningSurface = Color(0xFF2A2412);
   static const warningOutline = Color(0xFF5A4A1E);
 }

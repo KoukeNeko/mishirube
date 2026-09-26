@@ -550,6 +550,8 @@ String? japaneseLabelOf(Nutrient nutrient) => switch (nutrient) {
   Nutrient.sugar => '糖類',
   Nutrient.netCarb => '糖質',
   Nutrient.saltEquivalent => '食塩相当量',
+  Nutrient.polyols => '糖アルコール',
+  Nutrient.alcohol => 'アルコール',
   Nutrient.saturatedFat => '飽和脂肪酸',
   Nutrient.calcium => 'カルシウム',
   Nutrient.iron => '鉄',
@@ -617,6 +619,11 @@ enum Nutrient {
   // sodium.
   netCarb('糖質', NutrientUnit.gram),
   saltEquivalent('食鹽相當量', NutrientUnit.gram),
+
+  // Energy the three macronutrients leave out: the sugar alcohols a
+  // label may list inside its carbohydrate, and a drink's alcohol.
+  polyols('糖醇', NutrientUnit.gram),
+  alcohol('酒精', NutrientUnit.gram),
 
   // Commonly declared voluntarily.
   cholesterol('膽固醇', NutrientUnit.milligram),

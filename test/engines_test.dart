@@ -1761,6 +1761,50 @@ void main() {
     expect(plateKcalLabel([one(100, declared), one(null, declared)]), '100');
   });
 
+  test(
+    'energy is worked out part by part, carbohydrate less what it holds',
+    () {
+      const meal = MealEvent(
+        id: 'cocktail',
+        name: '調酒',
+        timeLabel: '21:00',
+        qualityTag: '手動',
+        dishes: [],
+        carbGrams: 88,
+        proteinGrams: 5,
+        fatGrams: 2,
+        fibreGrams: 4,
+        nutrients: {Nutrient.polyols: 10, Nutrient.alcohol: 13},
+      );
+      final energy = energyParts(meal);
+      expect(energy.carb, (88 - 4 - 10) * 4, reason: 'less fibre and polyols');
+      expect(energy.protein, 20);
+      expect(energy.fat, 18);
+      expect(energy.fibre, 8);
+      expect(energy.polyols, 24);
+      expect(energy.alcohol, 91);
+      expect(
+        energyParts(
+          const MealEvent(
+            id: 'unknown',
+            name: '不知道',
+            timeLabel: '12:00',
+            qualityTag: '手動',
+            dishes: [],
+          ),
+        ),
+        (
+          carb: null,
+          protein: null,
+          fat: null,
+          fibre: null,
+          polyols: null,
+          alcohol: null,
+        ),
+      );
+    },
+  );
+
   group('nutrition targets', () {
     test('resting energy is Mifflin-St Jeor', () {
       // 70 kg, 175 cm, 30 years: 700 + 1093.75 - 150, +5 or -161.

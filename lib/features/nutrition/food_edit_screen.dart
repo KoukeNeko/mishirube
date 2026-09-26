@@ -110,6 +110,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
   String? _error;
 
+  /// A drink's alcohol by volume, in %: not kept, only a way to fill in
+  /// the grams of alcohol a label rarely prints.
+  final _abv = TextEditingController();
+
   /// Whether a quick record also keeps the food in the library.
   bool _keepsFood = false;
 
@@ -158,6 +162,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     for (final controller in [_name, _sizeName, _servingAmount]) {
       controller.addListener(() => setState(() {}));
     }
+    for (final controller in [_abv, _servingAmount, _millilitres]) {
+      controller.addListener(_fillAlcohol);
+    }
   }
 
   @override
@@ -173,6 +180,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _fat,
       _fibre,
       _millilitres,
+      _abv,
       ..._extra.values,
     ]) {
       controller.dispose();
@@ -572,6 +580,32 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     );
   }
 
+  /// Ethanol's density, g per mL: what turns a drink's volume and its
+  /// alcohol by volume into grams of alcohol.
+  static const _ethanolDensity = 0.789;
+
+  /// The mL the figures being typed are for: a logged drink's volume, or
+  /// a food's serving in a unit of volume, or 100 mL when its label is
+  /// typed per 100; null when the form holds no volume.
+  double? get _typedVolume {
+    if (widget.meal != null) return double.tryParse(_millilitres.text.trim());
+    if (_servingUnit.dimension != ServingDimension.volume) return null;
+    return _effectiveBasis == CaffeineBasis.per100
+        ? 100
+        : _amount * _servingUnit.inBaseUnit;
+  }
+
+  /// Fills in the grams of alcohol from the alcohol by volume, when both
+  /// it and the volume are there to work it out from.
+  void _fillAlcohol() {
+    final abv = double.tryParse(_abv.text.trim());
+    final volume = _typedVolume;
+    if (abv == null || volume == null || abv < 0 || abv > 100) return;
+    final grams = volume * abv / 100 * _ethanolDensity;
+    // To a tenth of a gram, as a label would print it.
+    _extra[Nutrient.alcohol]!.text = formatAmount((grams * 10).round() / 10);
+  }
+
   /// The food as the form has it.
   FoodItem _food() {
     return FoodItem(
@@ -917,8 +951,17 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         for (final nutrient in _labelNutrients)
           Gutter(child: _nutrientField(nutrient)),
         for (final nutrient in Nutrient.values)
-          if (!_labelNutrients.contains(nutrient))
+          if (!_labelNutrients.contains(nutrient)) ...[
+            if (nutrient == Nutrient.alcohol && _typedVolume != null)
+              Gutter(
+                child: NumberFieldRow(
+                  label: '酒精度',
+                  unit: '%',
+                  controller: _abv,
+                ),
+              ),
             Gutter(child: _nutrientField(nutrient)),
+          ],
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

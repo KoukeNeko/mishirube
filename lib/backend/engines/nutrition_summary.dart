@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../domain/domain.dart';
 
 /// Fewer records of something eaten than this on a finished day marks
@@ -89,6 +91,57 @@ List<List<MealEvent>> mealsOf(Iterable<MealEvent> records) {
 int? mealKcalOf(List<MealEvent> meal) {
   if (meal.any((item) => item.kcal == null)) return null;
   return meal.fold<int>(0, (sum, item) => sum + item.kcal!);
+}
+
+/// Energy a gram carries, by the Atwater factors labels use: 4 kcal for
+/// protein and for available carbohydrate, 9 for fat, 2 for fibre, 2.4
+/// for sugar alcohols (the EU's general figure; erythritol has almost
+/// none) and 7 for alcohol.
+const kcalPerGramProtein = 4;
+const kcalPerGramCarb = 4;
+const kcalPerGramFat = 9;
+const kcalPerGramFibre = 2;
+const kcalPerGramPolyols = 2.4;
+const kcalPerGramAlcohol = 7;
+
+/// The energy each part of [meal] carries, worked out from its grams;
+/// null for a part whose grams are not known. A label's carbohydrate
+/// holds its fibre and sugar alcohols, so the carbohydrate's energy
+/// leaves them to their own. Worked out, the parts need not add up to
+/// the meal's own total.
+({int? carb, int? protein, int? fat, int? fibre, int? polyols, int? alcohol})
+energyParts(MealEvent meal) {
+  final fibre = meal.fibreGrams;
+  final polyols = meal.nutrients[Nutrient.polyols];
+  final alcohol = meal.nutrients[Nutrient.alcohol];
+  return (
+    carb: switch (meal.carbGrams) {
+      final carb? =>
+        (math.max(0, carb - (fibre ?? 0) - (polyols ?? 0)) * kcalPerGramCarb)
+            .round(),
+      null => null,
+    },
+    protein: switch (meal.proteinGrams) {
+      final grams? => grams * kcalPerGramProtein,
+      null => null,
+    },
+    fat: switch (meal.fatGrams) {
+      final grams? => grams * kcalPerGramFat,
+      null => null,
+    },
+    fibre: switch (fibre) {
+      final grams? => grams * kcalPerGramFibre,
+      null => null,
+    },
+    polyols: switch (polyols) {
+      final grams? => (grams * kcalPerGramPolyols).round(),
+      null => null,
+    },
+    alcohol: switch (alcohol) {
+      final grams? => (grams * kcalPerGramAlcohol).round(),
+      null => null,
+    },
+  );
 }
 
 /// Adds up [meals]. A day is complete once it holds [mealsForCompleteDay]

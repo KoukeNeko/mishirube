@@ -1713,8 +1713,9 @@ void main() {
     // Bottled drinks print their label per 100 ml.
     await _tapText(tester, '每 100 ml');
     await tester.pumpAndSettle();
-    await _enterBeside(tester, '咖啡因', '20');
+    // Down the form in order: a lazy list only builds what is near.
     await _enterBeside(tester, '糖', '4.5');
+    await _enterBeside(tester, '咖啡因', '20');
     await tester.pump();
 
     await _tapText(tester, '只建立');
@@ -2346,6 +2347,7 @@ void main() {
         proteinGrams: 35,
         carbGrams: 95,
         fatGrams: 28,
+        fibreGrams: 5,
       ),
       eatenAt: today,
     );
@@ -2361,10 +2363,14 @@ void main() {
       reason: 'nothing to edit on the page itself',
     );
     expect(find.text('35 g'), findsOneWidget);
-    // Shares of the energy the three carry: 380, 140 and 252 kcal.
-    expect(find.text('49%'), findsOneWidget);
-    expect(find.text('18%'), findsOneWidget);
-    expect(find.text('33%'), findsOneWidget);
+    // The energy each carries: 4 kcal a gram for carbohydrate less its
+    // fibre and for protein, 9 for fat, 2 for the fibre itself.
+    expect(find.text('95 g'), findsOneWidget, reason: 'as the label has it');
+    expect(find.text('360 kcal'), findsOneWidget);
+    expect(find.text('140 kcal'), findsOneWidget);
+    expect(find.text('252 kcal'), findsOneWidget);
+    expect(find.text('5 g · 10 kcal'), findsOneWidget);
+    expect(find.textContaining('%'), findsNothing);
 
     await tester.tap(find.bySemanticsLabel('編輯這一餐'));
     await tester.pumpAndSettle();
@@ -2376,6 +2382,61 @@ void main() {
       findsWidgets,
       reason: 'the form foods are added with, for this meal',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a drink shows its alcohol, filled in from its strength', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final beer = store.backend.nutrition.logMeal(
+      MealEvent(
+        id: 'beer',
+        name: '啤酒',
+        timeLabel: '21:00',
+        qualityTag: '手動',
+        dishes: const [],
+        kcal: 142,
+        carbGrams: 12,
+        proteinGrams: 1,
+        fatGrams: 0,
+        millilitres: 330,
+        kind: ConsumptionKind.beverage,
+      ),
+      eatenAt: store.now(),
+    );
+    await _openFromHost(tester, FoodEditScreen(meal: beer), store);
+
+    final scroll = find
+        .descendant(
+          of: find.byType(FoodEditScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    await tester.scrollUntilVisible(find.text('酒精度'), 200, scrollable: scroll);
+    await _enterBeside(tester, '酒精度', '5');
+    final alcohol = find.descendant(
+      of: find
+          .ancestor(of: find.text('酒精').first, matching: find.byType(Row))
+          .first,
+      matching: find.byType(TextField),
+    );
+    expect(
+      tester.widget<TextField>(alcohol).controller!.text,
+      '13',
+      reason: '330 mL at 5 % is 16.5 mL, 13 g',
+    );
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(
+      tester,
+      MealDetailScreen(meal: store.backend.nutrition.mealById('beer')!),
+      store: store,
+    );
+    expect(find.text('13 g · 91 kcal'), findsOneWidget);
     await disposeTree(tester);
   });
 

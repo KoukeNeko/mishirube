@@ -736,7 +736,7 @@ class _IndicatorsCard extends StatelessWidget {
         progress: fibreTarget == null || fibreTarget == 0
             ? null
             : fibreGrams / fibreTarget!,
-        color: AppColors.training,
+        color: AppColors.macroFibre,
       ),
       _MeterRow(
         label: Nutrient.sugar.label,

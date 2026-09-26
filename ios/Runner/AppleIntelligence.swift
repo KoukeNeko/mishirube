@@ -256,6 +256,8 @@ enum AppleIntelligence {
     var sodiumMilligrams: Double?
     @Guide(description: "「每份」那一欄的膳食纖維，公克；沒有就留空")
     var fibreGrams: Double?
+    @Guide(description: "「每份」那一欄的糖醇，公克；沒有就留空")
+    var polyolsGrams: Double?
     @Guide(description: "每份的咖啡因，毫克；沒有就留空")
     var caffeineMilligrams: Double?
     @Guide(description: "「每份」那一欄的鈣，毫克；沒有就留空")
@@ -282,6 +284,7 @@ enum AppleIntelligence {
         "caffeine_mg": value(caffeineMilligrams),
         "nutrients": [
           "calcium_mg": value(calciumMilligrams),
+          "polyols_g": value(polyolsGrams),
           "leucine_mg": value(leucineMilligrams),
           "isoleucine_mg": value(isoleucineMilligrams),
           "valine_mg": value(valineMilligrams),
@@ -318,6 +321,8 @@ enum AppleIntelligence {
       var sugarGrams: Double?
       @Guide(description: "鈉，單位毫克；有營養標示依據才填，否則留空")
       var sodiumMilligrams: Double?
+      @Guide(description: "酒精，單位公克；含酒精的飲料才填：容量（毫升）× 酒精度 × 0.789，否則留空")
+      var alcoholGrams: Double?
       @Guide(description: "是飲料就是 true")
       var isDrink: Bool
     }
@@ -336,6 +341,7 @@ enum AppleIntelligence {
           "nutrients": [
             "sugar_g": item.sugarGrams as Any? ?? NSNull(),
             "sodium_mg": item.sodiumMilligrams as Any? ?? NSNull(),
+            "alcohol_g": item.alcoholGrams as Any? ?? NSNull(),
           ],
           "is_drink": item.isDrink,
         ]
@@ -413,6 +419,8 @@ enum AppleIntelligence {
       var sugarGrams: Double?
       @Guide(description: "鈉，單位毫克；有營養標示依據才填，否則留空")
       var sodiumMilligrams: Double?
+      @Guide(description: "酒精，單位公克；含酒精的飲料才填：容量（毫升）× 酒精度 × 0.789，否則留空")
+      var alcoholGrams: Double?
       @Guide(description: "是飲料就是 true")
       var isDrink: Bool
     }
@@ -431,6 +439,7 @@ enum AppleIntelligence {
           "nutrients": [
             "sugar_g": item.sugarGrams as Any? ?? NSNull(),
             "sodium_mg": item.sodiumMilligrams as Any? ?? NSNull(),
+            "alcohol_g": item.alcoholGrams as Any? ?? NSNull(),
           ],
           "is_drink": item.isDrink,
         ]
