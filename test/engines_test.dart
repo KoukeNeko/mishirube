@@ -1789,15 +1789,36 @@ void main() {
       );
       // 1649 x 1.55 = 2556, less 500 for losing fat.
       expect(targets.kcal, 2056);
-      expect(targets.proteinGrams, 112, reason: '1.6 g per kg');
+      expect(targets.proteinGrams, 154, reason: '2.2 g per kg, losing fat');
       expect(targets.fatGrams, 57, reason: '25 % of energy');
       expect(
         targets.carbGrams,
-        274,
-        reason: 'the rest of the energy: (2056 - 112 x 4 - 57 x 9) / 4',
+        232,
+        reason: 'the rest of the energy: (2056 - 154 x 4 - 57 x 9) / 4',
       );
       expect(targets.fibreGrams, 29, reason: '14 g per 1,000 kcal');
       expect(targets.missing, isEmpty);
+    });
+
+    test('protein follows the goal unless it was set', () {
+      int? protein(NutritionTargetSettings settings) =>
+          nutritionTargets(settings, weightKg: 70).proteinGrams;
+      expect(protein(const NutritionTargetSettings()), 112, reason: '1.6');
+      expect(
+        protein(const NutritionTargetSettings(goal: WeightGoal.gain)),
+        126,
+        reason: '1.8',
+      );
+      expect(
+        protein(
+          const NutritionTargetSettings(
+            goal: WeightGoal.lose,
+            proteinPerKg: 1.6,
+          ),
+        ),
+        112,
+        reason: 'set by hand, the goal no longer moves it',
+      );
     });
 
     test('without the body there is no energy target, and it says why', () {

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import '../../domain/domain.dart';
 
 /// Bumped whenever a rule below changes.
-const nutritionTargetsVersion = 1;
+const nutritionTargetsVersion = 2;
 
 /// Fibre per 1,000 kcal eaten: the Adequate Intake the Dietary Reference
 /// Intakes set, 14 g per 1,000 kcal.
@@ -33,7 +33,8 @@ int restingEnergyKcal({
 /// energy times [NutritionTargetSettings.activity], moved by the goal;
 /// null, with what is [NutritionTargets.missing], until the body is
 /// known well enough. Protein goes by weight, fat by share of energy,
-/// and carbohydrate takes what is left.
+/// both as the goal sets them unless the user did, and carbohydrate
+/// takes what is left.
 NutritionTargets nutritionTargets(
   NutritionTargetSettings settings, {
   double? weightKg,
@@ -67,10 +68,10 @@ NutritionTargets nutritionTargets(
       };
   final protein = weightKg == null
       ? null
-      : (weightKg * settings.proteinPerKg).round();
+      : (weightKg * settings.proteinPerKgInUse).round();
   final fat = kcal == null
       ? null
-      : (kcal * settings.fatPercent / 100 / 9).round();
+      : (kcal * settings.fatPercentInUse / 100 / 9).round();
   final carb = kcal == null || protein == null || fat == null
       ? null
       : math.max(0, ((kcal - protein * 4 - fat * 9) / 4).round());

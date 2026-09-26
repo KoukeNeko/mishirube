@@ -59,23 +59,27 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     _update(settings.copyWith(customKcal: () => kcal));
   }
 
+  /// Asks for a number within [min]–[max]. [fallback] names what is used
+  /// when [initial] is null; leaving the field empty goes back to it,
+  /// which [onValue] hears as null.
   Future<void> _typeNumber({
     required String title,
-    required String hint,
-    required num initial,
+    required num? initial,
+    required String fallback,
     required double min,
     required double max,
-    required ValueChanged<double> onValue,
+    required ValueChanged<double?> onValue,
   }) async {
     final typed = await showTextDialog(
       context,
       title: title,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      initial: formatAmount(initial.toDouble()),
-      hint: hint,
+      initial: initial == null ? '' : formatAmount(initial.toDouble()),
+      hint: fallback,
     );
-    final value = double.tryParse(typed?.trim() ?? '');
     if (typed == null) return;
+    if (typed.trim().isEmpty) return onValue(null);
+    final value = double.tryParse(typed.trim());
     if (value == null || value < min || value > max) {
       if (mounted) {
         showToast(
@@ -215,30 +219,36 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                 children: [
                   NavRow(
                     title: MacroLabel.protein,
-                    subtitle: '每公斤體重 ${formatAmount(settings.proteinPerKg)} g',
+                    subtitle: [
+                      if (settings.proteinPerKg == null) '依目的',
+                      '每公斤體重 ${formatAmount(settings.proteinPerKgInUse)} g',
+                    ].join(' · '),
                     trailing: _value(_grams(targets.proteinGrams)),
                     onTap: () => _typeNumber(
                       title: '蛋白質（每公斤體重）',
-                      hint: 'g',
                       initial: settings.proteinPerKg,
+                      fallback:
+                          '依目的 ${formatAmount(settings.goal.proteinPerKg)} g',
                       min: 0.8,
                       max: 3,
                       onValue: (value) =>
-                          _update(settings.copyWith(proteinPerKg: value)),
+                          _update(settings.copyWith(proteinPerKg: () => value)),
                     ),
                   ),
                   NavRow(
                     title: MacroLabel.fat,
-                    subtitle: '熱量的 ${settings.fatPercent}%',
+                    subtitle: '熱量的 ${settings.fatPercentInUse}%',
                     trailing: _value(_grams(targets.fatGrams)),
                     onTap: () => _typeNumber(
                       title: '脂肪（占熱量 %）',
-                      hint: '%',
                       initial: settings.fatPercent,
+                      fallback:
+                          '預設 ${NutritionTargetSettings.defaultFatPercent}%',
                       min: 15,
                       max: 45,
-                      onValue: (value) =>
-                          _update(settings.copyWith(fatPercent: value.round())),
+                      onValue: (value) => _update(
+                        settings.copyWith(fatPercent: () => value?.round()),
+                      ),
                     ),
                   ),
                   NavRow(
@@ -285,10 +295,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
             ),
             if (targets.restingKcal != null)
               Gutter(
-                child: Text(
-                  'Mifflin-St Jeor 估計',
-                  style: AppTextStyles.caption,
-                ),
+                child: Text('Mifflin-St Jeor 估計', style: AppTextStyles.caption),
               ),
           ],
         ),

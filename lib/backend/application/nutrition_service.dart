@@ -82,6 +82,15 @@ class NutritionService {
     final raw = _db.setting(_targetsKey);
     if (raw == null || raw.isEmpty) return const NutritionTargetSettings();
     final fields = jsonDecode(raw) as Map<String, dynamic>;
+    var protein = (fields['proteinPerKg'] as num?)?.toDouble();
+    var fat = fields['fatPercent'] as int?;
+    // Written before the split followed the goal, every setting held a
+    // number: the old defaults there were never chosen, so they follow
+    // the goal now.
+    if (fields['version'] == null) {
+      if (protein == 1.6) protein = null;
+      if (fat == 25) fat = null;
+    }
     return NutritionTargetSettings(
       customKcal: fields['customKcal'] as int?,
       activity:
@@ -89,18 +98,15 @@ class NutritionService {
           ActivityLevel.moderate,
       goal:
           WeightGoal.values.asNameMap()[fields['goal']] ?? WeightGoal.maintain,
-      proteinPerKg:
-          (fields['proteinPerKg'] as num?)?.toDouble() ??
-          NutritionTargetSettings.defaultProteinPerKg,
-      fatPercent:
-          fields['fatPercent'] as int? ??
-          NutritionTargetSettings.defaultFatPercent,
+      proteinPerKg: protein,
+      fatPercent: fat,
     );
   }
 
   void setTargetSettings(NutritionTargetSettings settings) => _db.setSetting(
     _targetsKey,
     jsonEncode({
+      'version': 2,
       'customKcal': settings.customKcal,
       'activity': settings.activity.name,
       'goal': settings.goal.name,

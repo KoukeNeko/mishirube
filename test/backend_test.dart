@@ -2336,6 +2336,31 @@ void main() {
       expect(targets.kcal, isNotNull);
     });
 
+    test('targets saved before the split followed the goal now follow it', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      // What every save wrote then: the defaults, as numbers.
+      backend.db.setSetting(
+        'nutrition.targets',
+        '{"customKcal":null,"activity":"moderate","goal":"lose",'
+            '"proteinPerKg":1.6,"fatPercent":25}',
+      );
+      final old = backend.nutrition.targetSettings;
+      expect(old.proteinPerKg, isNull);
+      expect(old.proteinPerKgInUse, 2.2);
+      expect(old.fatPercent, isNull);
+
+      // Set by hand now, the same number stays the user's.
+      backend.nutrition.setTargetSettings(
+        old.copyWith(proteinPerKg: () => 1.6),
+      );
+      expect(backend.nutrition.targetSettings.proteinPerKg, 1.6);
+      backend.nutrition.setTargetSettings(
+        backend.nutrition.targetSettings.copyWith(proteinPerKg: () => null),
+      );
+      expect(backend.nutrition.targetSettings.proteinPerKg, isNull);
+    });
+
     test('water shows on the timeline as how much of it', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

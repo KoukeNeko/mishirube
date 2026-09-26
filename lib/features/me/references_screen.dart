@@ -94,8 +94,18 @@ const List<(String, List<_Reference>)> _references = [
       ),
       (
         citation: 'Jäger, R., Kerksick, C. M., Campbell, B. I., Cribb, P. J., Wells, S. D., Skwiat, T. M., Purpura, M., Ziegenfuss, T. N., Ferrando, A. A., Arent, S. M., Smith-Ryan, A. E., Stout, J. R., Arciero, P. J., Ormsbee, M. J., Taylor, L. W., Wilborn, C. D., Kalman, D. S., Kreider, R. B., Willoughby, D. S., . . . Antonio, J. (2017). International Society of Sports Nutrition position stand: Protein and exercise. Journal of the International Society of Sports Nutrition, 14, Article 20.',
-        use: '蛋白質目標每公斤 1.6 g（建議範圍 1.4–2.0 g）',
+        use: '維持與增肌的蛋白質，每公斤 1.6–1.8 g（範圍 1.4–2.0 g）',
         url: 'https://doi.org/10.1186/s12970-017-0177-8',
+      ),
+      (
+        citation: 'Helms, E. R., Aragon, A. A., & Fitschen, P. J. (2014). Evidence-based recommendations for natural bodybuilding contest preparation: Nutrition and supplementation. Journal of the International Society of Sports Nutrition, 11, Article 20.',
+        use: '減脂時提高蛋白質、脂肪占熱量 15–30%',
+        url: 'https://doi.org/10.1186/1550-2783-11-20',
+      ),
+      (
+        citation: 'Longland, T. M., Oikawa, S. Y., Mitchell, C. J., Devries, M. C., & Phillips, S. M. (2016). Higher compared with lower dietary protein during an energy deficit combined with intense exercise promotes greater lean mass gain and fat mass loss: A randomized trial. The American Journal of Clinical Nutrition, 103(3), 738–746.',
+        use: '減脂的蛋白質每公斤 2.2 g',
+        url: 'https://doi.org/10.3945/ajcn.115.119339',
       ),
       (
         citation: 'Institute of Medicine. (2005). Dietary reference intakes for energy, carbohydrate, fiber, fat, fatty acids, cholesterol, protein, and amino acids. The National Academies Press.',

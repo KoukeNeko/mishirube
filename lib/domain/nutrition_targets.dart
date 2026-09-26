@@ -18,58 +18,69 @@ enum ActivityLevel {
   final double factor;
 }
 
-/// What the energy target is for, as a daily offset from maintenance.
+/// What the energy target is for: a daily offset from maintenance, and
+/// the protein a day aimed at this usually takes, which the user can
+/// override. More protein while losing fat keeps more lean mass
+/// (Helms 2014, Longland 2016); 1.6 g per kg is where gains level off
+/// otherwise (Morton 2018), a little above it while gaining.
 enum WeightGoal {
-  lose('減脂', -500),
-  maintain('維持', 0),
-  gain('增肌', 300);
+  lose('減脂', -500, 2.2),
+  maintain('維持', 0, 1.6),
+  gain('增肌', 300, 1.8);
 
-  const WeightGoal(this.label, this.kcalOffset);
+  const WeightGoal(this.label, this.kcalOffset, this.proteinPerKg);
 
   final String label;
   final int kcalOffset;
+
+  /// Protein a day per kg of body weight.
+  final double proteinPerKg;
 }
 
 /// What the user chose for their targets. The energy target is either
-/// typed in ([customKcal]) or worked out from the body; the split into
-/// macronutrients is the same either way.
+/// typed in ([customKcal]) or worked out from the body; protein follows
+/// the goal and fat a default share unless the user set them.
 class NutritionTargetSettings {
   const NutritionTargetSettings({
     this.customKcal,
     this.activity = ActivityLevel.moderate,
     this.goal = WeightGoal.maintain,
-    this.proteinPerKg = defaultProteinPerKg,
-    this.fatPercent = defaultFatPercent,
+    this.proteinPerKg,
+    this.fatPercent,
   });
 
-  /// Protein for someone who trains: the middle of the 1.4–2.0 g per kg
-  /// a day the ISSN position stand gives.
-  static const defaultProteinPerKg = 1.6;
-
-  /// Fat as a share of energy, inside the 20–35 % the DRIs give adults.
+  /// Fat as a share of energy, inside the 20–35 % the DRIs give adults
+  /// and the 15–30 % Helms 2014 gives lifters; no goal calls for another.
   static const defaultFatPercent = 25;
 
   /// The energy target typed in; null to work it out from the body.
   final int? customKcal;
   final ActivityLevel activity;
   final WeightGoal goal;
-  final double proteinPerKg;
-  final int fatPercent;
+
+  /// Protein per kg the user set; null to follow [goal].
+  final double? proteinPerKg;
+
+  /// Fat as a share of energy the user set; null for [defaultFatPercent].
+  final int? fatPercent;
 
   bool get isCustom => customKcal != null;
+
+  double get proteinPerKgInUse => proteinPerKg ?? goal.proteinPerKg;
+  int get fatPercentInUse => fatPercent ?? defaultFatPercent;
 
   NutritionTargetSettings copyWith({
     int? Function()? customKcal,
     ActivityLevel? activity,
     WeightGoal? goal,
-    double? proteinPerKg,
-    int? fatPercent,
+    double? Function()? proteinPerKg,
+    int? Function()? fatPercent,
   }) => NutritionTargetSettings(
     customKcal: customKcal == null ? this.customKcal : customKcal(),
     activity: activity ?? this.activity,
     goal: goal ?? this.goal,
-    proteinPerKg: proteinPerKg ?? this.proteinPerKg,
-    fatPercent: fatPercent ?? this.fatPercent,
+    proteinPerKg: proteinPerKg == null ? this.proteinPerKg : proteinPerKg(),
+    fatPercent: fatPercent == null ? this.fatPercent : fatPercent(),
   );
 }
 
