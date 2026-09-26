@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
+import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -51,8 +52,12 @@ Future<FoodItem?> pickCupSize(
 );
 
 /// [portion] as a Japanese label lays it out: 熱量, たんぱく質, 脂質,
-/// 炭水化物 with 糖質 and 食物繊維 under it, 食塩相当量, then the rest.
-List<Widget> _japaneseLabel(FoodPortion portion) {
+/// 炭水化物 with 糖質 and 食物繊維 under it, 食塩相当量, then the rest;
+/// then, apart from the label, what [convention] reads its salt as.
+List<Widget> _japaneseLabel(
+  FoodPortion portion,
+  NutritionConvention convention,
+) {
   final nutrients = portion.nutrients;
   const underCarb = [Nutrient.netCarb];
   const afterCarb = [Nutrient.saltEquivalent];
@@ -89,6 +94,69 @@ List<Widget> _japaneseLabel(FoodPortion portion) {
     for (final nutrient in nutrients.keys)
       if (!underCarb.contains(nutrient) && !afterCarb.contains(nutrient))
         row(nutrient),
+    for (final MapEntry(key: nutrient, value: amount) in workedOut(
+      nutrients,
+      convention,
+      labelCountry: food.country,
+    ).entries)
+      KeyValueRow(
+        label: convention.nameOf(nutrient),
+        value: '${nutrient.format(amount)} · 推算',
+      ),
+  ];
+}
+
+/// [portion] in the words of the label its food was printed with —
+/// Taiwan's when it names no country the app reads — with, apart from
+/// the label, what [reader]'s convention works out of it. A label whose
+/// carbohydrate leaves out the fibre shows it that way.
+List<Widget> _label(FoodPortion portion, NutritionConvention reader) {
+  final food = portion.food;
+  final label =
+      NutritionConvention.ofLabel(food.country) ?? NutritionConvention.taiwan;
+  final made = workedOut(
+    portion.nutrients,
+    reader,
+    carbGrams: portion.carbGrams,
+    fibreGrams: portion.fibreGrams,
+    labelCountry: food.country,
+  );
+  return [
+    KeyValueRow(
+      label: label.energyName,
+      value: '${formatKcalOrDash(portion.kcal)} kcal',
+    ),
+    KeyValueRow(label: label.proteinName, value: _grams(portion.proteinGrams)),
+    KeyValueRow(
+      label: label.carbName,
+      value: label.countsAvailableCarb
+          ? _grams(
+              (portion.nutrients[Nutrient.netCarb] ??
+                      carbLessFibre(portion.carbGrams, portion.fibreGrams))
+                  ?.round(),
+            )
+          : _grams(portion.carbGrams),
+    ),
+    KeyValueRow(label: label.fatName, value: _grams(portion.fatGrams)),
+    if (portion.fibreGrams != null)
+      KeyValueRow(label: label.fibreName, value: _grams(portion.fibreGrams)),
+    // Everything else the food holds. A brand drink often knows its
+    // caffeine and nothing else, and a screen that showed only the five
+    // would show it as four dashes.
+    for (final (nutrient, value) in nutrientLines(
+      portion.nutrients,
+      convention: reader,
+      carbGrams: portion.carbGrams,
+      fibreGrams: portion.fibreGrams,
+      labelCountry: food.country,
+    ))
+      if (!(label.countsAvailableCarb && nutrient == Nutrient.netCarb))
+        KeyValueRow(
+          label: made.containsKey(nutrient)
+              ? reader.nameOf(nutrient)
+              : label.nameOf(nutrient),
+          value: value,
+        ),
   ];
 }
 
@@ -323,39 +391,9 @@ class _PortionScreenState extends State<PortionScreen> {
             child: Column(
               children: [
                 if (food.country == 'JP')
-                  ..._japaneseLabel(portion)
-                else ...[
-                  KeyValueRow(
-                    label: MacroLabel.energy,
-                    value: '${formatKcalOrDash(portion.kcal)} kcal',
-                  ),
-                  KeyValueRow(
-                    label: MacroLabel.protein,
-                    value: _grams(portion.proteinGrams),
-                  ),
-                  KeyValueRow(
-                    label: MacroLabel.carb,
-                    value: _grams(portion.carbGrams),
-                  ),
-                  KeyValueRow(
-                    label: MacroLabel.fat,
-                    value: _grams(portion.fatGrams),
-                  ),
-                  if (portion.fibreGrams != null)
-                    KeyValueRow(
-                      label: MacroLabel.fibre,
-                      value: _grams(portion.fibreGrams),
-                    ),
-                  // Everything else the food holds. A brand drink often
-                  // knows its caffeine and nothing else, and a screen that
-                  // showed only the five would show it as four dashes.
-                  for (final MapEntry(key: nutrient, value: amount)
-                      in portion.nutrients.entries)
-                    KeyValueRow(
-                      label: nutrient.label,
-                      value: nutrient.format(amount),
-                    ),
-                ],
+                  ..._japaneseLabel(portion, _nutrition.convention)
+                else
+                  ..._label(portion, _nutrition.convention),
                 if (portion.millilitres case final volume?)
                   KeyValueRow(label: '容量', value: '$volume mL'),
                 // As the maker declares them; a food nobody declared them

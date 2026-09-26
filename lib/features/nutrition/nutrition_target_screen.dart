@@ -258,7 +258,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: MacroLabel.protein,
+                    title: _nutrition.convention.proteinName,
                     subtitle: [
                       if (settings.proteinPerKg == null) '依目的',
                       '每公斤體重 ${formatAmount(settings.proteinPerKgInUse)} g',
@@ -276,7 +276,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                     ),
                   ),
                   NavRow(
-                    title: MacroLabel.fat,
+                    title: _nutrition.convention.fatName,
                     subtitle: '熱量的 ${settings.fatPercentInUse}%',
                     trailing: _value(_grams(targets.fatGrams)),
                     onTap: () => _typeNumber(
@@ -292,7 +292,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                     ),
                   ),
                   NavRow(
-                    title: MacroLabel.carb,
+                    title: _nutrition.convention.carbName,
                     subtitle: '其餘的熱量',
                     trailing: _value(_grams(targets.carbGrams)),
                     showChevron: false,
@@ -328,13 +328,18 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                     },
                   ),
                   KeyValueRow(
-                    label: MacroLabel.fibre,
+                    label: _nutrition.convention.fibreName,
                     value: _grams(targets.fibreGrams),
                   ),
                   KeyValueRow(
-                    label: Nutrient.sodium.label,
+                    label: _nutrition.convention.nameOf(
+                      _nutrition.convention.saltMeasure,
+                    ),
                     value:
-                        '上限 ${formatKcal(NutritionTargets.sodiumLimitMg)} mg',
+                        _nutrition.convention.saltMeasure.unit ==
+                            NutrientUnit.milligram
+                        ? '上限 ${formatKcal(_nutrition.saltLimit.round())} mg'
+                        : '上限 ${formatAmount(_nutrition.saltLimit)} g',
                   ),
                 ],
               ),

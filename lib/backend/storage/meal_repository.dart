@@ -188,6 +188,44 @@ class MealRepository {
       _fromRow(row),
   ];
 
+  /// What group [groupId] is called, or null when it goes by its items.
+  String? groupName(String groupId) {
+    final rows = _db.select(
+      'SELECT name FROM meal_groups WHERE id = ? AND deleted_at IS NULL',
+      [groupId],
+    );
+    return rows.isEmpty ? null : rows.first['name']! as String;
+  }
+
+  /// Calls group [groupId] [name], or by its items again with null.
+  void nameGroup(String groupId, String? name) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      final previous = groupName(groupId);
+      if (name == null) {
+        _db.execute(
+          'UPDATE meal_groups SET deleted_at = ?, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ? AND deleted_at IS NULL',
+          [now, now, groupId],
+        );
+      } else {
+        _db.execute(
+          'INSERT INTO meal_groups (id, name, created_at, updated_at) '
+          'VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET '
+          'name = excluded.name, deleted_at = NULL, '
+          'updated_at = excluded.updated_at, revision = revision + 1',
+          [groupId, name, now, now],
+        );
+      }
+      _db.audit(
+        entityType: 'meal_group',
+        entityId: groupId,
+        action: 'rename',
+        payload: {'name': name, 'previous': previous},
+      );
+    });
+  }
+
   /// Calls meals [ids] [mealType], or no sitting with null.
   void setMealType(Iterable<String> ids, MealType? mealType) {
     _db.transaction(() {
@@ -271,9 +309,9 @@ class MealRepository {
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
         'source, import_batch_id, local_day, utc_offset_minutes, food_id, '
-        'servings, group_id) '
+        'servings, group_id, label_country) '
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-        '?, ?, ?)',
+        '?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -298,6 +336,7 @@ class MealRepository {
           meal.foodId,
           meal.servings,
           meal.groupId,
+          meal.labelCountry,
         ],
       );
       _writeDishes(meal);
@@ -464,6 +503,7 @@ class MealRepository {
       foodId: row['food_id'] as String?,
       servings: (row['servings'] as num?)?.toDouble(),
       groupId: row['group_id'] as String?,
+      labelCountry: row['label_country']! as String,
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,
@@ -528,7 +568,7 @@ class MealTimelineSource extends TimelineSource {
     ];
   }
 
-  static TimelineEntry _entryOf(List<MealEvent> meal, DateTime at) {
+  TimelineEntry _entryOf(List<MealEvent> meal, DateTime at) {
     final first = meal.first;
     // Water is how much of it: its 0 kcal and its own name as a tag
     // would say nothing.
@@ -550,7 +590,13 @@ class MealTimelineSource extends TimelineSource {
       at: at,
       recordId: first.id,
       category: RecordCategory.nutrition,
-      title: meal.map((item) => item.name).join('、'),
+      title: mealNameOf(
+        meal,
+        groupName: switch (first.groupId) {
+          final groupId? => _meals.groupName(groupId),
+          null => null,
+        },
+      ),
       detail: meal.length == 1
           ? first.dishes.map((dish) => dish.name).join('、')
           : '${meal.length} 項',

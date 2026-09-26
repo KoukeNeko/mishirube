@@ -223,11 +223,14 @@ enum AppleIntelligence {
 }
 
 #if canImport(FoundationModels)
-  /// One serving's figures off a Taiwanese nutrition label. Every field
-  /// may be empty: a blank asks the user to look, a guess does not.
+  /// One serving's figures off a nutrition label from Taiwan, Japan, the
+  /// US, the EU, Australia or New Zealand, Korea, China or Canada. Every
+  /// field may be empty: a blank asks the user to look, a guess does not.
   @available(iOS 26.0, macOS 26.0, *)
   @Generable
   struct FoodLabelOutput {
+    @Guide(description: "標示是哪裡的：TW（營養標示）、JP（栄養成分表示）、US（Nutrition Facts）、EU（Nutrition declaration）、AU 或 NZ（Nutrition Information Panel）、KR（영양정보）、CN（营养成分表）或 CA（Nutrition Facts / Valeur nutritive）；看不出來就留空")
+    var labelRegion: String?
     @Guide(description: "品名；標示上沒有就留空")
     var name: String?
     @Guide(description: "品牌；標示上沒有就留空")
@@ -238,6 +241,8 @@ enum AppleIntelligence {
     var servingUnit: String?
     @Guide(description: "「每份」那一欄的熱量，單位大卡")
     var kcal: Double?
+    @Guide(description: "只印了 kJ、沒有 kcal 時的能量，kJ；印了 kcal 就留空")
+    var energyKilojoules: Double?
     @Guide(description: "「每100公克或毫升」那一欄的熱量，只用來核對；沒有那一欄就留空")
     var kcalPer100: Double?
     @Guide(description: "「每份」那一欄的蛋白質，公克")
@@ -248,12 +253,16 @@ enum AppleIntelligence {
     var saturatedFatGrams: Double?
     @Guide(description: "「每份」那一欄的反式脂肪，公克")
     var transFatGrams: Double?
-    @Guide(description: "「每份」那一欄的碳水化合物，公克")
+    @Guide(description: "「每份」那一欄的碳水化合物（日本的炭水化物、美國的 Total Carbohydrate、韓國的탄수화물），公克；歐盟、澳洲、紐西蘭的 Carbohydrate 不含膳食纖維，填在糖質那一欄，這裡留空")
     var carbGrams: Double?
+    @Guide(description: "日本的糖質，或歐盟、澳洲、紐西蘭的 Carbohydrate，公克；沒有就留空")
+    var netCarbGrams: Double?
     @Guide(description: "「每份」那一欄的糖，公克")
     var sugarGrams: Double?
     @Guide(description: "「每份」那一欄的鈉，毫克")
     var sodiumMilligrams: Double?
+    @Guide(description: "日本的食塩相当量或歐盟的 Salt，公克，不要換成鈉；沒有就留空")
+    var saltGrams: Double?
     @Guide(description: "「每份」那一欄的膳食纖維，公克；沒有就留空")
     var fibreGrams: Double?
     @Guide(description: "「每份」那一欄的糖醇，公克；沒有就留空")
@@ -262,32 +271,45 @@ enum AppleIntelligence {
     var caffeineMilligrams: Double?
     @Guide(description: "「每份」那一欄的鈣，毫克；沒有就留空")
     var calciumMilligrams: Double?
+    @Guide(description: "「每份」那一欄的必需胺基酸（EAA）總量，毫克；標示寫公克就換成毫克；沒有就留空")
+    var essentialAminoAcidsMilligrams: Double?
+    @Guide(description: "「每份」那一欄的支鏈胺基酸（BCAA）總量，毫克；標示寫公克就換成毫克；只有標示印了總量才填，不要自己相加")
+    var bcaaMilligrams: Double?
     @Guide(description: "「每份」那一欄的白胺酸，毫克；沒有就留空")
     var leucineMilligrams: Double?
     @Guide(description: "「每份」那一欄的異白胺酸，毫克；沒有就留空")
     var isoleucineMilligrams: Double?
     @Guide(description: "「每份」那一欄的纈胺酸，毫克；沒有就留空")
     var valineMilligrams: Double?
+    @Guide(description: "「每份」那一欄的麩醯胺酸，毫克；標示寫公克就換成毫克；沒有就留空")
+    var glutamineMilligrams: Double?
 
     /// The JSON `parseFoodLabel` reads, with the keys every provider uses.
     func json() throws -> String {
       func value(_ number: Double?) -> Any { number as Any? ?? NSNull() }
       func value(_ text: String?) -> Any { text as Any? ?? NSNull() }
       let fields: [String: Any] = [
+        "label_region": value(labelRegion),
         "name": value(name), "brand": value(brand),
         "serving_amount": value(servingAmount), "serving_unit": value(servingUnit),
-        "kcal": value(kcal), "kcal_per_100": value(kcalPer100),
+        "kcal": value(kcal), "kj": value(energyKilojoules),
+        "kcal_per_100": value(kcalPer100),
         "protein_g": value(proteinGrams), "fat_g": value(fatGrams),
         "saturated_fat_g": value(saturatedFatGrams), "trans_fat_g": value(transFatGrams),
-        "carb_g": value(carbGrams), "sugar_g": value(sugarGrams),
-        "sodium_mg": value(sodiumMilligrams), "fibre_g": value(fibreGrams),
+        "carb_g": value(carbGrams), "net_carb_g": value(netCarbGrams),
+        "sugar_g": value(sugarGrams),
+        "sodium_mg": value(sodiumMilligrams), "salt_g": value(saltGrams),
+        "fibre_g": value(fibreGrams),
         "caffeine_mg": value(caffeineMilligrams),
         "nutrients": [
           "calcium_mg": value(calciumMilligrams),
           "polyols_g": value(polyolsGrams),
+          "essential_amino_acids_mg": value(essentialAminoAcidsMilligrams),
+          "bcaa_mg": value(bcaaMilligrams),
           "leucine_mg": value(leucineMilligrams),
           "isoleucine_mg": value(isoleucineMilligrams),
           "valine_mg": value(valineMilligrams),
+          "glutamine_mg": value(glutamineMilligrams),
         ],
       ]
       let data = try JSONSerialization.data(withJSONObject: fields)
@@ -298,6 +320,8 @@ enum AppleIntelligence {
   @available(iOS 26.0, macOS 26.0, *)
   @Generable
   struct MealDraftOutput {
+    @Guide(description: "整餐的簡短名稱，例如「雞腿便當」「蛋餅加奶茶」，繁體中文，不超過 12 個字")
+    var name: String
     @Guide(description: "使用者提到的每一項食物或飲料")
     var items: [Item]
 
@@ -346,7 +370,8 @@ enum AppleIntelligence {
           "is_drink": item.isDrink,
         ]
       }
-      let data = try JSONSerialization.data(withJSONObject: ["items": list])
+      let data = try JSONSerialization.data(
+        withJSONObject: ["name": name, "items": list])
       return String(decoding: data, as: UTF8.self)
     }
   }

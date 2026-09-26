@@ -27,6 +27,14 @@ class NutritionViewModel extends ViewModel {
   void setTargetSettings(NutritionTargetSettings settings) =>
       backend.nutrition.setTargetSettings(settings);
 
+  NutritionConvention get convention => backend.nutrition.convention;
+
+  void setConvention(NutritionConvention convention) =>
+      backend.nutrition.setConvention(convention);
+
+  /// The day's salt limit in [convention]'s measure.
+  double get saltLimit => backend.nutrition.saltLimit;
+
   /// What the energy target is worked out from.
   Sex? get sex => backend.journal.sex;
 
@@ -115,6 +123,18 @@ class NutritionViewModel extends ViewModel {
   /// The items of the meal [groupId] groups, in the order eaten.
   List<MealEvent> mealGroup(String groupId) =>
       backend.nutrition.mealGroup(groupId);
+
+  /// What the meal of [items] is called: its given name, or its items.
+  String nameOfMeal(List<MealEvent> items) =>
+      backend.nutrition.nameOfMeal(items);
+
+  /// The name the meal [groupId] groups was given, if any.
+  String? mealGroupName(String groupId) =>
+      backend.nutrition.mealGroupName(groupId);
+
+  /// Calls the meal [groupId] groups [name]; blank goes back to its items.
+  void nameMealGroup(String groupId, String name) =>
+      backend.nutrition.nameMealGroup(groupId, name);
 
   /// Meal [id] as it is now; null once it is deleted.
   MealEvent? mealById(String id) => backend.nutrition.mealById(id);

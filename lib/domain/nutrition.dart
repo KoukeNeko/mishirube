@@ -1,4 +1,5 @@
 import '../shared/format.dart';
+import 'body.dart';
 
 class FoodComponent {
   const FoodComponent({
@@ -55,6 +56,7 @@ class MealEvent {
     this.foodId,
     this.servings,
     this.groupId,
+    this.labelCountry = '',
   });
 
   final String id;
@@ -71,6 +73,11 @@ class MealEvent {
   /// one meal: each keeps its own record and figures, and the meal is
   /// their sum. Null for something eaten on its own.
   final String? groupId;
+
+  /// Whose rules the label its figures came from follows (`TW`, `JP`,
+  /// `EU`), copied from the food when it was logged; empty when not
+  /// known. It decides how the label's salt reads as sodium.
+  final String labelCountry;
 
   /// Plain water from the water shortcut, as opposed to any other drink.
   bool get isWater =>
@@ -144,6 +151,7 @@ class MealEvent {
     foodId: foodId,
     servings: servings,
     groupId: groupId == null ? this.groupId : groupId(),
+    labelCountry: labelCountry,
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,
@@ -547,38 +555,296 @@ enum NutrientUnit {
 /// What a Japanese label (食品表示基準) calls a figure, so a food sold
 /// there reads as its own label does; null for one the label has no
 /// word for here.
-String? japaneseLabelOf(Nutrient nutrient) => switch (nutrient) {
-  Nutrient.sugar => '糖類',
-  Nutrient.netCarb => '糖質',
-  Nutrient.saltEquivalent => '食塩相当量',
-  Nutrient.polyols => '糖アルコール',
-  Nutrient.alcohol => 'アルコール',
-  Nutrient.saturatedFat => '飽和脂肪酸',
-  Nutrient.calcium => 'カルシウム',
-  Nutrient.iron => '鉄',
-  Nutrient.caffeine => 'カフェイン',
-  Nutrient.vitaminB6 => 'ビタミンB6',
-  Nutrient.vitaminB12 => 'ビタミンB12',
-  Nutrient.vitaminD => 'ビタミンD',
-  Nutrient.folate => '葉酸',
-  Nutrient.sodium => 'ナトリウム',
-  Nutrient.potassium => 'カリウム',
-  Nutrient.magnesium => 'マグネシウム',
-  Nutrient.phosphorus => 'リン',
-  Nutrient.zinc => '亜鉛',
-  Nutrient.niacin => 'ナイアシン',
-  Nutrient.pantothenicAcid => 'パントテン酸',
-  Nutrient.biotin => 'ビオチン',
-  Nutrient.vitaminA => 'ビタミンA',
-  Nutrient.vitaminB1 => 'ビタミンB1',
-  Nutrient.vitaminB2 => 'ビタミンB2',
-  Nutrient.vitaminC => 'ビタミンC',
-  Nutrient.vitaminE => 'ビタミンE',
-  Nutrient.vitaminK => 'ビタミンK',
-  Nutrient.leucine => 'ロイシン',
-  Nutrient.isoleucine => 'イソロイシン',
-  Nutrient.valine => 'バリン',
-  _ => null,
+String? japaneseLabelOf(Nutrient nutrient) => _japaneseWords[nutrient];
+
+/// Whose way of reading a label the day's totals and limits follow: a
+/// user's own, apart from the language of the app and from the label
+/// each food was printed with, which its own page keeps.
+///
+/// Each reads salt the way its labels print it and holds it to its own
+/// health authority's limit for adults, not to a label's reference value.
+enum NutritionConvention {
+  /// Sodium in mg, under the Health Promotion Administration's 2,400 mg.
+  taiwan('台灣', {'TW'}),
+
+  /// Salt equivalent in g, under Japan's DRIs (2025) by sex.
+  japan('日本', {'JP'}),
+
+  /// Sodium in mg, under the NASEM's 2,300 mg (2019).
+  unitedStates('美國', {'US'}),
+
+  /// Salt in g, under EFSA's 2.0 g of sodium (2019), 5 g of the EU's
+  /// salt.
+  europeanUnion('歐盟', {'EU'}),
+
+  /// Sodium in mg, under the NHMRC's suggested dietary target of
+  /// 2,000 mg (2017), for both countries under one food code.
+  australiaNewZealand('澳洲、紐西蘭', {'AU', 'NZ'}),
+
+  /// Sodium in mg, under the 2020 KDRIs' 2,300 mg.
+  korea('韓國', {'KR'}),
+
+  /// Salt in g, under the Chinese Dietary Guidelines' (2022) 5 g.
+  china('中國', {'CN'}),
+
+  /// Sodium in mg, under the NASEM's 2,300 mg (2019), as Health Canada
+  /// uses it.
+  canada('加拿大', {'CA'});
+
+  const NutritionConvention(this.label, this.labelCountries);
+
+  final String label;
+
+  /// The countries whose labels this convention reads, as a food's
+  /// [FoodItem.country] names them.
+  final Set<String> labelCountries;
+
+  /// The convention a label from [country] follows; null for a country
+  /// none of them covers, or none at all.
+  static NutritionConvention? ofLabel(String country) {
+    for (final convention in values) {
+      if (convention.labelCountries.contains(country)) return convention;
+    }
+    return null;
+  }
+
+  /// What salt is counted as: sodium, or the salt it makes.
+  Nutrient get saltMeasure => switch (this) {
+    japan || europeanUnion || china => Nutrient.saltEquivalent,
+    _ => Nutrient.sodium,
+  };
+
+  /// The other measure, folded into [saltMeasure] rather than listed.
+  Nutrient get otherSaltMeasure => saltMeasure == Nutrient.sodium
+      ? Nutrient.saltEquivalent
+      : Nutrient.sodium;
+
+  /// Salt a day, at most, in [saltMeasure]'s unit, for an adult of [sex];
+  /// Japan's differs by sex and takes the lower one when it is not known.
+  double saltLimit(Sex? sex) => switch (this) {
+    taiwan => 2400,
+    japan => sex == Sex.male ? 7.5 : 6.5,
+    unitedStates || korea || canada => 2300,
+    europeanUnion || china => 5,
+    australiaNewZealand => 2000,
+  };
+
+  /// Whether this convention's carbohydrate leaves out the fibre, as the
+  /// EU's and Australia's and New Zealand's do; the app's own
+  /// carbohydrate holds it.
+  bool get countsAvailableCarb =>
+      this == europeanUnion || this == australiaNewZealand;
+
+  /// What a list of totals leaves out because another figure already
+  /// holds it: the other measure of salt, and the carbohydrate less its
+  /// fibre where that is the carbohydrate itself.
+  Set<Nutrient> get foldedAway => {
+    otherSaltMeasure,
+    if (countsAvailableCarb) Nutrient.netCarb,
+  };
+
+  /// Whether the day works out the carbohydrate less its fibre: as 糖質
+  /// the Japanese way, or as the carbohydrate itself where it leaves the
+  /// fibre out.
+  bool get readsAvailableCarb => this == japan || countsAvailableCarb;
+
+  /// The part of the carbohydrate the day is read by: sugar, or, the
+  /// Japanese way, 糖質, the carbohydrate less its fibre.
+  Nutrient get carbPart => this == japan ? Nutrient.netCarb : Nutrient.sugar;
+
+  /// What the five figures every label has are called, in the words of
+  /// the labels this convention reads.
+  String get energyName => _words.energy;
+  String get proteinName => _words.protein;
+  String get carbName => _words.carb;
+  String get fatName => _words.fat;
+  String get fibreName => _words.fibre;
+
+  /// What [nutrient] is called on the labels this convention reads; the
+  /// app's own word for one they have no word for here.
+  String nameOf(Nutrient nutrient) =>
+      _words.nutrients[nutrient] ?? nutrient.label;
+
+  _LabelWords get _words => switch (this) {
+    taiwan => const _LabelWords(
+      energy: MacroLabel.energy,
+      protein: MacroLabel.protein,
+      carb: MacroLabel.carb,
+      fat: MacroLabel.fat,
+      fibre: MacroLabel.fibre,
+      nutrients: {},
+    ),
+    japan => const _LabelWords(
+      energy: JapaneseMacroLabel.energy,
+      protein: JapaneseMacroLabel.protein,
+      carb: JapaneseMacroLabel.carb,
+      fat: JapaneseMacroLabel.fat,
+      fibre: JapaneseMacroLabel.fibre,
+      nutrients: _japaneseWords,
+    ),
+    unitedStates => const _LabelWords(
+      energy: 'Calories',
+      protein: 'Protein',
+      carb: 'Total Carbohydrate',
+      fat: 'Total Fat',
+      fibre: 'Dietary Fiber',
+      nutrients: {
+        ..._englishWords,
+        Nutrient.sugar: 'Total Sugars',
+        Nutrient.saturatedFat: 'Saturated Fat',
+        Nutrient.transFat: 'Trans Fat',
+        Nutrient.polyols: 'Sugar Alcohol',
+      },
+    ),
+    europeanUnion => const _LabelWords(
+      energy: 'Energy',
+      protein: 'Protein',
+      carb: 'Carbohydrate',
+      fat: 'Fat',
+      fibre: 'Fibre',
+      nutrients: {
+        ..._englishWords,
+        Nutrient.sugar: 'Sugars',
+        Nutrient.saturatedFat: 'Saturates',
+        Nutrient.polyols: 'Polyols',
+        Nutrient.netCarb: 'Carbohydrate',
+      },
+    ),
+    australiaNewZealand => const _LabelWords(
+      energy: 'Energy',
+      protein: 'Protein',
+      carb: 'Carbohydrate',
+      fat: 'Fat, total',
+      fibre: 'Dietary fibre',
+      nutrients: {
+        ..._englishWords,
+        Nutrient.sugar: 'Sugars',
+        Nutrient.saturatedFat: 'Saturated fat',
+        Nutrient.netCarb: 'Carbohydrate',
+      },
+    ),
+    korea => const _LabelWords(
+      energy: '열량',
+      protein: '단백질',
+      carb: '탄수화물',
+      fat: '지방',
+      fibre: '식이섬유',
+      nutrients: {
+        Nutrient.sugar: '당류',
+        Nutrient.sodium: '나트륨',
+        Nutrient.saturatedFat: '포화지방',
+        Nutrient.transFat: '트랜스지방',
+        Nutrient.cholesterol: '콜레스테롤',
+        Nutrient.saltEquivalent: '식염',
+        Nutrient.calcium: '칼슘',
+        Nutrient.caffeine: '카페인',
+      },
+    ),
+    china => const _LabelWords(
+      energy: '能量',
+      protein: '蛋白质',
+      carb: '碳水化合物',
+      fat: '脂肪',
+      fibre: '膳食纤维',
+      nutrients: {
+        Nutrient.sugar: '糖',
+        Nutrient.sodium: '钠',
+        Nutrient.saltEquivalent: '食盐',
+        Nutrient.saturatedFat: '饱和脂肪',
+        Nutrient.transFat: '反式脂肪',
+        Nutrient.cholesterol: '胆固醇',
+        Nutrient.calcium: '钙',
+        Nutrient.caffeine: '咖啡因',
+      },
+    ),
+    canada => const _LabelWords(
+      energy: 'Calories',
+      protein: 'Protein',
+      carb: 'Carbohydrate',
+      fat: 'Fat',
+      fibre: 'Fibre',
+      nutrients: {
+        ..._englishWords,
+        Nutrient.sugar: 'Sugars',
+        Nutrient.saturatedFat: 'Saturated',
+        Nutrient.transFat: 'Trans',
+      },
+    ),
+  };
+}
+
+/// A label's words for the five every label has and for the rest.
+class _LabelWords {
+  const _LabelWords({
+    required this.energy,
+    required this.protein,
+    required this.carb,
+    required this.fat,
+    required this.fibre,
+    required this.nutrients,
+  });
+
+  final String energy;
+  final String protein;
+  final String carb;
+  final String fat;
+  final String fibre;
+  final Map<Nutrient, String> nutrients;
+}
+
+const _japaneseWords = {
+  Nutrient.sugar: '糖類',
+  Nutrient.netCarb: '糖質',
+  Nutrient.saltEquivalent: '食塩相当量',
+  Nutrient.polyols: '糖アルコール',
+  Nutrient.alcohol: 'アルコール',
+  Nutrient.saturatedFat: '飽和脂肪酸',
+  Nutrient.calcium: 'カルシウム',
+  Nutrient.iron: '鉄',
+  Nutrient.caffeine: 'カフェイン',
+  Nutrient.vitaminB6: 'ビタミンB6',
+  Nutrient.vitaminB12: 'ビタミンB12',
+  Nutrient.vitaminD: 'ビタミンD',
+  Nutrient.folate: '葉酸',
+  Nutrient.sodium: 'ナトリウム',
+  Nutrient.potassium: 'カリウム',
+  Nutrient.magnesium: 'マグネシウム',
+  Nutrient.phosphorus: 'リン',
+  Nutrient.zinc: '亜鉛',
+  Nutrient.niacin: 'ナイアシン',
+  Nutrient.pantothenicAcid: 'パントテン酸',
+  Nutrient.biotin: 'ビオチン',
+  Nutrient.vitaminA: 'ビタミンA',
+  Nutrient.vitaminB1: 'ビタミンB1',
+  Nutrient.vitaminB2: 'ビタミンB2',
+  Nutrient.vitaminC: 'ビタミンC',
+  Nutrient.vitaminE: 'ビタミンE',
+  Nutrient.vitaminK: 'ビタミンK',
+  Nutrient.essentialAminoAcids: '必須アミノ酸',
+  Nutrient.bcaa: 'BCAA',
+  Nutrient.glutamine: 'グルタミン',
+  Nutrient.leucine: 'ロイシン',
+  Nutrient.isoleucine: 'イソロイシン',
+  Nutrient.valine: 'バリン',
+};
+
+/// What labels in English call what they share.
+const _englishWords = {
+  Nutrient.sodium: 'Sodium',
+  Nutrient.saltEquivalent: 'Salt',
+  Nutrient.cholesterol: 'Cholesterol',
+  Nutrient.alcohol: 'Alcohol',
+  Nutrient.caffeine: 'Caffeine',
+  Nutrient.calcium: 'Calcium',
+  Nutrient.iron: 'Iron',
+  Nutrient.potassium: 'Potassium',
+  Nutrient.magnesium: 'Magnesium',
+  Nutrient.vitaminD: 'Vitamin D',
+  Nutrient.bcaa: 'BCAAs',
+  Nutrient.leucine: 'Leucine',
+  Nutrient.isoleucine: 'Isoleucine',
+  Nutrient.valine: 'Valine',
+  Nutrient.glutamine: 'Glutamine',
 };
 
 /// The five figures every label has, as a Japanese one names them.
@@ -630,11 +896,15 @@ enum Nutrient {
   cholesterol('膽固醇', NutrientUnit.milligram),
   caffeine('咖啡因', NutrientUnit.milligram),
 
-  // The branched-chain amino acids a protein drink's label lists under
-  // its protein.
+  // The amino acids a protein drink's label lists under its protein:
+  // the essential ones' total, the branched-chain ones' total and each
+  // of the three, and glutamine.
+  essentialAminoAcids('必需胺基酸', NutrientUnit.milligram),
+  bcaa('支鏈胺基酸', NutrientUnit.milligram),
   leucine('白胺酸', NutrientUnit.milligram),
   isoleucine('異白胺酸', NutrientUnit.milligram),
   valine('纈胺酸', NutrientUnit.milligram),
+  glutamine('麩醯胺酸', NutrientUnit.milligram),
 
   // Minerals in the DRIs.
   calcium('鈣', NutrientUnit.milligram),
@@ -693,6 +963,13 @@ typedef Nutrients = Map<Nutrient, double>;
 String countryName(String code) => switch (code) {
   'TW' => '台灣',
   'JP' => '日本',
+  'US' => '美國',
+  'EU' => '歐盟',
+  'AU' => '澳洲',
+  'NZ' => '紐西蘭',
+  'KR' => '韓國',
+  'CN' => '中國',
+  'CA' => '加拿大',
   _ => code,
 };
 

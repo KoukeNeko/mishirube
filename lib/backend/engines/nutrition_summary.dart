@@ -25,6 +25,8 @@ class DaySummary {
     this.mealsWithoutCarb = 0,
     this.mealsWithoutFat = 0,
     this.mealsWithoutFibre = 0,
+    this.availableCarbGrams = 0,
+    this.mealsWithoutAvailableCarb = 0,
     this.recordCount = 0,
   });
 
@@ -62,6 +64,12 @@ class DaySummary {
   final int mealsWithoutFat;
   final int mealsWithoutFibre;
 
+  /// The carbohydrate less its fibre, for a convention that reads it that
+  /// way ([availableCarbOf]), and the records it could not be worked out
+  /// for.
+  final int availableCarbGrams;
+  final int mealsWithoutAvailableCarb;
+
   /// Records counted in the totals, drinks included — what the
   /// `mealsWithout…` counts are out of.
   final int recordCount;
@@ -86,6 +94,11 @@ List<List<MealEvent>> mealsOf(Iterable<MealEvent> records) {
   return meals.values.toList();
 }
 
+/// What a meal is called: [groupName] when the meal was given one, or
+/// else its items, `白飯、雞腿、青菜`.
+String mealNameOf(List<MealEvent> items, {String? groupName}) =>
+    groupName ?? items.map((item) => item.name).join('、');
+
 /// A meal's energy: its items' sum, or null when any item has none, so
 /// the meal is not shown as less than it was.
 int? mealKcalOf(List<MealEvent> meal) {
@@ -98,8 +111,9 @@ int? mealKcalOf(List<MealEvent> meal) {
 /// so the meal is not shown as less than it was; fibre and the other
 /// nutrients add up what is known, since an item without alcohol or
 /// sugar alcohols on record usually has none (the nutrient list says
-/// where a total is only a floor: [summariseNutrients]).
-MealEvent mealTotal(List<MealEvent> items) {
+/// where a total is only a floor: [summariseNutrients]). It is called
+/// [name], or by its items.
+MealEvent mealTotal(List<MealEvent> items, {String? name}) {
   int? sum(int? Function(MealEvent) figure) {
     if (items.any((item) => figure(item) == null)) return null;
     return items.fold<int>(0, (total, item) => total + figure(item)!);
@@ -111,7 +125,7 @@ MealEvent mealTotal(List<MealEvent> items) {
   final volumes = [for (final item in items) ?item.millilitres];
   return MealEvent(
     id: first.groupId ?? first.id,
-    name: items.map((item) => item.name).join('、'),
+    name: mealNameOf(items, groupName: name),
     timeLabel: first.timeLabel,
     qualityTag: tags.length == 1 ? tags.single : '',
     dishes: const [],
@@ -217,6 +231,12 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
     mealsWithoutCarb: missing((meal) => meal.carbGrams),
     mealsWithoutFat: missing((meal) => meal.fatGrams),
     mealsWithoutFibre: missing((meal) => meal.fibreGrams),
+    availableCarbGrams: records
+        .fold<double>(0, (total, meal) => total + (availableCarbOf(meal) ?? 0))
+        .round(),
+    mealsWithoutAvailableCarb: records
+        .where((meal) => availableCarbOf(meal) == null)
+        .length,
     recordCount: records.length,
     mealCount: mealCount,
     hasEstimates: records.any((meal) => meal.isEstimated),
@@ -241,9 +261,13 @@ class NutrientTotal {
     required this.amount,
     required this.knownMeals,
     required this.unknownMeals,
+    this.isWorkedOut = false,
   });
 
   final Nutrient nutrient;
+
+  /// Some of the total was added up from its parts rather than printed.
+  final bool isWorkedOut;
 
   /// The sum of what is known. Never the sum of what is assumed.
   final double amount;
@@ -255,31 +279,142 @@ class NutrientTotal {
   bool get isComplete => unknownMeals == 0;
 
   /// `3.4 µg`, marked as a floor while any meal is unaccounted for.
-  String get label =>
-      isComplete ? nutrient.format(amount) : '至少 ${nutrient.format(amount)}';
+  String get label => [
+    isComplete ? nutrient.format(amount) : '至少 ${nutrient.format(amount)}',
+    if (isWorkedOut) '推算',
+  ].join(' · ');
 }
 
 /// Totals [meals] for every nutrient any of them knows about, in the
 /// order [Nutrient] declares. Nutrients nobody recorded are left out
-/// rather than listed as zero.
-List<NutrientTotal> summariseNutrients(Iterable<MealEvent> meals) {
-  final all = meals.toList();
+/// rather than listed as zero; what a label left to be worked out counts
+/// as [workedOut] makes it for [convention].
+List<NutrientTotal> summariseNutrients(
+  Iterable<MealEvent> meals, {
+  NutritionConvention convention = NutritionConvention.taiwan,
+}) {
+  final derived = [
+    for (final meal in meals)
+      workedOut(
+        meal.nutrients,
+        convention,
+        carbGrams: meal.carbGrams,
+        fibreGrams: meal.fibreGrams,
+        labelCountry: meal.labelCountry,
+      ),
+  ];
+  final all = [
+    for (final (index, meal) in meals.indexed)
+      {...meal.nutrients, ...derived[index]},
+  ];
   return [
     for (final nutrient in Nutrient.values)
-      if (all.any((meal) => meal.nutrients.containsKey(nutrient)))
+      if (all.any((nutrients) => nutrients.containsKey(nutrient)))
         NutrientTotal(
           nutrient: nutrient,
           amount: all.fold(
             0,
-            (sum, meal) => sum + (meal.nutrients[nutrient] ?? 0),
+            (sum, nutrients) => sum + (nutrients[nutrient] ?? 0),
           ),
           knownMeals: all
-              .where((meal) => meal.nutrients.containsKey(nutrient))
+              .where((nutrients) => nutrients.containsKey(nutrient))
               .length,
           unknownMeals: all
-              .where((meal) => !meal.nutrients.containsKey(nutrient))
+              .where((nutrients) => !nutrients.containsKey(nutrient))
               .length,
+          isWorkedOut: derived.any((made) => made.containsKey(nutrient)),
         ),
+  ];
+}
+
+/// The carbohydrate less its fibre — Japan's 糖質, the EU's and
+/// Australia's carbohydrate — when both are known; null otherwise, since
+/// the fibre left out is unknown, not none.
+double? carbLessFibre(num? carbGrams, num? fibreGrams) =>
+    carbGrams == null || fibreGrams == null
+    ? null
+    : math.max(0, carbGrams - fibreGrams).toDouble();
+
+/// A record's carbohydrate less its fibre: as its label printed it, or
+/// worked out ([carbLessFibre]).
+double? availableCarbOf(MealEvent meal) =>
+    meal.nutrients[Nutrient.netCarb] ??
+    carbLessFibre(meal.carbGrams, meal.fibreGrams);
+
+/// Grams of salt a gram of sodium makes on a label following
+/// [labelCountry]'s rules: the EU defines its salt as sodium × 2.5;
+/// Japan, and everywhere else a label gives salt, use salt's mass over
+/// sodium's, 2.54.
+double saltPerSodium(String labelCountry) => labelCountry == 'EU' ? 2.5 : 2.54;
+
+/// The branched-chain amino acids' total a label left out, as its three
+/// add up to; null when it printed the total, or not all three.
+double? workedOutBcaa(Nutrients nutrients) {
+  if (nutrients.containsKey(Nutrient.bcaa)) return null;
+  final (leucine, isoleucine, valine) = (
+    nutrients[Nutrient.leucine],
+    nutrients[Nutrient.isoleucine],
+    nutrients[Nutrient.valine],
+  );
+  if (leucine == null || isoleucine == null || valine == null) return null;
+  return leucine + isoleucine + valine;
+}
+
+/// What [nutrients] leave to be worked out, and what it comes to: the
+/// branched-chain total from its three, salt in [convention]'s measure
+/// from the other one, so a Japanese label's salt counts in a Taiwanese
+/// day and the other way round, and, read the Japanese way, 糖質 as the
+/// carbohydrate less its fibre when both are known. Salt and sodium turn
+/// into each other by the factor of the label's own rules
+/// ([saltPerSodium]).
+Nutrients workedOut(
+  Nutrients nutrients,
+  NutritionConvention convention, {
+  num? carbGrams,
+  num? fibreGrams,
+  String labelCountry = '',
+}) {
+  final sodium = nutrients[Nutrient.sodium];
+  final salt = nutrients[Nutrient.saltEquivalent];
+  final factor = saltPerSodium(labelCountry);
+  return {
+    if (convention.readsAvailableCarb &&
+        !nutrients.containsKey(Nutrient.netCarb))
+      Nutrient.netCarb: ?carbLessFibre(carbGrams, fibreGrams),
+    Nutrient.bcaa: ?workedOutBcaa(nutrients),
+    if (convention.saltMeasure == Nutrient.sodium &&
+        sodium == null &&
+        salt != null)
+      Nutrient.sodium: salt * 1000 / factor,
+    if (convention.saltMeasure == Nutrient.saltEquivalent &&
+        salt == null &&
+        sodium != null)
+      Nutrient.saltEquivalent: sodium * factor / 1000,
+  };
+}
+
+/// [nutrients] as lines to read, in the order a label prints them:
+/// `12.4 mg`, and what was worked out rather than printed marked `推算`.
+List<(Nutrient, String)> nutrientLines(
+  Nutrients nutrients, {
+  NutritionConvention convention = NutritionConvention.taiwan,
+  num? carbGrams,
+  num? fibreGrams,
+  String labelCountry = '',
+}) {
+  final made = workedOut(
+    nutrients,
+    convention,
+    carbGrams: carbGrams,
+    fibreGrams: fibreGrams,
+    labelCountry: labelCountry,
+  );
+  return [
+    for (final nutrient in Nutrient.values)
+      if (nutrients[nutrient] case final amount?)
+        (nutrient, nutrient.format(amount))
+      else if (made[nutrient] case final amount?)
+        (nutrient, '${nutrient.format(amount)} · 推算'),
   ];
 }
 

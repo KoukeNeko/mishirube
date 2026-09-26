@@ -10,9 +10,10 @@ final mealDraftInstructions =
     '''
 你把使用者描述的一餐拆成一項一項的食物或飲料。
 只回傳 JSON，不要任何說明文字，格式：
-{"items":[{"name":"品名","amount":"份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
+{"name":"這一餐的名稱","items":[{"name":"品名","amount":"份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
 規則：
-- name 用使用者的說法，繁體中文。
+- 最外層的 name 是整餐的簡短名稱，例如「雞腿便當」「蛋餅加奶茶」，繁體中文，不超過 12 個字。
+- items 裡的 name 用使用者的說法，繁體中文。
 - amount 照使用者說的份量；沒說就寫「一份」。
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計，不確定就填 null。
 $_nutrientRules
@@ -46,9 +47,18 @@ MealDraft parseMealDraft(
   required AiProviderKind provider,
   required String model,
 }) {
-  final items = _itemsOf(_decode(answer), answer);
+  final decoded = _decode(answer);
+  final items = _itemsOf(decoded, answer);
   if (items.isEmpty) throw AiException(AiFailure.unreadable, answer);
-  return MealDraft(items: items, provider: provider, model: model);
+  return MealDraft(
+    items: items,
+    provider: provider,
+    model: model,
+    name: switch (decoded) {
+      {'name': final String name} when name.trim().isNotEmpty => name.trim(),
+      _ => null,
+    },
+  );
 }
 
 /// What every provider is asked about a food photo. It returns the same

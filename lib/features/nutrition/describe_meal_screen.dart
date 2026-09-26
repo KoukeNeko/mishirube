@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
+import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
 
 /// A meal in one sentence: the chosen AI drafts it, the user checks and
@@ -116,10 +117,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   Future<bool> _askConsent() => askCloudConsent(context);
 
   /// Corrects the model's figures for one item.
-  Future<void> _editFigures(int index) async {
-    final edited = await showAppDialog<DraftItem>(
+  Future<void> _editItem(int index) async {
+    final edited = await pushPage<DraftItem>(
       context,
-      _FiguresDialog(item: _items[index]),
+      FoodEditScreen(draftItem: _items[index]),
     );
     if (edited == null || !mounted) return;
     setState(() => _items = [..._items]..[index] = edited);
@@ -149,7 +150,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       final choice = await showAppDialog<bool>(
         context,
         AppDialog(
-          title: '${_items.length} 項',
+          title: _draft!.name ?? '${_items.length} 項',
           message: _items.map((item) => item.name).join('、'),
           actions: [
             DialogAction(
@@ -257,7 +258,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
                       '${item.amount} · '
                       '${formatKcalOrDash(item.kcal)} kcal',
                   detail: _macrosOf(item),
-                  onTap: () => _editFigures(index),
+                  onTap: () => _editItem(index),
                 ),
               ),
             ),
@@ -294,82 +295,4 @@ String _macrosOf(DraftItem item) {
     ].join(' · '),
     if (more.isNotEmpty) more.join(' · '),
   ].join('\n');
-}
-
-/// One item's energy and macronutrients, as the model gave them, to
-/// correct. Owns its fields, so they outlive the dialog's closing. A
-/// field left empty is a figure nobody knows, not zero.
-class _FiguresDialog extends StatefulWidget {
-  const _FiguresDialog({required this.item});
-
-  final DraftItem item;
-
-  @override
-  State<_FiguresDialog> createState() => _FiguresDialogState();
-}
-
-class _FiguresDialogState extends State<_FiguresDialog> {
-  late final _kcal = _field(widget.item.kcal);
-  late final _protein = _field(widget.item.proteinGrams);
-  late final _carb = _field(widget.item.carbGrams);
-  late final _fat = _field(widget.item.fatGrams);
-
-  static TextEditingController _field(int? value) =>
-      TextEditingController(text: value == null ? '' : '$value');
-
-  static int? _read(TextEditingController field) =>
-      double.tryParse(field.text.trim())?.round();
-
-  @override
-  void dispose() {
-    for (final field in [_kcal, _protein, _carb, _fat]) {
-      field.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final item = widget.item;
-    return AppDialog(
-      title: item.name,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          NumberFieldRow(
-            label: MacroLabel.energy,
-            unit: 'kcal',
-            controller: _kcal,
-          ),
-          NumberFieldRow(
-            label: MacroLabel.protein,
-            unit: 'g',
-            controller: _protein,
-          ),
-          NumberFieldRow(label: MacroLabel.carb, unit: 'g', controller: _carb),
-          NumberFieldRow(label: MacroLabel.fat, unit: 'g', controller: _fat),
-        ],
-      ),
-      actions: [
-        DialogAction(
-          label: '儲存',
-          tone: DialogTone.primary,
-          onTap: () => Navigator.of(context).pop(
-            DraftItem(
-              name: item.name,
-              amount: item.amount,
-              kcal: _read(_kcal),
-              proteinGrams: _read(_protein),
-              carbGrams: _read(_carb),
-              fatGrams: _read(_fat),
-              fibreGrams: item.fibreGrams,
-              nutrients: item.nutrients,
-              isDrink: item.isDrink,
-            ),
-          ),
-        ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
-      ],
-    );
-  }
 }

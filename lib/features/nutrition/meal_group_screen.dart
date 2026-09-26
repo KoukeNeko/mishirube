@@ -47,6 +47,18 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
     );
   }
 
+  /// Blank calls the meal by its items again, which the field shows.
+  Future<void> _rename(String groupId, List<MealEvent> items) async {
+    final typed = await showTextDialog(
+      context,
+      title: '名稱',
+      initial: _nutrition.mealGroupName(groupId) ?? '',
+      hint: mealNameOf(items),
+    );
+    if (typed == null || !mounted) return;
+    _nutrition.nameMealGroup(groupId, typed);
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _nutrition,
@@ -60,11 +72,15 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
   );
 
   Widget _page(List<MealEvent> items) {
-    final total = mealTotal(items);
+    final total = mealTotal(items, name: _nutrition.nameOfMeal(items));
+    final groupId = items.first.groupId;
     final eatenAt = _nutrition.eatenAtOf(items.first.id);
+    final convention = _nutrition.convention;
     final nutrients = [
-      for (final nutrient in summariseNutrients(items))
-        if (!energyNutrients.contains(nutrient.nutrient)) nutrient,
+      for (final nutrient in summariseNutrients(items, convention: convention))
+        if (!energyNutrients.contains(nutrient.nutrient) &&
+            !convention.foldedAway.contains(nutrient.nutrient))
+          nutrient,
     ];
     return DetailPage(
       appBar: PageAppBar(
@@ -78,6 +94,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
         Gutter(
           child: MealSummaryCard(
             meal: total,
+            convention: convention,
             details: [?total.mealType?.label, '${items.length} 項'],
           ),
         ),
@@ -90,7 +107,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
                   children: [
                     for (final nutrient in nutrients)
                       KeyValueRow(
-                        label: nutrient.nutrient.label,
+                        label: convention.nameOf(nutrient.nutrient),
                         value: nutrient.label,
                       ),
                   ],
@@ -123,6 +140,8 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
         Gutter(
           child: GroupedCard(
             children: [
+              if (groupId != null)
+                NavRow(title: '改名稱', onTap: () => _rename(groupId, items)),
               NavRow(
                 title: '拆開這一餐',
                 showChevron: false,

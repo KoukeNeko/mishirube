@@ -252,6 +252,7 @@ class IntakeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final summary = store.todaySummary;
+    final convention = store.backend.nutrition.convention;
     return AppCard(
       onTap: onTap,
       child: Column(
@@ -299,18 +300,26 @@ class IntakeCard extends StatelessWidget {
                 children: [
                   for (final (label, grams, missing) in [
                     (
-                      MacroLabel.protein,
+                      convention.proteinName,
                       summary.proteinGrams,
                       summary.mealsWithoutProtein,
                     ),
                     (
-                      MacroLabel.carb,
-                      summary.carbGrams,
-                      summary.mealsWithoutCarb,
+                      convention.carbName,
+                      convention.countsAvailableCarb
+                          ? summary.availableCarbGrams
+                          : summary.carbGrams,
+                      convention.countsAvailableCarb
+                          ? summary.mealsWithoutAvailableCarb
+                          : summary.mealsWithoutCarb,
                     ),
-                    (MacroLabel.fat, summary.fatGrams, summary.mealsWithoutFat),
                     (
-                      MacroLabel.fibre,
+                      convention.fatName,
+                      summary.fatGrams,
+                      summary.mealsWithoutFat,
+                    ),
+                    (
+                      convention.fibreName,
                       summary.fibreGrams,
                       summary.mealsWithoutFibre,
                     ),
@@ -328,7 +337,7 @@ class IntakeCard extends StatelessWidget {
               );
             },
           ),
-          if (_leftOut(summary) case final note?) ...[
+          if (_leftOut(summary, convention) case final note?) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(note, style: AppTextStyles.caption),
           ],
@@ -341,13 +350,18 @@ class IntakeCard extends StatelessWidget {
 /// `蛋白質、碳水化合物有紀錄沒有數字，未計入。`, or null when every
 /// total is complete. A total that some records lacked is only what the
 /// others add up to, and the tile would not say so on its own.
-String? _leftOut(DaySummary summary) {
+String? _leftOut(DaySummary summary, NutritionConvention convention) {
   bool partial(int missing) => missing > 0 && missing < summary.recordCount;
   final macros = [
-    if (partial(summary.mealsWithoutProtein)) MacroLabel.protein,
-    if (partial(summary.mealsWithoutCarb)) MacroLabel.carb,
-    if (partial(summary.mealsWithoutFat)) MacroLabel.fat,
-    if (partial(summary.mealsWithoutFibre)) MacroLabel.fibre,
+    if (partial(summary.mealsWithoutProtein)) convention.proteinName,
+    if (partial(
+      convention.countsAvailableCarb
+          ? summary.mealsWithoutAvailableCarb
+          : summary.mealsWithoutCarb,
+    ))
+      convention.carbName,
+    if (partial(summary.mealsWithoutFat)) convention.fatName,
+    if (partial(summary.mealsWithoutFibre)) convention.fibreName,
   ];
   if (macros.isEmpty) return null;
   return '${macros.join('、')}有紀錄沒有數字，未計入。';

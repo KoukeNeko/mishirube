@@ -84,6 +84,20 @@ class NutritionService {
   final InsightsService _insights;
 
   static const _targetsKey = 'nutrition.targets';
+  static const _conventionKey = 'nutrition.convention';
+
+  /// Whose way of reading a label the day's totals follow; Taiwan's until
+  /// the user picks another.
+  NutritionConvention get convention =>
+      NutritionConvention.values.asNameMap()[_db.setting(_conventionKey)] ??
+      NutritionConvention.taiwan;
+
+  void setConvention(NutritionConvention convention) =>
+      _db.setSetting(_conventionKey, convention.name);
+
+  /// The day's salt limit in [convention]'s measure: mg of sodium, or g
+  /// of salt for the user's sex.
+  double get saltLimit => convention.saltLimit(_journal.sex);
 
   /// What the user chose for their daily targets.
   NutritionTargetSettings get targetSettings {
@@ -237,6 +251,25 @@ class NutritionService {
 
   /// The items of the meal [groupId] groups, in the order eaten.
   List<MealEvent> mealGroup(String groupId) => _meals.inGroup(groupId);
+
+  /// What the meal of [items] is called: the name its group was given,
+  /// or its items.
+  String nameOfMeal(List<MealEvent> items) => mealNameOf(
+    items,
+    groupName: switch (items.first.groupId) {
+      final groupId? => mealGroupName(groupId),
+      null => null,
+    },
+  );
+
+  /// The name the meal [groupId] groups was given; null when it goes by
+  /// its items.
+  String? mealGroupName(String groupId) => _meals.groupName(groupId);
+
+  /// Calls the meal [groupId] groups [name]; blank goes back to calling
+  /// it by its items.
+  void nameMealGroup(String groupId, String name) =>
+      _meals.nameGroup(groupId, name.trim().isEmpty ? null : name.trim());
 
   /// Meal [id] as it is now; null once it is deleted.
   MealEvent? mealById(String id) => _meals.byId(id);
@@ -458,8 +491,8 @@ class NutritionService {
   /// audit trail keeps which provider and model it came from.
   ///
   /// [asOneMeal] logs the items as one meal: each its own record with
-  /// its own figures, all in one group; otherwise each item is a meal of
-  /// its own.
+  /// its own figures, all in one group, called what the draft named it;
+  /// otherwise each item is a meal of its own.
   List<MealEvent> logDraft(
     MealDraft draft,
     List<DraftItem> items, {
@@ -469,8 +502,11 @@ class NutritionService {
   }) {
     final eatenAt = at ?? _db.now();
     final groupId = asOneMeal && items.length > 1 ? _db.newId() : null;
-    return _db.transaction(
-      () => [
+    return _db.transaction(() {
+      if ((groupId, draft.name) case (final groupId?, final name?)) {
+        _meals.nameGroup(groupId, name);
+      }
+      return [
         for (final item in items)
           () {
             final meal = MealEvent(
@@ -506,8 +542,8 @@ class NutritionService {
             );
             return meal;
           }(),
-      ],
-    );
+      ];
+    });
   }
 
   /// Logs a glass of water of [millilitres].
@@ -609,6 +645,7 @@ class NutritionService {
         valueType: food.valueType,
         foodId: keepsFood ? food.id : null,
         servings: keepsFood ? portion.servings : null,
+        labelCountry: food.country,
         qualityTag: tag,
         dishes: [
           DishEntry(

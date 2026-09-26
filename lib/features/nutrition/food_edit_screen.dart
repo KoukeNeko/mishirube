@@ -14,7 +14,8 @@ import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 
 /// Creating or correcting one of the user's own foods, logging one as a
-/// quick record, or correcting a logged meal: one form for all of them.
+/// quick record, correcting a logged meal, or an item of an AI draft
+/// before it is logged: one form for all of them.
 ///
 /// Every number here is typed by hand, so the screen never dresses them
 /// up as a lookup: what goes in is what comes back out.
@@ -27,6 +28,7 @@ class FoodEditScreen extends StatefulWidget {
     this.takePhoto,
     this.logsOnce = false,
     this.meal,
+    this.draftItem,
     this.at,
   });
 
@@ -59,6 +61,11 @@ class FoodEditScreen extends StatefulWidget {
   /// when the meal was deleted.
   final MealEvent? meal;
 
+  /// An item of an AI draft being checked before it is logged: like a
+  /// logged meal, without the food's own parts, and with the draft's
+  /// amount in words. Nothing is saved; pops the item as corrected.
+  final DraftItem? draftItem;
+
   /// When a quick record was eaten; now when null.
   final DateTime? at;
 
@@ -71,6 +78,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late final _name = TextEditingController(
     text:
         widget.meal?.name ??
+        widget.draftItem?.name ??
         widget.editing?.name ??
         widget.sizeOf?.name ??
         widget.initialName,
@@ -80,6 +88,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   );
   late final _brand = TextEditingController(
     text: widget.editing?.brand ?? widget.sizeOf?.brand ?? '',
+  );
+
+  /// A draft item's amount, in the model's words: `約 180 g`.
+  late final _draftAmount = TextEditingController(
+    text: widget.draftItem?.amount ?? '',
   );
   late final _servingAmount = TextEditingController(
     text: formatAmount(widget.editing?.servingAmount ?? 1),
@@ -114,6 +127,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
   String? _error;
 
+  /// Whose rules a scanned label followed, kept with the food so its
+  /// page reads as the label does; a food being corrected keeps its own.
+  late String _country = widget.editing?.country ?? '';
+
   /// A drink's alcohol by volume, in %: not kept, only a way to fill in
   /// the grams of alcohol a label rarely prints.
   final _abv = TextEditingController();
@@ -123,20 +140,37 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
   late ConsumptionKind _kind =
       widget.meal?.kind ??
+      switch (widget.draftItem?.isDrink) {
+        true => ConsumptionKind.beverage,
+        false => ConsumptionKind.food,
+        null => null,
+      } ??
       widget.editing?.kind ??
       widget.sizeOf?.kind ??
       _kindForUnit;
 
-  late final _kcal = _figure(widget.meal?.kcal ?? widget.editing?.kcal);
+  late final _kcal = _figure(
+    widget.meal?.kcal ?? widget.draftItem?.kcal ?? widget.editing?.kcal,
+  );
   late final _protein = _figure(
-    widget.meal?.proteinGrams ?? widget.editing?.proteinGrams,
+    widget.meal?.proteinGrams ??
+        widget.draftItem?.proteinGrams ??
+        widget.editing?.proteinGrams,
   );
   late final _carb = _figure(
-    widget.meal?.carbGrams ?? widget.editing?.carbGrams,
+    widget.meal?.carbGrams ??
+        widget.draftItem?.carbGrams ??
+        widget.editing?.carbGrams,
   );
-  late final _fat = _figure(widget.meal?.fatGrams ?? widget.editing?.fatGrams);
+  late final _fat = _figure(
+    widget.meal?.fatGrams ??
+        widget.draftItem?.fatGrams ??
+        widget.editing?.fatGrams,
+  );
   late final _fibre = _figure(
-    widget.meal?.fibreGrams ?? widget.editing?.fibreGrams,
+    widget.meal?.fibreGrams ??
+        widget.draftItem?.fibreGrams ??
+        widget.editing?.fibreGrams,
   );
 
   /// One field per nutrient. A field left empty stays out of the food:
@@ -144,7 +178,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   late final _extra = {
     for (final nutrient in Nutrient.values)
       nutrient: _figure(
-        widget.meal?.nutrients[nutrient] ?? widget.editing?.nutrients[nutrient],
+        widget.meal?.nutrients[nutrient] ??
+            widget.draftItem?.nutrients[nutrient] ??
+            widget.editing?.nutrients[nutrient],
       ),
   };
 
@@ -471,6 +507,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         if (wasSuggested) _kind = _kindForUnit;
       }
       put(_servingAmount, draft.servingAmount);
+      if (draft.country case final country?) _country = country;
       // A draft is read off the per-serving column.
       _basis = CaffeineBasis.serving;
       put(_kcal, draft.kcal);
@@ -558,6 +595,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         foodId: meal.foodId,
         servings: meal.servings,
         groupId: meal.groupId,
+        labelCountry: meal.labelCountry,
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: whole(_kcal),
@@ -575,6 +613,29 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     );
     Navigator.of(context).pop();
     showToast(context, '已更新「$name」', kind: ToastKind.success);
+  }
+
+  /// Hands the item back as corrected; the draft logs it, not this page.
+  void _saveDraftItem() {
+    final figures = [_kcal, _protein, _carb, _fat, _fibre, ..._extra.values];
+    if (figures.any((field) => (double.tryParse(field.text.trim()) ?? 0) < 0)) {
+      setState(() => _error = '營養素不能是負數。');
+      return;
+    }
+    int? whole(TextEditingController field) => _perServing(field)?.round();
+    Navigator.of(context).pop(
+      DraftItem(
+        name: _name.text.trim(),
+        amount: _draftAmount.text.trim(),
+        kcal: whole(_kcal),
+        proteinGrams: whole(_protein),
+        carbGrams: whole(_carb),
+        fatGrams: whole(_fat),
+        fibreGrams: whole(_fibre),
+        nutrients: _typedNutrients(),
+        isDrink: _kind == ConsumptionKind.beverage,
+      ),
+    );
   }
 
   /// A tombstone, taken back from the toast, as a workout's delete is.
@@ -633,6 +694,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       nutrients: _typedNutrients(),
       parentId: widget.sizeOf?.id ?? widget.editing?.parentId,
       sizeName: _sizeName.text.trim(),
+      country: _country,
       kind: _kind,
       // Not asked: hand-typed figures are what the packet says, and a
       // size keeps the kind of figure its drink has.
@@ -691,7 +753,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
   Widget _page(BuildContext context) {
     final meal = widget.meal;
-    final isNew = widget.editing == null && meal == null;
+    final draftItem = widget.draftItem;
+    // A record of what was eaten, logged or about to be, not a food.
+    final isRecord = meal != null || draftItem != null;
+    final isNew = widget.editing == null && !isRecord;
+    final labelNutrients = _labelNutrientsFor(_nutrition.convention);
     return DetailPage(
       appBar: PageAppBar(
         title: meal != null
@@ -713,6 +779,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ? PrimaryButton(
               label: '儲存',
               onPressed: _canSave ? () => _saveMeal(meal) : null,
+            )
+          : draftItem != null
+          ? PrimaryButton(
+              label: '儲存',
+              onPressed: _canSave ? _saveDraftItem : null,
             )
           : widget.logsOnce
           ? PrimaryButton(label: '記錄', onPressed: _canSave ? _logOnce : null)
@@ -837,7 +908,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             ),
         ],
-        if (meal == null) ...[
+        if (!isRecord) ...[
           Gutter(child: const SectionLabel('品牌（選填）')),
           Gutter(
             child: AppTextField(controller: _brand, hint: '例如：大成'),
@@ -860,7 +931,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               controller: _millilitres,
             ),
           ),
-        if (meal == null) ...[
+        if (draftItem != null) ...[
+          Gutter(child: const SectionLabel('份量')),
+          Gutter(
+            child: AppTextField(controller: _draftAmount, hint: '例如：一碗'),
+          ),
+        ],
+        if (!isRecord) ...[
           Gutter(child: const SectionLabel('份量')),
           Gutter(
             child: Row(
@@ -908,8 +985,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: SecondaryButton(label: '新增杯型', onPressed: _addSize),
           ),
         ],
-        Gutter(child: SectionLabel(meal == null ? '營養標示' : '營養素')),
-        if (meal == null && _servingUnit.isMeasured)
+        Gutter(child: SectionLabel(isRecord ? '營養素' : '營養標示')),
+        if (!isRecord && _servingUnit.isMeasured)
           Gutter(
             child: ChipWrap(
               options: CaffeineBasis.values,
@@ -956,10 +1033,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             controller: _fibre,
           ),
         ),
-        for (final nutrient in _labelNutrients)
+        for (final nutrient in labelNutrients)
           Gutter(child: _nutrientField(nutrient)),
         for (final nutrient in Nutrient.values)
-          if (!_labelNutrients.contains(nutrient)) ...[
+          if (!labelNutrients.contains(nutrient)) ...[
             if (nutrient == Nutrient.alcohol && _typedVolume != null)
               Gutter(
                 child: NumberFieldRow(
@@ -991,14 +1068,19 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   }
 }
 
-/// What Taiwan's packaging law makes every label print, beyond the five
-/// the form asks for first. These are the ones a user can actually copy
-/// off the back of a packet, so they come before the rest.
-const _labelNutrients = [
+/// What the packets the user reads print beyond the five the form asks
+/// for first: the fats and sugar under them, their salt in the measure
+/// they print it in, and the 糖質 a Japanese label gives or the
+/// carbohydrate without its fibre an EU or Australian one does. They can
+/// be copied straight off the back of a packet, so they come before the
+/// rest.
+List<Nutrient> _labelNutrientsFor(NutritionConvention convention) => [
+  if (convention == NutritionConvention.japan || convention.countsAvailableCarb)
+    Nutrient.netCarb,
   Nutrient.saturatedFat,
   Nutrient.transFat,
   Nutrient.sugar,
-  Nutrient.sodium,
+  convention.saltMeasure,
 ];
 
 /// What a scan reads.

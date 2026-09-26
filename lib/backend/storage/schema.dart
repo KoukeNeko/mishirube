@@ -824,6 +824,22 @@ final List<String> _migrations = [
     FROM merge_parts;
   DROP TABLE merge_parts;
   ''',
+  '''
+  -- What a meal of several items is called, when it is called something
+  -- other than its items: an AI draft's name for it, or one typed. Keyed
+  -- by the group, so taking the meal apart and putting it back keeps it.
+  CREATE TABLE meal_groups (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    $_entityColumns
+  );
+  ''',
+  '''
+  -- Whose rules the label a meal's figures came from follows, copied
+  -- from the food: the EU's salt is sodium x 2.5, Japan's x 2.54.
+  -- Empty for meals from before, and for ones no label stood behind.
+  ALTER TABLE meals ADD COLUMN label_country TEXT NOT NULL DEFAULT '';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

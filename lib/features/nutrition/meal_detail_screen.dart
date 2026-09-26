@@ -67,6 +67,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         Gutter(
           child: MealSummaryCard(
             meal: meal,
+            convention: _nutrition.convention,
             details: [
               ?meal.mealType?.label,
               if (meal.kind != ConsumptionKind.unknown) meal.kind.label,
@@ -76,8 +77,16 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ),
         // What the card above does not show already.
         if ([
-              for (final nutrient in meal.nutrients.keys)
-                if (!energyNutrients.contains(nutrient)) nutrient,
+              for (final line in nutrientLines(
+                meal.nutrients,
+                convention: _nutrition.convention,
+                carbGrams: meal.carbGrams,
+                fibreGrams: meal.fibreGrams,
+                labelCountry: meal.labelCountry,
+              ))
+                if (!energyNutrients.contains(line.$1) &&
+                    !_nutrition.convention.foldedAway.contains(line.$1))
+                  line,
             ]
             case final rest when rest.isNotEmpty)
           PageSection(
@@ -86,10 +95,10 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               Gutter(
                 child: GroupedCard(
                   children: [
-                    for (final nutrient in rest)
+                    for (final (nutrient, value) in rest)
                       KeyValueRow(
-                        label: nutrient.label,
-                        value: nutrient.format(meal.nutrients[nutrient]!),
+                        label: _nutrition.convention.nameOf(nutrient),
+                        value: value,
                       ),
                   ],
                 ),
@@ -122,9 +131,13 @@ class MealSummaryCard extends StatelessWidget {
     super.key,
     required this.meal,
     this.details = const [],
+    this.convention = NutritionConvention.taiwan,
   });
 
   final MealEvent meal;
+
+  /// Whose words the parts are named in.
+  final NutritionConvention convention;
 
   /// What else to say under the energy: the sitting, a drink's volume.
   final List<String> details;
@@ -142,7 +155,7 @@ class MealSummaryCard extends StatelessWidget {
         if (details.isNotEmpty)
           Text(details.join(' · '), style: AppTextStyles.caption),
         const SizedBox(height: AppSpacing.md),
-        _Macros(meal: meal),
+        _Macros(meal: meal, convention: convention),
         if (meal.qualityTag.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           TagWrap(labels: [meal.qualityTag]),
@@ -159,35 +172,49 @@ class MealSummaryCard extends StatelessWidget {
 /// is [energyParts]'s, worked out from the grams; a label's own
 /// carbohydrate grams are shown as printed.
 class _Macros extends StatelessWidget {
-  const _Macros({required this.meal});
+  const _Macros({required this.meal, required this.convention});
 
   final MealEvent meal;
+  final NutritionConvention convention;
 
   @override
   Widget build(BuildContext context) {
     final energy = energyParts(meal);
     final main = [
-      (MacroLabel.carb, AppColors.macroCarb, meal.carbGrams, energy.carb),
       (
-        MacroLabel.protein,
+        convention.carbName,
+        AppColors.macroCarb,
+        // Where the carbohydrate leaves its fibre out, so does this.
+        convention.countsAvailableCarb
+            ? availableCarbOf(meal)?.round()
+            : meal.carbGrams,
+        energy.carb,
+      ),
+      (
+        convention.proteinName,
         AppColors.macroProtein,
         meal.proteinGrams,
         energy.protein,
       ),
-      (MacroLabel.fat, AppColors.macroFat, meal.fatGrams, energy.fat),
+      (convention.fatName, AppColors.macroFat, meal.fatGrams, energy.fat),
     ];
     // Always all three, and nothing on record reads as none: most food
     // has no alcohol or sugar alcohols, and a label that has them says so.
     final minor = [
-      (MacroLabel.fibre, AppColors.macroFibre, meal.fibreGrams, energy.fibre),
       (
-        Nutrient.polyols.label,
+        convention.fibreName,
+        AppColors.macroFibre,
+        meal.fibreGrams,
+        energy.fibre,
+      ),
+      (
+        convention.nameOf(Nutrient.polyols),
         AppColors.macroPolyols,
         meal.nutrients[Nutrient.polyols],
         energy.polyols,
       ),
       (
-        Nutrient.alcohol.label,
+        convention.nameOf(Nutrient.alcohol),
         AppColors.macroAlcohol,
         meal.nutrients[Nutrient.alcohol],
         energy.alcohol,

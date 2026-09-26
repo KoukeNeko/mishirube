@@ -2270,9 +2270,12 @@ void main() {
         },
       );
       backend.close();
+      // Back to before groups, their names and meals' label countries.
       final raw = sqlite3.open(path)
+        ..execute('ALTER TABLE meals DROP COLUMN label_country')
+        ..execute('DROP TABLE meal_groups')
         ..execute('ALTER TABLE meals DROP COLUMN group_id')
-        ..userVersion = latestSchemaVersion - 1;
+        ..userVersion = latestSchemaVersion - 3;
       raw.close();
 
       backend = openFile();

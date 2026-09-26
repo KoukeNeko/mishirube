@@ -168,8 +168,4 @@ class NutritionTargets {
   /// What working out the energy target lacks; empty when it did not
   /// need to (a typed-in target) or had everything.
   final List<TargetInput> missing;
-
-  /// Sodium a day, at most: the 2,400 mg Taiwan's Health Promotion
-  /// Administration sets for adults.
-  static const sodiumLimitMg = 2400;
 }

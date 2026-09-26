@@ -127,11 +127,16 @@ class MealDraft {
     required this.items,
     required this.provider,
     required this.model,
+    this.name,
     this.warnings = const [],
   });
 
   final List<DraftItem> items;
   final AiProviderKind provider;
+
+  /// What the model calls the meal as a whole, `雞腿便當`; null when it
+  /// gave no name.
+  final String? name;
 
   /// What a photo cannot show and the figures depend on — oil, sauce, a
   /// drink's sugar — or what does not add up, in the words the review
@@ -202,6 +207,7 @@ class FoodLabelDraft {
     required this.model,
     this.name,
     this.brand,
+    this.country,
     this.servingAmount,
     this.servingUnit,
     this.kcal,
@@ -217,6 +223,10 @@ class FoodLabelDraft {
   final String model;
   final String? name;
   final String? brand;
+
+  /// Whose rules the label follows (`TW`, `JP`, `US`, `EU`), so the food
+  /// reads as its label does; null when the model could not tell.
+  final String? country;
 
   /// The label's 每一份量, in grams or millilitres.
   final double? servingAmount;

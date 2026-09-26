@@ -56,6 +56,110 @@ void main() {
   final now = FakeClock().now();
 
   group('nutrition summary', () {
+    test('every convention reads salt one way, against its own limit', () {
+      for (final convention in NutritionConvention.values) {
+        expect(convention.saltLimit(null), greaterThan(0));
+        expect(convention.otherSaltMeasure, isNot(convention.saltMeasure));
+        for (final country in convention.labelCountries) {
+          expect(NutritionConvention.ofLabel(country), convention);
+        }
+      }
+      expect(
+        NutritionConvention.ofLabel('NZ'),
+        NutritionConvention.australiaNewZealand,
+      );
+      expect(
+        NutritionConvention.europeanUnion.saltMeasure,
+        Nutrient.saltEquivalent,
+      );
+      expect(NutritionConvention.europeanUnion.saltLimit(null), 5);
+      expect(NutritionConvention.unitedStates.saltLimit(null), 2300);
+      expect(NutritionConvention.japan.saltLimit(Sex.male), 7.5);
+    });
+
+    test('the EU\'s carbohydrate is the day\'s less its fibre', () {
+      final summary = summariseDay([
+        _meal('早餐', fibreGrams: 4),
+        _meal('午餐', fibreGrams: 6),
+        const MealEvent(
+          id: '點心',
+          name: '點心',
+          timeLabel: '15:00',
+          qualityTag: '手動',
+          dishes: [],
+          kcal: 200,
+          carbGrams: 30,
+        ),
+      ]);
+      expect(summary.carbGrams, 150);
+      expect(summary.availableCarbGrams, 110, reason: '(60 − 4) + (60 − 6)');
+      expect(
+        summary.mealsWithoutAvailableCarb,
+        1,
+        reason: 'no fibre on record leaves it unknown, not 30 g',
+      );
+    });
+
+    test('salt counts in the measure the convention reads it in', () {
+      const japanese = {Nutrient.saltEquivalent: 1.27};
+      const taiwanese = {Nutrient.sodium: 1270.0};
+      expect(
+        workedOut(japanese, NutritionConvention.taiwan)[Nutrient.sodium],
+        closeTo(500, 0.01),
+      );
+      expect(workedOut(japanese, NutritionConvention.japan), isEmpty);
+      expect(
+        workedOut(
+          taiwanese,
+          NutritionConvention.japan,
+        )[Nutrient.saltEquivalent],
+        closeTo(3.2258, 0.0001),
+      );
+      expect(
+        workedOut({...taiwanese, ...japanese}, NutritionConvention.taiwan),
+        isEmpty,
+        reason: 'a printed figure is never replaced by a worked-out one',
+      );
+      expect(
+        workedOut(
+          {Nutrient.saltEquivalent: 1.0},
+          NutritionConvention.taiwan,
+          labelCountry: 'EU',
+        )[Nutrient.sodium],
+        400,
+        reason: 'the EU defines its salt as sodium × 2.5, not 2.54',
+      );
+    });
+
+    test('a branched-chain total a label left out is its three added up', () {
+      const three = {
+        Nutrient.leucine: 2750.0,
+        Nutrient.isoleucine: 1375.0,
+        Nutrient.valine: 1375.0,
+      };
+      expect(workedOutBcaa(three), 5500);
+      expect(
+        workedOutBcaa({...three, Nutrient.bcaa: 5400}),
+        isNull,
+        reason: 'a printed total stays as printed',
+      );
+      expect(
+        workedOutBcaa({Nutrient.leucine: 2750, Nutrient.valine: 1375}),
+        isNull,
+        reason: 'two of three is not the total',
+      );
+      expect(nutrientLines(three).first, (Nutrient.bcaa, '5500 mg · 推算'));
+
+      MealEvent shake(String id, Nutrients nutrients) =>
+          _meal(id).copyWith(id: id, nutrients: nutrients);
+      final total = summariseNutrients([
+        shake('whey', three),
+        shake('drink', {Nutrient.bcaa: 3000}),
+      ]).firstWhere((total) => total.nutrient == Nutrient.bcaa);
+      expect(total.amount, 8500);
+      expect(total.label, '8500 mg · 推算');
+    });
+
     test('fibre adds up with the rest of the day', () {
       final summary = summariseDay([
         _meal('早餐', fibreGrams: 5),

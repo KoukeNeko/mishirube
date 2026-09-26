@@ -2632,6 +2632,29 @@ void main() {
       find.descendant(of: group, matching: find.text('2 項')),
       findsOneWidget,
     );
+
+    // A name of its own, and blank goes back to its items.
+    Future<void> rename(String name) async {
+      await _tapText(tester, '改名稱');
+      await tester.enterText(find.byType(TextField), name);
+      await _tapText(tester, '儲存');
+      await tester.pumpAndSettle();
+    }
+
+    await rename('週末早午餐');
+    expect(
+      find.descendant(of: group, matching: find.text('週末早午餐')),
+      findsWidgets,
+    );
+    expect(
+      nutrition.nameOfMeal(mealsOf(nutrition.mealsOn(today)).single),
+      '週末早午餐',
+    );
+    await rename('');
+    expect(
+      find.descendant(of: group, matching: find.text('蛋餅、冰奶茶')),
+      findsWidgets,
+    );
     await _tapText(tester, '拆開這一餐');
     await tester.pump();
     expect(mealsOf(nutrition.mealsOn(today)), hasLength(2));
@@ -2936,6 +2959,98 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the day counts salt the way 我的 says, both labels in it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    nutrition.deleteMeals([
+      for (final meal in nutrition.mealsOn(today)) meal.id,
+    ]);
+    // A Taiwanese label's sodium and a Japanese label's salt.
+    for (final (id, carb, fibre, nutrients) in [
+      ('bento', 80, 5, {Nutrient.sodium: 1270.0}),
+      ('onigiri', 40, 1, {Nutrient.saltEquivalent: 1.27}),
+    ]) {
+      nutrition.logMeal(
+        MealEvent(
+          id: id,
+          name: id,
+          timeLabel: '12:00',
+          qualityTag: '手動',
+          dishes: const [],
+          kcal: 300,
+          proteinGrams: 10,
+          carbGrams: carb,
+          fatGrams: 8,
+          fibreGrams: fibre,
+          nutrients: nutrients,
+        ),
+        eatenAt: today,
+      );
+    }
+
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    expect(
+      find.text('1,770 / 2,400 mg'),
+      findsOneWidget,
+      reason: '1.27 g of salt is 500 mg of sodium',
+    );
+    expect(find.text('推算'), findsOneWidget);
+    expect(
+      find.text(Nutrient.saltEquivalent.label),
+      findsNothing,
+      reason: 'folded into sodium, not listed again',
+    );
+
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(tester, const MeScreen(), store: store);
+    await _tapText(tester, '營養標示');
+    await tester.pumpAndSettle();
+    await _tapText(tester, '日本');
+    await tester.pumpAndSettle();
+    expect(nutrition.convention, NutritionConvention.japan);
+
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    expect(
+      find.text('4.5 / 6.5 g'),
+      findsOneWidget,
+      reason: 'salt, against the lower target while the sex is not set',
+    );
+    // Named as a Japanese label names them, with 糖質 in place of sugar.
+    for (final name in ['熱量', 'たんぱく質', '炭水化物', '脂質', '食物繊維', '食塩相当量']) {
+      expect(find.text(name), findsWidgets, reason: name);
+    }
+    expect(find.text('碳水化合物'), findsNothing);
+    expect(find.text('糖質'), findsOneWidget);
+    expect(find.text('114 g'), findsOneWidget, reason: '(80 − 5) + (40 − 1)');
+    expect(find.text('推算'), findsNWidgets(2), reason: '糖質 and the salt');
+
+    // The EU's way: salt in g against 5 g, and its carbohydrate without
+    // the fibre.
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(tester, const MeScreen(), store: store);
+    await _tapText(tester, '營養標示');
+    await tester.pumpAndSettle();
+    await _tapText(tester, '歐盟');
+    await tester.pumpAndSettle();
+    expect(nutrition.convention, NutritionConvention.europeanUnion);
+    await tester.pumpWidget(const SizedBox());
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    expect(find.text('4.5 / 5 g'), findsOneWidget);
+    expect(find.text('Salt'), findsOneWidget);
+    expect(find.text('Carbohydrate'), findsWidgets);
+    expect(
+      find.textContaining(RegExp(r'^114( / \d+)? g$')),
+      findsOneWidget,
+      reason: 'the carbohydrate less its fibre',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a Japanese drink reads as its Japanese label', (tester) async {
     usePhoneViewport(tester);
     final coffee = parseCatalogue(
@@ -2957,7 +3072,19 @@ void main() {
       expect(find.text(label), findsOneWidget);
       expect(find.text(value), findsWidgets, reason: label);
     }
-    expect(find.text('鈉'), findsNothing, reason: 'salt is not converted');
+    // As printed; then, apart from the label, its salt as a Taiwanese
+    // day counts it, marked as worked out.
+    expect(find.text('鈉'), findsOneWidget);
+    expect(find.textContaining('mg · 推算'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    store.backend.nutrition.setConvention(NutritionConvention.japan);
+    await pumpScreen(tester, PortionScreen(food: coffee), store: store);
+    expect(
+      find.text('鈉'),
+      findsNothing,
+      reason: 'a Japanese reading needs nothing past the label',
+    );
     await disposeTree(tester);
   });
 

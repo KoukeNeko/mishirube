@@ -72,6 +72,31 @@ class _MeScreenState extends State<MeScreen> {
     if (figure != null) _trends.setMuscleFigure(figure);
   }
 
+  Future<void> _pickConvention() async {
+    final convention = await showAppDialog<NutritionConvention>(
+      context,
+      AppDialog(
+        title: '營養標示',
+        message: '每日總計的名稱、鹽分單位與上限；食物頁照它自己的標示。',
+        isChoiceList: true,
+        actions: [
+          for (final convention in NutritionConvention.values)
+            DialogAction(
+              label: convention.label,
+              detail:
+                  '${convention.carbName}、'
+                  '${convention.nameOf(convention.carbPart)}、'
+                  '${convention.nameOf(convention.saltMeasure)} '
+                  '${convention.saltMeasure.unit.label}',
+              isSelected: convention == _nutrition.convention,
+              onTap: () => Navigator.of(context).pop(convention),
+            ),
+        ],
+      ),
+    );
+    if (convention != null) _nutrition.setConvention(convention);
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: Listenable.merge([_goal, _sleep, _trends, _body, _nutrition]),
@@ -121,6 +146,11 @@ class _MeScreenState extends State<MeScreen> {
                     title: '人體圖',
                     trailing: _value(_trends.muscleFigure.label),
                     onTap: _pickFigure,
+                  ),
+                  NavRow(
+                    title: '營養標示',
+                    trailing: _value(_nutrition.convention.label),
+                    onTap: _pickConvention,
                   ),
                 ],
               ),

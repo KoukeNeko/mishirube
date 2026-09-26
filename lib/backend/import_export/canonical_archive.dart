@@ -218,7 +218,13 @@ const _tables = [
     _Column('food_id', _Kind.text, isNullable: true),
     _Column('servings', _Kind.real, isNullable: true),
     _Column('group_id', _Kind.text, isNullable: true),
+    _Column('label_country', _Kind.text),
     ..._lived,
+    ..._entity,
+  ], orderBy: 'id'),
+  _Table('mealGroups', 'meal_groups', [
+    _Column('id', _Kind.text),
+    _Column('name', _Kind.text),
     ..._entity,
   ], orderBy: 'id'),
   _Table('mealDishes', 'meal_dishes', [

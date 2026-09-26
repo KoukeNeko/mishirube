@@ -180,6 +180,13 @@ void main() {
       expect(item.carbGrams, isNull, reason: 'unknown stays unknown');
     });
 
+    test('keeps the name of the meal as a whole, when there is one', () {
+      const items = '"items":[{"name":"雞腿","amount":"一隻","kcal":300}]';
+      expect(parse('{"name":" 雞腿便當 ",$items}').name, '雞腿便當');
+      expect(parse('{"name":"",$items}').name, isNull);
+      expect(parse('{$items}').name, isNull);
+    });
+
     test('keeps every row a printed label gave', () {
       final item = parse(
         '{"items":[{"name":"巧克力乳清蛋白飲","amount":"250 ml","kcal":186,'
@@ -277,6 +284,80 @@ void main() {
             'saturated fat above total fat, sugar above carbohydrate and '
             '18 g of sodium in 30 g are misreadings, not the label',
       );
+    });
+
+    test('a Japanese label keeps its salt, and its carbohydrate adds up', () {
+      final draft = parseFoodLabel(
+        '{"label_region":"JP","serving_amount":65,"serving_unit":"g",'
+        '"kcal":322,"protein_g":5.2,"fat_g":14.1,"net_carb_g":39.3,'
+        '"fibre_g":3.0,"salt_g":0.8}',
+        provider: AiProviderKind.appleOnDevice,
+        model: 'm',
+      );
+      expect(draft.country, 'JP');
+      expect(draft.carbGrams, closeTo(42.3, 0.001), reason: '糖質 + 食物繊維');
+      expect(draft.nutrients[Nutrient.netCarb], 39.3);
+      expect(draft.nutrients[Nutrient.saltEquivalent], 0.8);
+      expect(draft.nutrients[Nutrient.sodium], isNull, reason: 'as printed');
+    });
+
+    test('an EU label\'s carbohydrate without its fibre is not the whole', () {
+      final draft = parseFoodLabel(
+        '{"label_region":"eu","serving_amount":100,"serving_unit":"g",'
+        '"kcal":480,"protein_g":7,"fat_g":24,"net_carb_g":58,"salt_g":0.9}',
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      );
+      expect(draft.country, 'EU');
+      expect(draft.carbGrams, isNull, reason: 'unknown, not 58 g short');
+      expect(draft.nutrients[Nutrient.netCarb], 58);
+      expect(draft.warnings, isNotEmpty);
+      expect(
+        parseFoodLabel(
+          '{"label_region":"EU","kcal":480,"net_carb_g":58,"fibre_g":4}',
+          provider: AiProviderKind.ollamaCloud,
+          model: 'm',
+        ).carbGrams,
+        62,
+      );
+    });
+
+    test('a label that prints only kJ is read in kcal', () {
+      final chinese = parseFoodLabel(
+        '{"label_region":"CN","serving_amount":100,"serving_unit":"g",'
+        '"kj":1674,"protein_g":6,"carb_g":60,"fat_g":20,"sodium_mg":400}',
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      );
+      expect(chinese.country, 'CN');
+      expect(chinese.kcal, 400.1, reason: '1,674 kJ ÷ 4.184');
+      expect(chinese.carbGrams, 60, reason: 'China\'s holds its fibre');
+
+      final australian = parseFoodLabel(
+        '{"label_region":"AU","kj":1500,"protein_g":8,"net_carb_g":50,'
+        '"fibre_g":5,"fat_g":12,"sodium_mg":300}',
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      );
+      expect(australian.country, 'AU');
+      expect(australian.carbGrams, 55, reason: 'available + fibre');
+      expect(australian.nutrients[Nutrient.netCarb], 50);
+    });
+
+    test('a protein drink\'s amino acids are read in milligrams', () {
+      final draft = parseFoodLabel(
+        '{"serving_amount":30,"serving_unit":"g","kcal":120,"protein_g":24,'
+        '"nutrients":{"essential_amino_acids_mg":11000,"bcaa_mg":5500,'
+        '"glutamine_mg":4000}}',
+        provider: AiProviderKind.appleOnDevice,
+        model: 'm',
+      );
+      expect(draft.nutrients, {
+        Nutrient.essentialAminoAcids: 11000,
+        Nutrient.bcaa: 5500,
+        Nutrient.glutamine: 4000,
+      });
+      expect(foodLabelInstructions, contains('"bcaa_mg":5500'));
     });
 
     test('a figure sent as text off the label is still read', () {
@@ -1179,12 +1260,18 @@ void main() {
         items: [rice, soup],
         provider: AiProviderKind.ollamaCloud,
         model: 'gemma4:31b',
+        name: '味噌湯定食',
       );
 
       final items = store.backend.nutrition.logDraft(draft, [
         rice,
         soup,
       ], asOneMeal: true);
+      expect(
+        store.backend.nutrition.nameOfMeal(items),
+        '味噌湯定食',
+        reason: 'called what the draft named it',
+      );
 
       expect(store.todayMeals, hasLength(before + 2));
       expect(items.map((item) => item.name), ['白飯（一碗）', '味噌湯（一碗）']);
@@ -1241,9 +1328,17 @@ void main() {
       reason: 'figures the model did not give read as dashes, not 0',
     );
 
-    // Every figure is corrected in one place, not just the energy.
+    // Corrected on the page any food is, not just its energy.
     await tester.tap(find.text('蛋餅'));
     await tester.pumpAndSettle();
+    expect(find.byType(FoodEditScreen), findsOneWidget);
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(FoodEditScreen),
+        matching: find.widgetWithText(TextField, '一份'),
+      ),
+      '兩份',
+    );
     await tester.enterText(
       find.descendant(
         of: find.widgetWithText(NumberFieldRow, '蛋白質'),
@@ -1264,7 +1359,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(store.todayMeals, hasLength(before + 1));
-    expect(store.todayMeals.last.name, '蛋餅（一份）');
+    expect(store.todayMeals.last.name, '蛋餅（兩份）');
     expect(store.todayMeals.last.proteinGrams, 9);
     await disposeTree(tester);
   });

@@ -138,7 +138,8 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     ];
     final today = _dateOf(_nutrition.now());
     final targets = _nutrition.targetsOn(day);
-    final nutrients = summariseNutrients(meals);
+    final convention = _nutrition.convention;
+    final nutrients = summariseNutrients(meals, convention: convention);
     NutrientTotal? total(Nutrient nutrient) =>
         nutrients.where((total) => total.nutrient == nutrient).firstOrNull;
     return PageScaffold(
@@ -189,7 +190,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (merging == null) ...[
           Gutter(
             child: SectionLabel(
-              MacroLabel.energy,
+              convention.energyName,
               trailing: LinkText(
                 label: targets.kcal == null ? '設定目標' : '變更',
                 color: AppColors.nutrition,
@@ -199,15 +200,22 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
             ),
           ),
           Gutter(
-            child: _EnergyCard(summary: summary, targets: targets),
+            child: _EnergyCard(
+              summary: summary,
+              targets: targets,
+              convention: convention,
+            ),
           ),
           Gutter(child: const SectionLabel('每日指標')),
           Gutter(
             child: _IndicatorsCard(
+              convention: convention,
               fibreGrams: summary.fibreGrams,
               fibreTarget: targets.fibreGrams,
-              sugar: total(Nutrient.sugar),
-              sodium: total(Nutrient.sodium),
+              carbPart: total(convention.carbPart),
+              salt: total(convention.saltMeasure),
+              saltMeasure: convention.saltMeasure,
+              saltLimit: _nutrition.saltLimit,
               fluid: summariseFluid(meals),
               caffeineMg: day == today ? _nutrition.estimatedCaffeineMg : null,
             ),
@@ -239,7 +247,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     isChecked: merging.contains(_keyOf(meal)),
                     checkedColor: AppColors.nutrition,
                   ),
-                  title: _nameOf(meal),
+                  title: _nutrition.nameOfMeal(meal),
                   subtitle:
                       '${meal.first.timeLabel} · '
                       '${formatKcalOrDash(mealKcalOf(meal))} kcal',
@@ -264,7 +272,12 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                           _toggle('${meal.single.id}/${dish.name}'),
                       onSplit: (dishIndex) => _split(meal.single, dishIndex),
                     )
-                  : _MealGroupCard(items: meal, onRemove: _removeItem),
+                  : _MealGroupCard(
+                      items: meal,
+                      name: _nutrition.nameOfMeal(meal),
+                      convention: convention,
+                      onRemove: _removeItem,
+                    ),
             ),
         if (water.isNotEmpty && merging == null) ...[
           Gutter(child: const SectionLabel('水')),
@@ -283,16 +296,20 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               ),
             ),
         ],
-        // Sugar and sodium are up with the day's limits.
+        // Sugar and salt are up with the day's limits, salt in one measure
+        // with the other folded into it.
         if ([
               for (final total in nutrients)
-                if (total.nutrient != Nutrient.sugar &&
-                    total.nutrient != Nutrient.sodium)
+                if (total.nutrient != convention.carbPart &&
+                    total.nutrient != convention.saltMeasure &&
+                    !convention.foldedAway.contains(total.nutrient))
                   total,
             ]
             case final rest when rest.isNotEmpty && merging == null) ...[
           Gutter(child: const SectionLabel('其他營養素')),
-          Gutter(child: _NutrientTotals(totals: rest)),
+          Gutter(
+            child: _NutrientTotals(totals: rest, convention: convention),
+          ),
         ],
         // Logs to the day shown, as the training page's 新增課表 adds a
         // routine: another day is a swipe away on the strip above.
@@ -310,14 +327,19 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
 }
 
 /// A meal's name: its items' names, one after another.
-String _nameOf(List<MealEvent> meal) => meal.map((item) => item.name).join('、');
-
 /// A meal of several items: their sum at the top, then each item with
 /// its own figures, which open to edit and swipe away.
 class _MealGroupCard extends StatelessWidget {
-  const _MealGroupCard({required this.items, required this.onRemove});
+  const _MealGroupCard({
+    required this.items,
+    required this.name,
+    required this.convention,
+    required this.onRemove,
+  });
 
   final List<MealEvent> items;
+  final String name;
+  final NutritionConvention convention;
   final ValueChanged<MealEvent> onRemove;
 
   @override
@@ -338,7 +360,7 @@ class _MealGroupCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_nameOf(items), style: AppTextStyles.itemTitle),
+                      Text(name, style: AppTextStyles.itemTitle),
                       Text(
                         [
                           first.timeLabel,
@@ -370,7 +392,7 @@ class _MealGroupCard extends StatelessWidget {
             onAction: () => onRemove(item),
             child: NavRow(
               title: item.name,
-              subtitle: _macrosOf(item),
+              subtitle: _macrosOf(item, convention),
               trailing: Text(
                 '${formatKcalOrDash(item.kcal)} kcal',
                 style: AppTextStyles.caption,
@@ -384,14 +406,14 @@ class _MealGroupCard extends StatelessWidget {
   }
 }
 
-/// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, a dash for a figure not
-/// known.
-String _macrosOf(MealEvent item) {
+/// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, in [convention]'s words,
+/// a dash for a figure not known.
+String _macrosOf(MealEvent item, NutritionConvention convention) {
   String grams(int? value) => value == null ? '—' : '$value g';
   return [
-    '${MacroLabel.protein} ${grams(item.proteinGrams)}',
-    '${MacroLabel.carb} ${grams(item.carbGrams)}',
-    '${MacroLabel.fat} ${grams(item.fatGrams)}',
+    '${convention.proteinName} ${grams(item.proteinGrams)}',
+    '${convention.carbName} ${grams(item.carbGrams)}',
+    '${convention.fatName} ${grams(item.fatGrams)}',
   ].join(' · ');
 }
 
@@ -556,9 +578,10 @@ class _DishRow extends StatelessWidget {
 /// see. A nutrient nobody recorded is not listed at all — it would read
 /// as zero, and zero is a claim this screen cannot make.
 class _NutrientTotals extends StatelessWidget {
-  const _NutrientTotals({required this.totals});
+  const _NutrientTotals({required this.totals, required this.convention});
 
   final List<NutrientTotal> totals;
+  final NutritionConvention convention;
 
   @override
   Widget build(BuildContext context) {
@@ -567,7 +590,10 @@ class _NutrientTotals extends StatelessWidget {
       child: Column(
         children: [
           for (final total in totals)
-            KeyValueRow(label: total.nutrient.label, value: total.label),
+            KeyValueRow(
+              label: convention.nameOf(total.nutrient),
+              value: total.label,
+            ),
         ],
       ),
     );
@@ -577,7 +603,13 @@ class _NutrientTotals extends StatelessWidget {
 /// The day's energy against its target, as a ring with what is left,
 /// and the three macronutrients against theirs.
 class _EnergyCard extends StatelessWidget {
-  const _EnergyCard({required this.summary, required this.targets});
+  const _EnergyCard({
+    required this.summary,
+    required this.targets,
+    required this.convention,
+  });
+
+  final NutritionConvention convention;
 
   final DaySummary summary;
   final NutritionTargets targets;
@@ -632,21 +664,23 @@ class _EnergyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _MacroLine(
-                    label: MacroLabel.carb,
+                    label: convention.carbName,
                     color: AppColors.macroCarb,
-                    grams: summary.carbGrams,
+                    grams: convention.countsAvailableCarb
+                        ? summary.availableCarbGrams
+                        : summary.carbGrams,
                     target: targets.carbGrams,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
-                    label: MacroLabel.protein,
+                    label: convention.proteinName,
                     color: AppColors.macroProtein,
                     grams: summary.proteinGrams,
                     target: targets.proteinGrams,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
-                    label: MacroLabel.fat,
+                    label: convention.fatName,
                     color: AppColors.macroFat,
                     grams: summary.fatGrams,
                     target: targets.fatGrams,
@@ -717,22 +751,32 @@ class _MacroLine extends StatelessWidget {
 }
 
 /// The rest of the day at a glance, one row each: fibre against its
-/// target, sugar as eaten, sodium against its limit, what was drunk,
+/// target, sugar (or 糖質) as eaten, salt against its limit, what was drunk,
 /// and, today, the caffeine still in the body.
 class _IndicatorsCard extends StatelessWidget {
   const _IndicatorsCard({
     required this.fibreGrams,
     required this.fibreTarget,
-    required this.sugar,
-    required this.sodium,
+    required this.convention,
+    required this.carbPart,
+    required this.salt,
+    required this.saltMeasure,
+    required this.saltLimit,
     required this.fluid,
     required this.caffeineMg,
   });
 
   final int fibreGrams;
   final int? fibreTarget;
-  final NutrientTotal? sugar;
-  final NutrientTotal? sodium;
+  final NutritionConvention convention;
+
+  /// Sugar, or 糖質 read the Japanese way: [NutritionConvention.carbPart].
+  final NutrientTotal? carbPart;
+
+  /// Salt in [saltMeasure]: sodium in mg, or salt equivalent in g.
+  final NutrientTotal? salt;
+  final Nutrient saltMeasure;
+  final double saltLimit;
   final FluidLogged fluid;
 
   /// Null on a day other than today, which has no "still in the body".
@@ -740,11 +784,14 @@ class _IndicatorsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const limit = NutritionTargets.sodiumLimitMg;
-    final sodiumMg = sodium?.amount;
+    final amount = salt?.amount;
+    // Sodium to the mg, salt to a tenth of a gram, as labels print them.
+    String figure(double value) => saltMeasure.unit == NutrientUnit.milligram
+        ? formatKcal(value.round())
+        : formatAmount((value * 10).round() / 10);
     final rows = [
       _MeterRow(
-        label: MacroLabel.fibre,
+        label: convention.fibreName,
         value: fibreTarget == null
             ? '$fibreGrams g'
             : '$fibreGrams / $fibreTarget g',
@@ -754,16 +801,23 @@ class _IndicatorsCard extends StatelessWidget {
         color: AppColors.macroFibre,
       ),
       _MeterRow(
-        label: Nutrient.sugar.label,
-        value: sugar == null ? '—' : Nutrient.sugar.format(sugar!.amount),
+        label: convention.nameOf(convention.carbPart),
+        value: switch (carbPart) {
+          final total? => total.nutrient.format(
+            (total.amount * 10).round() / 10,
+          ),
+          null => '—',
+        },
+        note: carbPart?.isWorkedOut == true ? '推算' : null,
       ),
       _MeterRow(
-        label: Nutrient.sodium.label,
+        label: convention.nameOf(saltMeasure),
         value:
-            '${sodiumMg == null ? '—' : formatKcal(sodiumMg.round())}'
-            ' / ${formatKcal(limit)} mg',
-        progress: sodiumMg == null ? null : sodiumMg / limit,
-        color: (sodiumMg ?? 0) > limit ? AppColors.warning : AppColors.body,
+            '${amount == null ? '—' : figure(amount)}'
+            ' / ${figure(saltLimit)} ${saltMeasure.unit.label}',
+        progress: amount == null ? null : amount / saltLimit,
+        color: (amount ?? 0) > saltLimit ? AppColors.warning : AppColors.body,
+        note: salt?.isWorkedOut == true ? '推算' : null,
       ),
       _MeterRow(
         label: '飲水',

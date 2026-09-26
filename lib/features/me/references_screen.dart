@@ -127,10 +127,60 @@ const List<(String, List<_Reference>)> _references = [
         use: '膳食纖維每 1,000 kcal 14 g、脂肪占熱量 20–35%',
         url: 'https://doi.org/10.17226/10490',
       ),
+    ],
+  ),
+  (
+    '營養標示',
+    [
       (
         citation: '衛生福利部國民健康署（2026年1月23日）。減鹽秘笈手冊。',
-        use: '成人每日鈉攝取上限 2,400 mg',
+        use: '台灣：成人每日鈉 2,400 mg 以下',
         url: 'https://www.hpa.gov.tw/Pages/Detail.aspx?nodeid=1161&pid=6648',
+      ),
+      (
+        citation: '厚生労働省（2024）。「日本人の食事摂取基準（2025年版）」策定検討会報告書。',
+        use: '日本：成人每日食塩相当量男性 7.5 g、女性 6.5 g 以下',
+        url: 'https://www.mhlw.go.jp/stf/newpage_44138.html',
+      ),
+      (
+        citation: '食品表示基準（平成27年内閣府令第10号）。',
+        use: '日本標示：食塩相当量（g）＝鈉（mg）× 2.54 ÷ 1,000',
+        url: 'https://laws.e-gov.go.jp/law/427M60000002010/',
+      ),
+      (
+        citation: 'National Academies of Sciences, Engineering, and Medicine. (2019). Dietary reference intakes for sodium and potassium. The National Academies Press.',
+        use: '美國、加拿大：成人每日鈉 2,300 mg 以下',
+        url: 'https://doi.org/10.17226/25353',
+      ),
+      (
+        citation: 'EFSA Panel on Nutrition, Novel Foods and Food Allergens. (2019). Dietary reference values for sodium. EFSA Journal, 17(9), Article 5778.',
+        use: '歐盟：成人每日鈉 2.0 g，即鹽 5 g',
+        url: 'https://doi.org/10.2903/j.efsa.2019.5778',
+      ),
+      (
+        citation: 'Regulation (EU) No 1169/2011 of the European Parliament and of the Council of 25 October 2011 on the provision of food information to consumers. Official Journal of the European Union, L 304, 18–63.',
+        use: '歐盟標示：碳水化合物不含膳食纖維；鹽＝鈉 × 2.5',
+        url: 'https://eur-lex.europa.eu/eli/reg/2011/1169/oj',
+      ),
+      (
+        citation: 'National Health and Medical Research Council. (2017). Australian and New Zealand nutrient reference values for sodium.',
+        use: '澳洲、紐西蘭：成人每日鈉 2,000 mg',
+        url: 'https://www.eatforhealth.gov.au/nutrient-reference-values/nutrients/sodium',
+      ),
+      (
+        citation: 'Food Standards Australia New Zealand. (2015). Australia New Zealand Food Standards Code – Standard 1.2.8 – Nutrition information requirements.',
+        use: '澳洲、紐西蘭標示：碳水化合物不含膳食纖維，能量以 kJ 標示',
+        url: 'https://www.legislation.gov.au/F2015L00395/latest/text',
+      ),
+      (
+        citation: '보건복지부, 한국영양학회. (2020). 2020 한국인 영양소 섭취기준.',
+        use: '韓國：成人每日鈉 2,300 mg 以下',
+        url: 'https://www.kns.or.kr/FileRoom/FileRoom_view.asp?idx=108&BoardID=Kdr',
+      ),
+      (
+        citation: '中国营养学会（2022）。中国居民膳食指南（2022）。人民卫生出版社。',
+        use: '中國：成人每日食鹽 5 g 以下',
+        url: 'http://dg.cnsoc.org/article/04/ApX3_ozGTmSoqQaFFh5z_Q.html',
       ),
     ],
   ),
