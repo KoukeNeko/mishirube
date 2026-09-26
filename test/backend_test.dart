@@ -2045,7 +2045,12 @@ void main() {
     test('Epley estimates and ignores sets it cannot estimate', () {
       expect(estimateOneRepMax(100, 1), 100);
       expect(estimateOneRepMax(90, 5), closeTo(105, 0.001));
-      expect(estimateOneRepMax(60, maxRepsForEstimate + 1), isNull);
+      expect(estimateOneRepMax(60, 10), closeTo(80, 0.001));
+      expect(
+        estimateOneRepMax(60, 11),
+        isNull,
+        reason: 'linear formulas are validated to 10 reps',
+      );
       expect(estimateOneRepMax(0, 5), isNull);
     });
 

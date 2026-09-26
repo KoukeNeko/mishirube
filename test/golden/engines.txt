@@ -1,5 +1,5 @@
 # engine versions
-training metrics: 1
+training metrics: 2
 trend: 1
 insight: 1
 substitution: 1

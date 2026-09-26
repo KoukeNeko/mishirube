@@ -2,10 +2,13 @@ import '../../domain/domain.dart';
 
 /// Bumped whenever a formula below changes, so stored or exported results
 /// can say which rules produced them.
-const trainingMetricsVersion = 1;
+const trainingMetricsVersion = 2;
 
-/// Epley grows unreliable past this many reps, so such sets give no estimate.
-const maxRepsForEstimate = 12;
+/// The most reps a set can have and still give an estimate. Linear
+/// formulas such as Epley are validated to 10 (Reynolds 2006, Mayhew
+/// 2007); past that, how many reps a load allows varies too much between
+/// people and exercises (Nuzzo 2024).
+const maxRepsForEstimate = 10;
 
 /// How far back the estimated max looks.
 const oneRepMaxWindow = Duration(days: 90);

@@ -159,8 +159,23 @@ const List<(String, List<_Reference>)> _references = [
     [
       (
         citation: 'Epley B. Poundage Chart. In: Boyd Epley Workout. Lincoln, NE: Body Enterprises; 1985.',
-        use: '估計最大重量（1RM），超過 12 下不估計',
+        use: '估計最大重量（1RM）的公式',
         url: null,
+      ),
+      (
+        citation: 'Reynolds JM, Gordon TJ, Robergs RA. Prediction of one repetition maximum strength from multiple repetition maximum testing and anthropometry. J Strength Cond Res. 2006;20(3):584-92.',
+        use: '超過 10 下不估計；5 下最準',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/16937972/',
+      ),
+      (
+        citation: 'Mayhew JL, Hill SP, Thompson MD, Johnson EC, Wheeler L. Using absolute and relative muscle endurance to estimate maximal strength in young athletes. Int J Sports Physiol Perform. 2007;2(3):305-14.',
+        use: '7–10 下的估計仍準確',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/19168930/',
+      ),
+      (
+        citation: 'Nuzzo JL, Pinto MD, Nosaka K, Steele J. Maximal Number of Repetitions at Percentages of the One Repetition Maximum: A Meta-Regression and Moderator Analysis of Sex, Age, Training Status, and Exercise. Sports Med. 2024;54(2):303-321.',
+        use: '次數越多，個人與動作之間的差異越大',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37792272/',
       ),
       (
         citation: 'Schoenfeld BJ, Ogborn D, Krieger JW. Dose-response relationship between weekly resistance training volume and increases in muscle mass: a systematic review and meta-analysis. J Sports Sci. 2017;35(11):1073-1082.',
