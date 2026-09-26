@@ -2462,13 +2462,13 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const ReferencesScreen(), store: store);
 
-    await tester.tap(find.textContaining('Mifflin MD'));
+    await tester.tap(find.textContaining('Mifflin, M. D.'));
     await tester.pumpAndSettle();
     expect(find.text('開啟連結'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(AppDialog),
-        matching: find.text('https://pubmed.ncbi.nlm.nih.gov/2305711/'),
+        matching: find.text('https://doi.org/10.1093/ajcn/51.2.241'),
       ),
       findsOneWidget,
     );
