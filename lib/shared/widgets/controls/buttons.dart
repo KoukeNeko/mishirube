@@ -186,6 +186,7 @@ class LinkText extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.color = AppColors.training,
+    this.alignment = Alignment.center,
   });
 
   final String label;
@@ -195,6 +196,10 @@ class LinkText extends StatelessWidget {
   /// as 取消 or 清除.
   final Color color;
 
+  /// Where the text sits in its touch target; at the bottom beside a
+  /// section label, so the target grows away from what the label heads.
+  final AlignmentGeometry alignment;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -203,6 +208,7 @@ class LinkText extends StatelessWidget {
         // Text-sized, but still a full touch target.
         constraints: const BoxConstraints(minHeight: 44),
         child: Align(
+          alignment: alignment,
           widthFactor: 1,
           heightFactor: 1,
           child: Text(

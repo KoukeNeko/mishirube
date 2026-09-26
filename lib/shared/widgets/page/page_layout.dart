@@ -310,14 +310,33 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.md),
-      child: Row(
-        children: [
-          Expanded(child: Text(text, style: AppTextStyles.overline)),
-          ?trailing,
-        ],
-      ),
+    final label = Text(text, style: AppTextStyles.overline);
+    final trailing = this.trailing;
+    if (trailing == null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.md),
+        child: label,
+      );
+    }
+    // The trailing control takes the label's own height, the space above
+    // the text included, as its touch target instead of growing the row:
+    // every label then sits as far above its items as every other.
+    final line = TextPainter(
+      text: TextSpan(text: text, style: AppTextStyles.overline),
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: Directionality.of(context),
+    )..layout();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            child: label,
+          ),
+        ),
+        SizedBox(height: AppSpacing.md + line.height, child: trailing),
+      ],
     );
   }
 }

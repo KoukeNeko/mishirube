@@ -2513,6 +2513,11 @@ void main() {
       lessThan(3),
       reason: 'a card\'s first line sits its inset from the top, not more',
     );
+    expect(
+      tester.getSize(find.widgetWithText(SectionLabel, MacroLabel.energy)),
+      tester.getSize(find.widgetWithText(SectionLabel, '每日指標')),
+      reason: 'the 變更 link does not push its card further down',
+    );
     await disposeTree(tester);
   });
 

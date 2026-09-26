@@ -174,6 +174,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               trailing: LinkText(
                 label: targets.kcal == null ? '設定目標' : '變更',
                 color: AppColors.nutrition,
+                alignment: Alignment.bottomRight,
                 onTap: () => pushPage(context, const NutritionTargetScreen()),
               ),
             ),
