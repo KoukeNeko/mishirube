@@ -2702,14 +2702,14 @@ void main() {
 
     await _tapText(tester, '減脂');
     // The kg follows the latest weight the demo records hold.
-    expect(find.textContaining('−0.5% · 約 −'), findsOneWidget);
+    expect(find.textContaining('−0.5% · −'), findsOneWidget);
     await _tapText(tester, '每週變化');
     expect(
-      find.textContaining('−0.75% · 約 −', findRichText: true),
+      find.textContaining('−0.75% · −', findRichText: true),
       findsOneWidget,
       reason: 'the rate as it is, not rounded to one place',
     );
-    await tester.tap(find.textContaining('−0.25% · 約 −', findRichText: true));
+    await tester.tap(find.textContaining('−0.25% · −', findRichText: true));
     await tester.pumpAndSettle();
     expect(store.backend.nutrition.targetSettings.weeklyPercent, -0.25);
     expect(find.text('維持熱量'), findsOneWidget);

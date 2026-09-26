@@ -362,7 +362,7 @@ Widget _value(String text) => Text(text, style: AppTextStyles.caption);
 
 String _grams(int? grams) => grams == null ? '—' : '$grams g';
 
-/// `−0.5% · 約 −0.35 kg`: a weekly rate, and what it is for this body
+/// `−0.5% · −0.35 kg`: a weekly rate, and what it is for this body
 /// when its weight is known.
 String _rateLabel(double weeklyPercent, double? weightKg) {
   String signed(num value, String text) => '${value < 0 ? '−' : '+'}$text';
@@ -375,5 +375,5 @@ String _rateLabel(double weeklyPercent, double? weightKg) {
   final percent = signed(weeklyPercent, '$digits%');
   if (weightKg == null) return percent;
   final kg = weightKg * weeklyPercent / 100;
-  return '$percent · 約 ${signed(kg, kg.abs().toStringAsFixed(2))} kg';
+  return '$percent · ${signed(kg, kg.abs().toStringAsFixed(2))} kg';
 }

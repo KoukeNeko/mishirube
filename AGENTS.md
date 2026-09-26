@@ -273,6 +273,10 @@ sentence is almost always better than rewording it.
    paragraph, and says it once: `估計` already means not measured, so
    no `，非實測` after it. Keep a warning to the risk and what to do about it, and
    put a field's instructions in that field's dialog hint.
+   Don't put into words what a figure or its layout already says: no
+   `約` before a worked-out or estimated number (`140 kcal`, not
+   `約 140 kcal`), and no `上限` or `目標` after a slash that already
+   makes the second number one (`128 / 2,400 mg`).
 3. **Privacy and storage are explained once, on the privacy page**
    (`lib/features/me/privacy_screen.dart`). Other screens do not repeat
    that data stays on the device, what AI receives, where keys are kept

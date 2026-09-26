@@ -746,7 +746,7 @@ class _IndicatorsCard extends StatelessWidget {
         label: Nutrient.sodium.label,
         value:
             '${sodiumMg == null ? '—' : formatKcal(sodiumMg.round())}'
-            ' / 上限 ${formatKcal(limit)} mg',
+            ' / ${formatKcal(limit)} mg',
         progress: sodiumMg == null ? null : sodiumMg / limit,
         color: (sodiumMg ?? 0) > limit ? AppColors.warning : AppColors.body,
       ),
