@@ -85,8 +85,7 @@ const List<(String, List<_Reference>)> _references = [
       (
         citation: 'Frankenfield D, Roth-Yousey L, Compher C. Comparison of predictive equations for resting metabolic rate in healthy nonobese and obese adults: a systematic review. J Am Diet Assoc. 2005;105(5):775-89.',
         use: '健康成人以 Mifflin-St Jeor 估算最接近實測',
-        url:
-            'https://www.jandonline.org/article/S0002-8223(05)00149-5/abstract',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/15883556/',
       ),
       (
         citation: 'FAO/WHO/UNU. Human energy requirements: report of a Joint FAO/WHO/UNU Expert Consultation. Rome: FAO; 2004.',
@@ -119,12 +118,12 @@ const List<(String, List<_Reference>)> _references = [
         url: 'https://www.ncbi.nlm.nih.gov/books/NBK223808/',
       ),
       (
-        citation: 'Liu X, Xu S. Unraveling the complexities of caffeine: metabolism, genetics, evolution, and health. Hereditas. 2026;163(1).',
+        citation: 'Liu X, Xu S. Unraveling the complexities of caffeine: metabolism, genetics, evolution, and health. Hereditas. 2026;163(1):36.',
         use: '半衰期因人而異，推算值不是量測',
         url: 'https://pubmed.ncbi.nlm.nih.gov/41622288/',
       ),
       (
-        citation: 'Gardiner CL, Weakley J, Burke LM, Fernandez F, Johnston RD, Leota J, et al. Dose and timing effects of caffeine on subsequent sleep: a randomized clinical crossover trial. Sleep. 2025;48(4).',
+        citation: 'Gardiner CL, Weakley J, Burke LM, Fernandez F, Johnston RD, Leota J, et al. Dose and timing effects of caffeine on subsequent sleep: a randomized clinical crossover trial. Sleep. 2025;48(4):zsae230.',
         use: '不設就寢前的咖啡因門檻',
         url: 'https://pubmed.ncbi.nlm.nih.gov/39377163/',
       ),
