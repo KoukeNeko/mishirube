@@ -121,7 +121,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
     final meal = widget.meal;
     if (_eatenAt case final eatenAt?
         when eatenAt != _nutrition.eatenAtOf(meal.id)) {
-      _nutrition.retimeMeal(meal.id, eatenAt);
+      _nutrition.retimeMeal(meal, eatenAt);
     }
     _nutrition.updateMeal(
       meal,
@@ -145,6 +145,7 @@ class _MealEditScreenState extends State<MealEditScreen> {
         mealType: _mealType,
         foodId: meal.foodId,
         servings: meal.servings,
+        groupId: meal.groupId,
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: kcal,

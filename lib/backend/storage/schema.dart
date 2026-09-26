@@ -778,6 +778,52 @@ final List<String> _migrations = [
     ELSE strftime('%Y%m%d', recorded_at / 1000 + utc_offset_minutes * 60, 'unixepoch')
   END AS INTEGER) WHERE local_day IS NOT NULL;
   ''',
+  '''
+  -- A meal of several things is a group of them, each keeping its own
+  -- record and figures; null for a meal on its own.
+  ALTER TABLE meals ADD COLUMN group_id TEXT;
+  -- Meals put together before groups existed come apart again into what
+  -- they were made of, now one group eaten when the merged meal was: the
+  -- parts were tombstoned, not rewritten, and the merge kept their ids.
+  CREATE TEMP TABLE merge_parts AS
+    SELECT meals.id AS merged_id, part.value AS part_id
+    FROM meals
+    JOIN audit_events AS created
+      ON created.entity_type = 'meal' AND created.entity_id = meals.id
+      AND created.action = 'create' AND json_valid(created.payload)
+    JOIN json_each(created.payload, '\$.mergedFrom') AS part
+    WHERE meals.deleted_at IS NULL;
+  UPDATE meals SET
+    group_id = (SELECT merged_id FROM merge_parts WHERE part_id = meals.id),
+    eaten_at = (SELECT merged.eaten_at FROM meals AS merged
+      JOIN merge_parts ON merged.id = merged_id WHERE part_id = meals.id),
+    local_day = (SELECT merged.local_day FROM meals AS merged
+      JOIN merge_parts ON merged.id = merged_id WHERE part_id = meals.id),
+    utc_offset_minutes = (SELECT merged.utc_offset_minutes FROM meals AS merged
+      JOIN merge_parts ON merged.id = merged_id WHERE part_id = meals.id),
+    meal_type = (SELECT merged.meal_type FROM meals AS merged
+      JOIN merge_parts ON merged.id = merged_id WHERE part_id = meals.id),
+    deleted_at = NULL,
+    updated_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000,
+    revision = revision + 1
+  WHERE id IN (SELECT part_id FROM merge_parts);
+  UPDATE meals SET
+    deleted_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000,
+    updated_at = CAST(strftime('%s', 'now') AS INTEGER) * 1000,
+    revision = revision + 1
+  WHERE id IN (SELECT merged_id FROM merge_parts);
+  INSERT INTO audit_events
+    (occurred_at, entity_type, entity_id, action, source, payload)
+    SELECT CAST(strftime('%s', 'now') AS INTEGER) * 1000, 'meal', part_id,
+      'group', 'local', json_object('group', merged_id)
+    FROM merge_parts;
+  INSERT INTO audit_events
+    (occurred_at, entity_type, entity_id, action, source, payload)
+    SELECT DISTINCT CAST(strftime('%s', 'now') AS INTEGER) * 1000, 'meal',
+      merged_id, 'delete', 'local', json_object('regrouped', 1)
+    FROM merge_parts;
+  DROP TABLE merge_parts;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

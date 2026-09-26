@@ -217,6 +217,7 @@ const _tables = [
     _Column('is_favorite', _Kind.boolean),
     _Column('food_id', _Kind.text, isNullable: true),
     _Column('servings', _Kind.real, isNullable: true),
+    _Column('group_id', _Kind.text, isNullable: true),
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),

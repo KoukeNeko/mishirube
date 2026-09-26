@@ -911,6 +911,12 @@
                   "null"
                 ]
               },
+              "groupId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",

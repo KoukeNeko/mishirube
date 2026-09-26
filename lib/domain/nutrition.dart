@@ -33,10 +33,6 @@ class DishEntry {
 /// 「水」, which comes through a portion instead.
 const waterQualityTag = '水';
 
-/// How a meal put together from separately logged ones is marked when
-/// they carried different marks.
-const mergedQualityTag = '合併';
-
 class MealEvent {
   const MealEvent({
     required this.id,
@@ -58,6 +54,7 @@ class MealEvent {
     this.valueType = NutrientValueType.declared,
     this.foodId,
     this.servings,
+    this.groupId,
   });
 
   final String id;
@@ -69,6 +66,11 @@ class MealEvent {
   /// has: the numbers above were copied and never follow the food.
   final String? foodId;
   final double? servings;
+
+  /// The group this is one item of, when several things were eaten as
+  /// one meal: each keeps its own record and figures, and the meal is
+  /// their sum. Null for something eaten on its own.
+  final String? groupId;
 
   /// Plain water from the water shortcut, as opposed to any other drink.
   bool get isWater =>
@@ -140,6 +142,7 @@ class MealEvent {
   }) => MealEvent(
     foodId: foodId,
     servings: servings,
+    groupId: groupId,
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,

@@ -106,15 +106,22 @@ class NutritionViewModel extends ViewModel {
 
   DateTime? eatenAtOf(String id) => backend.nutrition.eatenAtOf(id);
 
-  void retimeMeal(String id, DateTime eatenAt) =>
-      backend.nutrition.retimeMeal(id, eatenAt);
+  /// Moves [meal] to [eatenAt]; an item of a group moves its whole meal.
+  void retimeMeal(MealEvent meal, DateTime eatenAt) =>
+      backend.nutrition.retimeMeal(meal, eatenAt);
 
-  /// Puts separately logged [meals] back together as one.
-  MealEvent mergeMeals(List<MealEvent> meals) =>
-      backend.nutrition.mergeMeals(meals);
+  /// Puts separately logged [meals] together as one meal; returns what
+  /// [regroupMeals] needs to take it back.
+  Map<String, String?> groupMeals(List<MealEvent> meals) =>
+      backend.nutrition.groupMeals(meals);
 
-  void unmergeMeals(MealEvent merged, List<MealEvent> parts) =>
-      backend.nutrition.unmergeMeals(merged, parts);
+  /// Takes a meal apart into its [items]; returns what [regroupMeals]
+  /// needs to put it back.
+  Map<String, String?> ungroupMeals(List<MealEvent> items) =>
+      backend.nutrition.ungroupMeals(items);
+
+  void regroupMeals(Map<String, String?> groups) =>
+      backend.nutrition.regroupMeals(groups);
 
   /// Splits one dish of a meal on [day] into a record of its own.
   DishSplitSnapshot? splitDish({

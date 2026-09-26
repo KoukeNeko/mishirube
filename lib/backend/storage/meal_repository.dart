@@ -133,6 +133,62 @@ class MealRepository {
 
   /// Removes a logged meal; [restore] takes it back. A tombstone, like
   /// every other record.
+  /// Puts meals [ids] in group [groupId], or takes them out of any with
+  /// null. The group each was in before is audited.
+  void setGroup(Iterable<String> ids, String? groupId) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      for (final id in ids) {
+        final previous = _db.select('SELECT group_id FROM meals WHERE id = ?', [
+          id,
+        ]);
+        _db.execute(
+          'UPDATE meals SET group_id = ?, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ?',
+          [groupId, now, id],
+        );
+        _db.audit(
+          entityType: 'meal',
+          entityId: id,
+          action: groupId == null ? 'ungroup' : 'group',
+          payload: {
+            'group': groupId,
+            'previous': previous.isEmpty ? null : previous.first['group_id'],
+          },
+        );
+      }
+    });
+  }
+
+  /// The ids of the live meals in group [groupId].
+  List<String> groupMembers(String groupId) => [
+    for (final row in _db.select(
+      'SELECT id FROM meals WHERE group_id = ? AND deleted_at IS NULL',
+      [groupId],
+    ))
+      row['id']! as String,
+  ];
+
+  /// Calls meals [ids] [mealType], or no sitting with null.
+  void setMealType(Iterable<String> ids, MealType? mealType) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      for (final id in ids) {
+        _db.execute(
+          'UPDATE meals SET meal_type = ?, updated_at = ?, '
+          'revision = revision + 1 WHERE id = ?',
+          [mealType?.name, now, id],
+        );
+        _db.audit(
+          entityType: 'meal',
+          entityId: id,
+          action: 'meal_type',
+          payload: {'mealType': mealType?.name},
+        );
+      }
+    });
+  }
+
   void delete(String id) => _setDeleted(id, deleted: true);
 
   void restore(String id) => _setDeleted(id, deleted: false);
@@ -196,9 +252,9 @@ class MealRepository {
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
         'source, import_batch_id, local_day, utc_offset_minutes, food_id, '
-        'servings) '
+        'servings, group_id) '
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-        '?, ?)',
+        '?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -222,6 +278,7 @@ class MealRepository {
           eatenAt.timeZoneOffset.inMinutes,
           meal.foodId,
           meal.servings,
+          meal.groupId,
         ],
       );
       _writeDishes(meal);
@@ -387,6 +444,7 @@ class MealRepository {
       kind: ConsumptionKind.values.byName(row['consumption_kind']! as String),
       foodId: row['food_id'] as String?,
       servings: (row['servings'] as num?)?.toDouble(),
+      groupId: row['group_id'] as String?,
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,
@@ -438,38 +496,51 @@ class MealTimelineSource extends TimelineSource {
   }
 
   @override
-  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final (_, eatenAt, meal) in _meals.inDays(
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) {
+    final records = _meals.inDays(
       localDayOf(start),
       localDayOf(end.subtract(const Duration(days: 1))),
-    ))
-      (
-        eatenAt,
-        // Water is how much of it: its 0 kcal and its own name as a tag
-        // would say nothing.
-        meal.isWater
-            ? TimelineEntry(
-                timeLabel: meal.timeLabel,
-                at: eatenAt,
-                recordId: meal.id,
-                category: RecordCategory.nutrition,
-                title: meal.name,
-                detail: switch (meal.millilitres) {
-                  final millilitres? => '$millilitres ml',
-                  null => '',
-                },
-              )
-            : TimelineEntry(
-                timeLabel: meal.timeLabel,
-                at: eatenAt,
-                recordId: meal.id,
-                category: RecordCategory.nutrition,
-                title: meal.name,
-                detail: meal.dishes.map((dish) => dish.name).join('、'),
-                tags: ['${formatKcalOrDash(meal.kcal)} kcal', meal.qualityTag],
-              ),
-      ),
-  ];
+    );
+    final eatenAt = {for (final (_, at, meal) in records) meal.id: at};
+    // One row a meal: a group's items are one meal, at its first item.
+    return [
+      for (final meal in mealsOf([for (final (_, _, meal) in records) meal]))
+        (eatenAt[meal.first.id]!, _entryOf(meal, eatenAt[meal.first.id]!)),
+    ];
+  }
+
+  static TimelineEntry _entryOf(List<MealEvent> meal, DateTime at) {
+    final first = meal.first;
+    // Water is how much of it: its 0 kcal and its own name as a tag
+    // would say nothing.
+    if (meal.length == 1 && first.isWater) {
+      return TimelineEntry(
+        timeLabel: first.timeLabel,
+        at: at,
+        recordId: first.id,
+        category: RecordCategory.nutrition,
+        title: first.name,
+        detail: switch (first.millilitres) {
+          final millilitres? => '$millilitres ml',
+          null => '',
+        },
+      );
+    }
+    return TimelineEntry(
+      timeLabel: first.timeLabel,
+      at: at,
+      recordId: first.id,
+      category: RecordCategory.nutrition,
+      title: meal.map((item) => item.name).join('、'),
+      detail: meal.length == 1
+          ? first.dishes.map((dish) => dish.name).join('、')
+          : '${meal.length} 項',
+      tags: [
+        '${formatKcalOrDash(mealKcalOf(meal))} kcal',
+        if (meal.length == 1) first.qualityTag,
+      ],
+    );
+  }
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {

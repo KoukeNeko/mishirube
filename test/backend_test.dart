@@ -2133,7 +2133,7 @@ void main() {
       expect(backend.journal.birthYear, isNull);
     });
 
-    test('meals logged apart go back together as one, and apart again', () {
+    test('meals logged apart become one meal of items, and apart again', () {
       final backend = Backend.inMemory(clock: clock.now);
       addTearDown(backend.close);
       final nutrition = backend.nutrition;
@@ -2169,25 +2169,121 @@ void main() {
         eatenAt: noon.add(const Duration(minutes: 20)),
       );
 
-      final merged = nutrition.mergeMeals([tea, rice]);
+      final previous = nutrition.groupMeals([tea, rice]);
+      List<MealEvent> meal() => mealsOf(nutrition.mealsOn(noon)).single;
 
-      expect(nutrition.mealsOn(noon).map((meal) => meal.id), [merged.id]);
-      expect(merged.name, '紅茶、白飯');
-      expect(merged.dishes.map((dish) => dish.name), ['紅茶', '白飯']);
-      expect(merged.timeLabel, '12:10', reason: 'when the first was eaten');
-      expect(merged.kcal, 370);
-      expect(merged.proteinGrams, 5);
-      expect(merged.fatGrams, isNull, reason: 'the tea gave none');
-      expect(merged.millilitres, 500, reason: 'only the tea is drunk');
-      expect(merged.kind, ConsumptionKind.food);
-      expect(merged.valueType, NutrientValueType.estimate);
-      expect(merged.qualityTag, mergedQualityTag);
+      expect(meal().map((item) => item.id), [
+        'rice',
+        'tea',
+      ], reason: 'each keeps its own record, in the order eaten');
+      expect(mealKcalOf(meal()), 370);
 
-      nutrition.unmergeMeals(merged, [tea, rice]);
-      expect(nutrition.mealsOn(noon).map((meal) => meal.id).toSet(), {
-        rice.id,
-        tea.id,
-      }, reason: 'the parts come back as they were');
+      // Correcting one item corrects the meal, and the sitting is the
+      // whole meal's.
+      final riceItem = meal().first;
+      nutrition.edit(
+        riceItem,
+        riceItem.copyWith(kcal: 300, mealType: MealType.lunch),
+      );
+      expect(mealKcalOf(meal()), 390);
+      expect(meal().map((item) => item.mealType).toSet(), {MealType.lunch});
+
+      // An item moved to another time takes the meal with it.
+      final evening = DateTime(2026, 9, 18, 19);
+      nutrition.retimeMeal(meal().last, evening);
+      expect(nutrition.mealsOn(noon), isEmpty);
+      expect(mealsOf(nutrition.mealsOn(evening)).single, hasLength(2));
+
+      nutrition.regroupMeals(previous);
+      expect(
+        mealsOf(nutrition.mealsOn(evening)),
+        hasLength(2),
+        reason: 'undone, each is on its own again',
+      );
+    });
+
+    test('a meal is taken apart into its items, undoably', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final nutrition = backend.nutrition;
+      final noon = DateTime(2026, 9, 19, 12);
+      final items = [
+        for (final name in ['蛋餅', '豆漿'])
+          nutrition.logMeal(
+            MealEvent(
+              id: name,
+              name: name,
+              timeLabel: '12:00',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: 200,
+            ),
+            eatenAt: noon,
+          ),
+      ];
+      nutrition.groupMeals(items);
+      expect(summariseDay(nutrition.mealsOn(noon)).mealCount, 1);
+
+      final grouped = mealsOf(nutrition.mealsOn(noon)).single;
+      final previous = nutrition.ungroupMeals(grouped);
+      expect(mealsOf(nutrition.mealsOn(noon)), hasLength(2));
+      expect(summariseDay(nutrition.mealsOn(noon)).mealCount, 2);
+
+      nutrition.regroupMeals(previous);
+      expect(mealsOf(nutrition.mealsOn(noon)).single, hasLength(2));
+    });
+
+    test('meals merged before groups come back as their items', () {
+      final path = '${directory.path}/store.sqlite3';
+      final noon = DateTime(2026, 9, 19, 12, 10);
+      var backend = openFile();
+      final parts = [
+        for (final (name, kcal) in [('白飯', 280), ('紅茶', 90)])
+          backend.nutrition.logMeal(
+            MealEvent(
+              id: name,
+              name: name,
+              timeLabel: '12:10',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: kcal,
+            ),
+            eatenAt: noon,
+          ),
+      ];
+      // What a merge used to write: one meal holding the sum, the parts
+      // tombstoned, and their ids in its audit trail.
+      backend.nutrition.deleteMeals([for (final part in parts) part.id]);
+      backend.storage.meals.insert(
+        const MealEvent(
+          id: 'merged',
+          name: '白飯、紅茶',
+          timeLabel: '12:10',
+          qualityTag: '合併',
+          dishes: [],
+          kcal: 370,
+          mealType: MealType.lunch,
+        ),
+        eatenAt: noon.add(const Duration(hours: 1)),
+        auditPayload: {
+          'mergedFrom': ['白飯', '紅茶'],
+        },
+      );
+      backend.close();
+      final raw = sqlite3.open(path)
+        ..execute('ALTER TABLE meals DROP COLUMN group_id')
+        ..userVersion = latestSchemaVersion - 1;
+      raw.close();
+
+      backend = openFile();
+      addTearDown(backend.close);
+      final meal = mealsOf(backend.nutrition.mealsOn(noon)).single;
+      expect(meal.map((item) => item.id), ['白飯', '紅茶']);
+      expect(mealKcalOf(meal), 370);
+      expect(meal.map((item) => item.timeLabel).toSet(), {
+        '13:10',
+      }, reason: 'when the merged meal said it was eaten');
+      expect(meal.map((item) => item.mealType).toSet(), {MealType.lunch});
     });
 
     test('a draft item keeps every nutrient when logged', () {

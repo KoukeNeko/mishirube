@@ -2310,12 +2310,88 @@ void main() {
     await tester.tap(find.text('合併 2 筆成一餐'));
     await tester.pump();
 
-    expect(nutrition.mealsOn(today), hasLength(1));
-    expect(nutrition.mealsOn(today).single.kcal, 550);
+    expect(mealsOf(nutrition.mealsOn(today)), hasLength(1));
+    expect(mealKcalOf(mealsOf(nutrition.mealsOn(today)).single), 550);
+    expect(find.textContaining('2 項'), findsOneWidget);
 
     await tester.tap(find.text('復原'));
     await tester.pump();
-    expect(nutrition.mealsOn(today), hasLength(2), reason: 'undo splits it');
+    expect(
+      mealsOf(nutrition.mealsOn(today)),
+      hasLength(2),
+      reason: 'undo splits it',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('an item of a meal is corrected, and the meal follows', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final today = store.now();
+    nutrition.deleteMeals([
+      for (final meal in nutrition.mealsOn(today)) meal.id,
+    ]);
+    nutrition.groupMeals([
+      for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+        nutrition.logMeal(
+          MealEvent(
+            id: name,
+            name: name,
+            timeLabel: '08:00',
+            qualityTag: '手動',
+            dishes: const [],
+            kcal: kcal,
+          ),
+          eatenAt: today,
+        ),
+    ]);
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.text('冰奶茶'),
+      200,
+      scrollable: _pageScroll,
+    );
+    await Scrollable.ensureVisible(
+      tester.element(find.text('冰奶茶')),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('蛋餅、冰奶茶'), findsOneWidget);
+
+    await tester.tap(find.text('冰奶茶'));
+    await tester.pumpAndSettle();
+    // The day's page stays under the editor, so its 熱量 is left alone.
+    await tester.enterText(
+      find.descendant(
+        of: find
+            .ancestor(
+              of: find.descendant(
+                of: find.byType(MealEditScreen),
+                matching: find.text('kcal'),
+              ),
+              matching: find.byType(Row),
+            )
+            .first,
+        matching: find.byType(TextField),
+      ),
+      '200',
+    );
+    await tester.pump();
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    expect(mealKcalOf(mealsOf(nutrition.mealsOn(today)).single), 450);
+
+    await Scrollable.ensureVisible(
+      tester.element(find.byTooltip('拆開這一餐')),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('拆開這一餐'));
+    await tester.pump();
+    expect(mealsOf(nutrition.mealsOn(today)), hasLength(2));
     await disposeTree(tester);
   });
 
@@ -2424,7 +2500,7 @@ void main() {
     addTearDown(viewModel.dispose);
 
     final evening = clock.now().subtract(const Duration(days: 1));
-    viewModel.retimeMeal(glass.id, evening);
+    viewModel.retimeMeal(glass, evening);
     expect(
       nutrition.mealsOn(evening).map((meal) => meal.id),
       contains(glass.id),

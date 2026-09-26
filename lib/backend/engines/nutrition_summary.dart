@@ -74,6 +74,23 @@ class DaySummary {
   bool get countsEveryMeal => mealsWithoutFigures == 0;
 }
 
+/// [records] as the meals they were: a group's items together, each
+/// meal where its first item falls in [records]' order.
+List<List<MealEvent>> mealsOf(Iterable<MealEvent> records) {
+  final meals = <String, List<MealEvent>>{};
+  for (final record in records) {
+    meals.putIfAbsent(record.groupId ?? record.id, () => []).add(record);
+  }
+  return meals.values.toList();
+}
+
+/// A meal's energy: its items' sum, or null when any item has none, so
+/// the meal is not shown as less than it was.
+int? mealKcalOf(List<MealEvent> meal) {
+  if (meal.any((item) => item.kcal == null)) return null;
+  return meal.fold<int>(0, (sum, item) => sum + item.kcal!);
+}
+
 /// Adds up [meals]. A day is complete once it holds [mealsForCompleteDay]
 /// records of something eaten; a day still running is never called
 /// incomplete.
@@ -90,9 +107,11 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
   int missing(int? Function(MealEvent) figure) =>
       records.where((meal) => figure(meal) == null).length;
 
-  final mealCount = records
-      .where((meal) => meal.kind != ConsumptionKind.beverage)
-      .length;
+  // A meal of several items is one meal, however many records it holds.
+  final mealCount = {
+    for (final meal in records)
+      if (meal.kind != ConsumptionKind.beverage) meal.groupId ?? meal.id,
+  }.length;
   return DaySummary(
     kcal: sumOf((meal) => meal.kcal),
     proteinGrams: sumOf((meal) => meal.proteinGrams),

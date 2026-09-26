@@ -42,21 +42,47 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   /// Keys of expanded dishes (`mealId/dishName`); display-only state.
   final Set<String> _expanded = {};
 
-  /// The meals picked to put together; null when not picking.
+  /// The meals picked to put together, by [_keyOf]; null when not
+  /// picking.
   Set<String>? _merging;
 
-  /// Puts the picked meals back together as one, undoably.
-  void _merge(List<MealEvent> eaten) {
+  /// What picks a meal: its group, or the record when it is on its own.
+  static String _keyOf(List<MealEvent> meal) =>
+      meal.first.groupId ?? meal.first.id;
+
+  /// Puts the picked meals together as one, undoably: every item of each
+  /// becomes an item of the one meal.
+  void _merge(List<List<MealEvent>> meals) {
     final picked = _merging ?? const {};
-    final parts = [
-      for (final meal in eaten)
-        if (picked.contains(meal.id)) meal,
+    final chosen = [
+      for (final meal in meals)
+        if (picked.contains(_keyOf(meal))) meal,
     ];
-    final merged = _nutrition.mergeMeals(parts);
+    final previous = _nutrition.groupMeals([
+      for (final meal in chosen) ...meal,
+    ]);
     setState(() => _merging = null);
     ToastScope.read(context).showUndo(
-      '已合併 ${parts.length} 筆',
-      onUndo: () => _nutrition.unmergeMeals(merged, parts),
+      '已合併 ${chosen.length} 筆',
+      onUndo: () => _nutrition.regroupMeals(previous),
+    );
+  }
+
+  /// Takes a meal apart into its items, undoably.
+  void _ungroup(List<MealEvent> items) {
+    final previous = _nutrition.ungroupMeals(items);
+    ToastScope.read(context).showUndo(
+      '已拆成 ${items.length} 筆',
+      onUndo: () => _nutrition.regroupMeals(previous),
+    );
+  }
+
+  /// Takes one item out of a meal and out of the day, undoably.
+  void _removeItem(MealEvent item) {
+    _nutrition.deleteMeals([item]);
+    ToastScope.read(context).showUndo(
+      '已移除「${item.name}」',
+      onUndo: () => _nutrition.restoreMeals([item]),
     );
   }
 
@@ -107,10 +133,10 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     final meals = _nutrition.mealsOn(day);
     // Plain water is counted under 飲品 below; as a meal it would be a
     // card reading 0.
-    final eaten = [
+    final eaten = mealsOf([
       for (final meal in meals)
         if (!meal.isWater) meal,
-    ];
+    ]);
     final summary = _nutrition.summaryOf(day);
     final merging = _merging;
     final water = [
@@ -214,18 +240,21 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           for (final meal in eaten)
             Gutter(
               child: Semantics(
-                selected: merging.contains(meal.id),
+                selected: merging.contains(_keyOf(meal)),
                 child: NavCard(
                   leading: CheckSquare(
-                    isChecked: merging.contains(meal.id),
+                    isChecked: merging.contains(_keyOf(meal)),
                     checkedColor: AppColors.nutrition,
                   ),
-                  title: meal.name,
+                  title: _nameOf(meal),
                   subtitle:
-                      '${meal.timeLabel} · ${formatKcalOrDash(meal.kcal)} kcal',
+                      '${meal.first.timeLabel} · '
+                      '${formatKcalOrDash(mealKcalOf(meal))} kcal',
                   showChevron: false,
                   onTap: () => setState(() {
-                    if (!merging.remove(meal.id)) merging.add(meal.id);
+                    if (!merging.remove(_keyOf(meal))) {
+                      merging.add(_keyOf(meal));
+                    }
                   }),
                 ),
               ),
@@ -233,13 +262,20 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         else
           for (final meal in eaten)
             Gutter(
-              child: _MealCard(
-                meal: meal,
-                isExpanded: (dish) =>
-                    _expanded.contains('${meal.id}/${dish.name}'),
-                onToggle: (dish) => _toggle('${meal.id}/${dish.name}'),
-                onSplit: (dishIndex) => _split(meal, dishIndex),
-              ),
+              child: meal.length == 1
+                  ? _MealCard(
+                      meal: meal.single,
+                      isExpanded: (dish) =>
+                          _expanded.contains('${meal.single.id}/${dish.name}'),
+                      onToggle: (dish) =>
+                          _toggle('${meal.single.id}/${dish.name}'),
+                      onSplit: (dishIndex) => _split(meal.single, dishIndex),
+                    )
+                  : _MealGroupCard(
+                      items: meal,
+                      onUngroup: () => _ungroup(meal),
+                      onRemove: _removeItem,
+                    ),
             ),
         if (water.isNotEmpty && merging == null) ...[
           Gutter(child: const SectionLabel('水')),
@@ -272,6 +308,100 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       ],
     );
   }
+}
+
+/// A meal's name: its items' names, one after another.
+String _nameOf(List<MealEvent> meal) => meal.map((item) => item.name).join('、');
+
+/// A meal of several items: their sum at the top, then each item with
+/// its own figures, which open to edit and swipe away.
+class _MealGroupCard extends StatelessWidget {
+  const _MealGroupCard({
+    required this.items,
+    required this.onUngroup,
+    required this.onRemove,
+  });
+
+  final List<MealEvent> items;
+  final VoidCallback onUngroup;
+  final ValueChanged<MealEvent> onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final first = items.first;
+    return GroupedCard(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            children: [
+              const AccentBar(color: AppColors.nutrition),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_nameOf(items), style: AppTextStyles.itemTitle),
+                    Text(
+                      [
+                        first.timeLabel,
+                        ?first.mealType?.label,
+                        '${items.length} 項',
+                      ].join(' · '),
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              ValueWithUnit(
+                value: formatKcalOrDash(mealKcalOf(items)),
+                unit: 'kcal',
+                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              SquareIconButton(
+                icon: Icons.call_split,
+                tooltip: '拆開這一餐',
+                color: AppColors.nutrition,
+                size: 36,
+                onPressed: onUngroup,
+              ),
+            ],
+          ),
+        ),
+        for (final item in items)
+          SwipeAction(
+            key: ValueKey(item.id),
+            label: '移除',
+            semanticLabel: '移除「${item.name}」',
+            radius: 0,
+            onAction: () => onRemove(item),
+            child: NavRow(
+              title: item.name,
+              subtitle: _macrosOf(item),
+              trailing: Text(
+                '${formatKcalOrDash(item.kcal)} kcal',
+                style: AppTextStyles.caption,
+              ),
+              showChevron: true,
+              onTap: () => pushPage(context, MealEditScreen(meal: item)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, a dash for a figure not
+/// known.
+String _macrosOf(MealEvent item) {
+  String grams(int? value) => value == null ? '—' : '$value g';
+  return [
+    '${MacroLabel.protein} ${grams(item.proteinGrams)}',
+    '${MacroLabel.carb} ${grams(item.carbGrams)}',
+    '${MacroLabel.fat} ${grams(item.fatGrams)}',
+  ].join(' · ');
 }
 
 class _MealCard extends StatelessWidget {

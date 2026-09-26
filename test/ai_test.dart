@@ -19,6 +19,7 @@ import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/label_text.dart';
 import 'package:mishirube/backend/engines/workout_text.dart';
+import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/me/ai_draft_parts.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
@@ -1145,7 +1146,7 @@ void main() {
       },
     );
 
-    test('a draft of several items can be one meal, its figures summed', () {
+    test('a draft of several items can be one meal of those items', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       final before = store.todayMeals.length;
       const rice = DraftItem(
@@ -1169,22 +1170,21 @@ void main() {
         model: 'gemma4:31b',
       );
 
-      final meal = store.backend.nutrition.logDraft(draft, [
+      final items = store.backend.nutrition.logDraft(draft, [
         rice,
         soup,
-      ], asOneMeal: true).single;
+      ], asOneMeal: true);
 
-      expect(store.todayMeals, hasLength(before + 1));
-      expect(meal.name, '白飯、味噌湯');
-      expect(meal.dishes.map((dish) => dish.name), ['白飯', '味噌湯']);
-      expect(meal.kcal, 320);
-      expect(meal.proteinGrams, 8);
+      expect(store.todayMeals, hasLength(before + 2));
+      expect(items.map((item) => item.name), ['白飯（一碗）', '味噌湯（一碗）']);
       expect(
-        meal.fatGrams,
-        isNull,
-        reason: 'the soup gave none, so a sum would undercount',
+        items.map((item) => item.groupId).toSet(),
+        hasLength(1),
+        reason: 'one meal, each item its own record',
       );
-      expect(meal.isEstimated, isTrue);
+      expect(items.first.groupId, isNotNull);
+      expect(mealKcalOf(items), 320);
+      expect(items.every((item) => item.isEstimated), isTrue);
     });
   });
 
