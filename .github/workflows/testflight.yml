@@ -1,0 +1,74 @@
+name: TestFlight
+
+# An upload is a release to testers, so it is asked for rather than made on
+# every push: by hand from the Actions tab, or by pushing a v* tag.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+# Two uploads at once would race for the same build number's slot.
+concurrency: testflight
+
+jobs:
+  upload:
+    runs-on: macos-latest
+    env:
+      KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      KEY_PATH: ${{ github.workspace }}/private_keys/AuthKey.p8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.5
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Nothing reaches testers that the checks in ci.yml would refuse.
+      - name: Analyzed
+        run: flutter analyze
+      - name: Tested
+        run: flutter test
+      - name: API key
+        env:
+          PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          mkdir -p "$(dirname "$KEY_PATH")"
+          printf '%s' "$PRIVATE_KEY" > "$KEY_PATH"
+      # Every upload needs a build number above the last; the time does
+      # that without a counter to keep, and a re-run gets a new one.
+      - name: Configured
+        run: flutter build ios --release --config-only --build-number="$(date -u +%s)"
+      # Signed by Xcode with cloud-managed certificates through the API
+      # key, which needs the Admin role: no certificate or profile is kept
+      # here, and the app, its Live Activity and its watch app are all
+      # provisioned the same way.
+      - name: Archived
+        run: |
+          xcodebuild archive \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ios/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID"
+      - name: Uploaded
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/Runner.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath build/ios/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID"
+      - name: API key removed
+        if: always()
+        run: rm -rf "$(dirname "$KEY_PATH")"
