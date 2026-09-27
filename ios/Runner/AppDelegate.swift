@@ -375,12 +375,16 @@ enum HealthKitBridge {
       limit: HKObjectQueryNoLimit,
       sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
     ) { _, samples, error in
+      // Turned into rows here, on HealthKit's own queue: a month of sleep
+      // stages is thousands of samples, and the main thread, which also
+      // takes the touches, only needs to hand the rows over.
+      let rows = (samples ?? []).compactMap { row(kind: kind, sample: $0) }
       DispatchQueue.main.async {
         if let error {
           result(FlutterError(code: "failed", message: "\(error)", details: nil))
           return
         }
-        result((samples ?? []).compactMap { row(kind: kind, sample: $0) })
+        result(rows)
       }
     }
     store.execute(query)
