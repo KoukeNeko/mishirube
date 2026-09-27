@@ -6,8 +6,57 @@
     {
       "layers" : [
         {
-          "image-name" : "ChatGPT 画像 2026年9月28日 02_07_02.png",
-          "name" : "ChatGPT 画像 2026年9月28日 02_07_02",
+          "glass" : true,
+          "image-name" : "layer-1.png",
+          "name" : "layer-1",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              11
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "layer-2.png",
+          "name" : "layer-2",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              11
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "layer-3.png",
+          "name" : "layer-3",
+          "position" : {
+            "scale" : 0.94,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "layer-4.png",
+          "name" : "layer-4",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              29
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "layer-5.png",
+          "name" : "layer-5",
           "position" : {
             "scale" : 1.1,
             "translation-in-points" : [
