@@ -3572,9 +3572,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get workoutDiscarded => 'トレーニングを破棄しました';
 
   @override
-  String get collapse => '折りたたむ';
-
-  @override
   String get endWorkout => 'トレーニングを終了';
 
   @override
@@ -3621,9 +3618,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get skipRest => '休憩をスキップ';
-
-  @override
-  String get restOptions => '休憩のオプション';
 
   @override
   String get elapsedTime => '時間';

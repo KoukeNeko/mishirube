@@ -209,7 +209,6 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.pinnedHeight = 0,
     this.hideToolbarFraction = 0,
     this.scrollsToolbarAway = false,
-    this.solidColor,
     this.glassOpacity,
     this.isHighContrast = false,
     this.reduceMotion = false,
@@ -231,9 +230,6 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// No compact bar: once the large title has gone the toolbar row scrolls
   /// away too, leaving only the pinned control (if any) and the status bar.
   final bool scrollsToolbarAway;
-
-  /// Opaque branded background instead of scroll-edge glass.
-  final Color? solidColor;
 
   /// The glass, from the page instead of the collapse: for a page drawn
   /// over a picture (a workout's map), whose bar stays clear until the
@@ -297,14 +293,12 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
             valueListenable: glass,
             builder: (context, opacity, _) => _HeaderBackground(
               opacity: opacity,
-              solidColor: solidColor,
               isHighContrast: isHighContrast,
             ),
           )
         else
           _HeaderBackground(
             opacity: chromeOpacity,
-            solidColor: solidColor,
             isHighContrast: isHighContrast,
           ),
         _ContentColumn(
@@ -453,18 +447,14 @@ class _InColumn extends StatelessWidget {
 class _HeaderBackground extends StatelessWidget {
   const _HeaderBackground({
     required this.opacity,
-    required this.solidColor,
     required this.isHighContrast,
   });
 
   final double opacity;
-  final Color? solidColor;
   final bool isHighContrast;
 
   @override
   Widget build(BuildContext context) {
-    final solid = solidColor;
-    if (solid != null) return ColoredBox(color: solid);
     return ScrollEdgeGlass(opacity: opacity);
   }
 }

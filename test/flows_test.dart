@@ -45,6 +45,7 @@ import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
+import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -177,8 +178,14 @@ void main() {
     expect(find.textContaining('個人紀錄 ·'), findsOneWidget);
     expect(store.restEndsAt, isNotNull, reason: 'the rest starts in place');
 
-    await tester.tap(find.bySemanticsLabel(RegExp('^休息的選項')));
-    await tester.pumpAndSettle();
+    expect(
+      find.text('跳過休息'),
+      findsOneWidget,
+      reason: 'the rest shows its choices',
+    );
+    final endsAt = store.restEndsAt!;
+    await _tapText(tester, '多休息 30 秒');
+    expect(store.restEndsAt, endsAt.add(const Duration(seconds: 30)));
     await _tapText(tester, '跳過休息');
     semantics.dispose();
     expect(store.restEndsAt, isNull);
@@ -201,13 +208,41 @@ void main() {
     );
     expect(store.lastFinishedWorkout, isNotNull);
 
-    // Back through the training page it was started from, to Today.
-    for (var i = 0; i < 2; i++) {
-      await tester.tap(find.bySemanticsLabel('返回').last);
-      await tester.pumpAndSettle();
-    }
+    // Straight back to Today: the training page it was started from
+    // closed when the workout opened.
+    await tester.tap(find.bySemanticsLabel('返回').last);
+    await tester.pumpAndSettle();
     expect(find.text('下肢 A 已完成'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a workout is collapsed to where it was started from, and '
+      'paused from its bar', (tester) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _startFromRoutine(tester);
+    expect(find.text('暫停'), findsNothing, reason: 'nothing runs yet');
+    await _tapText(tester, '開始運動');
+    clock.advance(const Duration(minutes: 5));
+
+    await _tapText(tester, '暫停');
+    expect(store.activeWorkout!.isPaused, isTrue);
+    expect(find.textContaining('已暫停'), findsWidgets);
+    await _tapText(tester, '繼續');
+    expect(store.activeWorkout!.isPaused, isFalse);
+
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ActiveWorkoutScreen), findsNothing);
+    expect(
+      find.byType(TrainingScreen),
+      findsNothing,
+      reason: 'not back to the page the workout was picked on',
+    );
+    expect(store.activeWorkout, isNotNull, reason: 'still under way');
     await disposeTree(tester);
   });
 

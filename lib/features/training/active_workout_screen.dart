@@ -109,14 +109,28 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               toolbar: ToolbarMetrics.of(context),
               topInset: media.padding.top,
               largeHeight: _WorkoutHero.measureHeight(context),
-              solidColor: AppColors.trainingSurface,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),
-              leading: AppBarBackButton(
-                icon: Icons.keyboard_arrow_down,
-                tooltip: context.l10n.collapse,
-              ),
+              leading: const AppBarBackButton(),
               actions: [
+                // Nothing to pause before the time has started.
+                if (!workout.isReady)
+                  HeaderAction(
+                    icon: workout.isPaused
+                        ? Icons.play_arrow_rounded
+                        : Icons.pause_rounded,
+                    label: workout.isPaused
+                        ? context.l10n.commonResume
+                        : context.l10n.commonPause,
+                    semanticLabel: workout.isPaused
+                        ? context.l10n.sessionResume(
+                            session: workout.routineName,
+                          )
+                        : context.l10n.sessionPause(
+                            session: workout.routineName,
+                          ),
+                    onTap: store.togglePause,
+                  ),
                 HeaderAction(
                   icon: Icons.stop_rounded,
                   label: context.l10n.commonEnd,
@@ -167,15 +181,22 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   icon: Icons.play_arrow_outlined,
                   onPressed: store.beginWorkout,
                 )
-              : Row(
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
                   spacing: AppSpacing.sm,
                   children: [
-                    Expanded(child: _Clocks(workout: workout)),
-                    Expanded(
-                      child: PrimaryButton(
-                        label: context.l10n.finishWorkout,
-                        onPressed: () => _end(context, workout),
-                      ),
+                    if (store.restEndsAt != null) const _RestTimer(),
+                    Row(
+                      spacing: AppSpacing.sm,
+                      children: [
+                        _TimeSoFar(workout: workout),
+                        Expanded(
+                          child: PrimaryButton(
+                            label: context.l10n.finishWorkout,
+                            onPressed: () => _end(context, workout),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -277,7 +298,10 @@ class _WorkoutHero extends StatelessWidget {
           const SizedBox(height: _heroGap),
           Text(
             [
-              if (workout.isReady) context.l10n.notStarted,
+              if (workout.isReady)
+                context.l10n.notStarted
+              else if (workout.isPaused)
+                context.l10n.sessionPausedStatus,
               context.l10n.totalVolume,
               if (change case final change?)
                 context.l10n.versusLastTime(
@@ -316,19 +340,17 @@ class _LiveTitle extends StatelessWidget {
   }
 }
 
-/// The rest and the time so far, side by side at the foot. Tapping the
-/// rest while it runs offers more time or to skip it.
-class _Clocks extends StatefulWidget {
-  const _Clocks({required this.workout});
-
-  final WorkoutSession workout;
+/// The rest after a set, over the foot while it runs: what is left of
+/// it, as a figure and a bar, and more time or an end to it at a tap.
+class _RestTimer extends StatefulWidget {
+  const _RestTimer();
 
   @override
-  State<_Clocks> createState() => _ClocksState();
+  State<_RestTimer> createState() => _RestTimerState();
 }
 
-class _ClocksState extends State<_Clocks> {
-  Timer? _timer;
+class _RestTimerState extends State<_RestTimer> {
+  late final Timer _timer;
 
   @override
   void initState() {
@@ -338,7 +360,7 @@ class _ClocksState extends State<_Clocks> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -350,99 +372,115 @@ class _ClocksState extends State<_Clocks> {
     }
   }
 
-  Future<void> _restActions(BuildContext context) async {
-    final store = AppStoreScope.read(context);
-    if (store.restEndsAt == null) return;
-    await showAppDialog<void>(
-      context,
-      AppDialog(
-        title: context.l10n.restTitle,
-        actions: [
-          DialogAction(
-            label: context.l10n.rest30More,
-            onTap: () {
-              store.extendRest(const Duration(seconds: 30));
-              Navigator.of(context).pop();
-            },
-          ),
-          DialogAction(
-            label: context.l10n.skipRest,
-            tone: DialogTone.primary,
-            onTap: () {
-              store.skipRest();
-              Navigator.of(context).pop();
-            },
-          ),
-          DialogAction(
-            label: context.l10n.commonCancel,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final endsAt = store.restEndsAt;
-    final remaining = endsAt?.difference(store.now());
-    const figure = TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.w700,
-      color: AppColors.textPrimary,
-      fontFeatures: [FontFeature.tabularFigures()],
-    );
-    // Scaled down as one, so large text shrinks the pair rather than
-    // spilling out of the bar.
-    Widget clock(String value, String label, {Color? color}) => FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(value, style: figure.copyWith(color: color)),
-          Text(label, style: AppTextStyles.caption.copyWith(fontSize: 11)),
-        ],
-      ),
-    );
-    return Semantics(
-      button: endsAt != null,
-      label: endsAt == null ? null : context.l10n.restOptions,
-      child: GestureDetector(
-        onTap: () => _restActions(context),
-        child: Container(
-          height: buttonHeight,
-          decoration: BoxDecoration(
-            color: AppColors.surfaceRaised,
-            borderRadius: BorderRadius.circular(AppRadius.button),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: clock(
-                  remaining == null
-                      ? '—'
-                      : formatClock(
-                          remaining.isNegative ? Duration.zero : remaining,
-                        ),
-                  context.l10n.restTitle,
-                  color: remaining == null ? null : AppColors.training,
+    if (endsAt == null) return const SizedBox.shrink();
+    final left = endsAt.difference(store.now());
+    final remaining = left.isNegative ? Duration.zero : left;
+    final length = store.restLength.inMilliseconds;
+    // Glass like the dock's: it floats over the page as the dock does.
+    return ChromeSurface(
+      refracts: true,
+      radius: AppRadius.card,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.l10n.restTitle, style: AppTextStyles.caption),
+                    Text(
+                      formatClock(remaining),
+                      style: AppTextStyles.bigNumber.copyWith(
+                        color: AppColors.training,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Container(width: 1, height: 28, color: AppColors.outline),
-              Expanded(
-                child: ElapsedClock(
-                  session: ActiveWorkout(widget.workout),
-                  builder: (_, elapsed) =>
-                      clock(elapsed, context.l10n.elapsedTime),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: AppSpacing.xs,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      ChipButton(
+                        label: context.l10n.rest30More,
+                        onTap: () =>
+                            store.extendRest(const Duration(seconds: 30)),
+                      ),
+                      ChipButton(
+                        label: context.l10n.skipRest,
+                        tone: TagTone.training,
+                        onTap: store.skipRest,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            ProgressLine(
+              progress: length == 0 ? 0 : remaining.inMilliseconds / length,
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+/// The workout's time so far, beside 完成訓練; held still, in the warning
+/// colour, while it is paused.
+class _TimeSoFar extends StatelessWidget {
+  const _TimeSoFar({required this.workout});
+
+  final WorkoutSession workout;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: buttonHeight,
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceRaised,
+      borderRadius: BorderRadius.circular(AppRadius.button),
+    ),
+    // Scaled down as one, so large text shrinks it rather than spilling
+    // out of the bar.
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElapsedClock(
+            session: ActiveWorkout(workout),
+            builder: (_, elapsed) => Text(
+              elapsed,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: workout.isPaused
+                    ? AppColors.warning
+                    : AppColors.textPrimary,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          Text(
+            context.l10n.elapsedTime,
+            style: AppTextStyles.caption.copyWith(fontSize: 11),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 /// Asks for a note on the workout; it is kept with the record, not with

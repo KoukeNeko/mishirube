@@ -5411,10 +5411,6 @@
   "@workoutDiscarded": {
     "description": "Toast."
   },
-  "collapse": "收合",
-  "@collapse": {
-    "description": "Tooltip of the button that folds the workout away."
-  },
   "endWorkout": "結束訓練",
   "@endWorkout": {
     "description": "Screen-reader label."
@@ -5488,10 +5484,6 @@
   "skipRest": "跳過休息",
   "@skipRest": {
     "description": "Choice."
-  },
-  "restOptions": "休息的選項",
-  "@restOptions": {
-    "description": "Screen-reader label."
   },
   "elapsedTime": "時間",
   "@elapsedTime": {

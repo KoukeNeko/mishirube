@@ -3565,9 +3565,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workoutDiscarded => '已放棄這次訓練';
 
   @override
-  String get collapse => '收合';
-
-  @override
   String get endWorkout => '結束訓練';
 
   @override
@@ -3614,9 +3611,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get skipRest => '跳過休息';
-
-  @override
-  String get restOptions => '休息的選項';
 
   @override
   String get elapsedTime => '時間';
@@ -9188,9 +9182,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get workoutDiscarded => '已放弃这次训练';
 
   @override
-  String get collapse => '收起';
-
-  @override
   String get endWorkout => '结束训练';
 
   @override
@@ -9237,9 +9228,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get skipRest => '跳过休息';
-
-  @override
-  String get restOptions => '休息的选项';
 
   @override
   String get elapsedTime => '时间';

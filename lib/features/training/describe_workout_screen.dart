@@ -134,7 +134,7 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
       );
       return;
     }
-    replaceWithPage(context, const ActiveWorkoutScreen());
+    openFromRoot(context, const ActiveWorkoutScreen());
   }
 
   /// Looked over and named first; once kept, back to where 課表 are

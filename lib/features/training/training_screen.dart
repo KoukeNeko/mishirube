@@ -81,7 +81,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       if (exercises == null || exercises.isEmpty || !mounted) return;
       if (!store.startFreeWorkout(exercises)) return _refuse();
     }
-    if (mounted) pushPage(context, const ActiveWorkoutScreen());
+    if (mounted) openFromRoot(context, const ActiveWorkoutScreen());
   }
 
   void _startFromPast(List<WorkoutSession> workouts) {
@@ -92,7 +92,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
     ];
     if (!store.startFromPast(exercises)) return _refuse();
     setState(_picked.clear);
-    pushPage(context, const ActiveWorkoutScreen());
+    openFromRoot(context, const ActiveWorkoutScreen());
   }
 
   void _toggle(String id, int index, bool picked) => setState(

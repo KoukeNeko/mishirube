@@ -3629,9 +3629,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workoutDiscarded => 'Workout discarded';
 
   @override
-  String get collapse => 'Collapse';
-
-  @override
   String get endWorkout => 'End workout';
 
   @override
@@ -3678,9 +3675,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skipRest => 'Skip rest';
-
-  @override
-  String get restOptions => 'Rest options';
 
   @override
   String get elapsedTime => 'Time';

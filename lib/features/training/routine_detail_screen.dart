@@ -126,7 +126,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             );
             return;
           }
-          replaceWithPage(context, const ActiveWorkoutScreen());
+          openFromRoot(context, const ActiveWorkoutScreen());
         },
       ),
       children: [

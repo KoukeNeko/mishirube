@@ -21,6 +21,17 @@ Future<T?> replaceWithPage<T>(BuildContext context, Widget page) {
       .pushReplacement<T, void>(MaterialPageRoute(builder: (_) => page));
 }
 
+/// Opens [page] with only the navigator's first page beneath it, closing
+/// the ones that led to it: a workout started from 訓練's pickers goes
+/// back to where the user was, not to the picker.
+Future<T?> openFromRoot<T>(BuildContext context, Widget page) {
+  if (DetailPane.maybeOf(context) case final pane?) return pane.show<T>(page);
+  return Navigator.of(context).pushAndRemoveUntil<T>(
+    MaterialPageRoute(builder: (_) => page),
+    (route) => route.isFirst,
+  );
+}
+
 /// Closes every pushed page and shows [tab] in the home shell.
 void returnToTab(BuildContext context, HomeTab tab) {
   AppStoreScope.read(context).selectTab(tab);

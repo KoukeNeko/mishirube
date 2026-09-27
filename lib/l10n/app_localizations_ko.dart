@@ -3573,9 +3573,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get workoutDiscarded => '운동을 버렸습니다';
 
   @override
-  String get collapse => '접기';
-
-  @override
   String get endWorkout => '운동 종료';
 
   @override
@@ -3622,9 +3619,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get skipRest => '휴식 건너뛰기';
-
-  @override
-  String get restOptions => '휴식 옵션';
 
   @override
   String get elapsedTime => '시간';

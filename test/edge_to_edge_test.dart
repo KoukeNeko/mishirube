@@ -67,17 +67,21 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('workout header colour fills the status bar area', (
+  testWidgets('workout header is the pages\' glass, up to the top edge', (
     tester,
   ) async {
     final store = _store()..startWorkout();
     await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
 
-    final headerBackground = find.byWidgetPredicate(
-      (widget) =>
-          widget is ColoredBox && widget.color == AppColors.trainingSurface,
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ColoredBox && widget.color == AppColors.trainingSurface,
+      ),
+      findsNothing,
+      reason: 'no branded colour behind the bar',
     );
-    expect(tester.getRect(headerBackground.first).top, 0);
+    expect(tester.getRect(find.byType(ScrollEdgeGlass).first).top, 0);
     expect(
       tester.getRect(find.text('結束')).top,
       greaterThanOrEqualTo(phoneTopInset),

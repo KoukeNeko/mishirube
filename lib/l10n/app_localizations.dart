@@ -6274,12 +6274,6 @@ abstract class AppLocalizations {
   /// **'已放棄這次訓練'**
   String get workoutDiscarded;
 
-  /// Tooltip of the button that folds the workout away.
-  ///
-  /// In zh, this message translates to:
-  /// **'收合'**
-  String get collapse;
-
   /// Screen-reader label.
   ///
   /// In zh, this message translates to:
@@ -6363,12 +6357,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'跳過休息'**
   String get skipRest;
-
-  /// Screen-reader label.
-  ///
-  /// In zh, this message translates to:
-  /// **'休息的選項'**
-  String get restOptions;
 
   /// Clock label.
   ///
