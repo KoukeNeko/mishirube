@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.doeshing.mishirube</string>
+	<string>dev.koukeneko.mishirube</string>
 </dict>
 </plist>
