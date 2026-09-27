@@ -14,6 +14,8 @@ import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
+import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/features/today/today_view_model.dart';
 
 import 'support/harness.dart';
 
@@ -658,6 +660,54 @@ void main() {
       await tester.pumpAndSettle();
       expect(store.healthSyncFailed, isFalse);
       expect(find.text('讀取失敗'), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('Today is not rebuilt as the dock moves the page padding', (
+      tester,
+    ) async {
+      final store = storeWith(_FakeHealth([lastNight]));
+      await store.connectHealth();
+      var bottom = 0.0;
+      late StateSetter setBottom;
+      await pumpScreen(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) {
+            setBottom = setState;
+            return MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(padding: EdgeInsets.only(bottom: bottom)),
+              child: const TodayScreen(),
+            );
+          },
+        ),
+        store: store,
+      );
+      var rebuilds = 0;
+      final previous = debugOnRebuildDirtyWidget;
+      debugOnRebuildDirtyWidget = (element, _) {
+        // The builder that runs the page, and its queries: not the
+        // header's, which follows the padding as it should.
+        if (element.widget case ListenableBuilder(
+          listenable: TodayViewModel(),
+        )) {
+          rebuilds++;
+        }
+      };
+      addTearDown(() => debugOnRebuildDirtyWidget = previous);
+
+      // The dock shrinking and growing, as it does through a scroll.
+      for (var frame = 1; frame <= 10; frame++) {
+        setBottom(() => bottom = frame * 4.0);
+        await tester.pump();
+      }
+
+      expect(
+        rebuilds,
+        0,
+        reason: 'every rebuild runs the page\'s queries on the main thread',
+      );
       await disposeTree(tester);
     });
 

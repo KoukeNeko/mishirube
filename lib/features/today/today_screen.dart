@@ -76,10 +76,14 @@ class TodayScreen extends StatelessWidget {
       ],
     );
     if (!store.isHealthConnected) return page;
-    final media = MediaQuery.of(context);
     return RefreshIndicator.adaptive(
-      // Below the bar, where the page's content starts.
-      edgeOffset: media.padding.top + ToolbarMetrics.of(context).height,
+      // Below the bar, where the page's content starts. Only the status
+      // bar's inset is read, by its own aspect: the page's padding follows
+      // the dock as it shrinks and grows while scrolling, and a page that
+      // rebuilt with it would run every query on every frame.
+      edgeOffset:
+          MediaQuery.viewPaddingOf(context).top +
+          ToolbarMetrics.of(context).height,
       onRefresh: () => _readHealthNow(context),
       child: page,
     );
