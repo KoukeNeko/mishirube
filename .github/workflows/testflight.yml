@@ -56,6 +56,13 @@ jobs:
       # that without a counter to keep, and a re-run gets a new one.
       - name: Configured
         run: flutter build ios --release --config-only --build-number="$(date -u +%s)"
+      # A fresh runner has no folder for provisioning profiles, and Xcode
+      # does not make it: a profile fetched for the Live Activity is then
+      # never written, and the archive fails looking for it.
+      - name: Profile folders
+        run: |
+          mkdir -p "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
       # Signed by Xcode with cloud-managed certificates through the API
       # key, which needs the Admin role: no certificate or profile is kept
       # here, and the app, its Live Activity and its watch app are all
