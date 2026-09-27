@@ -148,6 +148,7 @@ class SquareIconButton extends StatelessWidget {
     this.size = 48,
     this.color = AppColors.textPrimary,
     this.radius = AppRadius.small,
+    this.background = AppColors.surfaceRaised,
   });
 
   final IconData icon;
@@ -155,6 +156,10 @@ class SquareIconButton extends StatelessWidget {
   final String? tooltip;
   final double size;
   final Color color;
+
+  /// The surface it sits on; transparent for an icon on its own, as on a
+  /// page's bar.
+  final Color background;
 
   /// Beside a full-height button it takes that button's corners.
   final double radius;
@@ -170,7 +175,7 @@ class SquareIconButton extends StatelessWidget {
         // its padding: in a smaller square that pushed the icon off
         // centre.
         style: IconButton.styleFrom(
-          backgroundColor: AppColors.surfaceRaised,
+          backgroundColor: background,
           foregroundColor: color,
           padding: EdgeInsets.zero,
           minimumSize: Size.square(size),

@@ -650,16 +650,18 @@ void main() {
       await tester.pumpWidget(MishirubeApp(store: store));
       await tester.pump();
 
+      final failed = find.byTooltip('讀取失敗 · 重試');
       health.fails = true;
       await store.syncHealthInBackground();
       await tester.pump();
-      expect(find.text('讀取失敗'), findsOneWidget);
+      expect(failed, findsOneWidget);
+      expect(find.text('讀取失敗'), findsNothing, reason: 'an icon, no label');
 
       health.fails = false;
-      await tester.tap(find.text('讀取失敗'));
+      await tester.tap(failed);
       await tester.pumpAndSettle();
       expect(store.healthSyncFailed, isFalse);
-      expect(find.text('讀取失敗'), findsNothing);
+      expect(failed, findsNothing);
       await disposeTree(tester);
     });
 

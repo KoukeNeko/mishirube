@@ -91,7 +91,8 @@ class TodayScreen extends StatelessWidget {
 
   /// What reading Apple Health or Health Connect is doing, on the bar,
   /// only when there is something to say: a spinner while a read is
-  /// taking a while, or 讀取失敗 when one failed, which a tap reads again.
+  /// taking a while, or a warning icon when one failed, which a tap reads
+  /// again. Bare, not on the bar's glass: they are states, not actions.
   /// A quick read and a good one say nothing; the figures that changed
   /// show it. Each is said once to a screen reader as it appears.
   Widget? _healthReadStatus(BuildContext context, AppStore store) {
@@ -113,14 +114,20 @@ class TodayScreen extends StatelessWidget {
       );
     }
     if (store.isHealthConnected && store.healthSyncFailed) {
+      final toolbar = ToolbarMetrics.of(context);
       return Semantics(
         liveRegion: true,
-        child: HeaderAction(
-          icon: Icons.error_outline,
-          label: context.l10n.healthReadFailedState,
-          semanticLabel:
-              '${context.l10n.healthReadFailedState} · ${context.l10n.retry}',
-          onTap: store.syncHealthInBackground,
+        child: Center(
+          child: SquareIconButton(
+            icon: Icons.error_outline,
+            color: AppColors.warning,
+            background: Colors.transparent,
+            size: toolbar.actionHitSize,
+            radius: toolbar.actionHitSize / 2,
+            tooltip:
+                '${context.l10n.healthReadFailedState} · ${context.l10n.retry}',
+            onPressed: store.syncHealthInBackground,
+          ),
         ),
       );
     }
