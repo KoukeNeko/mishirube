@@ -9433,7 +9433,7 @@ abstract class AppLocalizations {
   /// Error.
   ///
   /// In zh, this message translates to:
-  /// **'AI 還不能用，到「{me} > AI」設定。'**
+  /// **'AI 功能尚未設定，到「{me} > AI」設定。'**
   String aiFailureUnavailable({required String me});
 
   /// Error.

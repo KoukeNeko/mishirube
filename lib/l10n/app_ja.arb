@@ -1545,7 +1545,7 @@
   "agreeAndSend": "同意して送信",
   "sendPhotoToProvider": "食べ物の写真を{provider}に送信しますか？",
   "photoConsentMessage": "この写真と補足だけを送信し、位置情報と撮影情報は先に削除、写真は保存しません。「{me} > AI」で撤回できます。",
-  "aiFailureUnavailable": "AIはまだ使えません。「{me} > AI」で設定してください。",
+  "aiFailureUnavailable": "AI機能は未設定です。「{me} > AI」で設定してください。",
   "aiFailureNeedsConsent": "文字の送信に同意していません。",
   "aiFailureAuthentication": "キーが無効か権限がありません。「{me} > AI」で設定し直してください。",
   "aiFailureRateLimited": "リクエストが多すぎるか上限に達しました。後でもう一度お試しください。",

@@ -1545,7 +1545,7 @@
   "agreeAndSend": "同意并发送",
   "sendPhotoToProvider": "发送食物照片到 {provider}？",
   "photoConsentMessage": "只发送这张照片与补充说明，先移除照片里的位置与拍摄信息，不保存照片。可在「{me} > AI」撤回。",
-  "aiFailureUnavailable": "AI 还不能用，到「{me} > AI」设置。",
+  "aiFailureUnavailable": "AI 功能尚未设置，到「{me} > AI」设置。",
   "aiFailureNeedsConsent": "未同意发送文字。",
   "aiFailureAuthentication": "密钥无效或没有权限，到「{me} > AI」重新设置。",
   "aiFailureRateLimited": "请求太频繁或额度用完，稍后再试。",

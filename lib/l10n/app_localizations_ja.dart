@@ -5374,7 +5374,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String aiFailureUnavailable({required String me}) {
-    return 'AIはまだ使えません。「$me > AI」で設定してください。';
+    return 'AI機能は未設定です。「$me > AI」で設定してください。';
   }
 
   @override

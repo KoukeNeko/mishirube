@@ -8126,7 +8126,7 @@
       }
     }
   },
-  "aiFailureUnavailable": "AI 還不能用，到「{me} > AI」設定。",
+  "aiFailureUnavailable": "AI 功能尚未設定，到「{me} > AI」設定。",
   "@aiFailureUnavailable": {
     "description": "Error.",
     "placeholders": {

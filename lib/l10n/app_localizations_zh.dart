@@ -5367,7 +5367,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String aiFailureUnavailable({required String me}) {
-    return 'AI 還不能用，到「$me > AI」設定。';
+    return 'AI 功能尚未設定，到「$me > AI」設定。';
   }
 
   @override
@@ -10981,7 +10981,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String aiFailureUnavailable({required String me}) {
-    return 'AI 还不能用，到「$me > AI」设置。';
+    return 'AI 功能尚未设置，到「$me > AI」设置。';
   }
 
   @override

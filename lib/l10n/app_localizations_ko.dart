@@ -5377,7 +5377,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String aiFailureUnavailable({required String me}) {
-    return 'AI를 아직 사용할 수 없습니다. \'$me > AI\'에서 설정하세요.';
+    return 'AI 기능이 설정되지 않았습니다. \'$me > AI\'에서 설정하세요.';
   }
 
   @override
