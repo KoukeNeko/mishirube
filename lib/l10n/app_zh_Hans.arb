@@ -1425,7 +1425,7 @@
   "privacyKinds": "读取类别",
   "privacyDefault": "默认",
   "privacyNotUsed": "不使用",
-  "privacyOnDevice": "在设备上运行",
+  "privacyAppleIntelligence": "在设备上或 Apple 私密云计算上运行",
   "privacyCloudReceives": "云端 AI 收到",
   "privacyCloudReceivesValue": "输入的文字、照片识别出的文字、估算用的食物照片",
   "privacyFoodPhotos": "食物照片",

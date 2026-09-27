@@ -8713,8 +8713,8 @@ abstract class AppLocalizations {
   /// Privacy value.
   ///
   /// In zh, this message translates to:
-  /// **'在裝置上執行'**
-  String get privacyOnDevice;
+  /// **'在裝置上或 Apple 私密雲端運算執行'**
+  String get privacyAppleIntelligence;
 
   /// Privacy row.
   ///

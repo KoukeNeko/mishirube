@@ -10,7 +10,9 @@ import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 import 'workout_draft_json.dart';
 
-/// Apple's on-device model, reached through a small channel to Swift
+/// Apple Intelligence: Apple's server model on Private Cloud Compute, or
+/// the device's own when that cannot take a request, reached through a
+/// small channel to Swift
 /// (`AppleIntelligence` in `ios/Runner/AppDelegate.swift`). There is no Flutter plugin
 /// from Apple, and the job is small enough not to hang it on a 0.x one.
 class AppleMealDrafter implements MealDrafter {
@@ -25,7 +27,7 @@ class AppleMealDrafter implements MealDrafter {
   AiProviderKind get kind => AiProviderKind.appleOnDevice;
 
   @override
-  Future<String> modelName() async => 'Apple 裝置端模型';
+  Future<String> modelName() async => 'Apple Intelligence';
 
   @override
   Future<AiAvailability> availability() async {
@@ -65,7 +67,7 @@ class AppleMealDrafter implements MealDrafter {
         await _ask('draftWorkout', workoutDraftInstructions, text),
       );
 
-  /// On the device from iOS 27, where the model has vision.
+  /// From iOS 27, where a model has vision.
   @override
   Future<bool> readsPhotos() async {
     if (!_isApple) return false;
@@ -76,7 +78,8 @@ class AppleMealDrafter implements MealDrafter {
     }
   }
 
-  /// The photo is read on the device, from its file; nothing is sent.
+  /// The photo is read from its file by the Swift side, which gives the
+  /// model its pixels alone.
   @override
   Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
       parsePhoto(

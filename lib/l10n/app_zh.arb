@@ -7603,8 +7603,8 @@
   "@privacyNotUsed": {
     "description": "Privacy value."
   },
-  "privacyOnDevice": "在裝置上執行",
-  "@privacyOnDevice": {
+  "privacyAppleIntelligence": "在裝置上或 Apple 私密雲端運算執行",
+  "@privacyAppleIntelligence": {
     "description": "Privacy value."
   },
   "privacyCloudReceives": "雲端 AI 收到",

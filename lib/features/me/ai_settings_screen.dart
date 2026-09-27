@@ -350,7 +350,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
 String _appleStatus(AppLocalizations l10n, AiAvailability? availability) =>
     switch (availability) {
       null => l10n.checkingEllipsis,
-      AiAvailability.available => l10n.privacyOnDevice,
+      AiAvailability.available => l10n.privacyAppleIntelligence,
       AiAvailability.deviceNotEligible => l10n.appleNotEligible,
       AiAvailability.notEnabled => l10n.appleNotEnabled,
       AiAvailability.modelNotReady => l10n.appleModelNotReady,

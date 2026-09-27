@@ -60,7 +60,7 @@ class PrivacyScreen extends StatelessWidget {
           title: 'AI',
           facts: [
             (l10n.privacyDefault, l10n.privacyNotUsed),
-            ('Apple Intelligence', l10n.privacyOnDevice),
+            ('Apple Intelligence', l10n.privacyAppleIntelligence),
             (l10n.privacyCloudReceives, l10n.privacyCloudReceivesValue),
             (l10n.privacyFoodPhotos, l10n.privacyFoodPhotosValue),
             (l10n.privacyOtherData, l10n.privacyNotSent),

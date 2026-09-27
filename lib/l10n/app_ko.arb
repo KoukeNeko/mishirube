@@ -1425,7 +1425,7 @@
   "privacyKinds": "읽는 항목",
   "privacyDefault": "기본값",
   "privacyNotUsed": "사용 안 함",
-  "privacyOnDevice": "기기에서 실행",
+  "privacyAppleIntelligence": "기기 또는 Apple Private Cloud Compute에서 실행",
   "privacyCloudReceives": "클라우드 AI가 받는 것",
   "privacyCloudReceivesValue": "입력한 글, 사진에서 읽은 글, 추정용 음식 사진",
   "privacyFoodPhotos": "음식 사진",

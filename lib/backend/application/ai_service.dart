@@ -31,7 +31,7 @@ class AiService {
     this.readPhoto = _readFile,
   });
 
-  /// The providers the app ships: Apple's on-device model and Ollama
+  /// The providers the app ships: Apple Intelligence and Ollama
   /// Cloud with a key from the keychain.
   factory AiService.onDevice(AppDatabase db, {http.Client? client}) {
     const secrets = KeychainSecretStore();
@@ -124,9 +124,9 @@ class AiService {
   /// Reads a photo's text on the phone, before any model sees anything.
   final LabelReader labelReader;
 
-  /// The chosen provider; until the user picks one, Apple's on-device
-  /// model when Apple Intelligence is on, since nothing it is given
-  /// leaves the device; else null, and nothing is sent anywhere.
+  /// The chosen provider; until the user picks one, Apple Intelligence
+  /// when it is on, since it needs no key and what it is given stays
+  /// with Apple's own models; else null, and nothing is sent anywhere.
   AiProviderKind? get provider => switch (_db.setting(_providerKey)) {
     final name? => AiProviderKind.values.asNameMap()[name],
     null => _isOnDeviceReady ? AiProviderKind.appleOnDevice : null,
@@ -134,7 +134,7 @@ class AiService {
 
   bool _isOnDeviceReady = false;
 
-  /// Looks again at whether Apple's on-device model can run: the user
+  /// Looks again at whether Apple Intelligence can run: the user
   /// can turn Apple Intelligence on or off at any time, and the model
   /// downloads after it is turned on.
   Future<void> refreshOnDevice() async {

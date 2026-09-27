@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 /// A food photo as a provider receives it: the image's bytes and their
-/// media type, and the file they came from, which Apple's on-device
-/// model reads itself.
+/// media type, and the file they came from, which Apple Intelligence
+/// reads itself.
 class FoodPhoto {
   const FoodPhoto({
     required this.path,

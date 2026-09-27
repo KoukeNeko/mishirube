@@ -15,8 +15,9 @@ everyday activity (steps, energy, heart and fitness figures) can be
 read, never written, from Apple Health (iOS) or Health Connect
 (Android). AI is
 optional and only drafts or words figures the app already worked out:
-Apple's on-device model, used without asking whenever Apple
-Intelligence is on and nothing else was chosen, or a cloud provider
+Apple Intelligence (Apple's server model on Private Cloud Compute,
+else the device's own), used without asking whenever it is on and
+nothing else was chosen, or a cloud provider
 with the user's own key (Ollama Cloud, Google AI Studio, Anthropic,
 Azure AI Foundry, or any OpenAI-compatible address), or Microsoft 365
 Copilot signed in to, and nothing a model returns is logged

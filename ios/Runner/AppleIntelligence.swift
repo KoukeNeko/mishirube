@@ -6,14 +6,17 @@
   import Flutter
 #endif
 import Foundation
+import ImageIO
 
 #if canImport(FoundationModels)
   import FoundationModels
 #endif
 
-/// Apple's on-device model for `lib/backend/ai/apple_meal_drafter.dart`.
+/// Apple Intelligence for `lib/backend/ai/apple_meal_drafter.dart`:
+/// Apple's server model on Private Cloud Compute when it can take a
+/// request, from iOS 27, and the device's own model otherwise.
 ///
-/// Whether the model can run, and drafts: a meal from a sentence or a
+/// Whether a model can run, and drafts: a meal from a sentence or a
 /// photo, a food from its label's text, a workout from its text. Each
 /// draft's shape is enforced here by guided generation and handed back
 /// as the same JSON every provider returns, so Dart reads one format.
@@ -72,6 +75,11 @@ enum AppleIntelligence {
   }
 
   static func availability() -> String {
+    #if canImport(FoundationModels) && compiler(>=6.4)
+      if #available(iOS 27.0, macOS 27.0, *), PrivateCloudComputeLanguageModel().isAvailable {
+        return "available"
+      }
+    #endif
     #if canImport(FoundationModels)
       if #available(iOS 26.0, macOS 26.0, *) {
         switch SystemLanguageModel.default.availability {
@@ -98,9 +106,9 @@ enum AppleIntelligence {
       if #available(iOS 26.0, macOS 26.0, *) {
         Task { @MainActor in
           do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(
-              to: text, generating: MealDraftOutput.self)
+            let response = try await respond(instructions: instructions) { session in
+              try await session.respond(to: text, generating: MealDraftOutput.self)
+            }
             result(try response.content.json())
           } catch {
             report(error, to: result)
@@ -112,13 +120,14 @@ enum AppleIntelligence {
     result(FlutterError(code: "unavailable", message: nil, details: nil))
   }
 
-  /// Whether the on-device model can look at a photo: from iOS 27, on a
-  /// device whose model has vision.
+  /// Whether a model can look at a photo: from iOS 27, Private Cloud
+  /// Compute's or the device's own, where it has vision.
   static func readsPhotos() -> Bool {
     // Vision arrived with the iOS/macOS 27 SDK (Swift 6.4); an older
     // Xcode builds without it.
     #if canImport(FoundationModels) && compiler(>=6.4)
       if #available(iOS 27.0, macOS 27.0, *) {
+        if cloudModel(needsVision: true) != nil { return true }
         let model = SystemLanguageModel.default
         return model.isAvailable && model.capabilities.contains(.vision)
       }
@@ -126,9 +135,10 @@ enum AppleIntelligence {
     return false
   }
 
-  /// A photo, read on the device: a nutrition label's figures, or food
-  /// as items with estimated figures, as the model finds it shows. The
-  /// photo is never sent anywhere.
+  /// A photo: a nutrition label's figures, or food as items with
+  /// estimated figures, as the model finds it shows. The model is given
+  /// the picture's pixels alone, so where and when it was taken stays
+  /// behind even when the photo goes to Private Cloud Compute.
   static func draftPhoto(
     path: String, text: String, instructions: String, result: @escaping FlutterResult
   ) {
@@ -136,12 +146,24 @@ enum AppleIntelligence {
     // Xcode builds without it.
     #if canImport(FoundationModels) && compiler(>=6.4)
       if #available(iOS 27.0, macOS 27.0, *) {
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil),
+          let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
+        else {
+          result(FlutterError(code: "failed", message: "unreadable photo", details: nil))
+          return
+        }
+        let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+        let orientation = (properties?[kCGImagePropertyOrientation] as? UInt32)
+          .flatMap(CGImagePropertyOrientation.init(rawValue:))
         Task { @MainActor in
           do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(generating: MealPhotoOutput.self) {
-              text
-              Attachment(imageURL: URL(fileURLWithPath: path))
+            let response = try await respond(
+              instructions: instructions, needsVision: true
+            ) { session in
+              try await session.respond(generating: MealPhotoOutput.self) {
+                text
+                Attachment(image, orientation: orientation)
+              }
             }
             result(try response.content.json())
           } catch {
@@ -153,6 +175,43 @@ enum AppleIntelligence {
     #endif
     result(FlutterError(code: "unsupported", message: nil, details: nil))
   }
+
+  #if canImport(FoundationModels)
+    /// Asks Private Cloud Compute's model when it can take the request,
+    /// and the device's own model when it cannot, or when the request
+    /// does not get through: out of quota, or out of reach.
+    @available(iOS 26.0, macOS 26.0, *)
+    @MainActor
+    static func respond<Content>(
+      instructions: String,
+      needsVision: Bool = false,
+      _ ask: @MainActor (LanguageModelSession) async throws -> LanguageModelSession.Response<
+        Content
+      >
+    ) async throws -> LanguageModelSession.Response<Content> {
+      #if compiler(>=6.4)
+        if #available(iOS 27.0, macOS 27.0, *),
+          let cloud = cloudModel(needsVision: needsVision)
+        {
+          do {
+            return try await ask(LanguageModelSession(model: cloud, instructions: instructions))
+          } catch is PrivateCloudComputeLanguageModel.Error {}
+        }
+      #endif
+      return try await ask(LanguageModelSession(instructions: instructions))
+    }
+  #endif
+
+  #if canImport(FoundationModels) && compiler(>=6.4)
+    /// Private Cloud Compute's model, when it can take a request now.
+    @available(iOS 27.0, macOS 27.0, *)
+    static func cloudModel(needsVision: Bool = false) -> PrivateCloudComputeLanguageModel? {
+      let model = PrivateCloudComputeLanguageModel()
+      guard model.isAvailable, !model.quotaUsage.isLimitReached else { return nil }
+      if needsVision && !model.capabilities.contains(.vision) { return nil }
+      return model
+    }
+  #endif
 
   /// A generation's failure, in the codes the Dart side reads.
   static func report(_ error: Error, to result: @escaping FlutterResult) {
@@ -183,10 +242,11 @@ enum AppleIntelligence {
       if #available(iOS 26.0, macOS 26.0, *) {
         Task { @MainActor in
           do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(
-              to: text, generating: WorkoutDraftOutput.self,
-              options: GenerationOptions(sampling: .greedy))
+            let response = try await respond(instructions: instructions) { session in
+              try await session.respond(
+                to: text, generating: WorkoutDraftOutput.self,
+                options: GenerationOptions(sampling: .greedy))
+            }
             result(try response.content.json())
           } catch {
             report(error, to: result)
@@ -207,10 +267,11 @@ enum AppleIntelligence {
       if #available(iOS 26.0, macOS 26.0, *) {
         Task { @MainActor in
           do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(
-              to: text, generating: FoodLabelOutput.self,
-              options: GenerationOptions(sampling: .greedy))
+            let response = try await respond(instructions: instructions) { session in
+              try await session.respond(
+                to: text, generating: FoodLabelOutput.self,
+                options: GenerationOptions(sampling: .greedy))
+            }
             result(try response.content.json())
           } catch {
             report(error, to: result)
