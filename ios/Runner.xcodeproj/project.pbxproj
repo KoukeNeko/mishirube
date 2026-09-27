@@ -27,6 +27,7 @@
 		F4B1B69B14228A6D78D33804 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4F7440FF2E88AE15E8E6543C /* InfoPlist.strings */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
+		5A1C0E7B2D3F4A6B8C9D0E20 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 5A1C0E7B2D3F4A6B8C9D0E1F /* AppIcon.icon */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		9E701AE0BC612BDD1ED7D09F /* MishirubeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D5419B73C4386D9441F84BF9 /* RestActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECED69CFA868023773AABE5A /* RestActivityBundle.swift */; };
@@ -120,6 +121,7 @@
 		3315B7D26EF2BC6E4BB914B8 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5A1C0E7B2D3F4A6B8C9D0E1F /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A91D41942A6DA890E549CA01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
@@ -234,6 +236,7 @@
 			children = (
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				5A1C0E7B2D3F4A6B8C9D0E1F /* AppIcon.icon */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				4F7440FF2E88AE15E8E6543C /* InfoPlist.strings */,
 				97C147021CF9000F007C117D /* Info.plist */,
@@ -427,6 +430,7 @@
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
+				5A1C0E7B2D3F4A6B8C9D0E20 /* AppIcon.icon in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				F4B1B69B14228A6D78D33804 /* InfoPlist.strings in Resources */,
 			);
