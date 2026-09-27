@@ -28,6 +28,10 @@ const pageItemSpacing = AppSpacing.sm;
 const _snapDuration = Duration(milliseconds: 220);
 const _subtitleGap = 2.0;
 const _subtitleMaxLines = 2;
+
+/// A record's name is the title of its page and can be long; the compact
+/// bar still keeps it to one line.
+const _titleMaxLines = 2;
 const _pinnedVerticalPadding = 8.0;
 
 /// Progress (0–1) after which the compact title replaces the large one.
@@ -144,6 +148,7 @@ double measureLargeTitleHeight(
     title,
     largeTitleStyle,
     maxWidth: maxWidth,
+    maxLines: _titleMaxLines,
   );
   final subtitleHeight = subtitle == null
       ? 0.0
@@ -606,7 +611,7 @@ class LargeTitleBlock extends StatelessWidget {
           children: [
             Text(
               title,
-              maxLines: 1,
+              maxLines: _titleMaxLines,
               overflow: TextOverflow.ellipsis,
               style: largeTitleStyle,
             ),

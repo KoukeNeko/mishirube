@@ -295,6 +295,38 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a long title takes two lines, and the page starts below', (
+    tester,
+  ) async {
+    const title = 'ハロハロ パチパチシャインマスカット 期間限定 ストロベリーチーズケーキ';
+    await pumpScreen(
+      tester,
+      const DetailPage(
+        appBar: PageAppBar(title: title, subtitle: 'ミニストップ（日本）'),
+        children: [Gutter(child: Text('first'))],
+      ),
+      store: AppStore(clock: FakeClock().now, isOnboarded: true),
+    );
+
+    final large = find.descendant(
+      of: find.byType(LargeTitleBlock),
+      matching: find.text(title),
+    );
+    final line = largeTitleStyle.fontSize! * largeTitleStyle.height!;
+    expect(tester.getSize(large).height, closeTo(line * 2, 1));
+    expect(
+      tester.getRect(find.text('ミニストップ（日本）')).top,
+      greaterThanOrEqualTo(tester.getRect(large).bottom),
+    );
+    expect(
+      tester.getRect(find.text('first')).top,
+      greaterThan(tester.getRect(find.text('ミニストップ（日本）')).bottom),
+      reason: 'the header is measured at the lines it draws',
+    );
+    expect(tester.takeException(), isNull);
+    await disposeTree(tester);
+  });
+
   testWidgets('headers grow with 2x text instead of overflowing', (
     tester,
   ) async {
