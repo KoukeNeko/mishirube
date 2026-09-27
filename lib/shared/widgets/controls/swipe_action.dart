@@ -138,7 +138,13 @@ class _SwipeActionState extends State<SwipeAction>
                   offset: Offset(_direction * _open.value * _actionWidth, 0),
                   child: child,
                 ),
-                child: widget.child,
+                // Opaque, so the row slides over the action rather than
+                // the action showing through it: a row in a grouped card
+                // has no background of its own, only the card's.
+                child: ColoredBox(
+                  color: AppColors.surface,
+                  child: widget.child,
+                ),
               ),
             ),
             // While open, a tap on the row closes it rather than doing
