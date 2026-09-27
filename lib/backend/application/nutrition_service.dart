@@ -228,13 +228,17 @@ class NutritionService {
 
   /// Puts separately logged [meals] together as one meal: one group,
   /// each keeping its own record and figures, so the meal is always their
-  /// sum and editing one item changes it. Returns the group each was in
-  /// before, for [regroupMeals] to take it back.
-  Map<String, String?> groupMeals(List<MealEvent> meals) {
+  /// sum and editing one item changes it. It is called [name], or by its
+  /// items while that is blank. Returns the group each was in before, for
+  /// [regroupMeals] to take it back.
+  Map<String, String?> groupMeals(List<MealEvent> meals, {String name = ''}) {
     assert(meals.length > 1, 'a meal of one is not a group');
     final groupId = _db.newId();
     final previous = {for (final meal in meals) meal.id: meal.groupId};
-    _meals.setGroup(previous.keys, groupId);
+    _db.transaction(() {
+      _meals.setGroup(previous.keys, groupId);
+      if (name.trim().isNotEmpty) _meals.nameGroup(groupId, name.trim());
+    });
     return previous;
   }
 
@@ -496,20 +500,23 @@ class NutritionService {
   /// audit trail keeps which provider and model it came from.
   ///
   /// [asOneMeal] logs the items as one meal: each its own record with
-  /// its own figures, all in one group, called what the draft named it;
-  /// otherwise each item is a meal of its own.
+  /// its own figures, all in one group, called [name] when given, else
+  /// what the draft named it; a blank name leaves it called by its items.
+  /// Otherwise each item is a meal of its own.
   List<MealEvent> logDraft(
     MealDraft draft,
     List<DraftItem> items, {
     MealType? mealType,
     bool asOneMeal = false,
+    String? name,
     DateTime? at,
   }) {
     final eatenAt = at ?? _db.now();
     final groupId = asOneMeal && items.length > 1 ? _db.newId() : null;
+    final groupName = (name ?? draft.name)?.trim() ?? '';
     return _db.transaction(() {
-      if ((groupId, draft.name) case (final groupId?, final name?)) {
-        _meals.nameGroup(groupId, name);
+      if (groupId != null && groupName.isNotEmpty) {
+        _meals.nameGroup(groupId, groupName);
       }
       return [
         for (final item in items)

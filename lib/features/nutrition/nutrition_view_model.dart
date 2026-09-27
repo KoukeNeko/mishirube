@@ -89,12 +89,14 @@ class NutritionViewModel extends ViewModel {
     List<DraftItem> items, {
     MealType? mealType,
     bool asOneMeal = false,
+    String? name,
     DateTime? at,
   }) => backend.nutrition.logDraft(
     draft,
     items,
     mealType: mealType,
     asOneMeal: asOneMeal,
+    name: name,
     at: at,
   );
 
@@ -145,10 +147,10 @@ class NutritionViewModel extends ViewModel {
   void retimeMeal(MealEvent meal, DateTime eatenAt) =>
       backend.nutrition.retimeMeal(meal, eatenAt);
 
-  /// Puts separately logged [meals] together as one meal; returns what
-  /// [regroupMeals] needs to take it back.
-  Map<String, String?> groupMeals(List<MealEvent> meals) =>
-      backend.nutrition.groupMeals(meals);
+  /// Puts separately logged [meals] together as one meal called [name];
+  /// returns what [regroupMeals] needs to take it back.
+  Map<String, String?> groupMeals(List<MealEvent> meals, {String name = ''}) =>
+      backend.nutrition.groupMeals(meals, name: name);
 
   /// Takes a meal apart into its [items]; returns what [regroupMeals]
   /// needs to put it back.

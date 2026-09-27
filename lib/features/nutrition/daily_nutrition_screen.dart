@@ -54,16 +54,31 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       meal.first.groupId ?? meal.first.id;
 
   /// Puts the picked meals together as one, undoably: every item of each
-  /// becomes an item of the one meal.
-  void _merge(List<List<MealEvent>> meals) {
+  /// becomes an item of the one meal, under the name asked for first —
+  /// a picked meal's own name to start from, and blank for its items'.
+  Future<void> _merge(List<List<MealEvent>> meals) async {
     final picked = _merging ?? const {};
     final chosen = [
       for (final meal in meals)
         if (picked.contains(_keyOf(meal))) meal,
     ];
-    final previous = _nutrition.groupMeals([
-      for (final meal in chosen) ...meal,
-    ]);
+    final items = [for (final meal in chosen) ...meal];
+    final name = await showTextDialog(
+      context,
+      title: context.l10n.mergeCountIntoMeal(count: chosen.length),
+      initial:
+          chosen
+              .map((meal) => meal.first.groupId)
+              .nonNulls
+              .map(_nutrition.mealGroupName)
+              .nonNulls
+              .firstOrNull ??
+          '',
+      hint: mealNameOf(items),
+      confirmLabel: context.l10n.mergeAction,
+    );
+    if (name == null || !mounted) return;
+    final previous = _nutrition.groupMeals(items, name: name);
     setState(() => _merging = null);
     ToastScope.read(context).showUndo(
       context.l10n.mergedCount(count: chosen.length),

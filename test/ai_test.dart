@@ -40,6 +40,9 @@ class _FakeDrafter implements MealDrafter {
   final List<DraftItem> items;
   final asked = <String>[];
 
+  /// What it calls the meal, when it names one.
+  String? name;
+
   @override
   Future<String> modelName() async => 'fake-1';
 
@@ -52,7 +55,7 @@ class _FakeDrafter implements MealDrafter {
   @override
   Future<MealDraft> draftMeal(String description) async {
     asked.add(description);
-    return MealDraft(items: items, provider: kind, model: 'fake-1');
+    return MealDraft(items: items, provider: kind, model: 'fake-1', name: name);
   }
 
   /// The label text it was given; answers with a model's JSON for it.
@@ -1365,6 +1368,52 @@ void main() {
     expect(store.todayMeals, hasLength(before + 1));
     expect(store.todayMeals.last.name, '蛋餅（兩份）');
     expect(store.todayMeals.last.proteinGrams, 9);
+    await disposeTree(tester);
+  });
+
+  testWidgets('logged as one meal, the draft goes by the name kept for it', (
+    tester,
+  ) async {
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, [
+      _eggPancake,
+      _milkTea,
+    ])..name = '蛋餅早餐';
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: AiService(
+        backend.db,
+        secrets: MemorySecretStore(),
+        drafters: {AiProviderKind.ollamaCloud: cloud},
+      )..setProvider(AiProviderKind.ollamaCloud),
+    )..setCloudConsent(true);
+    await pumpScreen(tester, const DescribeMealScreen(), store: store);
+    await tester.enterText(find.byType(TextField), '早餐 蛋餅加大杯冰奶茶');
+    await tester.pump();
+    await tester.tap(find.text('產生草稿'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('記錄 2 項'));
+    await tester.pumpAndSettle();
+    final name = find.descendant(
+      of: find.byType(AppDialog),
+      matching: find.byType(TextField),
+    );
+    expect(
+      find.descendant(of: name, matching: find.text('蛋餅早餐')),
+      findsOneWidget,
+      reason: 'the AI\'s name, to keep or change',
+    );
+    await tester.enterText(name, '週末早午餐');
+    await tester.tap(find.text('合併成一餐'));
+    await tester.pumpAndSettle();
+
+    final logged = mealsOf(store.backend.nutrition.mealsOn(FakeClock().now()))
+        .firstWhere((meal) => meal.first.groupId != null);
+    expect(logged, hasLength(2), reason: 'one meal of two items');
+    expect(store.backend.nutrition.nameOfMeal(logged), '週末早午餐');
     await disposeTree(tester);
   });
 

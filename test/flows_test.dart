@@ -2342,10 +2342,28 @@ void main() {
     await tester.tap(find.text('冰奶茶'));
     await tester.pump();
     await tester.tap(find.text('合併 2 筆成一餐'));
+    await tester.pumpAndSettle();
+
+    // Named on the way, the items' names standing in while it is blank.
+    expect(find.text('蛋餅、冰奶茶'), findsOneWidget, reason: 'the hint');
+    await tester.enterText(
+      find.descendant(
+        of: find.byType(AppDialog),
+        matching: find.byType(TextField),
+      ),
+      '早餐',
+    );
+    await tester.tap(find.text('合併').last);
+    // Only as long as the dialog takes to close: the undo is still up.
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(mealsOf(nutrition.mealsOn(today)), hasLength(1));
     expect(mealKcalOf(mealsOf(nutrition.mealsOn(today)).single), 550);
+    expect(
+      nutrition.nameOfMeal(mealsOf(nutrition.mealsOn(today)).single),
+      '早餐',
+    );
     expect(find.textContaining('2 項'), findsOneWidget);
 
     await tester.tap(find.text('復原'));

@@ -147,39 +147,25 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   /// handed over from 新增食物 was already split there.
   Future<void> _log() async {
     var asOneMeal = false;
+    String? name;
     if (_items.length > 1 && widget.draft == null) {
-      final choice = await showAppDialog<bool>(
+      final choice = await showAppDialog<(bool, String)>(
         context,
-        AppDialog(
-          title:
-              _draft!.name ??
-              context.l10n.itemsCountShort(count: _items.length),
-          message: joinList(context.l10n, _items.map((item) => item.name)),
-          actions: [
-            DialogAction(
-              label: context.l10n.mergeIntoMeal,
-              onTap: () => Navigator.of(context).pop(true),
-            ),
-            DialogAction(
-              label: context.l10n.logEachItem,
-              tone: DialogTone.primary,
-              onTap: () => Navigator.of(context).pop(false),
-            ),
-            DialogAction(
-              label: context.l10n.commonCancel,
-              onTap: () => Navigator.of(context).pop(),
-            ),
-          ],
+        _MealChoiceDialog(
+          count: _items.length,
+          name: _draft!.name ?? '',
+          itemsName: joinList(context.l10n, _items.map((item) => item.name)),
         ),
       );
       if (choice == null || !mounted) return;
-      asOneMeal = choice;
+      (asOneMeal, name) = choice;
     }
     final logged = _nutrition.logDraft(
       _draft!,
       _items,
       mealType: widget.mealType,
       asOneMeal: asOneMeal,
+      name: name,
       at: widget.at,
     );
     Navigator.of(context).pop(logged);
@@ -311,4 +297,54 @@ String _macrosOf(AppLocalizations l10n, DraftItem item) {
     ].join(' · '),
     if (more.isNotEmpty) more.join(' · '),
   ].join('\n');
+}
+
+/// One meal or several, with the name the meal would go by: the AI's
+/// suggestion to keep or change, and blank for its items' names.
+class _MealChoiceDialog extends StatefulWidget {
+  const _MealChoiceDialog({
+    required this.count,
+    required this.name,
+    required this.itemsName,
+  });
+
+  final int count;
+  final String name;
+
+  /// What a meal without a name of its own is called.
+  final String itemsName;
+
+  @override
+  State<_MealChoiceDialog> createState() => _MealChoiceDialogState();
+}
+
+class _MealChoiceDialogState extends State<_MealChoiceDialog> {
+  late final _name = TextEditingController(text: widget.name);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AppDialog(
+    title: context.l10n.itemsCountShort(count: widget.count),
+    content: AppTextField(controller: _name, hint: widget.itemsName),
+    actions: [
+      DialogAction(
+        label: context.l10n.mergeIntoMeal,
+        onTap: () => Navigator.of(context).pop((true, _name.text)),
+      ),
+      DialogAction(
+        label: context.l10n.logEachItem,
+        tone: DialogTone.primary,
+        onTap: () => Navigator.of(context).pop((false, _name.text)),
+      ),
+      DialogAction(
+        label: context.l10n.commonCancel,
+        onTap: () => Navigator.of(context).pop(),
+      ),
+    ],
+  );
 }
