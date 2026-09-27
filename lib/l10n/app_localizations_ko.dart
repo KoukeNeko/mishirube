@@ -5624,4 +5624,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get strongWorkoutName => 'Strong 운동';
+
+  @override
+  String get afterMerge => '병합 후';
+
+  @override
+  String get splitAction => '분리';
 }

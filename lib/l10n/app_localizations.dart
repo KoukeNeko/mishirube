@@ -6595,7 +6595,7 @@ abstract class AppLocalizations {
   /// Row.
   ///
   /// In zh, this message translates to:
-  /// **'改名稱'**
+  /// **'重新命名'**
   String get rename;
 
   /// Menu.
@@ -9779,6 +9779,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'Strong 訓練'**
   String get strongWorkoutName;
+
+  /// Section showing the meal a merge makes.
+  ///
+  /// In zh, this message translates to:
+  /// **'合併後'**
+  String get afterMerge;
+
+  /// Button that takes a meal apart.
+  ///
+  /// In zh, this message translates to:
+  /// **'拆開'**
+  String get splitAction;
 }
 
 class _AppLocalizationsDelegate

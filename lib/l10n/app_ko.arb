@@ -1599,5 +1599,7 @@
   "appleHealth": "Apple 건강",
   "healthConnectName": "헬스 커넥트",
   "healthDataGeneric": "건강 데이터",
-  "strongWorkoutName": "Strong 운동"
+  "strongWorkoutName": "Strong 운동",
+  "afterMerge": "병합 후",
+  "splitAction": "분리"
 }

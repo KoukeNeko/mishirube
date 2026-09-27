@@ -1599,5 +1599,7 @@
   "appleHealth": "ヘルスケア",
   "healthConnectName": "ヘルスコネクト",
   "healthDataGeneric": "ヘルスケアデータ",
-  "strongWorkoutName": "Strongのトレーニング"
+  "strongWorkoutName": "Strongのトレーニング",
+  "afterMerge": "まとめた後",
+  "splitAction": "分ける"
 }

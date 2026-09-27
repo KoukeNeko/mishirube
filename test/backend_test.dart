@@ -2141,6 +2141,47 @@ void main() {
       expect(backend.journal.birthYear, isNull);
     });
 
+    test('a merge sets the sitting and time, and its undo puts them back', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final nutrition = backend.nutrition;
+      final morning = DateTime(2026, 9, 19, 8);
+      MealEvent log(String id, DateTime at, MealType? type) =>
+          nutrition.logMeal(
+            MealEvent(
+              id: id,
+              name: id,
+              timeLabel: '',
+              qualityTag: '',
+              dishes: const [],
+              kcal: 100,
+              mealType: type,
+            ),
+            eatenAt: at,
+          );
+      final egg = log('egg', morning, MealType.breakfast);
+      final tea = log('tea', morning.add(const Duration(hours: 2)), null);
+
+      final at = morning.add(const Duration(minutes: 30));
+      final before = nutrition.mergeMeals(
+        [egg, tea],
+        mealType: MealType.lunch,
+        eatenAt: at,
+      );
+      final merged = mealsOf(nutrition.mealsOn(morning)).single;
+      expect(merged.map((item) => item.mealType), everyElement(MealType.lunch));
+      expect(
+        merged.map((item) => nutrition.eatenAtOf(item.id)),
+        everyElement(at),
+      );
+
+      nutrition.unmergeMeals(before);
+      expect(mealsOf(nutrition.mealsOn(morning)), hasLength(2));
+      expect(nutrition.mealById('egg')!.mealType, MealType.breakfast);
+      expect(nutrition.mealById('tea')!.mealType, isNull);
+      expect(nutrition.eatenAtOf('tea'), morning.add(const Duration(hours: 2)));
+    });
+
     test('meals logged apart become one meal of items, and apart again', () {
       final backend = Backend.inMemory(clock: clock.now);
       addTearDown(backend.close);

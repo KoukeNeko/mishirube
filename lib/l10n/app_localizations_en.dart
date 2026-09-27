@@ -5714,4 +5714,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get strongWorkoutName => 'Strong workout';
+
+  @override
+  String get afterMerge => 'After';
+
+  @override
+  String get splitAction => 'Split';
 }

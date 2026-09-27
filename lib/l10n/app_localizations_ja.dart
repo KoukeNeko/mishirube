@@ -5622,4 +5622,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get strongWorkoutName => 'Strongのトレーニング';
+
+  @override
+  String get afterMerge => 'まとめた後';
+
+  @override
+  String get splitAction => '分ける';
 }

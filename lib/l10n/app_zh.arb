@@ -8567,5 +8567,13 @@
   "strongWorkoutName": "Strong 訓練",
   "@strongWorkoutName": {
     "description": "Name of an imported workout that had none."
+  },
+  "afterMerge": "合併後",
+  "@afterMerge": {
+    "description": "Section showing the meal a merge makes."
+  },
+  "splitAction": "拆開",
+  "@splitAction": {
+    "description": "Button that takes a meal apart."
   }
 }

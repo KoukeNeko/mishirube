@@ -9,6 +9,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/meal_change_preview_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_target_screen.dart';
@@ -2344,25 +2345,50 @@ void main() {
     await tester.tap(find.text('合併 2 筆成一餐'));
     await tester.pumpAndSettle();
 
-    // Named on the way, the items' names standing in while it is blank.
-    expect(find.text('蛋餅、冰奶茶'), findsOneWidget, reason: 'the hint');
-    await tester.enterText(
+    // Shown before it is done: the one meal, its sum, and a name for it
+    // with the items' names standing in while it is blank.
+    final preview = find.byType(MealChangePreviewScreen);
+    expect(preview, findsOneWidget);
+    expect(
+      mealsOf(nutrition.mealsOn(today)),
+      hasLength(2),
+      reason: 'nothing merged yet',
+    );
+    expect(
       find.descendant(
-        of: find.byType(AppDialog),
-        matching: find.byType(TextField),
+        of: preview,
+        matching: find.textContaining('550', findRichText: true),
       ),
+      findsWidgets,
+      reason: 'the sum it will be',
+    );
+    await tester.enterText(
+      find.descendant(of: preview, matching: find.byType(TextField)),
       '早餐',
     );
-    await tester.tap(find.text('合併').last);
-    // Only as long as the dialog takes to close: the undo is still up.
+    // What the meal has once for all its items: here, which sitting.
+    await tester.tap(
+      find.descendant(of: preview, matching: find.text('早餐')).last,
+    );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    expect(
+      find.descendant(of: preview, matching: find.text('早餐')),
+      findsWidgets,
+    );
+    await tester.tap(find.descendant(of: preview, matching: find.text('合併')));
+    // Long enough for the page to close, well inside the undo's time.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(mealsOf(nutrition.mealsOn(today)), hasLength(1));
     expect(mealKcalOf(mealsOf(nutrition.mealsOn(today)).single), 550);
     expect(
       nutrition.nameOfMeal(mealsOf(nutrition.mealsOn(today)).single),
       '早餐',
+    );
+    expect(
+      mealsOf(nutrition.mealsOn(today)).single.map((item) => item.mealType),
+      everyElement(MealType.breakfast),
     );
     expect(find.textContaining('2 項'), findsOneWidget);
 
@@ -2372,6 +2398,11 @@ void main() {
       mealsOf(nutrition.mealsOn(today)),
       hasLength(2),
       reason: 'undo splits it',
+    );
+    expect(
+      nutrition.mealsOn(today).map((item) => item.mealType),
+      everyElement(isNull),
+      reason: 'and takes back the sitting',
     );
     await disposeTree(tester);
   });
@@ -2678,7 +2709,15 @@ void main() {
       findsWidgets,
     );
     await _tapText(tester, '拆開這一餐');
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.byType(MealChangePreviewScreen), findsOneWidget);
+    expect(
+      mealsOf(nutrition.mealsOn(today)),
+      hasLength(1),
+      reason: 'a preview splits nothing',
+    );
+    await _tapText(tester, '拆開');
+    await tester.pumpAndSettle();
     expect(mealsOf(nutrition.mealsOn(today)), hasLength(2));
     expect(find.byType(MealGroupScreen), findsNothing, reason: 'nothing left');
     await disposeTree(tester);

@@ -5615,6 +5615,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get strongWorkoutName => 'Strong 訓練';
+
+  @override
+  String get afterMerge => '合併後';
+
+  @override
+  String get splitAction => '拆開';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11227,6 +11233,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get strongWorkoutName => 'Strong 训练';
+
+  @override
+  String get afterMerge => '合并后';
+
+  @override
+  String get splitAction => '拆开';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

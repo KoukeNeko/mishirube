@@ -35,6 +35,7 @@ import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
+import 'package:mishirube/features/nutrition/meal_change_preview_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
@@ -471,6 +472,24 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     (store) => MealDetailScreen(meal: store.todayMeals.last),
     _withLunch,
   ),
+  'merge preview': (
+    (_) => MealChangePreviewScreen.merge(
+      items: _previewItems,
+      convention: NutritionConvention.taiwan,
+      name: '早餐',
+      mealType: MealType.breakfast,
+      eatenAt: DateTime(2026, 9, 18, 8),
+      latest: DateTime(2026, 9, 18, 12),
+    ),
+    _noSetup,
+  ),
+  'split preview': (
+    (_) => MealChangePreviewScreen.split(
+      items: _previewItems,
+      convention: NutritionConvention.taiwan,
+    ),
+    _noSetup,
+  ),
   'meal of several items': (
     (store) {
       final nutrition = store.backend.nutrition;
@@ -530,6 +549,22 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'export': ((_) => const ExportScreen(), _noSetup),
   'references': ((_) => const ReferencesScreen(), _noSetup),
 };
+
+/// Two items, as a merge or a split would show them.
+final _previewItems = [
+  for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+    MealEvent(
+      id: name,
+      name: name,
+      timeLabel: '08:00',
+      qualityTag: '手動',
+      dishes: const [],
+      kcal: kcal,
+      proteinGrams: 10,
+      carbGrams: 40,
+      fatGrams: 12,
+    ),
+];
 
 /// Pages that intentionally skip the shared app bar.
 const _screensWithoutAppBar = {

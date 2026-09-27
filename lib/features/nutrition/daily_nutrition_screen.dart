@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'food_search_screen.dart';
+import 'meal_change_preview_screen.dart';
 import 'meal_detail_screen.dart';
 import 'meal_group_screen.dart';
 import 'nutrition_target_screen.dart';
@@ -54,8 +55,8 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       meal.first.groupId ?? meal.first.id;
 
   /// Puts the picked meals together as one, undoably: every item of each
-  /// becomes an item of the one meal, under the name asked for first —
-  /// a picked meal's own name to start from, and blank for its items'.
+  /// becomes an item of the one meal, under the name set on the preview
+  /// first — a picked meal's own name to start from, blank for its items'.
   Future<void> _merge(List<List<MealEvent>> meals) async {
     final picked = _merging ?? const {};
     final chosen = [
@@ -63,26 +64,42 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (picked.contains(_keyOf(meal))) meal,
     ];
     final items = [for (final meal in chosen) ...meal];
-    final name = await showTextDialog(
+    // The earliest item's time and the first sitting named: where the
+    // meal would start from on its own.
+    final eatenAt = items
+        .map((item) => _nutrition.eatenAtOf(item.id))
+        .nonNulls
+        .reduce((a, b) => a.isBefore(b) ? a : b);
+    final choice = await pushModalPage<MergeChoice>(
       context,
-      title: context.l10n.mergeCountIntoMeal(count: chosen.length),
-      initial:
-          chosen
-              .map((meal) => meal.first.groupId)
-              .nonNulls
-              .map(_nutrition.mealGroupName)
-              .nonNulls
-              .firstOrNull ??
-          '',
-      hint: mealNameOf(items),
-      confirmLabel: context.l10n.mergeAction,
+      MealChangePreviewScreen.merge(
+        items: items,
+        convention: _nutrition.convention,
+        name:
+            chosen
+                .map((meal) => meal.first.groupId)
+                .nonNulls
+                .map(_nutrition.mealGroupName)
+                .nonNulls
+                .firstOrNull ??
+            '',
+        mealType: items.map((item) => item.mealType).nonNulls.firstOrNull,
+        eatenAt: eatenAt,
+        latest: _nutrition.now(),
+      ),
     );
-    if (name == null || !mounted) return;
-    final previous = _nutrition.groupMeals(items, name: name);
+    if (choice == null || !mounted) return;
+    final before = _nutrition.mergeMeals(
+      items,
+      name: choice.name,
+      mealType: choice.mealType,
+      // Left alone, each item keeps its own time.
+      eatenAt: choice.eatenAt == eatenAt ? null : choice.eatenAt,
+    );
     setState(() => _merging = null);
     ToastScope.read(context).showUndo(
       context.l10n.mergedCount(count: chosen.length),
-      onUndo: () => _nutrition.regroupMeals(previous),
+      onUndo: () => _nutrition.unmergeMeals(before),
     );
   }
 

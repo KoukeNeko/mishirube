@@ -66,6 +66,10 @@ class RecentFood {
   FoodPortion get portion => FoodPortion(food, servings);
 }
 
+/// Meals as they were before [NutritionService.mergeMeals], by id.
+typedef MealsBefore =
+    Map<String, ({String? groupId, MealType? mealType, DateTime? eatenAt})>;
+
 /// Logging food and changing how a meal is structured.
 class NutritionService {
   NutritionService(
@@ -241,6 +245,42 @@ class NutritionService {
     });
     return previous;
   }
+
+  /// [groupMeals], with what a meal has once for all its items: every
+  /// item takes [mealType], and [eatenAt] when given. Returns each item's
+  /// group, sitting and time before, for [unmergeMeals].
+  MealsBefore mergeMeals(
+    List<MealEvent> meals, {
+    String name = '',
+    required MealType? mealType,
+    DateTime? eatenAt,
+  }) => _db.transaction(() {
+    final before = {
+      for (final meal in meals)
+        meal.id: (
+          groupId: meal.groupId,
+          mealType: meal.mealType,
+          eatenAt: _meals.eatenAtOf(meal.id),
+        ),
+    };
+    groupMeals(meals, name: name);
+    _meals.setMealType(before.keys, mealType);
+    if (eatenAt != null) {
+      for (final id in before.keys) {
+        _meals.retime(id, eatenAt);
+      }
+    }
+    return before;
+  });
+
+  /// Takes back [mergeMeals]: each item in its group, sitting and time.
+  void unmergeMeals(MealsBefore before) => _db.transaction(() {
+    for (final MapEntry(key: id, value: item) in before.entries) {
+      _meals.setGroup([id], item.groupId);
+      _meals.setMealType([id], item.mealType);
+      if (item.eatenAt case final eatenAt?) _meals.retime(id, eatenAt);
+    }
+  });
 
   /// Puts meals back in the groups [groups] names, null for none: the
   /// undo of [groupMeals] and [ungroupMeals].

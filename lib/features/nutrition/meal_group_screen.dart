@@ -7,6 +7,7 @@ import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'meal_change_preview_screen.dart';
 import 'meal_detail_screen.dart';
 import 'nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
@@ -36,9 +37,17 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
     super.dispose();
   }
 
-  /// Takes the meal apart into its items, undoably, and leaves: there is
-  /// no meal left to show.
-  void _ungroup(List<MealEvent> items) {
+  /// Takes the meal apart into its items once the preview is agreed to,
+  /// undoably, and leaves: there is no meal left to show.
+  Future<void> _ungroup(List<MealEvent> items) async {
+    final isSplit = await pushModalPage<bool>(
+      context,
+      MealChangePreviewScreen.split(
+        items: items,
+        convention: _nutrition.convention,
+      ),
+    );
+    if (isSplit != true || !mounted) return;
     final toast = ToastScope.read(context);
     final previous = _nutrition.ungroupMeals(items);
     Navigator.of(context).pop();
@@ -153,7 +162,6 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
                 ),
               NavRow(
                 title: context.l10n.splitThisMeal,
-                showChevron: false,
                 onTap: () => _ungroup(items),
               ),
             ],

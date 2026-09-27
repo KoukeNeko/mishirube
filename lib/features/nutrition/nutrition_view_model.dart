@@ -152,6 +152,23 @@ class NutritionViewModel extends ViewModel {
   Map<String, String?> groupMeals(List<MealEvent> meals, {String name = ''}) =>
       backend.nutrition.groupMeals(meals, name: name);
 
+  /// Puts [meals] together as one meal called [name], at [mealType] and,
+  /// when given, [eatenAt]; returns what [unmergeMeals] puts back.
+  MealsBefore mergeMeals(
+    List<MealEvent> meals, {
+    String name = '',
+    required MealType? mealType,
+    DateTime? eatenAt,
+  }) => backend.nutrition.mergeMeals(
+    meals,
+    name: name,
+    mealType: mealType,
+    eatenAt: eatenAt,
+  );
+
+  void unmergeMeals(MealsBefore before) =>
+      backend.nutrition.unmergeMeals(before);
+
   /// Takes a meal apart into its [items]; returns what [regroupMeals]
   /// needs to put it back.
   Map<String, String?> ungroupMeals(List<MealEvent> items) =>
