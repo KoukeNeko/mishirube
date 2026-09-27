@@ -69,6 +69,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             meal: meal,
             convention: _nutrition.convention,
             details: [
+              if (meal.brand.isNotEmpty) meal.brand,
               ?meal.mealType?.labelIn(context.l10n),
               if (meal.kind != ConsumptionKind.unknown)
                 meal.kind.labelIn(context.l10n),

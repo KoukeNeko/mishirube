@@ -88,7 +88,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     text: widget.editing?.sizeName ?? '',
   );
   late final _brand = TextEditingController(
-    text: widget.editing?.brand ?? widget.sizeOf?.brand ?? '',
+    text:
+        widget.editing?.brand ??
+        widget.sizeOf?.brand ??
+        widget.meal?.brand ??
+        '',
   );
 
   /// A draft item's amount, in the model's words: `約 180 g`.
@@ -605,6 +609,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         servings: meal.servings,
         groupId: meal.groupId,
         labelCountry: meal.labelCountry,
+        brand: _brand.text.trim(),
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: whole(_kcal),
@@ -940,7 +945,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             ),
         ],
-        if (!isRecord) ...[
+        // A logged meal keeps who made it; a draft item is not yet one.
+        if (draftItem == null) ...[
           Gutter(
             child: SectionLabel(
               context.l10n.optionalField(field: context.l10n.brandLabel),

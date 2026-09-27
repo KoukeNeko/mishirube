@@ -698,6 +698,7 @@ class NutritionService {
         foodId: keepsFood ? food.id : null,
         servings: keepsFood ? portion.servings : null,
         labelCountry: food.country,
+        brand: food.brand,
         qualityTag: tag,
         dishes: [
           DishEntry(

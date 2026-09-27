@@ -827,6 +827,7 @@
               "isEstimated",
               "isFavorite",
               "labelCountry",
+              "brand",
               "createdAt",
               "updatedAt",
               "revision",
@@ -919,6 +920,9 @@
                 ]
               },
               "labelCountry": {
+                "type": "string"
+              },
+              "brand": {
                 "type": "string"
               },
               "localDay": {

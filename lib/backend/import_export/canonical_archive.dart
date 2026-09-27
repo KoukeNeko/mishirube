@@ -219,6 +219,7 @@ const _tables = [
     _Column('servings', _Kind.real, isNullable: true),
     _Column('group_id', _Kind.text, isNullable: true),
     _Column('label_country', _Kind.text),
+    _Column('brand', _Kind.text),
     ..._lived,
     ..._entity,
   ], orderBy: 'id'),

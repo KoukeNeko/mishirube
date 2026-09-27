@@ -840,6 +840,12 @@ final List<String> _migrations = [
   -- Empty for meals from before, and for ones no label stood behind.
   ALTER TABLE meals ADD COLUMN label_country TEXT NOT NULL DEFAULT '';
   ''',
+  '''
+  -- Who made what was eaten, copied from the food when logged and
+  -- editable on the record. Empty for meals from before, and for ones
+  -- nobody said.
+  ALTER TABLE meals ADD COLUMN brand TEXT NOT NULL DEFAULT '';
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

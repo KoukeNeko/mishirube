@@ -309,9 +309,9 @@ class MealRepository {
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
         'source, import_batch_id, local_day, utc_offset_minutes, food_id, '
-        'servings, group_id, label_country) '
+        'servings, group_id, label_country, brand) '
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-        '?, ?, ?, ?)',
+        '?, ?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -337,6 +337,7 @@ class MealRepository {
           meal.servings,
           meal.groupId,
           meal.labelCountry,
+          meal.brand,
         ],
       );
       _writeDishes(meal);
@@ -360,7 +361,7 @@ class MealRepository {
       _db.execute(
         'UPDATE meals SET name = ?, kcal = ?, protein_g = ?, carb_g = ?, '
         'fat_g = ?, fibre_g = ?, millilitres = ?, is_estimated = ?, '
-        'quality_tag = ?, meal_type = ?, updated_at = ?, '
+        'quality_tag = ?, meal_type = ?, brand = ?, updated_at = ?, '
         'revision = revision + 1 WHERE id = ?',
         [
           meal.name,
@@ -373,6 +374,7 @@ class MealRepository {
           meal.isEstimated ? 1 : 0,
           meal.qualityTag,
           meal.mealType?.name,
+          meal.brand,
           _db.now().millisecondsSinceEpoch,
           meal.id,
         ],
@@ -394,6 +396,7 @@ class MealRepository {
             'fibre_g': previous.fibreGrams,
             'millilitres': previous.millilitres,
             'meal_type': previous.mealType?.name,
+            'brand': previous.brand,
             'nutrients': {
               for (final MapEntry(key: nutrient, value: amount)
                   in previous.nutrients.entries)
@@ -504,6 +507,7 @@ class MealRepository {
       servings: (row['servings'] as num?)?.toDouble(),
       groupId: row['group_id'] as String?,
       labelCountry: row['label_country']! as String,
+      brand: row['brand']! as String,
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,

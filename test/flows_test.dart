@@ -814,7 +814,13 @@ void main() {
     final before = store.todayMeals.last;
     await pumpScreen(tester, FoodEditScreen(meal: before), store: store);
 
-    await tester.enterText(find.byType(TextField).at(1), '700');
+    await tester.enterText(
+      find.descendant(
+        of: find.widgetWithText(NumberFieldRow, '熱量'),
+        matching: find.byType(TextField),
+      ),
+      '700',
+    );
     await tester.tap(find.text('儲存'));
     await tester.pumpAndSettle();
 
@@ -2723,6 +2729,38 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a logged meal\'s brand is edited with the rest of it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final meal = nutrition.logMeal(
+      const MealEvent(
+        id: 'soy',
+        name: '無糖豆漿',
+        timeLabel: '08:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 140,
+        brand: '統一',
+      ),
+      eatenAt: store.now(),
+    );
+    await _openFromHost(tester, FoodEditScreen(meal: meal), store);
+
+    final brand = find.descendant(
+      of: find.byType(FoodEditScreen),
+      matching: find.widgetWithText(TextField, '統一'),
+    );
+    expect(brand, findsOneWidget, reason: 'the brand it was logged with');
+    await tester.enterText(brand, '光泉');
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    expect(nutrition.mealById('soy')!.brand, '光泉');
+    await disposeTree(tester);
+  });
+
   testWidgets('a logged meal is deleted from its editor, undoably', (
     tester,
   ) async {
@@ -2865,12 +2903,10 @@ void main() {
         .firstWhere((meal) => meal.id == glass.id);
     await _openFromHost(tester, FoodEditScreen(meal: moved), store);
     await tester.enterText(
-      find
-          .descendant(
-            of: find.byType(FoodEditScreen),
-            matching: find.byType(TextField),
-          )
-          .at(1),
+      find.descendant(
+        of: find.widgetWithText(NumberFieldRow, '容量'),
+        matching: find.byType(TextField),
+      ),
       '300',
     );
     await tester.tap(find.text('儲存'));

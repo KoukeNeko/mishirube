@@ -2141,6 +2141,28 @@ void main() {
       expect(backend.journal.birthYear, isNull);
     });
 
+    test('a meal keeps the brand of its food, and can be given another', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final nutrition = backend.nutrition;
+      final morning = DateTime(2026, 9, 19, 8);
+      final drink = nutrition.saveFood(
+        const FoodItem(
+          id: 'soy',
+          name: '無糖豆漿',
+          brand: '統一',
+          servingAmount: 450,
+          servingUnit: ServingUnit.millilitre,
+          kcal: 140,
+        ),
+      );
+      final logged = nutrition.logOnce(FoodPortion(drink, 1), at: morning);
+      expect(nutrition.mealById(logged.id)!.brand, '統一');
+
+      nutrition.edit(logged, logged.copyWith(brand: '光泉'));
+      expect(nutrition.mealById(logged.id)!.brand, '光泉');
+    });
+
     test('a merge sets the sitting and time, and its undo puts them back', () {
       final backend = Backend.inMemory(clock: clock.now);
       addTearDown(backend.close);
@@ -2319,12 +2341,14 @@ void main() {
         },
       );
       backend.close();
-      // Back to before groups, their names and meals' label countries.
+      // Back to before groups, their names and meals' label countries
+      // and brands.
       final raw = sqlite3.open(path)
+        ..execute('ALTER TABLE meals DROP COLUMN brand')
         ..execute('ALTER TABLE meals DROP COLUMN label_country')
         ..execute('DROP TABLE meal_groups')
         ..execute('ALTER TABLE meals DROP COLUMN group_id')
-        ..userVersion = latestSchemaVersion - 3;
+        ..userVersion = latestSchemaVersion - 4;
       raw.close();
 
       backend = openFile();

@@ -68,6 +68,7 @@ class MealEvent {
     this.servings,
     this.groupId,
     this.labelCountry = '',
+    this.brand = '',
   });
 
   final String id;
@@ -89,6 +90,10 @@ class MealEvent {
   /// `EU`), copied from the food when it was logged; empty when not
   /// known. It decides how the label's salt reads as sodium.
   final String labelCountry;
+
+  /// Who made it, copied from the food when it was logged and editable
+  /// on the record; empty when nobody said.
+  final String brand;
 
   /// Plain water from the water shortcut, as opposed to any other drink.
   bool get isWater =>
@@ -158,11 +163,13 @@ class MealEvent {
     MealType? mealType,
     NutrientValueType? valueType,
     String? Function()? groupId,
+    String? brand,
   }) => MealEvent(
     foodId: foodId,
     servings: servings,
     groupId: groupId == null ? this.groupId : groupId(),
     labelCountry: labelCountry,
+    brand: brand ?? this.brand,
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,
