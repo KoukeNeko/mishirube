@@ -610,6 +610,8 @@
   "healthReading": "읽는 중…",
   "healthAllowReading": "읽기 허용",
   "healthAutoReadFailed": "마지막 자동 읽기 실패",
+  "healthReadFailedState": "읽기 실패",
+  "healthReadDone": "읽기 완료",
   "healthLastRead": "마지막 읽기 {when}",
   "healthReads": "읽는 항목: {kinds}",
   "privacyLink": "개인정보 보호",

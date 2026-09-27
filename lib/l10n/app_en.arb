@@ -610,6 +610,8 @@
   "healthReading": "Reading…",
   "healthAllowReading": "Allow reading",
   "healthAutoReadFailed": "Last automatic read failed",
+  "healthReadFailedState": "Reading failed",
+  "healthReadDone": "Reading done",
   "healthLastRead": "Last read {when}",
   "healthReads": "Reads: {kinds}",
   "privacyLink": "Privacy",

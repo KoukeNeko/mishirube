@@ -610,6 +610,8 @@
   "healthReading": "読み込み中…",
   "healthAllowReading": "読み込みを許可",
   "healthAutoReadFailed": "前回の自動読み込みに失敗",
+  "healthReadFailedState": "読み込み失敗",
+  "healthReadDone": "読み込み完了",
   "healthLastRead": "前回の読み込み {when}",
   "healthReads": "読み込む項目：{kinds}",
   "privacyLink": "プライバシー",

@@ -1991,6 +1991,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get healthAutoReadFailed => '마지막 자동 읽기 실패';
 
   @override
+  String get healthReadFailedState => '읽기 실패';
+
+  @override
+  String get healthReadDone => '읽기 완료';
+
+  @override
   String healthLastRead({required String when}) {
     return '마지막 읽기 $when';
   }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
@@ -353,6 +354,7 @@ class AppStore extends ChangeNotifier {
 
   @override
   void dispose() {
+    _slowRead?.cancel();
     _backend.db.changes.removeListener(_onRecordsChanged);
     if (_ownsBackend) _backend.close();
     super.dispose();
@@ -1115,15 +1117,36 @@ class AppStore extends ChangeNotifier {
   bool get healthSyncFailed => _healthSyncFailed;
   bool _healthSyncFailed = false;
 
-  /// The sync run at launch and whenever the app comes back to the front.
-  /// Nobody is waiting on it, so a failure is kept for 資料來源 to show
-  /// rather than thrown into nowhere. One already running is joined, not
-  /// started again: a first sync reads years back, and the app can come
-  /// back to the front before it is done.
-  Future<void> syncHealthInBackground() => _backgroundSync ??=
-      _syncInBackground().whenComplete(() => _backgroundSync = null);
+  /// The sync run at launch and whenever the app comes back to the front,
+  /// and the one pulling Today down asks for. Nobody is waiting on it, so
+  /// a failure is kept for Today and 資料來源 to show rather than thrown
+  /// into nowhere. One already running is joined, not started again: a
+  /// first sync reads years back, and the app can come back to the front
+  /// or be pulled down before it is done.
+  Future<void> syncHealthInBackground() {
+    if (_backgroundSync case final running?) return running;
+    final sync = _syncInBackground();
+    _backgroundSync = sync;
+    if (isHealthConnected) {
+      _slowRead = Timer(_slowReadAfter, () {
+        _isHealthReadSlow = true;
+        notifyListeners();
+      });
+    }
+    return sync;
+  }
 
   Future<void>? _backgroundSync;
+
+  /// How long a read goes unseen: most finish within it, and a label that
+  /// flashes up and away says nothing.
+  static const _slowReadAfter = Duration(milliseconds: 1500);
+  Timer? _slowRead;
+
+  /// Whether the read under way has outlasted [_slowReadAfter], so Today
+  /// says it is reading.
+  bool get isHealthReadSlow => _isHealthReadSlow;
+  bool _isHealthReadSlow = false;
 
   Future<void> _syncInBackground() async {
     try {
@@ -1131,6 +1154,10 @@ class AppStore extends ChangeNotifier {
       _healthSyncFailed = false;
     } on Exception {
       _healthSyncFailed = true;
+    } finally {
+      _backgroundSync = null;
+      _slowRead?.cancel();
+      _isHealthReadSlow = false;
     }
     notifyListeners();
   }

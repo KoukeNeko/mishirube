@@ -1990,6 +1990,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get healthAutoReadFailed => '前回の自動読み込みに失敗';
 
   @override
+  String get healthReadFailedState => '読み込み失敗';
+
+  @override
+  String get healthReadDone => '読み込み完了';
+
+  @override
   String healthLastRead({required String when}) {
     return '前回の読み込み $when';
   }

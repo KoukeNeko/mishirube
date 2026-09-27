@@ -2834,6 +2834,14 @@
   "@healthAutoReadFailed": {
     "description": "The background read from the health platform failed."
   },
+  "healthReadFailedState": "讀取失敗",
+  "@healthReadFailedState": {
+    "description": "Short state on Today's bar: the last read of Apple Health or Health Connect failed; tapping it reads again."
+  },
+  "healthReadDone": "讀取完成",
+  "@healthReadDone": {
+    "description": "Announced to a screen reader when a read the user pulled Today down for is done."
+  },
   "healthLastRead": "上次讀取 {when}",
   "@healthLastRead": {
     "description": "When the health platform was last read; when is formatted.",

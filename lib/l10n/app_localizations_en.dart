@@ -1998,6 +1998,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get healthAutoReadFailed => 'Last automatic read failed';
 
   @override
+  String get healthReadFailedState => 'Reading failed';
+
+  @override
+  String get healthReadDone => 'Reading done';
+
+  @override
   String healthLastRead({required String when}) {
     return 'Last read $when';
   }

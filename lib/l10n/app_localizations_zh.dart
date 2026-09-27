@@ -1986,6 +1986,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get healthAutoReadFailed => '上次自動讀取失敗';
 
   @override
+  String get healthReadFailedState => '讀取失敗';
+
+  @override
+  String get healthReadDone => '讀取完成';
+
+  @override
   String healthLastRead({required String when}) {
     return '上次讀取 $when';
   }
@@ -7601,6 +7607,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get healthAutoReadFailed => '上次自动读取失败';
+
+  @override
+  String get healthReadFailedState => '读取失败';
+
+  @override
+  String get healthReadDone => '读取完成';
 
   @override
   String healthLastRead({required String when}) {

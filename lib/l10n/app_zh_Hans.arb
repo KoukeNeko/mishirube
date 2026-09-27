@@ -610,6 +610,8 @@
   "healthReading": "读取中…",
   "healthAllowReading": "允许读取",
   "healthAutoReadFailed": "上次自动读取失败",
+  "healthReadFailedState": "读取失败",
+  "healthReadDone": "读取完成",
   "healthLastRead": "上次读取 {when}",
   "healthReads": "读取：{kinds}",
   "privacyLink": "隐私说明",

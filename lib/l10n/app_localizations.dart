@@ -3768,6 +3768,18 @@ abstract class AppLocalizations {
   /// **'上次自動讀取失敗'**
   String get healthAutoReadFailed;
 
+  /// Short state on Today's bar: the last read of Apple Health or Health Connect failed; tapping it reads again.
+  ///
+  /// In zh, this message translates to:
+  /// **'讀取失敗'**
+  String get healthReadFailedState;
+
+  /// Announced to a screen reader when a read the user pulled Today down for is done.
+  ///
+  /// In zh, this message translates to:
+  /// **'讀取完成'**
+  String get healthReadDone;
+
   /// When the health platform was last read; when is formatted.
   ///
   /// In zh, this message translates to:

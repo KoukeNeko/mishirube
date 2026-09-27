@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/l10n/l10n.dart';
 import 'package:mishirube/app/app.dart';
@@ -70,9 +73,18 @@ class _FakeHealth implements HealthSource {
     if (asksForPrivacy) show();
   }
 
+  /// Holds every read of sleep until completed, for a read that takes a
+  /// while.
+  Completer<void>? gate;
+
+  /// Makes every read of sleep fail, as a platform that is unavailable.
+  bool fails = false;
+
   @override
   Future<List<SleepSample>> sleepSamples(DateTime from, DateTime to) async {
     readFrom.add(to.difference(from));
+    await gate?.future;
+    if (fails) throw Exception('unavailable');
     return [
       for (final sample in samples)
         if (_within(sample.start, from, to)) sample,
@@ -567,6 +579,70 @@ void main() {
       expect(result!.denied, isNull, reason: 'unknown is not "none denied"');
       expect(result.added[HealthDataKind.sleep], 1);
       expect(await store.healthGrantedKinds(), isNull);
+    });
+
+    testWidgets('Today says it is reading only when a read takes a while', (
+      tester,
+    ) async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      await tester.pumpWidget(MishirubeApp(store: store));
+      await tester.pump();
+
+      health.gate = Completer<void>();
+      store.syncHealthInBackground();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('讀取中…'), findsNothing, reason: 'a quick read is quiet');
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('讀取中…'), findsOneWidget);
+
+      health.gate!.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('讀取中…'), findsNothing, reason: 'done says nothing');
+      expect(find.text('讀取失敗'), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('a failed read says so on Today, and a tap reads again', (
+      tester,
+    ) async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      await tester.pumpWidget(MishirubeApp(store: store));
+      await tester.pump();
+
+      health.fails = true;
+      await store.syncHealthInBackground();
+      await tester.pump();
+      expect(find.text('讀取失敗'), findsOneWidget);
+
+      health.fails = false;
+      await tester.tap(find.text('讀取失敗'));
+      await tester.pumpAndSettle();
+      expect(store.healthSyncFailed, isFalse);
+      expect(find.text('讀取失敗'), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('pulling Today down reads again', (tester) async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      await tester.pumpWidget(MishirubeApp(store: store));
+      await tester.pump();
+      health.readFrom.clear();
+
+      await tester.fling(
+        find.byType(CustomScrollView).first,
+        const Offset(0, 400),
+        1000,
+      );
+      await tester.pumpAndSettle();
+
+      expect(health.readFrom, isNotEmpty);
+      await disposeTree(tester);
     });
 
     testWidgets('the platform asking for the privacy page opens it', (

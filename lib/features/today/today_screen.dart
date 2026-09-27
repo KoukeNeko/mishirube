@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
@@ -6,12 +7,14 @@ import '../../app/theme.dart';
 import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
 import '../goal/goal_entry_button.dart';
 import '../goal/goal_screen.dart';
 import '../log/timeline_destination.dart';
+import '../me/data_sources_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../sleep/sleep_screen.dart';
@@ -43,27 +46,87 @@ class TodayScreen extends StatelessWidget {
   Widget _page(BuildContext context, TodayViewModel today) {
     final store = AppStoreScope.of(context);
     final now = store.now();
-    return CollapsingPage(
+    final page = CollapsingPage(
       title: context.l10n.tabToday,
       subtitle: context.dates.dayWithWeekday(now),
       leading: const GoalEntryButton(),
       actions: [
+        ?_healthReadStatus(context, store),
         HeaderAction(
           icon: Icons.tune,
           semanticLabel: context.l10n.customiseToday,
           onTap: () => pushPage(context, const TodayLayoutScreen()),
         ),
       ],
-      children: switch (store.activeSession) {
-        ActiveWorkout() => buildActiveWorkoutToday(context, store),
-        // The dock carries a running exercise and its controls; Today
-        // goes on as usual beside it.
-        ActiveActivity() || null => [
-          ?_nextStep(context, store, today),
-          ..._sections(context, store, today),
-        ],
-      },
+      children: [
+        // A first read goes years back; a moving bar says the page is not
+        // finished yet. The label above says it without the motion.
+        if (store.isHealthReadSlow &&
+            store.lastHealthSync == null &&
+            !prefersReducedMotion(context))
+          const Gutter(child: ProgressLine(progress: null, height: 4)),
+        ...switch (store.activeSession) {
+          ActiveWorkout() => buildActiveWorkoutToday(context, store),
+          // The dock carries a running exercise and its controls; Today
+          // goes on as usual beside it.
+          ActiveActivity() || null => [
+            ?_nextStep(context, store, today),
+            ..._sections(context, store, today),
+          ],
+        },
+      ],
     );
+    if (!store.isHealthConnected) return page;
+    final media = MediaQuery.of(context);
+    return RefreshIndicator.adaptive(
+      // Below the bar, where the page's content starts.
+      edgeOffset: media.padding.top + ToolbarMetrics.of(context).height,
+      onRefresh: () => _readHealthNow(context),
+      child: page,
+    );
+  }
+
+  /// What reading Apple Health or Health Connect is doing, on the bar,
+  /// only when there is something to say: a read that is taking a while,
+  /// or one that failed, which a tap reads again. A quick read and a
+  /// good one say nothing; the figures that changed show it.
+  Widget? _healthReadStatus(BuildContext context, AppStore store) {
+    final Widget action;
+    if (store.isHealthReadSlow) {
+      action = HeaderAction(
+        icon: Icons.sync,
+        label: context.l10n.healthReading,
+        semanticLabel: context.l10n.healthReading,
+        onTap: () => pushPage(context, const DataSourcesScreen()),
+      );
+    } else if (store.isHealthConnected && store.healthSyncFailed) {
+      action = HeaderAction(
+        icon: Icons.error_outline,
+        label: context.l10n.healthReadFailedState,
+        semanticLabel:
+            '${context.l10n.healthReadFailedState} · '
+            '${context.l10n.retry}',
+        onTap: store.syncHealthInBackground,
+      );
+    } else {
+      return null;
+    }
+    // Said once as it appears, not on every change of the page.
+    return Semantics(liveRegion: true, child: action);
+  }
+
+  /// Pulled down: the same read the app runs on its own, joined if one is
+  /// already going. Done is said only here, where the user asked for it;
+  /// a failure is said by the bar.
+  Future<void> _readHealthNow(BuildContext context) async {
+    final store = AppStoreScope.read(context);
+    final view = View.of(context);
+    final direction = Directionality.of(context);
+    final done = context.l10n.healthReadDone;
+    await store.syncHealthInBackground();
+    if (!store.healthSyncFailed) {
+      SemanticsService.sendAnnouncement(view, done, direction);
+    }
   }
 
   /// The one card that says what to do now, or nothing when there is

@@ -140,7 +140,9 @@ class ProgressLine extends StatelessWidget {
     this.height = 8,
   });
 
-  final double progress;
+  /// 0–1; null for work whose end nobody can tell, which moves instead of
+  /// showing a share it cannot back up.
+  final double? progress;
   final Color color;
   final double height;
 
@@ -149,7 +151,7 @@ class ProgressLine extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(height),
       child: LinearProgressIndicator(
-        value: progress.clamp(0, 1),
+        value: progress?.clamp(0, 1),
         minHeight: height,
         color: color,
         backgroundColor: AppColors.surfaceRaised,
