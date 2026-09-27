@@ -364,6 +364,25 @@ void main() {
       expect(health.askedFor, isNotNull, reason: 'asked again, once');
     });
 
+    test('coming back to the front mid-sync joins the sync, once', () async {
+      final health = _FakeHealth([lastNight]);
+      final store = storeWith(health);
+      await store.connectHealth();
+      health.readFrom.clear();
+
+      await Future.wait([
+        store.syncHealthInBackground(),
+        store.syncHealthInBackground(),
+      ]);
+      final joined = health.readFrom.length;
+      health.readFrom.clear();
+      await store.syncHealthInBackground();
+
+      expect(joined, greaterThan(0));
+      expect(joined, health.readFrom.length, reason: 'read once, not twice');
+      expect(store.healthSyncFailed, isFalse);
+    });
+
     test('the first read reaches back to 2014 a year at a time, later ones '
         'a month', () async {
       final health = _FakeHealth([lastNight]);

@@ -36,8 +36,11 @@ Future<void> main() async {
     ),
   );
   // Apple Health or Health Connect is read again on every launch once
-  // connected, so last night is there without asking.
+  // connected, so last night is there without asking, and again each
+  // time the app comes back to the front: a phone keeps it running in
+  // between, so that is what most openings are.
   store.syncHealthInBackground();
+  AppLifecycleListener(onResume: store.syncHealthInBackground);
   store.refreshOnDeviceAi();
   store.refreshFirstWeekday();
 }

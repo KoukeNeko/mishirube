@@ -1115,9 +1115,17 @@ class AppStore extends ChangeNotifier {
   bool get healthSyncFailed => _healthSyncFailed;
   bool _healthSyncFailed = false;
 
-  /// The sync run at launch. Nobody is waiting on it, so a failure is
-  /// kept for 資料來源 to show rather than thrown into nowhere.
-  Future<void> syncHealthInBackground() async {
+  /// The sync run at launch and whenever the app comes back to the front.
+  /// Nobody is waiting on it, so a failure is kept for 資料來源 to show
+  /// rather than thrown into nowhere. One already running is joined, not
+  /// started again: a first sync reads years back, and the app can come
+  /// back to the front before it is done.
+  Future<void> syncHealthInBackground() => _backgroundSync ??=
+      _syncInBackground().whenComplete(() => _backgroundSync = null);
+
+  Future<void>? _backgroundSync;
+
+  Future<void> _syncInBackground() async {
     try {
       await syncHealth();
       _healthSyncFailed = false;
