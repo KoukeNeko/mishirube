@@ -35,7 +35,7 @@ enum ChangeSource {
 /// deleted; `deleted_at` marks a tombstone and every change is written to
 /// `audit_events` inside the same transaction as the change itself.
 class AppDatabase {
-  AppDatabase._(this._db, this._clock) {
+  AppDatabase._(this._db, this._clock, this.path) {
     _db
       ..execute('PRAGMA foreign_keys = ON')
       ..execute('PRAGMA busy_timeout = 5000');
@@ -53,18 +53,26 @@ class AppDatabase {
   factory AppDatabase.open(String path, {DateTime Function()? clock}) {
     final now = clock ?? DateTime.now;
     try {
-      return AppDatabase._(_openFile(path), now);
+      return AppDatabase._(_openFile(path), now, path);
     } on StateError {
       // A newer schema is a different problem: opening a fresh file
       // would throw away data this app simply cannot read yet.
       rethrow;
     } on SqliteException catch (_) {
       final moved = _setAside(path, now());
-      final db = AppDatabase._(_openFile(path), now);
+      final db = AppDatabase._(_openFile(path), now, path);
       db._recoveredFrom = moved;
       return db;
     }
   }
+
+  /// A second connection to the file at [path], which a store opened with
+  /// [AppDatabase.open] is already using: for writing on another isolate
+  /// while the screens keep theirs. Unlike [AppDatabase.open] it never
+  /// sets the file aside; a file it cannot open is the other connection's
+  /// to deal with, and a busy one is not a corrupt one.
+  factory AppDatabase.connect(String path, {DateTime Function()? clock}) =>
+      AppDatabase._(_openFile(path), clock ?? DateTime.now, path);
 
   static Database _openFile(String path) {
     final db = sqlite3.open(path);
@@ -88,7 +96,11 @@ class AppDatabase {
 
   /// A throwaway database, for tests and previews.
   factory AppDatabase.inMemory({DateTime Function()? clock}) =>
-      AppDatabase._(sqlite3.openInMemory(), clock ?? DateTime.now);
+      AppDatabase._(sqlite3.openInMemory(), clock ?? DateTime.now, null);
+
+  /// The file this store lives in; null for one in memory, which no other
+  /// connection can reach.
+  final String? path;
 
   final Database _db;
   final DateTime Function() _clock;
@@ -99,6 +111,10 @@ class AppDatabase {
   /// listens here so a meal logged on one screen shows on the next
   /// without the two knowing about each other.
   Listenable get changes => _changes;
+
+  /// Tells [changes] about a write another connection to the same file
+  /// committed ([AppDatabase.connect]), which this one cannot see made.
+  void notifyWrittenElsewhere() => _changes.notify();
 
   /// Where the previous, unreadable file was moved to; null on a normal
   /// open.

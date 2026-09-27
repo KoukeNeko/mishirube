@@ -615,23 +615,31 @@ class NutritionService {
   }) {
     final eatenAt = at ?? _db.now();
     return logMeal(
-      MealEvent(
-        id: id ?? _db.newId(),
-        name: _l10n.waterSection,
-        timeLabel: formatTimeOfDay(eatenAt),
-        qualityTag: waterQualityTag,
-        dishes: const [],
-        kind: ConsumptionKind.beverage,
-        millilitres: millilitres,
-        kcal: 0,
-        proteinGrams: 0,
-        carbGrams: 0,
-        fatGrams: 0,
-      ),
+      waterRecord(millilitres, at: eatenAt, id: id ?? _db.newId()),
       eatenAt: eatenAt,
       source: source,
     );
   }
+
+  /// The record a glass of [millilitres] drunk [at] is kept as, before it
+  /// is logged: for water a health platform read, written elsewhere.
+  MealEvent waterRecord(
+    int millilitres, {
+    required DateTime at,
+    required String id,
+  }) => MealEvent(
+    id: id,
+    name: _l10n.waterSection,
+    timeLabel: formatTimeOfDay(at),
+    qualityTag: waterQualityTag,
+    dishes: const [],
+    kind: ConsumptionKind.beverage,
+    millilitres: millilitres,
+    kcal: 0,
+    proteinGrams: 0,
+    carbGrams: 0,
+    fatGrams: 0,
+  );
 
   /// The sizes of a food, smallest first.
   List<FoodItem> sizesOf(String foodId) => _foods.sizesOf(foodId);

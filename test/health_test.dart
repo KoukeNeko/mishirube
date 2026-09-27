@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -374,6 +375,32 @@ void main() {
       store.backend.db.setSetting('health.asked_version', '1');
       await store.syncHealth();
       expect(health.askedFor, isNotNull, reason: 'asked again, once');
+    });
+
+    test('a store in a file is written on another isolate, and the '
+        'screens hear of it', () async {
+      final directory = Directory.systemTemp.createTempSync('mishirube_health');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final backend = Backend(
+        AppDatabase.open('${directory.path}/store.sqlite3', clock: clock.now),
+      );
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+        health: _FakeHealth([lastNight]),
+      );
+      var changes = 0;
+      backend.db.changes.addListener(() => changes++);
+
+      final first = await store.connectHealth();
+      expect(first!.added[HealthDataKind.sleep], 1);
+      expect(imported(store), hasLength(1), reason: 'read back here');
+      expect(changes, greaterThan(0), reason: 'the screens are told');
+
+      final again = await store.syncHealth();
+      expect(again!.added[HealthDataKind.sleep], 0, reason: 'not twice');
     });
 
     test('coming back to the front mid-sync joins the sync, once', () async {

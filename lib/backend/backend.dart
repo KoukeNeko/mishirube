@@ -152,14 +152,8 @@ class Backend {
   AppDatabase get db => storage.db;
 
   /// Records read from [source] into this store.
-  HealthService healthFrom(HealthSource source) => HealthService(
-    db,
-    storage.journal,
-    storage.activities,
-    storage.activitySamples,
-    nutrition,
-    source,
-  );
+  HealthService healthFrom(HealthSource source) =>
+      HealthService(db, storage.journal, nutrition, source);
 
   TimelineQuery get timeline => storage.timeline;
 
