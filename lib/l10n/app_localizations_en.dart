@@ -1710,6 +1710,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weightGoalLose => 'Lose fat';
 
   @override
+  String get weightGoalRecomp => 'Recomposition';
+
+  @override
   String get weightGoalMaintain => 'Maintain';
 
   @override
@@ -5253,6 +5256,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refUse37 => 'Definition of fat-free mass index (FFMI)';
+
+  @override
+  String get refUse38 =>
+      'Recomposition keeps the deficit small: at about 500 kcal a day lean mass stops increasing';
+
+  @override
+  String get refUse39 =>
+      'Recomposition works in a small deficit or at maintenance, with high protein';
+
+  @override
+  String get refUse40 => 'Recomposition at maintenance: protein 2.0 g per kg';
+
+  @override
+  String get refUse41 =>
+      'Recomposition protein uses at most the weight at BMI 30';
 
   @override
   String get refSectionTargets => 'Daily calorie and nutrient targets';

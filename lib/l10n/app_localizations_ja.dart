@@ -1703,6 +1703,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get weightGoalLose => '減量';
 
   @override
+  String get weightGoalRecomp => 'ボディメイク';
+
+  @override
   String get weightGoalMaintain => '維持';
 
   @override
@@ -5171,6 +5174,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refUse37 => '除脂肪量指数（FFMI）の定義';
+
+  @override
+  String get refUse38 => 'ボディメイクは小さな不足のみ：1日約500 kcalで除脂肪量が増えなくなる';
+
+  @override
+  String get refUse39 => 'ボディメイクは小さな不足でも維持カロリーでも可能、高タンパク質と組み合わせる';
+
+  @override
+  String get refUse40 => '維持カロリーでのボディメイクのタンパク質は体重1kgあたり2.0 g';
+
+  @override
+  String get refUse41 => 'ボディメイクのタンパク質はBMI 30の体重を上限に計算';
 
   @override
   String get refSectionTargets => '1日のカロリーと栄養素の目標';

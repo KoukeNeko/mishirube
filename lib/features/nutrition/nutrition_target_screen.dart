@@ -283,7 +283,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                       title: context.l10n.proteinPerKgTitle,
                       initial: settings.proteinPerKg,
                       fallback: context.l10n.byGoalGrams(
-                        grams: formatAmount(settings.goal.proteinPerKg),
+                        grams: formatAmount(settings.goalProteinPerKg),
                       ),
                       min: 0.8,
                       max: 3,
@@ -402,6 +402,8 @@ String _grams(int? grams) => grams == null ? '—' : '$grams g';
 /// when its weight is known.
 String _rateLabel(double weeklyPercent, double? weightKg) {
   String signed(num value, String text) => '${value < 0 ? '−' : '+'}$text';
+  // Maintenance: nothing to sign, and no weight to move.
+  if (weeklyPercent == 0) return '0%';
   // Two places, trailing zeros dropped: the rates are 0.1, 0.25 and
   // 0.75, which one decimal would round away.
   final digits = weeklyPercent

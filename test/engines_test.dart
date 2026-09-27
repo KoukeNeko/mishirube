@@ -2140,6 +2140,47 @@ void main() {
       );
     });
 
+    test('recomposing keeps weight nearly still and protein high', () {
+      NutritionTargets targets(
+        NutritionTargetSettings settings, {
+        double weightKg = 70,
+      }) => nutritionTargets(
+        settings,
+        weightKg: weightKg,
+        heightCm: 175,
+        age: 30,
+        sex: Sex.male,
+      );
+      const recomp = NutritionTargetSettings(goal: WeightGoal.recomp);
+      const atMaintenance = NutritionTargetSettings(
+        goal: WeightGoal.recomp,
+        weeklyPercent: 0,
+      );
+
+      // Losing 0.25 % of 70 kg a week: 0.175 kg x 7,700 kcal / 7 days.
+      expect(targets(recomp).kcal, 2556 - 193);
+      expect(targets(recomp).proteinGrams, 154, reason: '2.2 g per kg');
+      expect(targets(atMaintenance).kcal, 2556);
+      expect(
+        targets(atMaintenance).proteinGrams,
+        140,
+        reason: '2.0 g per kg: a little less without a deficit',
+      );
+      expect(
+        targets(recomp, weightKg: 120).proteinGrams,
+        202,
+        reason: 'by the 91.9 kg of BMI 30 at 175 cm, not the whole 120 kg',
+      );
+      expect(
+        targets(
+          const NutritionTargetSettings(goal: WeightGoal.lose),
+          weightKg: 120,
+        ).proteinGrams,
+        264,
+        reason: 'only recomposing caps the weight',
+      );
+    });
+
     test('without the body there is no energy target, and it says why', () {
       final targets = nutritionTargets(
         const NutritionTargetSettings(),

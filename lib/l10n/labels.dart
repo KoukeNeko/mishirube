@@ -870,6 +870,7 @@ extension ActivityLevelText on ActivityLevel {
 extension WeightGoalText on WeightGoal {
   String labelIn(AppLocalizations l10n) => switch (this) {
     WeightGoal.lose => l10n.weightGoalLose,
+    WeightGoal.recomp => l10n.weightGoalRecomp,
     WeightGoal.maintain => l10n.weightGoalMaintain,
     WeightGoal.gain => l10n.weightGoalGain,
   };

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import '../../domain/domain.dart';
 
 /// Bumped whenever a rule below changes.
-const nutritionTargetsVersion = 4;
+const nutritionTargetsVersion = 5;
 
 /// Fibre per 1,000 kcal eaten: the Adequate Intake the Dietary Reference
 /// Intakes set, 14 g per 1,000 kcal.
@@ -33,6 +33,12 @@ int restingEnergyKcal({
 /// with time (Hall 2008), which only the user's own intake and weight
 /// can show.
 const kcalPerKgBodyWeight = 7700;
+
+/// Recomposing, protein goes by at most the weight at this BMI: no trial
+/// has measured protein needs in obesity, and the weight at BMI 30 is
+/// the ceiling used while losing weight (Weijs 2025), so a heavy body
+/// is not asked for 300 g and more a day.
+const proteinWeightMaxBmi = 30;
 
 /// The daily energy difference that moves [weightKg] by [weeklyPercent]
 /// of it a week; negative is a deficit.
@@ -102,9 +108,15 @@ NutritionTargets nutritionTargets(
           maintenance + dailyKcalForRate(weightKg, settings.weeklyPercentInUse),
         _ => null,
       };
-  final protein = weightKg == null
+  final proteinWeight = switch ((weightKg, heightCm)) {
+    (final weightKg?, final heightCm?)
+        when settings.goal == WeightGoal.recomp =>
+      math.min(weightKg, proteinWeightMaxBmi * math.pow(heightCm / 100, 2)),
+    (final weightKg, _) => weightKg,
+  };
+  final protein = proteinWeight == null
       ? null
-      : (weightKg * settings.proteinPerKgInUse).round();
+      : (proteinWeight * settings.proteinPerKgInUse).round();
   final fat = kcal == null
       ? null
       : (kcal * settings.fatPercentInUse / 100 / 9).round();

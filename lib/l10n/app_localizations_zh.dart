@@ -1699,6 +1699,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get weightGoalLose => '減脂';
 
   @override
+  String get weightGoalRecomp => '增肌減脂';
+
+  @override
   String get weightGoalMaintain => '維持';
 
   @override
@@ -5167,6 +5170,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get refUse37 => '去脂體重指數（FFMI）的定義';
 
   @override
+  String get refUse38 => '增肌減脂只用小赤字：每天約 500 kcal 時瘦體重不再增加';
+
+  @override
+  String get refUse39 => '增肌減脂可選小赤字或維持熱量，搭配高蛋白質';
+
+  @override
+  String get refUse40 => '增肌減脂在維持熱量時蛋白質每公斤 2.0 g';
+
+  @override
+  String get refUse41 => '增肌減脂的蛋白質以 BMI 30 的體重為上限';
+
+  @override
   String get refSectionTargets => '每日熱量與營養素目標';
 
   @override
@@ -7296,6 +7311,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get weightGoalLose => '减脂';
+
+  @override
+  String get weightGoalRecomp => '增肌减脂';
 
   @override
   String get weightGoalMaintain => '维持';
@@ -10764,6 +10782,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get refUse37 => '去脂体重指数（FFMI）的定义';
+
+  @override
+  String get refUse38 => '增肌减脂只用小赤字：每天约 500 kcal 时瘦体重不再增加';
+
+  @override
+  String get refUse39 => '增肌减脂可选小赤字或维持热量，搭配高蛋白质';
+
+  @override
+  String get refUse40 => '增肌减脂在维持热量时蛋白质每公斤 2.0 g';
+
+  @override
+  String get refUse41 => '增肌减脂的蛋白质以 BMI 30 的体重为上限';
 
   @override
   String get refSectionTargets => '每日热量与营养素目标';

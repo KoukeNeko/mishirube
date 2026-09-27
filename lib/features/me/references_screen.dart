@@ -112,6 +112,26 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         url: 'https://doi.org/10.3945/ajcn.115.119339',
       ),
       (
+        citation: 'Murphy, C., & Koehler, K. (2022). Energy deficiency impairs resistance training gains in lean mass but not strength: A meta-analysis and meta-regression. Scandinavian Journal of Medicine & Science in Sports, 32(1), 125–137.',
+        use: l10n.refUse38,
+        url: 'https://doi.org/10.1111/sms.14075',
+      ),
+      (
+        citation: 'Vargas-Molina, S., García-Palumbo, A., García-Sillero, M., Bonilla, D. A., Petro, J. L., Aragon, A. A., Schoenfeld, B. J., & Benítez-Porres, J. (2026). Comparison of two nutritional protocols in body re-composition of resistance-trained participants. European Journal of Applied Physiology, 126(7), 4019–4030.',
+        use: l10n.refUse39,
+        url: 'https://doi.org/10.1007/s00421-026-06209-6',
+      ),
+      (
+        citation: 'Nunes, E. A., Colenso-Semple, L., McKellar, S. R., Yau, T., Ali, M. U., Fitzpatrick-Lewis, D., Sherifali, D., Gaudichon, C., Tomé, D., Atherton, P. J., Robles, M. C., Naranjo-Modad, S., Braun, M., Landi, F., & Phillips, S. M. (2022). Systematic review and meta-analysis of protein intake to support muscle mass and function in healthy adults. Journal of Cachexia, Sarcopenia and Muscle, 13(2), 795–810.',
+        use: l10n.refUse40,
+        url: 'https://doi.org/10.1002/jcsm.12922',
+      ),
+      (
+        citation: 'Weijs, P. J. M. (2025). Protein requirement in obesity. Current Opinion in Clinical Nutrition and Metabolic Care, 28(1), 27–32.',
+        use: l10n.refUse41,
+        url: 'https://doi.org/10.1097/MCO.0000000000001087',
+      ),
+      (
         citation: 'Garthe, I., Raastad, T., Refsnes, P. E., Koivisto, A., & Sundgot-Borgen, J. (2011). Effect of two different weight-loss rates on body composition and strength and power-related performance in elite athletes. International Journal of Sport Nutrition and Exercise Metabolism, 21(2), 97–104.',
         use: l10n.refUse07,
         url: 'https://doi.org/10.1123/ijsnem.21.2.97',

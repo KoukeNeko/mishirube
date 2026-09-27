@@ -1704,6 +1704,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get weightGoalLose => '감량';
 
   @override
+  String get weightGoalRecomp => '바디 리컴포지션';
+
+  @override
   String get weightGoalMaintain => '유지';
 
   @override
@@ -5174,6 +5177,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get refUse37 => '제지방량 지수(FFMI) 정의';
+
+  @override
+  String get refUse38 => '바디 리컴포지션은 작은 적자만: 하루 약 500 kcal에서 제지방량 증가가 멈춤';
+
+  @override
+  String get refUse39 => '바디 리컴포지션은 작은 적자나 유지 칼로리 모두 가능, 고단백과 함께';
+
+  @override
+  String get refUse40 => '유지 칼로리의 바디 리컴포지션 단백질은 체중 1kg당 2.0 g';
+
+  @override
+  String get refUse41 => '바디 리컴포지션 단백질은 BMI 30의 체중을 상한으로 계산';
 
   @override
   String get refSectionTargets => '일일 칼로리 및 영양소 목표';

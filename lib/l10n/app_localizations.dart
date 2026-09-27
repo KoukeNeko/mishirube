@@ -3234,6 +3234,12 @@ abstract class AppLocalizations {
   /// **'減脂'**
   String get weightGoalLose;
 
+  /// What the energy target is for. (WeightGoal.recomp)
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌減脂'**
+  String get weightGoalRecomp;
+
   /// What the energy target is for. (WeightGoal.maintain)
   ///
   /// In zh, this message translates to:
@@ -9057,6 +9063,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'去脂體重指數（FFMI）的定義'**
   String get refUse37;
+
+  /// What a reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌減脂只用小赤字：每天約 500 kcal 時瘦體重不再增加'**
+  String get refUse38;
+
+  /// What a reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌減脂可選小赤字或維持熱量，搭配高蛋白質'**
+  String get refUse39;
+
+  /// What a reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌減脂在維持熱量時蛋白質每公斤 2.0 g'**
+  String get refUse40;
+
+  /// What a reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌減脂的蛋白質以 BMI 30 的體重為上限'**
+  String get refUse41;
 
   /// References section.
   ///

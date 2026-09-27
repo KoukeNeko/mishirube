@@ -2422,6 +2422,10 @@
   "@weightGoalLose": {
     "description": "What the energy target is for. (WeightGoal.lose)"
   },
+  "weightGoalRecomp": "增肌減脂",
+  "@weightGoalRecomp": {
+    "description": "What the energy target is for. (WeightGoal.recomp)"
+  },
   "weightGoalMaintain": "維持",
   "@weightGoalMaintain": {
     "description": "What the energy target is for. (WeightGoal.maintain)"
@@ -7843,6 +7847,22 @@
   },
   "refUse37": "去脂體重指數（FFMI）的定義",
   "@refUse37": {
+    "description": "What a reference supports."
+  },
+  "refUse38": "增肌減脂只用小赤字：每天約 500 kcal 時瘦體重不再增加",
+  "@refUse38": {
+    "description": "What a reference supports."
+  },
+  "refUse39": "增肌減脂可選小赤字或維持熱量，搭配高蛋白質",
+  "@refUse39": {
+    "description": "What a reference supports."
+  },
+  "refUse40": "增肌減脂在維持熱量時蛋白質每公斤 2.0 g",
+  "@refUse40": {
+    "description": "What a reference supports."
+  },
+  "refUse41": "增肌減脂的蛋白質以 BMI 30 的體重為上限",
+  "@refUse41": {
     "description": "What a reference supports."
   },
   "refSectionTargets": "每日熱量與營養素目標",

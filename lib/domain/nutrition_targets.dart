@@ -27,23 +27,32 @@ enum ActivityLevel {
 /// losing keeps more lean mass (Helms 2014, Longland 2016); 1.6 g per kg
 /// is where gains level off otherwise (Morton 2018), a little above it
 /// while gaining.
+///
+/// Recomposing, gaining muscle while losing fat, holds weight nearly
+/// still: a deficit slows lean mass gains, which stop at about 500 kcal
+/// a day (Murphy 2022), and both a small deficit and maintenance with
+/// high protein recompose trained people (Vargas-Molina 2026). Protein
+/// stays high, a little lower at maintenance, inside the 1.6–2.2 g per
+/// kg the meta-analyses support (Morton 2018, Nunes 2022).
 enum WeightGoal {
-  lose([-0.25, -0.5, -0.75], -0.5, 2.2),
-  maintain([0], 0, 1.6),
-  gain([0.1, 0.25], 0.25, 1.8);
+  lose([-0.25, -0.5, -0.75], -0.5),
+  recomp([-0.25, 0], -0.25),
+  maintain([0], 0),
+  gain([0.1, 0.25], 0.25);
 
-  const WeightGoal(
-    this.weeklyPercents,
-    this.defaultWeeklyPercent,
-    this.proteinPerKg,
-  );
+  const WeightGoal(this.weeklyPercents, this.defaultWeeklyPercent);
 
   /// The rates offered, % of body weight a week; negative is losing.
   final List<double> weeklyPercents;
   final double defaultWeeklyPercent;
 
-  /// Protein a day per kg of body weight.
-  final double proteinPerKg;
+  /// Protein a day per kg of body weight, at [weeklyPercent].
+  double proteinPerKgAt(double weeklyPercent) => switch (this) {
+    lose => 2.2,
+    recomp => weeklyPercent < 0 ? 2.2 : 2.0,
+    maintain => 1.6,
+    gain => 1.8,
+  };
 }
 
 /// What the user chose for their targets. The energy target is either
@@ -86,7 +95,10 @@ class NutritionTargetSettings {
     _ => goal.defaultWeeklyPercent,
   };
 
-  double get proteinPerKgInUse => proteinPerKg ?? goal.proteinPerKg;
+  /// Protein per kg as the goal sets it, at the rate in use.
+  double get goalProteinPerKg => goal.proteinPerKgAt(weeklyPercentInUse);
+
+  double get proteinPerKgInUse => proteinPerKg ?? goalProteinPerKg;
   int get fatPercentInUse => fatPercent ?? defaultFatPercent;
 
   NutritionTargetSettings copyWith({
