@@ -2,12 +2,20 @@ import 'dart:convert';
 
 import '../../domain/domain.dart';
 
-/// What every provider is asked when reading a nutrition label. The
-/// label arrives as text already read off the photo on the phone, one
-/// table row per line.
-final foodLabelInstructions =
+/// What every provider is asked when reading a nutrition label's text,
+/// already read off the photo on the phone, one table row per line: for
+/// a provider that cannot look at the photo itself.
+final foodLabelInstructions = '''
+你會拿到一張食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。
+$labelReadingRules''';
+
+/// How a nutrition label is read into JSON, whether the model gets its
+/// text or the photo itself ([photoInstructions]): its layout in each
+/// country, the answer's shape, and the rules that keep every figure on
+/// its own row.
+final labelReadingRules =
     '''
-你會拿到一張食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。標示可能是台灣、日本、美國、歐盟、澳洲或紐西蘭、韓國、中國或加拿大的。
+標示可能是台灣、日本、美國、歐盟、澳洲或紐西蘭、韓國、中國或加拿大的。
 台灣的營養標示長這樣（每 100 那一欄有時是「每日參考值百分比」，有時兩欄都有）：
 營養標示
 每一份量 30 公克

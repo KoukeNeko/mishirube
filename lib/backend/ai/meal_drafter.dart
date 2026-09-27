@@ -29,10 +29,11 @@ abstract interface class MealDrafter {
   /// Whether this provider, with the model chosen, can look at a photo.
   Future<bool> readsPhotos();
 
-  /// What a food photo shows, item by item, with [note] the user added
+  /// What a photo shows, as the model finds it: a nutrition label read
+  /// as printed, or food item by item, with [note] the user added
   /// (「飯半碗」「微糖少冰」) taking precedence over what the photo seems
   /// to show. Throws [AiException].
-  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''});
+  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''});
 }
 
 /// A provider that can say which models it offers, so the settings page

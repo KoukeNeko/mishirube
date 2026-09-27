@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../domain/domain.dart';
+import 'food_label_json.dart';
 
 /// What every provider is asked for, in one place, so Apple's model and
 /// Ollama's are given the same job. Apple's side also constrains the
@@ -61,24 +62,49 @@ MealDraft parseMealDraft(
   );
 }
 
-/// What every provider is asked about a food photo. It returns the same
-/// items as [mealDraftInstructions], so the review and logging are the
-/// same, plus what the photo cannot show.
-final mealPhotoInstructions =
+/// What every provider that can look at a photo is asked about one. The
+/// model decides what it shows: a nutrition label, read into the label's
+/// JSON as [labelReadingRules] says, or food, estimated item by item into
+/// the same items as [mealDraftInstructions] plus what the photo cannot
+/// show. Nobody picks which beforehand.
+final photoInstructions =
     '''
-你會看到一張食物照片，可能還有使用者補充的一句話。辨識照片裡每一項食物或飲料，估計份量與營養。
-只回傳 JSON，不要任何說明文字，格式：
+你會看到一張照片，可能還有使用者補充的一句話。先判斷照片拍的是什麼，只回傳 JSON，不要任何說明文字：
+- 照片裡有包裝的營養標示表格（營養標示、栄養成分表示、Nutrition Facts、영양정보、营养成分表 等）時，照下面「營養標示」的方式讀表格，回傳 {"label":{…}}，label 裡照營養標示的格式。
+- 其他情況（餐點、飲料、沒有營養表格的包裝）照下面「食物」的方式估計，回傳 {"items":[…],"notes":[…]}。
+
+【營養標示】
+一列一列對著表格讀：每個數字屬於同一列左邊的那個營養素，不要照常見的順序猜。表格裡有意料之外的列（胺基酸、維生素、礦物質）時，它們各占自己的一列，後面各列的數字不會因此往上或往下移。
+$labelReadingRules
+
+【食物】
+辨識照片裡每一項食物或飲料，估計份量與營養，格式：
 {"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
 規則：
 - name 用台灣常用的說法，繁體中文。便當、自助餐拆成看得到的每一項（白飯、雞腿、青菜），一碗滷肉飯這種一道菜就算一項。
 - amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
 - 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計；不確定就填 null，不要填 0。
-- 照片裡是包裝的營養標示時，kcal 等數字照標示的「每份」填，不要估計。
 $_nutrientRules
 - 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
 - 同一份食物只算一次，只列照片裡看得到的東西。
-- 照片裡沒有食物或飲料時回傳 {"items":[],"notes":[]}。''';
+- 照片裡沒有食物、飲料或營養標示時回傳 {"items":[],"notes":[]}。''';
+
+/// Reads a model's answer about a photo ([photoInstructions]): a label
+/// when it answered with one, otherwise the food it saw. Throws as
+/// [parseFoodLabel] and [parseMealPhoto] do.
+PhotoDraft parsePhoto(
+  String answer, {
+  required AiProviderKind provider,
+  required String model,
+}) {
+  if (_decode(answer) case {'label': final Map<String, dynamic> label}) {
+    return PhotoOfLabel(
+      parseFoodLabel(jsonEncode(label), provider: provider, model: model),
+    );
+  }
+  return PhotoOfFood(parseMealPhoto(answer, provider: provider, model: model));
+}
 
 /// Reads a model's answer about a food photo into a draft. Throws
 /// [AiFailure.noFood] when it saw nothing to eat, and

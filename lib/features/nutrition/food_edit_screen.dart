@@ -270,8 +270,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _amount > 0 &&
       (!_isSize || _sizeName.text.trim().isNotEmpty);
 
-  /// What is being read, while it is: a label or a food photo.
-  _Scan? _scanning;
+  /// Whether a photo is being read.
+  bool _isScanning = false;
 
   /// What the last scan filled in, for the note that says to check it:
   /// a label's figures, or a photo's estimate.
@@ -283,95 +283,55 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// model's guess, not what a packet declares.
   NutrientValueType? _valueType;
 
-  /// The app's camera page for [scan], whose library button picks at the
-  /// size that scan needs: a label's small print needs more than a plate
-  /// does.
-  Future<String?> Function(String title) _takeWithCamera(_Scan scan) =>
-      (title) => takePhoto(
-        context,
-        title,
-        maxSide: scan == _Scan.food ? foodPhotoMaxSide : 2400,
-      );
-
-  /// A food photo or a nutrition label, from the camera or the library,
-  /// read into the form. Nothing is saved: the user checks every number
-  /// here and saves as usual.
+  /// A photo, from the camera or the library, read into the form by the
+  /// chosen AI: a nutrition label as printed, or food as its estimate,
+  /// whichever the AI finds it shows. Nothing is saved: the user checks
+  /// every number here and saves as usual.
   Future<void> _scan() async {
     final store = AppStoreScope.read(context);
     if (store.aiProvider == null) {
       await pushPage<void>(context, const AiSettingsScreen());
       return;
     }
-    final scan = await showAppDialog<_Scan>(
-      context,
-      AppDialog(
-        title: context.l10n.scanAction,
-        isChoiceList: true,
-        actions: [
-          DialogAction(
-            icon: Icons.restaurant_outlined,
-            label: context.l10n.scanFood,
-            detail: context.l10n.scanFoodDetail,
-            onTap: () => Navigator.of(context).pop(_Scan.food),
-          ),
-          DialogAction(
-            icon: Icons.document_scanner_outlined,
-            label: context.l10n.nutritionLabel,
-            detail: context.l10n.scanLabelDetail,
-            onTap: () => Navigator.of(context).pop(_Scan.label),
-          ),
-          DialogAction(
-            label: context.l10n.commonCancel,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-    if (scan == null || !mounted) return;
-    final title = switch (scan) {
-      _Scan.food => context.l10n.scanFood,
-      _Scan.label => context.l10n.nutritionLabel,
-    };
-    final path = await (widget.takePhoto ?? _takeWithCamera(scan))(title);
+    final take = widget.takePhoto ?? (title) => takePhoto(context, title);
+    final path = await take(context.l10n.scanAction);
     if (path == null || !mounted) return;
-    switch (scan) {
-      case _Scan.label:
-        await _readLabel(path);
-      case _Scan.food:
-        // What only the eater knows: how much rice, how sweet the tea.
-        final note = await showTextDialog(
-          context,
-          title: context.l10n.extraNote,
-          hint: context.l10n.extraNoteHint,
-          confirmLabel: context.l10n.estimateAction,
-          maxLines: 2,
-        );
-        if (note == null || !mounted) return;
-        await _estimatePhoto(path, note);
-    }
+    await _readPhoto(path);
   }
 
-  Future<void> _estimatePhoto(String path, String note) async {
+  Future<void> _readPhoto(String path) async {
     final store = AppStoreScope.read(context);
     setState(() {
-      _scanning = _Scan.food;
+      _isScanning = true;
       _scanFailure = null;
     });
     try {
-      final draft = await store.draftMealPhoto(path, note: note);
+      final draft = await store.draftPhoto(path);
       if (!mounted) return;
-      setState(() => _scanning = null);
-      await _useEstimate(draft);
+      switch (draft) {
+        case PhotoOfLabel(:final label):
+          _fillFrom(label);
+        case PhotoOfFood(:final meal):
+          setState(() => _isScanning = false);
+          await _useEstimate(meal);
+      }
     } on AiException catch (error) {
       if (!mounted) return;
-      if (error.failure == AiFailure.needsPhotoConsent) {
-        setState(() => _scanning = null);
-        if (await askPhotoConsent(context)) await _estimatePhoto(path, note);
+      // A photo goes to a model that can look at it; its text, read on
+      // the phone, to one that cannot. Each is asked about once.
+      final ask = switch (error.failure) {
+        AiFailure.needsPhotoConsent => askPhotoConsent,
+        AiFailure.needsConsent => askCloudConsent,
+        _ => null,
+      };
+      if (ask != null) {
+        setState(() => _isScanning = false);
+        if (await ask(context)) await _readPhoto(path);
         return;
       }
       setState(() => _scanFailure = error.failure);
     } finally {
-      if (mounted) setState(() => _scanning = null);
+      if (mounted) setState(() => _isScanning = false);
     }
   }
 
@@ -478,27 +438,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _ => ServingUnit.gram,
     };
     return (value, unit);
-  }
-
-  Future<void> _readLabel(String path) async {
-    final store = AppStoreScope.read(context);
-    setState(() {
-      _scanning = _Scan.label;
-      _scanFailure = null;
-    });
-    try {
-      _fillFrom(await store.scanFoodLabel(path));
-    } on AiException catch (error) {
-      if (!mounted) return;
-      if (error.failure == AiFailure.needsConsent) {
-        setState(() => _scanning = null);
-        if (await askCloudConsent(context)) await _readLabel(path);
-        return;
-      }
-      setState(() => _scanFailure = error.failure);
-    } finally {
-      if (mounted) setState(() => _scanning = null);
-    }
   }
 
   /// Puts what the label said into the fields. A name already typed is
@@ -781,7 +720,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               icon: Icons.photo_camera_outlined,
               label: context.l10n.scanAction,
               semanticLabel: context.l10n.scanFoodOrLabel,
-              onTap: _scanning != null ? null : _scan,
+              onTap: _isScanning ? null : _scan,
             ),
         ],
       ),
@@ -817,14 +756,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               onPressed: _canSave ? () => _save(logNow: false) : null,
             ),
       children: [
-        if (_scanning case final scan?)
+        if (_isScanning)
           Gutter(
             child: InfoBanner(
               icon: Icons.document_scanner_outlined,
-              message: switch (scan) {
-                _Scan.label => context.l10n.readingLabel,
-                _Scan.food => context.l10n.estimating,
-              },
+              message: context.l10n.readingPhoto,
             ),
           )
         else if (_scanFailure case final failure?)
@@ -1123,4 +1059,3 @@ List<Nutrient> _labelNutrientsFor(NutritionConvention convention) => [
 ];
 
 /// What a scan reads.
-enum _Scan { label, food }

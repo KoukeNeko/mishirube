@@ -78,12 +78,12 @@ class AppleMealDrafter implements MealDrafter {
 
   /// The photo is read on the device, from its file; nothing is sent.
   @override
-  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async =>
-      parseMealPhoto(
+  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
+      parsePhoto(
         await _ask(
-          'draftMealPhoto',
-          mealPhotoInstructions,
-          note.trim().isEmpty ? '這張照片裡的食物。' : '補充：${note.trim()}',
+          'draftPhoto',
+          photoInstructions,
+          note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
           path: photo.path,
         ),
         provider: kind,

@@ -4409,6 +4409,12 @@ abstract class AppLocalizations {
   /// **'掃描'**
   String get scanAction;
 
+  /// Shown while the chosen AI reads a photo taken in the food form, whether a label or food.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在讀取照片…'**
+  String get readingPhoto;
+
   /// Screen-reader label of the scan action.
   ///
   /// In zh, this message translates to:
@@ -7078,47 +7084,11 @@ abstract class AppLocalizations {
   /// **'{source} 估計'**
   String qualityAiEstimateBy({required String source});
 
-  /// Scan choice and camera title.
-  ///
-  /// In zh, this message translates to:
-  /// **'食物'**
-  String get scanFood;
-
-  /// Scan choice detail.
-  ///
-  /// In zh, this message translates to:
-  /// **'估算營養'**
-  String get scanFoodDetail;
-
   /// Scan choice, camera title and section.
   ///
   /// In zh, this message translates to:
   /// **'營養標示'**
   String get nutritionLabel;
-
-  /// Scan choice detail.
-  ///
-  /// In zh, this message translates to:
-  /// **'讀取標示數字'**
-  String get scanLabelDetail;
-
-  /// Dialog title before estimating a photo.
-  ///
-  /// In zh, this message translates to:
-  /// **'補充說明'**
-  String get extraNote;
-
-  /// Hint.
-  ///
-  /// In zh, this message translates to:
-  /// **'選填，例如：飯半碗、微糖少冰'**
-  String get extraNoteHint;
-
-  /// Confirm button.
-  ///
-  /// In zh, this message translates to:
-  /// **'估算'**
-  String get estimateAction;
 
   /// Dialog title.
   ///
@@ -7185,18 +7155,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'建立並記錄'**
   String get createAndLog;
-
-  /// Progress.
-  ///
-  /// In zh, this message translates to:
-  /// **'正在辨識營養標示…'**
-  String get readingLabel;
-
-  /// Progress.
-  ///
-  /// In zh, this message translates to:
-  /// **'正在估算…'**
-  String get estimating;
 
   /// Warning after reading a label.
   ///
@@ -9483,12 +9441,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'AI 的回覆無法解讀，再試一次。'**
   String get aiFailureUnreadable;
-
-  /// Error.
-  ///
-  /// In zh, this message translates to:
-  /// **'照片裡讀不到文字，換一張清楚的正面照片。'**
-  String get aiFailureNoText;
 
   /// Error.
   ///

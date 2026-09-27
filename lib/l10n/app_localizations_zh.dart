@@ -2391,6 +2391,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanAction => '掃描';
 
   @override
+  String get readingPhoto => '正在讀取照片…';
+
+  @override
   String get scanBodyComposition => '拍照讀取身體組成';
 
   @override
@@ -4048,25 +4051,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get scanFood => '食物';
-
-  @override
-  String get scanFoodDetail => '估算營養';
-
-  @override
   String get nutritionLabel => '營養標示';
-
-  @override
-  String get scanLabelDetail => '讀取標示數字';
-
-  @override
-  String get extraNote => '補充說明';
-
-  @override
-  String get extraNoteHint => '選填，例如：飯半碗、微糖少冰';
-
-  @override
-  String get estimateAction => '估算';
 
   @override
   String photoItemsCount({required int count}) {
@@ -4104,12 +4089,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get createAndLog => '建立並記錄';
-
-  @override
-  String get readingLabel => '正在辨識營養標示…';
-
-  @override
-  String get estimating => '正在估算…';
 
   @override
   String labelReadBy({required String provider, required String model}) {
@@ -5395,9 +5374,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiFailureUnreadable => 'AI 的回覆無法解讀，再試一次。';
-
-  @override
-  String get aiFailureNoText => '照片裡讀不到文字，換一張清楚的正面照片。';
 
   @override
   String get aiFailureNeedsPhotoConsent => '未同意送出照片。';
@@ -8014,6 +7990,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get scanAction => '扫描';
 
   @override
+  String get readingPhoto => '正在读取照片…';
+
+  @override
   String get scanBodyComposition => '拍照读取身体成分';
 
   @override
@@ -9671,25 +9650,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get scanFood => '食物';
-
-  @override
-  String get scanFoodDetail => '估算营养';
-
-  @override
   String get nutritionLabel => '营养成分表';
-
-  @override
-  String get scanLabelDetail => '读取标示数字';
-
-  @override
-  String get extraNote => '补充说明';
-
-  @override
-  String get extraNoteHint => '选填，例如：饭半碗、微糖少冰';
-
-  @override
-  String get estimateAction => '估算';
 
   @override
   String photoItemsCount({required int count}) {
@@ -9727,12 +9688,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get createAndLog => '创建并记录';
-
-  @override
-  String get readingLabel => '正在识别营养成分表…';
-
-  @override
-  String get estimating => '正在估算…';
 
   @override
   String labelReadBy({required String provider, required String model}) {
@@ -11018,9 +10973,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get aiFailureUnreadable => 'AI 的回复无法解读，再试一次。';
-
-  @override
-  String get aiFailureNoText => '照片里读不到文字，换一张清楚的正面照片。';
 
   @override
   String get aiFailureNeedsPhotoConsent => '未同意发送照片。';

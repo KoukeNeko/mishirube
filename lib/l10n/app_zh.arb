@@ -3499,6 +3499,10 @@
   "@scanAction": {
     "description": "Header action that reads figures from a photo."
   },
+  "readingPhoto": "正在讀取照片…",
+  "@readingPhoto": {
+    "description": "Shown while the chosen AI reads a photo taken in the food form, whether a label or food."
+  },
   "scanBodyComposition": "拍照讀取身體組成",
   "@scanBodyComposition": {
     "description": "Screen-reader label of the scan action."
@@ -6169,33 +6173,9 @@
       }
     }
   },
-  "scanFood": "食物",
-  "@scanFood": {
-    "description": "Scan choice and camera title."
-  },
-  "scanFoodDetail": "估算營養",
-  "@scanFoodDetail": {
-    "description": "Scan choice detail."
-  },
   "nutritionLabel": "營養標示",
   "@nutritionLabel": {
     "description": "Scan choice, camera title and section."
-  },
-  "scanLabelDetail": "讀取標示數字",
-  "@scanLabelDetail": {
-    "description": "Scan choice detail."
-  },
-  "extraNote": "補充說明",
-  "@extraNote": {
-    "description": "Dialog title before estimating a photo."
-  },
-  "extraNoteHint": "選填，例如：飯半碗、微糖少冰",
-  "@extraNoteHint": {
-    "description": "Hint."
-  },
-  "estimateAction": "估算",
-  "@estimateAction": {
-    "description": "Confirm button."
   },
   "photoItemsCount": "照片裡有 {count} 項",
   "@photoItemsCount": {
@@ -6250,14 +6230,6 @@
   "createAndLog": "建立並記錄",
   "@createAndLog": {
     "description": "Button."
-  },
-  "readingLabel": "正在辨識營養標示…",
-  "@readingLabel": {
-    "description": "Progress."
-  },
-  "estimating": "正在估算…",
-  "@estimating": {
-    "description": "Progress."
   },
   "labelReadBy": "數字來自 {provider}（{model}）的判讀，請對照包裝核對。",
   "@labelReadBy": {
@@ -8170,10 +8142,6 @@
   },
   "aiFailureUnreadable": "AI 的回覆無法解讀，再試一次。",
   "@aiFailureUnreadable": {
-    "description": "Error."
-  },
-  "aiFailureNoText": "照片裡讀不到文字，換一張清楚的正面照片。",
-  "@aiFailureNoText": {
     "description": "Error."
   },
   "aiFailureNeedsPhotoConsent": "未同意送出照片。",

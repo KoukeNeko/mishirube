@@ -2397,6 +2397,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get scanAction => '스캔';
 
   @override
+  String get readingPhoto => '사진을 읽는 중…';
+
+  @override
   String get scanBodyComposition => '사진으로 체성분 읽기';
 
   @override
@@ -4056,25 +4059,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get scanFood => '음식';
-
-  @override
-  String get scanFoodDetail => '영양 추정';
-
-  @override
   String get nutritionLabel => '영양성분표';
-
-  @override
-  String get scanLabelDetail => '표시 수치 읽기';
-
-  @override
-  String get extraNote => '추가 설명';
-
-  @override
-  String get extraNoteHint => '선택, 예: 밥 반 공기, 당도 낮게';
-
-  @override
-  String get estimateAction => '추정';
 
   @override
   String photoItemsCount({required int count}) {
@@ -4112,12 +4097,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get createAndLog => '만들고 기록';
-
-  @override
-  String get readingLabel => '영양성분표 읽는 중…';
-
-  @override
-  String get estimating => '추정 중…';
 
   @override
   String labelReadBy({required String provider, required String model}) {
@@ -5404,9 +5383,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiFailureUnreadable => 'AI 응답을 해석할 수 없습니다. 다시 시도하세요.';
-
-  @override
-  String get aiFailureNoText => '사진에서 글을 읽을 수 없습니다. 선명한 정면 사진으로 바꾸세요.';
 
   @override
   String get aiFailureNeedsPhotoConsent => '사진 전송에 동의하지 않았습니다.';

@@ -12,10 +12,6 @@ import '../shell/bottom_chrome/chrome_metrics.dart';
 import '../shell/bottom_chrome/press_feedback.dart';
 import '../../l10n/l10n.dart';
 
-/// The longer side a food photo is taken at: past about 1568 px a model
-/// scales a plate down anyway, where a label's small print needs more.
-const foodPhotoMaxSide = 1568.0;
-
 /// A photo from the app's camera, titled [title], or from the library by
 /// its button, scaled so its longer side is at most [maxSide]: small
 /// print needs more than a plate does, and past about 1600 px a model

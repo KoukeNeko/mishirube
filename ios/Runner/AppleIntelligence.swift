@@ -54,7 +54,7 @@ enum AppleIntelligence {
         draftWorkout(text: text, instructions: instructions, result: result)
       case "readsPhotos":
         result(readsPhotos())
-      case "draftMealPhoto":
+      case "draftPhoto":
         guard let arguments = call.arguments as? [String: Any],
           let text = arguments["text"] as? String,
           let instructions = arguments["instructions"] as? String,
@@ -63,7 +63,7 @@ enum AppleIntelligence {
           result(FlutterError(code: "badArguments", message: nil, details: nil))
           return
         }
-        draftMealPhoto(
+        draftPhoto(
           path: path, text: text, instructions: instructions, result: result)
       default:
         result(FlutterMethodNotImplemented)
@@ -126,9 +126,10 @@ enum AppleIntelligence {
     return false
   }
 
-  /// A food photo, read on the device, into items with estimated figures.
-  /// The photo is never sent anywhere.
-  static func draftMealPhoto(
+  /// A photo, read on the device: a nutrition label's figures, or food
+  /// as items with estimated figures, as the model finds it shows. The
+  /// photo is never sent anywhere.
+  static func draftPhoto(
     path: String, text: String, instructions: String, result: @escaping FlutterResult
   ) {
     // Vision arrived with the iOS/macOS 27 SDK (Swift 6.4); an older
@@ -286,9 +287,15 @@ enum AppleIntelligence {
 
     /// The JSON `parseFoodLabel` reads, with the keys every provider uses.
     func json() throws -> String {
+      let data = try JSONSerialization.data(withJSONObject: fields())
+      return String(decoding: data, as: UTF8.self)
+    }
+
+    /// The label as `parseFoodLabel` reads it, keyed as every provider's.
+    func fields() -> [String: Any] {
       func value(_ number: Double?) -> Any { number as Any? ?? NSNull() }
       func value(_ text: String?) -> Any { text as Any? ?? NSNull() }
-      let fields: [String: Any] = [
+      return [
         "label_region": value(labelRegion),
         "name": value(name), "brand": value(brand),
         "serving_amount": value(servingAmount), "serving_unit": value(servingUnit),
@@ -312,8 +319,6 @@ enum AppleIntelligence {
           "glutamine_mg": value(glutamineMilligrams),
         ],
       ]
-      let data = try JSONSerialization.data(withJSONObject: fields)
-      return String(decoding: data, as: UTF8.self)
     }
   }
 
@@ -419,7 +424,9 @@ enum AppleIntelligence {
   @available(iOS 26.0, macOS 26.0, *)
   @Generable
   struct MealPhotoOutput {
-    @Guide(description: "照片裡看得到的每一項食物或飲料；沒有食物就是空的")
+    @Guide(description: "照片裡是包裝的營養標示表格時，照表格一列一列填；不是就留空")
+    var label: FoodLabelOutput?
+    @Guide(description: "照片裡看得到的每一項食物或飲料；是營養標示或沒有食物就是空的")
     var items: [Item]
     @Guide(description: "照片看不出來、但會影響數字的油、醬汁或糖，一句一件事，最多三句")
     var notes: [String]
@@ -450,8 +457,13 @@ enum AppleIntelligence {
       var isDrink: Bool
     }
 
-    /// The JSON `parseMealPhoto` reads, with the keys every provider uses.
+    /// The JSON `parsePhoto` reads, with the keys every provider uses:
+    /// the label when the photo was one, the food otherwise.
     func json() throws -> String {
+      if let label {
+        let data = try JSONSerialization.data(withJSONObject: ["label": label.fields()])
+        return String(decoding: data, as: UTF8.self)
+      }
       let list: [[String: Any]] = items.map { item in
         [
           "name": item.name,

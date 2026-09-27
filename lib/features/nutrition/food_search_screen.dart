@@ -300,13 +300,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     );
   }
 
-  /// A photo of the meal, drafted item by item on the draft page.
+  /// A photo, drafted on the draft page as the AI finds it: the meal
+  /// item by item, or a label as one serving.
   Future<void> _photo() async {
-    final path = await takePhoto(
-      context,
-      context.l10n.scanFood,
-      maxSide: foodPhotoMaxSide,
-    );
+    final path = await takePhoto(context, context.l10n.scanAction);
     if (path == null || !mounted) return;
     await _describe(photoPath: path);
   }

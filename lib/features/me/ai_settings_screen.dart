@@ -444,7 +444,6 @@ String aiFailureMessage(AppLocalizations l10n, AiFailure failure) =>
       AiFailure.network => l10n.aiFailureNetwork,
       AiFailure.providerError => l10n.aiFailureProvider,
       AiFailure.unreadable => l10n.aiFailureUnreadable,
-      AiFailure.noText => l10n.aiFailureNoText,
       AiFailure.needsPhotoConsent => l10n.aiFailureNeedsPhotoConsent,
       AiFailure.photoUnsupported => l10n.aiFailurePhotoUnsupported(
         me: l10n.tabMe,

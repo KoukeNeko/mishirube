@@ -1000,18 +1000,14 @@ class AppStore extends ChangeNotifier {
   Future<String> readPhotoText(String imagePath) =>
       _ai.readPhotoText(imagePath);
 
-  /// A food drafted from a photo of its nutrition label; nothing is
-  /// saved. Throws [AiException].
-  Future<FoodLabelDraft> scanFoodLabel(String imagePath) =>
-      _ai.scanFoodLabel(imagePath);
-
   /// Whether the chosen AI can read a food photo.
   Future<bool> readsFoodPhotos() => _ai.readsPhotos();
 
-  /// The items a food photo shows, with estimated figures; nothing is
-  /// logged. Throws [AiException].
-  Future<MealDraft> draftMealPhoto(String imagePath, {String note = ''}) =>
-      _ai.draftMealPhoto(imagePath, note: note);
+  /// What a photo shows, as the chosen AI finds it: a nutrition label,
+  /// or food with estimated figures; nothing is logged. Throws
+  /// [AiException].
+  Future<PhotoDraft> draftPhoto(String imagePath, {String note = ''}) =>
+      _ai.draftPhoto(imagePath, note: note);
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);

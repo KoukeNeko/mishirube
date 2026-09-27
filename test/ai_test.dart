@@ -85,10 +85,10 @@ class _FakeDrafter implements MealDrafter {
   Future<bool> readsPhotos() async => canReadPhotos;
 
   @override
-  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async {
+  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async {
     photos.add(photo);
     notes.add(note);
-    return parseMealPhoto(photoAnswer, provider: kind, model: 'fake-1');
+    return parsePhoto(photoAnswer, provider: kind, model: 'fake-1');
   }
 
   /// The workouts it was given; answers with a model's JSON for them, or
@@ -214,7 +214,7 @@ void main() {
     });
 
     test('the prompts ask for nutrients under the keys the parser reads', () {
-      for (final prompt in [mealDraftInstructions, mealPhotoInstructions]) {
+      for (final prompt in [mealDraftInstructions, photoInstructions]) {
         expect(prompt, contains('sugar_g'));
         expect(prompt, contains('leucine_mg'));
       }
@@ -408,10 +408,11 @@ void main() {
       );
     });
 
-    test('the photo is read on the phone and only its text is sent', () async {
+    test('a model that cannot look at photos gets only their text', () async {
       final backend = Backend.inMemory();
       addTearDown(backend.close);
-      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const [])
+        ..canReadPhotos = false;
       final reader = _FakeReader([
         _line('每一份量 200 毫升', 0.1, 0.1),
         _line('熱量', 0.1, 0.2),
@@ -425,7 +426,7 @@ void main() {
       )..setProvider(AiProviderKind.ollamaCloud);
 
       await expectLater(
-        ai.scanFoodLabel('/photo.jpg'),
+        ai.draftPhoto('/photo.jpg'),
         throwsA(
           isA<AiException>().having(
             (e) => e.failure,
@@ -437,15 +438,20 @@ void main() {
       expect(reader.read, isEmpty, reason: 'not even read before consent');
 
       ai.setCloudConsent(true);
-      final draft = await ai.scanFoodLabel('/photo.jpg');
+      final draft = await ai.draftPhoto('/photo.jpg');
       expect(cloud.labels, ['每一份量 200 毫升\n熱量  120 大卡']);
-      expect(draft.kcal, 120);
+      expect(cloud.photos, isEmpty);
+      expect(
+        draft,
+        isA<PhotoOfLabel>().having((d) => d.label.kcal, 'kcal', 120),
+      );
     });
 
-    test('a photo with no text asks for another', () async {
+    test('with no text in the photo, such a model cannot help', () async {
       final backend = Backend.inMemory();
       addTearDown(backend.close);
-      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..canReadPhotos = false;
       final ai = AiService(
         backend.db,
         secrets: MemorySecretStore(),
@@ -454,12 +460,12 @@ void main() {
       )..setProvider(AiProviderKind.appleOnDevice);
 
       await expectLater(
-        ai.scanFoodLabel('/blank.jpg'),
+        ai.draftPhoto('/blank.jpg'),
         throwsA(
           isA<AiException>().having(
             (e) => e.failure,
             'failure',
-            AiFailure.noText,
+            AiFailure.photoUnsupported,
           ),
         ),
       );
@@ -508,11 +514,12 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a label photo from the library fills the form to check', (
+  testWidgets('a model that cannot look at photos reads the label text', (
     tester,
   ) async {
     final backend = Backend.inMemory(clock: FakeClock().now);
-    final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+    final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+      ..canReadPhotos = false;
     final store = AppStore(
       clock: FakeClock().now,
       isOnboarded: true,
@@ -539,12 +546,10 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.descendant(of: find.byType(AppDialog), matching: find.text('營養標示')),
-    );
-    await tester.pumpAndSettle();
 
-    expect(cameras, ['營養標示'], reason: 'the camera opens for a label');
+    expect(cameras, ['掃描']);
+    expect(apple.labels, ['熱量 120 大卡']);
+    expect(apple.photos, isEmpty);
     expect(find.textContaining('請對照包裝核對'), findsOneWidget);
     expect(find.text('燕麥奶'), findsOneWidget, reason: 'the name, filled');
     await tester.dragUntilVisible(
@@ -594,17 +599,8 @@ void main() {
       );
     }
 
-    Future<void> scanFood(WidgetTester tester, {String note = ''}) async {
+    Future<void> scanFood(WidgetTester tester) async {
       await tester.tap(find.bySemanticsLabel('掃描食物或營養標示'));
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(of: find.byType(AppDialog), matching: find.text('食物')),
-      );
-      await tester.pumpAndSettle();
-      if (note.isNotEmpty) {
-        await tester.enterText(find.byType(TextField).last, note);
-      }
-      await tester.tap(find.text('估算'));
       await tester.pumpAndSettle();
     }
 
@@ -619,9 +615,9 @@ void main() {
       await pumpScreen(tester, screen(logsOnce: true), store: store);
       final before = store.todayKcal;
 
-      await scanFood(tester, note: '飯半碗');
+      await scanFood(tester);
 
-      expect(apple.notes, ['飯半碗'], reason: 'the note goes with the photo');
+      expect(apple.photos, hasLength(1));
       expect(find.text('滷肉飯'), findsOneWidget, reason: 'the name, filled');
       expect(find.textContaining('從照片的估算'), findsOneWidget);
       expect(
@@ -652,6 +648,29 @@ void main() {
       expect(saved.servingAmount, 300);
       expect(saved.servingUnit, ServingUnit.gram);
       expect(saved.valueType, NutrientValueType.estimate);
+      await disposeTree(tester);
+    });
+
+    testWidgets('a label the model finds is read as printed', (tester) async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..photoAnswer =
+            '{"label":{"name":"燕麥奶","serving_amount":200,'
+            '"serving_unit":"ml","kcal":120,"protein_g":2.4,"fat_g":5,'
+            '"carb_g":16,"sodium_mg":95}}';
+      final store = storeWith(apple);
+      await pumpScreen(tester, screen(), store: store);
+
+      await scanFood(tester);
+      expect(find.text('燕麥奶'), findsOneWidget);
+      expect(find.textContaining('請對照包裝核對'), findsOneWidget);
+      expect(find.textContaining('從照片的估算'), findsNothing);
+      await tester.tap(find.text('只建立'));
+      await tester.pumpAndSettle();
+
+      final saved = store.backend.nutrition.searchFoods('燕麥奶').single;
+      expect(saved.kcal, 120);
+      expect(saved.servingUnit, ServingUnit.millilitre);
+      expect(saved.valueType, isNot(NutrientValueType.estimate));
       await disposeTree(tester);
     });
 

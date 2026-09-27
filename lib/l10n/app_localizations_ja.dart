@@ -2397,6 +2397,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get scanAction => 'スキャン';
 
   @override
+  String get readingPhoto => '写真を読み取っています…';
+
+  @override
   String get scanBodyComposition => '写真から体組成を読み取る';
 
   @override
@@ -4055,25 +4058,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get scanFood => '食べ物';
-
-  @override
-  String get scanFoodDetail => '栄養を推定';
-
-  @override
   String get nutritionLabel => '栄養成分表示';
-
-  @override
-  String get scanLabelDetail => '表示の数値を読み取る';
-
-  @override
-  String get extraNote => '補足';
-
-  @override
-  String get extraNoteHint => '任意。例：ご飯半分、甘さ控えめ';
-
-  @override
-  String get estimateAction => '推定';
 
   @override
   String photoItemsCount({required int count}) {
@@ -4111,12 +4096,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get createAndLog => '作成して記録';
-
-  @override
-  String get readingLabel => '栄養成分表示を読み取り中…';
-
-  @override
-  String get estimating => '推定中…';
 
   @override
   String labelReadBy({required String provider, required String model}) {
@@ -5402,9 +5381,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiFailureUnreadable => 'AIの応答を解釈できません。もう一度お試しください。';
-
-  @override
-  String get aiFailureNoText => '写真から文字を読み取れません。正面から鮮明に撮った写真にしてください。';
 
   @override
   String get aiFailureNeedsPhotoConsent => '写真の送信に同意していません。';

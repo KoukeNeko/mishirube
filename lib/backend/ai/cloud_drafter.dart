@@ -65,11 +65,11 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
   Future<bool> readsPhotos() async => true;
 
   @override
-  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async =>
-      parseMealPhoto(
+  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
+      parsePhoto(
         await chat(
-          mealPhotoInstructions,
-          note.trim().isEmpty ? '這張照片裡的食物。' : '補充：${note.trim()}',
+          photoInstructions,
+          note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
           photo: photo,
         ),
         provider: kind,

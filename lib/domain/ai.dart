@@ -85,9 +85,6 @@ enum AiFailure {
   /// The model answered, but not with anything a draft can be made of.
   unreadable,
 
-  /// No text could be read off the photo.
-  noText,
-
   /// A food photo would go to a cloud provider the user has not agreed
   /// to send photos to: agreeing to text does not cover a photo.
   needsPhotoConsent,
@@ -252,6 +249,54 @@ class FoodLabelDraft {
       carbGrams == null &&
       fatGrams == null &&
       nutrients.isEmpty;
+
+  /// One serving of the food as a meal to log: a label photographed from
+  /// the meal page, not the food form.
+  MealDraft asMealDraft() {
+    final amount = servingAmount;
+    final named = [?brand, ?name].where((part) => part.isNotEmpty).join(' ');
+    return MealDraft(
+      items: [
+        DraftItem(
+          name: named,
+          amount: amount == null
+              ? ''
+              : '${amount == amount.roundToDouble() ? amount.round() : amount} '
+                    '${servingUnit == ServingUnit.millilitre ? 'mL' : 'g'}',
+          kcal: kcal?.round(),
+          proteinGrams: proteinGrams?.round(),
+          carbGrams: carbGrams?.round(),
+          fatGrams: fatGrams?.round(),
+          fibreGrams: fibreGrams?.round(),
+          nutrients: nutrients,
+          isDrink: servingUnit == ServingUnit.millilitre,
+        ),
+      ],
+      provider: provider,
+      model: model,
+      warnings: warnings,
+    );
+  }
+}
+
+/// What a photo was read as. The model decides which it shows: a
+/// nutrition label, or food to estimate.
+sealed class PhotoDraft {
+  const PhotoDraft();
+}
+
+/// A nutrition label, read as printed.
+final class PhotoOfLabel extends PhotoDraft {
+  const PhotoOfLabel(this.label);
+
+  final FoodLabelDraft label;
+}
+
+/// Food or drink, estimated item by item.
+final class PhotoOfFood extends PhotoDraft {
+  const PhotoOfFood(this.meal);
+
+  final MealDraft meal;
 }
 
 /// What a draft asks the user to look at before anything is saved; the

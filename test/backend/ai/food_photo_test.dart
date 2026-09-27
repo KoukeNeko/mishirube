@@ -87,10 +87,10 @@ class _FakeDrafter implements MealDrafter {
   Future<bool> readsPhotos() async => canReadPhotos;
 
   @override
-  Future<MealDraft> draftMealPhoto(FoodPhoto photo, {String note = ''}) async {
+  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async {
     photos.add(photo);
     notes.add(note);
-    return parseMealPhoto(
+    return parsePhoto(
       '{"items":[{"name":"滷肉飯","amount":"約 300 g","kcal":620}]}',
       provider: kind,
       model: 'fake-1',
@@ -214,14 +214,15 @@ void main() {
       final ai = service(cloud)..setCloudConsent(true);
 
       await expectLater(
-        ai.draftMealPhoto(file.path),
+        ai.draftPhoto(file.path),
         failsWith(AiFailure.needsPhotoConsent),
       );
       expect(cloud.photos, isEmpty, reason: 'nothing was sent');
 
       ai.setPhotoConsent(true);
-      final draft = await ai.draftMealPhoto(file.path, note: '飯半碗');
-      expect(draft.items.single.name, '滷肉飯');
+      final draft = await ai.draftPhoto(file.path, note: '飯半碗');
+      expect(draft, isA<PhotoOfFood>());
+      expect((draft as PhotoOfFood).meal.items.single.name, '滷肉飯');
       expect(cloud.notes, ['飯半碗']);
       expect(_contains(cloud.photos.single.bytes, _gps), isFalse);
       expect(cloud.photos.single.mimeType, 'image/jpeg');
@@ -232,10 +233,12 @@ void main() {
         AiProviderKind.microsoftCopilot,
         canReadPhotos: false,
       );
-      final ai = service(copilot)..setPhotoConsent(true);
+      final ai = service(copilot)
+        ..setCloudConsent(true)
+        ..setPhotoConsent(true);
 
       await expectLater(
-        ai.draftMealPhoto(file.path),
+        ai.draftPhoto(file.path),
         failsWith(AiFailure.photoUnsupported),
       );
       expect(copilot.photos, isEmpty);
@@ -244,7 +247,7 @@ void main() {
     test('the on-device model needs no consent', () async {
       final apple = _FakeDrafter(AiProviderKind.appleOnDevice);
 
-      await service(apple).draftMealPhoto(file.path);
+      await service(apple).draftPhoto(file.path);
       expect(apple.photos, hasLength(1));
     });
 
@@ -253,7 +256,7 @@ void main() {
       final apple = _FakeDrafter(AiProviderKind.appleOnDevice);
 
       await expectLater(
-        service(apple).draftMealPhoto(file.path),
+        service(apple).draftPhoto(file.path),
         failsWith(AiFailure.photoFormat),
       );
       expect(apple.photos, isEmpty);
@@ -278,8 +281,9 @@ void main() {
         sent = request;
         return http.Response.bytes(utf8.encode(jsonEncode(reply)), 200);
       });
-      final draft = await make(client).draftMealPhoto(photo, note: '飯半碗');
-      expect(draft.items.single.name, '滷肉飯');
+      final draft = await make(client).draftPhoto(photo, note: '飯半碗');
+      expect(draft, isA<PhotoOfFood>());
+      expect((draft as PhotoOfFood).meal.items.single.name, '滷肉飯');
       return jsonDecode(sent.body) as Map<String, dynamic>;
     }
 
@@ -391,7 +395,7 @@ void main() {
 
       expect(await copilot.readsPhotos(), isFalse);
       await expectLater(
-        copilot.draftMealPhoto(photo),
+        copilot.draftPhoto(photo),
         throwsA(
           isA<AiException>().having(
             (e) => e.failure,

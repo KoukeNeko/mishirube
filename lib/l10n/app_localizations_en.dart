@@ -2406,6 +2406,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanAction => 'Scan';
 
   @override
+  String get readingPhoto => 'Reading the photo…';
+
+  @override
   String get scanBodyComposition => 'Read body composition from a photo';
 
   @override
@@ -4113,25 +4116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get scanFood => 'Food';
-
-  @override
-  String get scanFoodDetail => 'Estimate nutrition';
-
-  @override
   String get nutritionLabel => 'Nutrition label';
-
-  @override
-  String get scanLabelDetail => 'Read the label\'s figures';
-
-  @override
-  String get extraNote => 'Note';
-
-  @override
-  String get extraNoteHint => 'Optional, e.g. half the rice, less sugar';
-
-  @override
-  String get estimateAction => 'Estimate';
 
   @override
   String photoItemsCount({required int count}) {
@@ -4169,12 +4154,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createAndLog => 'Create and log';
-
-  @override
-  String get readingLabel => 'Reading the label…';
-
-  @override
-  String get estimating => 'Estimating…';
 
   @override
   String labelReadBy({required String provider, required String model}) {
@@ -5491,10 +5470,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiFailureUnreadable =>
       'Couldn\'t read the AI\'s reply; try again.';
-
-  @override
-  String get aiFailureNoText =>
-      'No text found in the photo; try a clear, straight-on one.';
 
   @override
   String get aiFailureNeedsPhotoConsent => 'Sending photos wasn\'t agreed to.';

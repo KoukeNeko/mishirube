@@ -89,7 +89,11 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     });
     try {
       final draft = switch (widget.photoPath) {
-        final path? => await store.draftMealPhoto(path),
+        // A label photographed here is one serving of it, logged as a meal.
+        final path? => switch (await store.draftPhoto(path)) {
+          PhotoOfLabel(:final label) => label.asMealDraft(),
+          PhotoOfFood(:final meal) => meal,
+        },
         null => await store.draftMeal(_text.text.trim()),
       };
       if (!mounted) return;

@@ -239,18 +239,6 @@ class AiService {
   Future<String> readPhotoText(String imagePath) async =>
       labelTextFrom(await labelReader.readText(imagePath));
 
-  /// A food drafted from a photo of its nutrition label. The photo is
-  /// read on the phone; the chosen model only ever gets the text, put
-  /// back into the label's rows. Throws [AiException]; [AiFailure.noText]
-  /// when the photo has no text in it.
-  Future<FoodLabelDraft> scanFoodLabel(String imagePath) async {
-    // Checked first, so a photo is not read for a request that cannot go.
-    final drafter = _drafter();
-    final text = labelTextFrom(await labelReader.readText(imagePath));
-    if (text.isEmpty) throw const AiException(AiFailure.noText);
-    return drafter.draftFoodLabel(text);
-  }
-
   /// Whether the chosen provider can look at a food photo, for offering
   /// the camera only where a photo can be read.
   Future<bool> readsPhotos() async {
@@ -258,23 +246,35 @@ class AiService {
     return drafter != null && await drafter.readsPhotos();
   }
 
-  /// What a food photo at [imagePath] shows, item by item, with [note]
-  /// the user added. Throws [AiException]: [AiFailure.needsPhotoConsent]
-  /// before the first photo goes to a cloud provider, and
-  /// [AiFailure.photoUnsupported] when the provider or its model cannot
-  /// look at one.
+  /// What the photo at [imagePath] shows, as the chosen model finds it: a
+  /// nutrition label read as printed, or food item by item, with [note]
+  /// the user added. Nobody picks which beforehand.
+  ///
+  /// A model that cannot look at a photo is given the photo's text
+  /// instead, read on the phone, and can only read a label from it; a
+  /// photo with no text in it is one it cannot help with.
+  ///
+  /// Throws [AiException]: [AiFailure.needsPhotoConsent] before the first
+  /// photo goes to a cloud provider, [AiFailure.needsConsent] before its
+  /// text does, and [AiFailure.photoUnsupported] when the model cannot
+  /// look at the photo and there is no text to read instead.
   ///
   /// What leaves the device is the picture alone: the metadata that says
   /// where and when it was taken is stripped first.
-  Future<MealDraft> draftMealPhoto(String imagePath, {String note = ''}) async {
-    final drafter = _drafter(sendsPhoto: true);
-    if (!await drafter.readsPhotos()) {
-      throw const AiException(AiFailure.photoUnsupported);
+  Future<PhotoDraft> draftPhoto(String imagePath, {String note = ''}) async {
+    if (drafters[provider] case final chosen?
+        when !await chosen.readsPhotos()) {
+      // Checked first, so a photo is not read for a request that cannot go.
+      final drafter = _drafter();
+      final text = await readPhotoText(imagePath);
+      if (text.isEmpty) throw const AiException(AiFailure.photoUnsupported);
+      return PhotoOfLabel(await drafter.draftFoodLabel(text));
     }
+    final drafter = _drafter(sendsPhoto: true);
     final bytes = await readPhoto(imagePath);
     final mimeType = imageMimeType(bytes);
     if (mimeType == null) throw const AiException(AiFailure.photoFormat);
-    return drafter.draftMealPhoto(
+    return drafter.draftPhoto(
       FoodPhoto(
         path: imagePath,
         bytes: stripJpegMetadata(bytes),
