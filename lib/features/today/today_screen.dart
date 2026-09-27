@@ -14,7 +14,6 @@ import '../body/body_screen.dart';
 import '../goal/goal_entry_button.dart';
 import '../goal/goal_screen.dart';
 import '../log/timeline_destination.dart';
-import '../me/data_sources_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../sleep/sleep_screen.dart';
@@ -87,32 +86,41 @@ class TodayScreen extends StatelessWidget {
   }
 
   /// What reading Apple Health or Health Connect is doing, on the bar,
-  /// only when there is something to say: a read that is taking a while,
-  /// or one that failed, which a tap reads again. A quick read and a
-  /// good one say nothing; the figures that changed show it.
+  /// only when there is something to say: a spinner while a read is
+  /// taking a while, or 讀取失敗 when one failed, which a tap reads again.
+  /// A quick read and a good one say nothing; the figures that changed
+  /// show it. Each is said once to a screen reader as it appears.
   Widget? _healthReadStatus(BuildContext context, AppStore store) {
-    final Widget action;
     if (store.isHealthReadSlow) {
-      action = HeaderAction(
-        icon: Icons.sync,
+      return Semantics(
+        liveRegion: true,
         label: context.l10n.healthReading,
-        semanticLabel: context.l10n.healthReading,
-        onTap: () => pushPage(context, const DataSourcesScreen()),
+        child: ExcludeSemantics(
+          child: SizedBox.square(
+            dimension: ToolbarMetrics.of(context).actionHitSize,
+            child: const Center(
+              child: SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+              ),
+            ),
+          ),
+        ),
       );
-    } else if (store.isHealthConnected && store.healthSyncFailed) {
-      action = HeaderAction(
-        icon: Icons.error_outline,
-        label: context.l10n.healthReadFailedState,
-        semanticLabel:
-            '${context.l10n.healthReadFailedState} · '
-            '${context.l10n.retry}',
-        onTap: store.syncHealthInBackground,
-      );
-    } else {
-      return null;
     }
-    // Said once as it appears, not on every change of the page.
-    return Semantics(liveRegion: true, child: action);
+    if (store.isHealthConnected && store.healthSyncFailed) {
+      return Semantics(
+        liveRegion: true,
+        child: HeaderAction(
+          icon: Icons.error_outline,
+          label: context.l10n.healthReadFailedState,
+          semanticLabel:
+              '${context.l10n.healthReadFailedState} · ${context.l10n.retry}',
+          onTap: store.syncHealthInBackground,
+        ),
+      );
+    }
+    return null;
   }
 
   /// Pulled down: the same read the app runs on its own, joined if one is

@@ -587,20 +587,28 @@ void main() {
       final health = _FakeHealth([lastNight]);
       final store = storeWith(health);
       await store.connectHealth();
+      final semantics = tester.ensureSemantics();
       await tester.pumpWidget(MishirubeApp(store: store));
       await tester.pump();
+      final reading = find.bySemanticsLabel('讀取中…');
 
       health.gate = Completer<void>();
       store.syncHealthInBackground();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('讀取中…'), findsNothing, reason: 'a quick read is quiet');
+      expect(reading, findsNothing, reason: 'a quick read is quiet');
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('讀取中…'), findsOneWidget);
+      expect(reading, findsOneWidget);
+      expect(
+        find.text('讀取中…'),
+        findsNothing,
+        reason: 'a spinner, not a labelled pill',
+      );
 
       health.gate!.complete();
       await tester.pumpAndSettle();
-      expect(find.text('讀取中…'), findsNothing, reason: 'done says nothing');
+      expect(reading, findsNothing, reason: 'done says nothing');
       expect(find.text('讀取失敗'), findsNothing);
+      semantics.dispose();
       await disposeTree(tester);
     });
 
