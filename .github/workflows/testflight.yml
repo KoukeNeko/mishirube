@@ -69,16 +69,23 @@ jobs:
       # provisioned the same way.
       - name: Archived
         run: |
-          xcodebuild archive \
-            -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath build/ios/Runner.xcarchive \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$KEY_PATH" \
-            -authenticationKeyID "$KEY_ID" \
-            -authenticationKeyIssuerID "$ISSUER_ID"
+          archive() {
+            xcodebuild archive \
+              -workspace ios/Runner.xcworkspace \
+              -scheme Runner \
+              -configuration Release \
+              -destination 'generic/platform=iOS' \
+              -archivePath build/ios/Runner.xcarchive \
+              -allowProvisioningUpdates \
+              -authenticationKeyPath "$KEY_PATH" \
+              -authenticationKeyID "$KEY_ID" \
+              -authenticationKeyIssuerID "$ISSUER_ID"
+          }
+          # Xcode fetches a target's profile during the build, and on a
+          # fresh runner packaging can look for the file before it is
+          # written (seen for the Live Activity, then the watch app). A
+          # second attempt finds what the first one fetched.
+          archive || archive
       - name: Uploaded
         run: |
           xcodebuild -exportArchive \
