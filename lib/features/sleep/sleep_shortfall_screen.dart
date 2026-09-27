@@ -55,7 +55,7 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
     builder: (context, _) {
       final day = _model.day;
       // Each point of the chart sums the 14 days ending with it.
-      final days = _model.sleepDays(shortfallDays * 2 - 1);
+      final days = _model.shortfallDays(shortfallDays * 2 - 1);
       final shown = days.sublist(shortfallDays - 1);
       final sums = [
         for (var end = shortfallDays; end <= days.length; end++)

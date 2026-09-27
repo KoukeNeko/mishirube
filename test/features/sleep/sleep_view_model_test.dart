@@ -87,6 +87,34 @@ void main() {
     expect(backend.sleep.reminderTime(), isNull, reason: 'no bedtime');
   });
 
+  test('today\'s night not in yet leaves the shortfall where it was', () {
+    final now = backend.db.now();
+    void night(int daysAgo) {
+      final woke = DateTime(now.year, now.month, now.day - daysAgo, 7);
+      backend.journal.recordSleep(
+        const Duration(hours: 6),
+        at: woke,
+        startedAt: woke.subtract(const Duration(hours: 6)),
+      );
+    }
+
+    // A week of short nights up to last night; this morning's is not
+    // recorded yet.
+    for (var daysAgo = 1; daysAgo <= 7; daysAgo++) {
+      night(daysAgo);
+    }
+    final before = model.shortfall(7);
+    expect(before.short, const Duration(hours: 14), reason: 'seven nights');
+    expect(before.missing, 0, reason: 'today is not a missing day yet');
+
+    night(0);
+    expect(
+      model.shortfall(7).short,
+      const Duration(hours: 14),
+      reason: 'the oldest night leaves only as a new one comes in',
+    );
+  });
+
   test('a night that was staged says how it held together', () {
     final woke = backend.db.now();
     final start = woke.subtract(const Duration(hours: 8));

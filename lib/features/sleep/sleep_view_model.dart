@@ -95,8 +95,21 @@ class SleepViewModel extends ViewModel {
   /// its time asleep.
   List<SleepDay> sleepDays(int count) => backend.sleep.sleepDays(_day, count);
 
-  /// The [days] ending with the day shown against [need].
-  SleepShortfall shortfall(int days) => shortfallOf(sleepDays(days), need);
+  /// The last day the shortfall counts: the day shown, except today
+  /// while last night is not recorded yet. That night is still to come in
+  /// (typed later, or read from the health platform), and counting today
+  /// as unknown would drop the oldest day off the sum and read as sleep
+  /// caught up.
+  DateTime get shortfallEnd => day == today && sleepDays(1).single.slept == null
+      ? DateTime(day.year, day.month, day.day - 1)
+      : day;
+
+  /// The [count] days the shortfall reads, ending with [shortfallEnd].
+  List<SleepDay> shortfallDays(int count) =>
+      backend.sleep.sleepDays(shortfallEnd, count);
+
+  /// The [days] ending with [shortfallEnd] against [need].
+  SleepShortfall shortfall(int days) => shortfallOf(shortfallDays(days), need);
 
   /// When to sleep tonight to reach the goal and wake as usual; only on
   /// today, with a goal and enough nights.
