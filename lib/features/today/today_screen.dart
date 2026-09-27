@@ -21,6 +21,7 @@ import 'active_workout_today.dart';
 import 'today_layout_screen.dart';
 import 'today_view_model.dart';
 import 'today_widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Today, in the order the day asks its questions (see
 /// `research/46-today-home.md`): what is under way, the one next step,
@@ -43,13 +44,13 @@ class TodayScreen extends StatelessWidget {
     final store = AppStoreScope.of(context);
     final now = store.now();
     return CollapsingPage(
-      title: '今天',
-      subtitle: '${now.month} 月 ${now.day} 日（週${weekdayLabel(now)}）',
+      title: context.l10n.tabToday,
+      subtitle: context.dates.dayWithWeekday(now),
       leading: const GoalEntryButton(),
       actions: [
         HeaderAction(
           icon: Icons.tune,
-          semanticLabel: '自訂首頁',
+          semanticLabel: context.l10n.customiseToday,
           onTap: () => pushPage(context, const TodayLayoutScreen()),
         ),
       ],
@@ -128,7 +129,7 @@ class TodayScreen extends StatelessWidget {
       if (!hidden.contains(TodaySection.insights) &&
           store.todayInsights.isNotEmpty)
         PageSection(
-          label: TodaySection.insights.label,
+          label: TodaySection.insights.labelIn(context.l10n),
           children: [
             for (final insight in store.todayInsights)
               Gutter(
@@ -156,7 +157,7 @@ class TodayScreen extends StatelessWidget {
     final tiles = [
       if (modules.contains(AppModule.sleep))
         QuickStatTile(
-          category: '睡眠',
+          category: context.l10n.moduleSleep,
           color: AppColors.wellness,
           value: night == null
               ? null
@@ -171,8 +172,10 @@ class TodayScreen extends StatelessWidget {
               : null,
           caption: switch (night) {
             null => null,
-            _ when sleepGoal != null => '目標 ${formatHoursMinutes(sleepGoal)}',
-            final night when night.isTypedIn => '手動輸入',
+            _ when sleepGoal != null => context.l10n.goalValue(
+              goal: formatHoursMinutes(sleepGoal),
+            ),
+            final night when night.isTypedIn => context.l10n.sourceManual,
             final night =>
               night.entry.sourceName.isEmpty
                   ? store.healthSourceName
@@ -183,13 +186,15 @@ class TodayScreen extends StatelessWidget {
       if (modules.contains(AppModule.weight)) const _WeightTile(),
       if (modules.contains(AppModule.nutrition))
         QuickStatTile(
-          category: '喝水',
+          category: context.l10n.healthDataWater,
           color: AppColors.nutrition,
           value: water.times == 0
               ? null
               : formatAmount(water.millilitres.toDouble()),
           unit: 'mL',
-          caption: water.times == 0 ? null : '${water.times} 次',
+          caption: water.times == 0
+              ? null
+              : context.l10n.timesCount(count: water.times),
           onTap: () => pushPage(context, const DailyNutritionScreen()),
         ),
     ];
@@ -236,9 +241,11 @@ class TodayScreen extends StatelessWidget {
     return [
       Gutter(
         child: SectionLabel(
-          TodaySection.week.label,
+          TodaySection.week.labelIn(context.l10n),
           trailing: Text(
-            target == null ? '$active 天' : '$active / $target 天',
+            target == null
+                ? context.l10n.daysCount(count: active)
+                : context.l10n.daysFraction(active: active, target: target),
             style: AppTextStyles.caption,
           ),
         ),
@@ -263,10 +270,10 @@ class TodayScreen extends StatelessWidget {
     return [
       Gutter(
         child: SectionLabel(
-          TodaySection.records.label,
+          TodaySection.records.labelIn(context.l10n),
           trailing: all.length > shown
               ? LinkText(
-                  label: '全部 ${all.length} 筆',
+                  label: context.l10n.allCount(count: all.length),
                   onTap: () =>
                       AppStoreScope.read(context).selectTab(HomeTab.log),
                 )
@@ -307,7 +314,7 @@ class _WeightTile extends StatelessWidget {
     final store = AppStoreScope.of(context);
     final (:latest, :weekTrend, :weekChange) = store.weightSummary;
     return QuickStatTile(
-      category: '體重',
+      category: context.l10n.moduleWeight,
       color: AppColors.body,
       value: latest == null ? null : formatWeight(latest.weightKg),
       unit: 'kg',
@@ -316,9 +323,11 @@ class _WeightTile extends StatelessWidget {
           : Sparkline(values: weekTrend, color: AppColors.body, height: 20),
       caption: switch ((latest, weekChange)) {
         (null, _) => null,
-        (_, final change?) =>
-          '7 日 ${change < 0 ? '−' : '+'}${formatWeight((change.abs() * 10).round() / 10)}',
-        _ => '${latest!.measuredAt.month}/${latest.measuredAt.day}',
+        (_, final change?) => context.l10n.weightChange7Days(
+          change:
+              '${change < 0 ? '−' : '+'}${formatWeight((change.abs() * 10).round() / 10)}',
+        ),
+        _ => context.dates.compactMonthDay(latest!.measuredAt),
       },
       onTap: () => pushPage(context, const BodyScreen()),
     );

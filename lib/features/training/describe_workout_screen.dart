@@ -11,6 +11,7 @@ import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
 import 'active_workout_screen.dart';
 import 'new_routine_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// A workout written out — typed, or pasted from a chat with a language
 /// model — read into exercises with their sets, checked, then started or
@@ -86,7 +87,7 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     });
     // Named as it is asked, so a setting changed meanwhile does not rename
     // what already answered.
-    final readBy = currentAiLabel(store);
+    final readBy = currentAiLabel(context.l10n, store);
     try {
       final byAi = await store.draftWorkoutWithAi(text);
       if (!mounted) return;
@@ -126,7 +127,11 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
 
   void _start() {
     if (!AppStoreScope.read(context).startPlannedWorkout(_planned)) {
-      showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
+      showToast(
+        context,
+        context.l10n.activityBlocksWorkout,
+        kind: ToastKind.warning,
+      );
       return;
     }
     replaceWithPage(context, const ActiveWorkoutScreen());
@@ -148,8 +153,8 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     final planned = _planned;
     return DetailPage(
       appBar: PageAppBar(
-        title: '一句話',
-        subtitle: currentAiLabel(AppStoreScope.of(context)),
+        title: context.l10n.describeInWords,
+        subtitle: currentAiLabel(context.l10n, AppStoreScope.of(context)),
       ),
       footer: draft == null
           ? DraftButton(
@@ -158,11 +163,11 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
             )
           : ButtonPair(
               secondary: SecondaryButton(
-                label: '存成課表',
+                label: context.l10n.saveAsRoutine,
                 onPressed: planned.isEmpty ? null : _save,
               ),
               primary: PrimaryButton(
-                label: '開始訓練',
+                label: context.l10n.startWorkout,
                 onPressed: planned.isEmpty ? null : _start,
               ),
             ),
@@ -171,7 +176,7 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
           Gutter(
             child: DescribeField(
               controller: _text,
-              hint: '例如：\n槓鈴深蹲 4×8 60kg\n臥推 3 組 10 下 40 公斤\n引體向上 3x8',
+              hint: context.l10n.describeWorkoutHint,
             ),
           )
         else ...[
@@ -179,24 +184,24 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
             Gutter(child: AiFailureBanner(failure: failure)),
           if (draft.isEmpty)
             Gutter(
-              child: const EmptyStateCard(
+              child: EmptyStateCard(
                 icon: Icons.search_off,
-                title: '沒有讀到動作',
+                title: context.l10n.noExercisesRead,
               ),
             ),
           for (final (index, (line, plan)) in draft.indexed)
             Gutter(
               child: SwipeAction(
                 key: ObjectKey(line),
-                label: '移除',
-                semanticLabel: '移除「${line.name}」',
+                label: context.l10n.removeAction,
+                semanticLabel: context.l10n.removeNamed(name: line.name),
                 onAction: () => _remove(index),
                 child: NavCard(
                   tone: plan == null ? CardTone.warning : CardTone.neutral,
                   title: plan?.exercise.name ?? line.name,
                   subtitle: switch (plan) {
-                    final plan? => _figuresOf(plan),
-                    null => '找不到這個動作',
+                    final plan? => _figuresOf(context.l10n, plan),
+                    null => context.l10n.exerciseNotFound,
                   },
                   detail: line.text,
                   onTap: () => _pick(index),
@@ -216,16 +221,22 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
 
 /// `3 組 × 10 下 · 12 kg`; sets that differ are each written out:
 /// `3 組 · 9 kg × 10、10、7 下`, or `12 kg × 10、10 kg × 8`.
-String _figuresOf(PlannedExercise plan) => switch (plan.setLoads) {
-  null =>
-    '${plan.sets} 組 × ${plan.reps} 下 · '
-        '${formatWeight(plan.targetWeightKg)} kg',
-  final loads
-      when loads.every((load) => load.weightKg == loads.first.weightKg) =>
-    '${loads.length} 組 · ${formatWeight(loads.first.weightKg)} kg × '
-        '${loads.map((load) => load.reps).join('、')} 下',
-  final loads =>
-    loads
-        .map((load) => '${formatWeight(load.weightKg)} kg × ${load.reps}')
-        .join('、'),
-};
+String _figuresOf(AppLocalizations l10n, PlannedExercise plan) =>
+    switch (plan.setLoads) {
+      null => l10n.setsTimesReps(
+        sets: plan.sets,
+        reps: plan.reps,
+        weight: formatWeight(plan.targetWeightKg),
+      ),
+      final loads
+          when loads.every((load) => load.weightKg == loads.first.weightKg) =>
+        l10n.setsSameWeight(
+          sets: loads.length,
+          weight: formatWeight(loads.first.weightKg),
+          reps: joinList(l10n, loads.map((load) => '${load.reps}')),
+        ),
+      final loads => joinList(
+        l10n,
+        loads.map((load) => '${formatWeight(load.weightKg)} kg × ${load.reps}'),
+      ),
+    };

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Which meal something was, when the user wants to say.
 ///
@@ -33,7 +34,7 @@ class MealTypePicker extends StatelessWidget {
       children: [
         ChipWrap(
           options: MealType.values,
-          labelOf: (type) => type.label,
+          labelOf: (type) => type.labelIn(context.l10n),
           isSelected: (type) => type == selected,
           onTap: (type) => onChanged(type == selected ? null : type),
         ),
@@ -60,8 +61,11 @@ class MealTypeOffer extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: AppSpacing.xs,
       children: [
-        Text('常用：${offer.label}', style: AppTextStyles.caption),
-        LinkText(label: '套用', onTap: onTake),
+        Text(
+          context.l10n.usualMealType(meal: offer.labelIn(context.l10n)),
+          style: AppTextStyles.caption,
+        ),
+        LinkText(label: context.l10n.applyAction, onTap: onTake),
       ],
     );
   }
@@ -75,20 +79,20 @@ Future<(MealType?,)?> showMealTypeDialog(
 }) => showAppDialog<(MealType?,)>(
   context,
   AppDialog(
-    title: '這是哪一餐',
+    title: context.l10n.whichMeal,
     isChoiceList: true,
     actions: [
       for (final type in MealType.values)
         DialogAction(
           icon: mealTypeIcon(type),
-          label: type.label,
+          label: type.labelIn(context.l10n),
           isSelected: type == selected,
           tone: type == selected ? DialogTone.primary : DialogTone.normal,
           onTap: () => Navigator.of(context).pop((type,)),
         ),
       DialogAction(
         icon: Icons.schedule,
-        label: '不指定',
+        label: context.l10n.unspecified,
         isSelected: selected == null,
         tone: selected == null ? DialogTone.primary : DialogTone.normal,
         onTap: () => Navigator.of(context).pop((null,)),

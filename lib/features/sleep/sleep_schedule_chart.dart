@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/sleep_metrics.dart';
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// The axis runs from 18:00 to 14:00 the next day, so a night is one
 /// unbroken bar whether it began before midnight or after.
@@ -37,7 +38,7 @@ class SleepScheduleChart extends StatelessWidget {
     ];
     final rowHeight = rowExtentFor(timed.length) - _rowGap;
     return Semantics(
-      label: '入睡與起床時間，${timed.length} 晚',
+      label: context.l10n.scheduleChartLabel(count: timed.length),
       excludeSemantics: true,
       child: CustomPaint(
         size: Size(

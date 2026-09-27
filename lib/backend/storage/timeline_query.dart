@@ -1,12 +1,15 @@
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import 'database.dart';
 import 'timeline_source.dart';
+import '../../l10n/l10n.dart';
 
 /// The unified log: it merges what each [TimelineSource] contributes and
 /// knows nothing about workouts, meals or weights itself.
 class TimelineQuery {
-  TimelineQuery(this._db, this.sources);
+  TimelineQuery(this._db, this.sources, this._l10n);
+
+  /// The language of the day headings.
+  final AppLocalizations _l10n;
 
   final AppDatabase _db;
 
@@ -98,12 +101,12 @@ class TimelineQuery {
     );
   }
 
-  static String _dayLabel(DateTime day, DateTime today) {
-    final label = '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）';
+  String _dayLabel(DateTime day, DateTime today) {
+    final label = AppDates.of(_l10n).dayWithWeekday(day);
     final isToday =
         day.year == today.year &&
         day.month == today.month &&
         day.day == today.day;
-    return isToday ? '今天 · $label' : label;
+    return isToday ? _l10n.todayWithDate(date: label) : label;
   }
 }

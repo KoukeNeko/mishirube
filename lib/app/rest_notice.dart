@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'app_store.dart';
+import '../l10n/l10n.dart';
 
 const _channel = MethodChannel('mishirube/rest_notice');
 
@@ -35,9 +36,9 @@ class _RestNoticeState extends State<RestNotice> {
       final next = store.activeWorkout?.currentExercise.exercise.name;
       _call('schedule', {
         'endsAt': endsAt.millisecondsSinceEpoch.toDouble(),
-        'restingTitle': '休息中',
-        'endedTitle': '休息結束',
-        'body': next == null ? '' : '下一組 · $next',
+        'restingTitle': context.l10n.restResting,
+        'endedTitle': context.l10n.restEnded,
+        'body': next == null ? '' : context.l10n.restNextSet(exercise: next),
       });
     }
   }

@@ -15,6 +15,7 @@ import '../../shared/widgets/widgets.dart';
 import 'activity_view_model.dart';
 import 'record_activity_screen.dart';
 import 'route_map.dart';
+import '../../l10n/l10n.dart';
 
 /// Walking, running and hiking read as pace; everything else as speed.
 const _paceTypes = {'running', 'walking', 'hiking'};
@@ -60,7 +61,9 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     model.delete(activity.id);
     Navigator.of(context).pop();
     toast.showUndo(
-      '已刪除${activity.type.label}',
+      context.l10n.activityDeleted(
+        activity: activity.type.labelIn(context.l10n),
+      ),
       onUndo: () => model.restore(activity.id),
     );
   }
@@ -73,9 +76,13 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       if (activity == null) {
         // The record is gone (undo not taken); the screen closes itself
         // rather than showing an empty shell.
-        return const DetailPage(
-          appBar: PageAppBar(title: '運動'),
-          children: [Gutter(child: InfoBanner(message: '這筆紀錄已經刪除。'))],
+        return DetailPage(
+          appBar: PageAppBar(title: context.l10n.moduleActivity),
+          children: [
+            Gutter(
+              child: InfoBanner(message: context.l10n.recordDeletedNotice),
+            ),
+          ],
         );
       }
       _detail ??= AppStoreScope.read(context).activityDetail(activity);
@@ -131,7 +138,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           if (hasMap)
             HeaderAction(
               icon: Icons.map_outlined,
-              semanticLabel: '路線地圖',
+              semanticLabel: context.l10n.activityRouteMap,
               onTap: openMap,
             ),
         ],
@@ -143,7 +150,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         large: hasMap
             ? Semantics(
                 button: true,
-                label: '路線地圖',
+                label: context.l10n.activityRouteMap,
                 child: Material(
                   type: MaterialType.transparency,
                   child: InkWell(onTap: openMap),
@@ -153,18 +160,23 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       ),
       children: [
         hero,
-        if (failed) Gutter(child: const InfoBanner(message: '無法讀取健康資料的詳細紀錄。')),
+        if (failed)
+          Gutter(
+            child: InfoBanner(message: context.l10n.healthDetailUnreadable),
+          ),
         PageSection(
-          label: '詳細資料',
+          label: context.l10n.activityDetailsSection,
           children: [
             Gutter(
-              child: FigureGrid(figures: _figures(activity, detail, showsPace)),
+              child: FigureGrid(
+                figures: _figures(context.l10n, activity, detail, showsPace),
+              ),
             ),
           ],
         ),
         if (splits.isNotEmpty)
           PageSection(
-            label: '分段 · 每 1 km',
+            label: context.l10n.activitySplitsSection,
             children: [
               Gutter(
                 child: _SplitTable(splits: splits, showsPace: showsPace),
@@ -173,7 +185,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           ),
         if (heartRate.isNotEmpty)
           PageSection(
-            label: '心率',
+            label: context.l10n.activitySeriesHeartRate,
             children: [
               Gutter(
                 child: _SeriesCard(
@@ -187,7 +199,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           ),
         if (detail != null && detail.recovery.length > 1)
           PageSection(
-            label: '運動後心率',
+            label: context.l10n.activityRecoverySection,
             children: [
               Gutter(
                 child: _RecoveryCard(
@@ -204,8 +216,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   when points.length > 1)
                 PageSection(
                   label: series == ActivitySeries.speed && showsPace
-                      ? '配速'
-                      : series.label,
+                      ? context.l10n.activityPace
+                      : series.labelIn(context.l10n),
                   children: [
                     Gutter(
                       child: _SeriesCard(
@@ -219,7 +231,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 ),
         if (activity.note.isNotEmpty)
           PageSection(
-            label: '備註',
+            label: context.l10n.notesSection,
             children: [
               Gutter(
                 child: AppCard(
@@ -232,21 +244,21 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         // only a session logged here can be corrected or taken back.
         if (!model.isFromHealth(activity.id))
           PageSection(
-            label: '管理',
+            label: context.l10n.manageSection,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     NavRow(
-                      title: '編輯內容',
-                      subtitle: '類型、時間、時長',
+                      title: context.l10n.activityEdit,
+                      subtitle: context.l10n.activityEditDetail,
                       onTap: () => pushModalPage<void>(
                         context,
                         RecordActivityScreen(activity: activity),
                       ),
                     ),
                     NavRow(
-                      title: '刪除這筆紀錄',
+                      title: context.l10n.recordDelete,
                       isDestructive: true,
                       onTap: () => _delete(model, activity),
                     ),
@@ -300,6 +312,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
   /// The session's figures, the platform's where it has them and what
   /// was logged otherwise.
   static List<Figure> _figures(
+    AppLocalizations l10n,
     ActivitySession activity,
     ActivityDetail? detail,
     bool showsPace,
@@ -315,31 +328,36 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         : meters / time.inSeconds;
     final effort = detail?.effort ?? activity.effort?.toDouble();
     return [
-      (label: '運動時間', value: formatClock(time), unit: null, color: null),
+      (
+        label: l10n.activityActiveTime,
+        value: formatClock(time),
+        unit: null,
+        color: null,
+      ),
       if (meters != null && meters > 0)
         (
-          label: '距離',
+          label: l10n.activityDistance,
           value: (meters / 1000).toStringAsFixed(2),
           unit: 'km',
           color: AppColors.body,
         ),
       if (detail?.activeKcal case final kcal?)
         (
-          label: '動態能量',
+          label: l10n.activityMetricActiveEnergy,
           value: '${kcal.round()}',
           unit: 'kcal',
           color: AppColors.nutrition,
         ),
       if (detail?.totalKcal case final kcal?)
         (
-          label: '總能量',
+          label: l10n.activityTotalEnergy,
           value: '${kcal.round()}',
           unit: 'kcal',
           color: AppColors.nutrition,
         ),
       if (climb != null)
         (
-          label: '爬升',
+          label: l10n.activityClimb,
           value: '${climb.round()}',
           unit: 'm',
           color: AppColors.training,
@@ -347,61 +365,71 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
       if (metersPerSecond != null && metersPerSecond > 0)
         showsPace
             ? (
-                label: '平均配速',
+                label: l10n.activityAveragePace,
                 value: _pace(metersPerSecond),
                 unit: '/km',
                 color: AppColors.activity,
               )
             : (
-                label: '平均速度',
+                label: l10n.activityAverageSpeed,
                 value: (metersPerSecond * 3.6).toStringAsFixed(1),
                 unit: 'km/h',
                 color: AppColors.activity,
               ),
       if (heart != null)
         (
-          label: '平均心率',
+          label: l10n.activityMetricHeartRate,
           value: '${heart.average.round()}',
-          unit: '次/分',
+          unit: l10n.unitBpm,
           color: AppColors.heart,
         ),
       if (heart != null)
         (
-          label: '最高心率',
+          label: l10n.activityMaxHeartRate,
           value: '${heart.high.round()}',
-          unit: '次/分',
+          unit: l10n.unitBpm,
           color: AppColors.heart,
         ),
       if (power != null)
         (
-          label: '平均功率',
+          label: l10n.activityAveragePower,
           value: '${power.average.round()}',
           unit: 'W',
           color: AppColors.warning,
         ),
       if (cadence != null)
         (
-          label: '平均踏頻',
+          label: l10n.activityAverageCadence,
           value: '${cadence.average.round()}',
           unit: 'rpm',
           color: AppColors.warning,
         ),
       if (detail?.steps case final steps? when showsPace && steps > 0)
-        (label: '步數', value: formatKcal(steps.round()), unit: '步', color: null),
+        (
+          label: l10n.activityMetricSteps,
+          value: formatKcal(steps.round()),
+          unit: l10n.activityMetricUnitSteps,
+          color: null,
+        ),
       if (detail?.swimmingStrokes case final strokes? when strokes > 0)
-        (label: '划水次數', value: '${strokes.round()}', unit: '次', color: null),
+        (
+          label: l10n.activityMetricSwimmingStrokes,
+          value: '${strokes.round()}',
+          unit: l10n.activityMetricUnitSwimmingStrokes,
+          color: null,
+        ),
       if (effort != null)
         (
           label: detail?.effort == null && detail?.estimatedEffort != null
-              ? '費力程度（估計）'
-              : '費力程度',
+              ? l10n.activityEffortEstimated
+              : l10n.activityEffort,
           value: effort.round().toString(),
           unit: '/ 10',
           color: null,
         )
       else if (detail?.estimatedEffort case final estimated?)
         (
-          label: '費力程度（估計）',
+          label: l10n.activityEffortEstimated,
           value: estimated.round().toString(),
           unit: '/ 10',
           color: null,
@@ -452,17 +480,17 @@ class _Hero extends StatelessWidget {
   /// The health platform it was read from; null when logged here.
   final String? source;
 
-  String get _title => switch (detail?.isIndoor) {
-    true => '${activity.type.label}（室內）',
-    false => '${activity.type.label}（戶外）',
-    null => activity.type.label,
+  String _title(AppLocalizations l10n) => switch (detail?.isIndoor) {
+    true => l10n.activityIndoor(activity: activity.type.labelIn(l10n)),
+    false => l10n.activityOutdoor(activity: activity.type.labelIn(l10n)),
+    null => activity.type.labelIn(l10n),
   };
 
   double? get _meters => detail?.distanceMeters ?? activity.distanceMeters;
 
-  String get _when =>
-      '${activity.startedAt.year} 年 ${activity.startedAt.month} 月 '
-      '${activity.startedAt.day} 日 · ${formatTimeOfDay(activity.startedAt)}'
+  String _when(BuildContext context) =>
+      '${context.dates.fullDate(activity.startedAt)} · '
+      '${formatTimeOfDay(activity.startedAt)}'
       ' – ${formatTimeOfDay(activity.endedAt)}';
 
   String? get _recordedBy => switch ((detail?.device, source)) {
@@ -472,21 +500,22 @@ class _Hero extends StatelessWidget {
     _ => null,
   };
 
-  List<({IconData icon, Color color, String value, String label})>
-  get _conditions => [
+  List<({IconData icon, Color color, String value, String label})> _conditions(
+    AppLocalizations l10n,
+  ) => [
     if (detail?.temperatureCelsius case final temperature?)
       (
         icon: Icons.wb_sunny_outlined,
         color: AppColors.warning,
         value: '${temperature.round()}°',
-        label: '天氣',
+        label: l10n.weatherLabel,
       ),
     if (detail?.humidityPercent case final humidity?)
       (
         icon: Icons.water_drop_outlined,
         color: AppColors.activity,
         value: '${humidity.round()}%',
-        label: '濕度',
+        label: l10n.humidityLabel,
       ),
   ];
 
@@ -496,19 +525,19 @@ class _Hero extends StatelessWidget {
         measureTextHeight(context, text, style, maxWidth: double.infinity);
     final lines = [
       if (detail?.place case final place?) line(place, _heroPlaceStyle),
-      line(_title, _heroTitleStyle),
+      line(_title(context.l10n), _heroTitleStyle),
       if (_meters case final meters? when meters > 0)
         line('0.00', _heroDistanceStyle),
-      line(_when, _heroLineStyle),
+      line(_when(context), _heroLineStyle),
       if (_recordedBy case final by?) line(by, _heroLineStyle),
     ];
     return lines.fold(0.0, (sum, height) => sum + height) +
         _heroGap * (lines.length - 1) +
-        (_conditions.isEmpty
+        (_conditions(context.l10n).isEmpty
             ? 0
             : AppSpacing.md +
                   line('25°', _heroStatValueStyle) +
-                  line('天氣', _heroLineStyle)) +
+                  line(context.l10n.weatherLabel, _heroLineStyle)) +
         AppSpacing.lg;
   }
 
@@ -546,13 +575,13 @@ class _Hero extends StatelessWidget {
                     Flexible(child: line(place, _heroPlaceStyle)),
                   ],
                 ),
-              line(_title, _heroTitleStyle),
+              line(_title(context.l10n), _heroTitleStyle),
               if (meters != null && meters > 0)
                 line(
                   '${(meters / 1000).toStringAsFixed(2)} km',
                   _heroDistanceStyle,
                 ),
-              line(_when, _heroLineStyle),
+              line(_when(context), _heroLineStyle),
               if (recordedBy != null)
                 Row(
                   children: [
@@ -565,7 +594,8 @@ class _Hero extends StatelessWidget {
                     Flexible(child: line(recordedBy, _heroLineStyle)),
                   ],
                 ),
-              if (_conditions case final conditions when conditions.isNotEmpty)
+              if (_conditions(context.l10n) case final conditions
+                  when conditions.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.md - _heroGap),
                   child: Row(
@@ -741,9 +771,17 @@ class _SplitTable extends StatelessWidget {
         children: [
           row([
             const SizedBox(),
-            const Text('時間', style: AppTextStyles.caption),
-            Text(showsPace ? '配速' : '平均速度', style: AppTextStyles.caption),
-            const Text('心率', style: AppTextStyles.caption),
+            Text(context.l10n.splitTime, style: AppTextStyles.caption),
+            Text(
+              showsPace
+                  ? context.l10n.activityPace
+                  : context.l10n.activityAverageSpeed,
+              style: AppTextStyles.caption,
+            ),
+            Text(
+              context.l10n.activitySeriesHeartRate,
+              style: AppTextStyles.caption,
+            ),
           ]),
           for (final split in splits)
             row([
@@ -759,7 +797,7 @@ class _SplitTable extends StatelessWidget {
               Text(
                 split.averageHeartRate == null
                     ? '—'
-                    : '${split.averageHeartRate!.round()} 次/分',
+                    : '${split.averageHeartRate!.round()} ${context.l10n.unitBpm}',
                 style: numberStyle.copyWith(color: AppColors.heart),
               ),
             ]),
@@ -800,13 +838,13 @@ class _SeriesCard extends StatelessWidget {
     _ => AppColors.warning,
   };
 
-  String _format(double value) => switch (series) {
+  String _format(AppLocalizations l10n, double value) => switch (series) {
     ActivitySeries.speed when _isPace =>
       value <= 0 ? '—' : '${_pace(value)} /km',
     ActivitySeries.speed => '${(value * 3.6).toStringAsFixed(1)} km/h',
     ActivitySeries.strideLength => '${value.toStringAsFixed(2)} m',
     ActivitySeries.verticalOscillation => '${value.toStringAsFixed(1)} cm',
-    _ => '${value.round()} ${series.unit}',
+    _ => '${value.round()} ${series.unitIn(l10n)}',
   };
 
   @override
@@ -824,13 +862,15 @@ class _SeriesCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             children: [
               Text(
-                '平均 ${_format(range.average)}',
+                context.l10n.statAverage(
+                  value: _format(context.l10n, range.average),
+                ),
                 style: AppTextStyles.itemTitle.copyWith(color: _color),
               ),
               Text(
                 _isPace
-                    ? '${_format(range.high)}–${_format(range.low)}'
-                    : '${_format(range.low)}–${_format(range.high)}',
+                    ? '${_format(context.l10n, range.high)}–${_format(context.l10n, range.low)}'
+                    : '${_format(context.l10n, range.low)}–${_format(context.l10n, range.high)}',
                 style: AppTextStyles.caption,
               ),
             ],
@@ -844,7 +884,7 @@ class _SeriesCard extends StatelessWidget {
                 '${formatTimeOfDay(start.add(points.last.at))}',
             readoutOf: (index) =>
                 '${formatTimeOfDay(start.add(shown[index].at))} · '
-                '${_format(shown[index].value)}',
+                '${_format(context.l10n, shown[index].value)}',
             builder: (context, selected) => Sparkline(
               values: [for (final point in shown) point.value],
               color: _color,
@@ -873,9 +913,10 @@ class _ZoneCard extends StatelessWidget {
     );
     String range(int index) {
       final bounds = zones.lowerBounds;
-      if (index == 0) return '< ${bounds[1]} 次/分';
-      if (index == bounds.length - 1) return '≥ ${bounds[index]} 次/分';
-      return '${bounds[index]}–${bounds[index + 1] - 1} 次/分';
+      final bpm = context.l10n.unitBpm;
+      if (index == 0) return '< ${bounds[1]} $bpm';
+      if (index == bounds.length - 1) return '≥ ${bounds[index]} $bpm';
+      return '${bounds[index]}–${bounds[index + 1] - 1} $bpm';
     }
 
     return AppCard(
@@ -893,7 +934,7 @@ class _ZoneCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '區間 ${i + 1}',
+                          context.l10n.heartZone(number: i + 1),
                           style: AppTextStyles.itemTitle.copyWith(
                             color: _zoneColors[i],
                           ),
@@ -930,7 +971,12 @@ class _ZoneCard extends StatelessWidget {
             ),
           const SizedBox(height: AppSpacing.xs),
           TagWrap(
-            labels: [zones.usesReserve ? '依儲備心率估計' : '依年齡估計最大心率', '本 App 的區間'],
+            labels: [
+              zones.usesReserve
+                  ? context.l10n.heartZonesByReserve
+                  : context.l10n.heartZonesByAge,
+              context.l10n.heartZonesOwn,
+            ],
           ),
         ],
       ),
@@ -960,8 +1006,10 @@ class _RecoveryCard extends StatelessWidget {
         if (_at(Duration(minutes: minutes)) case final bpm?)
           StatBlock(
             value: '${bpm.round()}',
-            unit: '次/分',
-            label: minutes == 0 ? '結束時' : '$minutes 分後',
+            unit: context.l10n.unitBpm,
+            label: minutes == 0
+                ? context.l10n.recoveryAtEnd
+                : context.l10n.recoveryAfter(minutes: minutes),
             valueColor: AppColors.heart,
             valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 22),
           ),
@@ -973,10 +1021,10 @@ class _RecoveryCard extends StatelessWidget {
           ChartScrubber(
             count: points.length,
             indexAt: ChartScrubber.points(points.length),
-            idle: '${formatTimeOfDay(end)} 起 3 分鐘',
+            idle: context.l10n.recoveryWindow(time: formatTimeOfDay(end)),
             readoutOf: (index) =>
                 '${formatTimeOfDay(end.add(points[index].at))} · '
-                '${points[index].value.round()} 次/分',
+                '${points[index].value.round()} ${context.l10n.unitBpm}',
             builder: (context, selected) => Sparkline(
               values: [for (final point in points) point.value],
               color: AppColors.heart,

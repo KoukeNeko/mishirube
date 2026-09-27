@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/format.dart';
 import 'body_metrics.dart';
 
@@ -41,17 +42,7 @@ const _minimumPairs = 5;
 const _volumeDifferenceShare = 0.05;
 
 /// The areas the long-run lines cover, in the order they are listed.
-enum TrendDomain {
-  body('身體'),
-  training('訓練'),
-  sleep('睡眠'),
-  nutrition('飲食'),
-  activity('活動');
-
-  const TrendDomain(this.label);
-
-  final String label;
-}
+enum TrendDomain { body, training, sleep, nutrition, activity }
 
 /// One area over the long run: where it stands over the latest stretch,
 /// how that compares with the stretch before, and its weekly values.
@@ -84,8 +75,8 @@ class _Window {
     required this.baselineDays,
     required this.minimumRecent,
     required this.minimumBaseline,
-    required this.recentLabel,
-    required this.baselineLabel,
+    required this.recent,
+    required this.baseline,
     this.baselineIncludesRecent = false,
   });
 
@@ -97,16 +88,16 @@ class _Window {
       baselineDays: 3 * trendWindowDays,
       minimumRecent: minimumRecent,
       minimumBaseline: 3 * minimumRecent,
-      recentLabel: '近 4 週',
-      baselineLabel: '前 12 週',
+      recent: _Span.last4Weeks,
+      baseline: _Span.prior12Weeks,
     ),
     _Window(
       recentDays: trendWindowDays,
       baselineDays: trendWindowDays,
       minimumRecent: minimumRecent,
       minimumBaseline: minimumRecent,
-      recentLabel: '近 4 週',
-      baselineLabel: '前 4 週',
+      recent: _Span.last4Weeks,
+      baseline: _Span.prior4Weeks,
     ),
   ];
 
@@ -115,13 +106,25 @@ class _Window {
   final bool baselineIncludesRecent;
   final int minimumRecent;
   final int minimumBaseline;
-  final String recentLabel;
-  final String baselineLabel;
+  final _Span recent;
+  final _Span baseline;
+}
 
-  /// `與前 12 週相比`, or `近 90 天與過去一年相比`.
-  String get comparison => baselineIncludesRecent
-      ? '$recentLabel與$baselineLabel相比'
-      : '與$baselineLabel相比';
+/// The stretches a trend is read over.
+enum _Span {
+  last4Weeks,
+  prior4Weeks,
+  prior12Weeks,
+  last90Days,
+  pastYear;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    last4Weeks => l10n.last4Weeks,
+    prior4Weeks => l10n.prior4Weeks,
+    prior12Weeks => l10n.prior12Weeks,
+    last90Days => l10n.last90Days,
+    pastYear => l10n.pastYear,
+  };
 }
 
 /// The values of [days] in [window]'s latest stretch up to [today], and
@@ -134,8 +137,8 @@ class _Window {
     baselineDays: trendWindowDays,
     minimumRecent: 0,
     minimumBaseline: 0,
-    recentLabel: '近 4 週',
-    baselineLabel: '前 4 週',
+    recent: _Span.last4Weeks,
+    baseline: _Span.prior4Weeks,
   ),
 ]) {
   final end = _dayOf(today);
@@ -187,8 +190,8 @@ final _stepWindows = [
     baselineIncludesRecent: true,
     minimumRecent: _minimumStepDaysOf90,
     minimumBaseline: _minimumStepDaysOfYear,
-    recentLabel: '近 90 天',
-    baselineLabel: '過去一年',
+    recent: _Span.last90Days,
+    baseline: _Span.pastYear,
   ),
   ..._Window.weeks(_minimumStepDays),
 ];
@@ -198,7 +201,16 @@ double _mean(List<double> values) =>
 
 String _percent(double share) => '${(share.abs() * 100).round()}%';
 
-String _moreOrLess(double delta) => delta < 0 ? '少' : '多';
+/// [amount] more or less than [window]'s baseline, as [delta] has it.
+String _change(
+  AppLocalizations l10n,
+  _Window window,
+  double delta,
+  String amount,
+) => (delta < 0 ? l10n.changeLess : l10n.changeMore)(
+  against: _against(l10n, window),
+  amount: amount,
+);
 
 String _duration(double minutes) =>
     formatHoursMinutes(Duration(minutes: minutes.round()));
@@ -228,6 +240,7 @@ _Window? _trainingWindow(List<DateTime> starts, DateTime today) {
 /// of workouts with the same name, so a leg day is not set against an
 /// arm day; nights are split at their median. A relation, not a cause.
 Insight? sleepAndTrainingInsight(
+  AppLocalizations l10n,
   Map<DateTime, double> nightMinutesByDay,
   List<(DateTime, String, double)> workouts,
 ) {
@@ -258,14 +271,14 @@ Insight? sleepAndTrainingInsight(
   final difference = _mean(longer) - _mean(shorter);
   if (difference.abs() < _volumeDifferenceShare) return null;
   return Insight(
-    statement:
-        '前一晚睡得較久的訓練，訓練量平均'
-        '${_moreOrLess(difference)} ${_percent(difference)}。',
+    statement: (difference < 0 ? l10n.sleepLoadLess : l10n.sleepLoadMore)(
+      percent: _percent(difference),
+    ),
     evidence: [
-      '${pairs.length} 次訓練',
-      '以 ${_duration(median)} 區分睡得較久或較少',
-      '與同一訓練的平均相比',
-      '關聯，不代表因果',
+      l10n.workoutsCount(count: pairs.length),
+      l10n.sleepSplitAt(time: _duration(median)),
+      l10n.againstSameWorkout,
+      l10n.correlationCaveat,
     ],
   );
 }
@@ -312,7 +325,11 @@ List<double> _weeklyCounts(List<DateTime> times, DateTime today) {
 
 /// The trend weight where it stands, and how far it moved over the
 /// latest stretch; null without a weighing in it.
-TrendLine? bodyLine(List<BodyWeight> weights, DateTime today) {
+TrendLine? bodyLine(
+  AppLocalizations l10n,
+  List<BodyWeight> weights,
+  DateTime today,
+) {
   final trend = [for (final (at, _, value) in trendOf(weights)) (at, value)];
   final (:recent, prior: _) = _stretches(trend, today);
   if (recent.isEmpty) return null;
@@ -322,14 +339,21 @@ TrendLine? bodyLine(List<BodyWeight> weights, DateTime today) {
     value: '${formatWeight(_round(recent.last))} kg',
     change: recent.length < 2
         ? null
-        : '4 週 ${change < 0 ? '−' : '+'}${formatWeight(_round(change.abs()))} kg',
+        : l10n.weightChange4Weeks(
+            change:
+                '${change < 0 ? '−' : '+'}${formatWeight(_round(change.abs()))}',
+          ),
     weekly: _weekly(trend, today),
   );
 }
 
 /// Sessions a week over the latest four weeks, against the baseline
 /// training goes back far enough for; null without one.
-TrendLine? trainingLine(List<DateTime> starts, DateTime today) {
+TrendLine? trainingLine(
+  AppLocalizations l10n,
+  List<DateTime> starts,
+  DateTime today,
+) {
   final counted = [for (final start in starts) (start, 1.0)];
   final (:recent, prior: _) = _stretches(counted, today);
   if (recent.isEmpty) return null;
@@ -341,22 +365,33 @@ TrendLine? trainingLine(List<DateTime> starts, DateTime today) {
             (window.baselineDays / DateTime.daysPerWeek);
   return TrendLine(
     domain: TrendDomain.training,
-    value: '每週 ${(recent.length / weeks).toStringAsFixed(1)} 次',
+    value: l10n.perWeekTimes(count: (recent.length / weeks).toStringAsFixed(1)),
     change: prior == null
         ? null
-        : '${window!.baselineLabel} ${prior.toStringAsFixed(1)} 次',
+        : l10n.baselineTimes(
+            baseline: window!.baseline.labelIn(l10n),
+            count: prior.toStringAsFixed(1),
+          ),
     weekly: _weeklyCounts(starts, today),
   );
 }
 
 /// `比前 12 週`, or `近 90 天比過去一年`: what a line's change is set
 /// against.
-String _against(_Window window) => window.baselineIncludesRecent
-    ? '${window.recentLabel}比${window.baselineLabel}'
-    : '比${window.baselineLabel}';
+String _against(AppLocalizations l10n, _Window window) =>
+    window.baselineIncludesRecent
+    ? l10n.againstRecentBaseline(
+        recent: window.recent.labelIn(l10n),
+        baseline: window.baseline.labelIn(l10n),
+      )
+    : l10n.againstBaseline(baseline: window.baseline.labelIn(l10n));
 
 /// The average night over the latest four weeks; null without one.
-TrendLine? sleepLine(List<(DateTime, double)> nights, DateTime today) {
+TrendLine? sleepLine(
+  AppLocalizations l10n,
+  List<(DateTime, double)> nights,
+  DateTime today,
+) {
   final (:recent, prior: _) = _stretches(nights, today);
   if (recent.isEmpty) return null;
   final compared = _compare(nights, today, _Window.weeks(_minimumLineDays));
@@ -365,10 +400,15 @@ TrendLine? sleepLine(List<(DateTime, double)> nights, DateTime today) {
       : _mean(compared.recent) - _mean(compared.prior);
   return TrendLine(
     domain: TrendDomain.sleep,
-    value: '平均 ${_duration(_mean(recent))}',
+    value: l10n.statAverage(value: _duration(_mean(recent))),
     change: delta == null
         ? null
-        : '${_against(compared!.window)}${_moreOrLess(delta)} ${delta.abs().round()} 分',
+        : _change(
+            l10n,
+            compared!.window,
+            delta,
+            l10n.durationMinutes(minutes: delta.abs().round()),
+          ),
     weekly: _weekly(nights, today),
   );
 }
@@ -376,6 +416,7 @@ TrendLine? sleepLine(List<(DateTime, double)> nights, DateTime today) {
 /// Energy eaten on complete days, and how many days were complete;
 /// null without a food record in the latest stretch.
 TrendLine? nutritionLine(
+  AppLocalizations l10n,
   List<(DateTime, double)> completeDays,
   int daysTracked,
   DateTime today,
@@ -385,16 +426,22 @@ TrendLine? nutritionLine(
   return TrendLine(
     domain: TrendDomain.nutrition,
     value: recent.isEmpty
-        ? '完整 0/$daysTracked 天'
-        : '平均 ${formatKcal(_mean(recent).round())} kcal',
-    change: recent.isEmpty ? null : '完整 ${recent.length}/$daysTracked 天',
+        ? l10n.completeDays(complete: 0, tracked: daysTracked)
+        : l10n.statAverage(value: '${formatKcal(_mean(recent).round())} kcal'),
+    change: recent.isEmpty
+        ? null
+        : l10n.completeDays(complete: recent.length, tracked: daysTracked),
     weekly: _weekly(completeDays, today),
   );
 }
 
 /// Average daily steps over the steps' window, against its baseline;
 /// null without any.
-TrendLine? activityLine(List<(DateTime, double)> steps, DateTime today) {
+TrendLine? activityLine(
+  AppLocalizations l10n,
+  List<(DateTime, double)> steps,
+  DateTime today,
+) {
   final compared =
       _compare(steps, today, [
         ..._stepWindows,
@@ -406,8 +453,8 @@ TrendLine? activityLine(List<(DateTime, double)> steps, DateTime today) {
           baselineDays: trendWindowDays,
           minimumRecent: 1,
           minimumBaseline: 0,
-          recentLabel: '近 4 週',
-          baselineLabel: '前 4 週',
+          recent: _Span.last4Weeks,
+          baseline: _Span.prior4Weeks,
         ),
       ]);
   if (compared == null) return null;
@@ -418,10 +465,10 @@ TrendLine? activityLine(List<(DateTime, double)> steps, DateTime today) {
       : (_mean(recent) - before) / before;
   return TrendLine(
     domain: TrendDomain.activity,
-    value: '每天 ${formatKcal(_mean(recent).round())} 步',
+    value: l10n.perDaySteps(steps: formatKcal(_mean(recent).round())),
     change: share == null
         ? null
-        : '${_against(window)}${_moreOrLess(share)} ${_percent(share)}',
+        : _change(l10n, window, share, _percent(share)),
     weekly: _weekly(steps, today),
   );
 }

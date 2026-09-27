@@ -4,22 +4,29 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/activity_metrics.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'daily_activity_screen.dart';
 import 'daily_activity_view_model.dart';
+import '../../l10n/l10n.dart';
 
 enum _Range {
-  day('日', 1),
-  week('週', 7),
-  month('月', 30),
-  halfYear('半年', 182),
-  year('年', 365);
+  day(1),
+  week(7),
+  month(30),
+  halfYear(182),
+  year(365);
 
-  const _Range(this.label, this.days);
+  const _Range(this.days);
 
-  final String label;
   final int days;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    day => l10n.chartRangeDay,
+    week => l10n.chartRangeWeek,
+    month => l10n.chartRangeMonth,
+    halfYear => l10n.chartRangeHalfYear,
+    year => l10n.chartRangeYear,
+  };
 }
 
 /// One activity metric over a day, a week, a month, half a year or a
@@ -51,7 +58,8 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
 
   ActivityMetric get _metric => widget.metric;
 
-  String _value(double value) => '${_metric.format(value)} ${_metric.unit}';
+  String _value(double value) =>
+      '${_metric.format(value)} ${_metric.unitIn(context.l10n)}';
 
   @override
   void dispose() {
@@ -69,17 +77,17 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     final usual = _model.usualRange(_metric);
     return DetailPage(
       appBar: PageAppBar(
-        title: _metric.label,
-        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+        title: _metric.labelIn(context.l10n),
+        subtitle: context.dates.dayWithWeekday(day),
         actions: [
           HeaderAction(
             icon: Icons.chevron_left,
-            semanticLabel: '前一天',
+            semanticLabel: context.l10n.previousDay,
             onTap: () => _model.step(-1),
           ),
           HeaderAction(
             icon: Icons.chevron_right,
-            semanticLabel: '後一天',
+            semanticLabel: context.l10n.nextDay,
             onTap: _model.canGoForward ? () => _model.step(1) : null,
           ),
         ],
@@ -92,15 +100,20 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
                 if (_metric.isCumulative || range != _Range.day) range,
             ],
             selected: _range,
-            labelOf: (range) => range.label,
+            labelOf: (range) => range.labelIn(context.l10n),
             onChanged: (range) => setState(() => _range = range),
             selectedColor: AppColors.activity,
           ),
         ),
         if (days.isEmpty)
           Gutter(
-            child: const GroupedCard(
-              children: [KeyValueRow(label: '紀錄', value: '沒有資料')],
+            child: GroupedCard(
+              children: [
+                KeyValueRow(
+                  label: context.l10n.entriesRow,
+                  value: context.l10n.noData,
+                ),
+              ],
             ),
           )
         else ...[
@@ -109,25 +122,31 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
             child: GroupedCard(
               children: [
                 if (_range == _Range.day)
-                  KeyValueRow(label: '這一天', value: _value(days.single.$2))
+                  KeyValueRow(
+                    label: context.l10n.thisDay,
+                    value: _value(days.single.$2),
+                  )
                 else
                   KeyValueRow(
-                    label: '每日平均',
+                    label: context.l10n.dailyAverage,
                     value: _value(
                       days.fold(0.0, (sum, day) => sum + day.$2) / days.length,
                     ),
                   ),
                 if (usual != null)
                   KeyValueRow(
-                    label: '平常範圍',
+                    label: context.l10n.usualRange,
                     value:
                         '${_metric.format(usual.low)}–'
-                        '${_metric.format(usual.high)} ${_metric.unit}',
+                        '${_metric.format(usual.high)} ${_metric.unitIn(context.l10n)}',
                   ),
                 if (_range != _Range.day)
-                  KeyValueRow(label: '紀錄天數', value: '${days.length} 天'),
+                  KeyValueRow(
+                    label: context.l10n.daysRecorded,
+                    value: context.l10n.daysCount(count: days.length),
+                  ),
                 KeyValueRow(
-                  label: '來源',
+                  label: context.l10n.journalSourceRow,
                   value: AppStoreScope.of(context).healthSourceName,
                 ),
               ],
@@ -150,22 +169,26 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
       _Range.year => averagedBy(days, months: true),
       _ => days,
     };
+    final dates = context.dates;
+    final l10n = context.l10n;
     String when(DateTime start) => switch (_range) {
-      _Range.halfYear => '${start.month} 月 ${start.day} 日起一週',
-      _Range.year => '${start.year} 年 ${start.month} 月',
-      _ => '${start.month} 月 ${start.day} 日（週${weekdayLabel(start)}）',
+      _Range.halfYear => l10n.weekOf(date: dates.monthDay(start)),
+      _Range.year => dates.yearMonth(start),
+      _ => dates.dayWithWeekday(start),
     };
     final isAverage = _range == _Range.halfYear || _range == _Range.year;
+    String figure(double value) =>
+        isAverage ? l10n.statAverage(value: _value(value)) : _value(value);
     String readout(int index) {
       final (start, value) = points[index];
-      return '${when(start)} · ${isAverage ? '平均 ' : ''}${_value(value)}';
+      return '${when(start)} · ${figure(value)}';
     }
 
     if (!_metric.isCumulative) {
       return ChartScrubber(
         count: points.length,
         indexAt: ChartScrubber.points(points.length),
-        idle: '${points.length} 筆',
+        idle: l10n.readingsCount(count: points.length),
         readoutOf: readout,
         builder: (context, selected) => Sparkline(
           values: [for (final (_, value) in points) value],
@@ -183,17 +206,16 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     return ChartScrubber(
       count: slots.length,
       indexAt: ChartScrubber.slots(slots.length),
-      idle: isAverage ? '每日平均' : '每日',
+      idle: isAverage ? l10n.dailyAverage : l10n.perDay,
       readoutOf: (index) => switch (slots[index]) {
-        (final start, final value?) =>
-          '${when(start)} · ${isAverage ? '平均 ' : ''}${_value(value)}',
-        (final start, null) => '${when(start)} · 沒有資料',
+        (final start, final value?) => '${when(start)} · ${figure(value)}',
+        (final start, null) => '${when(start)} · ${l10n.noData}',
       },
       builder: (context, selected) => MiniBarChart(
         bars: [
           for (final (start, value) in slots)
             (
-              _range == _Range.week ? weekdayLabel(start) : '',
+              _range == _Range.week ? dates.weekday(start) : '',
               ((value ?? 0) * 10).round(),
             ),
         ],

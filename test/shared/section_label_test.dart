@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 void main() {
   /// Where [text]'s baseline sits on screen.
@@ -32,6 +33,8 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Column(
               children: [

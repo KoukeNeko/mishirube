@@ -6,6 +6,7 @@ import '../../backend/engines/trend_engine.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Weeks before this one that the usual range is read from.
 const _usualWeeks = 4;
@@ -21,13 +22,16 @@ class MuscleTrendsScreen extends StatelessWidget {
     builder: (context, trends) {
       final muscles = trends.muscleWeeks();
       return DetailPage(
-        appBar: PageAppBar(title: '肌群', subtitle: '每週工作組數 · 近 8 週'),
+        appBar: PageAppBar(
+          title: context.l10n.musclesTitle,
+          subtitle: context.l10n.weeklySetsLast8,
+        ),
         children: [
           if (muscles.isEmpty)
             Gutter(
-              child: const EmptyStateCard(
+              child: EmptyStateCard(
                 icon: Icons.accessibility_new,
-                title: '沒有工作組紀錄',
+                title: context.l10n.noWorkingSets,
               ),
             )
           else
@@ -75,11 +79,14 @@ class _MuscleCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(muscle.label, style: AppTextStyles.itemTitle),
+                child: Text(
+                  muscle.labelIn(context.l10n),
+                  style: AppTextStyles.itemTitle,
+                ),
               ),
               ValueWithUnit(
                 value: '${weeks.last.$2}',
-                unit: '組 · 本週',
+                unit: context.l10n.setsThisWeekUnit,
                 style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
               ),
             ],
@@ -87,17 +94,21 @@ class _MuscleCard extends StatelessWidget {
           if (usual != null) ...[
             const SizedBox(height: AppSpacing.xxs),
             Text(
-              usual.$1 == usual.$2
-                  ? '前 $_usualWeeks 週 ${usual.$1} 組'
-                  : '前 $_usualWeeks 週 ${usual.$1}–${usual.$2} 組',
+              context.l10n.priorWeeksSets(
+                weeks: _usualWeeks,
+                sets: usual.$1 == usual.$2
+                    ? '${usual.$1}'
+                    : '${usual.$1}–${usual.$2}',
+              ),
               style: AppTextStyles.caption,
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
           Semantics(
-            label:
-                '${muscle.label}每週組數，'
-                '${weeks.map((week) => week.$2).join('、')}',
+            label: context.l10n.muscleSetsChart(
+              muscle: muscle.labelIn(context.l10n),
+              sets: joinList(context.l10n, weeks.map((week) => '${week.$2}')),
+            ),
             excludeSemantics: true,
             child: MiniBarChart(bars: weeks, height: 56),
           ),

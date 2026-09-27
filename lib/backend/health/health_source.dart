@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 import '../storage/database.dart';
 
 /// A health platform the app reads from. Read only: nothing is written
 /// back.
 abstract interface class HealthSource {
   /// What the user calls it: `Apple 健康`, `Health Connect`.
-  String get name;
+  String nameIn(AppLocalizations l10n);
 
   /// Where the records it produces say they came from.
   ChangeSource get changeSource;
@@ -78,11 +79,15 @@ abstract interface class HealthSource {
 /// (`HealthKitBridge` in `ios/Runner/AppDelegate.swift`) and Health
 /// Connect (`HealthConnectBridge.kt` on Android) answer the same calls
 /// with the same shapes, so one class reads both.
+String _appleHealthName(AppLocalizations l10n) => l10n.appleHealth;
+
+String _healthConnectName(AppLocalizations l10n) => l10n.healthConnectName;
+
 class PlatformHealthSource implements HealthSource {
   const PlatformHealthSource._(
     this._channel,
-    this._isThisPlatform, {
-    required this.name,
+    this._isThisPlatform,
+    this._name, {
     required this.changeSource,
     required this.idPrefix,
     required this.kinds,
@@ -95,7 +100,7 @@ class PlatformHealthSource implements HealthSource {
   static final appleHealth = PlatformHealthSource._(
     const MethodChannel('mishirube/healthkit'),
     () => Platform.isIOS,
-    name: 'Apple 健康',
+    _appleHealthName,
     changeSource: ChangeSource.healthKit,
     idPrefix: 'healthkit',
     kinds: HealthDataKind.values.toSet(),
@@ -107,14 +112,15 @@ class PlatformHealthSource implements HealthSource {
   static final healthConnect = PlatformHealthSource._(
     const MethodChannel('mishirube/healthconnect'),
     () => Platform.isAndroid,
-    name: 'Health Connect',
+    _healthConnectName,
     changeSource: ChangeSource.healthConnect,
     idPrefix: 'healthconnect',
     kinds: {...HealthDataKind.values}..remove(HealthDataKind.waist),
   );
 
+  final String Function(AppLocalizations l10n) _name;
   @override
-  final String name;
+  String nameIn(AppLocalizations l10n) => _name(l10n);
   @override
   final ChangeSource changeSource;
   @override
@@ -356,7 +362,7 @@ class NoHealthSource implements HealthSource {
   const NoHealthSource();
 
   @override
-  String get name => '健康資料';
+  String nameIn(AppLocalizations l10n) => l10n.healthDataGeneric;
   @override
   ChangeSource get changeSource => ChangeSource.healthKit;
   @override

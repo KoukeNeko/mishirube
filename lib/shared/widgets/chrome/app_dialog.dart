@@ -7,6 +7,7 @@ import '../../haptics.dart';
 import '../../motion.dart';
 import '../controls/inputs.dart';
 import 'chrome_surface.dart';
+import '../../../l10n/l10n.dart';
 
 /// How long the dialog takes to arrive; leaving is quicker, the way the
 /// system's own alerts behave.
@@ -344,7 +345,7 @@ Future<T?> showAppDialog<T>(BuildContext context, Widget dialog) {
     _AppDialogRoute<T>(
       reverseDuration: chromeDuration(context, _exitDuration),
       barrierDismissible: true,
-      barrierLabel: '關閉',
+      barrierLabel: context.l10n.commonClose,
       barrierColor: Colors.black.withValues(alpha: 0.42),
       transitionDuration: chromeDuration(context, _enterDuration),
       pageBuilder: (_, _, _) => dialog,
@@ -401,7 +402,7 @@ Future<String?> showTextDialog(
   required String title,
   String initial = '',
   String hint = '',
-  String confirmLabel = '儲存',
+  String? confirmLabel,
   int maxLines = 1,
   TextInputType? keyboardType,
 }) {
@@ -411,7 +412,7 @@ Future<String?> showTextDialog(
       title: title,
       initial: initial,
       hint: hint,
-      confirmLabel: confirmLabel,
+      confirmLabel: confirmLabel ?? context.l10n.commonSave,
       maxLines: maxLines,
       keyboardType: keyboardType,
     ),
@@ -465,7 +466,10 @@ class _TextDialogState extends State<_TextDialog> {
           tone: DialogTone.primary,
           onTap: () => Navigator.of(context).pop(_controller.text),
         ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        DialogAction(
+          label: context.l10n.commonCancel,
+          onTap: () => Navigator.of(context).pop(),
+        ),
       ],
     );
   }

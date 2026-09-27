@@ -32,7 +32,18 @@ class DishEntry {
 /// How the water shortcut marks what it writes, so a glass of water can
 /// be told from any other drink — including a saved food someone named
 /// 「水」, which comes through a portion instead.
+// l10n-ignore: stored with the meal; shown through qualityTagLabel.
 const waterQualityTag = '水';
+
+// The other marks a meal is stored with, shown through qualityTagLabel.
+// l10n-ignore: stored.
+const confirmedQualityTag = '已確認';
+// l10n-ignore: stored.
+const estimatedPortionQualityTag = '份量為估計';
+// l10n-ignore: stored.
+const customFoodQualityTag = '自訂食物';
+// l10n-ignore: stored.
+const quickLogQualityTag = '快速記錄';
 
 class MealEvent {
   const MealEvent({
@@ -183,20 +194,16 @@ class MealEvent {
 /// precision nobody has.
 enum NutrientValueType {
   /// A figure the maker declares: a packet label, a brand's own table.
-  declared('標示值'),
+  declared,
 
   /// A ceiling, not a measurement — what Taiwanese chains are required
   /// to publish. The number is shown as it is and the pages that show it
   /// say it is a maximum, the way the chains' own tables do.
-  max('最高值'),
+  max,
 
   /// Not this thing's own label: a general figure for its kind, or one
   /// borrowed from the same recipe in another size.
-  estimate('估計值');
-
-  const NutrientValueType(this.label);
-
-  final String label;
+  estimate,
 }
 
 /// Which sitting a record belongs to, when the user says so.
@@ -212,16 +219,7 @@ enum NutrientValueType {
 /// These five are the values Health Connect defines, so a record can be
 /// handed over without inventing a mapping. HealthKit has no meal type
 /// at all; syncing there simply loses the note.
-enum MealType {
-  breakfast('早餐'),
-  lunch('午餐'),
-  dinner('晚餐'),
-  snack('點心');
-
-  const MealType(this.label);
-
-  final String label;
-}
+enum MealType { breakfast, lunch, dinner, snack }
 
 /// Whether something is eaten or drunk.
 ///
@@ -234,15 +232,7 @@ enum MealType {
 /// [unknown] is where the genuinely arguable ones sit. It is not a
 /// failure to categorise: nobody has a definition of "beverage" that
 /// settles soup, so the app does not pretend to have one.
-enum ConsumptionKind {
-  food('食物'),
-  beverage('飲品'),
-  unknown('未指定');
-
-  const ConsumptionKind(this.label);
-
-  final String label;
-}
+enum ConsumptionKind { food, beverage, unknown }
 
 /// Which column of the label the figures were typed from: per 100 g or
 /// ml, or one serving. Named for caffeine, the first figure typed this
@@ -270,24 +260,22 @@ enum ServingDimension { mass, volume, count }
 /// [ServingDimension.count] means the size is not a measurement at all:
 /// one 便當 is one 便當, and the app must not pretend it knows the grams.
 enum ServingUnit {
-  gram('g', ServingDimension.mass, 1),
-  kilogram('kg', ServingDimension.mass, 1000),
-  ounce('oz', ServingDimension.mass, 28.349523125),
-  pound('lb', ServingDimension.mass, 453.59237),
+  gram(ServingDimension.mass, 1),
+  kilogram(ServingDimension.mass, 1000),
+  ounce(ServingDimension.mass, 28.349523125),
+  pound(ServingDimension.mass, 453.59237),
 
   /// Taiwan's tael and catty, fixed by the Bureau of Standards at
   /// 37.5 g and 600 g.
-  tael('台兩', ServingDimension.mass, 37.5),
-  catty('台斤', ServingDimension.mass, 600),
+  tael(ServingDimension.mass, 37.5),
+  catty(ServingDimension.mass, 600),
 
-  millilitre('ml', ServingDimension.volume, 1),
-  litre('L', ServingDimension.volume, 1000),
+  millilitre(ServingDimension.volume, 1),
+  litre(ServingDimension.volume, 1000),
 
-  serving('份', ServingDimension.count, 1);
+  serving(ServingDimension.count, 1);
 
-  const ServingUnit(this.label, this.dimension, this.inBaseUnit);
-
-  final String label;
+  const ServingUnit(this.dimension, this.inBaseUnit);
   final ServingDimension dimension;
 
   /// How many of the dimension's base unit — grams or millilitres — one
@@ -371,15 +359,6 @@ class FoodItem {
 
   final ServingUnit servingUnit;
 
-  /// `一碗 · 250 ml`, or just the measurement when it has no name.
-  String get servingDescription {
-    final measured = isCupCapacity
-        ? '杯容量 ${formatAmount(servingAmount)} ${servingUnit.label}'
-        : '${formatAmount(servingAmount)} ${servingUnit.label}';
-    if (servingLabel.isEmpty) return measured;
-    return servingUnit.isMeasured ? '$servingLabel · $measured' : servingLabel;
-  }
-
   /// Per serving, as the user entered them, decimals included: a label
   /// prints 6.7 g. Null is a figure nobody wrote down — a food whose
   /// label was never read is not a food with no calories in it. A meal
@@ -447,10 +426,6 @@ class FoodItem {
   final String sizeName;
 
   bool get isSize => parentId != null;
-
-  /// The brand with the country its figures are for, `7-ELEVEN（台灣）`,
-  /// when the app ships them; the brand alone for a food the user made.
-  String get brandLabel => labelOfBrand(brand, country);
 
   /// `統一 雞胸肉` when it has a maker, otherwise just the name. A size
   /// says which one it is: `星巴克 美式咖啡 Tall`, and a line which it
@@ -524,21 +499,17 @@ class FoodItem {
 /// What Taiwan's food allergen labelling rule (食品過敏原標示規定) has a
 /// food declare it contains, in the order the rule lists them.
 enum Allergen {
-  crustacean('甲殼類'),
-  mango('芒果'),
-  peanut('花生'),
-  milk('牛奶'),
-  egg('蛋'),
-  treeNut('堅果'),
-  sesame('芝麻'),
-  gluten('麩質'),
-  soy('大豆'),
-  fish('魚類'),
-  sulphite('亞硫酸鹽');
-
-  const Allergen(this.label);
-
-  final String label;
+  crustacean,
+  mango,
+  peanut,
+  milk,
+  egg,
+  treeNut,
+  sesame,
+  gluten,
+  soy,
+  fish,
+  sulphite,
 }
 
 /// The unit a nutrient is counted in.
@@ -552,11 +523,6 @@ enum NutrientUnit {
   final String label;
 }
 
-/// What a Japanese label (食品表示基準) calls a figure, so a food sold
-/// there reads as its own label does; null for one the label has no
-/// word for here.
-String? japaneseLabelOf(Nutrient nutrient) => _japaneseWords[nutrient];
-
 /// Whose way of reading a label the day's totals and limits follow: a
 /// user's own, apart from the language of the app and from the label
 /// each food was printed with, which its own page keeps.
@@ -565,35 +531,33 @@ String? japaneseLabelOf(Nutrient nutrient) => _japaneseWords[nutrient];
 /// health authority's limit for adults, not to a label's reference value.
 enum NutritionConvention {
   /// Sodium in mg, under the Health Promotion Administration's 2,400 mg.
-  taiwan('台灣', {'TW'}),
+  taiwan({'TW'}),
 
   /// Salt equivalent in g, under Japan's DRIs (2025) by sex.
-  japan('日本', {'JP'}),
+  japan({'JP'}),
 
   /// Sodium in mg, under the NASEM's 2,300 mg (2019).
-  unitedStates('美國', {'US'}),
+  unitedStates({'US'}),
 
   /// Salt in g, under EFSA's 2.0 g of sodium (2019), 5 g of the EU's
   /// salt.
-  europeanUnion('歐盟', {'EU'}),
+  europeanUnion({'EU'}),
 
   /// Sodium in mg, under the NHMRC's suggested dietary target of
   /// 2,000 mg (2017), for both countries under one food code.
-  australiaNewZealand('澳洲、紐西蘭', {'AU', 'NZ'}),
+  australiaNewZealand({'AU', 'NZ'}),
 
   /// Sodium in mg, under the 2020 KDRIs' 2,300 mg.
-  korea('韓國', {'KR'}),
+  korea({'KR'}),
 
   /// Salt in g, under the Chinese Dietary Guidelines' (2022) 5 g.
-  china('中國', {'CN'}),
+  china({'CN'}),
 
   /// Sodium in mg, under the NASEM's 2,300 mg (2019), as Health Canada
   /// uses it.
-  canada('加拿大', {'CA'});
+  canada({'CA'});
 
-  const NutritionConvention(this.label, this.labelCountries);
-
-  final String label;
+  const NutritionConvention(this.labelCountries);
 
   /// The countries whose labels this convention reads, as a food's
   /// [FoodItem.country] names them.
@@ -651,219 +615,6 @@ enum NutritionConvention {
   /// The part of the carbohydrate the day is read by: sugar, or, the
   /// Japanese way, 糖質, the carbohydrate less its fibre.
   Nutrient get carbPart => this == japan ? Nutrient.netCarb : Nutrient.sugar;
-
-  /// What the five figures every label has are called, in the words of
-  /// the labels this convention reads.
-  String get energyName => _words.energy;
-  String get proteinName => _words.protein;
-  String get carbName => _words.carb;
-  String get fatName => _words.fat;
-  String get fibreName => _words.fibre;
-
-  /// What [nutrient] is called on the labels this convention reads; the
-  /// app's own word for one they have no word for here.
-  String nameOf(Nutrient nutrient) =>
-      _words.nutrients[nutrient] ?? nutrient.label;
-
-  _LabelWords get _words => switch (this) {
-    taiwan => const _LabelWords(
-      energy: MacroLabel.energy,
-      protein: MacroLabel.protein,
-      carb: MacroLabel.carb,
-      fat: MacroLabel.fat,
-      fibre: MacroLabel.fibre,
-      nutrients: {},
-    ),
-    japan => const _LabelWords(
-      energy: JapaneseMacroLabel.energy,
-      protein: JapaneseMacroLabel.protein,
-      carb: JapaneseMacroLabel.carb,
-      fat: JapaneseMacroLabel.fat,
-      fibre: JapaneseMacroLabel.fibre,
-      nutrients: _japaneseWords,
-    ),
-    unitedStates => const _LabelWords(
-      energy: 'Calories',
-      protein: 'Protein',
-      carb: 'Total Carbohydrate',
-      fat: 'Total Fat',
-      fibre: 'Dietary Fiber',
-      nutrients: {
-        ..._englishWords,
-        Nutrient.sugar: 'Total Sugars',
-        Nutrient.saturatedFat: 'Saturated Fat',
-        Nutrient.transFat: 'Trans Fat',
-        Nutrient.polyols: 'Sugar Alcohol',
-      },
-    ),
-    europeanUnion => const _LabelWords(
-      energy: 'Energy',
-      protein: 'Protein',
-      carb: 'Carbohydrate',
-      fat: 'Fat',
-      fibre: 'Fibre',
-      nutrients: {
-        ..._englishWords,
-        Nutrient.sugar: 'Sugars',
-        Nutrient.saturatedFat: 'Saturates',
-        Nutrient.polyols: 'Polyols',
-        Nutrient.netCarb: 'Carbohydrate',
-      },
-    ),
-    australiaNewZealand => const _LabelWords(
-      energy: 'Energy',
-      protein: 'Protein',
-      carb: 'Carbohydrate',
-      fat: 'Fat, total',
-      fibre: 'Dietary fibre',
-      nutrients: {
-        ..._englishWords,
-        Nutrient.sugar: 'Sugars',
-        Nutrient.saturatedFat: 'Saturated fat',
-        Nutrient.netCarb: 'Carbohydrate',
-      },
-    ),
-    korea => const _LabelWords(
-      energy: '열량',
-      protein: '단백질',
-      carb: '탄수화물',
-      fat: '지방',
-      fibre: '식이섬유',
-      nutrients: {
-        Nutrient.sugar: '당류',
-        Nutrient.sodium: '나트륨',
-        Nutrient.saturatedFat: '포화지방',
-        Nutrient.transFat: '트랜스지방',
-        Nutrient.cholesterol: '콜레스테롤',
-        Nutrient.saltEquivalent: '식염',
-        Nutrient.calcium: '칼슘',
-        Nutrient.caffeine: '카페인',
-      },
-    ),
-    china => const _LabelWords(
-      energy: '能量',
-      protein: '蛋白质',
-      carb: '碳水化合物',
-      fat: '脂肪',
-      fibre: '膳食纤维',
-      nutrients: {
-        Nutrient.sugar: '糖',
-        Nutrient.sodium: '钠',
-        Nutrient.saltEquivalent: '食盐',
-        Nutrient.saturatedFat: '饱和脂肪',
-        Nutrient.transFat: '反式脂肪',
-        Nutrient.cholesterol: '胆固醇',
-        Nutrient.calcium: '钙',
-        Nutrient.caffeine: '咖啡因',
-      },
-    ),
-    canada => const _LabelWords(
-      energy: 'Calories',
-      protein: 'Protein',
-      carb: 'Carbohydrate',
-      fat: 'Fat',
-      fibre: 'Fibre',
-      nutrients: {
-        ..._englishWords,
-        Nutrient.sugar: 'Sugars',
-        Nutrient.saturatedFat: 'Saturated',
-        Nutrient.transFat: 'Trans',
-      },
-    ),
-  };
-}
-
-/// A label's words for the five every label has and for the rest.
-class _LabelWords {
-  const _LabelWords({
-    required this.energy,
-    required this.protein,
-    required this.carb,
-    required this.fat,
-    required this.fibre,
-    required this.nutrients,
-  });
-
-  final String energy;
-  final String protein;
-  final String carb;
-  final String fat;
-  final String fibre;
-  final Map<Nutrient, String> nutrients;
-}
-
-const _japaneseWords = {
-  Nutrient.sugar: '糖類',
-  Nutrient.netCarb: '糖質',
-  Nutrient.saltEquivalent: '食塩相当量',
-  Nutrient.polyols: '糖アルコール',
-  Nutrient.alcohol: 'アルコール',
-  Nutrient.saturatedFat: '飽和脂肪酸',
-  Nutrient.calcium: 'カルシウム',
-  Nutrient.iron: '鉄',
-  Nutrient.caffeine: 'カフェイン',
-  Nutrient.vitaminB6: 'ビタミンB6',
-  Nutrient.vitaminB12: 'ビタミンB12',
-  Nutrient.vitaminD: 'ビタミンD',
-  Nutrient.folate: '葉酸',
-  Nutrient.sodium: 'ナトリウム',
-  Nutrient.potassium: 'カリウム',
-  Nutrient.magnesium: 'マグネシウム',
-  Nutrient.phosphorus: 'リン',
-  Nutrient.zinc: '亜鉛',
-  Nutrient.niacin: 'ナイアシン',
-  Nutrient.pantothenicAcid: 'パントテン酸',
-  Nutrient.biotin: 'ビオチン',
-  Nutrient.vitaminA: 'ビタミンA',
-  Nutrient.vitaminB1: 'ビタミンB1',
-  Nutrient.vitaminB2: 'ビタミンB2',
-  Nutrient.vitaminC: 'ビタミンC',
-  Nutrient.vitaminE: 'ビタミンE',
-  Nutrient.vitaminK: 'ビタミンK',
-  Nutrient.essentialAminoAcids: '必須アミノ酸',
-  Nutrient.bcaa: 'BCAA',
-  Nutrient.glutamine: 'グルタミン',
-  Nutrient.leucine: 'ロイシン',
-  Nutrient.isoleucine: 'イソロイシン',
-  Nutrient.valine: 'バリン',
-};
-
-/// What labels in English call what they share.
-const _englishWords = {
-  Nutrient.sodium: 'Sodium',
-  Nutrient.saltEquivalent: 'Salt',
-  Nutrient.cholesterol: 'Cholesterol',
-  Nutrient.alcohol: 'Alcohol',
-  Nutrient.caffeine: 'Caffeine',
-  Nutrient.calcium: 'Calcium',
-  Nutrient.iron: 'Iron',
-  Nutrient.potassium: 'Potassium',
-  Nutrient.magnesium: 'Magnesium',
-  Nutrient.vitaminD: 'Vitamin D',
-  Nutrient.bcaa: 'BCAAs',
-  Nutrient.leucine: 'Leucine',
-  Nutrient.isoleucine: 'Isoleucine',
-  Nutrient.valine: 'Valine',
-  Nutrient.glutamine: 'Glutamine',
-};
-
-/// The five figures every label has, as a Japanese one names them.
-abstract final class JapaneseMacroLabel {
-  static const energy = '熱量';
-  static const protein = 'たんぱく質';
-  static const fat = '脂質';
-  static const carb = '炭水化物';
-  static const fibre = '食物繊維';
-}
-
-/// What the figures every food and meal carries are called on screen: in
-/// full, as the nutrition label prints them.
-abstract final class MacroLabel {
-  static const energy = '熱量';
-  static const protein = '蛋白質';
-  static const carb = '碳水化合物';
-  static const fat = '脂肪';
-  static const fibre = '膳食纖維';
 }
 
 /// The nutrients this app can hold beyond the five it counts everywhere.
@@ -876,64 +627,62 @@ abstract final class MacroLabel {
 /// The order is the order the label prints them in, then the DRI groups.
 enum Nutrient {
   // What Taiwan's packaging law requires beyond the five above.
-  saturatedFat('飽和脂肪', NutrientUnit.gram),
-  transFat('反式脂肪', NutrientUnit.gram),
-  sugar('糖', NutrientUnit.gram),
-  sodium('鈉', NutrientUnit.milligram),
+  saturatedFat(NutrientUnit.gram),
+  transFat(NutrientUnit.gram),
+  sugar(NutrientUnit.gram),
+  sodium(NutrientUnit.milligram),
 
   // What a Japanese label prints instead, kept as printed: 糖質 is
   // carbohydrate less fibre, not sugar, and salt is not converted to
   // sodium.
-  netCarb('糖質', NutrientUnit.gram),
-  saltEquivalent('食鹽相當量', NutrientUnit.gram),
+  netCarb(NutrientUnit.gram),
+  saltEquivalent(NutrientUnit.gram),
 
   // Energy the three macronutrients leave out: the sugar alcohols a
   // label may list inside its carbohydrate, and a drink's alcohol.
-  polyols('糖醇', NutrientUnit.gram),
-  alcohol('酒精', NutrientUnit.gram),
+  polyols(NutrientUnit.gram),
+  alcohol(NutrientUnit.gram),
 
   // Commonly declared voluntarily.
-  cholesterol('膽固醇', NutrientUnit.milligram),
-  caffeine('咖啡因', NutrientUnit.milligram),
+  cholesterol(NutrientUnit.milligram),
+  caffeine(NutrientUnit.milligram),
 
   // The amino acids a protein drink's label lists under its protein:
   // the essential ones' total, the branched-chain ones' total and each
   // of the three, and glutamine.
-  essentialAminoAcids('必需胺基酸', NutrientUnit.milligram),
-  bcaa('支鏈胺基酸', NutrientUnit.milligram),
-  leucine('白胺酸', NutrientUnit.milligram),
-  isoleucine('異白胺酸', NutrientUnit.milligram),
-  valine('纈胺酸', NutrientUnit.milligram),
-  glutamine('麩醯胺酸', NutrientUnit.milligram),
+  essentialAminoAcids(NutrientUnit.milligram),
+  bcaa(NutrientUnit.milligram),
+  leucine(NutrientUnit.milligram),
+  isoleucine(NutrientUnit.milligram),
+  valine(NutrientUnit.milligram),
+  glutamine(NutrientUnit.milligram),
 
   // Minerals in the DRIs.
-  calcium('鈣', NutrientUnit.milligram),
-  phosphorus('磷', NutrientUnit.milligram),
-  magnesium('鎂', NutrientUnit.milligram),
-  iron('鐵', NutrientUnit.milligram),
-  zinc('鋅', NutrientUnit.milligram),
-  potassium('鉀', NutrientUnit.milligram),
-  iodine('碘', NutrientUnit.microgram),
-  selenium('硒', NutrientUnit.microgram),
+  calcium(NutrientUnit.milligram),
+  phosphorus(NutrientUnit.milligram),
+  magnesium(NutrientUnit.milligram),
+  iron(NutrientUnit.milligram),
+  zinc(NutrientUnit.milligram),
+  potassium(NutrientUnit.milligram),
+  iodine(NutrientUnit.microgram),
+  selenium(NutrientUnit.microgram),
 
   // Vitamins in the DRIs.
-  vitaminA('維生素 A', NutrientUnit.microgram),
-  vitaminD('維生素 D', NutrientUnit.microgram),
-  vitaminE('維生素 E', NutrientUnit.milligram),
-  vitaminK('維生素 K', NutrientUnit.microgram),
-  vitaminC('維生素 C', NutrientUnit.milligram),
-  vitaminB1('維生素 B1', NutrientUnit.milligram),
-  vitaminB2('維生素 B2', NutrientUnit.milligram),
-  niacin('菸鹼素', NutrientUnit.milligram),
-  vitaminB6('維生素 B6', NutrientUnit.milligram),
-  vitaminB12('維生素 B12', NutrientUnit.microgram),
-  folate('葉酸', NutrientUnit.microgram),
-  pantothenicAcid('泛酸', NutrientUnit.milligram),
-  biotin('生物素', NutrientUnit.microgram);
+  vitaminA(NutrientUnit.microgram),
+  vitaminD(NutrientUnit.microgram),
+  vitaminE(NutrientUnit.milligram),
+  vitaminK(NutrientUnit.microgram),
+  vitaminC(NutrientUnit.milligram),
+  vitaminB1(NutrientUnit.milligram),
+  vitaminB2(NutrientUnit.milligram),
+  niacin(NutrientUnit.milligram),
+  vitaminB6(NutrientUnit.milligram),
+  vitaminB12(NutrientUnit.microgram),
+  folate(NutrientUnit.microgram),
+  pantothenicAcid(NutrientUnit.milligram),
+  biotin(NutrientUnit.microgram);
 
-  const Nutrient(this.label, this.unit);
-
-  final String label;
+  const Nutrient(this.unit);
   final NutrientUnit unit;
 
   /// Written as `12.4 mg`.
@@ -957,24 +706,3 @@ String nutrientAnswerKey(Nutrient nutrient) =>
 /// read as zero: a label that prints `0 g` of fat only means under half a
 /// gram, and a label that prints nothing at all means nothing at all.
 typedef Nutrients = Map<Nutrient, double>;
-
-/// A country as the app names it, from its ISO 3166-1 code; the code
-/// itself for one it has no name for.
-String countryName(String code) => switch (code) {
-  'TW' => '台灣',
-  'JP' => '日本',
-  'US' => '美國',
-  'EU' => '歐盟',
-  'AU' => '澳洲',
-  'NZ' => '紐西蘭',
-  'KR' => '韓國',
-  'CN' => '中國',
-  'CA' => '加拿大',
-  _ => code,
-};
-
-/// `7-ELEVEN（台灣）`: a chain with the country its figures are for, since
-/// the same chain sells different drinks in each. [country] is empty for
-/// a brand the user wrote.
-String labelOfBrand(String brand, String country) =>
-    country.isEmpty ? brand : '$brand（${countryName(country)}）';

@@ -7,6 +7,7 @@ import '../../shared/haptics.dart';
 import 'goal_screen.dart';
 import 'goal_view_model.dart';
 import 'weekly_goal_ring.dart';
+import '../../l10n/l10n.dart';
 
 const _ringSize = 34.0;
 const _ringStroke = 3.0;
@@ -29,11 +30,14 @@ class GoalEntryButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: week.isPaused
-          ? '每週目標已暫停'
-          : '本週 ${week.activeDays} / ${week.targetDays} 個運動日，查看每週目標',
+          ? context.l10n.weeklyGoalPaused
+          : context.l10n.weeklyGoalButtonLabel(
+              active: week.activeDays,
+              target: week.targetDays,
+            ),
       excludeSemantics: true,
       child: Tooltip(
-        message: '每週目標',
+        message: context.l10n.weeklyGoal,
         excludeFromSemantics: true,
         child: InkResponse(
           onTap: () {

@@ -13,23 +13,18 @@ typedef RoutePoint = ({
 
 /// The time series a session can have, each in the unit the page shows.
 enum ActivitySeries {
-  heartRate('心率', '次/分'),
+  heartRate,
 
   /// Metres per second; shown as km/h, or as pace for walking and running.
-  speed('速度', 'km/h'),
-  power('功率', 'W'),
-  cadence('踏頻', 'rpm'),
-  strideLength('步幅', 'm'),
-  groundContactTime('觸地時間', 'ms'),
-  verticalOscillation('垂直振幅', 'cm'),
+  speed,
+  power,
+  cadence,
+  strideLength,
+  groundContactTime,
+  verticalOscillation,
 
   /// From the route.
-  altitude('高度', 'm');
-
-  const ActivitySeries(this.label, this.unit);
-
-  final String label;
-  final String unit;
+  altitude,
 }
 
 /// A stretch the source marked inside a session: a lap, or a segment

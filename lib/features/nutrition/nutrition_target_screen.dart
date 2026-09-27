@@ -11,6 +11,7 @@ import '../journal/body_reading_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
 import '../me/me_screen.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// The daily targets: an energy target typed in or worked out from the
 /// body, and how it splits into protein, fat and carbohydrate. Every
@@ -44,7 +45,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     final settings = _nutrition.targetSettings;
     final typed = await showTextDialog(
       context,
-      title: '每日熱量目標',
+      title: context.l10n.dailyKcalGoal,
       keyboardType: TextInputType.number,
       initial: '${settings.customKcal ?? ''}',
       hint: 'kcal',
@@ -53,7 +54,11 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     final kcal = int.tryParse(typed.trim());
     if (kcal == null || kcal < 800 || kcal > 6000) {
       if (mounted) {
-        showToast(context, '請填 800–6000 kcal。', kind: ToastKind.warning);
+        showToast(
+          context,
+          context.l10n.kcalRangeError,
+          kind: ToastKind.warning,
+        );
       }
       return;
     }
@@ -85,7 +90,10 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
       if (mounted) {
         showToast(
           context,
-          '請填 ${formatAmount(min)}–${formatAmount(max)}。',
+          context.l10n.numberRangeError(
+            min: formatAmount(min),
+            max: formatAmount(max),
+          ),
           kind: ToastKind.warning,
         );
       }
@@ -102,7 +110,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     final rate = await showAppDialog<double>(
       context,
       AppDialog(
-        title: '每週變化',
+        title: context.l10n.weeklyChange,
         isChoiceList: true,
         actions: [
           for (final rate in settings.goal.weeklyPercents)
@@ -130,24 +138,24 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     final weight = _nutrition.weightOn(today);
     final height = _nutrition.heightCm;
     return DetailPage(
-      appBar: const PageAppBar(title: '每日目標'),
+      appBar: PageAppBar(title: context.l10n.dailyTargets),
       children: [
         PageSection(
-          label: '熱量目標',
+          label: context.l10n.kcalTarget,
           children: [
             Gutter(
               child: RadioRow(
-                title: '依身體資料估算',
-                subtitle: '體重、身高、年齡、性別與活動量',
+                title: context.l10n.estimateFromBody,
+                subtitle: context.l10n.estimateFromBodyDetail,
                 isSelected: !settings.isCustom,
                 onTap: () => _update(settings.copyWith(customKcal: () => null)),
               ),
             ),
             Gutter(
               child: RadioRow(
-                title: '自己設定',
+                title: context.l10n.setMyself,
                 subtitle: settings.customKcal == null
-                    ? '未設定'
+                    ? context.l10n.notSet
                     : '${formatKcal(settings.customKcal!)} kcal',
                 isSelected: settings.isCustom,
                 onTap: _typeKcal,
@@ -157,16 +165,16 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
         ),
         if (!settings.isCustom) ...[
           PageSection(
-            label: '身體資料',
+            label: context.l10n.bodyData,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     NavRow(
-                      title: '體重',
+                      title: context.l10n.moduleWeight,
                       trailing: _value(
                         weight == null
-                            ? '未設定'
+                            ? context.l10n.notSet
                             : '${formatWeight(weight.weightKg)} kg',
                       ),
                       onTap: () => pushModalPage<void>(
@@ -175,9 +183,11 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                       ),
                     ),
                     NavRow(
-                      title: '身高',
+                      title: context.l10n.bodyMetricHeight,
                       trailing: _value(
-                        height == null ? '未設定' : '${formatAmount(height)} cm',
+                        height == null
+                            ? context.l10n.notSet
+                            : '${formatAmount(height)} cm',
                       ),
                       onTap: () => pushModalPage<void>(
                         context,
@@ -185,16 +195,19 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                       ),
                     ),
                     NavRow(
-                      title: '出生年',
+                      title: context.l10n.targetInputBirthYear,
                       trailing: _value(switch (_nutrition.birthYear) {
-                        final year? => '$year 年',
-                        null => '未設定',
+                        final year? => context.l10n.yearValue(year: year),
+                        null => context.l10n.notSet,
                       }),
                       onTap: () => editBirthYear(context),
                     ),
                     NavRow(
-                      title: '性別',
-                      trailing: _value(_nutrition.sex?.label ?? '未設定'),
+                      title: context.l10n.targetInputSex,
+                      trailing: _value(
+                        _nutrition.sex?.labelIn(context.l10n) ??
+                            context.l10n.notSet,
+                      ),
                       onTap: () => pickSex(context),
                     ),
                   ],
@@ -203,13 +216,13 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
             ],
           ),
           PageSection(
-            label: '活動量',
+            label: context.l10n.activityLevelSection,
             children: [
               for (final level in ActivityLevel.values)
                 Gutter(
                   child: RadioRow(
-                    title: level.label,
-                    subtitle: level.detail,
+                    title: level.labelIn(context.l10n),
+                    subtitle: level.detailIn(context.l10n),
                     isSelected: level == settings.activity,
                     onTap: () => _update(settings.copyWith(activity: level)),
                   ),
@@ -217,12 +230,12 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
             ],
           ),
           PageSection(
-            label: '目的',
+            label: context.l10n.purposeSection,
             children: [
               Gutter(
                 child: ChipWrap(
                   options: WeightGoal.values,
-                  labelOf: (goal) => goal.label,
+                  labelOf: (goal) => goal.labelIn(context.l10n),
                   isSelected: (goal) => goal == settings.goal,
                   // A rate picked for one goal means nothing for another.
                   onTap: (goal) => _update(
@@ -236,7 +249,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                   child: GroupedCard(
                     children: [
                       NavRow(
-                        title: '每週變化',
+                        title: context.l10n.weeklyChange,
                         trailing: _value(
                           _rateLabel(
                             settings.weeklyPercentInUse,
@@ -252,23 +265,26 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
           ),
         ],
         PageSection(
-          label: '營養素分配',
+          label: context.l10n.macroSplit,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: _nutrition.convention.proteinName,
+                    title: _nutrition.convention.proteinName(context.l10n),
                     subtitle: [
-                      if (settings.proteinPerKg == null) '依目的',
-                      '每公斤體重 ${formatAmount(settings.proteinPerKgInUse)} g',
+                      if (settings.proteinPerKg == null) context.l10n.byGoal,
+                      context.l10n.perKgBodyWeight(
+                        grams: formatAmount(settings.proteinPerKgInUse),
+                      ),
                     ].join(' · '),
                     trailing: _value(_grams(targets.proteinGrams)),
                     onTap: () => _typeNumber(
-                      title: '蛋白質（每公斤體重）',
+                      title: context.l10n.proteinPerKgTitle,
                       initial: settings.proteinPerKg,
-                      fallback:
-                          '依目的 ${formatAmount(settings.goal.proteinPerKg)} g',
+                      fallback: context.l10n.byGoalGrams(
+                        grams: formatAmount(settings.goal.proteinPerKg),
+                      ),
                       min: 0.8,
                       max: 3,
                       onValue: (value) =>
@@ -276,14 +292,17 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                     ),
                   ),
                   NavRow(
-                    title: _nutrition.convention.fatName,
-                    subtitle: '熱量的 ${settings.fatPercentInUse}%',
+                    title: _nutrition.convention.fatName(context.l10n),
+                    subtitle: context.l10n.percentOfKcal(
+                      percent: settings.fatPercentInUse,
+                    ),
                     trailing: _value(_grams(targets.fatGrams)),
                     onTap: () => _typeNumber(
-                      title: '脂肪（占熱量 %）',
+                      title: context.l10n.fatPercentTitle,
                       initial: settings.fatPercent,
-                      fallback:
-                          '預設 ${NutritionTargetSettings.defaultFatPercent}%',
+                      fallback: context.l10n.defaultPercent(
+                        percent: NutritionTargetSettings.defaultFatPercent,
+                      ),
                       min: 15,
                       max: 45,
                       onValue: (value) => _update(
@@ -292,8 +311,8 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                     ),
                   ),
                   NavRow(
-                    title: _nutrition.convention.carbName,
-                    subtitle: '其餘的熱量',
+                    title: _nutrition.convention.carbName(context.l10n),
+                    subtitle: context.l10n.restOfKcal,
                     trailing: _value(_grams(targets.carbGrams)),
                     showChevron: false,
                   ),
@@ -303,43 +322,53 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
           ],
         ),
         PageSection(
-          label: '結果',
+          label: context.l10n.resultSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   if (targets.restingKcal case final resting?)
                     KeyValueRow(
-                      label: '基礎代謝',
+                      label: context.l10n.restingMetabolism,
                       value: '${formatKcal(resting)} kcal',
                     ),
                   if (targets.maintenanceKcal case final maintenance?
                       when settings.goal != WeightGoal.maintain)
                     KeyValueRow(
-                      label: '維持熱量',
+                      label: context.l10n.maintenanceKcal,
                       value: '${formatKcal(maintenance)} kcal',
                     ),
                   KeyValueRow(
-                    label: '每日熱量',
+                    label: context.l10n.dailyKcal,
                     value: switch (targets.kcal) {
                       final kcal? => '${formatKcal(kcal)} kcal',
-                      null =>
-                        '缺少${targets.missing.map((i) => i.label).join('、')}',
+                      null => context.l10n.missingInputs(
+                        inputs: joinList(
+                          context.l10n,
+                          targets.missing.map((i) => i.labelIn(context.l10n)),
+                        ),
+                      ),
                     },
                   ),
                   KeyValueRow(
-                    label: _nutrition.convention.fibreName,
+                    label: _nutrition.convention.fibreName(context.l10n),
                     value: _grams(targets.fibreGrams),
                   ),
                   KeyValueRow(
                     label: _nutrition.convention.nameOf(
+                      context.l10n,
                       _nutrition.convention.saltMeasure,
                     ),
                     value:
                         _nutrition.convention.saltMeasure.unit ==
                             NutrientUnit.milligram
-                        ? '上限 ${formatKcal(_nutrition.saltLimit.round())} mg'
-                        : '上限 ${formatAmount(_nutrition.saltLimit)} g',
+                        ? context.l10n.limitValue(
+                            value:
+                                '${formatKcal(_nutrition.saltLimit.round())} mg',
+                          )
+                        : context.l10n.limitValue(
+                            value: '${formatAmount(_nutrition.saltLimit)} g',
+                          ),
                   ),
                 ],
               ),
@@ -350,8 +379,10 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
                   labels: [
                     switch (source) {
                       MaintenanceSource.measured =>
-                        '依近 $energyWindowDays 天飲食與體重',
-                      MaintenanceSource.formula => 'Mifflin-St Jeor 估計',
+                        context.l10n.fromRecentFoodAndWeight(
+                          days: energyWindowDays,
+                        ),
+                      MaintenanceSource.formula => context.l10n.mifflinEstimate,
                     },
                   ],
                 ),

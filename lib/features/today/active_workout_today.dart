@@ -9,6 +9,7 @@ import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/active_workout_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Today while a workout runs: insights pause, only facts are shown.
 List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
@@ -24,7 +25,10 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CategoryLabel(label: '訓練進行中', color: AppColors.training),
+            CategoryLabel(
+              label: context.l10n.workoutInProgress,
+              color: AppColors.training,
+            ),
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
@@ -46,15 +50,18 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
               ],
             ),
             Text(
-              '${current.exercise.name} · 第 ${(current.nextSetIndex ?? current.sets.length - 1) + 1} 組'
-              ' · 已完成 ${workout.completedSets} 組',
+              context.l10n.workoutCurrentSet(
+                exercise: current.exercise.name,
+                set: (current.nextSetIndex ?? current.sets.length - 1) + 1,
+                done: workout.completedSets,
+              ),
               style: AppTextStyles.caption.copyWith(fontSize: 14),
             ),
             const SizedBox(height: AppSpacing.md),
             ProgressLine(progress: progress),
             const SizedBox(height: AppSpacing.md),
             PrimaryButton(
-              label: '回到訓練',
+              label: context.l10n.backToWorkout,
               onPressed: () => pushPage(context, const ActiveWorkoutScreen()),
             ),
           ],
@@ -66,19 +73,22 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('本次', style: AppTextStyles.overline),
+            Text(context.l10n.thisSession, style: AppTextStyles.overline),
             const SizedBox(height: AppSpacing.sm),
             StatRow(
               stats: [
-                StatBlock(value: '${workout.completedSets}', label: '已完成組數'),
+                StatBlock(
+                  value: '${workout.completedSets}',
+                  label: context.l10n.setsCompleted,
+                ),
                 StatBlock(
                   value:
                       '${workout.completedExercises}/${workout.exercises.length}',
-                  label: '動作進度',
+                  label: context.l10n.exerciseProgress,
                 ),
                 StatBlock(
                   value: '${store.workoutReview(workout).records}',
-                  label: '個人紀錄',
+                  label: context.l10n.personalRecords,
                   valueColor: AppColors.training,
                 ),
               ],
@@ -87,13 +97,14 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         ),
       ),
     ),
-    Gutter(child: const SectionLabel('其他紀錄')),
+    Gutter(child: SectionLabel(context.l10n.otherEntries)),
     Gutter(
       child: AccentRow(
         color: AppColors.nutrition,
-        title: '飲食',
+        title: context.l10n.moduleNutrition,
         trailing:
-            '${store.todayMeals.length} 餐 · ~${formatKcal(store.todayKcal)} kcal',
+            '${context.l10n.mealsCount(count: store.todayMeals.length)} · '
+            '~${formatKcal(store.todayKcal)} kcal',
         onTap: () => pushPage(context, const DailyNutritionScreen()),
       ),
     ),
@@ -101,7 +112,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
       Gutter(
         child: AccentRow(
           color: AppColors.body,
-          title: '體重',
+          title: context.l10n.moduleWeight,
           trailing: '${formatWeight(weight.weightKg)} kg',
         ),
       ),
@@ -109,7 +120,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
       Gutter(
         child: AccentRow(
           color: AppColors.wellness,
-          title: '睡眠',
+          title: context.l10n.moduleSleep,
           trailing: formatHoursMinutes(night.entry.duration),
         ),
       ),

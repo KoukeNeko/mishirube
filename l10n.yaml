@@ -1,0 +1,10 @@
+# Traditional Chinese is the language the app was written in, so it is
+# the template: every other language translates it.
+arb-dir: lib/l10n
+template-arb-file: app_zh.arb
+output-localization-file: app_localizations.dart
+# A language the app does not speak falls back to the first of these.
+preferred-supported-locales:
+  - en
+nullable-getter: false
+use-named-parameters: true

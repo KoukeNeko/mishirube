@@ -1,6 +1,7 @@
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import 'training_metrics.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Bumped whenever a rule below changes, so a stored or exported result
 /// can say which version produced it.
@@ -83,7 +84,8 @@ class ProgressionSuggestion {
 /// reps on every planned set with something left in reserve and the
 /// weight goes up one step; miss the reps twice running and it comes
 /// down; anything else repeats.
-ProgressionSuggestion? suggestProgression({
+ProgressionSuggestion? suggestProgression(
+  AppLocalizations l10n, {
   required PlannedExercise planned,
   required List<ExerciseAttempt> recent,
   double step = plateStepKg,
@@ -101,7 +103,7 @@ ProgressionSuggestion? suggestProgression({
       move: ProgressionMove.increase,
       targetWeightKg: last.weightKg + step,
       reps: planned.reps,
-      reason: _reasonFor(last, planned, added: step),
+      reason: _reasonFor(l10n, last, planned, added: step),
     );
   }
 
@@ -115,9 +117,10 @@ ProgressionSuggestion? suggestProgression({
       move: ProgressionMove.deload,
       targetWeightKg: roundToPlate(last.weightKg * deloadShare, step: step),
       reps: planned.reps,
-      reason:
-          '連續 $sessionsBeforeDeload 次沒做到 ${planned.reps} 下，'
-          '先退一階把次數做滿。',
+      reason: l10n.progressionDeloadReason(
+        count: sessionsBeforeDeload,
+        reps: planned.reps,
+      ),
     );
   }
 
@@ -126,12 +129,16 @@ ProgressionSuggestion? suggestProgression({
     targetWeightKg: last.weightKg,
     reps: planned.reps,
     reason: switch (last) {
-      _ when last.reps < planned.reps =>
-        '上次 ${_sets(last)}，未做到 ${planned.reps} 下，先維持同重量。',
-      _ when last.workingSets < planned.sets =>
-        '上次只做了 ${last.workingSets} 組，先把 ${planned.sets} 組做滿再加重。',
-      _ when wasTooHard => '上次做滿了，但那次訓練評為太吃力，先維持同重量。',
-      _ => '上次做滿了，但最後一組已經接近極限（RIR ${last.rir}），先維持同重量。',
+      _ when last.reps < planned.reps => l10n.progressionMissedReps(
+        sets: _sets(last),
+        reps: planned.reps,
+      ),
+      _ when last.workingSets < planned.sets => l10n.progressionMissedSets(
+        done: last.workingSets,
+        planned: planned.sets,
+      ),
+      _ when wasTooHard => l10n.progressionTooHard,
+      _ => l10n.progressionNearLimit(rir: '${last.rir}'),
     },
   );
 }
@@ -140,14 +147,16 @@ bool _met(ExerciseAttempt attempt, PlannedExercise planned) =>
     attempt.workingSets >= planned.sets && attempt.reps >= planned.reps;
 
 String _reasonFor(
+  AppLocalizations l10n,
   ExerciseAttempt last,
   PlannedExercise planned, {
   required double added,
-}) {
-  final reserve = last.rir == null ? '' : '，最後一組還留 ${last.rir} 下';
-  return '上次 ${_sets(last)} 做滿了 ${planned.sets} × ${planned.reps}$reserve，'
-      '可以加 ${formatWeight(added)} kg。';
-}
+}) => l10n.progressionIncreaseReason(
+  done: _sets(last),
+  planned: '${planned.sets} × ${planned.reps}',
+  reserve: last.rir == null ? '' : l10n.progressionReserve(rir: '${last.rir}'),
+  added: formatWeight(added),
+);
 
 /// How an attempt reads in a reason: `3 × 5`.
 String _sets(ExerciseAttempt attempt) =>

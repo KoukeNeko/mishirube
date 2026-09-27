@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'body_range.dart';
 import 'body_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// One body figure over time: its readings as a line that reads out
 /// when touched, and every reading, newest first.
@@ -56,7 +57,7 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
           actions: [
             HeaderAction(
               icon: Icons.add,
-              semanticLabel: '記錄${widget.title}',
+              semanticLabel: context.l10n.logItem(item: widget.title),
               onTap: () => pushModalPage<void>(context, widget.addPage()),
             ),
           ],
@@ -66,31 +67,35 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
             child: SegmentedChoice<BodyRange>(
               options: BodyRange.values,
               selected: _range,
-              labelOf: (range) => range.label,
+              labelOf: (range) => range.labelIn(context.l10n),
               selectedColor: AppColors.body,
               onChanged: (range) => setState(() => _range = range),
             ),
           ),
           if (points.isEmpty)
             Gutter(
-              child: const EmptyStateCard(
+              child: EmptyStateCard(
                 icon: Icons.show_chart,
-                title: '沒有紀錄',
+                title: context.l10n.noEntriesShort,
               ),
             )
           else ...[
             Gutter(
               child: AppCard(
                 child: Semantics(
-                  label: '${widget.title}走勢，${points.length} 筆',
+                  label: context.l10n.trendReadingsLabel(
+                    item: widget.title,
+                    count: points.length,
+                  ),
                   child: ChartScrubber(
                     count: points.length,
                     indexAt: ChartScrubber.points(points.length),
                     idle:
-                        '${_range.label} · ${points.length} 筆'
+                        '${_range.labelIn(context.l10n)} · '
+                        '${context.l10n.readingsCount(count: points.length)}'
                         '${points.length > 1 ? ' · ${_change(points)}' : ''}',
                     readoutOf: (index) =>
-                        '${bodyDate(points[index].at)} · '
+                        '${context.dates.monthDay(points[index].at)} · '
                         '${_value(points[index].value)}',
                     builder: (context, selected) => Sparkline(
                       values: [for (final point in points) point.value],
@@ -104,7 +109,7 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
             ),
             if (widget.tags.isNotEmpty)
               Gutter(child: TagWrap(labels: widget.tags)),
-            Gutter(child: const SectionLabel('紀錄')),
+            Gutter(child: SectionLabel(context.l10n.recordTitle)),
             Gutter(
               child: GroupedCard(
                 children: [
@@ -112,7 +117,7 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
                     NavRow(
                       title: _value(point.value),
                       subtitle:
-                          '${bodyDate(point.at)} ${formatTimeOfDay(point.at)}',
+                          '${context.dates.monthDay(point.at)} ${formatTimeOfDay(point.at)}',
                       showChevron: false,
                       onTap: () => _manage(model, point),
                     ),
@@ -130,19 +135,22 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
     final choice = await showAppDialog<bool>(
       context,
       AppDialog(
-        title: '${bodyDate(point.at)} ${_value(point.value)}',
+        title: '${context.dates.monthDay(point.at)} ${_value(point.value)}',
         isChoiceList: true,
         actions: [
           DialogAction(
-            label: '編輯',
+            label: context.l10n.commonEdit,
             onTap: () => Navigator.of(context).pop(true),
           ),
           DialogAction(
-            label: '刪除這筆紀錄',
+            label: context.l10n.recordDelete,
             tone: DialogTone.destructive,
             onTap: () => Navigator.of(context).pop(false),
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -154,8 +162,10 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
       return;
     }
     model.delete(point.id);
-    ToastScope.read(context)
-        .showUndo('已刪除${widget.title}', onUndo: () => model.restore(point.id));
+    ToastScope.read(context).showUndo(
+      context.l10n.deletedItem(item: widget.title),
+      onUndo: () => model.restore(point.id),
+    );
   }
 
   String _change(List<BodyPoint> points) {

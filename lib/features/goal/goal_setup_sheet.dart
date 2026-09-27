@@ -6,6 +6,7 @@ import '../../backend/application/goal_service.dart';
 import '../../backend/engines/streak_engine.dart';
 import '../../shared/widgets/widgets.dart';
 import 'goal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Setting the weekly goal, pausing it, or turning it off. Nothing here
 /// is decided for the user: the app suggests from what they have
@@ -42,7 +43,9 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      _applyThisWeek ? '本週起每週 $_days 天' : '下週起每週 $_days 天',
+      _applyThisWeek
+          ? context.l10n.goalFromThisWeek(count: _days)
+          : context.l10n.goalFromNextWeek(count: _days),
       kind: ToastKind.success,
     );
   }
@@ -53,16 +56,16 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     final choice = await showAppDialog<(Duration?,)>(
       context,
       AppDialog(
-        title: '暫停每週目標',
-        message: '暫停期間的週不會累積，也不會中斷連續達標。',
+        title: context.l10n.pauseWeeklyGoal,
+        message: context.l10n.pauseWeeklyGoalMessage,
         actions: [
           DialogAction(
-            label: '暫停本週',
+            label: context.l10n.pauseThisWeek,
             tone: DialogTone.primary,
             onTap: () => Navigator.of(context).pop((const Duration(days: 7),)),
           ),
           DialogAction(
-            label: '直到手動恢復',
+            label: context.l10n.pauseUntilResumed,
             onTap: () => Navigator.of(context).pop((null,)),
           ),
         ],
@@ -81,10 +84,12 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     final overview = _goal.overview;
     return DetailPage(
       appBar: PageAppBar(
-        title: overview.hasGoal ? '每週目標' : '設定每週目標',
-        subtitle: '一週想要有幾個運動日',
+        title: overview.hasGoal
+            ? context.l10n.weeklyGoal
+            : context.l10n.setWeeklyGoal,
+        subtitle: context.l10n.activeDaysPerWeekQuestion,
       ),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         Gutter(
           child: ChipWrap(
@@ -92,7 +97,7 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
               for (var days = minWeeklyGoal; days <= maxWeeklyGoal; days++)
                 days,
             ],
-            labelOf: (days) => '$days 天',
+            labelOf: (days) => context.l10n.daysCount(count: days),
             isSelected: (days) => days == _days,
             onTap: (days) => setState(() => _days = days),
           ),
@@ -100,24 +105,24 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
         if (overview.weeks.any((week) => week.activeDays > 0))
           Gutter(
             child: Text(
-              '過去四週平均：每週 ${overview.suggestedDays} 天',
+              context.l10n.suggestedDays(count: overview.suggestedDays),
               style: AppTextStyles.caption,
             ),
           ),
         if (overview.hasGoal) ...[
-          Gutter(child: const SectionLabel('從什麼時候開始')),
+          Gutter(child: SectionLabel(context.l10n.goalStartSection)),
           Gutter(
             child: GroupedCard(
               children: [
                 RadioRow(
-                  title: '下週起',
-                  subtitle: '本週仍用原本的目標計算',
+                  title: context.l10n.fromNextWeek,
+                  subtitle: context.l10n.fromNextWeekDetail,
                   isSelected: !_applyThisWeek,
                   onTap: () => setState(() => _applyThisWeek = false),
                 ),
                 RadioRow(
-                  title: '本週就套用',
-                  subtitle: '重新計算本週',
+                  title: context.l10n.applyThisWeek,
+                  subtitle: context.l10n.applyThisWeekDetail,
                   isSelected: _applyThisWeek,
                   onTap: () => setState(() => _applyThisWeek = true),
                 ),
@@ -126,19 +131,19 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
           ),
         ],
         if (overview.hasGoal) ...[
-          Gutter(child: const SectionLabel('暫停或關閉')),
+          Gutter(child: SectionLabel(context.l10n.pauseOrTurnOff)),
           Gutter(
             child: GroupedCard(
               children: [
                 if (_goal.isEnabled)
                   SwitchRow(
-                    title: '暫停每週目標',
+                    title: context.l10n.pauseWeeklyGoal,
                     value: overview.isPaused,
                     onChanged: (pause) => pause ? _pause() : _goal.resume(),
                   ),
                 SwitchRow(
-                  title: '每週目標',
-                  subtitle: '關閉時隱藏目標與連續達標',
+                  title: context.l10n.weeklyGoal,
+                  subtitle: context.l10n.weeklyGoalOffDetail,
                   value: _goal.isEnabled,
                   onChanged: _goal.setEnabled,
                 ),

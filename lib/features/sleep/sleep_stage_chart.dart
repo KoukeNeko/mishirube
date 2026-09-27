@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/haptics.dart';
+import '../../l10n/l10n.dart';
 
 /// The rows of the chart, top to bottom, and each stage's colour. A
 /// stretch asleep with no stage given is drawn on the core row.
@@ -93,7 +94,10 @@ class _SleepStageChartState extends State<SleepStageChart> {
     final at = _at;
     final reading = at == null ? null : _stretchAt(at);
     return Semantics(
-      label: '睡眠階段圖，${formatTimeOfDay(start)} 到 ${formatTimeOfDay(end)}',
+      label: context.l10n.stageChartLabel(
+        start: formatTimeOfDay(start),
+        end: formatTimeOfDay(end),
+      ),
       excludeSemantics: true,
       // A tap anywhere else puts the reading away.
       child: TapRegion(
@@ -137,6 +141,7 @@ class _SleepStageChartState extends State<SleepStageChart> {
                         at: at,
                         reading: reading,
                         labelStyle: AppTextStyles.caption,
+                        labelOf: (stage) => stage.labelIn(context.l10n),
                       ),
                     ),
                   ),
@@ -161,7 +166,8 @@ class _NightReadout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '整晚 · ${formatTimeOfDay(start)}–${formatTimeOfDay(end)}'
+      '${context.l10n.wholeNight} · '
+      '${formatTimeOfDay(start)}–${formatTimeOfDay(end)}'
       ' · ${formatHoursMinutes(end.difference(start))}',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -199,7 +205,7 @@ class _Readout extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Flexible(
           child: Text(
-            '${stretch.stage.label} · '
+            '${stretch.stage.labelIn(context.l10n)} · '
             '${formatTimeOfDay(stretch.start)}–${formatTimeOfDay(stretch.end)}'
             ' · ${formatHoursMinutes(stretch.end.difference(stretch.start))}',
             maxLines: 1,
@@ -222,6 +228,7 @@ class _HypnogramPainter extends CustomPainter {
     required this.at,
     required this.reading,
     required this.labelStyle,
+    required this.labelOf,
   });
 
   final List<SleepSample> stages;
@@ -230,6 +237,9 @@ class _HypnogramPainter extends CustomPainter {
   final DateTime? at;
   final SleepSample? reading;
   final TextStyle labelStyle;
+
+  /// What a stage is called, in the app's language.
+  final String Function(SleepStage stage) labelOf;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -255,7 +265,7 @@ class _HypnogramPainter extends CustomPainter {
 
     // Stage names, in their rows.
     for (final (row, stage) in _rows.indexed) {
-      _text(stage.label, labelStyle)
+      _text(labelOf(stage), labelStyle)
         ..paint(canvas, Offset(AppSpacing.xxs, rowTop(row) + 2))
         ..dispose();
     }

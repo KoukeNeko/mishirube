@@ -6,6 +6,7 @@ import '../../backend/engines/progression_engine.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// One suggestion for next time: what to do, why, and the two answers to
 /// it. The reason is shown with the number — advice without its argument
@@ -39,7 +40,7 @@ class ProgressionCard extends StatelessWidget {
                   style: AppTextStyles.itemTitle,
                 ),
               ),
-              TagChip(label: _moveLabel(suggestion.move)),
+              TagChip(label: _moveLabel(context.l10n, suggestion.move)),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -55,7 +56,7 @@ class ProgressionCard extends StatelessWidget {
             children: [
               Expanded(
                 child: SecondaryButton(
-                  label: '維持原本',
+                  label: context.l10n.keepAsIs,
                   isCompact: true,
                   onPressed: onSkip,
                 ),
@@ -63,7 +64,7 @@ class ProgressionCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: PrimaryButton(
-                  label: '套用',
+                  label: context.l10n.applyAction,
                   isCompact: true,
                   onPressed: onApply,
                 ),
@@ -75,11 +76,12 @@ class ProgressionCard extends StatelessWidget {
     );
   }
 
-  static String _moveLabel(ProgressionMove move) => switch (move) {
-    ProgressionMove.increase => '加重',
-    ProgressionMove.hold => '維持',
-    ProgressionMove.deload => '退一階',
-  };
+  static String _moveLabel(AppLocalizations l10n, ProgressionMove move) =>
+      switch (move) {
+        ProgressionMove.increase => l10n.progressionIncrease,
+        ProgressionMove.hold => l10n.progressionHold,
+        ProgressionMove.deload => l10n.progressionDeload,
+      };
 }
 
 /// The suggestions for a template, or nothing at all: with no history
@@ -111,7 +113,7 @@ class _ProgressionSectionState extends State<ProgressionSection> {
     ];
     if (suggestions.isEmpty) return const SizedBox.shrink();
     return PageSection(
-      label: '下次的建議',
+      label: context.l10n.nextTimeSuggestions,
       children: [
         for (final (planned, suggestion) in suggestions)
           Gutter(
@@ -123,8 +125,10 @@ class _ProgressionSectionState extends State<ProgressionSection> {
                 setState(() => _answered.add(planned.exercise.id));
                 showToast(
                   context,
-                  '${planned.exercise.name} 改為 '
-                  '${formatWeight(suggestion.targetWeightKg)} kg',
+                  context.l10n.changedTo(
+                    name: planned.exercise.name,
+                    weight: formatWeight(suggestion.targetWeightKg),
+                  ),
                   kind: ToastKind.success,
                 );
               },

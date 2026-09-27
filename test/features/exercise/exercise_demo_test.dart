@@ -13,6 +13,8 @@ import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 
 import '../../support/harness.dart';
 
+import 'package:mishirube/l10n/l10n.dart';
+
 void main() {
   final bench = parseExerciseCatalogue(
     jsonDecode(File(exerciseCatalogueFile).readAsStringSync())
@@ -28,6 +30,8 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: ExerciseDemo(name: bench.name, frames: bench.frames),
       ),
     );
@@ -56,6 +60,8 @@ void main() {
       MediaQuery(
         data: const MediaQueryData(disableAnimations: true),
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: ExerciseDemo(name: bench.name, frames: bench.frames),
         ),
       ),

@@ -17,6 +17,8 @@ import 'package:mishirube/shared/window_controls.dart';
 
 import 'support/harness.dart';
 
+import 'package:mishirube/l10n/l10n.dart';
+
 const _settle = Duration(milliseconds: 600);
 final _toolbarHeight = ToolbarMetrics.android.height;
 final _visibleScrollView = find.byType(CustomScrollView).hitTestable();
@@ -240,6 +242,8 @@ void main() {
     addTearDown(glass.dispose);
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Builder(
             builder: (context) => CollapsingScrollView(

@@ -9,6 +9,7 @@ import 'collapsing_page.dart';
 import 'edge_to_edge_layout.dart';
 import 'list_detail_layout.dart';
 import '../../toast/toast_host.dart';
+import '../../../l10n/l10n.dart';
 
 /// Page layouts add no horizontal padding; each element on a page spaces
 /// itself from the screen edges by wrapping itself in a Gutter. Elements
@@ -38,13 +39,15 @@ class AppBarBackButton extends StatelessWidget {
   const AppBarBackButton({
     super.key,
     this.icon = Icons.chevron_left,
-    this.tooltip = '返回',
+    this.tooltip,
     this.onPressed,
     this.refracts = true,
   });
 
   final IconData icon;
-  final String tooltip;
+
+  /// 返回 when null.
+  final String? tooltip;
   final VoidCallback? onPressed;
 
   /// Liquid glass, which reads what is drawn under it. Off over a native
@@ -56,6 +59,7 @@ class AppBarBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final metrics = ToolbarMetrics.of(context);
     final press = onPressed ?? () => Navigator.of(context).maybePop();
+    final tooltip = this.tooltip ?? context.l10n.commonBack;
     return Semantics(
       button: true,
       label: tooltip,

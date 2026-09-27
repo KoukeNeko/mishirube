@@ -6,6 +6,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'set_load_table.dart';
+import '../../l10n/l10n.dart';
 
 /// A 課表 about to be kept, from a finished workout or a workout written
 /// out: its name, its exercises and each one's sets, all to look over and
@@ -68,25 +69,28 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
     ], name: _name.text.trim());
     final toast = ToastScope.read(context);
     Navigator.of(context).pop(true);
-    toast.show('已存成課表「${routine.name}」');
+    toast.show(context.l10n.savedAsRoutine(name: routine.name));
   }
 
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '存成課表'),
+      appBar: PageAppBar(title: context.l10n.saveAsRoutine),
       footer: PrimaryButton(
-        label: '儲存',
+        label: context.l10n.commonSave,
         onPressed: _exercises.isEmpty || _name.text.trim().isEmpty
             ? null
             : _save,
       ),
       children: [
-        Gutter(child: const SectionLabel('名稱')),
+        Gutter(child: SectionLabel(context.l10n.nameSection)),
         Gutter(
-          child: AppTextField(controller: _name, hint: '課表名稱'),
+          child: AppTextField(
+            controller: _name,
+            hint: context.l10n.routineName,
+          ),
         ),
-        Gutter(child: const SectionLabel('動作')),
+        Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
         for (final (index, (key, planned)) in _exercises.indexed)
           Gutter(
             key: key,
@@ -98,7 +102,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
             ),
           ),
         Gutter(
-          child: DashedActionCard(label: '加入動作', onTap: _add),
+          child: DashedActionCard(label: context.l10n.addExercise, onTap: _add),
         ),
       ],
     );

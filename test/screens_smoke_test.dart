@@ -331,7 +331,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
         ],
         provider: AiProviderKind.anthropic,
         model: 'claude',
-        warnings: ['滷汁的油量看不出來'],
+        warnings: [ModelNote('滷汁的油量看不出來')],
       ),
     ),
     _noSetup,
@@ -373,7 +373,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'training (none)': ((_) => const TrainingScreen(), _withoutRoutines),
   'describe workout': ((_) => const DescribeWorkoutScreen(), _noSetup),
   for (final domain in TrendDomain.values)
-    'trend · ${domain.label}': (
+    'trend · ${domain.name}': (
       (_) => TrendDetailScreen(domain: domain),
       _noSetup,
     ),
@@ -544,6 +544,15 @@ const _windows = [phone, phoneLandscape, tablet];
 String _named(String name, WindowCase window) =>
     window == phone ? name : '$name ($window)';
 
+/// The app's other languages, whose words run longer or shorter than
+/// the Chinese the other cases are read in.
+const _otherLocales = [
+  Locale('en'),
+  Locale('ja'),
+  Locale('ko'),
+  Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+];
+
 void main() {
   for (final window in _windows) {
     for (final MapEntry(key: name, value: (build, setup)) in _screens.entries) {
@@ -567,6 +576,23 @@ void main() {
             reason: '$name uses the shared app bar',
           );
         }
+        await disposeTree(tester);
+      });
+    }
+  }
+
+  // A phone is the narrowest window, where a longer word runs out of room.
+  for (final locale in _otherLocales) {
+    for (final MapEntry(key: name, value: (build, setup)) in _screens.entries) {
+      testWidgets('$name renders without layout errors in $locale', (
+        tester,
+      ) async {
+        final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+        setup(store);
+
+        await pumpScreen(tester, build(store), store: store, locale: locale);
+
+        expect(tester.takeException(), isNull);
         await disposeTree(tester);
       });
     }

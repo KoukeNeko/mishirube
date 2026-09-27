@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import '../domain/domain.dart';
 import '../shared/format.dart';
 import 'app_store.dart';
+import '../l10n/l10n.dart';
 
 const _channel = MethodChannel('mishirube/watch');
 
@@ -44,14 +45,14 @@ class _WatchSyncState extends State<WatchSync> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final state = _stateOf(AppStoreScope.of(context));
+    final state = _stateOf(AppStoreScope.of(context), context.l10n);
     if (_same(state, _sent)) return;
     _sent = state;
     _send(state);
   }
 
   /// What the watch shows; an empty map when no workout runs.
-  static Map<String, Object?> _stateOf(AppStore store) {
+  static Map<String, Object?> _stateOf(AppStore store, AppLocalizations l10n) {
     final workout = store.activeWorkout;
     if (workout == null) return const {};
     final exercise = workout.currentExercise;
@@ -61,10 +62,13 @@ class _WatchSyncState extends State<WatchSync> {
       'workout': workout.routineName,
       'exercise': exercise.exercise.name,
       'set': set == null
-          ? '完成'
-          : '${set.type == SetType.working ? '' : '${set.type.label} · '}'
+          ? l10n.commonDone
+          : '${set.type == SetType.working ? '' : '${set.type.labelIn(l10n)} · '}'
                 '${formatWeight(set.weightKg)} kg × ${set.reps}',
-      'progress': '${workout.completedSets} / ${workout.totalSets} 組',
+      'progress': l10n.setsProgress(
+        done: workout.completedSets,
+        total: workout.totalSets,
+      ),
       'restEndsAt': store.restEndsAt?.millisecondsSinceEpoch.toDouble(),
       'hasNext': set != null,
     };

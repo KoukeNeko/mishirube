@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Bumped whenever a rule below changes, so a stored or exported result can
 /// say which version produced it.
@@ -86,6 +87,7 @@ typedef WeeklyBar = (String, int);
 /// Counts [events] into the [weeks] whole weeks ending with the one holding
 /// [now]. Weeks run Monday to Sunday; the last bar is labelled 本週.
 List<WeeklyBar> weeklyCounts(
+  AppLocalizations l10n,
   Iterable<DateTime> events, {
   required DateTime now,
   required int weeks,
@@ -102,7 +104,7 @@ List<WeeklyBar> weeklyCounts(
     for (final (index, count) in counts.indexed)
       (
         index == weeks - 1
-            ? '本週'
+            ? l10n.todaySectionWeek
             : _label(
                 thisWeek.subtract(Duration(days: (weeks - 1 - index) * 7)),
               ),
@@ -113,11 +115,12 @@ List<WeeklyBar> weeklyCounts(
 
 /// Sums per-day amounts into the same weeks [weeklyCounts] uses.
 List<WeeklyBar> weeklySums(
+  AppLocalizations l10n,
   Iterable<(DateTime, int)> amounts, {
   required DateTime now,
   required int weeks,
 }) {
-  final bars = weeklyCounts(const [], now: now, weeks: weeks);
+  final bars = weeklyCounts(l10n, const [], now: now, weeks: weeks);
   final totals = List.filled(weeks, 0);
   final thisWeek = _startOfWeek(now);
   for (final (day, amount) in amounts) {
@@ -154,6 +157,7 @@ String _label(DateTime day) => '${day.month}/${day.day}';
 /// `setsByMuscle`. Muscles with no set in the whole span are left out;
 /// the rest come most trained first.
 List<(MuscleGroup, List<WeeklyBar>)> weeklySetsPerMuscle(
+  AppLocalizations l10n,
   Iterable<(ExerciseDefinition, List<(DateTime, int)>)> sessions, {
   required DateTime now,
   required int weeks,
@@ -166,7 +170,7 @@ List<(MuscleGroup, List<WeeklyBar>)> weeklySetsPerMuscle(
   }
   final out = [
     for (final MapEntry(key: muscle, value: done) in byMuscle.entries)
-      if (weeklySums(done, now: now, weeks: weeks) case final bars
+      if (weeklySums(l10n, done, now: now, weeks: weeks) case final bars
           when bars.any((bar) => bar.$2 > 0))
         (muscle, bars),
   ];

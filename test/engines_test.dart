@@ -26,6 +26,7 @@ import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/seed/exercise_catalogue.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/chat_workout.dart';
 import 'support/harness.dart';
@@ -148,7 +149,10 @@ void main() {
         isNull,
         reason: 'two of three is not the total',
       );
-      expect(nutrientLines(three).first, (Nutrient.bcaa, '5500 mg · 推算'));
+      expect(nutrientLines(testL10n, three).first, (
+        Nutrient.bcaa,
+        '5500 mg · 推算',
+      ));
 
       MealEvent shake(String id, Nutrients nutrients) =>
           _meal(id).copyWith(id: id, nutrients: nutrients);
@@ -157,7 +161,7 @@ void main() {
         shake('drink', {Nutrient.bcaa: 3000}),
       ]).firstWhere((total) => total.nutrient == Nutrient.bcaa);
       expect(total.amount, 8500);
-      expect(total.label, '8500 mg · 推算');
+      expect(total.labelIn(testL10n), '8500 mg · 推算');
     });
 
     test('fibre adds up with the rest of the day', () {
@@ -304,7 +308,7 @@ void main() {
     ];
 
     test('training weeks start at the first workout, not at zero', () {
-      final line = trainingLine([
+      final line = trainingLine(testL10n, [
         DateTime(today.year, today.month, today.day - 3),
         DateTime(today.year, today.month, today.day - 10),
       ], today)!;
@@ -314,9 +318,9 @@ void main() {
 
     test('sleep is set against twelve weeks once there are that many', () {
       final nights = [...daily(28, 450), ...daily(84, 410, endingDaysAgo: 28)];
-      expect(sleepLine(nights, today)!.change, '比前 12 週多 40 分');
+      expect(sleepLine(testL10n, nights, today)!.change, '比前 12 週多 40 分');
       expect(
-        sleepLine([
+        sleepLine(testL10n, [
           ...daily(20, 450),
           ...daily(20, 410, endingDaysAgo: 28),
         ], today)!.change,
@@ -330,8 +334,11 @@ void main() {
         ...daily(90, 11000),
         ...daily(275, 9000, endingDaysAgo: 90),
       ];
-      expect(activityLine(year, today)!.value, '每天 11,000 步');
-      expect(activityLine(year, today)!.change, startsWith('近 90 天比過去一年多'));
+      expect(activityLine(testL10n, year, today)!.value, '每天 11,000 步');
+      expect(
+        activityLine(testL10n, year, today)!.change,
+        startsWith('近 90 天比過去一年多'),
+      );
     });
 
     test('a relation needs five workouts on each side of the median', () {
@@ -347,11 +354,11 @@ void main() {
           isLong ? 5500 : 4500,
         ));
       }
-      final relation = sleepAndTrainingInsight(nights, workouts)!;
+      final relation = sleepAndTrainingInsight(testL10n, nights, workouts)!;
       expect(relation.statement, '前一晚睡得較久的訓練，訓練量平均多 20%。');
       expect(relation.evidence, contains('關聯，不代表因果'));
       expect(
-        sleepAndTrainingInsight(nights, workouts.take(8).toList()),
+        sleepAndTrainingInsight(testL10n, nights, workouts.take(8).toList()),
         isNull,
         reason: 'four a side',
       );
@@ -755,6 +762,7 @@ void main() {
 
     test('counts events into whole weeks ending with this one', () {
       final bars = weeklyCounts(
+        testL10n,
         [
           now,
           now.subtract(const Duration(days: 1)),
@@ -772,6 +780,7 @@ void main() {
 
     test('sums per-day amounts into the same weeks', () {
       final bars = weeklySums(
+        testL10n,
         [
           (now, 3),
           (now.subtract(const Duration(days: 2)), 4),
@@ -804,7 +813,7 @@ void main() {
         changePerWeek: 0.02,
       );
 
-      final insight = weightTrendInsight(trend, dayCount: 28)!;
+      final insight = weightTrendInsight(testL10n, trend, dayCount: 28)!;
       expect(insight.statement, contains('大致持平'));
       expect(insight.evidence, contains('依據 4 筆體重紀錄'));
       expect(insight.evidence.last, '近 4 週');
@@ -817,7 +826,7 @@ void main() {
         changePerWeek: -0.4,
       );
 
-      final insight = weightTrendInsight(trend, dayCount: 28)!;
+      final insight = weightTrendInsight(testL10n, trend, dayCount: 28)!;
       expect(insight.statement, contains('每週約 0.4 kg 的速度下降'));
       expect(insight.evidence, contains('資料不完整，只有 4 / 28 天有紀錄'));
     });
@@ -825,6 +834,7 @@ void main() {
     test('a volume drop is reported, a steady week is not', () {
       const sessions = 12;
       final dropped = volumeTrendInsight(
+        testL10n,
         '槓鈴深蹲',
         const [('8/24', 12), ('8/31', 11), ('9/7', 9), ('本週', 8)],
         sessionCount: sessions,
@@ -836,6 +846,7 @@ void main() {
 
       expect(
         volumeTrendInsight(
+          testL10n,
           '槓鈴深蹲',
           const [('8/24', 10), ('本週', 10)],
           sessionCount: sessions,
@@ -846,13 +857,20 @@ void main() {
     });
 
     test('the weekly goal insight only speaks once there is a session', () {
-      expect(weeklyTrainingInsight(const [('本週', 0)], goalPerWeek: 3), isNull);
       expect(
-        weeklyTrainingInsight(const [('本週', 3)], goalPerWeek: 3)!.statement,
+        weeklyTrainingInsight(testL10n, const [('本週', 0)], goalPerWeek: 3),
+        isNull,
+      );
+      expect(
+        weeklyTrainingInsight(testL10n, const [
+          ('本週', 3),
+        ], goalPerWeek: 3)!.statement,
         contains('達成'),
       );
       expect(
-        weeklyTrainingInsight(const [('本週', 1)], goalPerWeek: 3)!.statement,
+        weeklyTrainingInsight(testL10n, const [
+          ('本週', 1),
+        ], goalPerWeek: 3)!.statement,
         contains('還差 2 次'),
       );
     });
@@ -873,7 +891,7 @@ void main() {
         ),
         isTrue,
       );
-      expect(options.first.reasons.first, '同為深蹲模式');
+      expect(options.first.reasons.first.text(testL10n), '同為深蹲模式');
       expect(
         options.map((option) => option.exercise.id),
         isNot(contains('back-squat')),
@@ -881,8 +899,14 @@ void main() {
       final gobletSquat = options.firstWhere(
         (option) => option.exercise.id == 'goblet-squat',
       );
-      expect(gobletSquat.reasons, contains('啞鈴可用'));
-      expect(gobletSquat.reasons, contains('換啞鈴，重量需重新設定'));
+      expect(
+        gobletSquat.reasons.map((r) => r.text(testL10n)),
+        contains('啞鈴可用'),
+      );
+      expect(
+        gobletSquat.reasons.map((r) => r.text(testL10n)),
+        contains('換啞鈴，重量需重新設定'),
+      );
     });
 
     test('a timed exercise says the tracking changes', () {
@@ -893,7 +917,10 @@ void main() {
       final options = substitutesFor(plank, store.exercises);
 
       expect(options, isNotEmpty);
-      expect(options.first.reasons, contains('記錄方式改為重量 + 次數'));
+      expect(
+        options.first.reasons.map((r) => r.text(testL10n)),
+        contains('記錄方式改為重量 + 次數'),
+      );
     });
   });
 
@@ -1352,11 +1379,15 @@ void main() {
     }
 
     test('nothing to go on means nothing is said', () {
-      expect(suggestProgression(planned: plan, recent: const []), isNull);
+      expect(
+        suggestProgression(testL10n, planned: plan, recent: const []),
+        isNull,
+      );
     });
 
     test('meeting the plan with something in reserve adds a step', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 5)],
       )!;
@@ -1368,6 +1399,7 @@ void main() {
 
     test('a workout rated too hard is not followed by more weight', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 5, workload: Workload.tooHard)],
       )!;
@@ -1379,6 +1411,7 @@ void main() {
 
     test('meeting it at the limit repeats the weight', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 5, rir: 0)],
       )!;
@@ -1389,6 +1422,7 @@ void main() {
 
     test('fewer sets is not a reason to take weight off', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 5, sets: 2), attempt(reps: 5, sets: 2)],
       )!;
@@ -1400,6 +1434,7 @@ void main() {
 
     test('missing the reps twice running takes weight off', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 3), attempt(reps: 4)],
       )!;
@@ -1410,6 +1445,7 @@ void main() {
 
     test('one bad day is only a bad day', () {
       final suggestion = suggestProgression(
+        testL10n,
         planned: plan,
         recent: [attempt(reps: 3), attempt(reps: 5)],
       )!;
@@ -1450,6 +1486,7 @@ void main() {
         pattern: MovementPattern.isolation,
       );
       final weeks = weeklySetsPerMuscle(
+        testL10n,
         [
           (squat, [(now, 4), (now.subtract(const Duration(days: 7)), 3)]),
           (curl, [(now.subtract(const Duration(days: 60)), 3)]),
@@ -1857,9 +1894,9 @@ void main() {
       plateKcalLabel([one(100, declared), one(6, NutrientValueType.max)]),
       '106',
     );
-    expect(plateMissingLabel([one(100, declared)]), isNull);
+    expect(plateMissingLabel(testL10n, [one(100, declared)]), isNull);
     expect(
-      plateMissingLabel([one(100, declared), one(null, declared)]),
+      plateMissingLabel(testL10n, [one(100, declared), one(null, declared)]),
       '1 項沒有熱量',
     );
     expect(plateKcalLabel([one(100, declared), one(null, declared)]), '100');

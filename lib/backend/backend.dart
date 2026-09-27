@@ -24,6 +24,7 @@ import 'storage/meal_repository.dart';
 import 'storage/routine_repository.dart';
 import 'storage/timeline_query.dart';
 import 'storage/workout_repository.dart';
+import '../l10n/l10n.dart';
 
 const _databaseFileName = 'mishirube.sqlite3';
 
@@ -31,27 +32,29 @@ const _databaseFileName = 'mishirube.sqlite3';
 /// services on [Backend] instead; this layer serves the backend itself,
 /// its tests, and import and export.
 class Storage {
-  Storage(this.db)
+  /// [l10n] is the language of what the repositories write out: log rows,
+  /// summaries, a routine's or an exercise's last time.
+  Storage(this.db, AppLocalizations l10n)
     : activities = ActivityRepository(db),
       activitySamples = ActivitySampleRepository(db),
       goals = GoalRepository(db),
-      exercises = ExerciseRepository(db),
-      routines = RoutineRepository(db),
+      exercises = ExerciseRepository(db, l10n),
+      routines = RoutineRepository(db, l10n),
       workouts = WorkoutRepository(db),
       meals = MealRepository(db),
       foods = FoodRepository(db),
       journal = JournalRepository(db) {
     timeline = TimelineQuery(db, [
-      WorkoutTimelineSource(workouts, exercises),
-      ActivityTimelineSource(activities),
-      MealTimelineSource(meals),
-      BodyWeightTimelineSource(journal),
-      SleepTimelineSource(journal),
+      WorkoutTimelineSource(workouts, exercises, l10n),
+      ActivityTimelineSource(activities, l10n),
+      MealTimelineSource(meals, l10n),
+      BodyWeightTimelineSource(journal, l10n),
+      SleepTimelineSource(journal, l10n),
       // After sleep: a check-in is the more specific thing to say about a
       // day that has both.
-      WellnessTimelineSource(journal),
-      NoteTimelineSource(journal),
-    ]);
+      WellnessTimelineSource(journal, l10n),
+      NoteTimelineSource(journal, l10n),
+    ], l10n);
   }
 
   final AppDatabase db;
@@ -71,16 +74,28 @@ class Storage {
 /// it, and the use cases the app works through. Nothing here waits on a
 /// network.
 class Backend {
-  Backend(AppDatabase database) : storage = Storage(database) {
+  /// [l10n] is the language the backend writes the names it makes up in
+  /// (a new routine, a workout without one); the system's by default.
+  Backend(AppDatabase database, {AppLocalizations? l10n})
+    : this._(database, l10n ?? systemLocalizations());
+
+  Backend._(AppDatabase database, this.l10n)
+    : storage = Storage(database, l10n) {
     catalog = CatalogService(db, storage.exercises);
     training = TrainingService(
       db,
       storage.workouts,
       storage.exercises,
       storage.routines,
+      l10n,
     );
     journal = JournalService(db, storage.journal);
-    activity = ActivityService(db, storage.activities, storage.activitySamples);
+    activity = ActivityService(
+      db,
+      storage.activities,
+      storage.activitySamples,
+      l10n,
+    );
     sleep = SleepService(db, storage.journal, storage.workouts, storage.meals);
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
     provenance = ProvenanceService(db);
@@ -91,6 +106,7 @@ class Backend {
       storage.meals,
       storage.journal,
       storage.activitySamples,
+      l10n,
     );
     // Daily targets take maintenance from what the records show.
     nutrition = NutritionService(
@@ -99,8 +115,13 @@ class Backend {
       storage.foods,
       journal,
       insights,
+      l10n,
     );
   }
+
+  /// The language names made up here are written in. Changing the app's
+  /// language relaunches it, so this never goes stale.
+  final AppLocalizations l10n;
 
   factory Backend.inMemory({DateTime Function()? clock}) =>
       Backend(AppDatabase.inMemory(clock: clock));

@@ -6,6 +6,7 @@ import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import 'trends_view_model.dart';
 import 'muscle_map_paths.dart';
+import '../../l10n/l10n.dart';
 
 /// Where the colour scale tops out. It is a drawing limit, not a
 /// recommendation: nothing here says how many sets a muscle should get.
@@ -77,8 +78,8 @@ class _RoleLegend extends StatelessWidget {
       runSpacing: AppSpacing.xs,
       children: [
         for (final (shade, label) in [
-          (muscleMapTopOfScale, '主要肌群'),
-          (_helpingShade, '次要肌群'),
+          (muscleMapTopOfScale, context.l10n.primaryMuscles),
+          (_helpingShade, context.l10n.secondaryMuscles),
         ])
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -123,7 +124,7 @@ class MuscleMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '肌群訓練量人體圖，詳細數值列在下方',
+      label: context.l10n.muscleMapLabel,
       child: ExcludeSemantics(
         child: AspectRatio(
           aspectRatio: muscleFigureSize.width * 2 / muscleFigureSize.height,

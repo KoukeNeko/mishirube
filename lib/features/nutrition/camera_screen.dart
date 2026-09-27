@@ -10,6 +10,7 @@ import '../../app/navigation.dart';
 import '../../shared/widgets/widgets.dart';
 import '../shell/bottom_chrome/chrome_metrics.dart';
 import '../shell/bottom_chrome/press_feedback.dart';
+import '../../l10n/l10n.dart';
 
 /// The longer side a food photo is taken at: past about 1568 px a model
 /// scales a plate down anyway, where a label's small print needs more.
@@ -221,7 +222,12 @@ class _CameraScreenState extends State<CameraScreen>
                     ),
                   )
                 else if (_isUnavailable)
-                  Center(child: Text('沒有可用的相機', style: AppTextStyles.caption)),
+                  Center(
+                    child: Text(
+                      context.l10n.noCamera,
+                      style: AppTextStyles.caption,
+                    ),
+                  ),
                 IgnorePointer(
                   child: FadeTransition(
                     opacity: _flash,
@@ -234,7 +240,10 @@ class _CameraScreenState extends State<CameraScreen>
                   right: padding.right + AppSpacing.screenGutter,
                   child: Row(
                     children: [
-                      const AppBarBackButton(icon: Icons.close, tooltip: '關閉'),
+                      AppBarBackButton(
+                        icon: Icons.close,
+                        tooltip: context.l10n.commonClose,
+                      ),
                       Expanded(
                         child: Text(
                           widget.title,
@@ -319,7 +328,7 @@ class _ShutterState extends State<_Shutter> {
     return Semantics(
       button: true,
       enabled: onPressed != null,
-      label: '拍照',
+      label: context.l10n.takePhotoAction,
       onTap: onPressed,
       excludeSemantics: true,
       // The raw pointer, so the green reacts before the tap is decided.
@@ -380,18 +389,18 @@ class _LibraryButton extends StatelessWidget {
     if (photo == null) {
       return SquareIconButton(
         icon: Icons.photo_library_outlined,
-        tooltip: '從相簿選取',
+        tooltip: context.l10n.pickFromLibrary,
         size: _libraryButtonSize,
         radius: _libraryButtonSize / 2,
         onPressed: onPressed,
       );
     }
     return Tooltip(
-      message: '從相簿選取',
+      message: context.l10n.pickFromLibrary,
       excludeFromSemantics: true,
       child: Semantics(
         button: true,
-        label: '從相簿選取',
+        label: context.l10n.pickFromLibrary,
         onTap: onPressed,
         excludeSemantics: true,
         child: PressScale(

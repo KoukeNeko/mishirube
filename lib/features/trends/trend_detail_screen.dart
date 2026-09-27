@@ -14,21 +14,28 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'training_trends_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Tall enough to read a week's rise or fall at a glance.
 const _mainChartHeight = 180.0;
 
 /// How far back the page reads.
 enum _Range {
-  quarter('3 個月', 13),
-  half('6 個月', 26),
-  year('1 年', 52),
-  all('全部', null);
+  quarter(13),
+  half(26),
+  year(52),
+  all(null);
 
-  const _Range(this.label, this.weeks);
+  const _Range(this.weeks);
 
-  final String label;
   final int? weeks;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    quarter => l10n.monthsCount(count: 3),
+    half => l10n.monthsCount(count: 6),
+    year => l10n.yearsCount(count: 1),
+    all => l10n.logFilterAll,
+  };
 }
 
 Color trendColor(TrendDomain domain) => switch (domain) {
@@ -80,13 +87,15 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
             if (line.domain != domain) line,
         ];
         return DetailPage(
-          appBar: PageAppBar(title: '${domain.label}趨勢'),
+          appBar: PageAppBar(
+            title: context.l10n.areaTrend(area: domain.labelIn(context.l10n)),
+          ),
           children: [
             Gutter(
               child: SegmentedChoice<_Range>(
                 options: _Range.values,
                 selected: _range,
-                labelOf: (range) => range.label,
+                labelOf: (range) => range.labelIn(context.l10n),
                 selectedColor: trendColor(domain),
                 onChanged: (range) => setState(() => _range = range),
               ),
@@ -99,19 +108,20 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
             if (trend.sleepTimes case final times?)
               Gutter(
                 child: NavCard(
-                  title:
-                      '${_clockOf(times.bedtime)} 入睡 · '
-                      '${_clockOf(times.wake)} 起床',
-                  subtitle: '近 4 週平均',
+                  title: context.l10n.sleepTimesAverage(
+                    bedtime: _clockOf(times.bedtime),
+                    wake: _clockOf(times.wake),
+                  ),
+                  subtitle: context.l10n.last4WeeksAverage,
                   showChevron: false,
                 ),
               ),
             if (trend.detail.weekdays.any((value) => value != null)) ...[
-              Gutter(child: const SectionLabel('星期')),
+              Gutter(child: SectionLabel(context.l10n.weekdaySection)),
               Gutter(child: _Weekdays(trend: trend)),
             ],
             if (others.isNotEmpty) ...[
-              Gutter(child: const SectionLabel('同期其他領域')),
+              Gutter(child: SectionLabel(context.l10n.otherAreasSection)),
               Gutter(
                 child: GroupedCard(
                   children: [
@@ -121,7 +131,7 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                           color: trendColor(line.domain),
                           height: 28,
                         ),
-                        title: line.domain.label,
+                        title: line.domain.labelIn(context.l10n),
                         subtitle: line.value,
                         detail: line.change,
                         onTap: () => pushPage(
@@ -135,7 +145,7 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
             ],
             Gutter(
               child: NavCard(
-                title: '每日紀錄',
+                title: context.l10n.dailyEntries,
                 onTap: () => pushPage(context, areaPageFor(domain)),
               ),
             ),
@@ -156,29 +166,33 @@ String _clockOf(double minutes) {
 double _tenth(double value) => (value * 10).round() / 10;
 
 /// An area's weekly value as the page writes it.
-String _valueOf(TrendDomain domain, double value) => switch (domain) {
-  TrendDomain.body => '${formatWeight(_tenth(value))} kg',
-  TrendDomain.training => '每週 ${value.toStringAsFixed(1)} 次',
-  TrendDomain.sleep => formatHoursMinutes(Duration(minutes: value.round())),
-  TrendDomain.nutrition => '${formatKcal(value.round())} kcal',
-  TrendDomain.activity => '${formatKcal(value.round())} 步',
-};
+String _valueOf(AppLocalizations l10n, TrendDomain domain, double value) =>
+    switch (domain) {
+      TrendDomain.body => '${formatWeight(_tenth(value))} kg',
+      TrendDomain.training => l10n.perWeekTimes(
+        count: value.toStringAsFixed(1),
+      ),
+      TrendDomain.sleep => formatHoursMinutes(Duration(minutes: value.round())),
+      TrendDomain.nutrition => '${formatKcal(value.round())} kcal',
+      TrendDomain.activity => l10n.stepsValue(steps: formatKcal(value.round())),
+    };
 
 /// `+22 分`, `−0.4 kg`: how far one level sits from another.
-String _differenceOf(TrendDomain domain, double delta) {
+String _differenceOf(AppLocalizations l10n, TrendDomain domain, double delta) {
   final sign = delta < 0 ? '−' : '+';
   final size = delta.abs();
   return '$sign${switch (domain) {
     TrendDomain.body => '${formatWeight(_tenth(size))} kg',
-    TrendDomain.training => '${size.toStringAsFixed(1)} 次',
-    TrendDomain.sleep => '${size.round()} 分',
+    TrendDomain.training => l10n.timesValue(count: size.toStringAsFixed(1)),
+    TrendDomain.sleep => l10n.durationMinutes(minutes: size.round()),
     TrendDomain.nutrition => '${formatKcal(size.round())} kcal',
-    TrendDomain.activity => '${formatKcal(size.round())} 步',
+    TrendDomain.activity => l10n.stepsValue(steps: formatKcal(size.round())),
   }}';
 }
 
-/// `9/14 起`: the week a point stands for.
-String _weekOf(DateTime start) => '${start.month}/${start.day} 起';
+/// `9月14日 起`: the week a point stands for.
+String _weekOf(BuildContext context, DateTime start) =>
+    context.l10n.weekFrom(date: context.dates.compactMonthDay(start));
 
 /// The latest stretch against the baseline, the weeks behind them, and
 /// how many days the latest weeks have records for.
@@ -193,8 +207,9 @@ class _Overview extends StatelessWidget {
     final detail = trend.detail;
     final color = trendColor(domain);
     final isYearly = domain == TrendDomain.activity;
-    final recentLabel = isYearly ? '近 13 週' : '近 4 週';
-    final baselineLabel = isYearly ? '過去一年' : '前 12 週';
+    final l10n = context.l10n;
+    final recentLabel = isYearly ? l10n.last13Weeks : l10n.last4Weeks;
+    final baselineLabel = isYearly ? l10n.pastYear : l10n.prior12Weeks;
     final recent = detail.recent;
     final baseline = detail.baseline;
     final recentDays = detail.daysWithRecords.reversed.take(4).toList();
@@ -202,31 +217,38 @@ class _Overview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CategoryLabel(label: '$recentLabel平均', color: color),
+          CategoryLabel(
+            label: l10n.periodAverage(period: recentLabel),
+            color: color,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            recent == null ? '—' : _valueOf(domain, recent.value),
+            recent == null ? '—' : _valueOf(l10n, domain, recent.value),
             style: AppTextStyles.bigNumber,
           ),
           if ((recent, baseline) case (final recent?, final baseline?))
             Text(
-              '$baselineLabel ${_valueOf(domain, baseline.value)} · '
-              '${_differenceOf(domain, recent.value - baseline.value)}',
+              '$baselineLabel ${_valueOf(l10n, domain, baseline.value)} · '
+              '${_differenceOf(l10n, domain, recent.value - baseline.value)}',
               style: AppTextStyles.caption,
             ),
           const SizedBox(height: AppSpacing.md),
           if (detail.values.nonNulls.isEmpty)
-            const Text('沒有紀錄', style: AppTextStyles.caption)
+            Text(l10n.noEntriesShort, style: AppTextStyles.caption)
           else
             ChartScrubber(
               count: detail.values.length,
               indexAt: ChartScrubber.points(detail.values.length),
-              idle: domain == TrendDomain.training ? '每週次數' : '每週平均',
+              idle: domain == TrendDomain.training
+                  ? l10n.weeklyCount
+                  : l10n.weeklyAverage,
               readoutOf: (index) => switch (detail.values[index]) {
                 final value? =>
-                  '${_weekOf(detail.weekStarts[index])} · '
-                      '${_valueOf(domain, value)}',
-                null => '${_weekOf(detail.weekStarts[index])} · 沒有紀錄',
+                  '${_weekOf(context, detail.weekStarts[index])} · '
+                      '${_valueOf(l10n, domain, value)}',
+                null =>
+                  '${_weekOf(context, detail.weekStarts[index])} · '
+                      '${l10n.noEntriesShort}',
               },
               builder: (context, selected) => Sparkline(
                 values: detail.values,
@@ -260,7 +282,7 @@ class _Overview extends StatelessWidget {
               if (detail.normal != null)
                 _Key(
                   color: AppColors.textSecondary.withValues(alpha: 0.3),
-                  label: '平常範圍',
+                  label: l10n.usualRange,
                 ),
               if (baseline != null)
                 _Key(color: AppColors.textSecondary, label: baselineLabel),
@@ -270,9 +292,10 @@ class _Overview extends StatelessWidget {
           if (domain != TrendDomain.training && recentDays.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
-              '近 4 週每週平均 '
-              '${(recentDays.reduce((a, b) => a + b) / recentDays.length).toStringAsFixed(1)}'
-              ' 天有紀錄',
+              l10n.daysLoggedPerWeek(
+                days: (recentDays.reduce((a, b) => a + b) / recentDays.length)
+                    .toStringAsFixed(1),
+              ),
               style: AppTextStyles.caption,
             ),
           ],
@@ -316,24 +339,25 @@ class _SecondaryCard extends StatelessWidget {
   final TrendDomain domain;
   final TrendDetail detail;
 
-  String get _label => switch (domain) {
-    TrendDomain.body => '秤上體重',
-    TrendDomain.training => '每週訓練量',
+  String _label(AppLocalizations l10n) => switch (domain) {
+    TrendDomain.body => l10n.scaleWeight,
+    TrendDomain.training => l10n.weeklyVolume,
     TrendDomain.sleep => '',
-    TrendDomain.nutrition => '蛋白質',
-    TrendDomain.activity => '靜止心率',
+    TrendDomain.nutrition => l10n.macroProtein,
+    TrendDomain.activity => l10n.restingHeartRate,
   };
 
-  String _value(double value) => switch (domain) {
+  String _value(AppLocalizations l10n, double value) => switch (domain) {
     TrendDomain.body => '${formatWeight(_tenth(value))} kg',
     TrendDomain.training => '${formatKcal(value.round())} kg',
     TrendDomain.sleep => '',
     TrendDomain.nutrition => '${value.round()} g',
-    TrendDomain.activity => '${value.round()} 次/分',
+    TrendDomain.activity => '${value.round()} ${l10n.unitBpm}',
   };
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final color = trendColor(domain);
     final latest = detail.values.nonNulls.lastOrNull;
     return AppCard(
@@ -342,24 +366,30 @@ class _SecondaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(_label, style: AppTextStyles.itemTitle),
-              const Spacer(),
+              Expanded(
+                child: Text(_label(l10n), style: AppTextStyles.itemTitle),
+              ),
               if (latest != null)
-                Text(_value(latest), style: AppTextStyles.body),
+                Text(_value(l10n, latest), style: AppTextStyles.body),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           if (latest == null)
-            const Text('沒有紀錄', style: AppTextStyles.caption)
+            Text(l10n.noEntriesShort, style: AppTextStyles.caption)
           else
             ChartScrubber(
               count: detail.values.length,
               indexAt: ChartScrubber.points(detail.values.length),
-              idle: domain == TrendDomain.training ? '每週合計' : '每週平均',
+              idle: domain == TrendDomain.training
+                  ? l10n.weeklyTotal
+                  : l10n.weeklyAverage,
               readoutOf: (index) => switch (detail.values[index]) {
                 final value? =>
-                  '${_weekOf(detail.weekStarts[index])} · ${_value(value)}',
-                null => '${_weekOf(detail.weekStarts[index])} · 沒有紀錄',
+                  '${_weekOf(context, detail.weekStarts[index])} · '
+                      '${_value(l10n, value)}',
+                null =>
+                  '${_weekOf(context, detail.weekStarts[index])} · '
+                      '${l10n.noEntriesShort}',
               },
               builder: (context, selected) => Sparkline(
                 values: detail.values,
@@ -379,8 +409,6 @@ class _Weekdays extends StatelessWidget {
   const _Weekdays({required this.trend});
 
   final AreaTrend trend;
-
-  static const _names = ['一', '二', '三', '四', '五', '六', '日'];
 
   @override
   Widget build(BuildContext context) {
@@ -403,7 +431,10 @@ class _Weekdays extends StatelessWidget {
           MiniBarChart(
             bars: [
               for (final (index, value) in values.indexed)
-                (_names[index], (((value ?? floor) - floor) * 100).round()),
+                (
+                  context.dates.weekdayNumber(index + 1),
+                  (((value ?? floor) - floor) * 100).round(),
+                ),
             ],
             height: 80,
             color: color,
@@ -412,8 +443,14 @@ class _Weekdays extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '最高 週${_names[highest.$1]} ${_valueOf(domain, highest.$2)} · '
-            '最低 週${_names[lowest.$1]} ${_valueOf(domain, lowest.$2)}',
+            context.l10n.highestLowest(
+              high:
+                  '${context.dates.weekdayNumberName(highest.$1 + 1)} '
+                  '${_valueOf(context.l10n, domain, highest.$2)}',
+              low:
+                  '${context.dates.weekdayNumberName(lowest.$1 + 1)} '
+                  '${_valueOf(context.l10n, domain, lowest.$2)}',
+            ),
             style: AppTextStyles.caption,
           ),
         ],

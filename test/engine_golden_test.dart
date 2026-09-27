@@ -9,6 +9,7 @@ import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
 import 'package:mishirube/backend/seed/seed.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/harness.dart';
 
@@ -110,7 +111,7 @@ String _report(Backend backend) {
     final exercise = backend.catalog.byId(id)!;
     for (final option in substitutesFor(exercise, backend.catalog.all())) {
       buffer.writeln(
-        '$id → ${option.exercise.id}: ${option.reasons.join(' / ')}',
+        '$id → ${option.exercise.id}: ${option.reasons.map((r) => r.text(testL10n)).join(' / ')}',
       );
     }
   }

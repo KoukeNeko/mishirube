@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
 import 'today_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Which parts of Today are shown. Hiding one only takes it off Today;
 /// what it shows stays everywhere else, and the modules in settings are
@@ -16,14 +17,14 @@ class TodayLayoutScreen extends StatelessWidget {
     builder: (context, today) {
       final hidden = today.hidden;
       return DetailPage(
-        appBar: PageAppBar(title: '自訂首頁'),
+        appBar: PageAppBar(title: context.l10n.customiseToday),
         children: [
           Gutter(
             child: GroupedCard(
               children: [
                 for (final section in TodaySection.values)
                   SwitchRow(
-                    title: section.label,
+                    title: section.labelIn(context.l10n),
                     value: !hidden.contains(section),
                     onChanged: (isShown) => today.setShown(section, isShown),
                   ),
@@ -33,7 +34,10 @@ class TodayLayoutScreen extends StatelessWidget {
           if (hidden.isNotEmpty)
             Gutter(
               child: Center(
-                child: LinkText(label: '全部顯示', onTap: today.showAll),
+                child: LinkText(
+                  label: context.l10n.showAll,
+                  onTap: today.showAll,
+                ),
               ),
             ),
         ],

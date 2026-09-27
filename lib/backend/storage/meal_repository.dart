@@ -534,7 +534,7 @@ class MealRepository {
 /// Meals as log rows, plus the day's food totals and whether the day's log
 /// looks too thin to compare.
 class MealTimelineSource extends TimelineSource {
-  MealTimelineSource(this._meals);
+  MealTimelineSource(this._meals, super.l10n);
 
   final MealRepository _meals;
 
@@ -599,7 +599,7 @@ class MealTimelineSource extends TimelineSource {
       ),
       detail: meal.length == 1
           ? first.dishes.map((dish) => dish.name).join('、')
-          : '${meal.length} 項',
+          : l10n.itemsCount(count: meal.length),
       tags: [
         '${formatKcalOrDash(mealKcalOf(meal))} kcal',
         if (meal.length == 1) first.qualityTag,
@@ -629,12 +629,13 @@ class MealTimelineSource extends TimelineSource {
             ).isBefore(endOfYesterday),
           ),
         ))
-          day: '有未記錄的餐',
+          day: l10n.foodLogIncomplete,
     };
   }
 
-  static String _summaryOf(DaySummary summary) =>
-      '${summary.mealCount} 餐 · ${formatKcal(summary.kcal)} kcal';
+  String _summaryOf(DaySummary summary) =>
+      '${l10n.mealsCount(count: summary.mealCount)} · '
+      '${formatKcal(summary.kcal)} kcal';
 
   /// The month's meals by day of the month, grouped by the day each was
   /// eaten on rather than by where the reader is standing now.

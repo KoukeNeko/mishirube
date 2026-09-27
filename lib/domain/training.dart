@@ -1,38 +1,10 @@
-enum TrackingType {
-  weightReps('重量 + 次數'),
-  reps('次數'),
-  duration('時間'),
-  distance('距離');
+enum TrackingType { weightReps, reps, duration, distance }
 
-  const TrackingType(this.label);
-
-  final String label;
-}
-
-enum ExerciseSource {
-  builtIn('內建'),
-  custom('自訂'),
-  imported('匯入');
-
-  const ExerciseSource(this.label);
-
-  final String label;
-}
+enum ExerciseSource { builtIn, custom, imported }
 
 /// Where on the body a muscle group is: what a filter or a body map
 /// groups by.
-enum BodyRegion {
-  chest('胸'),
-  shoulders('肩'),
-  back('背'),
-  arms('手臂'),
-  core('核心'),
-  legs('腿臀');
-
-  const BodyRegion(this.label);
-
-  final String label;
-}
+enum BodyRegion { chest, shoulders, back, arms, core, legs }
 
 /// A muscle group as training counts it: fine enough to tell the front
 /// of the shoulder from the back, no finer than a set can be credited to.
@@ -41,33 +13,31 @@ enum BodyRegion {
 /// without saying which part of it. The built-in library never uses
 /// them; an exercise the user made or imported may.
 enum MuscleGroup {
-  chest('胸', BodyRegion.chest),
-  frontDelts('三角肌前束', BodyRegion.shoulders),
-  sideDelts('三角肌中束', BodyRegion.shoulders),
-  rearDelts('三角肌後束', BodyRegion.shoulders),
-  biceps('二頭肌', BodyRegion.arms),
-  triceps('三頭肌', BodyRegion.arms),
-  forearms('前臂', BodyRegion.arms),
-  traps('斜方肌', BodyRegion.back),
-  lats('背闊肌', BodyRegion.back),
-  upperBack('上背', BodyRegion.back),
-  spinalErectors('豎脊肌', BodyRegion.back),
-  abs('腹直肌', BodyRegion.core),
-  obliques('腹斜肌', BodyRegion.core),
-  glutes('臀', BodyRegion.legs),
-  quads('股四頭', BodyRegion.legs),
-  hamstrings('腿後', BodyRegion.legs),
-  adductors('內收肌', BodyRegion.legs),
-  abductors('外展肌', BodyRegion.legs),
-  calves('小腿', BodyRegion.legs),
-  back('背', BodyRegion.back),
-  shoulders('肩', BodyRegion.shoulders),
-  arms('手臂', BodyRegion.arms),
-  core('核心', BodyRegion.core);
+  chest(BodyRegion.chest),
+  frontDelts(BodyRegion.shoulders),
+  sideDelts(BodyRegion.shoulders),
+  rearDelts(BodyRegion.shoulders),
+  biceps(BodyRegion.arms),
+  triceps(BodyRegion.arms),
+  forearms(BodyRegion.arms),
+  traps(BodyRegion.back),
+  lats(BodyRegion.back),
+  upperBack(BodyRegion.back),
+  spinalErectors(BodyRegion.back),
+  abs(BodyRegion.core),
+  obliques(BodyRegion.core),
+  glutes(BodyRegion.legs),
+  quads(BodyRegion.legs),
+  hamstrings(BodyRegion.legs),
+  adductors(BodyRegion.legs),
+  abductors(BodyRegion.legs),
+  calves(BodyRegion.legs),
+  back(BodyRegion.back),
+  shoulders(BodyRegion.shoulders),
+  arms(BodyRegion.arms),
+  core(BodyRegion.core);
 
-  const MuscleGroup(this.label, this.region);
-
-  final String label;
+  const MuscleGroup(this.region);
   final BodyRegion region;
 
   /// A whole region rather than a muscle in it.
@@ -83,60 +53,48 @@ enum MuscleGroup {
 }
 
 enum Equipment {
-  barbell('槓鈴'),
-  dumbbell('啞鈴'),
-  cable('滑輪'),
-  machine('機械'),
-  smithMachine('史密斯機'),
-  kettlebell('壺鈴'),
-  ezBar('EZ 槓'),
-  trapBar('六角槓'),
-  landmine('地雷管'),
-  plate('槓片'),
-  band('彈力帶'),
-  bodyweight('徒手'),
-  cardio('有氧器材'),
-  other('其他');
-
-  const Equipment(this.label);
-
-  final String label;
+  barbell,
+  dumbbell,
+  cable,
+  machine,
+  smithMachine,
+  kettlebell,
+  ezBar,
+  trapBar,
+  landmine,
+  plate,
+  band,
+  bodyweight,
+  cardio,
+  other,
 }
 
 enum MovementPattern {
-  squat('深蹲'),
-  hinge('髖伸'),
-  lunge('弓步與單腳'),
-  horizontalPush('水平推'),
-  horizontalPull('水平拉'),
-  verticalPush('垂直推'),
-  verticalPull('垂直拉'),
-  isolation('單關節'),
-  core('核心'),
-  carry('搬運'),
-  conditioning('體能'),
+  squat,
+  hinge,
+  lunge,
+  horizontalPush,
+  horizontalPull,
+  verticalPush,
+  verticalPull,
+  isolation,
+  core,
+  carry,
+  conditioning,
 
   /// Kept for exercises made before lunges had their own pattern.
-  unilateral('單側');
-
-  const MovementPattern(this.label);
-
-  final String label;
+  unilateral,
 }
 
 /// How the two sides work.
 enum Laterality {
-  bilateral('雙側'),
+  bilateral,
 
   /// One side at a time, the set done for each.
-  unilateral('單側'),
+  unilateral,
 
   /// Left and right in turn within the set.
-  alternating('左右交替');
-
-  const Laterality(this.label);
-
-  final String label;
+  alternating,
 }
 
 class ExerciseDefinition {
@@ -194,8 +152,6 @@ class ExerciseDefinition {
   /// Its demonstration, as the poses of one repetition in order; empty
   /// when there is none.
   final List<String> frames;
-
-  String get muscleSummary => primaryMuscles.map((m) => m.label).join('、');
 
   /// The same exercise whatever its usage figures: identity is the stable
   /// id, so a definition reloaded from storage equals the one on screen.
@@ -345,33 +301,12 @@ class Routine {
   );
 }
 
-enum SetType {
-  working('工作組'),
-  warmup('熱身組'),
-  drop('遞減組'),
-  failure('力竭組');
-
-  const SetType(this.label);
-
-  final String label;
-
-  /// The kind without the word 組, for places that supply it themselves
-  /// (「加入一組熱身」).
-  String get kindLabel => label.replaceAll('組', '');
-}
+enum SetType { working, warmup, drop, failure }
 
 /// How a finished workout felt, as the lifter rates it afterwards. It
 /// feeds the next suggestion: after a workout that was too much, the
 /// weight is not raised.
-enum Workload {
-  tooLight('太輕'),
-  right('剛好'),
-  tooHard('太吃力');
-
-  const Workload(this.label);
-
-  final String label;
-}
+enum Workload { tooLight, right, tooHard }
 
 /// The actual side of training: what was really lifted today.
 class WorkoutSet {
@@ -503,5 +438,51 @@ class SubstitutionOption {
   const SubstitutionOption({required this.exercise, required this.reasons});
 
   final ExerciseDefinition exercise;
-  final List<String> reasons;
+  final List<SubstitutionReason> reasons;
+}
+
+/// Why a swap was offered, or what changes with it; the screen puts it
+/// into words.
+sealed class SubstitutionReason {
+  const SubstitutionReason();
+}
+
+/// The same movement pattern.
+final class SamePattern extends SubstitutionReason {
+  const SamePattern(this.pattern);
+
+  final MovementPattern pattern;
+}
+
+/// Some of the same muscles, when the pattern differs.
+final class SameMuscles extends SubstitutionReason {
+  const SameMuscles(this.muscles);
+
+  final List<MuscleGroup> muscles;
+}
+
+/// Equipment the user's gym has.
+final class EquipmentAvailable extends SubstitutionReason {
+  const EquipmentAvailable(this.equipment);
+
+  final Equipment equipment;
+}
+
+/// Its sets are recorded another way.
+final class TrackingChanges extends SubstitutionReason {
+  const TrackingChanges(this.trackingType);
+
+  final TrackingType trackingType;
+}
+
+/// Different equipment, so the weight does not carry over.
+final class EquipmentChanges extends SubstitutionReason {
+  const EquipmentChanges(this.equipment);
+
+  final Equipment equipment;
+}
+
+/// One side at a time, so the reps do not carry over.
+final class OneSideAtATime extends SubstitutionReason {
+  const OneSideAtATime();
 }

@@ -7,30 +7,34 @@ import '../../backend/application/sleep_service.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'sleep_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// The sleep goal, and the bedtime reminder once there is one: rows for
 /// a [GroupedCard], the same on the sleep page and under 我的.
 List<Widget> sleepGoalRows(BuildContext context, SleepViewModel model) => [
   NavRow(
-    title: '睡眠目標',
+    title: context.l10n.sleepGoal,
     trailing: Text(switch (model.goal) {
       final goal? => formatHoursMinutes(goal),
-      null => '未設定',
+      null => context.l10n.notSet,
     }, style: AppTextStyles.caption),
     onTap: () => _editGoal(context, model),
   ),
   if (model.goal != null)
     SwitchRow(
-      title: '就寢提醒',
+      title: context.l10n.bedtimeReminder,
       subtitle: switch (model.tonightPlan) {
-        final plan? =>
-          '${formatTimeOfDay(plan.bedtime.subtract(SleepService.reminderLead))} 提醒',
+        final plan? => context.l10n.remindsAt(
+          time: formatTimeOfDay(
+            plan.bedtime.subtract(SleepService.reminderLead),
+          ),
+        ),
         null => null,
       },
       value: model.isReminderOn,
       onChanged: (isOn) {
         model.setReminder(isOn);
-        syncBedtimeReminder(AppStoreScope.read(context).backend);
+        syncBedtimeReminder(AppStoreScope.read(context).backend, context.l10n);
       },
     ),
 ];
@@ -41,7 +45,7 @@ Future<void> _editGoal(BuildContext context, SleepViewModel model) async {
     context,
     StatefulBuilder(
       builder: (context, setState) => AppDialog(
-        title: '睡眠目標',
+        title: context.l10n.sleepGoal,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +62,7 @@ Future<void> _editGoal(BuildContext context, SleepViewModel model) async {
               max: 600,
               step: 15,
               color: AppColors.wellness,
-              semanticLabel: '睡眠目標',
+              semanticLabel: context.l10n.sleepGoal,
               labelOf: (value) =>
                   formatHoursMinutes(Duration(minutes: value.round())),
               onChanged: (value) => setState(() => minutes = value.round()),
@@ -67,22 +71,25 @@ Future<void> _editGoal(BuildContext context, SleepViewModel model) async {
         ),
         actions: [
           DialogAction(
-            label: '儲存',
+            label: context.l10n.commonSave,
             tone: DialogTone.primary,
             onTap: () => Navigator.of(context).pop(Duration(minutes: minutes)),
           ),
           if (model.goal != null)
             DialogAction(
-              label: '清除目標',
+              label: context.l10n.clearGoal,
               tone: DialogTone.destructive,
               onTap: () => Navigator.of(context).pop(Duration.zero),
             ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     ),
   );
   if (result == null || !context.mounted) return;
   model.setGoal(result == Duration.zero ? null : result);
-  syncBedtimeReminder(AppStoreScope.read(context).backend);
+  syncBedtimeReminder(AppStoreScope.read(context).backend, context.l10n);
 }

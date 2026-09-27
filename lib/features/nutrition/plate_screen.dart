@@ -6,6 +6,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'portion_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// The calories of everything on the plate that has a figure. Anything
 /// without one is left out and said so beside it ([plateMissingLabel]),
@@ -14,9 +15,9 @@ String plateKcalLabel(List<FoodPortion> plate) =>
     formatKcal(plate.fold(0, (sum, portion) => sum + (portion.kcal ?? 0)));
 
 /// `1 項沒有熱量`, or null when every item has a figure.
-String? plateMissingLabel(List<FoodPortion> plate) {
+String? plateMissingLabel(AppLocalizations l10n, List<FoodPortion> plate) {
   final missing = plate.where((portion) => portion.kcal == null).length;
-  return missing == 0 ? null : '$missing 項沒有熱量';
+  return missing == 0 ? null : l10n.itemsWithoutKcal(count: missing);
 }
 
 /// Everything picked so far, each at its portion, before it is logged.
@@ -67,7 +68,7 @@ class _PlateScreenState extends State<PlateScreen> {
     setState(() => widget.plate.removeAt(index));
     widget.onChanged();
     ToastScope.read(context).showUndo(
-      '已移除「${removed.food.displayName}」',
+      context.l10n.removedNamed(name: removed.food.displayName),
       onUndo: () {
         widget.plate.insert(index.clamp(0, widget.plate.length), removed);
         widget.onChanged();
@@ -84,28 +85,35 @@ class _PlateScreenState extends State<PlateScreen> {
     final plate = widget.plate;
     return DetailPage(
       appBar: PageAppBar(
-        title: '這一餐',
+        title: context.l10n.thisMeal,
         subtitle: [
-          '${plate.length} 項',
+          context.l10n.itemsCountShort(count: plate.length),
           '${plateKcalLabel(plate)} kcal',
-          ?plateMissingLabel(plate),
+          ?plateMissingLabel(context.l10n, plate),
         ].join(' · '),
         actions: [
           if (plate.isNotEmpty || _isEditing)
             HeaderAction(
               icon: _isEditing ? Icons.check : Icons.edit_outlined,
-              label: _isEditing ? '完成' : '編輯',
-              semanticLabel: _isEditing ? '完成編輯' : '編輯這一餐',
+              label: _isEditing
+                  ? context.l10n.commonDone
+                  : context.l10n.commonEdit,
+              semanticLabel: _isEditing
+                  ? context.l10n.finishEditing
+                  : context.l10n.editThisMeal,
               onTap: () => setState(() => _isEditing = !_isEditing),
             ),
         ],
       ),
       footer: plate.isEmpty
           ? SecondaryButton(
-              label: '繼續選擇',
+              label: context.l10n.keepChoosing,
               onPressed: () => Navigator.of(context).pop(),
             )
-          : PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: _log),
+          : PrimaryButton(
+              label: context.l10n.logItemsCount(count: plate.length),
+              onPressed: _log,
+            ),
       children: [
         for (final (index, portion) in plate.indexed)
           Gutter(
@@ -113,19 +121,23 @@ class _PlateScreenState extends State<PlateScreen> {
               // Keyed by the food, so a row's slide does not pass to the
               // one that moves up into its place.
               key: ValueKey(portion.food.id),
-              label: '移除',
-              semanticLabel: '移除「${portion.food.displayName}」',
+              label: context.l10n.removeAction,
+              semanticLabel: context.l10n.removeNamed(
+                name: portion.food.displayName,
+              ),
               onAction: () => _remove(index),
               child: NavCard(
                 title: portion.food.displayName,
                 subtitle:
-                    '${portion.label} · '
+                    '${portion.labelIn(context.l10n)} · '
                     '${formatKcalOrDash(portion.kcal)} kcal',
                 trailing: _isEditing
                     ? SquareIconButton(
                         icon: Icons.delete_outline,
                         color: AppColors.destructive,
-                        tooltip: '移除「${portion.food.displayName}」',
+                        tooltip: context.l10n.removeNamed(
+                          name: portion.food.displayName,
+                        ),
                         onPressed: () => _remove(index),
                       )
                     : null,
@@ -134,7 +146,9 @@ class _PlateScreenState extends State<PlateScreen> {
             ),
           ),
         if (plate.isEmpty)
-          Gutter(child: const Text('這一餐沒有項目。', style: AppTextStyles.caption)),
+          Gutter(
+            child: Text(context.l10n.plateEmpty, style: AppTextStyles.caption),
+          ),
       ],
     );
   }
@@ -168,17 +182,20 @@ class PlateBar extends StatelessWidget {
           size: buttonHeight,
           radius: AppRadius.button,
           tooltip: [
-            '這一餐',
-            ?mealType?.label,
-            '${plate.length} 項',
+            context.l10n.thisMeal,
+            ?mealType?.labelIn(context.l10n),
+            context.l10n.itemsCountShort(count: plate.length),
             '${plateKcalLabel(plate)} kcal',
-            ?plateMissingLabel(plate),
+            ?plateMissingLabel(context.l10n, plate),
           ].join(' · '),
           onPressed: onReview,
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
-          child: PrimaryButton(label: '記錄 ${plate.length} 項', onPressed: onLog),
+          child: PrimaryButton(
+            label: context.l10n.logItemsCount(count: plate.length),
+            onPressed: onLog,
+          ),
         ),
       ],
     );

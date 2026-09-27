@@ -34,6 +34,7 @@
     <uses-permission android:name="android.permission.health.READ_VO2_MAX"/>
     <application
         android:label="mishirube"
+        android:localeConfig="@xml/locales_config"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <!-- Posts the daily bedtime reminder. -->

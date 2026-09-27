@@ -17,6 +17,7 @@ import '../trends/trends_screen.dart';
 import 'bottom_chrome/app_bottom_chrome.dart';
 import 'bottom_chrome/quick_log_menu.dart';
 import 'finish_session_dialog.dart';
+import '../../l10n/l10n.dart';
 
 /// What the user chose in the "finish this session?" dialog.
 
@@ -102,7 +103,8 @@ class _HomeShellState extends State<HomeShell> {
   });
 
   Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
-    final label = session.label;
+    final name = session.name(context.l10n);
+    final discarded = context.l10n.sessionDiscarded(session: name);
     final choice = await askHowSessionEnds(context, session);
     if (!mounted) return;
     switch (choice) {
@@ -115,7 +117,7 @@ class _HomeShellState extends State<HomeShell> {
           case ActiveActivity():
             store.discardActivity();
         }
-        showToast(context, '已放棄這次$label');
+        showToast(context, discarded);
       case FinishChoice.finish:
         switch (session) {
           case ActiveWorkout():
@@ -154,33 +156,33 @@ class _HomeShellState extends State<HomeShell> {
                   ListDetailLayout(
                     key: _layouts[HomeTab.today.index],
                     list: const TodayScreen(),
-                    placeholder: const DetailPanePlaceholder(
+                    placeholder: DetailPanePlaceholder(
                       icon: Icons.my_location_outlined,
-                      label: '未選取項目',
+                      label: context.l10n.detailNothingSelected,
                     ),
                   ),
                   ListDetailLayout(
                     key: _layouts[HomeTab.log.index],
                     list: const LogScreen(),
-                    placeholder: const DetailPanePlaceholder(
+                    placeholder: DetailPanePlaceholder(
                       icon: Icons.list_alt,
-                      label: '未選取紀錄',
+                      label: context.l10n.detailNoEntrySelected,
                     ),
                   ),
                   ListDetailLayout(
                     key: _layouts[HomeTab.trends.index],
                     list: const TrendsScreen(),
-                    placeholder: const DetailPanePlaceholder(
+                    placeholder: DetailPanePlaceholder(
                       icon: Icons.insights_outlined,
-                      label: '未選取項目',
+                      label: context.l10n.detailNothingSelected,
                     ),
                   ),
                   ListDetailLayout(
                     key: _layouts[HomeTab.me.index],
                     list: const MeScreen(),
-                    placeholder: const DetailPanePlaceholder(
+                    placeholder: DetailPanePlaceholder(
                       icon: Icons.person_outline,
-                      label: '未選取項目',
+                      label: context.l10n.detailNothingSelected,
                     ),
                   ),
                 ],

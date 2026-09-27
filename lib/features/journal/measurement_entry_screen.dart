@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/camera_screen.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// A tape measurement is plausible between these; outside them it is a
 /// typo rather than a body.
@@ -71,13 +72,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   Future<void> _scan() async {
     final store = AppStoreScope.read(context);
     final path =
-        await (widget.takePhoto ?? (title) => takePhoto(context, title))('圍度');
+        await (widget.takePhoto ?? (title) => takePhoto(context, title))(
+          context.l10n.recordMeasurements,
+        );
     if (path == null || !mounted) return;
     final String text;
     try {
       text = await store.readPhotoText(path);
     } on AiException {
-      if (mounted) setState(() => _error = '這台裝置無法讀取照片中的文字。');
+      if (mounted) setState(() => _error = context.l10n.photoTextUnavailable);
       return;
     }
     if (!mounted) return;
@@ -85,7 +88,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     setState(() {
       if (found.isEmpty) {
         _read = null;
-        _error = '照片中沒有讀到圍度的數字。';
+        _error = context.l10n.photoNoGirths;
         return;
       }
       for (final MapEntry(key: site, value: value) in found.entries) {
@@ -104,15 +107,19 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       final value = double.tryParse(text);
       if (value == null || value < _minCm || value > _maxCm) {
         setState(
-          () => _error =
-              '${site.label}請輸入 ${_minCm.round()} – ${_maxCm.round()} cm 之間。',
+          () => _error = context.l10n.valueRangeError(
+            field: site.labelIn(context.l10n),
+            min: '${_minCm.round()}',
+            max: '${_maxCm.round()}',
+            unit: 'cm',
+          ),
         );
         return;
       }
       entered[site] = value;
     }
     if (entered.isEmpty) {
-      setState(() => _error = '至少填一個部位。');
+      setState(() => _error = context.l10n.fillAtLeastOneSite);
       return;
     }
     final editing = widget.editing;
@@ -130,7 +137,10 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       Navigator.of(context).pop();
       showToast(
         context,
-        '已更新${editing.site.label} ${formatWeight(value)} cm',
+        context.l10n.updatedValue(
+          item: editing.site.labelIn(context.l10n),
+          value: '${formatWeight(value)} cm',
+        ),
         kind: ToastKind.success,
       );
       return;
@@ -142,8 +152,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     showToast(
       context,
       entered.length == 1
-          ? '已記錄${entered.keys.first.label} ${formatWeight(entered.values.first)} cm'
-          : '已記錄 ${entered.length} 個部位',
+          ? context.l10n.loggedValue(
+              item: entered.keys.first.labelIn(context.l10n),
+              value: '${formatWeight(entered.values.first)} cm',
+            )
+          : context.l10n.loggedSitesCount(count: entered.length),
       kind: ToastKind.success,
     );
   }
@@ -152,36 +165,41 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   Widget build(BuildContext context) {
     return DetailPage(
       appBar: PageAppBar(
-        title: widget.editing?.site.label ?? '圍度',
+        title:
+            widget.editing?.site.labelIn(context.l10n) ??
+            context.l10n.recordMeasurements,
         actions: [
           if (widget.editing == null)
             HeaderAction(
               icon: Icons.photo_camera_outlined,
-              label: '掃描',
-              semanticLabel: '拍照讀取圍度',
+              label: context.l10n.scanAction,
+              semanticLabel: context.l10n.scanGirths,
               onTap: _scan,
             ),
         ],
       ),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         for (final site in _sites)
           Gutter(
             child: NumberFieldRow(
               fieldKey: ValueKey('measurement-${site.name}'),
-              label: site.label,
+              label: site.labelIn(context.l10n),
               unit: 'cm',
               controller: _fields[site]!,
               caption: switch (_previous[site]) {
-                final last? =>
-                  '上次 ${formatWeight(last.centimetres)} cm · '
-                      '${last.measuredAt.month}/${last.measuredAt.day}',
+                final last? => context.l10n.lastReadingOn(
+                  value: '${formatWeight(last.centimetres)} cm',
+                  date: context.dates.compactMonthDay(last.measuredAt),
+                ),
                 null => null,
               },
             ),
           ),
         if (_read case final count?)
-          Gutter(child: TagWrap(labels: ['照片讀到 $count 項，請核對'])),
+          Gutter(
+            child: TagWrap(labels: [context.l10n.photoReadCheck(count: count)]),
+          ),
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

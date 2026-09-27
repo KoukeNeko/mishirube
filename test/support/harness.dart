@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
+import 'package:mishirube/l10n/l10n.dart';
 import 'package:mishirube/shared/toast/toast_host.dart';
 
 /// iPhone-class logical size used by the design mock.
@@ -78,11 +79,18 @@ void useWindow(WidgetTester tester, WindowCase window) {
   addTearDown(tester.view.reset);
 }
 
+/// The language the tests read the app in: the one it was written in.
+const testLocale = Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant');
+
+/// The app's strings in [testLocale], for tests outside a widget tree.
+final testL10n = lookupAppLocalizations(testLocale);
+
 Future<void> pumpScreen(
   WidgetTester tester,
   Widget screen, {
   required AppStore store,
   WindowCase window = phone,
+  Locale locale = testLocale,
 }) async {
   useWindow(tester, window);
   await tester.pumpWidget(
@@ -90,6 +98,11 @@ Future<void> pumpScreen(
       store: store,
       child: MaterialApp(
         theme: buildAppTheme(),
+        // Pinned, so a test reads the same words whatever machine it runs
+        // on.
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         builder: (_, child) => ToastHost(child: child!),
         home: screen,
       ),

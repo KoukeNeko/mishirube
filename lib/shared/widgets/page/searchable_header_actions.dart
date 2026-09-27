@@ -9,6 +9,7 @@ import '../../motion.dart';
 import '../chrome/chrome_surface.dart';
 import '../controls/inputs.dart';
 import 'collapsing_header.dart';
+import '../../../l10n/l10n.dart';
 
 const _expandDuration = Duration(milliseconds: 320);
 const _closeFadeDuration = Duration(milliseconds: 150);
@@ -25,7 +26,7 @@ class SearchableHeaderActions extends StatefulWidget {
     required this.actions,
     required this.hint,
     required this.onChanged,
-    this.searchLabel = '搜尋',
+    this.searchLabel,
   });
 
   final List<Widget> actions;
@@ -34,8 +35,9 @@ class SearchableHeaderActions extends StatefulWidget {
   /// The query as typed; empty once search closes.
   final ValueChanged<String> onChanged;
 
-  /// What assistive tech reads for the collapsed search button.
-  final String searchLabel;
+  /// What assistive tech reads for the collapsed search button; 搜尋
+  /// when null.
+  final String? searchLabel;
 
   @override
   State<SearchableHeaderActions> createState() =>
@@ -161,7 +163,8 @@ class _SearchableHeaderActionsState extends State<SearchableHeaderActions>
                       )
                     : HeaderAction(
                         icon: Icons.search,
-                        semanticLabel: widget.searchLabel,
+                        semanticLabel:
+                            widget.searchLabel ?? context.l10n.commonSearch,
                         onTap: _open,
                       ),
               ),
@@ -254,7 +257,7 @@ class _SearchBar extends StatelessWidget {
                         excluding: !isSettled,
                         child: Semantics(
                           button: true,
-                          label: '關閉搜尋',
+                          label: context.l10n.commonCloseSearch,
                           onTap: onClose,
                           excludeSemantics: true,
                           child: GestureDetector(

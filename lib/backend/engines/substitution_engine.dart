@@ -26,19 +26,19 @@ List<SubstitutionOption> substitutesFor(
     final samePattern = candidate.pattern == exercise.pattern;
     if (!samePattern && sharedMuscles.isEmpty) continue;
 
-    final reasons = <String>[
+    final reasons = <SubstitutionReason>[
       if (samePattern)
-        '同為${exercise.pattern.label}模式'
+        SamePattern(exercise.pattern)
       else
-        '同樣練${sharedMuscles.map((muscle) => muscle.label).join('、')}',
-      if (candidate.isInHomeGym) '${candidate.equipment.label}可用',
+        SameMuscles(sharedMuscles),
+      if (candidate.isInHomeGym) EquipmentAvailable(candidate.equipment),
       if (candidate.trackingType != exercise.trackingType)
-        '記錄方式改為${candidate.trackingType.label}'
+        TrackingChanges(candidate.trackingType)
       else if (candidate.equipment != exercise.equipment)
-        '換${candidate.equipment.label}，重量需重新設定',
+        EquipmentChanges(candidate.equipment),
       if (candidate.pattern == MovementPattern.unilateral &&
           exercise.pattern != MovementPattern.unilateral)
-        '單側動作，次數請重新設定',
+        const OneSideAtATime(),
     ];
     final score =
         (samePattern ? 4 : 0) +

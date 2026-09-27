@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import '../app/theme.dart';
 
 enum RecordCategory {
-  training('訓練', AppColors.training, Icons.fitness_center),
-  activity('運動', AppColors.activity, Icons.directions_run),
-  nutrition('飲食', AppColors.nutrition, Icons.restaurant),
-  body('身體', AppColors.body, Icons.monitor_weight_outlined),
-  wellness('睡眠與狀態', AppColors.wellness, Icons.bedtime_outlined);
+  training(AppColors.training, Icons.fitness_center),
+  activity(AppColors.activity, Icons.directions_run),
+  nutrition(AppColors.nutrition, Icons.restaurant),
+  body(AppColors.body, Icons.monitor_weight_outlined),
+  wellness(AppColors.wellness, Icons.bedtime_outlined);
 
-  const RecordCategory(this.label, this.color, this.icon);
-
-  final String label;
+  const RecordCategory(this.color, this.icon);
   final Color color;
   final IconData icon;
 }

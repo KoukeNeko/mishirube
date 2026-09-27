@@ -13,6 +13,7 @@ import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/session_accessory.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/harness.dart';
 
@@ -165,23 +166,24 @@ void main() {
     tester,
   ) async {
     final store = await _pumpApp(tester, FakeClock());
+    final l10n = lookupAppLocalizations(testLocale);
     List<String> shown() => [
       for (final option in recordOptions)
         if (find
             .descendant(
               of: find.byKey(quickLogMenuKey),
-              matching: find.text(option.title),
+              matching: find.text(option.title(l10n)),
             )
             .evaluate()
             .isNotEmpty)
-          option.title,
+          option.title(l10n),
     ];
 
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
     expect(shown(), [
       for (final option in recordOptions)
-        if (store.enabledModules.contains(option.module)) option.title,
+        if (store.enabledModules.contains(option.module)) option.title(l10n),
     ], reason: 'all of them, not the first few and a「更多」');
     expect(find.text('更多紀錄類型'), findsNothing);
     await tester.tap(find.byTooltip('關閉'));

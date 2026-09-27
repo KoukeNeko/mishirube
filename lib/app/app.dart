@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,7 +37,7 @@ class _MishirubeAppState extends State<MishirubeApp> {
     _store.onHealthPrivacyRequest(_showPrivacy);
     // The reminder's time follows the nights, which may have moved since
     // it was last set.
-    syncBedtimeReminder(_store.backend);
+    syncBedtimeReminder(_store.backend, systemLocalizations());
   }
 
   /// The request can come before the first frame, when there is no
@@ -66,7 +68,10 @@ class _MishirubeAppState extends State<MishirubeApp> {
         navigatorKey: _navigator,
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
-        locale: const Locale('zh', 'TW'),
+        // The language is the system's per-app choice, not one of the
+        // app's own: changing it relaunches the app in it.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         builder: (_, child) => AnnotatedRegion<SystemUiOverlayStyle>(
           value: appSystemOverlayStyle,
           child: WindowControlsScope(

@@ -27,17 +27,6 @@ String formatHoursMinutes(Duration duration) {
   return '${duration.inHours}:${minutes.toString().padLeft(2, '0')}';
 }
 
-const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
-
-/// The weekday of [day] as one character, Monday first.
-String weekdayLabel(DateTime day) => weekdayName(day.weekday);
-
-/// [weekday] (1 is Monday) as one character.
-String weekdayName(int weekday) => _weekdays[weekday - 1];
-
-/// `2026/9/21`.
-String formatDate(DateTime day) => '${day.year}/${day.month}/${day.day}';
-
 String formatTimeOfDay(DateTime time) {
   final hour = time.hour.toString().padLeft(2, '0');
   final minute = time.minute.toString().padLeft(2, '0');

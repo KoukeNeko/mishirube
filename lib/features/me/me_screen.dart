@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 import '../../shared/app_info.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -57,12 +59,12 @@ class _MeScreenState extends State<MeScreen> {
     final figure = await showAppDialog<MuscleFigure>(
       context,
       AppDialog(
-        title: '人體圖',
+        title: context.l10n.muscleMapSetting,
         isChoiceList: true,
         actions: [
           for (final figure in MuscleFigure.values)
             DialogAction(
-              label: figure.label,
+              label: figure.labelIn(context.l10n),
               isSelected: figure == _trends.muscleFigure,
               onTap: () => Navigator.of(context).pop(figure),
             ),
@@ -76,18 +78,19 @@ class _MeScreenState extends State<MeScreen> {
     final convention = await showAppDialog<NutritionConvention>(
       context,
       AppDialog(
-        title: '營養標示',
-        message: '每日總計的名稱、鹽分單位與上限；食物頁照它自己的標示。',
+        title: context.l10n.nutritionLabel,
+        message: context.l10n.conventionMessage,
         isChoiceList: true,
         actions: [
           for (final convention in NutritionConvention.values)
             DialogAction(
-              label: convention.label,
-              detail:
-                  '${convention.carbName}、'
-                  '${convention.nameOf(convention.carbPart)}、'
-                  '${convention.nameOf(convention.saltMeasure)} '
-                  '${convention.saltMeasure.unit.label}',
+              label: convention.labelIn(context.l10n),
+              detail: joinList(context.l10n, [
+                convention.carbName(context.l10n),
+                convention.nameOf(context.l10n, convention.carbPart),
+                '${convention.nameOf(context.l10n, convention.saltMeasure)} '
+                    '${convention.saltMeasure.unit.label}',
+              ]),
               isSelected: convention == _nutrition.convention,
               onTap: () => Navigator.of(context).pop(convention),
             ),
@@ -95,6 +98,20 @@ class _MeScreenState extends State<MeScreen> {
       ),
     );
     if (convention != null) _nutrition.setConvention(convention);
+  }
+
+  /// The app's own page in the system settings, where its language is
+  /// chosen: the app follows the system's choice rather than keeping one
+  /// of its own.
+  Future<void> _openAppSettings() async {
+    final opened = await launchUrl(Uri.parse('app-settings:'));
+    if (!opened && mounted) {
+      showToast(
+        context,
+        context.l10n.meSettingsOpenFailed,
+        kind: ToastKind.warning,
+      );
+    }
   }
 
   @override
@@ -105,23 +122,26 @@ class _MeScreenState extends State<MeScreen> {
 
   Widget _page(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final moduleNames = store.enabledModules.map((m) => m.title).join('、');
+    final moduleNames = joinList(
+      context.l10n,
+      store.enabledModules.map((m) => m.title(context.l10n)),
+    );
     final height = _body.latestReadings[BodyMetric.height];
     return CollapsingPage(
-      title: '我的',
+      title: context.l10n.tabMe,
       children: [
         Gutter(child: FigureGrid(figures: _figures(store))),
         PageSection(
-          label: '個人資料',
+          label: context.l10n.profileSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: '身高',
+                    title: context.l10n.bodyMetricHeight,
                     trailing: _value(
                       height == null
-                          ? '未設定'
+                          ? context.l10n.notSet
                           : '${formatAmount(height.value)} cm',
                     ),
                     onTap: () => pushModalPage<void>(
@@ -130,27 +150,39 @@ class _MeScreenState extends State<MeScreen> {
                     ),
                   ),
                   NavRow(
-                    title: '出生年',
+                    title: context.l10n.targetInputBirthYear,
                     trailing: _value(switch (store.birthYear) {
-                      final year? => '$year 年',
-                      null => '未設定',
+                      final year? => context.l10n.yearValue(year: year),
+                      null => context.l10n.notSet,
                     }),
                     onTap: () => editBirthYear(context),
                   ),
                   NavRow(
-                    title: '性別',
-                    trailing: _value(store.backend.journal.sex?.label ?? '未設定'),
+                    title: context.l10n.targetInputSex,
+                    trailing: _value(
+                      store.backend.journal.sex?.labelIn(context.l10n) ??
+                          context.l10n.notSet,
+                    ),
                     onTap: () => pickSex(context),
                   ),
                   NavRow(
-                    title: '人體圖',
-                    trailing: _value(_trends.muscleFigure.label),
+                    title: context.l10n.muscleMapSetting,
+                    trailing: _value(
+                      _trends.muscleFigure.labelIn(context.l10n),
+                    ),
                     onTap: _pickFigure,
                   ),
                   NavRow(
-                    title: '營養標示',
-                    trailing: _value(_nutrition.convention.label),
+                    title: context.l10n.nutritionLabel,
+                    trailing: _value(
+                      _nutrition.convention.labelIn(context.l10n),
+                    ),
                     onTap: _pickConvention,
+                  ),
+                  NavRow(
+                    title: context.l10n.meLanguageRow,
+                    trailing: _value(context.l10n.appLanguage),
+                    onTap: _openAppSettings,
                   ),
                 ],
               ),
@@ -158,19 +190,19 @@ class _MeScreenState extends State<MeScreen> {
           ],
         ),
         PageSection(
-          label: '目標與提醒',
+          label: context.l10n.goalsAndReminders,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: '每週目標',
-                    subtitle: _goalSummary(_goal),
+                    title: context.l10n.weeklyGoal,
+                    subtitle: _goalSummary(context.l10n, _goal),
                     onTap: () => pushPage(context, const GoalScreen()),
                   ),
                   NavRow(
-                    title: '每日目標',
-                    subtitle: _nutritionTargetSummary(_nutrition),
+                    title: context.l10n.dailyTargets,
+                    subtitle: _nutritionTargetSummary(context.l10n, _nutrition),
                     onTap: () =>
                         pushPage(context, const NutritionTargetScreen()),
                   ),
@@ -181,27 +213,27 @@ class _MeScreenState extends State<MeScreen> {
           ],
         ),
         PageSection(
-          label: '功能',
+          label: context.l10n.featuresSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: '動作庫',
-                    subtitle: '瀏覽、搜尋與建立自訂動作',
+                    title: context.l10n.exerciseLibrary,
+                    subtitle: context.l10n.exerciseLibraryDetail,
                     onTap: () => pushPage(
                       context,
                       const ExercisePickerScreen(purpose: PickerPurpose.browse),
                     ),
                   ),
                   NavRow(
-                    title: '食物庫',
-                    subtitle: _foodLibrarySummary(store),
+                    title: context.l10n.foodLibrary,
+                    subtitle: _foodLibrarySummary(context.l10n, store),
                     onTap: () => pushPage(context, const FoodLibraryScreen()),
                   ),
                   NavRow(
-                    title: '模組',
-                    subtitle: '$moduleNames 已啟用',
+                    title: context.l10n.modulesTitle,
+                    subtitle: context.l10n.modulesEnabled(modules: moduleNames),
                     onTap: () => pushPage(
                       context,
                       const OnboardingScreen(isEditing: true),
@@ -209,7 +241,9 @@ class _MeScreenState extends State<MeScreen> {
                   ),
                   NavRow(
                     title: 'AI',
-                    subtitle: store.aiProvider?.label ?? '未啟用',
+                    subtitle:
+                        store.aiProvider?.labelIn(context.l10n) ??
+                        context.l10n.notEnabled,
                     onTap: () => pushPage(context, const AiSettingsScreen()),
                   ),
                 ],
@@ -218,43 +252,41 @@ class _MeScreenState extends State<MeScreen> {
           ],
         ),
         PageSection(
-          label: '資料',
+          label: context.l10n.dataSection,
           children: [
             if (store.recoveredDatabasePath case final moved?)
               Gutter(
                 child: InfoBanner(
                   tone: CardTone.warning,
-                  message:
-                      '上次的資料檔無法讀取，已移到 $moved，並從空白重新開始。'
-                      '舊檔案沒有被刪除。',
+                  message: context.l10n.databaseRecovered(path: moved),
                 ),
               ),
             Gutter(
               child: GroupedCard(
                 children: [
                   KeyValueRow(
-                    label: '本機資料',
+                    label: context.l10n.localData,
                     value: _megabytes(store.databaseBytes),
                   ),
                   NavRow(
-                    title: '資料來源',
-                    subtitle: '手動輸入、匯入與內建目錄',
+                    title: context.l10n.dataSourcesLink,
+                    subtitle: context.l10n.dataSourcesDetail,
                     onTap: () => pushPage(context, const DataSourcesScreen()),
                   ),
                   if (store.hasDemo)
                     SwitchRow(
-                      title: '顯示示範資料',
+                      title: context.l10n.showDemoData,
                       value: store.showsDemo,
                       onChanged: store.setShowsDemo,
                     ),
                   NavRow(
-                    title: '匯出',
-                    subtitle: '完整封存 JSON · CSV 檢視',
+                    title: context.l10n.exportTitle,
+                    subtitle: context.l10n.exportDetail,
                     onTap: () => pushPage(context, const ExportScreen()),
                   ),
                   NavRow(
-                    title: '隱私說明',
-                    subtitle: '資料存在哪裡、會送出什麼',
+                    title: context.l10n.privacyLink,
+                    subtitle: context.l10n.privacyDetail,
                     onTap: () => pushPage(context, const PrivacyScreen()),
                   ),
                 ],
@@ -263,7 +295,7 @@ class _MeScreenState extends State<MeScreen> {
           ],
         ),
         PageSection(
-          label: '關於',
+          label: context.l10n.aboutSection,
           children: [
             Gutter(
               child: FutureBuilder(
@@ -271,17 +303,20 @@ class _MeScreenState extends State<MeScreen> {
                 builder: (context, version) => GroupedCard(
                   children: [
                     if (version.data case final version?)
-                      KeyValueRow(label: '版本', value: version),
-                    const KeyValueRow(
-                      label: '動作圖',
+                      KeyValueRow(
+                        label: context.l10n.versionLabel,
+                        value: version,
+                      ),
+                    KeyValueRow(
+                      label: context.l10n.exerciseImages,
                       value: 'Workout Guide · CC BY-SA 4.0',
                     ),
                     NavRow(
-                      title: '文獻來源',
+                      title: context.l10n.referencesTitle,
                       onTap: () => pushPage(context, const ReferencesScreen()),
                     ),
                     NavRow(
-                      title: '開源授權',
+                      title: context.l10n.openSourceLicenses,
                       onTap: () => showLicensePage(
                         context: context,
                         applicationName: 'Mishirube',
@@ -305,28 +340,28 @@ class _MeScreenState extends State<MeScreen> {
     final since = store.firstRecordMonth;
     return [
       (
-        label: '訓練',
+        label: context.l10n.workoutsFigure,
         value: '${store.finishedWorkoutCount}',
-        unit: '次',
+        unit: context.l10n.sessionsUnit,
         color: AppColors.training,
       ),
       (
-        label: '運動日',
+        label: context.l10n.activeDaysFigure,
         value: '${overview.activeDays.length}',
-        unit: '天',
+        unit: context.l10n.daysUnit,
         color: null,
       ),
       if (_goal.isEnabled && overview.hasGoal)
         (
-          label: '連續達標',
+          label: context.l10n.streakSection,
           value: '${overview.streak.current}',
-          unit: '週',
+          unit: context.l10n.weeksUnit,
           color: null,
         ),
       if (since != null)
         (
-          label: '開始紀錄',
-          value: '${since.year} 年 ${since.month} 月',
+          label: context.l10n.startedLogging,
+          value: context.dates.yearMonth(since),
           unit: null,
           color: null,
         ),
@@ -338,33 +373,37 @@ Widget _value(String text) => Text(text, style: AppTextStyles.caption);
 
 /// What the row says without opening the page: the goal, or that there
 /// is not one yet.
-String _goalSummary(GoalViewModel goal) {
-  if (!goal.isEnabled) return '未設定';
+String _goalSummary(AppLocalizations l10n, GoalViewModel goal) {
+  if (!goal.isEnabled) return l10n.notSet;
   final overview = goal.overview;
-  if (overview.isPaused) return '已暫停';
+  if (overview.isPaused) return l10n.sessionPausedStatus;
   final week = overview.thisWeek;
-  return '每週 ${week.targetDays} 個運動日 · 本週 ${week.activeDays}';
+  return l10n.goalSummaryText(target: week.targetDays, active: week.activeDays);
 }
 
 /// `2,100 kcal · 蛋白質 96 g`: today's targets, or 未設定 while the body
 /// they are worked out from is not known.
-String _nutritionTargetSummary(NutritionViewModel nutrition) {
+String _nutritionTargetSummary(
+  AppLocalizations l10n,
+  NutritionViewModel nutrition,
+) {
   final targets = nutrition.targetsOn(nutrition.now());
   final kcal = targets.kcal;
-  if (kcal == null) return '未設定';
+  if (kcal == null) return l10n.notSet;
   return [
     '${formatKcal(kcal)} kcal',
-    if (targets.proteinGrams case final protein?) '蛋白質 $protein g',
+    if (targets.proteinGrams case final protein?)
+      l10n.proteinGrams(grams: protein),
   ].join(' · ');
 }
 
 /// `自己的 3 種 · 品牌 2 家`: what is in the library without opening it.
-String _foodLibrarySummary(AppStore store) {
+String _foodLibrarySummary(AppLocalizations l10n, AppStore store) {
   final own = store.backend.nutrition
       .searchFoods('')
       .where((food) => !food.isBuiltIn && !food.isSize)
       .length;
-  return '自己的 $own 種 · 品牌 ${store.catalogues.length} 家';
+  return l10n.foodLibrarySummary(own: own, brands: store.catalogues.length);
 }
 
 /// `1.3 MB`, to one decimal: the store's size is a rough figure, and a
@@ -377,10 +416,10 @@ Future<void> editBirthYear(BuildContext context) async {
   final store = AppStoreScope.read(context);
   final typed = await showTextDialog(
     context,
-    title: '出生年',
+    title: context.l10n.targetInputBirthYear,
     keyboardType: TextInputType.number,
     initial: '${store.birthYear ?? ''}',
-    hint: '例如 1995',
+    hint: context.l10n.birthYearHint,
   );
   if (typed == null) return;
   final text = typed.trim();
@@ -391,7 +430,7 @@ Future<void> editBirthYear(BuildContext context) async {
   } else if (year != null && year >= thisYear - 120 && year <= thisYear) {
     store.setBirthYear(year);
   } else if (context.mounted) {
-    showToast(context, '出生年請填 4 位數西元年。', kind: ToastKind.warning);
+    showToast(context, context.l10n.birthYearError, kind: ToastKind.warning);
   }
 }
 
@@ -401,13 +440,13 @@ Future<void> pickSex(BuildContext context) async {
   final sex = await showAppDialog<Sex>(
     context,
     AppDialog(
-      title: '性別',
-      message: '只用來估算每日熱量。',
+      title: context.l10n.targetInputSex,
+      message: context.l10n.sexUseMessage,
       isChoiceList: true,
       actions: [
         for (final sex in Sex.values)
           DialogAction(
-            label: sex.label,
+            label: sex.labelIn(context.l10n),
             isSelected: sex == journal.sex,
             onTap: () => Navigator.of(context).pop(sex),
           ),

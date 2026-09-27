@@ -13,28 +13,35 @@ import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 import '../../../shared/haptics.dart';
+import '../../../l10n/l10n.dart';
 
 /// Width of a tab's icon area; its height comes from [DockMetrics.iconBox].
 const _indicatorWidth = 56.0;
 
 class _TabSpec {
-  const _TabSpec(this.tab, this.icon, this.selectedIcon, this.label);
+  const _TabSpec(this.tab, this.icon, this.selectedIcon);
 
   final HomeTab tab;
   final IconData icon;
 
   /// Filled variant, so selection is not signalled by colour alone.
   final IconData selectedIcon;
-  final String label;
+
+  String labelIn(AppLocalizations l10n) => switch (tab) {
+    HomeTab.today => l10n.tabToday,
+    HomeTab.log => l10n.tabLog,
+    HomeTab.trends => l10n.tabTrends,
+    HomeTab.me => l10n.tabMe,
+  };
 }
 
 const _leadingTabs = [
-  _TabSpec(HomeTab.today, Icons.my_location_outlined, Icons.my_location, '今天'),
-  _TabSpec(HomeTab.log, Icons.list_alt_outlined, Icons.list_alt, '紀錄'),
+  _TabSpec(HomeTab.today, Icons.my_location_outlined, Icons.my_location),
+  _TabSpec(HomeTab.log, Icons.list_alt_outlined, Icons.list_alt),
 ];
 const _trailingTabs = [
-  _TabSpec(HomeTab.trends, Icons.insights_outlined, Icons.insights, '趨勢'),
-  _TabSpec(HomeTab.me, Icons.person_outline, Icons.person, '我的'),
+  _TabSpec(HomeTab.trends, Icons.insights_outlined, Icons.insights),
+  _TabSpec(HomeTab.me, Icons.person_outline, Icons.person),
 ];
 
 /// Two navigation capsules around a separate action button: tabs mean
@@ -485,7 +492,7 @@ class _TabButton extends StatelessWidget {
     final color = isHighlighted ? AppColors.training : AppColors.textSecondary;
     final indicatorSize = Size(_indicatorWidth, metrics.iconBox);
     return Semantics(
-      label: spec.label,
+      label: spec.labelIn(context.l10n),
       selected: isSelected,
       button: true,
       // Excluding the child's semantics drops its tap too.
@@ -524,7 +531,7 @@ class _TabButton extends StatelessWidget {
                     SizedBox(
                       height: metrics.labelHeight,
                       child: Text(
-                        spec.label,
+                        spec.labelIn(context.l10n),
                         style: TextStyle(
                           color: color,
                           fontSize: metrics.labelSize,
@@ -586,7 +593,9 @@ class _CenterAction extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: showsTimer ? '${running.label}進行中，回到${running.label}' : '新增紀錄',
+      label: showsTimer
+          ? context.l10n.sessionRunningOpen(session: running.name(context.l10n))
+          : context.l10n.dockAddEntry,
       onTap: activate,
       excludeSemantics: true,
       child: PressScale(

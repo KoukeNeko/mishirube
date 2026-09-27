@@ -8,6 +8,8 @@ import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
 
+import 'package:mishirube/l10n/l10n.dart';
+
 /// The calendar's pinned month reading [text], not a month's own label in
 /// the calendar.
 Finder _title(String text) => find.byWidgetPredicate(
@@ -101,6 +103,8 @@ void main() {
     usePhoneViewport(tester);
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: MonthCalendar(
             month: DateTime(2026, 9),

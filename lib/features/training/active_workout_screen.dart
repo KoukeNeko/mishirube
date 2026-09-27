@@ -18,6 +18,7 @@ import '../shell/finish_session_dialog.dart';
 import 'substitute_exercise_screen.dart';
 import 'set_editor_dialog.dart';
 import 'workout_summary_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// A workout under way: every exercise on one page, each a table of its
 /// sets where weight and reps are typed in place and a tick logs the set
@@ -74,7 +75,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       case FinishChoice.discard:
         store.discardWorkout();
         Navigator.of(context).maybePop();
-        showToast(context, '已放棄這次訓練');
+        showToast(context, context.l10n.workoutDiscarded);
     }
   }
 
@@ -111,15 +112,15 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
               solidColor: AppColors.trainingSurface,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),
-              leading: const AppBarBackButton(
+              leading: AppBarBackButton(
                 icon: Icons.keyboard_arrow_down,
-                tooltip: '收合',
+                tooltip: context.l10n.collapse,
               ),
               actions: [
                 HeaderAction(
                   icon: Icons.stop_rounded,
-                  label: '結束',
-                  semanticLabel: '結束訓練',
+                  label: context.l10n.commonEnd,
+                  semanticLabel: context.l10n.endWorkout,
                   onTap: () => _end(context, workout),
                 ),
               ],
@@ -140,16 +141,16 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 ),
               Gutter(
                 child: DashedActionCard(
-                  label: '加入動作',
+                  label: context.l10n.addExercise,
                   onTap: () => _addExercises(context),
                 ),
               ),
               Gutter(
                 child: NavCard(
-                  title: '備註',
+                  title: context.l10n.notesSection,
                   subtitle: switch (workout.notes) {
                     final notes? when notes.isNotEmpty => notes,
-                    _ => '未填寫',
+                    _ => context.l10n.notFilled,
                   },
                   onTap: () => _editNotes(context),
                 ),
@@ -162,7 +163,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
         footer: BottomActionBar(
           child: workout.isReady
               ? PrimaryButton(
-                  label: '開始運動',
+                  label: context.l10n.startExercising,
                   icon: Icons.play_arrow_outlined,
                   onPressed: store.beginWorkout,
                 )
@@ -172,7 +173,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                     Expanded(child: _Clocks(workout: workout)),
                     Expanded(
                       child: PrimaryButton(
-                        label: '完成訓練',
+                        label: context.l10n.finishWorkout,
                         onPressed: () => _end(context, workout),
                       ),
                     ),
@@ -186,7 +187,9 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
 
 void _sayRecord(BuildContext context, WorkoutSet set) => showToast(
   context,
-  '個人紀錄 · ${formatWeight(set.weightKg)} kg × ${set.reps}',
+  context.l10n.personalRecordSet(
+    set: '${formatWeight(set.weightKg)} kg × ${set.reps}',
+  ),
   kind: ToastKind.success,
 );
 
@@ -201,8 +204,8 @@ int? _ordinal(List<WorkoutSet> sets, int index) {
 }
 
 /// `第 2 組`, or the kind of set it is: `熱身組`.
-String _setName(WorkoutSet set, int? ordinal) =>
-    ordinal == null ? set.type.label : '第 $ordinal 組';
+String _setName(AppLocalizations l10n, WorkoutSet set, int? ordinal) =>
+    ordinal == null ? set.type.labelIn(l10n) : l10n.setOrdinal(number: ordinal);
 
 /// Weight times reps over the done sets that count toward the work: not
 /// the warm-ups.
@@ -239,7 +242,7 @@ class _WorkoutHero extends StatelessWidget {
         _heroGap +
         measureTextHeight(
           context,
-          '總',
+          context.l10n.totalShort,
           AppTextStyles.caption,
           maxWidth: maxWidth,
         ) +
@@ -274,11 +277,17 @@ class _WorkoutHero extends StatelessWidget {
           const SizedBox(height: _heroGap),
           Text(
             [
-              if (workout.isReady) '未開始',
-              '總訓練量',
+              if (workout.isReady) context.l10n.notStarted,
+              context.l10n.totalVolume,
               if (change case final change?)
-                '比上次 ${change < 0 ? '−' : '+'}${formatKcal(change.abs().round())} kg',
-              '${workout.completedSets} / ${workout.totalSets} 組',
+                context.l10n.versusLastTime(
+                  change:
+                      '${change < 0 ? '−' : '+'}${formatKcal(change.abs().round())} kg',
+                ),
+              context.l10n.setsOfTotal(
+                done: workout.completedSets,
+                total: workout.totalSets,
+              ),
             ].join(' · '),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -347,24 +356,27 @@ class _ClocksState extends State<_Clocks> {
     await showAppDialog<void>(
       context,
       AppDialog(
-        title: '休息',
+        title: context.l10n.restTitle,
         actions: [
           DialogAction(
-            label: '多休息 30 秒',
+            label: context.l10n.rest30More,
             onTap: () {
               store.extendRest(const Duration(seconds: 30));
               Navigator.of(context).pop();
             },
           ),
           DialogAction(
-            label: '跳過休息',
+            label: context.l10n.skipRest,
             tone: DialogTone.primary,
             onTap: () {
               store.skipRest();
               Navigator.of(context).pop();
             },
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -395,7 +407,7 @@ class _ClocksState extends State<_Clocks> {
     );
     return Semantics(
       button: endsAt != null,
-      label: endsAt == null ? null : '休息的選項',
+      label: endsAt == null ? null : context.l10n.restOptions,
       child: GestureDetector(
         onTap: () => _restActions(context),
         child: Container(
@@ -413,7 +425,7 @@ class _ClocksState extends State<_Clocks> {
                       : formatClock(
                           remaining.isNegative ? Duration.zero : remaining,
                         ),
-                  '休息',
+                  context.l10n.restTitle,
                   color: remaining == null ? null : AppColors.training,
                 ),
               ),
@@ -421,7 +433,8 @@ class _ClocksState extends State<_Clocks> {
               Expanded(
                 child: ElapsedClock(
                   session: ActiveWorkout(widget.workout),
-                  builder: (_, elapsed) => clock(elapsed, '時間'),
+                  builder: (_, elapsed) =>
+                      clock(elapsed, context.l10n.elapsedTime),
                 ),
               ),
             ],
@@ -438,9 +451,9 @@ Future<void> _editNotes(BuildContext context) async {
   final store = AppStoreScope.read(context);
   final notes = await showTextDialog(
     context,
-    title: '這次訓練的備註',
+    title: context.l10n.workoutNotesTitle,
     initial: store.activeWorkout?.notes ?? '',
-    hint: '例如：睡不好，握力先到極限',
+    hint: context.l10n.workoutNotesHint,
     maxLines: 3,
   );
   if (notes == null || !context.mounted) return;
@@ -449,15 +462,19 @@ Future<void> _editNotes(BuildContext context) async {
 
 /// What the card's menu does.
 enum _ExerciseAction {
-  warmup('加入熱身組'),
-  drop('加入遞減組'),
-  failure('加入力竭組'),
-  replace('替換這個動作'),
-  remove('從這次訓練移除');
+  warmup,
+  drop,
+  failure,
+  replace,
+  remove;
 
-  const _ExerciseAction(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    warmup => l10n.addWarmupSets,
+    drop => l10n.addDropSet,
+    failure => l10n.addFailureSet,
+    replace => l10n.replaceExercise,
+    remove => l10n.removeFromWorkout,
+  };
 }
 
 /// One exercise of the workout: its sets as a table to fill in and tick
@@ -523,7 +540,7 @@ class _ExerciseCard extends StatelessWidget {
     final set = exercise.sets[setIndex];
     final edit = await showSetEditor(
       context,
-      title: _setName(set, _ordinal(exercise.sets, setIndex)),
+      title: _setName(context.l10n, set, _ordinal(exercise.sets, setIndex)),
       set: set,
       equipment: exercise.exercise.equipment,
     );
@@ -549,7 +566,7 @@ class _ExerciseCard extends StatelessWidget {
           for (final action in _ExerciseAction.values)
             if (action != _ExerciseAction.remove || canRemove)
               DialogAction(
-                label: action.label,
+                label: action.labelIn(context.l10n),
                 tone: action == _ExerciseAction.remove
                     ? DialogTone.destructive
                     : DialogTone.normal,
@@ -599,20 +616,22 @@ class _ExerciseCard extends StatelessWidget {
                 ),
               ),
               if (isInSuperset)
-                const TagChip(label: '超級組', tone: TagTone.training),
+                TagChip(label: context.l10n.superset, tone: TagTone.training),
               SquareIconButton(
                 icon: Icons.more_horiz,
-                tooltip: '${exercise.exercise.name}的選項',
+                tooltip: context.l10n.optionsFor(name: exercise.exercise.name),
                 onPressed: () => _menu(context),
               ),
             ],
           ),
           Text(
             [
-              '訓練量 ${formatKcal(volume.round())} kg',
+              context.l10n.volumeValue(volume: formatKcal(volume.round())),
               if (last != null)
-                '上次 ${last.date.month}/${last.date.day} · '
-                    '${formatWeight(last.weightKg)} kg × ${last.reps}',
+                context.l10n.lastSetShort(
+                  date: context.dates.compactMonthDay(last.date),
+                  set: '${formatWeight(last.weightKg)} kg × ${last.reps}',
+                ),
             ].join(' · '),
             style: AppTextStyles.caption,
           ),
@@ -621,13 +640,13 @@ class _ExerciseCard extends StatelessWidget {
             spacing: AppSpacing.xs,
             children: [
               ChipButton(
-                label: '載入',
-                semanticLabel: '填入上次的重量與次數',
+                label: context.l10n.loadPrevious,
+                semanticLabel: context.l10n.loadPreviousLabel,
                 onTap: () => _focused(context, index).loadPrevious(index),
               ),
               ChipButton(
-                label: '快速填入',
-                semanticLabel: '以第一組填入其他組',
+                label: context.l10n.quickFill,
+                semanticLabel: context.l10n.quickFillLabel,
                 onTap: () => _focused(context, index).fillFromFirst(index),
               ),
             ],
@@ -635,9 +654,12 @@ class _ExerciseCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: _setColumn,
-                child: Text('組', style: AppTextStyles.caption),
+                child: Text(
+                  context.l10n.setColumn,
+                  style: AppTextStyles.caption,
+                ),
               ),
               const Expanded(
                 child: Text(
@@ -647,9 +669,9 @@ class _ExerciseCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  '次',
+                  context.l10n.repsColumn,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption,
                 ),
@@ -658,7 +680,7 @@ class _ExerciseCard extends StatelessWidget {
               SizedBox(
                 width: _doneColumn,
                 child: Text(
-                  '完成',
+                  context.l10n.commonDone,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption,
                 ),
@@ -689,7 +711,7 @@ class _ExerciseCard extends StatelessWidget {
             children: [
               Expanded(
                 child: SecondaryButton(
-                  label: '刪除組',
+                  label: context.l10n.removeSet,
                   icon: Icons.remove,
                   isCompact: true,
                   onPressed: exercise.sets.isEmpty
@@ -699,7 +721,7 @@ class _ExerciseCard extends StatelessWidget {
               ),
               Expanded(
                 child: SecondaryButton(
-                  label: '新增組',
+                  label: context.l10n.addSet,
                   icon: Icons.add,
                   isCompact: true,
                   onPressed: () =>
@@ -749,7 +771,7 @@ class _SetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = _setName(set, ordinal);
+    final name = _setName(context.l10n, set, ordinal);
     return Row(
       children: [
         SizedBox(
@@ -757,7 +779,7 @@ class _SetRow extends StatelessWidget {
           height: 48,
           child: Semantics(
             button: true,
-            label: '編輯$name',
+            label: context.l10n.editItem(item: name),
             excludeSemantics: true,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -766,7 +788,7 @@ class _SetRow extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   ordinal == null
-                      ? set.type.label.characters.first
+                      ? set.type.labelIn(context.l10n).characters.first
                       : '$ordinal',
                   style: AppTextStyles.itemTitle.copyWith(
                     color: ordinal == null
@@ -783,7 +805,7 @@ class _SetRow extends StatelessWidget {
         Expanded(
           child: InlineNumberField(
             text: formatWeight(set.weightKg),
-            label: '$name重量',
+            label: context.l10n.setWeight(set: name),
             decimal: true,
             onCommit: (text) {
               if (double.tryParse(text) case final kg? when kg >= 0) {
@@ -796,7 +818,7 @@ class _SetRow extends StatelessWidget {
         Expanded(
           child: InlineNumberField(
             text: '${set.reps}',
-            label: '$name次數',
+            label: context.l10n.setReps(set: name),
             decimal: false,
             onCommit: (text) {
               if (int.tryParse(text) case final reps? when reps >= 0) {
@@ -809,7 +831,7 @@ class _SetRow extends StatelessWidget {
         SizedBox(
           width: doneColumn,
           child: Semantics(
-            label: '$name完成',
+            label: context.l10n.setDone(set: name),
             checked: set.isDone,
             child: GestureDetector(
               onTap: onToggle,

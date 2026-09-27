@@ -3,23 +3,47 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 enum _ChangeKind { removed, added, unchanged }
 
 class _ProposedChange {
-  const _ProposedChange(this.kind, this.exercise, this.prescription);
+  const _ProposedChange(
+    this.kind,
+    this.exercise,
+    this.sets,
+    this.reps, {
+    this.rir,
+  });
 
   final _ChangeKind kind;
   final String exercise;
-  final String prescription;
+  final int sets;
+  final int reps;
+  final int? rir;
+
+  String prescription(AppLocalizations l10n) => [
+    l10n.setsTimesRepsShort(sets: sets, reps: reps),
+    if (rir case final rir?) 'RIR $rir',
+  ].join(' · ');
 }
 
+// The demo proposal's exercises and routine are the seed's own, named
+// as the seed names them.
+// l10n-ignore: demo data.
+const _routine = '下肢 A';
+
 const _changes = [
-  _ProposedChange(_ChangeKind.removed, '槓鈴深蹲', '4 組 × 5 次 · RIR 2'),
-  _ProposedChange(_ChangeKind.added, '槓鈴深蹲', '5 組 × 5 次 · RIR 2'),
-  _ProposedChange(_ChangeKind.removed, '腿彎舉', '3 組 × 12 次'),
-  _ProposedChange(_ChangeKind.added, '腿彎舉', '4 組 × 12 次'),
-  _ProposedChange(_ChangeKind.unchanged, '羅馬尼亞硬舉', '3 組 × 8 次'),
+  // l10n-ignore: demo data.
+  _ProposedChange(_ChangeKind.removed, '槓鈴深蹲', 4, 5, rir: 2),
+  // l10n-ignore: demo data.
+  _ProposedChange(_ChangeKind.added, '槓鈴深蹲', 5, 5, rir: 2),
+  // l10n-ignore: demo data.
+  _ProposedChange(_ChangeKind.removed, '腿彎舉', 3, 12),
+  // l10n-ignore: demo data.
+  _ProposedChange(_ChangeKind.added, '腿彎舉', 4, 12),
+  // l10n-ignore: demo data.
+  _ProposedChange(_ChangeKind.unchanged, '羅馬尼亞硬舉', 3, 8),
 ];
 
 /// A draft change from AI, shown as a diff that only applies on accept.
@@ -28,60 +52,63 @@ class AiProposalScreen extends StatelessWidget {
 
   void _accept(BuildContext context) {
     AppStoreScope.read(context).applyAiProposal();
-    showToast(context, '已套用到「下肢 A」', kind: ToastKind.success);
+    showToast(
+      context,
+      context.l10n.appliedTo(routine: _routine),
+      kind: ToastKind.success,
+    );
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: 'AI 建議的修改', subtitle: '訓練「下肢 A」· 尚未套用'),
+      appBar: PageAppBar(
+        title: context.l10n.aiProposalTitle,
+        subtitle: context.l10n.aiProposalSubtitle(routine: _routine),
+      ),
       footer: ButtonPair(
         secondary: SecondaryButton(
-          label: '拒絕',
+          label: context.l10n.reject,
           onPressed: () => Navigator.of(context).pop(),
         ),
         primaryFlex: 2,
         primary: PrimaryButton(
-          label: '接受並套用',
+          label: context.l10n.acceptAndApply,
           onPressed: () => _accept(context),
         ),
       ),
       children: [
         Gutter(
-          child: const AppCard(
+          child: AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('提問', style: AppTextStyles.overline),
-                SizedBox(height: AppSpacing.xs),
-                Text('「最近深蹲的組數是不是太少了？幫我加回來。」', style: AppTextStyles.body),
+                Text(context.l10n.questionLabel, style: AppTextStyles.overline),
+                const SizedBox(height: AppSpacing.xs),
+                Text(context.l10n.proposalQuestion, style: AppTextStyles.body),
               ],
             ),
           ),
         ),
-        Gutter(child: const SectionLabel('改動 2 個動作')),
+        Gutter(child: SectionLabel(context.l10n.changesCount(count: 2))),
         for (final change in _changes)
           Gutter(child: _ChangeRow(change: change)),
         Gutter(
-          child: const AppCard(
+          child: AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('理由', style: AppTextStyles.overline),
-                SizedBox(height: AppSpacing.xs),
-                Text(
-                  '每週工作組數從 12 降到 8，依「肌力維持」目標，'
-                  '訓練引擎建議的區間是 10 – 12 組。',
-                  style: AppTextStyles.body,
-                ),
-                SizedBox(height: AppSpacing.md),
+                Text(context.l10n.reasonLabel, style: AppTextStyles.overline),
+                const SizedBox(height: AppSpacing.xs),
+                Text(context.l10n.proposalReason, style: AppTextStyles.body),
+                const SizedBox(height: AppSpacing.md),
                 Wrap(
                   spacing: AppSpacing.xs,
                   runSpacing: AppSpacing.xs,
                   children: [
-                    TagChip(label: '送出的資料：近 4 週訓練紀錄'),
-                    TagChip(label: '模型：自架端點'),
+                    TagChip(label: context.l10n.proposalDataSent),
+                    TagChip(label: context.l10n.proposalModel),
                   ],
                 ),
               ],
@@ -104,14 +131,19 @@ class _ChangeRow extends StatelessWidget {
       _ChangeKind.removed => (
         CardTone.nutrition,
         '−',
-        '移除',
+        context.l10n.removeAction,
         AppColors.nutrition,
       ),
-      _ChangeKind.added => (CardTone.training, '+', '新增', AppColors.training),
+      _ChangeKind.added => (
+        CardTone.training,
+        '+',
+        context.l10n.addedLabel,
+        AppColors.training,
+      ),
       _ChangeKind.unchanged => (
         CardTone.neutral,
         '·',
-        '不變',
+        context.l10n.unchangedLabel,
         AppColors.textSecondary,
       ),
     };
@@ -129,7 +161,7 @@ class _ChangeRow extends StatelessWidget {
         ),
       ),
       title: change.exercise,
-      subtitle: change.prescription,
+      subtitle: change.prescription(context.l10n),
       trailing: Text(
         label,
         style: TextStyle(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 const _previewComponentCount = 2;
 
@@ -39,11 +40,13 @@ class _SplitDishSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('要把這道料理拆成 $count 筆獨立紀錄嗎？', style: AppTextStyles.pageTitle),
+          Text(
+            context.l10n.splitDishTitle(count: count),
+            style: AppTextStyles.pageTitle,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '拆開後每項成分各自成為一筆紀錄，可以單獨編輯、移到別餐或刪除，'
-            '「${dish.name}」這一層就不存在了。',
+            context.l10n.splitDishMessage(dish: dish.name),
             style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -53,22 +56,26 @@ class _SplitDishSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: _StructurePreview(
-                    title: '現在',
-                    lines: ['午餐', '└ ${dish.name}', '    └ $count 項成分'],
+                    title: context.l10n.nowLabel,
+                    lines: [
+                      context.l10n.mealTypeLunch,
+                      '└ ${dish.name}',
+                      '    └ ${context.l10n.componentsCount(count: count)}',
+                    ],
                   ),
                 ),
                 const Icon(Icons.chevron_right, color: AppColors.textSecondary),
                 Expanded(
                   child: _StructurePreview(
-                    title: '拆開後',
+                    title: context.l10n.afterSplit,
                     tone: CardTone.nutrition,
                     lines: [
-                      '午餐',
+                      context.l10n.mealTypeLunch,
                       for (final component in dish.components.take(
                         _previewComponentCount,
                       ))
                         '├ ${component.name}',
-                      '└ 其他 ${count - _previewComponentCount} 項',
+                      '└ ${context.l10n.otherCount(count: count - _previewComponentCount)}',
                     ],
                   ),
                 ),
@@ -76,23 +83,28 @@ class _SplitDishSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const Row(
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.undo, size: 18, color: AppColors.textSecondary),
-              SizedBox(width: AppSpacing.xs),
-              Expanded(child: Text('30 秒內可以復原。', style: AppTextStyles.caption)),
+              const Icon(Icons.undo, size: 18, color: AppColors.textSecondary),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  context.l10n.undoWithin30s,
+                  style: AppTextStyles.caption,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
           ButtonPair(
             secondary: SecondaryButton(
-              label: '取消',
+              label: context.l10n.commonCancel,
               onPressed: () => Navigator.of(context).pop(false),
             ),
             primaryFlex: 2,
             primary: NutritionButton(
-              label: '拆成獨立紀錄',
+              label: context.l10n.splitIntoEntry,
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ),

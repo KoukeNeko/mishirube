@@ -1,20 +1,26 @@
 import '../../app/view_model.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// The parts of Today a user can hide. What is in progress and the next
 /// step are not among them: they are the page's reason to exist.
 enum TodaySection {
-  glance('今日指標'),
-  activity('今日活動'),
-  intake('今日攝取'),
-  week('本週'),
-  records('今天的紀錄'),
-  insights('值得注意');
+  glance,
+  activity,
+  intake,
+  week,
+  records,
+  insights;
 
-  const TodaySection(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    glance => l10n.todaySectionGlance,
+    activity => l10n.todaySectionActivity,
+    intake => l10n.todayIntake,
+    week => l10n.todaySectionWeek,
+    records => l10n.todaySectionRecords,
+    insights => l10n.todaySectionInsights,
+  };
 }
 
 /// What Today reads that the rest of the app does not already hand it:

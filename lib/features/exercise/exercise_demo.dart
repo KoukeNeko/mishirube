@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// How long each pose shows before the next.
 const _poseDuration = Duration(milliseconds: 750);
@@ -57,7 +58,10 @@ class _ExerciseDemoState extends State<ExerciseDemo> {
   @override
   Widget build(BuildContext context) {
     final frames = widget.frames;
-    final label = '${widget.name}示範，${frames.length} 個姿勢';
+    final label = context.l10n.exerciseDemoLabel(
+      name: widget.name,
+      count: frames.length,
+    );
     if (prefersReducedMotion(context)) {
       return Semantics(
         label: label,
@@ -77,7 +81,9 @@ class _ExerciseDemoState extends State<ExerciseDemo> {
       label: label,
       image: true,
       button: true,
-      value: _isPaused ? '已暫停' : '播放中',
+      value: _isPaused
+          ? context.l10n.sessionPausedStatus
+          : context.l10n.playing,
       onTap: () => setState(() => _isPaused = !_isPaused),
       excludeSemantics: true,
       child: GestureDetector(
@@ -119,5 +125,5 @@ class ExerciseDemoCredit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const TagWrap(labels: ['圖：Workout Guide／Everkinetic · CC BY-SA 4.0']);
+      TagWrap(labels: [context.l10n.exerciseDemoCredit]);
 }

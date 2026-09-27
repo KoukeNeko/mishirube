@@ -10,6 +10,7 @@ import '../me/data_sources_screen.dart';
 import 'activity_detail_screen.dart';
 import 'activity_metric_screen.dart';
 import 'daily_activity_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// A day's movement as the health platform counted it: the lead figure
 /// hour by hour, every metric a source records, and the exercise done.
@@ -49,17 +50,17 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
     final lead = ActivityMetric.headline.where(totals.containsKey).firstOrNull;
     return DetailPage(
       appBar: PageAppBar(
-        title: '活動',
-        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+        title: context.l10n.dailyActivityTitle,
+        subtitle: context.dates.dayWithWeekday(day),
         actions: [
           HeaderAction(
             icon: Icons.chevron_left,
-            semanticLabel: '前一天',
+            semanticLabel: context.l10n.previousDay,
             onTap: () => _model.step(-1),
           ),
           HeaderAction(
             icon: Icons.chevron_right,
-            semanticLabel: '後一天',
+            semanticLabel: context.l10n.nextDay,
             onTap: _model.canGoForward ? () => _model.step(1) : null,
           ),
         ],
@@ -67,24 +68,24 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       children: [
         if (metrics.isEmpty) ...[
           Gutter(
-            child: const EmptyStateCard(
+            child: EmptyStateCard(
               icon: Icons.directions_walk,
-              title: '沒有活動資料',
+              title: context.l10n.noActivityData,
             ),
           ),
           Gutter(
             child: Center(
               child: LinkText(
-                label: '資料來源',
+                label: context.l10n.dataSourcesLink,
                 onTap: () => pushPage(context, const DataSourcesScreen()),
               ),
             ),
           ),
         ] else if (lead == null)
           Gutter(
-            child: const EmptyStateCard(
+            child: EmptyStateCard(
               icon: Icons.directions_walk,
-              title: '這一天沒有活動資料',
+              title: context.l10n.noActivityThisDay,
             ),
           )
         else
@@ -99,24 +100,27 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
           if (metrics.where((metric) => metric.group == group).toList()
               case final inGroup when inGroup.isNotEmpty)
             PageSection(
-              label: group.label,
+              label: group.labelIn(context.l10n),
               children: [
                 Gutter(
                   child: GroupedCard(
                     children: [
                       for (final metric in inGroup)
                         NavRow(
-                          title: metric.label,
+                          title: metric.labelIn(context.l10n),
                           subtitle: switch (_model.usualRange(metric)) {
-                            final range? =>
-                              '平常 ${metric.format(range.low)}–'
-                                  '${metric.format(range.high)} ${metric.unit}',
+                            final range? => context.l10n.usualRangeValue(
+                              range:
+                                  '${metric.format(range.low)}–'
+                                  '${metric.format(range.high)} '
+                                  '${metric.unitIn(context.l10n)}',
+                            ),
                             null => null,
                           },
                           trailing: Text(switch (totals[metric]) {
                             final value? =>
-                              '${metric.format(value)} ${metric.unit}',
-                            null => '沒有資料',
+                              '${metric.format(value)} ${metric.unitIn(context.l10n)}',
+                            null => context.l10n.noData,
                           }, style: AppTextStyles.caption),
                           onTap: () => pushPage(
                             context,
@@ -130,7 +134,7 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
             ),
         if (sessions.isNotEmpty)
           PageSection(
-            label: '運動',
+            label: context.l10n.moduleActivity,
             children: [
               Gutter(
                 child: GroupedCard(
@@ -141,10 +145,10 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
                           session.type.icon,
                           color: AppColors.activity,
                         ),
-                        title: session.type.label,
+                        title: session.type.labelIn(context.l10n),
                         subtitle:
                             '${formatTimeOfDay(session.startedAt)} · '
-                            '${session.duration.inMinutes} 分',
+                            '${context.l10n.durationMinutes(minutes: session.duration.inMinutes)}',
                         onTap: () => pushPage(
                           context,
                           ActivityDetailScreen(activityId: session.id),
@@ -179,17 +183,20 @@ class _LeadCard extends StatelessWidget {
       for (final other in ActivityMetric.headline)
         if (other != metric)
           if (totals[other] case final value?)
-            '${other.format(value)} ${other.unit}',
+            '${other.format(value)} ${other.unitIn(context.l10n)}',
     ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CategoryLabel(label: metric.label, color: AppColors.activity),
+          CategoryLabel(
+            label: metric.labelIn(context.l10n),
+            color: AppColors.activity,
+          ),
           const SizedBox(height: AppSpacing.xs),
           ValueWithUnit(
             value: metric.format(totals[metric]!),
-            unit: metric.unit,
+            unit: metric.unitIn(context.l10n),
             style: AppTextStyles.hugeNumber,
           ),
           if (others.isNotEmpty)
@@ -218,9 +225,10 @@ class HourlyActivityChart extends StatelessWidget {
     return ChartScrubber(
       count: hours.length,
       indexAt: ChartScrubber.slots(hours.length),
-      idle: '每小時',
+      idle: context.l10n.perHour,
       readoutOf: (hour) =>
-          '$hour–${hour + 1} 時 · ${metric.format(hours[hour])} ${metric.unit}',
+          '${context.l10n.hourSpan(start: hour, end: hour + 1)} · '
+          '${metric.format(hours[hour])} ${metric.unitIn(context.l10n)}',
       builder: (context, selected) => Column(
         children: [
           MiniBarChart(
@@ -237,7 +245,12 @@ class HourlyActivityChart extends StatelessWidget {
           Row(
             children: [
               for (final hour in const [0, 6, 12, 18])
-                Expanded(child: Text('$hour 時', style: AppTextStyles.caption)),
+                Expanded(
+                  child: Text(
+                    context.l10n.hourOfDay(hour: hour),
+                    style: AppTextStyles.caption,
+                  ),
+                ),
             ],
           ),
         ],

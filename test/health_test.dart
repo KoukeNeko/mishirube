@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/l10n/l10n.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/application/health_service.dart';
@@ -44,7 +45,7 @@ class _FakeHealth implements HealthSource {
   bool asksForPrivacy = false;
 
   @override
-  String get name => 'Apple 健康';
+  String nameIn(AppLocalizations l10n) => l10n.appleHealth;
   @override
   ChangeSource get changeSource => ChangeSource.healthKit;
   @override

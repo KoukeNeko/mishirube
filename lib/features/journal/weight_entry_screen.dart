@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Plausible bounds for a body weight in kilograms; outside them it is a
 /// typo rather than a measurement.
@@ -28,7 +29,7 @@ class WeightEntryScreen extends StatefulWidget {
 class _WeightEntryScreenState extends State<WeightEntryScreen> {
   late final JournalViewModel _journal;
   late final TextEditingController _weight;
-  late final String? _lastLabel;
+  late final BodyWeight? _previous;
   String? _error;
 
   @override
@@ -43,10 +44,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
         null => '',
       },
     );
-    _lastLabel = previous == null || editing != null
-        ? null
-        : '上次 ${formatWeight(previous.weightKg)} kg · '
-              '${previous.measuredAt.month}/${previous.measuredAt.day}';
+    _previous = editing == null ? previous : null;
   }
 
   @override
@@ -59,7 +57,12 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   void _save() {
     final kilograms = double.tryParse(_weight.text.trim());
     if (kilograms == null || kilograms < _minKg || kilograms > _maxKg) {
-      setState(() => _error = '請輸入 $_minKg – $_maxKg kg 之間的數值。');
+      setState(
+        () => _error = context.l10n.weightRangeError(
+          min: '$_minKg',
+          max: '$_maxKg',
+        ),
+      );
       return;
     }
     final editing = widget.editing;
@@ -78,20 +81,23 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      '${editing == null ? '已記錄' : '已更新為'} ${formatWeight(kilograms)} kg',
+      (editing == null
+          ? context.l10n.weightLogged
+          : context.l10n.weightUpdated)(weight: formatWeight(kilograms)),
       kind: ToastKind.success,
     );
   }
 
   /// What the reading is, so a later trend can tell morning weights from
   /// weights taken at any hour.
+  // l10n-ignore: a stored marker, read back by the weight trend.
   String get _note => '手動輸入';
 
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(title: '體重'),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      appBar: PageAppBar(title: context.l10n.moduleWeight),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         Gutter(
           child: AppCard(
@@ -131,8 +137,16 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),
           ),
-        if (_lastLabel case final label?)
-          Gutter(child: Text(label, style: AppTextStyles.caption)),
+        if (_previous case final previous?)
+          Gutter(
+            child: Text(
+              context.l10n.lastReadingOn(
+                value: '${formatWeight(previous.weightKg)} kg',
+                date: context.dates.compactMonthDay(previous.measuredAt),
+              ),
+              style: AppTextStyles.caption,
+            ),
+          ),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 enum FinishChoice { keepGoing, discard, finish }
 
@@ -11,32 +12,33 @@ Future<FinishChoice?> askHowSessionEnds(
   BuildContext context,
   ActiveSession session,
 ) {
-  final label = session.label;
+  final l10n = context.l10n;
+  final name = session.name(l10n);
   return showAppDialog<FinishChoice>(
     context,
     AppDialog(
-      title: '結束這次$label？',
+      title: l10n.sessionEndTitle(session: name),
       message: switch (session) {
-        ActiveWorkout() => '已完成的組數會存成紀錄；放棄則不會算成一次訓練。',
-        ActiveActivity() => '結束會存成一筆運動紀錄；放棄則什麼都不留。',
+        ActiveWorkout() => l10n.sessionEndWorkoutMessage,
+        ActiveActivity() => l10n.sessionEndActivityMessage,
       },
       actions: [
         DialogAction(
-          label: '結束並儲存',
+          label: l10n.sessionFinishAndSave,
           tone: DialogTone.primary,
           onTap: () => Navigator.of(context).pop(FinishChoice.finish),
         ),
         DialogAction(
           label: switch (session) {
-            ActiveWorkout() => '放棄這次訓練',
-            ActiveActivity() => '放棄這次運動',
+            ActiveWorkout() => l10n.sessionDiscardWorkout,
+            ActiveActivity() => l10n.sessionDiscardActivity,
           },
           tone: DialogTone.destructive,
           onTap: () => Navigator.of(context).pop(FinishChoice.discard),
         ),
         // The way out goes last, where a stacked Cancel belongs.
         DialogAction(
-          label: '繼續$label',
+          label: l10n.sessionKeepGoing(session: name),
           onTap: () => Navigator.of(context).pop(FinishChoice.keepGoing),
         ),
       ],

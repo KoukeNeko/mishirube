@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// Bumped whenever the matching or ranking below changes.
 const exerciseSearchVersion = 1;
@@ -158,6 +159,11 @@ Set<String> _wordsOf(String value) => {
     match[0]!,
 };
 
+final _languages = [
+  for (final locale in AppLocalizations.supportedLocales)
+    lookupAppLocalizations(locale),
+];
+
 /// The best match over an exercise's searchable terms, and whether it
 /// came from the name rather than an alias, the equipment or a muscle.
 (SearchMatch, bool) _matchOf(
@@ -171,8 +177,12 @@ Set<String> _wordsOf(String value) => {
     exercise.name,
     ...exercise.personalAliases,
     ...exercise.aliases,
-    exercise.equipment.label,
-    ...exercise.primaryMuscles.map((muscle) => muscle.label),
+    // Its equipment and muscles in every language the app speaks: a
+    // search is typed in whichever the user thinks in.
+    for (final l10n in _languages) ...[
+      exercise.equipment.labelIn(l10n),
+      ...exercise.primaryMuscles.map((muscle) => muscle.labelIn(l10n)),
+    ],
   ];
   for (final (index, term) in terms.indexed) {
     final normalized = normalizeTerm(term);

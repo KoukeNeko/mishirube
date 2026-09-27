@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'set_load_table.dart';
+import '../../l10n/l10n.dart';
 
 /// The longest a workout typed in may take, as a logged activity.
 const _maxMinutes = 600;
@@ -134,10 +135,13 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(title: '編輯訓練', subtitle: widget.workout.routineName),
+      appBar: PageAppBar(
+        title: context.l10n.editWorkout,
+        subtitle: widget.workout.routineName,
+      ),
       // A workout with nothing left in it is deleted, not saved empty.
       footer: PrimaryButton(
-        label: '儲存',
+        label: context.l10n.commonSave,
         onPressed:
             (_isChanged || _isRetimed) &&
                 _exercises.isNotEmpty &&
@@ -147,15 +151,15 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
       ),
       children: [
         PageSection(
-          label: '時間',
+          label: context.l10n.timeSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: '開始時間',
+                    title: context.l10n.activityStartTime,
                     subtitle:
-                        '${_startedAt.month} 月 ${_startedAt.day} 日 '
+                        '${context.dates.monthDay(_startedAt)} '
                         '${formatTimeOfDay(_startedAt)}',
                     onTap: _pickStart,
                   ),
@@ -164,14 +168,14 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
             ),
             Gutter(
               child: NumberFieldRow(
-                label: '時長',
-                unit: '分鐘',
+                label: context.l10n.durationLabel,
+                unit: context.l10n.minutesUnit,
                 controller: _minutes,
               ),
             ),
           ],
         ),
-        Gutter(child: const SectionLabel('動作')),
+        Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
         for (final (index, (key, correction)) in _exercises.indexed)
           Gutter(
             key: key,
@@ -183,7 +187,7 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
             ),
           ),
         Gutter(
-          child: DashedActionCard(label: '加入動作', onTap: _add),
+          child: DashedActionCard(label: context.l10n.addExercise, onTap: _add),
         ),
       ],
     );

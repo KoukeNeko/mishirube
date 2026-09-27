@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Asks how much of [food] goes on the plate, and resolves to that
 /// portion; null when the user backed out, or edited or deleted the food
@@ -37,14 +38,14 @@ Future<FoodItem?> pickCupSize(
   context,
   AppDialog(
     title: food.name,
-    message: food.brand.isEmpty ? null : food.brandLabel,
+    message: food.brand.isEmpty ? null : food.brandLabelIn(context.l10n),
     isChoiceList: true,
     actions: [
       for (final (index, size) in sizes.indexed)
         DialogAction(
           icon: _cupIcons[index.clamp(0, _cupIcons.length - 1)],
           label: size.sizeName,
-          detail: _sizeDetail(size),
+          detail: _sizeDetail(context.l10n, size),
           onTap: () => Navigator.of(context).pop(size),
         ),
     ],
@@ -55,6 +56,7 @@ Future<FoodItem?> pickCupSize(
 /// 炭水化物 with 糖質 and 食物繊維 under it, 食塩相当量, then the rest;
 /// then, apart from the label, what [convention] reads its salt as.
 List<Widget> _japaneseLabel(
+  AppLocalizations l10n,
   FoodPortion portion,
   NutritionConvention convention,
 ) {
@@ -68,7 +70,7 @@ List<Widget> _japaneseLabel(
       ? '—'
       : '${_asPrinted(perServing * portion.servings)} g';
   KeyValueRow row(Nutrient nutrient) => KeyValueRow(
-    label: japaneseLabelOf(nutrient) ?? nutrient.label,
+    label: japaneseLabelOf(nutrient) ?? nutrient.labelIn(l10n),
     value: '${_asPrinted(nutrients[nutrient]!)} ${nutrient.unit.label}',
   );
   return [
@@ -100,8 +102,8 @@ List<Widget> _japaneseLabel(
       labelCountry: food.country,
     ).entries)
       KeyValueRow(
-        label: convention.nameOf(nutrient),
-        value: '${nutrient.format(amount)} · 推算',
+        label: convention.nameOf(l10n, nutrient),
+        value: l10n.workedOutValue(value: nutrient.format(amount)),
       ),
   ];
 }
@@ -110,7 +112,11 @@ List<Widget> _japaneseLabel(
 /// Taiwan's when it names no country the app reads — with, apart from
 /// the label, what [reader]'s convention works out of it. A label whose
 /// carbohydrate leaves out the fibre shows it that way.
-List<Widget> _label(FoodPortion portion, NutritionConvention reader) {
+List<Widget> _label(
+  AppLocalizations l10n,
+  FoodPortion portion,
+  NutritionConvention reader,
+) {
   final food = portion.food;
   final label =
       NutritionConvention.ofLabel(food.country) ?? NutritionConvention.taiwan;
@@ -123,12 +129,15 @@ List<Widget> _label(FoodPortion portion, NutritionConvention reader) {
   );
   return [
     KeyValueRow(
-      label: label.energyName,
+      label: label.energyName(l10n),
       value: '${formatKcalOrDash(portion.kcal)} kcal',
     ),
-    KeyValueRow(label: label.proteinName, value: _grams(portion.proteinGrams)),
     KeyValueRow(
-      label: label.carbName,
+      label: label.proteinName(l10n),
+      value: _grams(portion.proteinGrams),
+    ),
+    KeyValueRow(
+      label: label.carbName(l10n),
       value: label.countsAvailableCarb
           ? _grams(
               (portion.nutrients[Nutrient.netCarb] ??
@@ -137,13 +146,17 @@ List<Widget> _label(FoodPortion portion, NutritionConvention reader) {
             )
           : _grams(portion.carbGrams),
     ),
-    KeyValueRow(label: label.fatName, value: _grams(portion.fatGrams)),
+    KeyValueRow(label: label.fatName(l10n), value: _grams(portion.fatGrams)),
     if (portion.fibreGrams != null)
-      KeyValueRow(label: label.fibreName, value: _grams(portion.fibreGrams)),
+      KeyValueRow(
+        label: label.fibreName(l10n),
+        value: _grams(portion.fibreGrams),
+      ),
     // Everything else the food holds. A brand drink often knows its
     // caffeine and nothing else, and a screen that showed only the five
     // would show it as four dashes.
     for (final (nutrient, value) in nutrientLines(
+      l10n,
       portion.nutrients,
       convention: reader,
       carbGrams: portion.carbGrams,
@@ -153,8 +166,8 @@ List<Widget> _label(FoodPortion portion, NutritionConvention reader) {
       if (!(label.countsAvailableCarb && nutrient == Nutrient.netCarb))
         KeyValueRow(
           label: made.containsKey(nutrient)
-              ? reader.nameOf(nutrient)
-              : label.nameOf(nutrient),
+              ? reader.nameOf(l10n, nutrient)
+              : label.nameOf(l10n, nutrient),
           value: value,
         ),
   ];
@@ -173,14 +186,14 @@ const _cupIcons = [
 
 /// `354 ml · 咖啡因 150 mg`: the volume, then whichever figure the size
 /// has — energy when it was published, caffeine when that is all there is.
-String _sizeDetail(FoodItem size) {
+String _sizeDetail(AppLocalizations l10n, FoodItem size) {
   final caffeine = size.nutrients[Nutrient.caffeine];
   return [
-    size.servingDescription,
+    size.servingDescription(l10n),
     if (size.kcal != null)
       '${formatKcal(size.kcal!.round())} kcal'
     else if (caffeine != null)
-      '咖啡因 ${formatAmount(caffeine)} mg',
+      l10n.caffeineValue(mg: formatAmount(caffeine)),
   ].join(' · ');
 }
 
@@ -292,7 +305,7 @@ class _PortionScreenState extends State<PortionScreen> {
     _nutrition.deleteFood(food.id);
     Navigator.of(context).pop();
     ToastScope.read(context).showUndo(
-      '已刪除「${food.displayName}」',
+      context.l10n.deletedNamed(name: food.displayName),
       onUndo: () => _nutrition.undeleteFood(food.id),
     );
   }
@@ -319,7 +332,9 @@ class _PortionScreenState extends State<PortionScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: food.displayName,
-        subtitle: '一份 = ${food.servingDescription}',
+        subtitle: context.l10n.oneServingIs(
+          serving: food.servingDescription(context.l10n),
+        ),
         // Food that ships with the app is read-only: the next release
         // replaces it, so an edit here would not survive.
         actions: [
@@ -327,23 +342,27 @@ class _PortionScreenState extends State<PortionScreen> {
           // is kept apart from the food, so a catalogue update keeps it.
           HeaderAction(
             icon: isStarred ? Icons.star : Icons.star_border,
-            label: isStarred ? '已收藏' : '收藏',
-            semanticLabel: isStarred ? '取消收藏' : '收藏這個食物',
+            label: isStarred ? context.l10n.starred : context.l10n.starAction,
+            semanticLabel: isStarred
+                ? context.l10n.removeFavorite
+                : context.l10n.starThisFood,
             onTap: () =>
                 _nutrition.setFoodFavorite(food.id, isFavorite: !isStarred),
           ),
           if (!food.isBuiltIn)
             HeaderAction(
               icon: Icons.edit_outlined,
-              label: '編輯',
-              semanticLabel: '編輯這個食物',
+              label: context.l10n.commonEdit,
+              semanticLabel: context.l10n.editThisFood,
               onTap: _edit,
             ),
         ],
       ),
       footer: widget.canAdd
           ? PrimaryButton(
-              label: '加入 ${portion.label}',
+              label: context.l10n.addPortion(
+                portion: portion.labelIn(context.l10n),
+              ),
               onPressed: portion.servings > 0
                   ? () => Navigator.of(context).pop(portion)
                   : null,
@@ -355,9 +374,9 @@ class _PortionScreenState extends State<PortionScreen> {
             children: [
               Expanded(
                 child: _PortionField(
-                  label: '份數',
+                  label: context.l10n.servingsLabel,
                   controller: _servings,
-                  suffix: ServingUnit.serving.label,
+                  suffix: ServingUnit.serving.labelIn(context.l10n),
                   onFocus: () => setState(() => _isEditingAmount = false),
                 ),
               ),
@@ -365,9 +384,9 @@ class _PortionScreenState extends State<PortionScreen> {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: _PortionField(
-                    label: '實際份量',
+                    label: context.l10n.actualAmount,
                     controller: _amount,
-                    suffix: _unit.label,
+                    suffix: _unit.labelIn(context.l10n),
                     onFocus: () => setState(() => _isEditingAmount = true),
                   ),
                 ),
@@ -379,36 +398,44 @@ class _PortionScreenState extends State<PortionScreen> {
           Gutter(
             child: ChipWrap(
               options: food.servingUnit.comparable.toList(),
-              labelOf: (unit) => unit.label,
+              labelOf: (unit) => unit.labelIn(context.l10n),
               isSelected: (unit) => unit == _unit,
               onTap: _pickUnit,
             ),
           ),
-        Gutter(child: const SectionLabel('營養標示')),
+        Gutter(child: SectionLabel(context.l10n.nutritionLabel)),
         Gutter(
           child: AppCard(
             padding: EdgeInsets.zero,
             child: Column(
               children: [
                 if (food.country == 'JP')
-                  ..._japaneseLabel(portion, _nutrition.convention)
+                  ..._japaneseLabel(
+                    context.l10n,
+                    portion,
+                    _nutrition.convention,
+                  )
                 else
-                  ..._label(portion, _nutrition.convention),
+                  ..._label(context.l10n, portion, _nutrition.convention),
                 if (portion.millilitres case final volume?)
-                  KeyValueRow(label: '容量', value: '$volume mL'),
+                  KeyValueRow(
+                    label: context.l10n.volumeLabel,
+                    value: '$volume mL',
+                  ),
                 // As the maker declares them; a food nobody declared them
                 // for says nothing rather than 無.
                 if (food.barcode case final barcode?)
-                  KeyValueRow(label: '條碼', value: barcode),
+                  KeyValueRow(label: context.l10n.barcode, value: barcode),
                 if (food.allergens case final allergens?)
                   KeyValueRow(
-                    label: '過敏原',
+                    label: context.l10n.allergens,
                     value: allergens.isEmpty
-                        ? '無'
-                        : [
+                        ? context.l10n.none
+                        : joinList(context.l10n, [
                             for (final allergen in Allergen.values)
-                              if (allergens.contains(allergen)) allergen.label,
-                          ].join('、'),
+                              if (allergens.contains(allergen))
+                                allergen.labelIn(context.l10n),
+                          ]),
                   ),
               ],
             ),
@@ -417,22 +444,23 @@ class _PortionScreenState extends State<PortionScreen> {
         if (type != NutrientValueType.declared)
           Gutter(
             child: Text(switch (type) {
-              NutrientValueType.max => '標示上限值，實際可能較低。',
-              NutrientValueType.estimate => '估計值',
+              NutrientValueType.max => context.l10n.valueTypeMaxNote,
+              NutrientValueType.estimate => context.l10n.valueTypeEstimate,
               NutrientValueType.declared => '',
             }, style: AppTextStyles.caption),
           ),
         if (food.sourceUrl.isNotEmpty)
           Gutter(
             child: Text(
-              '資料來源：${food.sourceUrl}${_checked(food.checkedAt)}',
+              context.l10n.dataSource(source: food.sourceUrl) +
+                  _checked(context, food.checkedAt),
               style: AppTextStyles.caption,
             ),
           ),
         if (!food.isBuiltIn)
           Gutter(
             child: LinkText(
-              label: '刪除這個食物',
+              label: context.l10n.deleteThisFood,
               color: AppColors.textSecondary,
               onTap: _delete,
             ),
@@ -444,7 +472,9 @@ class _PortionScreenState extends State<PortionScreen> {
 
 /// `更新 2026/9/21` on a line of its own, or nothing when the figure has
 /// no date. A figure nobody can date is a figure nobody can check.
-String _checked(DateTime? at) => at == null ? '' : '\n更新 ${formatDate(at)}';
+String _checked(BuildContext context, DateTime? at) => at == null
+    ? ''
+    : '\n${context.l10n.updatedOn(date: context.dates.date(at))}';
 
 /// `31 g`, or a dash when the food has no figure for it.
 String _grams(int? amount) => amount == null ? '—' : '$amount g';

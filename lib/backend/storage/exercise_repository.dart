@@ -6,14 +6,18 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import 'database.dart';
 import '../engines/training_metrics.dart';
+import '../../l10n/l10n.dart';
 
 /// The exercise catalog: built-in, custom and imported definitions. Usage
 /// figures (last performance, record count) are derived from finished
 /// workouts, never stored on the definition.
 class ExerciseRepository {
-  ExerciseRepository(this._db);
+  ExerciseRepository(this._db, this._l10n);
 
   final AppDatabase _db;
+
+  /// The language of an exercise's last-set line.
+  final AppLocalizations _l10n;
 
   /// Every live exercise, with usage as of the database clock.
   List<ExerciseDefinition> all() {
@@ -350,7 +354,10 @@ class ExerciseRepository {
       recordCount: history.sessionCount,
       lastPerformance: last == null
           ? null
-          : '上次 ${formatWeight(last.weightKg)} kg × ${last.reps}',
+          : _l10n.exerciseLastSet(
+              weight: formatWeight(last.weightKg),
+              reps: last.reps,
+            ),
       lastUsedDaysAgo: last == null ? null : _daysBetween(last.date, _db.now()),
     );
   }

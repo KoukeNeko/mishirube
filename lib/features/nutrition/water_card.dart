@@ -4,9 +4,14 @@ import '../../app/theme.dart';
 import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// The amounts offered for one tap, named after what holds them.
-const _presets = [('一杯', 250), ('大杯', 350), ('一瓶', 500)];
+List<(String, int)> _presets(AppLocalizations l10n) => [
+  (l10n.waterGlass, 250),
+  (l10n.waterLargeGlass, 350),
+  (l10n.waterBottle, 500),
+];
 
 /// Plain water, logged in one tap.
 ///
@@ -29,7 +34,7 @@ class WaterCard extends StatelessWidget {
   void _logGlass(BuildContext context, NutritionViewModel nutrition) {
     final logged = nutrition.logWater();
     ToastScope.read(context).showUndo(
-      '已記錄 ${logged.millilitres} mL 水',
+      context.l10n.waterLogged(millilitres: logged.millilitres ?? 0),
       onUndo: () => nutrition.deleteMeals([logged]),
     );
   }
@@ -39,14 +44,15 @@ class WaterCard extends StatelessWidget {
     NutritionViewModel nutrition,
   ) async {
     final current = nutrition.glassMillilitres;
-    final isPreset = _presets.any((preset) => preset.$2 == current);
+    final isPreset = _presets(context.l10n)
+        .any((preset) => preset.$2 == current);
     await showAppDialog<void>(
       context,
       AppDialog(
-        title: '一次記多少',
+        title: context.l10n.waterPerTap,
         isChoiceList: true,
         actions: [
-          for (final (name, millilitres) in _presets)
+          for (final (name, millilitres) in _presets(context.l10n))
             DialogAction(
               icon: Icons.water_drop_outlined,
               label: name,
@@ -62,7 +68,7 @@ class WaterCard extends StatelessWidget {
             ),
           DialogAction(
             icon: Icons.edit_outlined,
-            label: '自訂',
+            label: context.l10n.customAction,
             isSelected: !isPreset,
             detail: isPreset ? null : '$current mL',
             tone: isPreset ? DialogTone.normal : DialogTone.primary,
@@ -70,7 +76,7 @@ class WaterCard extends StatelessWidget {
               Navigator.of(context).pop();
               final typed = await showTextDialog(
                 context,
-                title: '一次記多少 mL',
+                title: context.l10n.waterPerTapMl,
                 initial: '$current',
               );
               final millilitres = int.tryParse(typed?.trim() ?? '');
@@ -104,10 +110,17 @@ class WaterCard extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Expanded(child: Text('水', style: AppTextStyles.itemTitle)),
+              Expanded(
+                child: Text(
+                  context.l10n.waterSection,
+                  style: AppTextStyles.itemTitle,
+                ),
+              ),
               ChipButton(
                 label: '$glass mL ▾',
-                semanticLabel: '一次記多少，目前 $glass 毫升',
+                semanticLabel: context.l10n.waterPerTapLabel(
+                  millilitres: glass,
+                ),
                 onTap: () => _pickAmount(context, nutrition),
               ),
             ],
@@ -116,13 +129,16 @@ class WaterCard extends StatelessWidget {
           StatBlock(
             value: '${water.millilitres}',
             unit: 'mL',
-            label: '今天',
+            label: context.l10n.tabToday,
             valueStyle: AppTextStyles.hugeNumber,
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(switch (water.lastTimeLabel) {
-            final last? => '${water.times} 次 · 最近 $last',
-            null => '沒有紀錄',
+            final last? => context.l10n.waterTimesLast(
+              count: water.times,
+              time: last,
+            ),
+            null => context.l10n.noEntriesShort,
           }, style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.md),
           NutritionButton(
@@ -135,7 +151,9 @@ class WaterCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             const Divider(height: 1, color: AppColors.outline),
             LinkText(
-              label: '飲品總量 ${fluid.millilitres} mL（含咖啡、茶等）',
+              label: context.l10n.allDrinksTotal(
+                millilitres: fluid.millilitres,
+              ),
               color: AppColors.textSecondary,
               onTap: onOpenDay,
             ),

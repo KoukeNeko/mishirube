@@ -5,7 +5,6 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'camera_screen.dart';
@@ -19,20 +18,28 @@ import 'plate_screen.dart';
 import 'portion_screen.dart';
 import 'recent_meal_row.dart';
 import 'water_card.dart';
+import '../../l10n/l10n.dart';
 
 /// Which part of the list is showing. A scope narrows what is listed; it
 /// is not a separate search, and typing searches within it.
 enum _Scope {
-  all('全部', Icons.apps),
-  recent('最近', Icons.history),
-  starred('收藏', Icons.star_outline),
-  own('自己的', Icons.person_outline),
-  brands('品牌', Icons.storefront_outlined);
+  all(Icons.apps),
+  recent(Icons.history),
+  starred(Icons.star_outline),
+  own(Icons.person_outline),
+  brands(Icons.storefront_outlined);
 
-  const _Scope(this.label, this.icon);
+  const _Scope(this.icon);
 
-  final String label;
   final IconData icon;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    all => l10n.foodScopeAll,
+    recent => l10n.foodScopeRecent,
+    starred => l10n.foodScopeStarred,
+    own => l10n.foodScopeOwn,
+    brands => l10n.foodScopeBrands,
+  };
 }
 
 /// Where a meal or a drink gets logged: pick what was eaten onto a
@@ -210,7 +217,9 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       ..popUntil((route) => route == ownRoute)
       ..pop();
     toast.showUndo(
-      count == 1 ? '已記錄「${logged.single.name}」' : '已記錄 $count 項',
+      count == 1
+          ? context.l10n.loggedNamed(name: logged.single.name)
+          : context.l10n.loggedItemsCount(count: count),
       onUndo: () => _nutrition.deleteMeals(logged),
     );
   }
@@ -257,8 +266,8 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     return FoodRow(
       food: food,
       adds: last != null
-          ? addsLastPortion(last.portion)
-          : addsFirstPortion(food, sizeCount: sizeCount),
+          ? addsLastPortion(context.l10n, last.portion)
+          : addsFirstPortion(context.l10n, food, sizeCount: sizeCount),
       isOnPlate: _isOnPlate(food),
       onTap: () async {
         await _choose(food, last: last);
@@ -285,15 +294,19 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     Navigator.of(context).pop();
     toast.showUndo(
       logged.length == 1
-          ? '已記錄「${logged.single.name}」'
-          : '已記錄 ${logged.length} 項',
+          ? context.l10n.loggedNamed(name: logged.single.name)
+          : context.l10n.loggedItemsCount(count: logged.length),
       onUndo: () => _nutrition.deleteMeals(logged),
     );
   }
 
   /// A photo of the meal, drafted item by item on the draft page.
   Future<void> _photo() async {
-    final path = await takePhoto(context, '食物', maxSide: foodPhotoMaxSide);
+    final path = await takePhoto(
+      context,
+      context.l10n.scanFood,
+      maxSide: foodPhotoMaxSide,
+    );
     if (path == null || !mounted) return;
     await _describe(photoPath: path);
   }
@@ -304,13 +317,13 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       FoodEditScreen(initialName: _query.text.trim(), logsOnce: true, at: _at),
     );
     if (logged == null || !mounted) return;
-    showToast(context, '已記錄', kind: ToastKind.success);
+    showToast(context, context.l10n.loggedToast, kind: ToastKind.success);
   }
 
   void _logAgain(RecentMeal recent) {
     final logged = _nutrition.copyMeal(recent.meal, at: _at);
     ToastScope.read(context).showUndo(
-      '已記錄「${recent.label}」',
+      context.l10n.loggedNamed(name: recent.label),
       onUndo: () => _nutrition.deleteMeals([logged]),
     );
   }
@@ -318,7 +331,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
     _nutrition.setMealFavorite(recent.meal, isFavorite: isFavorite);
-    showToast(context, isFavorite ? '已加入收藏' : '已取消收藏');
+    showToast(
+      context,
+      isFavorite ? context.l10n.favoriteAdded : context.l10n.favoriteRemoved,
+    );
   }
 
   @override
@@ -332,12 +348,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final query = _query.text.trim();
     return PageScaffold(
       appBar: PageAppBar(
-        title: _mealType?.label ?? '飲食',
+        title: _mealType?.labelIn(context.l10n) ?? context.l10n.moduleNutrition,
         actions: [
           HeaderAction(
             icon: Icons.expand_more,
-            label: _mealType?.label ?? '餐次',
-            semanticLabel: '這是哪一餐，目前${_mealType?.label ?? '不指定'}',
+            label:
+                _mealType?.labelIn(context.l10n) ??
+                context.l10n.mealTypeOptional,
+            semanticLabel: context.l10n.mealTypeHeaderLabel(
+              meal:
+                  _mealType?.labelIn(context.l10n) ?? context.l10n.unspecified,
+            ),
             onTap: _pickMealType,
           ),
         ],
@@ -345,7 +366,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       // Searching is the main job here, so the field stays pinned under
       // the bar the way the log's view switch does.
       pinned: Gutter(
-        child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
+        child: SearchField(
+          controller: _query,
+          hint: context.l10n.searchFoodHint,
+        ),
       ),
       pinnedHeight: measurePinnedSearchHeight(),
       footer: switch (_plateBar()) {
@@ -356,7 +380,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         FilterChipBar<_Scope>(
           options: _Scope.values,
           selected: _scope,
-          labelOf: (scope) => scope.label,
+          labelOf: (scope) => scope.labelIn(context.l10n),
           iconOf: (scope) => scope.icon,
           onSelected: (scope) => setState(() => _scope = scope),
         ),
@@ -384,17 +408,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
                 if (readsPhotos.data ?? false)
                   _WayIn(
                     icon: Icons.photo_camera_outlined,
-                    label: '拍照',
+                    label: context.l10n.takePhotoAction,
                     onTap: _photo,
                   ),
                 _WayIn(
                   icon: Icons.auto_awesome_outlined,
-                  label: '一句話',
+                  label: context.l10n.describeInWords,
                   onTap: _describe,
                 ),
                 _WayIn(
                   icon: Icons.edit_note_outlined,
-                  label: '快速記錄',
+                  label: context.l10n.qualityQuickLog,
                   onTap: _quickAdd,
                 ),
               ],
@@ -404,7 +428,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         // A whole meal eaten before is the fastest record there is.
         if (_nutrition.recentMeals.take(_mealPreview).toList() case final meals
             when meals.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('近期用餐')),
+          Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         // Water gets a card of its own: it is the most repeated record
@@ -414,55 +438,66 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             onOpenDay: () => pushPage(context, const DailyNutritionScreen()),
           ),
         ),
-        ..._section('最近', [for (final r in recent.take(_preview)) r.food]),
-        ..._section('收藏', starred.take(_preview).toList()),
+        ..._section(context.l10n.foodScopeRecent, [
+          for (final r in recent.take(_preview)) r.food,
+        ]),
+        ..._section(
+          context.l10n.foodScopeStarred,
+          starred.take(_preview).toList(),
+        ),
         // Chains are found by typing their name or under 「品牌」, not
         // listed here: they are browsed rarely, and 「全部」 is for what the
         // user eats.
-        ..._section('自己的', own.toList()),
+        ..._section(context.l10n.foodScopeOwn, own.toList()),
         if (recent.isEmpty && starred.isEmpty && own.isEmpty)
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: '沒有食物',
-              action: PrimaryButton(label: '新增食物', onPressed: _create),
+              title: context.l10n.noFoods,
+              action: PrimaryButton(
+                label: context.l10n.newFood,
+                onPressed: _create,
+              ),
             ),
           ),
       ],
       _Scope.recent => [
-        ..._section('吃過的食物', [for (final r in recent) r.food]),
+        ..._section(context.l10n.eatenFoods, [for (final r in recent) r.food]),
         if (_nutrition.recentMeals case final meals when meals.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('近期用餐')),
+          Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (recent.isEmpty && _nutrition.recentMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '沒有最近吃過的食物。')),
+          Gutter(child: InfoBanner(message: context.l10n.noRecentFoods)),
       ],
       _Scope.starred => [
-        ..._section('收藏的食物', starred),
+        ..._section(context.l10n.starredFoods, starred),
         if (_nutrition.favoriteMeals case final meals
             when meals.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('收藏的餐')),
+          Gutter(child: SectionLabel(context.l10n.starredMeals)),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
         if (starred.isEmpty && _nutrition.favoriteMeals.isEmpty)
-          Gutter(child: const InfoBanner(message: '沒有收藏。')),
+          Gutter(child: InfoBanner(message: context.l10n.noFavorites)),
       ],
       _Scope.own => [
-        ..._section('自己的', own.toList()),
+        ..._section(context.l10n.foodScopeOwn, own.toList()),
         if (own.isEmpty)
           Gutter(
             child: EmptyStateCard(
               icon: Icons.restaurant_outlined,
-              title: '沒有自己的食物',
-              action: PrimaryButton(label: '新增食物', onPressed: _create),
+              title: context.l10n.noOwnFoods,
+              action: PrimaryButton(
+                label: context.l10n.newFood,
+                onPressed: _create,
+              ),
             ),
           ),
       ],
       _Scope.brands => [
         ..._brands(store),
         if (store.catalogues.isEmpty)
-          Gutter(child: const InfoBanner(message: '沒有內建的連鎖品牌。')),
+          Gutter(child: InfoBanner(message: context.l10n.noBuiltInBrands)),
       ],
     };
   }
@@ -489,14 +524,16 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         : const <String>[];
     final labels = {
       for (final catalogue in AppStoreScope.of(context).catalogues)
-        catalogue.brand: catalogue.label,
+        catalogue.brand: catalogue.labelIn(context.l10n),
     };
     return [
       for (final brand in brands)
         Gutter(
           child: NavCard(
-            title: '${labels[brand] ?? brand} · 查看完整菜單',
-            subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料',
+            title: context.l10n.viewFullMenu(brand: labels[brand] ?? brand),
+            subtitle:
+                '${context.l10n.productsCount(count: _nutrition.menuOf(brand).length)}'
+                ' · ${context.l10n.officialData}',
             onTap: () => _openBrand(brand),
           ),
         ),
@@ -505,16 +542,19 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         Gutter(
           child: EmptyStateCard(
             icon: Icons.search_off,
-            title: '沒有符合的項目',
-            action: PrimaryButton(label: '新增食物', onPressed: _create),
+            title: context.l10n.noMatchingItems,
+            action: PrimaryButton(
+              label: context.l10n.newFood,
+              onPressed: _create,
+            ),
           ),
         )
       else
         Gutter(
           child: Row(
             children: [
-              const Text('找不到？', style: AppTextStyles.caption),
-              LinkText(label: '新增食物', onTap: _create),
+              Text(context.l10n.notFoundQuestion, style: AppTextStyles.caption),
+              LinkText(label: context.l10n.newFood, onTap: _create),
             ],
           ),
         ),
@@ -535,16 +575,18 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     for (final country in {
       for (final catalogue in store.catalogues) catalogue.country,
     }) ...[
-      Gutter(child: SectionLabel(countryName(country))),
+      Gutter(child: SectionLabel(countryName(context.l10n, country))),
       for (final catalogue in store.catalogues.where(
         (catalogue) => catalogue.country == country,
       ))
         Gutter(
           child: NavCard(
-            title: catalogue.label,
+            title: catalogue.labelIn(context.l10n),
             subtitle: [
-              '${catalogue.products} 款 · 官方資料',
-              if (catalogue.checkedAt case final at?) '更新 ${formatDate(at)}',
+              '${context.l10n.productsCount(count: catalogue.products)} · '
+                  '${context.l10n.officialData}',
+              if (catalogue.checkedAt case final at?)
+                context.l10n.updatedOn(date: context.dates.date(at)),
             ].join('\n'),
             onTap: () => _openBrand(catalogue.brand),
           ),

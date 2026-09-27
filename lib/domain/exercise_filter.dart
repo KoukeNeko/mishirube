@@ -26,14 +26,6 @@ class ExerciseFilter {
 
   bool get isEmpty => activeCount == 0;
 
-  String get summary => [
-    if (muscles.isNotEmpty) muscles.map((m) => m.label).join('、'),
-    if (equipment.isNotEmpty) equipment.map((e) => e.label).join('、'),
-    if (patterns.isNotEmpty) patterns.map((p) => p.label).join('、'),
-    if (trackingTypes.isNotEmpty) trackingTypes.map((t) => t.label).join('、'),
-    if (sources.isNotEmpty) sources.map((s) => s.label).join('、'),
-  ].join(' · ');
-
   bool matches(ExerciseDefinition exercise) =>
       (muscles.isEmpty ||
           exercise.primaryMuscles.any(

@@ -19,6 +19,7 @@ import 'sleep_shortfall_screen.dart';
 import 'sleep_stage_chart.dart';
 import 'sleep_goal_rows.dart';
 import 'sleep_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// One day's sleep: the night, what each stage took, what was measured
 /// overnight, the day's naps, how nights have gone lately, and which
@@ -76,7 +77,7 @@ class _SleepScreenState extends State<SleepScreen> {
     final id = record.entry.id;
     _model.delete(id);
     toast.showUndo(
-      '已刪除${record.entry.kind.label}',
+      context.l10n.deletedItem(item: record.entry.kind.labelIn(context.l10n)),
       onUndo: () => _model.restore(id),
     );
   }
@@ -91,8 +92,8 @@ class _SleepScreenState extends State<SleepScreen> {
     final naps = _model.naps;
     return PageScaffold(
       appBar: PageAppBar(
-        title: '睡眠',
-        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+        title: context.l10n.moduleSleep,
+        subtitle: context.dates.dayWithWeekday(day),
       ),
       // The same week header as 飲食: any night is a swipe away.
       pinned: WeekDayStrip(
@@ -112,9 +113,9 @@ class _SleepScreenState extends State<SleepScreen> {
           Gutter(
             child: EmptyStateCard(
               icon: Icons.bedtime_outlined,
-              title: '沒有睡眠紀錄',
+              title: context.l10n.noSleepRecords,
               action: PrimaryButton(
-                label: '手動記錄',
+                label: context.l10n.logByHand,
                 onPressed: () => pushPage(context, const SleepEntryScreen()),
               ),
             ),
@@ -123,7 +124,7 @@ class _SleepScreenState extends State<SleepScreen> {
           Gutter(
             child: Center(
               child: LinkText(
-                label: '資料來源',
+                label: context.l10n.dataSourcesLink,
                 onTap: () => pushPage(context, const DataSourcesScreen()),
               ),
             ),
@@ -148,7 +149,7 @@ class _SleepScreenState extends State<SleepScreen> {
         ],
         if (_model.shortfall(shortfallDays).recorded > 0)
           PageSection(
-            label: '睡眠債',
+            label: context.l10n.sleepDebtSection,
             children: [
               Gutter(
                 child: SleepShortfallCard(
@@ -162,12 +163,14 @@ class _SleepScreenState extends State<SleepScreen> {
         ..._tonight(),
         if (naps.isNotEmpty)
           PageSection(
-            label: '小睡',
+            label: context.l10n.napsSection,
             children: [
               for (final nap in naps)
                 Gutter(
                   child: NavCard(
-                    title: _span(nap.entry) ?? nap.entry.kind.label,
+                    title:
+                        _span(nap.entry) ??
+                        nap.entry.kind.labelIn(context.l10n),
                     subtitle: nap.shownSource?.sourceName,
                     trailing: Text(
                       formatHoursMinutes(nap.entry.duration),
@@ -180,7 +183,7 @@ class _SleepScreenState extends State<SleepScreen> {
         _History(model: _model),
         ..._factors(),
         PageSection(
-          label: '目標',
+          label: context.l10n.goalSection,
           children: [
             Gutter(
               child: GroupedCard(children: sleepGoalRows(context, _model)),
@@ -190,20 +193,20 @@ class _SleepScreenState extends State<SleepScreen> {
         if (night != null) ..._sources(night),
         if (night != null)
           PageSection(
-            label: '管理',
+            label: context.l10n.manageSection,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     NavRow(
-                      title: '編輯',
+                      title: context.l10n.commonEdit,
                       onTap: () => pushPage(
                         context,
                         SleepEntryScreen(editing: night.entry),
                       ),
                     ),
                     NavRow(
-                      title: '刪除這筆紀錄',
+                      title: context.l10n.recordDelete,
                       isDestructive: true,
                       onTap: () => _delete(night),
                     ),
@@ -224,8 +227,13 @@ class _SleepScreenState extends State<SleepScreen> {
     if (!record.hasStages) {
       return [
         Gutter(
-          child: const GroupedCard(
-            children: [KeyValueRow(label: '睡眠階段', value: '未提供')],
+          child: GroupedCard(
+            children: [
+              KeyValueRow(
+                label: context.l10n.sleepStagesSection,
+                value: context.l10n.notProvided,
+              ),
+            ],
           ),
         ),
       ];
@@ -236,7 +244,7 @@ class _SleepScreenState extends State<SleepScreen> {
         .fold(Duration.zero, (sum, entry) => sum + entry.value);
     return [
       PageSection(
-        label: '睡眠階段',
+        label: context.l10n.sleepStagesSection,
         children: [
           Gutter(
             child: AppCard(child: SleepStageChart(stages: record.stages)),
@@ -246,7 +254,7 @@ class _SleepScreenState extends State<SleepScreen> {
               children: [
                 for (final MapEntry(key: stage, value: time) in totals.entries)
                   KeyValueRow(
-                    label: stage.label,
+                    label: stage.labelIn(context.l10n),
                     // A stage's share is of time asleep; time awake is
                     // not part of it.
                     value: stage.isAsleep && asleep > Duration.zero
@@ -272,27 +280,33 @@ class _SleepScreenState extends State<SleepScreen> {
     final awake = continuity.awake;
     final rows = [
       if (latency != null)
-        KeyValueRow(label: '入睡所需', value: '約 ${latency.inMinutes} 分'),
+        KeyValueRow(
+          label: context.l10n.fallAsleepTime,
+          value: context.l10n.aboutMinutes(minutes: latency.inMinutes),
+        ),
       if (efficiency != null)
-        KeyValueRow(label: '睡眠效率', value: '${(efficiency * 100).round()}%'),
+        KeyValueRow(
+          label: context.l10n.sleepEfficiency,
+          value: '${(efficiency * 100).round()}%',
+        ),
       if (awake != null)
         KeyValueRow(
-          label: '夜間清醒',
+          label: context.l10n.awakeAtNight,
           value: [
             formatHoursMinutes(awake),
             if (continuity.awakenings case final times? when times > 0)
-              '醒來 $times 次',
+              context.l10n.wokeTimes(count: times),
           ].join(' · '),
         ),
     ];
     if (rows.isEmpty) return const [];
     return [
       PageSection(
-        label: '連續性',
+        label: context.l10n.continuitySection,
         children: [
           Gutter(child: GroupedCard(children: rows)),
           if (latency != null || efficiency != null)
-            Gutter(child: const TagWrap(labels: ['依裝置的在床時間估算'])),
+            Gutter(child: TagWrap(labels: [context.l10n.estimatedFromInBed])),
         ],
       ),
     ];
@@ -304,21 +318,21 @@ class _SleepScreenState extends State<SleepScreen> {
     if (plan == null) return const [];
     return [
       PageSection(
-        label: '今晚',
+        label: context.l10n.tonightSection,
         children: [
           Gutter(
             child: GroupedCard(
               children: [
                 KeyValueRow(
-                  label: '建議就寢',
+                  label: context.l10n.suggestedBedtime,
                   value:
                       '${formatTimeOfDay(plan.bedtime)} · '
-                      '${formatTimeOfDay(plan.wake)} 起床',
+                      '${context.l10n.wakeAt(time: formatTimeOfDay(plan.wake))}',
                 ),
               ],
             ),
           ),
-          Gutter(child: const TagWrap(labels: ['依平常的起床時間'])),
+          Gutter(child: TagWrap(labels: [context.l10n.fromUsualWake])),
         ],
       ),
     ];
@@ -331,53 +345,64 @@ class _SleepScreenState extends State<SleepScreen> {
     final factors = _model.factors;
     final rows = [
       for (final (label, comparison) in [
-        ('訓練後', factors.training),
-        ('14:00 後有咖啡因', factors.lateCaffeine),
-        ('21:00 後進食', factors.lateMeal),
+        (context.l10n.afterTraining, factors.training),
+        (context.l10n.caffeineAfter2pm, factors.lateCaffeine),
+        (context.l10n.mealAfter9pm, factors.lateMeal),
       ])
         if (comparison != null)
           KeyValueRow(
             label: label,
             value:
-                '${_signed(comparison.difference)} · '
-                '${comparison.withCount} 晚對 ${comparison.withoutCount} 晚',
+                '${_signed(context.l10n, comparison.difference)} · '
+                '${context.l10n.nightsVersus(withCount: comparison.withCount, withoutCount: comparison.withoutCount)}',
           ),
     ];
     if (rows.isEmpty) return const [];
     return [
       PageSection(
-        label: '影響因素',
+        label: context.l10n.factorsSection,
         children: [
           Gutter(child: GroupedCard(children: rows)),
-          Gutter(child: const TagWrap(labels: ['近 90 天的平均睡著時間差', '相關，不代表因果'])),
+          Gutter(
+            child: TagWrap(
+              labels: [
+                context.l10n.factorsBasis,
+                context.l10n.correlationNotCause,
+              ],
+            ),
+          ),
         ],
       ),
     ];
   }
 
-  static String _signed(Duration difference) => difference.isNegative
-      ? '少睡 ${formatHoursMinutes(-difference)}'
-      : '多睡 ${formatHoursMinutes(difference)}';
+  static String _signed(AppLocalizations l10n, Duration difference) =>
+      difference.isNegative
+      ? l10n.sleptLess(time: formatHoursMinutes(-difference))
+      : l10n.sleptMore(time: formatHoursMinutes(difference));
 
   List<Widget> _readings(SleepRecord record) {
     if (record.readings.isEmpty) return const [];
     return [
       PageSection(
-        label: '夜間數據',
+        label: context.l10n.healthDataOvernight,
         children: [
           Gutter(
             child: GroupedCard(
               children: [
                 for (final reading in record.readings)
                   KeyValueRow(
-                    label: reading.measure.label,
+                    label: reading.measure.labelIn(context.l10n),
                     value: [
-                      overnightValue(reading),
+                      overnightValue(context.l10n, reading),
                       if (_model.baseline(reading.measure) case final usual?
                           when reading.measure !=
                               OvernightMeasure.breathingDisturbances)
-                        '平常 ${_number(reading.measure, usual.low)}–'
-                            '${_number(reading.measure, usual.high)}',
+                        context.l10n.usualRangeValue(
+                          range:
+                              '${_number(reading.measure, usual.low)}–'
+                              '${_number(reading.measure, usual.high)}',
+                        ),
                     ].join(' · '),
                   ),
               ],
@@ -395,11 +420,16 @@ class _SleepScreenState extends State<SleepScreen> {
     if (record.isTypedIn) {
       return [
         PageSection(
-          label: '來源',
+          label: context.l10n.journalSourceRow,
           children: [
             Gutter(
-              child: const GroupedCard(
-                children: [KeyValueRow(label: '紀錄方式', value: '手動輸入')],
+              child: GroupedCard(
+                children: [
+                  KeyValueRow(
+                    label: context.l10n.recordMethod,
+                    value: context.l10n.sourceManual,
+                  ),
+                ],
               ),
             ),
           ],
@@ -409,7 +439,7 @@ class _SleepScreenState extends State<SleepScreen> {
     final shown = record.shownSource;
     return [
       PageSection(
-        label: '來源',
+        label: context.l10n.journalSourceRow,
         children: [
           Gutter(
             child: GroupedCard(
@@ -425,10 +455,10 @@ class _SleepScreenState extends State<SleepScreen> {
                         '${formatTimeOfDay(source.start)} – '
                             '${formatTimeOfDay(source.end)}',
                         source.isManual
-                            ? '手動輸入'
+                            ? context.l10n.sourceManual
                             : source.hasStages
-                            ? '含睡眠階段'
-                            : source.measure.label,
+                            ? context.l10n.withStages
+                            : source.measure.labelIn(context.l10n),
                       ].join(' · '),
                       trailing: source.source == shown?.source
                           ? const Icon(Icons.check, color: AppColors.training)
@@ -477,17 +507,18 @@ String _range(OvernightMeasure measure, double low, double high) {
 /// What was measured, as the platform reports it: a range, or one value
 /// when the range is a single one; Apple's own reading for breathing
 /// disturbances.
-String overnightValue(OvernightReading reading) {
+String overnightValue(AppLocalizations l10n, OvernightReading reading) {
   final measure = reading.measure;
   if (measure == OvernightMeasure.breathingDisturbances) {
     return switch (reading.isElevated) {
-      true => '升高',
-      false => '未升高',
+      true => l10n.elevated,
+      false => l10n.notElevated,
       null => formatAmount(reading.average),
     };
   }
   final range = _range(measure, reading.minimum, reading.maximum);
-  return measure.unit.isEmpty ? range : '$range ${measure.unit}';
+  final unit = measure.unitIn(l10n);
+  return unit.isEmpty ? range : '$range $unit';
 }
 
 /// The night's length, what it measures and when it began and ended, and
@@ -512,37 +543,49 @@ class _Summary extends StatelessWidget {
   final List<SleepRecord> naps;
 
   /// The night against the usual one, when both measure time asleep.
-  String? _againstUsual(SleepEntry entry) {
+  String? _againstUsual(AppLocalizations l10n, SleepEntry entry) {
     final usual = this.usual;
     if (usual == null || entry.measure != SleepMeasure.asleep) return null;
     final gap = entry.duration - usual;
-    if (gap.inMinutes.abs() < 1) return '與近 28 晚平均相同';
-    return '較近 28 晚平均 ${gap.isNegative ? '−' : '+'}'
-        '${formatHoursMinutes(gap.abs())}';
+    if (gap.inMinutes.abs() < 1) return l10n.sameAsUsual;
+    return l10n.versusUsual(
+      change: '${gap.isNegative ? '−' : '+'}${formatHoursMinutes(gap.abs())}',
+    );
   }
 
   /// The night against the goal: time in bed is not measured against a
   /// goal for sleep.
-  String? _againstGoal(SleepEntry entry) {
+  String? _againstGoal(AppLocalizations l10n, SleepEntry entry) {
     final goal = this.goal;
     if (goal == null || entry.measure != SleepMeasure.asleep) return null;
     final gap = entry.duration - goal;
-    if (gap >= Duration.zero) return '目標 ${formatHoursMinutes(goal)} · 達成';
-    return '目標 ${formatHoursMinutes(goal)} · 少 ${formatHoursMinutes(-gap)}';
+    if (gap >= Duration.zero) {
+      return l10n.goalMet(goal: formatHoursMinutes(goal));
+    }
+    return l10n.goalShort(
+      goal: formatHoursMinutes(goal),
+      gap: formatHoursMinutes(-gap),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final entry = record.entry;
-    final label = record.isTypedIn ? '紀錄的睡眠' : entry.measure.label;
+    final label = record.isTypedIn
+        ? context.l10n.recordedSleep
+        : entry.measure.labelIn(context.l10n);
     final tags = [
       if (record.isTypedIn)
-        '手動輸入'
+        context.l10n.sourceManual
       else if (record.shownSource case final source?) ...[
         if (source.sourceName.isNotEmpty) source.sourceName,
-        if (source.isManual) '手動輸入' else if (record.hasStages) '裝置估計',
+        if (source.isManual)
+          context.l10n.sourceManual
+        else if (record.hasStages)
+          context.l10n.deviceEstimate,
       ],
-      if (entry.score case final score?) '品質 $score / 5',
+      if (entry.score case final score?)
+        context.l10n.sleepQualityScore(score: score),
     ];
     return AppCard(
       child: Column(
@@ -556,13 +599,20 @@ class _Summary extends StatelessWidget {
             [label, ?_span(entry)].join(' · '),
             style: AppTextStyles.caption,
           ),
-          if (_againstGoal(entry) case final line?)
+          if (_againstGoal(context.l10n, entry) case final line?)
             Text(line, style: AppTextStyles.caption),
-          if (_againstUsual(entry) case final line?)
+          if (_againstUsual(context.l10n, entry) case final line?)
             Text(line, style: AppTextStyles.caption),
           if (naps.isNotEmpty)
             Text(
-              '含小睡共 ${formatHoursMinutes(naps.fold(entry.duration, (sum, nap) => sum + nap.entry.duration))}',
+              context.l10n.withNapsTotal(
+                time: formatHoursMinutes(
+                  naps.fold(
+                    entry.duration,
+                    (sum, nap) => sum + nap.entry.duration,
+                  ),
+                ),
+              ),
               style: AppTextStyles.caption,
             ),
           if (tags.isNotEmpty) ...[
@@ -580,14 +630,19 @@ class _Summary extends StatelessWidget {
 }
 
 enum _Range {
-  week('週', 7),
-  month('月', 30),
-  halfYear('6 個月', 182);
+  week(7),
+  month(30),
+  halfYear(182);
 
-  const _Range(this.label, this.days);
+  const _Range(this.days);
 
-  final String label;
   final int days;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    week => l10n.chartRangeWeek,
+    month => l10n.chartRangeMonth,
+    halfYear => l10n.chartRangeSixMonths,
+  };
 }
 
 /// How nights have gone up to the day shown: each night's length, their
@@ -611,21 +666,26 @@ class _HistoryState extends State<_History> {
     final start = end.subtract(Duration(days: _range.days));
     final nights = widget.model.nightsAsleep(_range.days);
     return PageSection(
-      label: '趨勢',
+      label: context.l10n.tabTrends,
       children: [
         Gutter(
           child: SegmentedChoice<_Range>(
             options: _Range.values,
             selected: _range,
-            labelOf: (range) => range.label,
+            labelOf: (range) => range.labelIn(context.l10n),
             onChanged: (range) => setState(() => _range = range),
             selectedColor: AppColors.wellness,
           ),
         ),
         if (nights.isEmpty)
           Gutter(
-            child: const GroupedCard(
-              children: [KeyValueRow(label: '睡著時間', value: '沒有紀錄')],
+            child: GroupedCard(
+              children: [
+                KeyValueRow(
+                  label: context.l10n.sleepMeasureAsleep,
+                  value: context.l10n.noEntriesShort,
+                ),
+              ],
             ),
           )
         else ...[
@@ -637,7 +697,7 @@ class _HistoryState extends State<_History> {
             child: GroupedCard(
               children: [
                 KeyValueRow(
-                  label: '平均睡著時間',
+                  label: context.l10n.averageTimeAsleep,
                   value: formatHoursMinutes(
                     nights.fold(
                           Duration.zero,
@@ -652,23 +712,33 @@ class _HistoryState extends State<_History> {
                       for (final night in nights) ?night.startedAt,
                     ], fromHour: 12)
                     case final bedtime?)
-                  KeyValueRow(label: '平均入睡', value: bedtime),
+                  KeyValueRow(
+                    label: context.l10n.averageBedtime,
+                    value: bedtime,
+                  ),
                 if (_averageClock([
                       for (final night in nights) night.sleptAt,
                     ], fromHour: 0)
                     case final wake?)
-                  KeyValueRow(label: '平均起床', value: wake),
+                  KeyValueRow(label: context.l10n.averageWake, value: wake),
                 if (regularityOf(nights) case final regularity?) ...[
                   KeyValueRow(
-                    label: '入睡時間變動',
-                    value: '±${regularity.bedtimeSpread.inMinutes} 分',
+                    label: context.l10n.bedtimeSpread,
+                    value: context.l10n.plusMinusMinutes(
+                      minutes: regularity.bedtimeSpread.inMinutes,
+                    ),
                   ),
                   KeyValueRow(
-                    label: '起床時間變動',
-                    value: '±${regularity.wakeSpread.inMinutes} 分',
+                    label: context.l10n.wakeSpread,
+                    value: context.l10n.plusMinusMinutes(
+                      minutes: regularity.wakeSpread.inMinutes,
+                    ),
                   ),
                 ],
-                KeyValueRow(label: '紀錄晚數', value: '${nights.length} 晚'),
+                KeyValueRow(
+                  label: context.l10n.nightsRecorded,
+                  value: context.l10n.nightsCount(count: nights.length),
+                ),
               ],
             ),
           ),
@@ -688,7 +758,9 @@ class _HistoryState extends State<_History> {
     return ChartScrubber(
       count: bars.length,
       indexAt: ChartScrubber.slots(bars.length),
-      idle: '平均 ${formatHoursMinutes(average)} · ${nights.length} 晚',
+      idle:
+          '${context.l10n.statAverage(value: formatHoursMinutes(average))} · '
+          '${context.l10n.nightsCount(count: nights.length)}',
       readoutOf: (index) => bars[index].readout,
       builder: (context, selected) => MiniBarChart(
         bars: [for (final bar in bars) (bar.label, bar.minutes)],
@@ -714,10 +786,12 @@ class _HistoryState extends State<_History> {
         timed.length,
         SleepScheduleChart.rowExtentFor(timed.length),
       ),
-      idle: '入睡與起床 · ${timed.length} 晚',
+      idle:
+          '${context.l10n.bedAndWake} · '
+          '${context.l10n.nightsCount(count: timed.length)}',
       readoutOf: (index) {
         final night = timed[index];
-        return '${_date(night.sleptAt)} · '
+        return '${context.dates.dayWithWeekday(night.sleptAt)} · '
             '${formatTimeOfDay(night.startedAt!)}–'
             '${formatTimeOfDay(night.sleptAt)} · '
             '${formatHoursMinutes(night.duration)}';
@@ -741,7 +815,9 @@ class _HistoryState extends State<_History> {
             for (final MapEntry(key: stage, value: time)
                 in average.stages.entries)
               KeyValueRow(
-                label: '平均${stage.label}',
+                label: context.l10n.averageStage(
+                  stage: stage.labelIn(context.l10n),
+                ),
                 value: stage.isAsleep && asleep > Duration.zero
                     ? '${formatHoursMinutes(time)} · '
                           '${(time.inSeconds * 100 / asleep.inSeconds).round()}%'
@@ -750,7 +826,14 @@ class _HistoryState extends State<_History> {
           ],
         ),
       ),
-      Gutter(child: TagWrap(labels: ['${average.nights} 晚有睡眠階段', '裝置估計'])),
+      Gutter(
+        child: TagWrap(
+          labels: [
+            context.l10n.nightsWithStages(count: average.nights),
+            context.l10n.deviceEstimate,
+          ],
+        ),
+      ),
     ];
   }
 
@@ -766,7 +849,7 @@ class _HistoryState extends State<_History> {
     if (rows.isEmpty) return const [];
     String withUnit(OvernightMeasure measure, double value) =>
         '${_number(measure, value)}'
-        '${measure.unit.isEmpty ? '' : ' ${measure.unit}'}';
+        '${measure.unitIn(context.l10n).isEmpty ? '' : ' ${measure.unitIn(context.l10n)}'}';
     return [
       for (final (measure, readings) in rows)
         Gutter(
@@ -774,18 +857,24 @@ class _HistoryState extends State<_History> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(measure.label, style: AppTextStyles.itemTitle),
+                Text(
+                  measure.labelIn(context.l10n),
+                  style: AppTextStyles.itemTitle,
+                ),
                 const SizedBox(height: AppSpacing.xxs),
                 Semantics(
-                  label: '${measure.label}走勢，${readings.length} 晚',
+                  label: context.l10n.trendOverNights(
+                    measure: measure.labelIn(context.l10n),
+                    count: readings.length,
+                  ),
                   child: ChartScrubber(
                     count: readings.length,
                     indexAt: ChartScrubber.points(readings.length),
                     idle:
-                        '平均 ${withUnit(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length)}'
-                        ' · ${readings.length} 晚',
+                        '${context.l10n.statAverage(value: withUnit(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length))}'
+                        ' · ${context.l10n.nightsCount(count: readings.length)}',
                     readoutOf: (index) =>
-                        '${_date(readings[index].$1)} · '
+                        '${context.dates.dayWithWeekday(readings[index].$1)} · '
                         '${withUnit(measure, readings[index].$2)}',
                     builder: (context, selected) => Sparkline(
                       values: [for (final (_, value) in readings) value],
@@ -824,11 +913,11 @@ class _HistoryState extends State<_History> {
       return [
         for (final day in days)
           (
-            label: weekdayLabel(day),
+            label: context.dates.weekday(day),
             minutes: byDay[day] ?? 0,
             readout:
-                '${_date(day)} · '
-                '${byDay[day] == null ? '沒有紀錄' : length(byDay[day]!)}',
+                '${context.dates.dayWithWeekday(day)} · '
+                '${byDay[day] == null ? context.l10n.noEntriesShort : length(byDay[day]!)}',
           ),
       ];
     }
@@ -847,17 +936,13 @@ class _HistoryState extends State<_History> {
             label: '',
             minutes: average,
             readout:
-                '${first.month} 月 ${first.day} 日起一週 · '
-                '${minutes.isEmpty ? '沒有紀錄' : '平均 ${length(average)} · ${minutes.length} 晚'}',
+                '${context.l10n.weekOf(date: context.dates.monthDay(first))} · '
+                '${minutes.isEmpty ? context.l10n.noEntriesShort : '${context.l10n.statAverage(value: length(average))} · ${context.l10n.nightsCount(count: minutes.length)}'}',
           );
         }(),
     ];
   }
 }
-
-/// `9 月 22 日（週一）`.
-String _date(DateTime day) =>
-    '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）';
 
 /// The average time of day of [times], counted from [fromHour] so the
 /// times fall in one unbroken stretch: from noon, 23:30 and 00:30 average
@@ -890,9 +975,17 @@ class _NightCharts extends StatelessWidget {
   final DateTime from;
   final DateTime to;
 
-  static const _shown = [
-    (OvernightMeasure.heartRate, '睡眠時心率', AppColors.heart),
-    (OvernightMeasure.respiratoryRate, '睡眠時呼吸速率', AppColors.activity),
+  static final _shown = [
+    (
+      OvernightMeasure.heartRate,
+      (AppLocalizations l10n) => l10n.heartRateAsleep,
+      AppColors.heart,
+    ),
+    (
+      OvernightMeasure.respiratoryRate,
+      (AppLocalizations l10n) => l10n.respiratoryAsleep,
+      AppColors.activity,
+    ),
   ];
 
   @override
@@ -908,7 +1001,7 @@ class _NightCharts extends StatelessWidget {
               if (byMeasure[measure] case final points? when points.isNotEmpty)
                 Gutter(
                   child: _NightChartCard(
-                    title: title,
+                    title: title(context.l10n),
                     measure: measure,
                     color: color,
                     points: points,
@@ -954,14 +1047,16 @@ class _NightChartCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             '${_range(measure, values.reduce(math.min), values.reduce(math.max))} '
-            '${measure.unit}',
+            '${measure.unitIn(context.l10n)}',
             style: AppTextStyles.itemTitle,
           ),
           const SizedBox(height: AppSpacing.md),
           ChartScrubber(
             count: ranges.length,
             indexAt: ChartScrubber.slots(ranges.length),
-            idle: '每 ${(stretch.inSeconds / 60).round()} 分',
+            idle: context.l10n.everyMinutes(
+              minutes: (stretch.inSeconds / 60).round(),
+            ),
             readoutOf: (index) {
               final start = from.add(stretch * index);
               return [
@@ -969,8 +1064,8 @@ class _NightChartCard extends StatelessWidget {
                     '${formatTimeOfDay(start.add(stretch))}',
                 switch (ranges[index]) {
                   (final low, final high) =>
-                    '${_range(measure, low, high)} ${measure.unit}',
-                  null => '沒有紀錄',
+                    '${_range(measure, low, high)} ${measure.unitIn(context.l10n)}',
+                  null => context.l10n.noEntriesShort,
                 },
               ].join(' · ');
             },

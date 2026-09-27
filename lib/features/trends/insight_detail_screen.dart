@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_proposal_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Explains one insight: conclusion, evidence, data quality and next step.
 class InsightDetailScreen extends StatelessWidget {
@@ -25,9 +26,14 @@ class InsightDetailScreen extends StatelessWidget {
     final store = AppStoreScope.of(context);
     final report = trends.volumeReport(exerciseId: exerciseId);
     if (report == null) {
-      return const DetailPage(
-        appBar: PageAppBar(title: '訓練量', subtitle: '值得注意'),
-        children: [Gutter(child: InfoBanner(message: '訓練紀錄不足。'))],
+      return DetailPage(
+        appBar: PageAppBar(
+          title: context.l10n.volumeTitle,
+          subtitle: context.l10n.todaySectionInsights,
+        ),
+        children: [
+          Gutter(child: InfoBanner(message: context.l10n.notEnoughWorkouts)),
+        ],
       );
     }
     final weeks = report.weeklySets.length;
@@ -36,17 +42,21 @@ class InsightDetailScreen extends StatelessWidget {
     final last = report.weeklySets.last.$2;
     return DetailPage(
       appBar: PageAppBar(
-        title: '${report.exercise.name}的訓練量',
-        subtitle: '值得注意 · 近 $weeks 週',
+        title: context.l10n.volumeOf(exercise: report.exercise.name),
+        subtitle: context.l10n.insightWeeks(weeks: weeks),
       ),
       children: [
         Gutter(
           child: _Section(
-            label: '值得注意',
+            label: context.l10n.todaySectionInsights,
             child: Text(
               report.insight?.statement ??
-                  '每週工作組數維持在 $last 組，估計最大重量 '
-                      '${estimate == null ? '尚無法估計' : '約 ${estimate.round()} kg'}。',
+                  context.l10n.volumeSteady(
+                    sets: last,
+                    estimate: estimate == null
+                        ? context.l10n.notYetEstimable
+                        : '${estimate.round()} kg',
+                  ),
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 20,
@@ -58,12 +68,12 @@ class InsightDetailScreen extends StatelessWidget {
         ),
         Gutter(
           child: _Section(
-            label: '依據',
+            label: context.l10n.basisSection,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '每週工作組數，取自 ${report.sessionCount} 次訓練紀錄。',
+                  context.l10n.weeklySetsFrom(count: report.sessionCount),
                   style: AppTextStyles.body,
                 ),
                 const SizedBox(height: AppSpacing.md),
@@ -74,19 +84,19 @@ class InsightDetailScreen extends StatelessWidget {
         ),
         Gutter(
           child: _Section(
-            label: '資料品質與完整度',
+            label: context.l10n.dataQualitySection,
             child: TagWrap(
               labels: [
-                '${report.sessionCount} 次訓練皆有紀錄',
-                '重量與次數為手動輸入',
-                if (estimate != null) 'Epley 估計',
+                context.l10n.workoutsAllLogged(count: report.sessionCount),
+                context.l10n.weightRepsManual,
+                if (estimate != null) context.l10n.epleyEstimate,
               ],
             ),
           ),
         ),
         Gutter(
           child: _Section(
-            label: '時間範圍',
+            label: context.l10n.timeRangeSection,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -99,28 +109,33 @@ class InsightDetailScreen extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                Text('$weeks 個完整週', style: AppTextStyles.caption),
+                Text(
+                  context.l10n.fullWeeks(count: weeks),
+                  style: AppTextStyles.caption,
+                ),
               ],
             ),
           ),
         ),
         Gutter(
           child: _Section(
-            label: '可採取的行動',
+            label: context.l10n.actionsSection,
             showDivider: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   last < first
-                      ? '每週組數比這段期間開始時少。要繼續進步，拉回 $first 組左右。'
-                      : '目前的組數穩定。要繼續進步，小幅增加每週組數或重量。',
+                      ? context.l10n.volumeDropped(sets: first)
+                      : context.l10n.volumeStable,
                   style: AppTextStyles.body,
                 ),
                 if (store.selectedRoutine case final routine?) ...[
                   const SizedBox(height: AppSpacing.md),
                   PrimaryButton(
-                    label: '調整「${routine.name}」的組數',
+                    label: context.l10n.adjustRoutineSets(
+                      routine: routine.name,
+                    ),
                     isCompact: true,
                     onPressed: () =>
                         pushPage(context, const AiProposalScreen()),
@@ -130,10 +145,15 @@ class InsightDetailScreen extends StatelessWidget {
             ),
           ),
         ),
-        Gutter(child: Text('這是訓練紀錄的描述，不是醫療建議。', style: AppTextStyles.caption)),
+        Gutter(
+          child: Text(
+            context.l10n.notMedicalAdvice,
+            style: AppTextStyles.caption,
+          ),
+        ),
         Gutter(
           child: LinkText(
-            label: '查看這段期間的原始紀錄',
+            label: context.l10n.viewRawEntries,
             onTap: () => returnToTab(context, HomeTab.log),
           ),
         ),

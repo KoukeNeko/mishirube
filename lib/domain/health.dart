@@ -3,26 +3,22 @@ import 'body.dart';
 /// What the app reads from a health platform. Each has a record of its
 /// own here already; nothing is read that would have nowhere to go.
 enum HealthDataKind {
-  sleep('睡眠'),
-  weight('體重'),
-  waist('腰圍'),
+  sleep,
+  weight,
+  waist,
 
   /// Height, and what a body composition scale wrote to the platform.
-  body('身體組成'),
-  workouts('運動'),
-  water('喝水'),
+  body,
+  workouts,
+  water,
 
   /// Heart rate, breathing, blood oxygen, temperature and heart rate
   /// variability, read only for the time a sleep covers.
-  overnight('夜間數據'),
+  overnight,
 
   /// Steps, distance, energy, floors, exercise minutes, and the heart
   /// and fitness figures measured through the day (see [ActivityMetric]).
-  activity('活動與心肺');
-
-  const HealthDataKind(this.label);
-
-  final String label;
+  activity,
 }
 
 /// A weighing from a health platform, with the platform's own id.

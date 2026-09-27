@@ -6,6 +6,7 @@ import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 const _weekDotSize = 28.0;
 
@@ -34,13 +35,18 @@ class WeekStrip extends StatelessWidget {
           for (final (day, isActive) in days)
             Expanded(
               child: Semantics(
-                label:
-                    '週${weekdayLabel(day)}'
-                    '${isActive ? '，有訓練或運動' : ''}',
+                label: isActive
+                    ? context.l10n.weekdayActive(
+                        weekday: context.dates.weekdayName(day),
+                      )
+                    : context.dates.weekdayName(day),
                 excludeSemantics: true,
                 child: Column(
                   children: [
-                    Text(weekdayLabel(day), style: AppTextStyles.caption),
+                    Text(
+                      context.dates.weekday(day),
+                      style: AppTextStyles.caption,
+                    ),
                     const SizedBox(height: AppSpacing.xs),
                     _WeekDot(
                       day: day,
@@ -183,7 +189,7 @@ class QuickStatTile extends StatelessWidget {
           CategoryLabel(label: category, color: color),
           const SizedBox(height: AppSpacing.xs),
           if (value == null)
-            const Text('沒有紀錄', style: AppTextStyles.caption)
+            Text(context.l10n.noEntriesShort, style: AppTextStyles.caption)
           else
             FittedBox(
               fit: BoxFit.scaleDown,
@@ -228,12 +234,12 @@ class NextMealCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CardEyebrow(label: '下一步', color: AppColors.nutrition),
+          CardEyebrow(label: context.l10n.nextStep, color: AppColors.nutrition),
           const SizedBox(height: AppSpacing.xs),
-          Text(mealType.label, style: AppTextStyles.pageTitle),
+          Text(mealType.labelIn(context.l10n), style: AppTextStyles.pageTitle),
           const SizedBox(height: AppSpacing.md),
           NutritionButton(
-            label: '記錄${mealType.label}',
+            label: context.l10n.logItem(item: mealType.labelIn(context.l10n)),
             icon: Icons.search,
             onPressed: onLog,
           ),
@@ -260,10 +266,13 @@ class IntakeCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('今日攝取', style: AppTextStyles.overline),
+              Text(context.l10n.todayIntake, style: AppTextStyles.overline),
               const Spacer(),
               if (summary.hasEstimates)
-                const TagChip(label: '含估計值', tone: TagTone.nutrition),
+                TagChip(
+                  label: context.l10n.includesEstimates,
+                  tone: TagTone.nutrition,
+                ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -275,7 +284,8 @@ class IntakeCard extends StatelessWidget {
                   style: AppTextStyles.bigNumber,
                 ),
                 TextSpan(
-                  text: ' kcal · ${summary.mealCount} 餐',
+                  text:
+                      ' kcal · ${context.l10n.mealsCount(count: summary.mealCount)}',
                   style: AppTextStyles.caption.copyWith(fontSize: 15),
                 ),
               ],
@@ -300,12 +310,12 @@ class IntakeCard extends StatelessWidget {
                 children: [
                   for (final (label, grams, missing) in [
                     (
-                      convention.proteinName,
+                      convention.proteinName(context.l10n),
                       summary.proteinGrams,
                       summary.mealsWithoutProtein,
                     ),
                     (
-                      convention.carbName,
+                      convention.carbName(context.l10n),
                       convention.countsAvailableCarb
                           ? summary.availableCarbGrams
                           : summary.carbGrams,
@@ -314,12 +324,12 @@ class IntakeCard extends StatelessWidget {
                           : summary.mealsWithoutCarb,
                     ),
                     (
-                      convention.fatName,
+                      convention.fatName(context.l10n),
                       summary.fatGrams,
                       summary.mealsWithoutFat,
                     ),
                     (
-                      convention.fibreName,
+                      convention.fibreName(context.l10n),
                       summary.fibreGrams,
                       summary.mealsWithoutFibre,
                     ),
@@ -337,7 +347,7 @@ class IntakeCard extends StatelessWidget {
               );
             },
           ),
-          if (_leftOut(summary, convention) case final note?) ...[
+          if (_leftOut(context.l10n, summary, convention) case final note?) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(note, style: AppTextStyles.caption),
           ],
@@ -350,21 +360,25 @@ class IntakeCard extends StatelessWidget {
 /// `蛋白質、碳水化合物有紀錄沒有數字，未計入。`, or null when every
 /// total is complete. A total that some records lacked is only what the
 /// others add up to, and the tile would not say so on its own.
-String? _leftOut(DaySummary summary, NutritionConvention convention) {
+String? _leftOut(
+  AppLocalizations l10n,
+  DaySummary summary,
+  NutritionConvention convention,
+) {
   bool partial(int missing) => missing > 0 && missing < summary.recordCount;
   final macros = [
-    if (partial(summary.mealsWithoutProtein)) convention.proteinName,
+    if (partial(summary.mealsWithoutProtein)) convention.proteinName(l10n),
     if (partial(
       convention.countsAvailableCarb
           ? summary.mealsWithoutAvailableCarb
           : summary.mealsWithoutCarb,
     ))
-      convention.carbName,
-    if (partial(summary.mealsWithoutFat)) convention.fatName,
-    if (partial(summary.mealsWithoutFibre)) convention.fibreName,
+      convention.carbName(l10n),
+    if (partial(summary.mealsWithoutFat)) convention.fatName(l10n),
+    if (partial(summary.mealsWithoutFibre)) convention.fibreName(l10n),
   ];
   if (macros.isEmpty) return null;
-  return '${macros.join('、')}有紀錄沒有數字，未計入。';
+  return l10n.partialMacros(macros: joinList(l10n, macros));
 }
 
 /// One macro's day total: what the records that carried the figure add
@@ -422,7 +436,7 @@ class CompletedWorkoutCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
-                  '${session.routineName} 已完成',
+                  context.l10n.routineCompleted(name: session.routineName),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.itemTitle,
@@ -437,12 +451,18 @@ class CompletedWorkoutCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           StatRow(
             stats: [
-              StatBlock(value: '${session.completedSets}', label: '總組數'),
-              StatBlock(value: '${session.exercises.length}', label: '動作'),
+              StatBlock(
+                value: '${session.completedSets}',
+                label: context.l10n.totalSets,
+              ),
+              StatBlock(
+                value: '${session.exercises.length}',
+                label: context.l10n.exercisesLabel,
+              ),
               StatBlock(
                 value:
                     '${AppStoreScope.of(context).workoutReview(session).records}',
-                label: '個人紀錄',
+                label: context.l10n.personalRecords,
                 valueColor: AppColors.training,
               ),
             ],
@@ -475,18 +495,21 @@ class TodayActivityCard extends StatelessWidget {
       for (final metric in ActivityMetric.headline)
         if (metric != lead)
           if (totals[metric] case final value?)
-            '${metric.format(value)} ${metric.unit}',
+            '${metric.format(value)} ${metric.unitIn(context.l10n)}',
     ];
     return AppCard(
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CategoryLabel(label: '活動', color: AppColors.activity),
+          CategoryLabel(
+            label: context.l10n.dailyActivityTitle,
+            color: AppColors.activity,
+          ),
           const SizedBox(height: AppSpacing.xs),
           ValueWithUnit(
             value: lead.format(totals[lead]!),
-            unit: lead.unit,
+            unit: lead.unitIn(context.l10n),
             style: AppTextStyles.bigNumber,
           ),
           if (others.isNotEmpty)

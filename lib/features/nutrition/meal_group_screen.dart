@@ -9,6 +9,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'meal_detail_screen.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// A meal of several items as one: their sum at the top, as a single
 /// meal's page shows its own, then each item, which opens to its page.
@@ -42,7 +43,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
     final previous = _nutrition.ungroupMeals(items);
     Navigator.of(context).pop();
     toast.showUndo(
-      '已拆成 ${items.length} 筆',
+      context.l10n.splitIntoCount(count: items.length),
       onUndo: () => _nutrition.regroupMeals(previous),
     );
   }
@@ -51,7 +52,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
   Future<void> _rename(String groupId, List<MealEvent> items) async {
     final typed = await showTextDialog(
       context,
-      title: '名稱',
+      title: context.l10n.nameSection,
       initial: _nutrition.mealGroupName(groupId) ?? '',
       hint: mealNameOf(items),
     );
@@ -87,28 +88,33 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
         title: total.name,
         subtitle: eatenAt == null
             ? total.timeLabel
-            : '${eatenAt.month} 月 ${eatenAt.day} 日（週${weekdayLabel(eatenAt)}）'
-                  ' · ${total.timeLabel}',
+            : '${context.dates.dayWithWeekday(eatenAt)} · ${total.timeLabel}',
       ),
       children: [
         Gutter(
           child: MealSummaryCard(
             meal: total,
             convention: convention,
-            details: [?total.mealType?.label, '${items.length} 項'],
+            details: [
+              ?total.mealType?.labelIn(context.l10n),
+              context.l10n.itemsCountShort(count: items.length),
+            ],
           ),
         ),
         if (nutrients.isNotEmpty)
           PageSection(
-            label: '營養素',
+            label: context.l10n.nutrientsSection,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     for (final nutrient in nutrients)
                       KeyValueRow(
-                        label: convention.nameOf(nutrient.nutrient),
-                        value: nutrient.label,
+                        label: convention.nameOf(
+                          context.l10n,
+                          nutrient.nutrient,
+                        ),
+                        value: nutrient.labelIn(context.l10n),
                       ),
                   ],
                 ),
@@ -116,7 +122,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
             ],
           ),
         PageSection(
-          label: '內容',
+          label: context.l10n.contentsSection,
           children: [
             Gutter(
               child: GroupedCard(
@@ -141,9 +147,12 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
           child: GroupedCard(
             children: [
               if (groupId != null)
-                NavRow(title: '改名稱', onTap: () => _rename(groupId, items)),
+                NavRow(
+                  title: context.l10n.rename,
+                  onTap: () => _rename(groupId, items),
+                ),
               NavRow(
-                title: '拆開這一餐',
+                title: context.l10n.splitThisMeal,
                 showChevron: false,
                 onTap: () => _ungroup(items),
               ),

@@ -27,6 +27,7 @@ import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/harness.dart';
 
@@ -175,7 +176,7 @@ void main() {
 ```''');
       final item = draft.items.single;
       expect(item.name, '蛋餅');
-      expect(item.amount, '一份', reason: 'no amount is one serving');
+      expect(item.amount, '', reason: 'no amount is one of it');
       expect(item.kcal, 250);
       expect(item.carbGrams, isNull, reason: 'unknown stays unknown');
     });
@@ -393,12 +394,15 @@ void main() {
         '"kcal_per_100":120}',
       );
       expect(swapped.kcal, 400, reason: 'still filled in, for the user');
-      expect(swapped.warnings.single, contains('另一欄'));
+      expect(swapped.warnings.single.text(testL10n), contains('另一欄'));
 
       final offEnergy = parse(
         '{"kcal":500,"protein_g":3,"carb_g":18,"fat_g":4}',
       );
-      expect(offEnergy.warnings.single, contains('蛋白質、碳水化合物、脂肪'));
+      expect(
+        offEnergy.warnings.single.text(testL10n),
+        contains('蛋白質、碳水化合物、脂肪'),
+      );
     });
 
     test('the photo is read on the phone and only its text is sent', () async {
@@ -1366,18 +1370,22 @@ void main() {
 
   test('a draft names its provider, and the model when there is a choice', () {
     expect(
-      aiLabel(AiProviderKind.ollamaCloud, 'gemma4:31b'),
+      aiLabel(testL10n, AiProviderKind.ollamaCloud, 'gemma4:31b'),
       'Ollama Cloud / gemma4:31b',
     );
     expect(
-      aiLabel(AiProviderKind.appleOnDevice, 'on-device'),
+      aiLabel(testL10n, AiProviderKind.appleOnDevice, 'on-device'),
       'Apple Intelligence',
     );
     expect(
-      aiLabel(AiProviderKind.microsoftCopilot, 'Microsoft 365 Copilot'),
+      aiLabel(
+        testL10n,
+        AiProviderKind.microsoftCopilot,
+        'Microsoft 365 Copilot',
+      ),
       'Microsoft 365 Copilot',
     );
-    expect(aiLabel(AiProviderKind.anthropic, ''), 'Anthropic');
+    expect(aiLabel(testL10n, AiProviderKind.anthropic, ''), 'Anthropic');
   });
 
   group('a workout the rules cannot read', () {
@@ -1481,7 +1489,7 @@ void main() {
       expect(find.text('4 組 × 8 下 · 60 kg'), findsOneWidget);
       expect(find.text('找不到這個動作'), findsOneWidget);
       expect(
-        find.text(aiFailureMessage(AiFailure.rateLimited)),
+        find.text(aiFailureMessage(testL10n, AiFailure.rateLimited)),
         findsOneWidget,
       );
       await disposeTree(tester);

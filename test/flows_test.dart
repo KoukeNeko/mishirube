@@ -48,6 +48,7 @@ import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/harness.dart';
 
@@ -766,7 +767,7 @@ void main() {
     expect(find.text('訓練趨勢'), findsWidgets);
     await _tapText(tester, '每日紀錄');
     await tester.pumpAndSettle();
-    await _tapText(tester, MuscleFigure.female.label);
+    await _tapText(tester, MuscleFigure.female.labelIn(testL10n));
     await tester.pumpAndSettle();
 
     expect(
@@ -1304,7 +1305,10 @@ void main() {
     await pumpScreen(tester, const RoutineDetailScreen(), store: store);
     final first = store.routine.exercises.first;
 
-    await _tapText(tester, first.exercise.primaryMuscles.first.label);
+    await _tapText(
+      tester,
+      first.exercise.primaryMuscles.first.labelIn(testL10n),
+    );
     // The muscles are chosen under the plan; its cards are above.
     final lighter = find.text('今天少 1 組');
     for (var i = 0; i < 20 && lighter.evaluate().isEmpty; i++) {
@@ -1540,7 +1544,7 @@ void main() {
 
     for (final category in RecordCategory.values) {
       expect(
-        find.text(category.label),
+        find.text(category.labelIn(testL10n)),
         findsWidgets,
         reason:
             '${category.name} has a filter chip without the screen '
@@ -2445,12 +2449,12 @@ void main() {
     expect(find.text('95 g'), findsOneWidget, reason: 'as the label has it');
     expect(
       tester.getTopLeft(find.text('95 g')).dx,
-      tester.getTopLeft(find.text(MacroLabel.carb).last).dx,
+      tester.getTopLeft(find.text(testL10n.macroCarb).last).dx,
       reason: 'the figures line up with the name, not its dot',
     );
     expect(
       tester.getTopLeft(find.text('5 g · 10 kcal')).dx,
-      tester.getTopLeft(find.text(MacroLabel.fibre).last).dx,
+      tester.getTopLeft(find.text(testL10n.macroFibre).last).dx,
     );
     expect(find.text('360 kcal'), findsOneWidget);
     expect(find.text('140 kcal'), findsOneWidget);
@@ -2458,7 +2462,7 @@ void main() {
     expect(find.text('5 g · 10 kcal'), findsOneWidget);
     for (final nutrient in [Nutrient.polyols, Nutrient.alcohol]) {
       expect(
-        find.text(nutrient.label),
+        find.text(nutrient.labelIn(testL10n)),
         findsOneWidget,
         reason: 'shown whether or not the meal has it on record',
       );
@@ -2871,15 +2875,15 @@ void main() {
     }
 
     // The ring sits centred beside the macros, whose first line leads.
-    final energy = insetOf(find.text(MacroLabel.carb).first);
-    final indicators = insetOf(find.text(MacroLabel.fibre));
+    final energy = insetOf(find.text(testL10n.macroCarb).first);
+    final indicators = insetOf(find.text(testL10n.macroFibre));
     expect(
       (energy - indicators).abs(),
       lessThan(3),
       reason: 'a card\'s first line sits its inset from the top, not more',
     );
     expect(
-      tester.getSize(find.widgetWithText(SectionLabel, MacroLabel.energy)),
+      tester.getSize(find.widgetWithText(SectionLabel, testL10n.macroEnergy)),
       tester.getSize(find.widgetWithText(SectionLabel, '每日指標')),
       reason: 'the 變更 link does not push its card further down',
     );
@@ -3000,7 +3004,7 @@ void main() {
     );
     expect(find.text('推算'), findsOneWidget);
     expect(
-      find.text(Nutrient.saltEquivalent.label),
+      find.text(Nutrient.saltEquivalent.labelIn(testL10n)),
       findsNothing,
       reason: 'folded into sodium, not listed again',
     );

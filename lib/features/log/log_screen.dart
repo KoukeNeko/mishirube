@@ -4,11 +4,11 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'month_calendar.dart';
 import 'log_view_model.dart';
 import 'timeline_destination.dart';
+import '../../l10n/l10n.dart';
 
 enum _LogView { timeline, calendar }
 
@@ -26,7 +26,8 @@ class _LogFilter {
   /// Null filters nothing out.
   final RecordCategory? category;
 
-  String get label => category?.label ?? '全部';
+  String labelIn(AppLocalizations l10n) =>
+      category?.labelIn(l10n) ?? l10n.logFilterAll;
 
   IconData get icon => category?.icon ?? Icons.apps;
 
@@ -155,28 +156,32 @@ class _LogScreenState extends State<LogScreen> {
           : Builder(
               builder: (buttonContext) => HeaderAction(
                 icon: Icons.chevron_left,
-                label: '${_month.year}年',
-                semanticLabel: '選擇月份，目前 ${_month.year}年${_month.month}月',
+                label: context.dates.compactYear(_month.year),
+                semanticLabel: context.l10n.pickMonthCurrent(
+                  month: context.dates.compactYearMonth(_month),
+                ),
                 onTap: () => _pickMonth(buttonContext),
               ),
             ),
       actions: [
         SearchableHeaderActions(
-          hint: '搜尋紀錄',
-          searchLabel: '搜尋紀錄',
+          hint: context.l10n.logSearch,
+          searchLabel: context.l10n.logSearch,
           onChanged: _search,
           actions: [
             HeaderAction(
               icon: Icons.today_outlined,
-              label: '今天',
-              semanticLabel: '回到今天',
+              label: context.l10n.tabToday,
+              semanticLabel: context.l10n.backToToday,
               onTap: _goToToday,
             ),
             HeaderAction(
               icon: isTimeline
                   ? Icons.calendar_month_outlined
                   : Icons.view_agenda_outlined,
-              semanticLabel: isTimeline ? '以月曆顯示' : '以時間軸顯示',
+              semanticLabel: isTimeline
+                  ? context.l10n.showAsCalendar
+                  : context.l10n.showAsTimeline,
               onTap: () =>
                   _setView(isTimeline ? _LogView.calendar : _LogView.timeline),
             ),
@@ -190,7 +195,7 @@ class _LogScreenState extends State<LogScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '${_month.month}月',
+                  context.dates.compactMonth(_month),
                   maxLines: 1,
                   style: largeTitleStyle,
                 ),
@@ -207,7 +212,7 @@ class _LogScreenState extends State<LogScreen> {
                       children: [
                         _MonthStep(
                           icon: Icons.chevron_left,
-                          semanticLabel: '上個月',
+                          semanticLabel: context.l10n.previousMonth,
                           onTap: _isEarliestMonth
                               ? null
                               : () => _setMonth(
@@ -221,9 +226,10 @@ class _LogScreenState extends State<LogScreen> {
                             child: Builder(
                               builder: (buttonContext) => HeaderAction(
                                 icon: Icons.calendar_month_outlined,
-                                label: '${_month.year} 年 ${_month.month} 月',
-                                semanticLabel:
-                                    '選擇月份，目前 ${_month.year} 年 ${_month.month} 月',
+                                label: context.dates.yearMonth(_month),
+                                semanticLabel: context.l10n.pickMonthCurrent(
+                                  month: context.dates.yearMonth(_month),
+                                ),
                                 onTap: () => _pickMonth(buttonContext),
                               ),
                             ),
@@ -231,7 +237,7 @@ class _LogScreenState extends State<LogScreen> {
                         ),
                         _MonthStep(
                           icon: Icons.chevron_right,
-                          semanticLabel: '下個月',
+                          semanticLabel: context.l10n.nextMonth,
                           onTap: _isCurrentMonth
                               ? null
                               : () => _setMonth(
@@ -246,7 +252,7 @@ class _LogScreenState extends State<LogScreen> {
                 FilterChipBar<_LogFilter>(
                   options: _LogFilter.values,
                   selected: _filter,
-                  labelOf: (filter) => filter.label,
+                  labelOf: (filter) => filter.labelIn(context.l10n),
                   iconOf: (filter) => filter.icon,
                   colorOf: (filter) => filter.color,
                   onSelected: (filter) => setState(() => _filter = filter),
@@ -262,7 +268,7 @@ class _LogScreenState extends State<LogScreen> {
                 pillHeight(context) +
                 measureTextHeight(
                   context,
-                  '12月',
+                  context.dates.compactMonth(DateTime(2024, 12)),
                   largeTitleStyle,
                   maxWidth: double.infinity,
                 ),
@@ -284,11 +290,17 @@ class _LogScreenState extends State<LogScreen> {
         Gutter(
           child: EmptyStateCard(
             icon: Icons.event_busy_outlined,
-            title: '${_month.month} 月沒有紀錄',
+            title: context.l10n.noEntriesInMonth(
+              month: context.dates.month(_month.month),
+            ),
           ),
         )
       else if (days.isEmpty)
-        Gutter(child: InfoBanner(message: '找不到符合「$_query」的紀錄。'))
+        Gutter(
+          child: InfoBanner(
+            message: context.l10n.noEntriesMatching(query: _query),
+          ),
+        )
       else
         for (final (day, entries) in days) ...[
           Gutter(child: _DayHeader(day: day)),
@@ -319,12 +331,10 @@ class _LogScreenState extends State<LogScreen> {
       ),
       Gutter(child: const _CalendarLegend()),
       Gutter(
-        child: SectionLabel(
-          '${_selected.month}月${_selected.day}日 週${weekdayLabel(_selected)}',
-        ),
+        child: SectionLabel(context.dates.compactDayWithWeekday(_selected)),
       ),
       if (entries.isEmpty)
-        Gutter(child: const InfoBanner(message: '這天沒有紀錄。'))
+        Gutter(child: InfoBanner(message: context.l10n.noEntriesThisDay))
       else
         for (final entry in entries)
           Gutter(
@@ -441,7 +451,7 @@ class _TimelineContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          entry.category.label,
+          entry.category.labelIn(context.l10n),
           style: TextStyle(
             color: entry.category.color,
             fontSize: 12,
@@ -475,7 +485,10 @@ class _CalendarLegend extends StatelessWidget {
       spacing: AppSpacing.md,
       children: [
         for (final category in RecordCategory.values)
-          CategoryLabel(label: category.label, color: category.color),
+          CategoryLabel(
+            label: category.labelIn(context.l10n),
+            color: category.color,
+          ),
       ],
     );
   }

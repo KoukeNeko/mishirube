@@ -12,6 +12,7 @@ import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// A meal in one sentence: the chosen AI drafts it, the user checks and
 /// corrects it, and only then is anything logged. Given a [draft] already
@@ -130,7 +131,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     final removed = _items[index];
     setState(() => _items = [..._items]..removeAt(index));
     ToastScope.read(context).showUndo(
-      '已移除「${removed.name}」',
+      context.l10n.removedNamed(name: removed.name),
       onUndo: () {
         if (!mounted) return;
         setState(
@@ -150,19 +151,24 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       final choice = await showAppDialog<bool>(
         context,
         AppDialog(
-          title: _draft!.name ?? '${_items.length} 項',
-          message: _items.map((item) => item.name).join('、'),
+          title:
+              _draft!.name ??
+              context.l10n.itemsCountShort(count: _items.length),
+          message: joinList(context.l10n, _items.map((item) => item.name)),
           actions: [
             DialogAction(
-              label: '合併成一餐',
+              label: context.l10n.mergeIntoMeal,
               onTap: () => Navigator.of(context).pop(true),
             ),
             DialogAction(
-              label: '逐項記錄',
+              label: context.l10n.logEachItem,
               tone: DialogTone.primary,
               onTap: () => Navigator.of(context).pop(false),
             ),
-            DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+            DialogAction(
+              label: context.l10n.commonCancel,
+              onTap: () => Navigator.of(context).pop(),
+            ),
           ],
         ),
       );
@@ -185,13 +191,17 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     final draft = _draft;
     return DetailPage(
       appBar: PageAppBar(
-        title: widget._isPhoto ? '照片估算' : '用一句話記錄',
-        subtitle: currentAiLabel(store),
+        title: widget._isPhoto
+            ? context.l10n.photoEstimate
+            : context.l10n.describeMealTitle,
+        subtitle: currentAiLabel(context.l10n, store),
       ),
       footer: draft == null
           ? DraftButton(
               isDrafting: _isDrafting,
-              label: widget.photoPath != null ? '重試' : '產生草稿',
+              label: widget.photoPath != null
+                  ? context.l10n.retry
+                  : context.l10n.aiDraftGenerate,
               onPressed:
                   (widget.photoPath == null && _text.text.trim().isEmpty) ||
                       store.aiProvider == null
@@ -199,20 +209,20 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
                   : _generate,
             )
           : PrimaryButton(
-              label: '記錄 ${_items.length} 項',
+              label: context.l10n.logItemsCount(count: _items.length),
               onPressed: _items.isEmpty ? null : _log,
             ),
       children: [
         if (store.aiProvider == null && !widget._isPhoto) ...[
           Gutter(
-            child: const InfoBanner(
+            child: InfoBanner(
               icon: Icons.auto_awesome_outlined,
-              message: '先選一個 AI 才能產生草稿。',
+              message: context.l10n.chooseAiFirst,
             ),
           ),
           Gutter(
             child: LinkText(
-              label: '到「我的 > AI」設定',
+              label: context.l10n.openAiSettings(me: context.l10n.tabMe),
               onTap: () => pushPage(context, const AiSettingsScreen()),
             ),
           ),
@@ -226,13 +236,16 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
                 height: _photoHeight,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                semanticLabel: '食物照片',
+                semanticLabel: context.l10n.foodPhoto,
               ),
             ),
           ),
         if (!widget._isPhoto)
           Gutter(
-            child: DescribeField(controller: _text, hint: '例如：早餐 蛋餅加大杯冰奶茶'),
+            child: DescribeField(
+              controller: _text,
+              hint: context.l10n.describeMealHint,
+            ),
           ),
         if (_failure case final failure?)
           Gutter(child: AiFailureBanner(failure: failure)),
@@ -241,30 +254,33 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
             Gutter(
               child: InfoBanner(
                 tone: CardTone.warning,
-                message: draft.warnings.join('\n'),
+                message: [
+                  for (final warning in draft.warnings)
+                    warning.text(context.l10n),
+                ].join('\n'),
               ),
             ),
-          Gutter(child: const SectionLabel('草稿')),
+          Gutter(child: SectionLabel(context.l10n.draftSection)),
           for (final (index, item) in _items.indexed)
             Gutter(
               child: SwipeAction(
                 key: ValueKey('${item.name}$index'),
-                label: '移除',
-                semanticLabel: '移除「${item.name}」',
+                label: context.l10n.removeAction,
+                semanticLabel: context.l10n.removeNamed(name: item.name),
                 onAction: () => _remove(index),
                 child: NavCard(
                   title: item.name,
                   subtitle:
                       '${item.amount} · '
                       '${formatKcalOrDash(item.kcal)} kcal',
-                  detail: _macrosOf(item),
+                  detail: _macrosOf(context.l10n, item),
                   onTap: () => _editItem(index),
                 ),
               ),
             ),
           Gutter(
             child: DraftAttribution(
-              label: aiLabel(draft.provider, draft.model),
+              label: aiLabel(context.l10n, draft.provider, draft.model),
             ),
           ),
           if (!widget._isPhoto)
@@ -280,18 +296,18 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
 /// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, a dash for a figure the
 /// model did not give; then, on a line of its own, whatever else a label
 /// gave: `糖 14.4 g · 鈉 79 mg · 鈣 667 mg`.
-String _macrosOf(DraftItem item) {
+String _macrosOf(AppLocalizations l10n, DraftItem item) {
   String grams(int? value) => value == null ? '—' : '$value g';
   final more = [
-    if (item.fibreGrams case final fibre?) '${MacroLabel.fibre} $fibre g',
+    if (item.fibreGrams case final fibre?) '${l10n.macroFibre} $fibre g',
     for (final MapEntry(key: nutrient, value: amount) in item.nutrients.entries)
-      '${nutrient.label} ${nutrient.format(amount)}',
+      '${nutrient.labelIn(l10n)} ${nutrient.format(amount)}',
   ];
   return [
     [
-      '${MacroLabel.protein} ${grams(item.proteinGrams)}',
-      '${MacroLabel.carb} ${grams(item.carbGrams)}',
-      '${MacroLabel.fat} ${grams(item.fatGrams)}',
+      '${l10n.macroProtein} ${grams(item.proteinGrams)}',
+      '${l10n.macroCarb} ${grams(item.carbGrams)}',
+      '${l10n.macroFat} ${grams(item.fatGrams)}',
     ].join(' · '),
     if (more.isNotEmpty) more.join(' · '),
   ].join('\n');

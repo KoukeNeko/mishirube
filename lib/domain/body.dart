@@ -1,17 +1,5 @@
 /// Where on the body a tape measure went.
-enum MeasurementSite {
-  waist('腰圍'),
-  hips('臀圍'),
-  chest('胸圍'),
-  arm('上臂'),
-  thigh('大腿'),
-  calf('小腿'),
-  neck('頸圍');
-
-  const MeasurementSite(this.label);
-
-  final String label;
-}
+enum MeasurementSite { waist, hips, chest, arm, thigh, calf, neck }
 
 /// One tape measurement, in centimetres.
 class BodyMeasurement {
@@ -49,20 +37,17 @@ class BodyWeight {
 /// small current through the body rather than measures, and each brand
 /// estimates differently, so a series is only comparable with itself.
 enum BodyMetric {
-  height('身高', 'cm', isEstimated: false),
-  bodyFat('體脂率', '%'),
-  skeletalMuscle('骨骼肌', 'kg'),
-  muscleMass('肌肉量', 'kg'),
-  leanMass('除脂體重', 'kg'),
-  visceralFat('內臟脂肪', '級'),
-  bodyWater('體水分', '%'),
-  boneMass('骨量', 'kg'),
-  basalMetabolicRate('基礎代謝', 'kcal');
+  height(isEstimated: false),
+  bodyFat,
+  skeletalMuscle,
+  muscleMass,
+  leanMass,
+  visceralFat,
+  bodyWater,
+  boneMass,
+  basalMetabolicRate;
 
-  const BodyMetric(this.label, this.unit, {this.isEstimated = true});
-
-  final String label;
-  final String unit;
+  const BodyMetric({this.isEstimated = true});
 
   /// Worked out by the scale rather than measured.
   final bool isEstimated;
@@ -87,11 +72,4 @@ class BodyReading {
 
 /// Sex as the energy equations take it: they differ by a constant, and
 /// nothing else in the app asks.
-enum Sex {
-  female('女性'),
-  male('男性');
-
-  const Sex(this.label);
-
-  final String label;
-}
+enum Sex { female, male }

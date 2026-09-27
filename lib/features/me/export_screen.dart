@@ -7,6 +7,7 @@ import '../../app/app_store.dart';
 import '../../backend/backend.dart';
 import '../../backend/import_export/export_files.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Writing the user's records out of the app.
 ///
@@ -20,36 +21,36 @@ class ExportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: const PageAppBar(title: '匯出'),
+      appBar: PageAppBar(title: context.l10n.exportTitle),
       children: [
         Gutter(
           child: NavCard(
-            title: '完整封存（JSON）',
-            subtitle: '可完整還原',
+            title: context.l10n.fullArchiveJson,
+            subtitle: context.l10n.fullArchiveDetail,
             onTap: () => _export(
               context,
               (backend) async =>
                   p.basename((await backend.writeArchive()).path),
-              done: '已建立完整封存',
+              done: context.l10n.fullArchiveDone,
             ),
           ),
         ),
         Gutter(
           child: NavCard(
-            title: 'CSV 檢視',
-            subtitle: '方便閱讀，不保證無損',
+            title: context.l10n.csvViews,
+            subtitle: context.l10n.csvViewsDetail,
             onTap: () => _export(
               context,
               (backend) async =>
                   p.basename((await backend.writeCsvViews()).path),
-              done: '已建立 CSV 檢視',
+              done: context.l10n.csvViewsDone,
             ),
           ),
         ),
         Gutter(
-          child: const InfoBanner(
+          child: InfoBanner(
             tone: CardTone.warning,
-            message: '匯出的檔案沒有加密。',
+            message: context.l10n.exportNotEncrypted,
           ),
         ),
       ],
@@ -67,9 +68,17 @@ Future<void> _export(
   try {
     final name = await write(backend);
     if (!context.mounted) return;
-    showToast(context, '$done：$name', kind: ToastKind.success);
+    showToast(
+      context,
+      context.l10n.exportDoneFile(done: done, file: name),
+      kind: ToastKind.success,
+    );
   } on FileSystemException catch (error) {
     if (!context.mounted) return;
-    showToast(context, '匯出失敗：${error.message}', kind: ToastKind.warning);
+    showToast(
+      context,
+      context.l10n.exportFailed(error: error.message),
+      kind: ToastKind.warning,
+    );
   }
 }

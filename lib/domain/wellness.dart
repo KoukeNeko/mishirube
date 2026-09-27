@@ -1,36 +1,18 @@
 enum WellnessKind {
-  energy('精力'),
-  mood('心情'),
-  symptom('症狀'),
+  energy,
+  mood,
+  symptom,
   // Kept for a rating given without a length; a night's own quality lives
   // on [SleepEntry].
-  sleep('睡眠品質');
-
-  const WellnessKind(this.label);
-
-  final String label;
+  sleep,
 }
 
 /// Which sleep of a day a record is: the main one, or a nap beside it.
-enum SleepKind {
-  night('睡眠'),
-  nap('小睡');
-
-  const SleepKind(this.label);
-
-  final String label;
-}
+enum SleepKind { night, nap }
 
 /// What a record's length measures. Time in bed is not time asleep: an
 /// iPhone without a watch only knows when the phone was put down.
-enum SleepMeasure {
-  asleep('睡著時間'),
-  inBed('在床時間');
-
-  const SleepMeasure(this.label);
-
-  final String label;
-}
+enum SleepMeasure { asleep, inBed }
 
 /// A sleep: how long, and how it felt when the user says so.
 ///
@@ -75,18 +57,14 @@ class SleepEntry {
 /// row here but not the same algorithm, so the platform's own name is
 /// kept with each stretch.
 enum SleepStage {
-  inBed('在床'),
-  awake('清醒'),
+  inBed,
+  awake,
 
   /// Asleep, with no stage given.
-  asleep('睡著'),
-  core('淺層／核心'),
-  deep('深層'),
-  rem('REM');
-
-  const SleepStage(this.label);
-
-  final String label;
+  asleep,
+  core,
+  deep,
+  rem;
 
   bool get isAsleep =>
       this == asleep || this == core || this == deep || this == rem;
@@ -147,27 +125,22 @@ class SleepSample {
 /// measures it. Heart rate variability is SDNN from Apple Health and
 /// RMSSD from Health Connect: different statistics, never one series.
 enum OvernightMeasure {
-  heartRate('心率', '次/分'),
-  respiratoryRate('呼吸速率', '次/分'),
-  oxygenSaturation('血氧', '%'),
+  heartRate,
+  respiratoryRate,
+  oxygenSaturation,
 
   /// Apple Health's nightly wrist temperature, in degrees.
-  wristTemperature('手腕溫度', '°C'),
+  wristTemperature,
 
   /// Health Connect's skin temperature, as its change from the baseline
   /// the platform keeps.
-  skinTemperatureChange('皮膚溫度變化', '°C'),
-  hrvSdnn('心率變異度（SDNN）', 'ms'),
-  hrvRmssd('心率變異度（RMSSD）', 'ms'),
+  skinTemperatureChange,
+  hrvSdnn,
+  hrvRmssd,
 
   /// Apple Watch's breathing disturbances, with Apple's own reading of
   /// whether they are elevated.
-  breathingDisturbances('呼吸干擾', '');
-
-  const OvernightMeasure(this.label, this.unit);
-
-  final String label;
-  final String unit;
+  breathingDisturbances,
 }
 
 /// One measure over one sleep: the range of the samples that fell in it.

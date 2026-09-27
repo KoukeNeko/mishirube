@@ -5,17 +5,19 @@ import '../../backend/engines/trend_findings.dart';
 import '../../backend/engines/trend_engine.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// Which body the muscle map is drawn on. It is a choice of drawing,
 /// not a statement about the user: the same records are shaded either
 /// way, and nothing else in the app reads it.
 enum MuscleFigure {
-  male('男性'),
-  female('女性');
+  male,
+  female;
 
-  const MuscleFigure(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    male => l10n.muscleFigureMale,
+    female => l10n.muscleFigureFemale,
+  };
 }
 
 /// Trends and the insight behind them: every figure is derived from the

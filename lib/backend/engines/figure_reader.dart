@@ -7,6 +7,8 @@ const figureReaderVersion = 1;
 /// body composition sheet, most specific first: a line is read as the
 /// first name it contains, so 「骨骼肌量」 is tried before 「肌肉量」 could
 /// match inside something longer.
+// l10n-ignore-start: words printed on scales and sheets, matched in
+// photos, not shown.
 const bodyMetricNames = {
   BodyMetric.height: ['身高', 'height'],
   BodyMetric.bodyFat: ['體脂肪率', '體脂率', '脂肪率', 'pbf', 'body fat'],
@@ -40,6 +42,7 @@ const girthNames = {
 /// A figure as it was read, with the unit printed beside it when there
 /// was one.
 final _number = RegExp(r'(\d+(?:[.,]\d+)?)\s*(%|kg|cm|kcal|公斤|公分|大卡)?');
+// l10n-ignore-end
 
 /// Figures read off [text], one line of a photo per line: each line that
 /// names one of [names] gives the first number after the name on that
@@ -89,9 +92,12 @@ Map<K, double> readFigures<K>(
 Map<BodyMetric, double> readBodyFigures(String text) => readFigures(
   text,
   bodyMetricNames,
-  rejects: (metric, unit) => switch (metric.unit) {
-    '%' => unit != null && unit != '%',
-    'kg' => unit == '%',
+  rejects: (metric, unit) => switch (metric) {
+    BodyMetric.bodyFat || BodyMetric.bodyWater => unit != null && unit != '%',
+    BodyMetric.skeletalMuscle ||
+    BodyMetric.muscleMass ||
+    BodyMetric.leanMass ||
+    BodyMetric.boneMass => unit == '%',
     _ => false,
   },
 );
@@ -100,5 +106,6 @@ Map<BodyMetric, double> readBodyFigures(String text) => readFigures(
 Map<MeasurementSite, double> readGirths(String text) => readFigures(
   text,
   girthNames,
+  // l10n-ignore: a unit as printed.
   rejects: (_, unit) => unit == '%' || unit == 'kg' || unit == '公斤',
 );

@@ -8,6 +8,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Each trained exercise's estimated max over its sessions, the most
 /// recently trained first; one opens its history and records.
@@ -20,13 +21,13 @@ class ExerciseTrendsScreen extends StatelessWidget {
     builder: (context, trends) {
       final exercises = trends.exerciseHistories();
       return DetailPage(
-        appBar: PageAppBar(title: '動作'),
+        appBar: PageAppBar(title: context.l10n.exercisesLabel),
         children: [
           if (exercises.isEmpty)
             Gutter(
-              child: const EmptyStateCard(
+              child: EmptyStateCard(
                 icon: Icons.fitness_center,
-                title: '沒有紀錄',
+                title: context.l10n.noEntriesShort,
               ),
             )
           else ...[
@@ -34,7 +35,7 @@ class ExerciseTrendsScreen extends StatelessWidget {
               Gutter(
                 child: _ExerciseCard(exercise: exercise, history: history),
               ),
-            Gutter(child: const TagWrap(labels: ['Epley 估計'])),
+            Gutter(child: TagWrap(labels: [context.l10n.epleyEstimate])),
           ],
         ],
       );
@@ -63,17 +64,20 @@ class _ExerciseCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xxs),
           Text(
             [
-              if (estimates.isNotEmpty) '估計最大重量 ${estimates.last.round()} kg',
-              '${history.sessionCount} 次',
-              '上次 ${last.date.month} 月 ${last.date.day} 日 '
-                  '${formatWeight(last.weightKg)} kg × ${last.reps}',
+              if (estimates.isNotEmpty)
+                context.l10n.estimatedMaxValue(weight: estimates.last.round()),
+              context.l10n.timesCount(count: history.sessionCount),
+              context.l10n.lastSetOn(
+                date: context.dates.monthDay(last.date),
+                set: '${formatWeight(last.weightKg)} kg × ${last.reps}',
+              ),
             ].join(' · '),
             style: AppTextStyles.caption,
           ),
           if (estimates.length > 1) ...[
             const SizedBox(height: AppSpacing.sm),
             Semantics(
-              label: '估計最大重量走勢，${estimates.length} 次訓練',
+              label: context.l10n.estimatedMaxTrend(count: estimates.length),
               excludeSemantics: true,
               child: Sparkline(
                 values: estimates,

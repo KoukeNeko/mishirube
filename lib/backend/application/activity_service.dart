@@ -4,6 +4,7 @@ import '../engines/trend_engine.dart';
 import '../storage/activity_repository.dart';
 import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
+import '../../l10n/app_localizations.dart';
 
 /// What the form starts from when nothing was logged before.
 const defaultActivityDuration = Duration(minutes: 30);
@@ -47,9 +48,10 @@ class ActivitySummary {
 /// Logging general exercise, and reading what a health platform counted
 /// and measured about everyday movement.
 class ActivityService {
-  ActivityService(this._db, this._activities, this._samples);
+  ActivityService(this._db, this._activities, this._samples, this._l10n);
 
   final AppDatabase _db;
+  final AppLocalizations _l10n;
   final ActivityRepository _activities;
   final ActivitySampleRepository _samples;
 
@@ -175,11 +177,13 @@ class ActivityService {
       sessions: sessions.length,
       time: sessions.fold(Duration.zero, (sum, s) => sum + s.duration),
       weekly: weeklyCounts(
+        _l10n,
         sessions.map((session) => session.startedAt),
         now: now,
         weeks: weeks,
       ),
       weeklyMinutes: weeklySums(
+        _l10n,
         sessions.map(
           (session) => (session.startedAt, session.duration.inMinutes),
         ),

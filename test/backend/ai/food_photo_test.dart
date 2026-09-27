@@ -15,6 +15,9 @@ import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/l10n/l10n.dart';
+
+import '../../support/harness.dart';
 
 /// A JPEG's segments, each as its marker and payload.
 Uint8List _jpeg(List<(int, List<int>)> segments, {List<int> scan = const []}) {
@@ -154,7 +157,9 @@ void main() {
       expect(draft.items.map((item) => item.name), ['白飯', '炒高麗菜']);
       expect(draft.items.first.amount, '約 180 g（150–220 g）');
       expect(draft.items.last.kcal, isNull, reason: 'unknown is not zero');
-      expect(draft.warnings, ['炒菜油的量看不出來']);
+      expect(draft.warnings.map((warning) => warning.text(testL10n)), [
+        '炒菜油的量看不出來',
+      ]);
     });
 
     test('energy far from its macronutrients is flagged, not changed', () {
@@ -164,7 +169,7 @@ void main() {
       );
 
       expect(draft.items.single.kcal, 900);
-      expect(draft.warnings.single, contains('雞腿'));
+      expect(draft.warnings.single.text(testL10n), contains('雞腿'));
     });
 
     test('a photo with no food in it says so', () {

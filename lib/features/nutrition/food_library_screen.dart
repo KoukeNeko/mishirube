@@ -10,6 +10,7 @@ import 'brand_menu_screen.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
 import 'portion_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Every food the app knows, for looking after rather than logging: the
 /// user's own, to add and correct, and the chains that ship with the
@@ -73,9 +74,10 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
 
   Widget _ownRow(FoodItem food) => NavCard(
     title: food.displayName,
-    subtitle:
-        '一份 ${food.servingDescription} · '
-        '${formatKcalOrDash(food.kcal?.round())} kcal',
+    subtitle: context.l10n.servingAndKcal(
+      serving: food.servingDescription(context.l10n),
+      kcal: formatKcalOrDash(food.kcal?.round()),
+    ),
     onTap: () => _edit(food),
   );
 
@@ -95,9 +97,11 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     return NavCard(
       title: food.name,
       subtitle: sizes > 0
-          ? '$sizes 種杯型'
-          : '一份 ${food.servingDescription} · '
-                '${formatKcalOrDash(food.kcal?.round())} kcal',
+          ? context.l10n.foodCupSizes(count: sizes)
+          : context.l10n.servingAndKcal(
+              serving: food.servingDescription(context.l10n),
+              kcal: formatKcalOrDash(food.kcal?.round()),
+            ),
       onTap: () => _openCatalogueFood(food),
     );
   }
@@ -119,7 +123,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
     };
     final labels = {
       for (final catalogue in store.catalogues)
-        catalogue.brand: catalogue.label,
+        catalogue.brand: catalogue.labelIn(context.l10n),
     };
     final brands = query.isEmpty
         ? [for (final catalogue in store.catalogues) catalogue.brand]
@@ -134,20 +138,23 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
       for (final catalogue in store.catalogues) catalogue.country,
     };
     return PageScaffold(
-      appBar: const PageAppBar(title: '食物庫'),
+      appBar: PageAppBar(title: context.l10n.foodLibrary),
       pinned: Column(
         children: [
           Gutter(
-            child: SearchField(controller: _query, hint: '搜尋食物或品牌'),
+            child: SearchField(
+              controller: _query,
+              hint: context.l10n.searchFoodHint,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           FilterChipBar<String>(
             options: [_all, _own, ...countries],
             selected: _scope,
             labelOf: (scope) => switch (scope) {
-              _all => '全部',
-              _own => '自己的',
-              final country => countryName(country),
+              _all => context.l10n.foodScopeAll,
+              _own => context.l10n.foodScopeOwn,
+              final country => countryName(context.l10n, country),
             },
             onSelected: (scope) => setState(() => _scope = scope),
           ),
@@ -156,15 +163,17 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
       pinnedHeight:
           measurePinnedSearchHeight() + AppSpacing.xs + pillHeight(context),
       footer: BottomActionBar(
-        child: PrimaryButton(label: '新增食物', onPressed: _create),
+        child: PrimaryButton(label: context.l10n.newFood, onPressed: _create),
       ),
       children: [
         if (_scope == _all || _scope == _own) ...[
-          Gutter(child: const SectionLabel('自己的')),
+          Gutter(child: SectionLabel(context.l10n.foodScopeOwn)),
           if (own.isEmpty)
             Gutter(
               child: Text(
-                query.isEmpty ? '沒有自己的食物。' : '沒有符合的食物。',
+                query.isEmpty
+                    ? context.l10n.noOwnFoodsSentence
+                    : context.l10n.noMatchingFoods,
                 style: AppTextStyles.caption,
               ),
             ),
@@ -174,12 +183,14 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
           if (_scope == _all || _scope == country)
             if (brands.where((brand) => countryOf[brand] == country).toList()
                 case final inCountry when inCountry.isNotEmpty) ...[
-              Gutter(child: SectionLabel(countryName(country))),
+              Gutter(child: SectionLabel(countryName(context.l10n, country))),
               for (final brand in inCountry)
                 Gutter(
                   child: NavCard(
                     title: labels[brand] ?? brand,
-                    subtitle: '${_nutrition.menuOf(brand).length} 款 · 官方資料，唯讀',
+                    subtitle:
+                        '${context.l10n.productsCount(count: _nutrition.menuOf(brand).length)}'
+                        ' · ${context.l10n.officialReadOnly}',
                     onTap: () => _openBrand(brand),
                   ),
                 ),

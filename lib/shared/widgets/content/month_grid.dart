@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
-
-const _weekdayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+import '../../../l10n/l10n.dart';
 
 /// Gap between cells, which is also the gap between weeks.
 const monthGridSpacing = 4.0;
@@ -46,9 +45,14 @@ class MonthGrid extends StatelessWidget {
       children: [
         Row(
           children: [
-            for (final label in _weekdayLabels)
+            for (var weekday = 1; weekday <= DateTime.daysPerWeek; weekday++)
               Expanded(
-                child: Center(child: Text(label, style: AppTextStyles.caption)),
+                child: Center(
+                  child: Text(
+                    context.dates.weekdayNumber(weekday),
+                    style: AppTextStyles.caption,
+                  ),
+                ),
               ),
             if (hasTrailing) SizedBox(width: trailingWidth),
           ],

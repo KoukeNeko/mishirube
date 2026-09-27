@@ -362,7 +362,7 @@ DateTime? _time(Object? millis) =>
 
 /// Finished workouts as log rows.
 class WorkoutTimelineSource extends TimelineSource {
-  WorkoutTimelineSource(this._workouts, this._exercises);
+  WorkoutTimelineSource(this._workouts, this._exercises, super.l10n);
 
   final WorkoutRepository _workouts;
   final ExerciseRepository _exercises;
@@ -401,8 +401,10 @@ class WorkoutTimelineSource extends TimelineSource {
             category: RecordCategory.training,
             title: workout.routineName,
             detail: [
-              '${workout.completedSets} 組',
-              '${workout.elapsedAt(workout.finishedAt!).inMinutes} 分',
+              l10n.setsCount(count: workout.completedSets),
+              l10n.durationMinutes(
+                minutes: workout.elapsedAt(workout.finishedAt!).inMinutes,
+              ),
               ?_personalRecord(workout),
             ].join(' · '),
           ),
@@ -417,7 +419,9 @@ class WorkoutTimelineSource extends TimelineSource {
       end,
       (id) => _exercises.byId(id)!,
     ))
-      day % 100: '${workout.routineName} · ${workout.completedSets} 組',
+      day % 100:
+          '${workout.routineName} · '
+          '${l10n.setsCount(count: workout.completedSets)}',
   };
 
   /// Finished workouts of the month, each with the day it was trained on
@@ -454,8 +458,11 @@ class WorkoutTimelineSource extends TimelineSource {
     );
     for (final item in review.exercises) {
       if (item.record case final record?) {
-        return '${item.exercise.name} ${formatWeight(record.weightKg)} kg × '
-            '${record.reps} 為個人紀錄';
+        return l10n.personalRecordLine(
+          exercise: item.exercise.name,
+          weight: formatWeight(record.weightKg),
+          reps: record.reps,
+        );
       }
     }
     return null;

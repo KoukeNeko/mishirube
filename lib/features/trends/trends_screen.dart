@@ -16,6 +16,7 @@ import '../sleep/sleep_screen.dart';
 import 'muscle_trends_screen.dart';
 import 'trend_detail_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// What the records say that no single chart does (see
 /// `research/56-trends-insights.md`): what the body actually burns and
@@ -55,7 +56,7 @@ class _TrendsPage extends StatelessWidget {
     final insights = [
       if (logsFood || logsWeight)
         PageSection(
-          label: '體重與飲食',
+          label: context.l10n.weightAndNutrition,
           children: [
             if (logsFood && logsWeight)
               Gutter(
@@ -65,12 +66,14 @@ class _TrendsPage extends StatelessWidget {
                     onTap: () => pushPage(context, const BodyScreen()),
                   ),
                   null => _Missing(
-                    title: '能量平衡',
-                    needs:
-                        '需要近 $energyWindowDays 天有 '
-                        '$minimumEnergyFoodDays 天完整飲食、'
-                        '$minimumEnergyWeighings 次體重'
-                        '（目前 ${report.foodDays} 天、${report.weighings} 次）',
+                    title: context.l10n.energyBalance,
+                    needs: context.l10n.energyNeeds(
+                      window: energyWindowDays,
+                      foodDays: minimumEnergyFoodDays,
+                      weighings: minimumEnergyWeighings,
+                      currentFood: report.foodDays,
+                      currentWeighings: report.weighings,
+                    ),
                   ),
                 },
               ),
@@ -90,11 +93,12 @@ class _TrendsPage extends StatelessWidget {
                     onTap: () =>
                         pushPage(context, const DailyNutritionScreen()),
                   ),
-                  null => const _Missing(
-                    title: '蛋白質',
-                    needs:
-                        '需要近 $patternWindowDays 天有 '
-                        '$minimumProteinDays 天完整飲食與體重',
+                  null => _Missing(
+                    title: context.l10n.macroProtein,
+                    needs: context.l10n.proteinNeeds(
+                      window: patternWindowDays,
+                      days: minimumProteinDays,
+                    ),
                   ),
                 },
               ),
@@ -102,7 +106,7 @@ class _TrendsPage extends StatelessWidget {
         ),
       if (trains)
         PageSection(
-          label: '訓練',
+          label: context.l10n.moduleTraining,
           children: [
             Gutter(
               child: switch (report.training) {
@@ -110,9 +114,11 @@ class _TrendsPage extends StatelessWidget {
                   balance: training,
                   onTap: () => pushPage(context, const MuscleTrendsScreen()),
                 ),
-                null => const _Missing(
-                  title: '肌群組數',
-                  needs: '需要近 4 週至少 $minimumBalanceWorkouts 次訓練',
+                null => _Missing(
+                  title: context.l10n.muscleSetsTitle,
+                  needs: context.l10n.muscleSetsNeeds(
+                    count: minimumBalanceWorkouts,
+                  ),
                 ),
               },
             ),
@@ -120,7 +126,7 @@ class _TrendsPage extends StatelessWidget {
         ),
       if (sleeps && report.weekendWake != null)
         PageSection(
-          label: '睡眠',
+          label: context.l10n.moduleSleep,
           children: [
             Gutter(
               child: _WeekendWakeCard(
@@ -132,7 +138,7 @@ class _TrendsPage extends StatelessWidget {
         ),
       if (report.relation case final relation?)
         PageSection(
-          label: '可能的關聯',
+          label: context.l10n.possibleRelations,
           children: [Gutter(child: _RelationCard(relation: relation))],
         ),
     ];
@@ -144,7 +150,7 @@ class _TrendsPage extends StatelessWidget {
     final lines = domains.isEmpty
         ? null
         : PageSection(
-            label: '長期走向',
+            label: context.l10n.longRunSection,
             children: [
               Gutter(
                 child: GroupedCard(
@@ -172,7 +178,7 @@ class _TrendsPage extends StatelessWidget {
             lines != null &&
             constraints.maxWidth >= _minColumnWidth * 2;
         return CollapsingPage(
-          title: '趨勢',
+          title: context.l10n.tabTrends,
           children: [
             if (isWide)
               Row(
@@ -249,7 +255,10 @@ class _InsightCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CategoryLabel(label: domain.label, color: trendColor(domain)),
+              CategoryLabel(
+                label: domain.labelIn(context.l10n),
+                color: trendColor(domain),
+              ),
               const Spacer(),
               if (onTap != null)
                 const Icon(Icons.chevron_right, color: AppColors.textTertiary),
@@ -304,21 +313,29 @@ class _EnergyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final balance = energy.balance;
     return _InsightCard(
       domain: TrendDomain.body,
-      headline: '實際消耗約 ${formatKcal(energy.expenditure)} kcal/天',
+      headline: l10n.actualExpenditure(kcal: formatKcal(energy.expenditure)),
       lines: [
-        '近 $energyWindowDays 天平均攝取 ${formatKcal(energy.intake)} kcal，'
-            '每天${balance < 0 ? '赤字' : '盈餘'} ${formatKcal(balance.abs())} kcal',
-        '趨勢體重每週 ${_signedKg(energy.weeklyChangeKg)} kg，'
-            '$forecastWeeks 週後約 ${formatWeight(_tenth(energy.forecastKg))} kg',
-        '${energy.foodDays} 天完整飲食 · ${energy.weighings} 次體重',
+        (balance < 0 ? l10n.intakeDeficit : l10n.intakeSurplus)(
+          window: energyWindowDays,
+          intake: formatKcal(energy.intake),
+          balance: formatKcal(balance.abs()),
+        ),
+        l10n.weightForecast(
+          change: _signedKg(energy.weeklyChangeKg),
+          weeks: forecastWeeks,
+          forecast: formatWeight(_tenth(energy.forecastKg)),
+        ),
+        l10n.foodDaysWeighings(
+          foodDays: energy.foodDays,
+          weighings: energy.weighings,
+        ),
       ],
-      warning: energy.isIntakeLikelyUnderlogged
-          ? '估計的消耗低於靜止代謝，紀錄的攝取可能少於實際。'
-          : null,
-      tag: '依紀錄估算',
+      warning: energy.isIntakeLikelyUnderlogged ? l10n.intakeUnderlogged : null,
+      tag: l10n.estimatedFromEntries,
       onTap: onTap,
     );
   }
@@ -339,18 +356,27 @@ class _WeekendIntakeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final more = gap.difference > 0;
     return _InsightCard(
       domain: TrendDomain.nutrition,
-      headline:
-          '週末每天${more ? '多' : '少'}吃 '
-          '${formatKcal(gap.difference.abs().round())} kcal',
+      headline: (more ? l10n.weekendEatsMore : l10n.weekendEatsLess)(
+        kcal: formatKcal(gap.difference.abs().round()),
+      ),
       lines: [
-        '平日 ${formatKcal(gap.weekday.round())} kcal · '
-            '週末 ${formatKcal(gap.weekend.round())} kcal',
+        l10n.weekdayWeekendKcal(
+          weekday: formatKcal(gap.weekday.round()),
+          weekend: formatKcal(gap.weekend.round()),
+        ),
         if (offset case final offset?)
-          offset >= 1 ? '抵掉平日全部的赤字' : '抵掉平日赤字約 ${(offset * 100).round()}%',
-        '近 $patternWindowDays 天，${gap.weekdays} 個平日、${gap.weekends} 個週末日',
+          offset >= 1
+              ? l10n.offsetsAllDeficit
+              : l10n.offsetsDeficitShare(percent: (offset * 100).round()),
+        l10n.weekdaysWeekends(
+          window: patternWindowDays,
+          weekdays: gap.weekdays,
+          weekends: gap.weekends,
+        ),
       ],
       onTap: onTap,
     );
@@ -365,12 +391,13 @@ class _ProteinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final short = protein.shortGrams;
     return _InsightCard(
       domain: TrendDomain.nutrition,
       headline: short == 0
-          ? '蛋白質達到 $proteinTargetPerKg g/kg'
-          : '蛋白質每天約差 $short g',
+          ? l10n.proteinMet(target: '$proteinTargetPerKg')
+          : l10n.proteinShort(grams: short),
       value: formatAmount(_tenth(protein.perKg)),
       unit: 'g/kg',
       lines: [
@@ -378,10 +405,15 @@ class _ProteinCard extends StatelessWidget {
           final trained?,
           final rest?,
         ))
-          '訓練日 ${formatAmount(_tenth(trained))} · '
-              '休息日 ${formatAmount(_tenth(rest))} g/kg',
-        '以 ${formatWeight(_tenth(protein.weightKg))} kg、'
-            '目標 $proteinTargetPerKg g/kg 計 · ${protein.days} 天完整飲食',
+          l10n.trainingRestProtein(
+            trained: formatAmount(_tenth(trained)),
+            rest: formatAmount(_tenth(rest)),
+          ),
+        l10n.proteinBasis(
+          weight: formatWeight(_tenth(protein.weightKg)),
+          target: '$proteinTargetPerKg',
+          days: protein.days,
+        ),
       ],
       onTap: onTap,
     );
@@ -394,25 +426,48 @@ class _TrainingBalanceCard extends StatelessWidget {
   final TrainingBalance balance;
   final VoidCallback onTap;
 
-  static String _list(List<(MuscleGroup, int)> muscles) =>
-      [for (final (muscle, sets) in muscles) '${muscle.label} $sets'].join('、');
+  static (String, String) _sides(AppLocalizations l10n, MusclePair pair) =>
+      switch (pair) {
+        MusclePair.pushPull => (l10n.musclePush, l10n.musclePull),
+        MusclePair.quadsHamstrings => (l10n.muscleQuads, l10n.muscleHamstrings),
+      };
+
+  static String _list(
+    AppLocalizations l10n,
+    List<(MuscleGroup, int)> muscles,
+  ) => joinList(l10n, [
+    for (final (muscle, sets) in muscles) '${muscle.labelIn(l10n)} $sets',
+  ]);
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final short = balance.short;
     return _InsightCard(
       domain: TrendDomain.training,
       headline: short.isEmpty
-          ? '練到的肌群每週都有 $weeklySetTarget 組以上'
-          : '${short.first.$1.label}每週只有 ${short.first.$2} 組',
+          ? l10n.allMusclesEnough(target: weeklySetTarget)
+          : l10n.muscleOnlySets(
+              muscle: short.first.$1.labelIn(l10n),
+              sets: short.first.$2,
+            ),
       lines: [
-        if (short.isNotEmpty) '不到 $weeklySetTarget 組：${_list(short)}',
+        if (short.isNotEmpty)
+          l10n.underSets(target: weeklySetTarget, muscles: _list(l10n, short)),
         if (balance.enough.isNotEmpty)
-          '$weeklySetTarget 組以上：${_list(balance.enough)}',
+          l10n.atLeastSets(
+            target: weeklySetTarget,
+            muscles: _list(l10n, balance.enough),
+          ),
         for (final (pair, first, second) in balance.imbalances)
-          '${pair.first}對${pair.second} $first : $second 組',
+          l10n.pairRatio(
+            first: _sides(l10n, pair).$1,
+            second: _sides(l10n, pair).$2,
+            firstSets: first,
+            secondSets: second,
+          ),
       ],
-      tag: '近 4 週每週組數，只計主要肌群',
+      tag: l10n.muscleSetsBasis,
       onTap: onTap,
     );
   }
@@ -426,13 +481,23 @@ class _WeekendWakeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final later = gap.difference > 0;
     return _InsightCard(
       domain: TrendDomain.sleep,
-      headline: '週末起床${later ? '晚' : '早'} ${_clock(gap.difference.abs())}',
+      headline: (later ? l10n.weekendWakeLater : l10n.weekendWakeEarlier)(
+        time: _clock(gap.difference.abs()),
+      ),
       lines: [
-        '平日約 ${_clock(gap.weekday)} · 週末約 ${_clock(gap.weekend)} 起床',
-        '近 $patternWindowDays 天，${gap.weekdays} 個平日、${gap.weekends} 個週末日',
+        l10n.weekdayWeekendWake(
+          weekday: _clock(gap.weekday),
+          weekend: _clock(gap.weekend),
+        ),
+        l10n.weekdaysWeekends(
+          window: patternWindowDays,
+          weekdays: gap.weekdays,
+          weekends: gap.weekends,
+        ),
       ],
       onTap: onTap,
     );
@@ -448,7 +513,7 @@ class _RelationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const caveat = '關聯，不代表因果';
+    final caveat = context.l10n.correlationCaveat;
     return _InsightCard(
       domain: TrendDomain.sleep,
       headline: relation.statement,
@@ -480,8 +545,8 @@ class _LineRow extends StatelessWidget {
     final color = trendColor(domain);
     return NavRow(
       leading: AccentBar(color: color, height: 28),
-      title: domain.label,
-      subtitle: line?.value ?? '沒有紀錄',
+      title: domain.labelIn(context.l10n),
+      subtitle: line?.value ?? context.l10n.noEntriesShort,
       detail: line?.change,
       trailing: line == null || line.weekly.length < 2
           ? null

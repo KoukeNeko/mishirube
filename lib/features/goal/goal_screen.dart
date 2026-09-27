@@ -9,6 +9,7 @@ import '../../shared/widgets/widgets.dart';
 import 'goal_setup_sheet.dart';
 import 'goal_view_model.dart';
 import 'weekly_goal_ring.dart';
+import '../../l10n/l10n.dart';
 
 /// This week's rhythm, the run of weeks met, and the month behind it.
 /// The order is deliberate: the week comes first, the streak second.
@@ -27,14 +28,16 @@ class GoalScreen extends StatelessWidget {
     final today = goal.now();
     return DetailPage(
       appBar: PageAppBar(
-        title: '每週目標',
+        title: context.l10n.weeklyGoal,
         subtitle: overview.hasGoal
-            ? '每週 ${overview.thisWeek.targetDays} 個運動日'
-            : '未設定',
+            ? context.l10n.activeDaysPerWeek(
+                count: overview.thisWeek.targetDays,
+              )
+            : context.l10n.notSet,
         actions: [
           HeaderAction(
             icon: Icons.tune,
-            semanticLabel: '調整每週目標',
+            semanticLabel: context.l10n.adjustWeeklyGoal,
             onTap: () => pushPage(context, GoalSetupScreen(overview: overview)),
           ),
         ],
@@ -51,10 +54,10 @@ class GoalScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('每週要有幾個運動日。', style: AppTextStyles.body),
+            Text(context.l10n.weeklyGoalPrompt, style: AppTextStyles.body),
             const SizedBox(height: AppSpacing.md),
             PrimaryButton(
-              label: '設定每週目標',
+              label: context.l10n.setWeeklyGoal,
               onPressed: () =>
                   pushPage(context, GoalSetupScreen(overview: overview)),
             ),
@@ -96,16 +99,19 @@ class GoalScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(_headline(week), style: AppTextStyles.cardTitle),
+              Text(
+                _headline(context.l10n, week),
+                style: AppTextStyles.cardTitle,
+              ),
               const SizedBox(height: AppSpacing.xxs),
-              Text(_detail(week), style: AppTextStyles.caption),
+              Text(_detail(context.l10n, week), style: AppTextStyles.caption),
             ],
           ),
         ),
       ),
-      Gutter(child: const SectionLabel('連續達標')),
+      Gutter(child: SectionLabel(context.l10n.streakSection)),
       Gutter(child: _StreakCard(streak: streak)),
-      Gutter(child: SectionLabel('${today.month} 月')),
+      Gutter(child: SectionLabel(context.dates.month(today.month))),
       Gutter(
         child: AppCard(
           child: _GoalMonth(month: today, today: today, overview: overview),
@@ -114,16 +120,16 @@ class GoalScreen extends StatelessWidget {
     ];
   }
 
-  static String _headline(WeekProgress week) {
-    if (week.isPaused) return '已暫停';
-    if (week.isMet) return '本週目標已完成';
-    return '本週運動';
+  static String _headline(AppLocalizations l10n, WeekProgress week) {
+    if (week.isPaused) return l10n.sessionPausedStatus;
+    if (week.isMet) return l10n.weekGoalMet;
+    return l10n.weekActivity;
   }
 
-  static String _detail(WeekProgress week) {
-    if (week.isPaused) return '不計入連續達標';
-    if (week.isMet) return '${week.activeDays} 個運動日';
-    return '還差 ${week.remaining} 個運動日';
+  static String _detail(AppLocalizations l10n, WeekProgress week) {
+    if (week.isPaused) return l10n.notCountedInStreak;
+    if (week.isMet) return l10n.activeDaysCount(count: week.activeDays);
+    return l10n.activeDaysToGo(count: week.remaining);
   }
 }
 
@@ -141,14 +147,19 @@ class _StreakCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              streak.previous > 0 ? '本週重新開始' : '沒有連續達標紀錄',
+              streak.previous > 0
+                  ? context.l10n.streakRestartsThisWeek
+                  : context.l10n.noStreakYet,
               style: AppTextStyles.cardTitle,
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(
               streak.previous > 0
-                  ? '上次連續達標 ${streak.previous} 週，最佳 ${streak.best} 週'
-                  : '達成一週目標後開始累積',
+                  ? context.l10n.lastStreak(
+                      previous: streak.previous,
+                      best: streak.best,
+                    )
+                  : context.l10n.streakStartsAfterGoal,
               style: AppTextStyles.caption,
             ),
           ],
@@ -169,14 +180,14 @@ class _StreakCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '連續達標 ${streak.current} 週',
+                  context.l10n.streakWeeks(count: streak.current),
                   style: AppTextStyles.cardTitle,
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   streak.isThisWeekPending
-                      ? '本週進行中 · 最佳 ${streak.best} 週'
-                      : '最佳 ${streak.best} 週',
+                      ? context.l10n.streakPendingBest(best: streak.best)
+                      : context.l10n.streakBest(best: streak.best),
                   style: AppTextStyles.caption,
                 ),
               ],
@@ -246,7 +257,9 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '$day 日${isActive ? '，有運動' : ''}',
+      label: isActive
+          ? context.l10n.goalDayActive(day: day)
+          : context.l10n.goalDayLabel(day: day),
       excludeSemantics: true,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: _cellMinHeight),
@@ -315,8 +328,11 @@ class _WeekResult extends StatelessWidget {
     };
     return Semantics(
       label: week.isPaused
-          ? '已暫停'
-          : '${week.activeDays} / ${week.targetDays} 個運動日',
+          ? context.l10n.sessionPausedStatus
+          : context.l10n.activeDaysFraction(
+              active: week.activeDays,
+              target: week.targetDays,
+            ),
       excludeSemantics: true,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -327,7 +343,9 @@ class _WeekResult extends StatelessWidget {
             const SizedBox(height: 18),
           const SizedBox(height: 2),
           Text(
-            week.isPaused ? '暫停' : '${week.activeDays}/${week.targetDays}',
+            week.isPaused
+                ? context.l10n.commonPause
+                : '${week.activeDays}/${week.targetDays}',
             style: AppTextStyles.caption.copyWith(color: color),
           ),
         ],

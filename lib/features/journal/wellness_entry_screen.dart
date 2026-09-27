@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Logging how the day felt: one of the kinds, a 1–5 rating and a note.
 /// It is a log, not a score to improve: nothing here is graded.
@@ -57,7 +58,10 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      '${editing == null ? '已記錄' : '已更新'}${_kind.label} $_score / 5',
+      (editing == null ? context.l10n.loggedValue : context.l10n.updatedValue)(
+        item: _kind.labelIn(context.l10n),
+        value: '$_score / 5',
+      ),
       kind: ToastKind.success,
     );
   }
@@ -66,9 +70,9 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
   Widget build(BuildContext context) {
     return DetailPage(
       appBar: widget.editing == null
-          ? const PageAppBar(title: '心情、精力、症狀')
-          : PageAppBar(title: _kind.label),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+          ? PageAppBar(title: context.l10n.moduleWellness)
+          : PageAppBar(title: _kind.labelIn(context.l10n)),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         if (widget.editing == null)
           Gutter(
@@ -79,14 +83,18 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
                 WellnessKind.symptom,
               ],
               selected: _kind,
-              labelOf: (kind) => kind.label,
+              labelOf: (kind) => kind.labelIn(context.l10n),
               selectedColor: AppColors.wellness,
               onChanged: (kind) => setState(() => _kind = kind),
             ),
           ),
         Gutter(
           child: SectionLabel(
-            _kind == WellnessKind.symptom ? '不適程度' : '${_kind.label}如何？',
+            _kind == WellnessKind.symptom
+                ? context.l10n.symptomSeverity
+                : context.l10n.wellnessKindHow(
+                    kind: _kind.labelIn(context.l10n),
+                  ),
           ),
         ),
         Gutter(
@@ -98,9 +106,16 @@ class _WellnessEntryScreenState extends State<WellnessEntryScreen> {
             onTap: (score) => setState(() => _score = score),
           ),
         ),
-        Gutter(child: const SectionLabel('備註（選填）')),
         Gutter(
-          child: AppTextField(controller: _note, hint: '例如：久坐一整天，下背有點緊'),
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.notesSection),
+          ),
+        ),
+        Gutter(
+          child: AppTextField(
+            controller: _note,
+            hint: context.l10n.wellnessNoteHint,
+          ),
         ),
       ],
     );

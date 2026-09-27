@@ -13,6 +13,7 @@ import '../journal/wellness_entry_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../nutrition/nutrition_view_model.dart';
 import '../training/training_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// One kind of record the user can add from the quick-log entry points.
 class RecordOption {
@@ -38,7 +39,7 @@ class RecordOption {
 
   final IconData icon;
   final Color color;
-  final String title;
+  final String Function(AppLocalizations l10n) title;
 
   /// The module this record belongs to; turning the module off takes the
   /// option out of the menu.
@@ -61,21 +62,21 @@ final recordOptions = [
   RecordOption(
     icon: Icons.fitness_center,
     color: AppColors.training,
-    title: '訓練',
+    title: (l10n) => l10n.moduleTraining,
     module: AppModule.training,
     destination: () => const TrainingScreen(),
   ),
   RecordOption(
     icon: Icons.directions_run,
     color: AppColors.activity,
-    title: '運動',
+    title: (l10n) => l10n.moduleActivity,
     module: AppModule.activity,
     destination: () => const RecordActivityScreen(),
   ),
   RecordOption(
     icon: Icons.restaurant,
     color: AppColors.nutrition,
-    title: '飲食',
+    title: (l10n) => l10n.moduleNutrition,
     module: AppModule.nutrition,
     destination: () => const FoodSearchScreen(),
   ),
@@ -85,7 +86,7 @@ final recordOptions = [
   RecordOption.action(
     icon: Icons.water_drop_outlined,
     color: AppColors.nutrition,
-    title: '水',
+    title: (l10n) => l10n.recordWater,
     module: AppModule.nutrition,
     isBesidePrevious: true,
     onSelect: (context) {
@@ -94,7 +95,7 @@ final recordOptions = [
       // Nothing here rebuilds from it; the undo only writes.
       nutrition.dispose();
       ToastScope.read(context).showUndo(
-        '已記錄 ${logged.millilitres} mL 水',
+        context.l10n.waterLogged(millilitres: logged.millilitres!),
         onUndo: () => nutrition.deleteMeals([logged]),
       );
     },
@@ -102,42 +103,42 @@ final recordOptions = [
   RecordOption(
     icon: Icons.monitor_weight_outlined,
     color: AppColors.body,
-    title: '體重',
+    title: (l10n) => l10n.moduleWeight,
     module: AppModule.weight,
     destination: () => const WeightEntryScreen(),
   ),
   RecordOption(
     icon: Icons.bedtime_outlined,
     color: AppColors.wellness,
-    title: '睡眠',
+    title: (l10n) => l10n.moduleSleep,
     module: AppModule.sleep,
     destination: () => const SleepEntryScreen(),
   ),
   RecordOption(
     icon: Icons.sentiment_satisfied_outlined,
     color: AppColors.textSecondary,
-    title: '心情、精力、症狀',
+    title: (l10n) => l10n.moduleWellness,
     module: AppModule.wellness,
     destination: () => const WellnessEntryScreen(),
   ),
   RecordOption(
     icon: Icons.straighten,
     color: AppColors.body,
-    title: '圍度',
+    title: (l10n) => l10n.recordMeasurements,
     module: AppModule.weight,
     destination: () => const MeasurementEntryScreen(),
   ),
   RecordOption(
     icon: Icons.accessibility_new,
     color: AppColors.body,
-    title: '身體組成',
+    title: (l10n) => l10n.recordBodyComposition,
     module: AppModule.weight,
     destination: () => const BodyReadingEntryScreen(),
   ),
   RecordOption(
     icon: Icons.description_outlined,
     color: AppColors.textSecondary,
-    title: '筆記',
+    title: (l10n) => l10n.moduleNotes,
     module: AppModule.notes,
     destination: () => const NoteEntryScreen(),
   ),

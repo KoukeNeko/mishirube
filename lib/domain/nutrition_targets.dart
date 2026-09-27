@@ -5,16 +5,13 @@ library;
 /// How active a day usually is, as the multiplier on resting energy
 /// (the physical activity levels used with Mifflin-St Jeor).
 enum ActivityLevel {
-  sedentary('久坐', '幾乎不運動', 1.2),
-  light('輕度', '每週運動 1–3 天', 1.375),
-  moderate('中度', '每週運動 3–5 天', 1.55),
-  active('高度', '每週運動 6–7 天', 1.725),
-  veryActive('非常高', '體力勞動或一天兩練', 1.9);
+  sedentary(1.2),
+  light(1.375),
+  moderate(1.55),
+  active(1.725),
+  veryActive(1.9);
 
-  const ActivityLevel(this.label, this.detail, this.factor);
-
-  final String label;
-  final String detail;
+  const ActivityLevel(this.factor);
   final double factor;
 }
 
@@ -31,18 +28,15 @@ enum ActivityLevel {
 /// is where gains level off otherwise (Morton 2018), a little above it
 /// while gaining.
 enum WeightGoal {
-  lose('減脂', [-0.25, -0.5, -0.75], -0.5, 2.2),
-  maintain('維持', [0], 0, 1.6),
-  gain('增肌', [0.1, 0.25], 0.25, 1.8);
+  lose([-0.25, -0.5, -0.75], -0.5, 2.2),
+  maintain([0], 0, 1.6),
+  gain([0.1, 0.25], 0.25, 1.8);
 
   const WeightGoal(
-    this.label,
     this.weeklyPercents,
     this.defaultWeeklyPercent,
     this.proteinPerKg,
   );
-
-  final String label;
 
   /// The rates offered, % of body weight a week; negative is losing.
   final List<double> weeklyPercents;
@@ -123,16 +117,7 @@ enum MaintenanceSource {
 }
 
 /// What working out the energy target still needs.
-enum TargetInput {
-  weight('體重'),
-  height('身高'),
-  birthYear('出生年'),
-  sex('性別');
-
-  const TargetInput(this.label);
-
-  final String label;
-}
+enum TargetInput { weight, height, birthYear, sex }
 
 /// A day's targets. Null where there is nothing to aim at yet: without a
 /// weight there is no protein target, without an energy target no split.

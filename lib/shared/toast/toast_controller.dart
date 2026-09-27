@@ -62,7 +62,8 @@ class ToastController extends ChangeNotifier {
     );
   }
 
-  /// A reversible change: stays for 30 seconds with a「復原」action.
+  /// A reversible change: stays for 30 seconds with an undo action, which
+  /// the host names.
   void showUndo(String message, {required VoidCallback onUndo}) {
     _enqueue(
       ToastMessage(
@@ -70,7 +71,6 @@ class ToastController extends ChangeNotifier {
         message: message,
         kind: ToastKind.success,
         duration: _undoDuration,
-        actionLabel: '復原',
         onAction: onUndo,
       ),
     );

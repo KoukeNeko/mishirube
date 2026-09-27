@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'privacy_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Where the records in this app came from.
 ///
@@ -25,23 +26,25 @@ class DataSourcesScreen extends StatelessWidget {
     final imports = store.imports;
     final catalogues = store.catalogues;
     return DetailPage(
-      appBar: const PageAppBar(title: '資料來源'),
+      appBar: PageAppBar(title: context.l10n.dataSourcesLink),
       children: [
-        Gutter(child: const SectionLabel('手動輸入')),
+        Gutter(child: SectionLabel(context.l10n.sourceManual)),
         Gutter(
-          child: _Counts(counts: typed, empty: '沒有紀錄。'),
+          child: _Counts(counts: typed, empty: context.l10n.noEntriesSentence),
         ),
         if (demo.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('示範資料')),
+          Gutter(child: SectionLabel(context.l10n.sourceDemo)),
           Gutter(
             child: _Counts(counts: demo, empty: ''),
           ),
         ],
         Gutter(child: SectionLabel(store.healthSourceName)),
         const _HealthPlatform(),
-        Gutter(child: const SectionLabel('匯入')),
+        Gutter(child: SectionLabel(context.l10n.sourceImport)),
         if (imports.isEmpty)
-          Gutter(child: const Text('沒有匯入紀錄。', style: AppTextStyles.caption))
+          Gutter(
+            child: Text(context.l10n.noImports, style: AppTextStyles.caption),
+          )
         else
           Gutter(
             child: GroupedCard(
@@ -50,24 +53,24 @@ class DataSourcesScreen extends StatelessWidget {
                   KeyValueRow(
                     label: record.fileName ?? record.source,
                     value: record.isUndone
-                        ? '已復原'
-                        : '${record.records} 筆 · '
-                              '${formatDate(record.importedAt)}',
+                        ? context.l10n.importUndone
+                        : '${context.l10n.readingsCount(count: record.records)} · '
+                              '${context.dates.date(record.importedAt)}',
                   ),
               ],
             ),
           ),
         if (catalogues.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('內建目錄')),
+          Gutter(child: SectionLabel(context.l10n.sourceCatalogue)),
           Gutter(
             child: GroupedCard(
               children: [
                 for (final catalogue in catalogues)
                   KeyValueRow(
-                    label: catalogue.label,
+                    label: catalogue.labelIn(context.l10n),
                     value:
-                        '${catalogue.products} 款 · '
-                        '${catalogue.sizes} 種杯型',
+                        '${context.l10n.productsCount(count: catalogue.products)} · '
+                        '${context.l10n.foodCupSizes(count: catalogue.sizes)}',
                   ),
               ],
             ),
@@ -77,7 +80,10 @@ class DataSourcesScreen extends StatelessWidget {
               [
                 for (final catalogue in catalogues)
                   if (catalogue.checkedAt case final at?)
-                    '${catalogue.label}更新於 ${formatDate(at)}',
+                    context.l10n.catalogueUpdated(
+                      catalogue: catalogue.labelIn(context.l10n),
+                      date: context.dates.date(at),
+                    ),
               ].join('\n'),
               style: AppTextStyles.caption,
             ),
@@ -102,7 +108,10 @@ class _Counts extends StatelessWidget {
       children: [
         for (final category in RecordCategory.values)
           if (counts[category] case final count?)
-            KeyValueRow(label: category.label, value: '$count 筆'),
+            KeyValueRow(
+              label: category.labelIn(context.l10n),
+              value: context.l10n.readingsCount(count: count),
+            ),
       ],
     );
   }
@@ -138,9 +147,14 @@ class _HealthPlatformState extends State<_HealthPlatform> {
     setState(() => _isWorking = true);
     try {
       final imported = await action();
-      toast.show(_summary(imported));
+      if (!mounted) return;
+      toast.show(_summary(context.l10n, imported));
     } on Exception catch (error) {
-      toast.show('讀取失敗：$error', kind: ToastKind.warning);
+      if (!mounted) return;
+      toast.show(
+        context.l10n.healthReadFailed(error: '$error'),
+        kind: ToastKind.warning,
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -157,24 +171,27 @@ class _HealthPlatformState extends State<_HealthPlatform> {
       context,
       AppDialog(
         title: store.healthSourceName,
-        message: '中斷連接後紀錄保留。',
+        message: context.l10n.healthDisconnectKeeps,
         actions: [
           DialogAction(
-            label: '立即讀取',
+            label: context.l10n.healthReadNow,
             onTap: () {
               Navigator.of(context).pop();
               _run(store.syncHealth);
             },
           ),
           DialogAction(
-            label: '中斷連接',
+            label: context.l10n.healthDisconnect,
             tone: DialogTone.destructive,
             onTap: () {
               Navigator.of(context).pop();
               store.disconnectHealth();
             },
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -190,8 +207,10 @@ class _HealthPlatformState extends State<_HealthPlatform> {
           return Gutter(
             child: Text(
               snapshot.hasData
-                  ? '這台裝置沒有 ${store.healthSourceName}，或版本太舊。'
-                  : '檢查中…',
+                  ? context.l10n.healthUnavailable(
+                      source: store.healthSourceName,
+                    )
+                  : context.l10n.checking,
               style: AppTextStyles.caption,
             ),
           );
@@ -199,8 +218,8 @@ class _HealthPlatformState extends State<_HealthPlatform> {
         final synced = store.lastHealthSync;
         final kinds = [
           for (final kind in HealthDataKind.values)
-            if (store.healthKinds.contains(kind)) kind.label,
-        ].join('、');
+            if (store.healthKinds.contains(kind)) kind.labelIn(context.l10n),
+        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -209,16 +228,22 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                 children: [
                   NavRow(
                     title: store.isHealthConnected
-                        ? '已連接'
-                        : '連接 ${store.healthSourceName}',
+                        ? context.l10n.healthConnected
+                        : context.l10n.healthConnect(
+                            source: store.healthSourceName,
+                          ),
                     subtitle: switch ((_isWorking, store.isHealthConnected)) {
-                      (true, _) => '讀取中…',
-                      (_, false) => '允許讀取',
-                      (_, true) when store.healthSyncFailed => '上次自動讀取失敗',
+                      (true, _) => context.l10n.healthReading,
+                      (_, false) => context.l10n.healthAllowReading,
+                      (_, true) when store.healthSyncFailed =>
+                        context.l10n.healthAutoReadFailed,
                       (_, true) when synced != null =>
-                        '上次讀取 ${formatDate(synced)} '
-                            '${formatTimeOfDay(synced)}',
-                      (_, true) => '已連接',
+                        context.l10n.healthLastRead(
+                          when:
+                              '${context.dates.date(synced)} '
+                              '${formatTimeOfDay(synced)}',
+                        ),
+                      (_, true) => context.l10n.healthConnected,
                     },
                     onTap: _isWorking
                         ? null
@@ -244,10 +269,15 @@ class _HealthPlatformState extends State<_HealthPlatform> {
                       : () => _run(store.askHealthAgain),
                 ),
               ),
-            Gutter(child: Text('讀取：$kinds', style: AppTextStyles.caption)),
+            Gutter(
+              child: Text(
+                context.l10n.healthReads(kinds: joinList(context.l10n, kinds)),
+                style: AppTextStyles.caption,
+              ),
+            ),
             Gutter(
               child: LinkText(
-                label: '隱私說明',
+                label: context.l10n.privacyLink,
                 onTap: () => pushPage(context, const PrivacyScreen()),
               ),
             ),
@@ -279,13 +309,18 @@ class _Permissions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isKnown) {
-      return Gutter(child: const Text('檢查權限中…', style: AppTextStyles.caption));
+      return Gutter(
+        child: Text(
+          context.l10n.checkingPermissions,
+          style: AppTextStyles.caption,
+        ),
+      );
     }
     final allowed = granted;
     if (allowed == null) {
       return Gutter(
-        child: const Text(
-          '權限在「設定 > 健康 > 資料存取與裝置 > MISHIRUBE」修改。',
+        child: Text(
+          context.l10n.healthPermissionsPath,
           style: AppTextStyles.caption,
         ),
       );
@@ -302,13 +337,18 @@ class _Permissions extends StatelessWidget {
             children: [
               for (final kind in kinds)
                 KeyValueRow(
-                  label: kind.label,
-                  value: allowed.contains(kind) ? '已允許' : '未允許',
+                  label: kind.labelIn(context.l10n),
+                  value: allowed.contains(kind)
+                      ? context.l10n.permissionAllowed
+                      : context.l10n.permissionDenied,
                 ),
               if (denied.isNotEmpty)
                 NavRow(
-                  title: '允許其他類別',
-                  subtitle: denied.map((kind) => kind.label).join('、'),
+                  title: context.l10n.healthAllowOthers,
+                  subtitle: joinList(
+                    context.l10n,
+                    denied.map((kind) => kind.labelIn(context.l10n)),
+                  ),
                   onTap: onAskAgain,
                 ),
             ],
@@ -320,30 +360,30 @@ class _Permissions extends StatelessWidget {
 }
 
 /// What an import did, in a sentence; or why nothing came in.
-String _summary(HealthImport? imported) {
-  if (imported == null) return '沒有連上。';
+String _summary(AppLocalizations l10n, HealthImport? imported) {
+  if (imported == null) return l10n.healthNotConnected;
+  String kinds(Iterable<HealthDataKind> denied) =>
+      joinList(l10n, denied.map((kind) => kind.labelIn(l10n)));
   if (imported.foundNothing) {
     return switch (imported.denied) {
-      final denied? when denied.isNotEmpty =>
-        '沒有讀到資料。未允許：${denied.map((kind) => kind.label).join('、')}。',
-      _ => '沒有讀到資料。到系統的健康設定確認允許的類別。',
+      final denied? when denied.isNotEmpty => l10n.healthNothingReadDenied(
+        kinds: kinds(denied),
+      ),
+      _ => l10n.healthNothingRead,
     };
   }
-  const units = {
-    HealthDataKind.sleep: '晚',
-    HealthDataKind.weight: '筆',
-    HealthDataKind.waist: '筆',
-    HealthDataKind.body: '筆',
-    HealthDataKind.workouts: '次',
-    HealthDataKind.water: '次',
-    HealthDataKind.activity: '筆',
+  String counted(HealthDataKind kind, int count) => switch (kind) {
+    HealthDataKind.sleep => l10n.nightsCount(count: count),
+    HealthDataKind.workouts ||
+    HealthDataKind.water => l10n.timesCount(count: count),
+    _ => l10n.readingsCount(count: count),
   };
-  return [
+  return joinList(l10n, [
     for (final MapEntry(key: kind, value: count) in imported.added.entries)
-      if (count > 0) '${kind.label} $count ${units[kind]}',
-    if (imported.updated > 0) '更新 ${imported.updated} 晚睡眠',
-    if (imported.skipped > 0) '${imported.skipped} 晚保留手動紀錄',
+      if (count > 0) '${kind.labelIn(l10n)} ${counted(kind, count)}',
+    if (imported.updated > 0) l10n.healthUpdatedNights(count: imported.updated),
+    if (imported.skipped > 0) l10n.healthKeptManual(count: imported.skipped),
     if (imported.denied case final denied? when denied.isNotEmpty)
-      '未允許：${denied.map((kind) => kind.label).join('、')}',
-  ].join('、');
+      l10n.healthNotAllowedList(kinds: kinds(denied)),
+  ]);
 }

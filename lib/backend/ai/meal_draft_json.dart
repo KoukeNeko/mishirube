@@ -99,7 +99,7 @@ MealDraft parseMealPhoto(
     if (decoded case {'notes': final List<dynamic> notes})
       for (final note in notes.take(3))
         if (note case final String text when text.trim().isNotEmpty)
-          text.trim(),
+          ModelNote(text.trim()),
   ];
   return MealDraft(
     items: items,
@@ -133,7 +133,8 @@ List<DraftItem> _itemsOf(Object? decoded, String answer) {
           name: name.trim(),
           amount: switch (entry['amount']) {
             final String amount when amount.trim().isNotEmpty => amount.trim(),
-            _ => '一份',
+            // Nothing said: the item is one of whatever it is.
+            _ => '',
           },
           kcal: _figure(entry['kcal'], _maxKcal),
           proteinGrams: _figure(entry['protein_g'], _maxGrams),
@@ -148,7 +149,7 @@ List<DraftItem> _itemsOf(Object? decoded, String answer) {
 
 /// Whether [item]'s energy is far from what its macronutrients add up
 /// to. Wide margin: fibre, alcohol and rounding all move it.
-String? _energyWarning(DraftItem item) {
+EnergyMismatch? _energyWarning(DraftItem item) {
   final (kcal, protein, carb, fat) = (
     item.kcal,
     item.proteinGrams,
@@ -161,8 +162,7 @@ String? _energyWarning(DraftItem item) {
   final estimate = 4 * protein + 4 * carb + 9 * fat;
   final gap = (kcal - estimate).abs();
   if (gap <= 30 || gap <= 0.15 * kcal) return null;
-  return '${item.name}的${MacroLabel.energy}和${MacroLabel.protein}、'
-      '${MacroLabel.carb}、${MacroLabel.fat}算起來差得多，請核對。';
+  return EnergyMismatch(item.name);
 }
 
 int? _figure(Object? value, int max) => switch (value) {

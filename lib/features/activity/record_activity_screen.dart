@@ -10,6 +10,7 @@ import '../../shared/widgets/widgets.dart';
 import 'activity_type_picker.dart';
 import 'activity_view_model.dart';
 import 'live_activity_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Round numbers cover most of what people log after the fact.
 const _durationShortcuts = [15, 30, 45, 60];
@@ -107,7 +108,11 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   void _startNow() {
     final store = AppStoreScope.read(context);
     if (!store.startActivity(_type)) {
-      showToast(context, '訓練進行中，先結束訓練才能開始運動', kind: ToastKind.warning);
+      showToast(
+        context,
+        context.l10n.workoutBlocksActivity,
+        kind: ToastKind.warning,
+      );
       return;
     }
     replaceWithPage(context, const LiveActivityScreen());
@@ -137,20 +142,33 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
 
   void _save() {
     if (_minutes < _minMinutes || _minutes > _maxMinutes) {
-      setState(() => _error = '時長請介於 $_minMinutes – $_maxMinutes 分鐘。');
+      setState(
+        () => _error = context.l10n.activityDurationRange(
+          min: _minMinutes,
+          max: _maxMinutes,
+        ),
+      );
       return;
     }
     final text = _distance.text.trim();
     final metres = _distanceMetres;
     if (text.isNotEmpty &&
         (metres == null || metres < 0 || metres > _maxDistanceKm * 1000)) {
-      setState(() => _error = '距離請輸入 0 – ${_maxDistanceKm.round()} km 之間。');
+      setState(
+        () => _error = context.l10n.activityDistanceRange(
+          max: _maxDistanceKm.round(),
+        ),
+      );
       return;
     }
     final climb = _elevationMetres;
     if (_elevation.text.trim().isNotEmpty &&
         (climb == null || climb < 0 || climb > _maxElevationM)) {
-      setState(() => _error = '爬升請輸入 0 – ${_maxElevationM.round()} m 之間。');
+      setState(
+        () => _error = context.l10n.activityClimbRange(
+          max: _maxElevationM.round(),
+        ),
+      );
       return;
     }
     final edited = widget.activity;
@@ -182,7 +200,12 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      edited == null ? '已記錄${_type.label} $_minutes 分' : '已更新${_type.label}',
+      edited == null
+          ? context.l10n.activityLogged(
+              activity: _type.labelIn(context.l10n),
+              minutes: _minutes,
+            )
+          : context.l10n.activityUpdated(activity: _type.labelIn(context.l10n)),
       kind: ToastKind.success,
     );
   }
@@ -197,22 +220,26 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       distanceMeters: _distanceMetres,
     ).pace;
     return DetailPage(
-      appBar: PageAppBar(title: widget.activity == null ? '記錄運動' : '編輯運動'),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      appBar: PageAppBar(
+        title: widget.activity == null
+            ? context.l10n.activityRecordTitle
+            : context.l10n.activityEditTitle,
+      ),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         Gutter(
           child: GroupedCard(
             children: [
               NavRow(
-                title: '運動類型',
-                subtitle: _type.label,
+                title: context.l10n.activityTypeRow,
+                subtitle: _type.labelIn(context.l10n),
                 leading: Icon(_type.icon, color: AppColors.activity),
                 onTap: _pickType,
               ),
               if (widget.activity == null)
                 NavRow(
-                  title: '現在開始計時',
-                  subtitle: '邊做邊計時，距離與強度結束後再補',
+                  title: context.l10n.activityStartTimer,
+                  subtitle: context.l10n.activityStartTimerDetail,
                   leading: const Icon(
                     Icons.play_arrow_rounded,
                     color: AppColors.activity,
@@ -220,16 +247,16 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                   onTap: _startNow,
                 ),
               NavRow(
-                title: '開始時間',
+                title: context.l10n.activityStartTime,
                 subtitle:
-                    '${_startedAt.month} 月 ${_startedAt.day} 日 '
+                    '${context.dates.monthDay(_startedAt)} '
                     '${formatTimeOfDay(_startedAt)}',
                 onTap: _pickStart,
               ),
             ],
           ),
         ),
-        Gutter(child: const SectionLabel('時長')),
+        Gutter(child: SectionLabel(context.l10n.activityDurationSection)),
         Gutter(
           child: AppCard(
             child: Column(
@@ -237,7 +264,8 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
               children: [
                 ChipWrap(
                   options: _durationShortcuts,
-                  labelOf: (minutes) => '$minutes 分',
+                  labelOf: (minutes) =>
+                      context.l10n.durationMinutes(minutes: minutes),
                   isSelected: (minutes) => _minutes == minutes,
                   selectedColor: AppColors.activity,
                   onTap: _setMinutes,
@@ -267,10 +295,15 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                             _setMinutes(int.tryParse(value) ?? _minutes),
                       ),
                     ),
-                    const Text('分鐘', style: AppTextStyles.caption),
+                    Text(
+                      context.l10n.minutesUnit,
+                      style: AppTextStyles.caption,
+                    ),
                     const Spacer(),
                     Text(
-                      '結束 ${formatTimeOfDay(_endedAt)}',
+                      context.l10n.activityEndsAt(
+                        time: formatTimeOfDay(_endedAt),
+                      ),
                       style: AppTextStyles.caption,
                     ),
                   ],
@@ -280,7 +313,11 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           ),
         ),
         if (_type.tracksDistance) ...[
-          Gutter(child: const SectionLabel('距離（選填）')),
+          Gutter(
+            child: SectionLabel(
+              context.l10n.optionalField(field: context.l10n.activityDistance),
+            ),
+          ),
           Gutter(
             child: _MeasureField(
               fieldKey: const ValueKey('activity-distance'),
@@ -293,13 +330,17 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           if (pace != null)
             Gutter(
               child: Text(
-                '配速 ${formatHoursMinutes(pace)} /km',
+                context.l10n.activityPaceValue(pace: formatHoursMinutes(pace)),
                 style: AppTextStyles.caption,
               ),
             ),
         ],
         if (_type.tracksElevation) ...[
-          Gutter(child: const SectionLabel('爬升（選填）')),
+          Gutter(
+            child: SectionLabel(
+              context.l10n.optionalField(field: context.l10n.activityClimb),
+            ),
+          ),
           Gutter(
             child: _MeasureField(
               fieldKey: const ValueKey('activity-elevation'),
@@ -308,7 +349,11 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
             ),
           ),
         ],
-        Gutter(child: const SectionLabel('強度（選填）')),
+        Gutter(
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.effortSection),
+          ),
+        ),
         Gutter(
           child: ChipWrap(
             options: const [2, 4, 6, 8, 10],
@@ -320,11 +365,21 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           ),
         ),
         Gutter(
-          child: const Text('1 很輕鬆、10 拼盡全力。', style: AppTextStyles.caption),
+          child: Text(
+            context.l10n.effortScaleHint,
+            style: AppTextStyles.caption,
+          ),
         ),
-        Gutter(child: const SectionLabel('備註（選填）')),
         Gutter(
-          child: AppTextField(controller: _note, hint: '例如：河濱，風很大'),
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.notesSection),
+          ),
+        ),
+        Gutter(
+          child: AppTextField(
+            controller: _note,
+            hint: context.l10n.activityNoteHint,
+          ),
         ),
         if (_error case final error?)
           Gutter(

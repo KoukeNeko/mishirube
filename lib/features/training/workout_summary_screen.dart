@@ -10,6 +10,7 @@ import '../../shared/widgets/widgets.dart';
 import '../trends/muscle_map.dart';
 import 'edit_workout_screen.dart';
 import 'new_routine_screen.dart';
+import '../../l10n/l10n.dart';
 
 class WorkoutSummaryScreen extends StatelessWidget {
   const WorkoutSummaryScreen({super.key, this.workoutId});
@@ -24,7 +25,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
     store.deleteWorkout(workout.id);
     Navigator.of(context).pop();
     toast.showUndo(
-      '已刪除「${workout.routineName}」',
+      context.l10n.deletedNamed(name: workout.routineName),
       onUndo: () => store.restoreWorkout(workout.id),
     );
   }
@@ -37,12 +38,12 @@ class WorkoutSummaryScreen extends StatelessWidget {
         : store.workoutById(workoutId!);
     if (workout == null) {
       return DetailPage(
-        appBar: PageAppBar(title: '訓練'),
+        appBar: PageAppBar(title: context.l10n.moduleTraining),
         children: [
           Gutter(
-            child: const EmptyStateCard(
+            child: EmptyStateCard(
               icon: Icons.fitness_center,
-              title: '沒有完成的訓練',
+              title: context.l10n.noFinishedWorkout,
             ),
           ),
         ],
@@ -59,7 +60,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
       appBar: PageAppBar(
         title: workout.routineName,
         subtitle:
-            '${workout.startedAt.month} 月 ${workout.startedAt.day} 日 · '
+            '${context.dates.monthDay(workout.startedAt)} · '
             '${formatTimeOfDay(workout.startedAt)} – '
             '${formatTimeOfDay(finishedAt)}',
       ),
@@ -68,20 +69,25 @@ class WorkoutSummaryScreen extends StatelessWidget {
           child: FigureGrid(
             figures: [
               (
-                label: '時長',
+                label: context.l10n.durationLabel,
                 value: formatClock(workout.elapsedAt(finishedAt)),
                 unit: null,
                 color: null,
               ),
-              (label: '總組數', value: '${review.sets}', unit: null, color: null),
               (
-                label: '總量',
+                label: context.l10n.totalSets,
+                value: '${review.sets}',
+                unit: null,
+                color: null,
+              ),
+              (
+                label: context.l10n.totalAmount,
                 value: formatKcal(review.volumeKg.round()),
                 unit: 'kg',
                 color: null,
               ),
               (
-                label: '個人紀錄',
+                label: context.l10n.personalRecords,
                 value: '${review.records}',
                 unit: null,
                 color: review.records > 0 ? AppColors.training : null,
@@ -89,15 +95,15 @@ class WorkoutSummaryScreen extends StatelessWidget {
             ],
           ),
         ),
-        if (_volumeChange(review) case final change?)
+        if (_volumeChange(context.l10n, review) case final change?)
           Gutter(child: TagWrap(labels: [change])),
         PageSection(
-          label: '這次的負荷',
+          label: context.l10n.workloadSection,
           children: [
             Gutter(
               child: ChipWrap(
                 options: Workload.values,
-                labelOf: (workload) => workload.label,
+                labelOf: (workload) => workload.labelIn(context.l10n),
                 isSelected: (workload) => workload == workout.workload,
                 onTap: (workload) => store.rateWorkout(workout, workload),
               ),
@@ -106,14 +112,14 @@ class WorkoutSummaryScreen extends StatelessWidget {
         ),
         if (records.isNotEmpty)
           PageSection(
-            label: '個人紀錄',
+            label: context.l10n.personalRecords,
             children: [
               for (final item in records) Gutter(child: _RecordRow(item: item)),
             ],
           ),
         if (review.exercises.isNotEmpty)
           PageSection(
-            label: '動作',
+            label: context.l10n.exercisesLabel,
             children: [
               for (final item in review.exercises)
                 Gutter(child: _ExerciseResult(item: item)),
@@ -121,7 +127,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
           ),
         if (review.exercises.isNotEmpty)
           PageSection(
-            label: '訓練部位',
+            label: context.l10n.trainedAreas,
             children: [
               Gutter(
                 child: AppCard(
@@ -139,9 +145,10 @@ class WorkoutSummaryScreen extends StatelessWidget {
               ),
             ],
           ),
-        if (_weekSets(store, review) case final labels when labels.isNotEmpty)
+        if (_weekSets(context.l10n, store, review) case final labels
+            when labels.isNotEmpty)
           PageSection(
-            label: '近 7 天肌群組數',
+            label: context.l10n.muscleSetsLast7,
             children: [Gutter(child: TagWrap(labels: labels))],
           ),
         // What was done becomes a plan to do again, with its own sets
@@ -149,7 +156,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
         if (workout.completedSets > 0)
           Gutter(
             child: SecondaryButton(
-              label: '存成課表',
+              label: context.l10n.saveAsRoutine,
               icon: Icons.bookmark_add_outlined,
               onPressed: () => pushPage(
                 context,
@@ -158,18 +165,18 @@ class WorkoutSummaryScreen extends StatelessWidget {
             ),
           ),
         PageSection(
-          label: '管理',
+          label: context.l10n.manageSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
                   NavRow(
-                    title: '編輯這筆紀錄',
+                    title: context.l10n.editThisEntry,
                     onTap: () =>
                         pushPage(context, EditWorkoutScreen(workout: workout)),
                   ),
                   NavRow(
-                    title: '刪除這筆紀錄',
+                    title: context.l10n.recordDelete,
                     isDestructive: true,
                     onTap: () => _delete(context, workout),
                   ),
@@ -183,25 +190,30 @@ class WorkoutSummaryScreen extends StatelessWidget {
   }
 
   /// The week's working sets for each muscle this workout trained.
-  static List<String> _weekSets(AppStore store, WorkoutReview review) {
+  static List<String> _weekSets(
+    AppLocalizations l10n,
+    AppStore store,
+    WorkoutReview review,
+  ) {
     final trained = {
       for (final item in review.exercises) ...item.exercise.primaryMuscles,
     };
     return [
       for (final (muscle, sets) in store.weekMuscleSets)
-        if (trained.contains(muscle)) '${muscle.label} $sets 組',
+        if (trained.contains(muscle))
+          l10n.muscleSetCount(muscle: muscle.labelIn(l10n), sets: sets),
     ];
   }
 
   /// The total against the same template's last time, when there was one.
-  static String? _volumeChange(WorkoutReview review) {
+  static String? _volumeChange(AppLocalizations l10n, WorkoutReview review) {
     final previous = review.previousVolumeKg;
     if (previous == null || previous == 0) return null;
     final change = ((review.volumeKg - previous) / previous * 100).round();
     return switch (change) {
-      0 => '總量與上次相同',
-      > 0 => '總量比上次 +$change%',
-      _ => '總量比上次 $change%',
+      0 => l10n.volumeSame,
+      > 0 => l10n.volumeChangePercent(change: '+$change'),
+      _ => l10n.volumeChangePercent(change: '$change'),
     };
   }
 }
@@ -251,7 +263,7 @@ class _ExerciseResult extends StatelessWidget {
       for (final set in item.done)
         set.type == SetType.working
             ? '${++ordinal}'
-            : set.type.label.characters.first,
+            : set.type.labelIn(context.l10n).characters.first,
     ];
     const figures = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
     return AppCard(
@@ -269,7 +281,10 @@ class _ExerciseResult extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
-            '${item.sets} 組 · ${formatKcal(item.volumeKg.round())} kg',
+            context.l10n.setsAndVolume(
+              sets: item.sets,
+              volume: formatKcal(item.volumeKg.round()),
+            ),
             style: AppTextStyles.caption,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -292,11 +307,11 @@ class _ExerciseResult extends StatelessWidget {
                     ),
                   ),
                   if (identical(set, item.record))
-                    const Icon(
+                    Icon(
                       Icons.emoji_events_outlined,
                       size: 18,
                       color: AppColors.training,
-                      semanticLabel: '個人紀錄',
+                      semanticLabel: context.l10n.personalRecords,
                     ),
                 ],
               ),

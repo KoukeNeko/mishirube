@@ -7,6 +7,8 @@ import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
+import 'package:mishirube/l10n/l10n.dart';
+
 const _sliderWidth = 300.0;
 
 /// Pumps a slider of a known width so a drag distance maps to a value.
@@ -21,6 +23,8 @@ Future<double Function()> _pumpSlider(
   var current = value;
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: buildAppTheme(),
       home: Scaffold(
         body: Center(

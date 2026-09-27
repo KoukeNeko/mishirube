@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// One area's contribution to the log: its rows, its one-line summary of a
 /// day, and anything it wants to say about that day.
@@ -7,6 +8,11 @@ import '../../domain/domain.dart';
 /// turns into a row. A new kind of record adds a source instead of another
 /// block inside the query.
 abstract class TimelineSource {
+  TimelineSource(this.l10n);
+
+  /// The language of the rows and summaries.
+  final AppLocalizations l10n;
+
   /// Which dot on the calendar this source feeds. Sources sharing a
   /// category (sleep and check-ins) are summarised in registration order,
   /// the last one winning.

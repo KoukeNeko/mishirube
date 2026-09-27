@@ -4,6 +4,7 @@ import '../../../app/theme.dart';
 import '../page/collapsing_header.dart';
 import 'chips.dart';
 import 'pill.dart';
+import '../../../l10n/l10n.dart';
 
 const _monthsPerRow = 3;
 
@@ -71,7 +72,7 @@ class _MonthPickerState extends State<_MonthPicker> {
             children: [
               _YearStep(
                 icon: Icons.chevron_left,
-                semanticLabel: '上一年',
+                semanticLabel: context.l10n.monthPickerPreviousYear,
                 onTap: canGoBack ? () => setState(() => _year--) : null,
               ),
               Expanded(
@@ -79,7 +80,7 @@ class _MonthPickerState extends State<_MonthPicker> {
                   header: true,
                   liveRegion: true,
                   child: Text(
-                    '$_year 年',
+                    context.dates.year(_year),
                     textAlign: TextAlign.center,
                     style: AppTextStyles.pageTitle,
                   ),
@@ -87,7 +88,7 @@ class _MonthPickerState extends State<_MonthPicker> {
               ),
               _YearStep(
                 icon: Icons.chevron_right,
-                semanticLabel: '下一年',
+                semanticLabel: context.l10n.monthPickerNextYear,
                 onTap: canGoForward ? () => setState(() => _year++) : null,
               ),
             ],
@@ -110,7 +111,7 @@ class _MonthPickerState extends State<_MonthPicker> {
   }
 
   Widget _monthCell(int month) {
-    final label = '$month 月';
+    final label = context.dates.month(month);
     if (!_isAvailable(month)) {
       return Semantics(
         enabled: false,

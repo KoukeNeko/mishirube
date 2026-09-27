@@ -140,7 +140,9 @@ FoodLabelDraft parseFoodLabel(
     _ => null,
   };
   final unit = switch (text('serving_unit')?.toLowerCase()) {
+    // l10n-ignore: the units a model may copy off a Chinese label.
     'g' || '公克' => ServingUnit.gram,
+    // l10n-ignore: as above.
     'ml' || '毫升' => ServingUnit.millilitre,
     _ => null,
   };
@@ -154,8 +156,8 @@ FoodLabelDraft parseFoodLabel(
         null => null,
       };
   final protein = figure('protein_g');
-  final warnings = [
-    if (carb == null && netCarb != null) '這張標示的碳水化合物不含膳食纖維，又沒有印膳食纖維，碳水化合物留白。',
+  final warnings = <DraftWarning>[
+    if (carb == null && netCarb != null) const CarbWithoutFibre(),
     ?_columnWarning(
       kcal,
       figure('kcal_per_100'),
@@ -222,7 +224,7 @@ double? _number(Object? value) => switch (value) {
 /// 400 kcal per 100 g is 120 kcal a serving. Every digit can be read
 /// right and the columns still swapped, and this is the check that
 /// catches it. Labels round, so a sixth either way is allowed.
-String? _columnWarning(double? kcal, double? per100, double? serving) {
+ColumnMismatch? _columnWarning(double? kcal, double? per100, double? serving) {
   if (kcal == null || per100 == null || serving == null || serving == 100) {
     return null;
   }
@@ -231,13 +233,13 @@ String? _columnWarning(double? kcal, double? per100, double? serving) {
   if (gap <= 5 || gap <= 0.15 * (kcal > expected ? kcal : expected)) {
     return null;
   }
-  return '每份的熱量和每 100 的熱量依份量換算對不上，可能填到另一欄，請核對。';
+  return const ColumnMismatch();
 }
 
 /// Whether the energy roughly matches the macronutrients (4 kcal a gram
 /// of protein and carbohydrate, 9 of fat). Only a prompt to look: fibre,
 /// sugar alcohols and rounding all move it, so the margin is wide.
-String? _energyWarning(
+EnergyMismatch? _energyWarning(
   double? kcal,
   double? protein,
   double? carb,
@@ -249,6 +251,5 @@ String? _energyWarning(
   final estimate = 4 * protein + 4 * carb + 9 * fat;
   final gap = (kcal - estimate).abs();
   if (gap <= 10 || gap <= 0.15 * kcal) return null;
-  return '${MacroLabel.energy}和${MacroLabel.protein}、${MacroLabel.carb}、'
-      '${MacroLabel.fat}算起來差得多，請核對這幾格。';
+  return const EnergyMismatch();
 }

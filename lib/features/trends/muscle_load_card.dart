@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'muscle_map.dart';
+import '../../l10n/l10n.dart';
 
 const _barHeight = 8.0;
 const _labelWidth = 56.0;
@@ -29,7 +30,7 @@ class MuscleLoadCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (load.isEmpty) {
-      return const InfoBanner(message: '沒有工作組紀錄。');
+      return InfoBanner(message: context.l10n.noWorkingSets);
     }
     final most = load.first.$2;
     return AppCard(
@@ -47,13 +48,19 @@ class MuscleLoadCard extends StatelessWidget {
           for (final (index, (muscle, sets)) in load.indexed) ...[
             if (index > 0) const SizedBox(height: AppSpacing.sm),
             Semantics(
-              label: '${muscle.label} 每週 $sets 組',
+              label: context.l10n.muscleWeeklySets(
+                muscle: muscle.labelIn(context.l10n),
+                sets: sets,
+              ),
               excludeSemantics: true,
               child: Row(
                 children: [
                   SizedBox(
                     width: _labelWidth,
-                    child: Text(muscle.label, style: AppTextStyles.caption),
+                    child: Text(
+                      muscle.labelIn(context.l10n),
+                      style: AppTextStyles.caption,
+                    ),
                   ),
                   Expanded(
                     child: ClipRRect(
@@ -103,30 +110,34 @@ class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '色階由 0 到 $muscleMapTopOfScale 組以上',
+      label: context.l10n.muscleScaleLabel(top: muscleMapTopOfScale),
       excludeSemantics: true,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (final (index, stop) in muscleMapLegendStops.indexed) ...[
-            if (index > 0) const SizedBox(width: AppSpacing.xxs),
-            Container(
-              width: 22,
-              height: 8,
-              decoration: BoxDecoration(
-                color: muscleShade(stop),
-                borderRadius: BorderRadius.circular(4),
+      // One line, scaled down where the unit's words run long.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (index, stop) in muscleMapLegendStops.indexed) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.xxs),
+              Container(
+                width: 22,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: muscleShade(stop),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.xxs),
-            Text(
-              stop == muscleMapTopOfScale ? '$stop+' : '$stop',
-              style: AppTextStyles.caption,
-            ),
+              const SizedBox(width: AppSpacing.xxs),
+              Text(
+                stop == muscleMapTopOfScale ? '$stop+' : '$stop',
+                style: AppTextStyles.caption,
+              ),
+            ],
+            const SizedBox(width: AppSpacing.xs),
+            Text(context.l10n.setsPerWeek, style: AppTextStyles.caption),
           ],
-          const SizedBox(width: AppSpacing.xs),
-          const Text('組 / 週', style: AppTextStyles.caption),
-        ],
+        ),
       ),
     );
   }
@@ -149,7 +160,7 @@ class _FigureChoice extends StatelessWidget {
           if (figure != MuscleFigure.values.first)
             const SizedBox(width: AppSpacing.xs),
           SelectChip(
-            label: figure.label,
+            label: figure.labelIn(context.l10n),
             isSelected: selected == figure,
             showsSelectionAsOutline: true,
             onTap: () => onSelect(figure),

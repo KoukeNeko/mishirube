@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'activity_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Picks the kind of exercise. Recently used first, then the handful most
 /// people log, then everything by group: over time a person uses a few
@@ -22,26 +23,29 @@ class ActivityTypePicker extends StatelessWidget {
 
   Widget _page(BuildContext context, List<ActivityType> recent) {
     return DetailPage(
-      appBar: PageAppBar(title: '選擇運動'),
+      appBar: PageAppBar(title: context.l10n.activityPickTitle),
       children: [
         if (recent.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('最近使用')),
+          Gutter(child: SectionLabel(context.l10n.recentlyUsed)),
           Gutter(
             child: _TypeChips(types: recent, selected: selected),
           ),
         ],
-        Gutter(child: const SectionLabel('常用')),
+        Gutter(child: SectionLabel(context.l10n.commonlyUsed)),
         Gutter(
           child: _TypeChips(types: ActivityTypes.common, selected: selected),
         ),
-        Gutter(child: const SectionLabel('所有運動')),
+        Gutter(child: SectionLabel(context.l10n.activityAllTypes)),
         for (final group in ActivityGroup.values)
           if (ActivityTypes.all.where((type) => type.group == group).toList()
               case final types when types.isNotEmpty) ...[
             Gutter(
               child: Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: Text(group.label, style: AppTextStyles.caption),
+                child: Text(
+                  group.labelIn(context.l10n),
+                  style: AppTextStyles.caption,
+                ),
               ),
             ),
             Gutter(
@@ -67,7 +71,7 @@ class _TypeChips extends StatelessWidget {
       children: [
         for (final type in types)
           SelectChip(
-            label: type.label,
+            label: type.labelIn(context.l10n),
             icon: type.icon,
             iconColor: AppColors.activity,
             isSelected: type == selected,

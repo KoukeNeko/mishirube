@@ -4,18 +4,15 @@ import '../../../app/theme.dart';
 import '../../../domain/domain.dart';
 import 'cards.dart';
 import '../controls/chips.dart';
+import '../../../l10n/l10n.dart';
 
-/// "值得注意" card: a plain-language statement and the evidence behind it.
+/// A card stating one finding in plain language, and the evidence behind
+/// it; titled 值得注意 unless given a title.
 class InsightCard extends StatelessWidget {
-  const InsightCard({
-    super.key,
-    required this.insight,
-    this.title = '值得注意',
-    this.onTap,
-  });
+  const InsightCard({super.key, required this.insight, this.title, this.onTap});
 
   final Insight insight;
-  final String title;
+  final String? title;
   final VoidCallback? onTap;
 
   @override
@@ -25,7 +22,10 @@ class InsightCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyles.overline),
+          Text(
+            title ?? context.l10n.insightCardTitle,
+            style: AppTextStyles.overline,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             insight.statement,

@@ -14,6 +14,7 @@ import 'body_history_screen.dart';
 import 'body_range.dart';
 import 'body_view_model.dart';
 import 'weight_trend_chart.dart';
+import '../../l10n/l10n.dart';
 
 /// What the body is: weight and its trend first, then what follows from
 /// height, what a body composition scale reported and tape measurements.
@@ -31,13 +32,15 @@ class BodyScreen extends StatefulWidget {
 
 /// What the add button offers to log.
 enum _Log {
-  weight('體重'),
-  girth('圍度'),
-  composition('身體組成');
+  weight,
+  girth,
+  composition;
 
-  const _Log(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    weight => l10n.moduleWeight,
+    girth => l10n.recordMeasurements,
+    composition => l10n.recordBodyComposition,
+  };
 }
 
 class _BodyScreenState extends State<BodyScreen> {
@@ -47,15 +50,18 @@ class _BodyScreenState extends State<BodyScreen> {
     final choice = await showAppDialog<_Log>(
       context,
       AppDialog(
-        title: '記錄',
+        title: context.l10n.logAction,
         isChoiceList: true,
         actions: [
           for (final log in _Log.values)
             DialogAction(
-              label: log.label,
+              label: log.labelIn(context.l10n),
               onTap: () => Navigator.of(context).pop(log),
             ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -70,9 +76,9 @@ class _BodyScreenState extends State<BodyScreen> {
   void _openMetric(BodyMetric metric) => pushModalPage<void>(
     context,
     BodyHistoryScreen(
-      title: metric.label,
-      unit: metric.unit,
-      tags: [if (metric.isEstimated) '體脂計估計，請用同一台比較'],
+      title: metric.labelIn(context.l10n),
+      unit: metric.unitIn(context.l10n),
+      tags: [if (metric.isEstimated) context.l10n.bodyScaleCompareSame],
       load: (model, window) => model.readings(metric, window),
       addPage: () => BodyReadingEntryScreen(only: metric),
       editPage: (record) =>
@@ -83,7 +89,7 @@ class _BodyScreenState extends State<BodyScreen> {
   void _openWeights() => pushModalPage<void>(
     context,
     BodyHistoryScreen(
-      title: '體重',
+      title: context.l10n.moduleWeight,
       unit: 'kg',
       load: (model, window) => model.weights(window),
       addPage: () => const WeightEntryScreen(),
@@ -94,7 +100,7 @@ class _BodyScreenState extends State<BodyScreen> {
   void _openSite(MeasurementSite site) => pushModalPage<void>(
     context,
     BodyHistoryScreen(
-      title: site.label,
+      title: site.labelIn(context.l10n),
       unit: 'cm',
       load: (model, window) => model.measurements(site, window),
       addPage: () => const MeasurementEntryScreen(),
@@ -108,9 +114,13 @@ class _BodyScreenState extends State<BodyScreen> {
     create: BodyViewModel.new,
     builder: (context, model) => DetailPage(
       appBar: PageAppBar(
-        title: '身體',
+        title: context.l10n.recordCategoryBody,
         actions: [
-          HeaderAction(icon: Icons.add, semanticLabel: '記錄', onTap: _log),
+          HeaderAction(
+            icon: Icons.add,
+            semanticLabel: context.l10n.logAction,
+            onTap: _log,
+          ),
         ],
       ),
       children: [
@@ -126,14 +136,14 @@ class _BodyScreenState extends State<BodyScreen> {
     final latest = model.latestWeight;
     final points = model.weightTrend(_range.window);
     return [
-      Gutter(child: const SectionLabel('體重')),
+      Gutter(child: SectionLabel(context.l10n.moduleWeight)),
       if (latest == null)
         Gutter(
           child: EmptyStateCard(
             icon: Icons.monitor_weight_outlined,
-            title: '沒有體重紀錄',
+            title: context.l10n.noWeightEntries,
             action: PrimaryButton(
-              label: '記錄體重',
+              label: context.l10n.logItem(item: context.l10n.moduleWeight),
               onPressed: () =>
                   pushModalPage<void>(context, const WeightEntryScreen()),
             ),
@@ -144,7 +154,7 @@ class _BodyScreenState extends State<BodyScreen> {
           child: SegmentedChoice<BodyRange>(
             options: BodyRange.values,
             selected: _range,
-            labelOf: (range) => range.label,
+            labelOf: (range) => range.labelIn(context.l10n),
             selectedColor: AppColors.body,
             onChanged: (range) => setState(() => _range = range),
           ),
@@ -165,26 +175,29 @@ class _BodyScreenState extends State<BodyScreen> {
                 ),
                 Text(
                   [
-                    '趨勢體重',
-                    '最近 ${bodyDate(latest.measuredAt)} '
-                        '${formatWeight(latest.weightKg)} kg',
+                    context.l10n.trendWeight,
+                    context.l10n.latestOn(
+                      date: context.dates.monthDay(latest.measuredAt),
+                      value: '${formatWeight(latest.weightKg)} kg',
+                    ),
                     if (trendChange(points) case final change?)
-                      '${_range.label} ${_signed(change)} kg',
+                      '${_range.labelIn(context.l10n)} ${_signed(change)} kg',
                   ].join(' · '),
                   style: AppTextStyles.caption,
                 ),
                 if (points.length > 1) ...[
                   const SizedBox(height: AppSpacing.md),
                   Semantics(
-                    label: '體重走勢，${points.length} 次',
+                    label: context.l10n.weightChartLabel(count: points.length),
                     child: ChartScrubber(
                       count: points.length,
                       indexAt: ChartScrubber.points(points.length),
-                      idle: '線為 7 日平均 · ${points.length} 次秤重',
+                      idle: context.l10n.weightChartIdle(count: points.length),
                       readoutOf: (index) {
                         final (at, weight, trend) = points[index];
-                        return '${bodyDate(at)} · ${formatWeight(weight)} kg'
-                            ' · 趨勢 ${formatWeight(_round(trend))} kg';
+                        return '${context.dates.monthDay(at)} · '
+                            '${formatWeight(weight)} kg · '
+                            '${context.l10n.trendValue(value: '${formatWeight(_round(trend))} kg')}';
                       },
                       builder: (context, selected) =>
                           WeightTrendChart(points: points, selected: selected),
@@ -197,7 +210,9 @@ class _BodyScreenState extends State<BodyScreen> {
         ),
         Gutter(
           child: GroupedCard(
-            children: [NavRow(title: '所有體重紀錄', onTap: _openWeights)],
+            children: [
+              NavRow(title: context.l10n.allWeightEntries, onTap: _openWeights),
+            ],
           ),
         ),
       ],
@@ -212,14 +227,16 @@ class _BodyScreenState extends State<BodyScreen> {
     final ffmi = model.ffmi;
     final waistToHip = model.waistToHip;
     return [
-      Gutter(child: const SectionLabel('體位')),
+      Gutter(child: SectionLabel(context.l10n.buildSection)),
       Gutter(
         child: GroupedCard(
           children: [
             NavRow(
-              title: '身高',
+              title: context.l10n.bodyMetricHeight,
               trailing: Text(
-                height == null ? '未設定' : '${formatAmount(height.value)} cm',
+                height == null
+                    ? context.l10n.notSet
+                    : '${formatAmount(height.value)} cm',
                 style: AppTextStyles.caption,
               ),
               onTap: () => height == null
@@ -232,16 +249,21 @@ class _BodyScreenState extends State<BodyScreen> {
             if (bmi != null)
               KeyValueRow(
                 label: 'BMI',
-                value: '${bmi.toStringAsFixed(1)} · ${bmiBandOf(bmi).label}',
+                value:
+                    '${bmi.toStringAsFixed(1)} · ${bmiBandOf(bmi).labelIn(context.l10n)}',
               ),
             if (ffmi != null)
               KeyValueRow(label: 'FFMI', value: ffmi.toStringAsFixed(1)),
             if (waistToHip != null)
-              KeyValueRow(label: '腰臀比', value: waistToHip.toStringAsFixed(2)),
+              KeyValueRow(
+                label: context.l10n.waistToHipRatio,
+                value: waistToHip.toStringAsFixed(2),
+              ),
           ],
         ),
       ),
-      if (bmi != null) Gutter(child: const TagWrap(labels: ['國健署成人標準'])),
+      if (bmi != null)
+        Gutter(child: TagWrap(labels: [context.l10n.bmiStandardTaiwan])),
     ];
   }
 
@@ -253,27 +275,29 @@ class _BodyScreenState extends State<BodyScreen> {
     ];
     final fatMass = model.fatMassKg;
     return [
-      Gutter(child: const SectionLabel('身體組成')),
+      Gutter(child: SectionLabel(context.l10n.recordBodyComposition)),
       Gutter(
         child: GroupedCard(
           children: [
             for (final metric in metrics)
               NavRow(
-                title: metric.label,
-                subtitle: bodyDate(latest[metric]!.measuredAt),
+                title: metric.labelIn(context.l10n),
+                subtitle: context.dates.monthDay(latest[metric]!.measuredAt),
                 trailing: Text(
-                  '${formatAmount(latest[metric]!.value)} ${metric.unit}',
+                  '${formatAmount(latest[metric]!.value)} ${metric.unitIn(context.l10n)}',
                   style: AppTextStyles.itemTitle,
                 ),
                 onTap: () => _openMetric(metric),
               ),
             if (fatMass != null)
               KeyValueRow(
-                label: '脂肪量',
+                label: context.l10n.fatMass,
                 value: '${formatWeight(_round(fatMass))} kg',
               ),
             NavRow(
-              title: '記錄身體組成',
+              title: context.l10n.logItem(
+                item: context.l10n.recordBodyComposition,
+              ),
               leading: const Icon(Icons.add, color: AppColors.body),
               onTap: () =>
                   pushModalPage<void>(context, const BodyReadingEntryScreen()),
@@ -282,22 +306,22 @@ class _BodyScreenState extends State<BodyScreen> {
         ),
       ),
       if (metrics.isNotEmpty)
-        Gutter(child: const TagWrap(labels: ['體脂計估計，請用同一台比較'])),
+        Gutter(child: TagWrap(labels: [context.l10n.bodyScaleCompareSame])),
     ];
   }
 
   List<Widget> _girths(BodyViewModel model) {
     final latest = model.latestMeasurements;
     return [
-      Gutter(child: const SectionLabel('圍度')),
+      Gutter(child: SectionLabel(context.l10n.recordMeasurements)),
       Gutter(
         child: GroupedCard(
           children: [
             for (final site in MeasurementSite.values)
               if (latest[site] case final measurement?)
                 NavRow(
-                  title: site.label,
-                  subtitle: bodyDate(measurement.measuredAt),
+                  title: site.labelIn(context.l10n),
+                  subtitle: context.dates.monthDay(measurement.measuredAt),
                   trailing: Text(
                     '${formatAmount(measurement.centimetres)} cm',
                     style: AppTextStyles.itemTitle,
@@ -305,7 +329,9 @@ class _BodyScreenState extends State<BodyScreen> {
                   onTap: () => _openSite(site),
                 ),
             NavRow(
-              title: '記錄圍度',
+              title: context.l10n.logItem(
+                item: context.l10n.recordMeasurements,
+              ),
               leading: const Icon(Icons.add, color: AppColors.body),
               onTap: () =>
                   pushModalPage<void>(context, const MeasurementEntryScreen()),
@@ -314,7 +340,7 @@ class _BodyScreenState extends State<BodyScreen> {
         ),
       ),
       if (latest[MeasurementSite.waist] != null)
-        Gutter(child: const TagWrap(labels: ['國健署建議腰圍：男 < 90 cm、女 < 80 cm'])),
+        Gutter(child: TagWrap(labels: [context.l10n.waistAdviceTaiwan])),
     ];
   }
 

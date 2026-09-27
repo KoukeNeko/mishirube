@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'sleep_goal_rows.dart';
 import 'sleep_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// The days summed for the shortfall. Van Dongen 2003 saw restriction's
 /// cost keep adding up over the 14 days it ran; that is why 14, not a
@@ -62,13 +63,13 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
       ];
       return DetailPage(
         appBar: PageAppBar(
-          title: '睡眠債',
-          subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+          title: context.l10n.sleepDebtSection,
+          subtitle: context.dates.dayWithWeekday(day),
         ),
         children: [
           Gutter(child: SleepShortfallCard(model: _model)),
           PageSection(
-            label: '走勢',
+            label: context.l10n.trendSection,
             children: [
               Gutter(
                 child: AppCard(
@@ -78,15 +79,15 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
             ],
           ),
           PageSection(
-            label: '每天',
+            label: context.l10n.eachDaySection,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     for (final day in shown.reversed)
                       KeyValueRow(
-                        label: _date(day.day),
-                        value: _dayValue(day.slept, _model.need),
+                        label: context.dates.dayWithWeekday(day.day),
+                        value: _dayValue(context.l10n, day.slept, _model.need),
                       ),
                   ],
                 ),
@@ -94,7 +95,7 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
             ],
           ),
           PageSection(
-            label: '目標',
+            label: context.l10n.goalSection,
             children: [
               Gutter(
                 child: GroupedCard(children: sleepGoalRows(context, _model)),
@@ -121,12 +122,17 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
       count: sums.length,
       indexAt: ChartScrubber.points(sums.length),
       idle: known.isEmpty
-          ? '紀錄不足'
-          : '最高 ${_hours(known.reduce((a, b) => a > b ? a : b))}'
-                ' · 最低 ${_hours(known.reduce((a, b) => a < b ? a : b))}',
+          ? context.l10n.notEnoughEntries
+          : context.l10n.highestLowest(
+              high: _hours(context.l10n, known.reduce((a, b) => a > b ? a : b)),
+              low: _hours(context.l10n, known.reduce((a, b) => a < b ? a : b)),
+            ),
       readoutOf: (index) => [
-        _date(days[index]),
-        if (isShown(sums[index])) _hours(sums[index].short) else '紀錄不足',
+        context.dates.dayWithWeekday(days[index]),
+        if (isShown(sums[index]))
+          _hours(context.l10n, sums[index].short)
+        else
+          context.l10n.notEnoughEntries,
       ].join(' · '),
       builder: (context, selected) => Sparkline(
         values: values,
@@ -155,12 +161,14 @@ class SleepShortfallCard extends StatelessWidget {
     final week = model.shortfall(DateTime.daysPerWeek);
     final isShown = fortnight.recorded >= minimumShortfallDays;
     final tags = [
-      if (isShown && fortnight.recorded < settledShortfallDays) '初步',
+      if (isShown && fortnight.recorded < settledShortfallDays)
+        context.l10n.preliminary,
       if (model.goal == null)
-        '以 ${formatHoursMinutes(model.need)} 計'
+        context.l10n.countedAt(hours: formatHoursMinutes(model.need))
       else
-        '目標 ${formatHoursMinutes(model.need)}',
-      if (isShown && fortnight.missing > 0) '${fortnight.missing} 天沒有紀錄',
+        context.l10n.goalValue(goal: formatHoursMinutes(model.need)),
+      if (isShown && fortnight.missing > 0)
+        context.l10n.daysWithoutEntries(count: fortnight.missing),
     ];
     return AppCard(
       onTap: onTap,
@@ -169,21 +177,28 @@ class SleepShortfallCard extends StatelessWidget {
         children: [
           ValueWithUnit(
             value: isShown ? _number(fortnight.short) : '—',
-            unit: '小時',
+            unit: context.l10n.hoursUnit,
             style: AppTextStyles.hugeNumber.copyWith(
               color: isShown ? AppColors.wellness : AppColors.textTertiary,
             ),
           ),
           Text(
             isShown
-                ? '近 14 天 · 多睡 ${_hours(fortnight.extra)}'
-                : '需要近 14 天有 $minimumShortfallDays 天紀錄'
-                      '（目前 ${fortnight.recorded} 天）',
+                ? context.l10n.lastFortnightExtra(
+                    hours: _hours(context.l10n, fortnight.extra),
+                  )
+                : context.l10n.needsLoggedDays(
+                    minimum: minimumShortfallDays,
+                    recorded: fortnight.recorded,
+                  ),
             style: AppTextStyles.caption,
           ),
           if (isShown && week.recorded > 0)
             Text(
-              '近 7 天 ${_hours(week.short)} · 多睡 ${_hours(week.extra)}',
+              context.l10n.lastWeekDebt(
+                short: _hours(context.l10n, week.short),
+                extra: _hours(context.l10n, week.extra),
+              ),
               style: AppTextStyles.caption,
             ),
           const SizedBox(height: AppSpacing.sm),
@@ -198,18 +213,15 @@ class SleepShortfallCard extends StatelessWidget {
 /// night's own length stays `h:mm`.
 String _number(Duration hours) => (hours.inMinutes / 60).toStringAsFixed(1);
 
-/// `6.3 小時`.
-String _hours(Duration hours) => '${_number(hours)} 小時';
+/// `6.3 小時`, `6.3 h`.
+String _hours(AppLocalizations l10n, Duration hours) =>
+    l10n.hoursValue(hours: _number(hours));
 
 /// A day's time asleep and how far it was from [need].
-String _dayValue(Duration? slept, Duration need) {
-  if (slept == null) return '沒有紀錄';
+String _dayValue(AppLocalizations l10n, Duration? slept, Duration need) {
+  if (slept == null) return l10n.noEntriesShort;
   final gap = slept - need;
   if (gap.inMinutes == 0) return formatHoursMinutes(slept);
   return '${formatHoursMinutes(slept)} · '
-      '${gap.isNegative ? '少 ${formatHoursMinutes(-gap)}' : '多 ${formatHoursMinutes(gap)}'}';
+      '${gap.isNegative ? l10n.shortBy(time: formatHoursMinutes(-gap)) : l10n.overBy(time: formatHoursMinutes(gap))}';
 }
-
-/// `9 月 22 日（週一）`.
-String _date(DateTime day) =>
-    '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）';

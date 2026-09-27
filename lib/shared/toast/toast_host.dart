@@ -10,6 +10,7 @@ import '../window_layout.dart';
 import '../widgets/chrome/chrome_surface.dart';
 import '../widgets/content/stats.dart';
 import 'toast_controller.dart';
+import '../../l10n/l10n.dart';
 
 /// Space between a toast and the chrome it floats above.
 const _chromeGap = 10.0;
@@ -186,7 +187,9 @@ class _ToastCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, iconColor) = _icon;
-    final actionLabel = toast.actionLabel;
+    // An action without a name of its own is an undo.
+    final actionLabel =
+        toast.actionLabel ?? (toast.hasAction ? context.l10n.commonUndo : null);
     return Semantics(
       container: true,
       liveRegion: true,

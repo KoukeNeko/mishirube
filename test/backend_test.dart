@@ -18,6 +18,7 @@ import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
+import 'package:mishirube/l10n/l10n.dart';
 import 'package:sqlite3/sqlite3.dart' show SqliteException, sqlite3;
 
 import 'support/harness.dart';
@@ -285,7 +286,10 @@ void main() {
       expect(created.name, '新的課表');
       final bench = store.exercises.firstWhere((e) => e.id == 'bench-press');
       store.addExercises([bench]);
-      expect(store.routine.name, routineNameFor(store.routine.exercises));
+      expect(
+        store.routine.name,
+        routineNameFor(store.routine.exercises, testL10n),
+      );
       expect(store.routine.name, isNot('新的課表'));
 
       store.renameRoutine('胸日');
@@ -699,7 +703,7 @@ void main() {
       final byAmount = FoodPortion.ofAmount(rice, 150);
       expect(byAmount.servings, 1.5);
       expect(byAmount.kcal, 195);
-      expect(byAmount.label, '150 g');
+      expect(byAmount.labelIn(testL10n), '150 g');
 
       final byServings = FoodPortion(rice, 1.5);
       expect(byServings.amount, 150);
@@ -724,10 +728,10 @@ void main() {
       );
 
       expect(bento.servingUnit, ServingUnit.serving);
-      expect(bento.servingDescription, '一個');
+      expect(bento.servingDescription(testL10n), '一個');
       final half = FoodPortion(bento, 0.5);
       expect(half.kcal, 400);
-      expect(half.label, '0.5 份');
+      expect(half.labelIn(testL10n), '0.5 份');
       expect(
         FoodPortion.ofAmount(bento, 2).servings,
         2,
@@ -809,7 +813,7 @@ void main() {
 
       expect(calcium.amount, 250);
       expect(calcium.isComplete, isFalse, reason: 'the rice said nothing');
-      expect(calcium.label, '至少 250 mg');
+      expect(calcium.labelIn(testL10n), '至少 250 mg');
       expect(
         summariseNutrients(store.todayMeals)
             .any((total) => total.nutrient == Nutrient.iron),
@@ -1375,7 +1379,7 @@ void main() {
         (food) => food.name == '日清ヨーク　ピルクル４００鉄分　４５５ｍｌ',
       );
       expect(pilkul.country, 'JP');
-      expect(pilkul.brandLabel, 'セブン‐イレブン（日本）');
+      expect(pilkul.brandLabelIn(testL10n), 'セブン‐イレブン（日本）');
       expect(pilkul.servingAmount, 195, reason: 'コップ1杯 195ml あたり');
       expect(pilkul.nutrients[Nutrient.saltEquivalent], 0.09);
       expect(pilkul.nutrients[Nutrient.sodium], isNull);
@@ -1491,7 +1495,7 @@ void main() {
       );
       final cup = store.backend.nutrition.sizesOf('7eleven-americano').single;
       expect(cup.isCupCapacity, isTrue, reason: 'it survives the database');
-      expect(cup.servingDescription, '杯容量 480 ml');
+      expect(cup.servingDescription(testL10n), '杯容量 480 ml');
       expect(
         cup.kcal,
         22,
@@ -1583,7 +1587,7 @@ void main() {
         reason: 'a cup whose capacity was not published has no volume',
       );
       expect(mug.isCupCapacity, isFalse);
-      expect(mug.servingDescription, '一杯');
+      expect(mug.servingDescription(testL10n), '一杯');
       expect(mug.country, 'TW', reason: 'kept when stored and read back');
       foods.save(
         const FoodItem(
@@ -2116,9 +2120,13 @@ void main() {
     });
 
     test('a chain is named with the country its figures are for', () {
-      expect(labelOfBrand('7-ELEVEN', 'TW'), '7-ELEVEN（台灣）');
-      expect(labelOfBrand('7-ELEVEN', 'JP'), '7-ELEVEN（日本）');
-      expect(labelOfBrand('自家', ''), '自家', reason: 'the user named it');
+      expect(labelOfBrand(testL10n, '7-ELEVEN', 'TW'), '7-ELEVEN（台灣）');
+      expect(labelOfBrand(testL10n, '7-ELEVEN', 'JP'), '7-ELEVEN（日本）');
+      expect(
+        labelOfBrand(testL10n, '自家', ''),
+        '自家',
+        reason: 'the user named it',
+      );
     });
 
     test('the birth year gives an age for what goes by it', () {

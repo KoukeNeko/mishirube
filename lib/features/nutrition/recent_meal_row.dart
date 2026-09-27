@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// `昨天 12:40` for the last two days, `9/17 19:20` before that.
 String mealWhenLabel(BuildContext context, DateTime at) {
@@ -15,9 +16,9 @@ String mealWhenLabel(BuildContext context, DateTime at) {
   ).difference(DateTime(at.year, at.month, at.day)).inDays;
   final time = formatTimeOfDay(at);
   return switch (days) {
-    0 => '今天 $time',
-    1 => '昨天 $time',
-    _ => '${at.month}/${at.day} $time',
+    0 => context.l10n.todayAt(time: time),
+    1 => context.l10n.yesterdayAt(time: time),
+    _ => '${context.dates.compactMonthDay(at)} $time',
   };
 }
 
@@ -55,7 +56,9 @@ class RecentMealRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           SquareIconButton(
             icon: meal.meal.isFavorite ? Icons.star : Icons.star_border,
-            tooltip: meal.meal.isFavorite ? '取消收藏' : '加入收藏',
+            tooltip: meal.meal.isFavorite
+                ? context.l10n.removeFavorite
+                : context.l10n.addFavorite,
             color: meal.meal.isFavorite
                 ? AppColors.nutrition
                 : AppColors.textSecondary,
@@ -64,7 +67,7 @@ class RecentMealRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           SquareIconButton(
             icon: Icons.add,
-            tooltip: '加入${meal.label}',
+            tooltip: context.l10n.addNamed(name: meal.label),
             color: AppColors.nutrition,
             onPressed: onAdd,
           ),

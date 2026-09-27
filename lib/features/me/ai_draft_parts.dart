@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'ai_settings_screen.dart';
+import '../../l10n/l10n.dart';
 
 // The pieces every 一句話 page shares — what the user writes, which AI it
 // goes to, the button that sends it, why it came back with nothing, and
@@ -14,18 +15,19 @@ import 'ai_settings_screen.dart';
 /// `Ollama Cloud / gemma4:31b`: which AI, and which of its models. Apple's
 /// on-device model and Copilot offer no model to choose, so they are named
 /// alone.
-String aiLabel(AiProviderKind provider, String model) =>
+String aiLabel(AppLocalizations l10n, AiProviderKind provider, String model) =>
     model.isEmpty ||
-        model == provider.label ||
+        model == provider.labelIn(l10n) ||
         provider == AiProviderKind.appleOnDevice
-    ? provider.label
-    : '${provider.label} / $model';
+    ? provider.labelIn(l10n)
+    : '${provider.labelIn(l10n)} / $model';
 
 /// The AI a 一句話 page would send to now, for under its title.
-String currentAiLabel(AppStore store) => switch (store.aiProvider) {
-  final provider? => aiLabel(provider, store.aiModel),
-  null => 'AI 未啟用',
-};
+String currentAiLabel(AppLocalizations l10n, AppStore store) =>
+    switch (store.aiProvider) {
+      final provider? => aiLabel(l10n, provider, store.aiModel),
+      null => l10n.aiOff,
+    };
 
 /// Where the user writes what to draft.
 class DescribeField extends StatelessWidget {
@@ -49,18 +51,22 @@ class DraftButton extends StatelessWidget {
     super.key,
     required this.isDrafting,
     required this.onPressed,
-    this.label = '產生草稿',
+    this.label,
   });
 
   final bool isDrafting;
 
   /// Null while there is nothing to send.
   final VoidCallback? onPressed;
-  final String label;
+
+  /// 產生草稿 when null.
+  final String? label;
 
   @override
   Widget build(BuildContext context) => PrimaryButton(
-    label: isDrafting ? '產生中…' : label,
+    label: isDrafting
+        ? context.l10n.aiDrafting
+        : label ?? context.l10n.aiDraftGenerate,
     onPressed: isDrafting ? null : onPressed,
   );
 }
@@ -72,8 +78,10 @@ class AiFailureBanner extends StatelessWidget {
   final AiFailure failure;
 
   @override
-  Widget build(BuildContext context) =>
-      InfoBanner(tone: CardTone.warning, message: aiFailureMessage(failure));
+  Widget build(BuildContext context) => InfoBanner(
+    tone: CardTone.warning,
+    message: aiFailureMessage(context.l10n, failure),
+  );
 }
 
 /// Which AI a draft came from, under it: `Ollama Cloud / gemma4:31b`.
@@ -104,6 +112,6 @@ class RewriteLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: LinkText(label: '重新輸入', onTap: onTap),
+    child: LinkText(label: context.l10n.aiRewrite, onTap: onTap),
   );
 }

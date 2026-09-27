@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import 'database.dart';
 import 'timeline_source.dart';
+import '../../l10n/l10n.dart';
 
 /// General exercise sessions: running, walking, a game of badminton.
 /// Strength workouts stay in their own tables; the two never mix.
@@ -299,7 +300,7 @@ class ActivityRepository {
 
 /// Exercise sessions as log rows.
 class ActivityTimelineSource extends TimelineSource {
-  ActivityTimelineSource(this._activities);
+  ActivityTimelineSource(this._activities, super.l10n);
 
   final ActivityRepository _activities;
 
@@ -322,10 +323,11 @@ class ActivityTimelineSource extends TimelineSource {
           at: startedAt,
           recordId: activity.id,
           category: RecordCategory.activity,
-          title: activity.type.label,
-          detail: activity.description,
+          title: activity.type.labelIn(l10n),
+          detail: activity.descriptionIn(l10n),
           tags: [
-            if (activity.effort case final effort?) '強度 $effort / 10',
+            if (activity.effort case final effort?)
+              l10n.effortOutOfTen(effort: effort),
             if (activity.note.isNotEmpty) activity.note,
           ],
         ),
@@ -344,10 +346,10 @@ class ActivityTimelineSource extends TimelineSource {
     return {
       for (final MapEntry(key: day, value: activities) in byDay.entries)
         day: activities.length == 1
-            ? '${activities.single.type.label} · '
-                  '${activities.single.duration.inMinutes} 分'
-            : '${activities.length} 場 · '
-                  '${activities.fold(Duration.zero, (sum, a) => sum + a.duration).inMinutes} 分',
+            ? '${activities.single.type.labelIn(l10n)} · '
+                  '${l10n.durationMinutes(minutes: activities.single.duration.inMinutes)}'
+            : '${l10n.activitiesCount(count: activities.length)} · '
+                  '${l10n.durationMinutes(minutes: activities.fold(Duration.zero, (sum, a) => sum + a.duration).inMinutes)}',
     };
   }
 }

@@ -6,6 +6,7 @@ import '../../../shared/widgets/chrome/chrome_surface.dart';
 import '../../../shared/widgets/content/elapsed_clock.dart';
 import 'chrome_metrics.dart';
 import '../../../shared/haptics.dart';
+import '../../../l10n/l10n.dart';
 
 /// Persistent bar above the dock while a session runs, whichever kind it
 /// is, so the other tabs stay reachable meanwhile.
@@ -32,7 +33,8 @@ class SessionAccessory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPaused = session.isPaused;
-    final label = session.label;
+    final l10n = context.l10n;
+    final name = session.name(l10n);
     return SizedBox(
       height: ChromeMetrics.accessoryHeight,
       child: ChromeSurface(
@@ -50,14 +52,18 @@ class SessionAccessory extends StatelessWidget {
               morph: morph,
               child: _AccessoryIcon(
                 icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                tooltip: isPaused ? '繼續$label' : '暫停$label',
+                tooltip: isPaused
+                    ? l10n.sessionResume(session: name)
+                    : l10n.sessionPause(session: name),
                 onTap: onTogglePause,
               ),
             ),
             Expanded(
               child: Semantics(
                 button: true,
-                label: isPaused ? '$label已暫停，回到$label' : '$label進行中，回到$label',
+                label: isPaused
+                    ? l10n.sessionPausedOpen(session: name)
+                    : l10n.sessionRunningOpen(session: name),
                 // Excluding the child's semantics drops its tap too.
                 onTap: onOpen,
                 excludeSemantics: true,
@@ -79,7 +85,7 @@ class SessionAccessory extends StatelessWidget {
               isTrailing: true,
               child: _AccessoryIcon(
                 icon: Icons.stop_rounded,
-                tooltip: '結束$label',
+                tooltip: l10n.sessionEnd(session: name),
                 onTap: onFinish,
               ),
             ),
@@ -134,7 +140,7 @@ class _Status extends StatelessWidget {
                   child: Opacity(
                     opacity: 1 - gone,
                     child: Text(
-                      '${session.isPaused ? '已暫停' : '${session.label}進行中'} · ',
+                      '${session.isPaused ? context.l10n.sessionPausedStatus : context.l10n.sessionRunningStatus(session: session.name(context.l10n))} · ',
                       maxLines: 1,
                       softWrap: false,
                       style: style,

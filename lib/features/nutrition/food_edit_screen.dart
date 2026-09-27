@@ -12,6 +12,7 @@ import 'camera_screen.dart';
 import 'describe_meal_screen.dart';
 import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Creating or correcting one of the user's own foods, logging one as a
 /// quick record, correcting a logged meal, or an item of an AI draft
@@ -298,29 +299,32 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     final scan = await showAppDialog<_Scan>(
       context,
       AppDialog(
-        title: '掃描',
+        title: context.l10n.scanAction,
         isChoiceList: true,
         actions: [
           DialogAction(
             icon: Icons.restaurant_outlined,
-            label: '食物',
-            detail: '估算營養',
+            label: context.l10n.scanFood,
+            detail: context.l10n.scanFoodDetail,
             onTap: () => Navigator.of(context).pop(_Scan.food),
           ),
           DialogAction(
             icon: Icons.document_scanner_outlined,
-            label: '營養標示',
-            detail: '讀取標示數字',
+            label: context.l10n.nutritionLabel,
+            detail: context.l10n.scanLabelDetail,
             onTap: () => Navigator.of(context).pop(_Scan.label),
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
     if (scan == null || !mounted) return;
     final title = switch (scan) {
-      _Scan.food => '食物',
-      _Scan.label => '營養標示',
+      _Scan.food => context.l10n.scanFood,
+      _Scan.label => context.l10n.nutritionLabel,
     };
     final path = await (widget.takePhoto ?? _takeWithCamera(scan))(title);
     if (path == null || !mounted) return;
@@ -331,9 +335,9 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         // What only the eater knows: how much rice, how sweet the tea.
         final note = await showTextDialog(
           context,
-          title: '補充說明',
-          hint: '選填，例如：飯半碗、微糖少冰',
-          confirmLabel: '估算',
+          title: context.l10n.extraNote,
+          hint: context.l10n.extraNoteHint,
+          confirmLabel: context.l10n.estimateAction,
           maxLines: 2,
         );
         if (note == null || !mounted) return;
@@ -373,23 +377,26 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _fillFromPhoto(draft);
       return;
     }
-    final names = draft.items.map((item) => item.name).join('、');
+    final names = joinList(context.l10n, draft.items.map((item) => item.name));
     final choice = await showAppDialog<bool>(
       context,
       AppDialog(
-        title: '照片裡有 ${draft.items.length} 項',
+        title: context.l10n.photoItemsCount(count: draft.items.length),
         message: names,
         actions: [
           DialogAction(
-            label: '合併成一個食物',
+            label: context.l10n.mergeIntoOneFood,
             onTap: () => Navigator.of(context).pop(true),
           ),
           DialogAction(
-            label: '逐項記錄',
+            label: context.l10n.logEachItem,
             tone: DialogTone.primary,
             onTap: () => Navigator.of(context).pop(false),
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -406,7 +413,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     if (logged == null || logged.isEmpty || !mounted) return;
     Navigator.of(context).pop();
     toast.showUndo(
-      '已記錄 ${logged.length} 項',
+      context.l10n.loggedItemsCount(count: logged.length),
       onUndo: () => _nutrition.deleteMeals(logged),
     );
   }
@@ -454,11 +461,13 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// The first weight or volume in a model's amount (「約 180 g（150–220 g）」
   /// is 180 g), or null when it gave none.
   static (double, ServingUnit)? _measuredAmount(String amount) {
+    // l10n-ignore: units a model may write in, not words shown.
     final match = RegExp(r'(\d+(?:\.\d+)?)\s*(g|公克|克|ml|mL|毫升)')
         .firstMatch(amount);
     if (match == null) return null;
     final value = double.parse(match.group(1)!);
     final unit = switch (match.group(2)) {
+      // l10n-ignore: as above.
       'ml' || 'mL' || '毫升' => ServingUnit.millilitre,
       _ => ServingUnit.gram,
     };
@@ -568,7 +577,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   void _saveMeal(MealEvent meal) {
     final figures = [_kcal, _protein, _carb, _fat, _fibre, ..._extra.values];
     if (figures.any((field) => (double.tryParse(field.text.trim()) ?? 0) < 0)) {
-      setState(() => _error = '營養素不能是負數。');
+      setState(() => _error = context.l10n.nutrientNegative);
       return;
     }
     int? whole(TextEditingController field) => _perServing(field)?.round();
@@ -608,18 +617,22 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         isEstimated: false,
         // Water keeps its own mark, or a corrected glass would stop
         // counting as water.
-        qualityTag: meal.isWater ? meal.qualityTag : '已確認',
+        qualityTag: meal.isWater ? meal.qualityTag : confirmedQualityTag,
       ),
     );
     Navigator.of(context).pop();
-    showToast(context, '已更新「$name」', kind: ToastKind.success);
+    showToast(
+      context,
+      context.l10n.updatedNamed(name: name),
+      kind: ToastKind.success,
+    );
   }
 
   /// Hands the item back as corrected; the draft logs it, not this page.
   void _saveDraftItem() {
     final figures = [_kcal, _protein, _carb, _fat, _fibre, ..._extra.values];
     if (figures.any((field) => (double.tryParse(field.text.trim()) ?? 0) < 0)) {
-      setState(() => _error = '營養素不能是負數。');
+      setState(() => _error = context.l10n.nutrientNegative);
       return;
     }
     int? whole(TextEditingController field) => _perServing(field)?.round();
@@ -644,7 +657,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     _nutrition.deleteMeals([meal]);
     Navigator.of(context).pop(true);
     toast.showUndo(
-      '已刪除「${meal.name}」',
+      context.l10n.deletedNamed(name: meal.name),
       onUndo: () => _nutrition.restoreMeals([meal]),
     );
   }
@@ -740,7 +753,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   }
 
   Widget _nutrientField(Nutrient nutrient) => NumberFieldRow(
-    label: nutrient.label,
+    label: nutrient.labelIn(context.l10n),
     unit: nutrient.unit.label,
     controller: _extra[nutrient]!,
   );
@@ -761,46 +774,49 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: meal != null
-            ? '編輯這一餐'
+            ? context.l10n.editThisMeal
             : widget.logsOnce
-            ? '快速記錄'
-            : (isNew ? '新增食物' : '編輯食物'),
+            ? context.l10n.qualityQuickLog
+            : (isNew ? context.l10n.newFood : context.l10n.editFood),
         actions: [
           if (isNew && !_isSize)
             HeaderAction(
               icon: Icons.photo_camera_outlined,
-              label: '掃描',
-              semanticLabel: '掃描食物或營養標示',
+              label: context.l10n.scanAction,
+              semanticLabel: context.l10n.scanFoodOrLabel,
               onTap: _scanning != null ? null : _scan,
             ),
         ],
       ),
       footer: meal != null
           ? PrimaryButton(
-              label: '儲存',
+              label: context.l10n.commonSave,
               onPressed: _canSave ? () => _saveMeal(meal) : null,
             )
           : draftItem != null
           ? PrimaryButton(
-              label: '儲存',
+              label: context.l10n.commonSave,
               onPressed: _canSave ? _saveDraftItem : null,
             )
           : widget.logsOnce
-          ? PrimaryButton(label: '記錄', onPressed: _canSave ? _logOnce : null)
+          ? PrimaryButton(
+              label: context.l10n.logAction,
+              onPressed: _canSave ? _logOnce : null,
+            )
           : isNew && !_isSize
           ? ButtonPair(
               secondary: SecondaryButton(
-                label: '只建立',
+                label: context.l10n.createOnly,
                 onPressed: _canSave ? () => _save(logNow: false) : null,
               ),
               primaryFlex: 2,
               primary: PrimaryButton(
-                label: '建立並記錄',
+                label: context.l10n.createAndLog,
                 onPressed: _canSave ? () => _save(logNow: true) : null,
               ),
             )
           : PrimaryButton(
-              label: '儲存',
+              label: context.l10n.commonSave,
               onPressed: _canSave ? () => _save(logNow: false) : null,
             ),
       children: [
@@ -809,8 +825,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: InfoBanner(
               icon: Icons.document_scanner_outlined,
               message: switch (scan) {
-                _Scan.label => '正在辨識營養標示…',
-                _Scan.food => '正在估算…',
+                _Scan.label => context.l10n.readingLabel,
+                _Scan.food => context.l10n.estimating,
               },
             ),
           )
@@ -818,7 +834,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           Gutter(
             child: InfoBanner(
               tone: CardTone.warning,
-              message: aiFailureMessage(failure),
+              message: aiFailureMessage(context.l10n, failure),
             ),
           )
         else if (_scanned case final draft?)
@@ -829,9 +845,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
                   ? CardTone.neutral
                   : CardTone.warning,
               message: [
-                '數字來自 ${draft.provider.label}（${draft.model}）的判讀，'
-                    '請對照包裝核對。',
-                ...draft.warnings,
+                context.l10n.labelReadBy(
+                  provider: draft.provider.labelIn(context.l10n),
+                  model: draft.model,
+                ),
+                for (final warning in draft.warnings)
+                  warning.text(context.l10n),
               ].join('\n'),
             ),
           )
@@ -843,24 +862,30 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
                   ? CardTone.neutral
                   : CardTone.warning,
               message: [
-                '數字是 ${draft.provider.label}（${draft.model}）從照片的估算，'
-                    '請核對。',
-                ...draft.warnings,
+                context.l10n.photoEstimatedBy(
+                  provider: draft.provider.labelIn(context.l10n),
+                  model: draft.model,
+                ),
+                for (final warning in draft.warnings)
+                  warning.text(context.l10n),
               ].join('\n'),
             ),
           ),
-        Gutter(child: const SectionLabel('名稱')),
+        Gutter(child: SectionLabel(context.l10n.nameSection)),
         Gutter(
-          child: AppTextField(controller: _name, hint: '例如：雞胸肉'),
+          child: AppTextField(
+            controller: _name,
+            hint: context.l10n.foodNameHint,
+          ),
         ),
         if (_eatenAt case final eatenAt?)
           Gutter(
             child: GroupedCard(
               children: [
                 NavRow(
-                  title: '時間',
+                  title: context.l10n.timeSection,
                   trailing: Text(
-                    '${formatDate(eatenAt)} ${formatTimeOfDay(eatenAt)}',
+                    '${context.dates.date(eatenAt)} ${formatTimeOfDay(eatenAt)}',
                     style: AppTextStyles.caption,
                   ),
                   onTap: _pickTime,
@@ -869,7 +894,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
           ),
         if (widget.logsOnce || meal != null) ...[
-          Gutter(child: const SectionLabel('餐次（選填）')),
+          Gutter(
+            child: SectionLabel(
+              context.l10n.optionalField(field: context.l10n.mealTypeOptional),
+            ),
+          ),
           Gutter(
             child: MealTypePicker(
               selected: _mealType,
@@ -885,7 +914,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: GroupedCard(
               children: [
                 SwitchRow(
-                  title: '存入食物庫',
+                  title: context.l10n.saveToLibrary,
                   value: _keepsFood,
                   onChanged: (keeps) => setState(() => _keepsFood = keeps),
                 ),
@@ -894,9 +923,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ],
         if (_isSize) ...[
-          Gutter(child: const SectionLabel('杯型')),
+          Gutter(child: SectionLabel(context.l10n.cupSize)),
           Gutter(
-            child: AppTextField(controller: _sizeName, hint: '例如：Tall'),
+            child: AppTextField(
+              controller: _sizeName,
+              hint: context.l10n.cupSizeHint,
+            ),
           ),
           if (_brandSizeNames() case final known when known.isNotEmpty)
             Gutter(
@@ -909,16 +941,23 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             ),
         ],
         if (!isRecord) ...[
-          Gutter(child: const SectionLabel('品牌（選填）')),
           Gutter(
-            child: AppTextField(controller: _brand, hint: '例如：大成'),
+            child: SectionLabel(
+              context.l10n.optionalField(field: context.l10n.brandLabel),
+            ),
+          ),
+          Gutter(
+            child: AppTextField(
+              controller: _brand,
+              hint: context.l10n.brandHint,
+            ),
           ),
         ],
-        Gutter(child: const SectionLabel('食物或飲品')),
+        Gutter(child: SectionLabel(context.l10n.foodOrDrink)),
         Gutter(
           child: ChipWrap(
             options: ConsumptionKind.values,
-            labelOf: (kind) => kind.label,
+            labelOf: (kind) => kind.labelIn(context.l10n),
             isSelected: (kind) => kind == _kind,
             onTap: (kind) => setState(() => _kind = kind),
           ),
@@ -926,19 +965,22 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         if (meal case final meal? when meal.millilitres != null)
           Gutter(
             child: NumberFieldRow(
-              label: '容量',
+              label: context.l10n.volumeLabel,
               unit: 'mL',
               controller: _millilitres,
             ),
           ),
         if (draftItem != null) ...[
-          Gutter(child: const SectionLabel('份量')),
+          Gutter(child: SectionLabel(context.l10n.portionSection)),
           Gutter(
-            child: AppTextField(controller: _draftAmount, hint: '例如：一碗'),
+            child: AppTextField(
+              controller: _draftAmount,
+              hint: context.l10n.portionHint,
+            ),
           ),
         ],
         if (!isRecord) ...[
-          Gutter(child: const SectionLabel('份量')),
+          Gutter(child: SectionLabel(context.l10n.portionSection)),
           Gutter(
             child: Row(
               children: [
@@ -959,7 +1001,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           Gutter(
             child: ChipWrap(
               options: ServingUnit.values,
-              labelOf: (unit) => unit.label,
+              labelOf: (unit) => unit.labelIn(context.l10n),
               isSelected: (unit) => unit == _servingUnit,
               onTap: (unit) => setState(() {
                 final wasSuggested = _kind == _kindForUnit;
@@ -970,29 +1012,40 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         ],
         if (!_isSize && widget.editing != null) ...[
-          Gutter(child: const SectionLabel('杯型')),
+          Gutter(child: SectionLabel(context.l10n.cupSize)),
           for (final size in _sizes)
             Gutter(
               child: NavCard(
                 title: size.sizeName,
                 subtitle:
-                    '${size.servingDescription} · '
+                    '${size.servingDescription(context.l10n)} · '
                     '${formatKcalOrDash(size.kcal?.round())} kcal',
                 onTap: () => _editSize(size),
               ),
             ),
           Gutter(
-            child: SecondaryButton(label: '新增杯型', onPressed: _addSize),
+            child: SecondaryButton(
+              label: context.l10n.newCupSize,
+              onPressed: _addSize,
+            ),
           ),
         ],
-        Gutter(child: SectionLabel(isRecord ? '營養素' : '營養標示')),
+        Gutter(
+          child: SectionLabel(
+            isRecord
+                ? context.l10n.nutrientsSection
+                : context.l10n.nutritionLabel,
+          ),
+        ),
         if (!isRecord && _servingUnit.isMeasured)
           Gutter(
             child: ChipWrap(
               options: CaffeineBasis.values,
               labelOf: (basis) => switch (basis) {
-                CaffeineBasis.per100 => '每 100 ${_servingUnit.label}',
-                CaffeineBasis.serving => '一份總共',
+                CaffeineBasis.per100 => context.l10n.per100Unit(
+                  unit: _servingUnit.labelIn(context.l10n),
+                ),
+                CaffeineBasis.serving => context.l10n.perServingTotal,
               },
               isSelected: (basis) => basis == _basis,
               onTap: (basis) => setState(() => _basis = basis),
@@ -1000,35 +1053,35 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
           ),
         Gutter(
           child: NumberFieldRow(
-            label: MacroLabel.energy,
+            label: context.l10n.macroEnergy,
             unit: 'kcal',
             controller: _kcal,
           ),
         ),
         Gutter(
           child: NumberFieldRow(
-            label: MacroLabel.protein,
+            label: context.l10n.macroProtein,
             unit: 'g',
             controller: _protein,
           ),
         ),
         Gutter(
           child: NumberFieldRow(
-            label: MacroLabel.carb,
+            label: context.l10n.macroCarb,
             unit: 'g',
             controller: _carb,
           ),
         ),
         Gutter(
           child: NumberFieldRow(
-            label: MacroLabel.fat,
+            label: context.l10n.macroFat,
             unit: 'g',
             controller: _fat,
           ),
         ),
         Gutter(
           child: NumberFieldRow(
-            label: MacroLabel.fibre,
+            label: context.l10n.macroFibre,
             unit: 'g',
             controller: _fibre,
           ),
@@ -1040,7 +1093,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             if (nutrient == Nutrient.alcohol && _typedVolume != null)
               Gutter(
                 child: NumberFieldRow(
-                  label: '酒精度',
+                  label: context.l10n.abvLabel,
                   unit: '%',
                   controller: _abv,
                 ),
@@ -1056,7 +1109,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
             child: GroupedCard(
               children: [
                 NavRow(
-                  title: '刪除這一餐',
+                  title: context.l10n.deleteThisMeal,
                   isDestructive: true,
                   onTap: () => _deleteMeal(meal),
                 ),

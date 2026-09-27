@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/camera_screen.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Each figure is plausible between these; outside them it is a typo
 /// rather than a body.
@@ -89,14 +90,14 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
     final store = AppStoreScope.read(context);
     final path =
         await (widget.takePhoto ?? (title) => takePhoto(context, title))(
-          '身體組成',
+          context.l10n.recordBodyComposition,
         );
     if (path == null || !mounted) return;
     final String text;
     try {
       text = await store.readPhotoText(path);
     } on AiException {
-      if (mounted) setState(() => _error = '這台裝置無法讀取照片中的文字。');
+      if (mounted) setState(() => _error = context.l10n.photoTextUnavailable);
       return;
     }
     if (!mounted) return;
@@ -109,7 +110,7 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
     setState(() {
       if (found.isEmpty) {
         _read = null;
-        _error = '照片中沒有讀到身體組成的數字。';
+        _error = context.l10n.photoNoBodyComposition;
         return;
       }
       for (final MapEntry(key: metric, value: value) in found.entries) {
@@ -129,16 +130,19 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
       final (low, high) = _ranges[metric]!;
       if (value == null || value < low || value > high) {
         setState(
-          () => _error =
-              '${metric.label}請輸入 ${formatAmount(low)} – '
-              '${formatAmount(high)} ${metric.unit} 之間。',
+          () => _error = context.l10n.valueRangeError(
+            field: metric.labelIn(context.l10n),
+            min: formatAmount(low),
+            max: formatAmount(high),
+            unit: metric.unitIn(context.l10n),
+          ),
         );
         return;
       }
       entered[metric] = value;
     }
     if (entered.isEmpty) {
-      setState(() => _error = '至少填一項。');
+      setState(() => _error = context.l10n.fillAtLeastOne);
       return;
     }
     final editing = widget.editing;
@@ -161,9 +165,13 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
     showToast(
       context,
       entered.length == 1
-          ? '${editing == null ? '已記錄' : '已更新'}${metric.label} '
-                '${formatAmount(value)} ${metric.unit}'
-          : '已記錄 ${entered.length} 項',
+          ? (editing == null
+                ? context.l10n.loggedValue
+                : context.l10n.updatedValue)(
+              item: metric.labelIn(context.l10n),
+              value: '${formatAmount(value)} ${metric.unitIn(context.l10n)}',
+            )
+          : context.l10n.loggedItemsCount(count: entered.length),
       kind: ToastKind.success,
     );
   }
@@ -173,38 +181,44 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
     final metrics = _metrics;
     return DetailPage(
       appBar: PageAppBar(
-        title: metrics.length == 1 ? metrics.single.label : '身體組成',
+        title: metrics.length == 1
+            ? metrics.single.labelIn(context.l10n)
+            : context.l10n.recordBodyComposition,
         actions: [
           if (widget.editing == null)
             HeaderAction(
               icon: Icons.photo_camera_outlined,
-              label: '掃描',
-              semanticLabel: '拍照讀取身體組成',
+              label: context.l10n.scanAction,
+              semanticLabel: context.l10n.scanBodyComposition,
               onTap: _scan,
             ),
         ],
       ),
-      footer: PrimaryButton(label: '儲存', onPressed: _save),
+      footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         for (final metric in metrics)
           Gutter(
             child: NumberFieldRow(
               fieldKey: ValueKey('body-${metric.name}'),
-              label: metric.label,
-              unit: metric.unit,
+              label: metric.labelIn(context.l10n),
+              unit: metric.unitIn(context.l10n),
               controller: _fields[metric]!,
               caption: switch (_previous[metric]) {
-                final last? =>
-                  '上次 ${formatAmount(last.value)} ${metric.unit} · '
-                      '${last.measuredAt.month}/${last.measuredAt.day}',
+                final last? => context.l10n.lastReadingOn(
+                  value:
+                      '${formatAmount(last.value)} ${metric.unitIn(context.l10n)}',
+                  date: context.dates.compactMonthDay(last.measuredAt),
+                ),
                 null => null,
               },
             ),
           ),
         if (_read case final count?)
-          Gutter(child: TagWrap(labels: ['照片讀到 $count 項，請核對']))
+          Gutter(
+            child: TagWrap(labels: [context.l10n.photoReadCheck(count: count)]),
+          )
         else if (metrics.any((metric) => metric.isEstimated))
-          Gutter(child: const TagWrap(labels: ['照體脂計顯示填寫'])),
+          Gutter(child: TagWrap(labels: [context.l10n.fillFromScale])),
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),

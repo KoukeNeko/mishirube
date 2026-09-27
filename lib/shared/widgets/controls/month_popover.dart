@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../motion.dart';
 import '../chrome/chrome_surface.dart';
+import '../../../l10n/l10n.dart';
 
 const _popoverWidth = 260.0;
 const _anchorGap = 8.0;
@@ -28,7 +29,7 @@ Future<void> showMonthPopover(
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: '關閉月份選擇',
+    barrierLabel: context.l10n.monthPickerClose,
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _popoverDuration),
     pageBuilder: (context, _, _) {
@@ -179,7 +180,7 @@ class _MonthWheelsState extends State<_MonthWheels> {
               children: [
                 Expanded(
                   child: Semantics(
-                    label: '年份',
+                    label: context.l10n.monthPickerYear,
                     child: CupertinoPicker(
                       scrollController: _yearController,
                       itemExtent: _itemExtent,
@@ -187,14 +188,14 @@ class _MonthWheelsState extends State<_MonthWheels> {
                           setState(() => _year = _years[index]),
                       children: [
                         for (final year in _years)
-                          Center(child: Text('$year 年')),
+                          Center(child: Text(context.dates.year(year))),
                       ],
                     ),
                   ),
                 ),
                 Expanded(
                   child: Semantics(
-                    label: '月份',
+                    label: context.l10n.monthPickerMonth,
                     child: CupertinoPicker(
                       scrollController: _monthController,
                       itemExtent: _itemExtent,
@@ -204,7 +205,7 @@ class _MonthWheelsState extends State<_MonthWheels> {
                         for (var month = 1; month <= 12; month++)
                           Center(
                             child: Text(
-                              '$month 月',
+                              context.dates.month(month),
                               style: _isAvailable(_year, month)
                                   ? null
                                   : textStyle.copyWith(

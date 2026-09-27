@@ -5,6 +5,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Which AI drafts come from and what it needs: nothing for Apple's
 /// on-device model, a key for the others, an address as well for an
@@ -38,8 +39,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final store = AppStoreScope.read(context);
     final key = await showTextDialog(
       context,
-      title: '${store.aiProvider?.label ?? ''} API 金鑰',
-      hint: '貼上金鑰，留空即刪除',
+      title: context.l10n.apiKeyTitle(
+        provider: store.aiProvider?.labelIn(context.l10n) ?? '',
+      ),
+      hint: context.l10n.apiKeyHint,
     );
     if (key == null) return;
     await store.setAiKey(key);
@@ -50,10 +53,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final store = AppStoreScope.read(context);
     final address = await showTextDialog(
       context,
-      title: 'API 位址',
+      title: context.l10n.apiEndpoint,
       initial: store.aiEndpoint,
       hint: store.aiProvider == AiProviderKind.azureAiFoundry
-          ? 'Azure AI Foundry 資源網址'
+          ? context.l10n.azureResourceUrl
           : 'https://…/v1',
     );
     if (address != null) store.setAiEndpoint(address);
@@ -64,13 +67,17 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
   Future<void> _editModel() async {
     final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
+    final l10n = context.l10n;
     setState(() => _isLoadingModels = true);
     List<String> models;
     try {
       models = await store.aiModels();
     } on AiException catch (error) {
       models = const [];
-      toast.show(aiFailureMessage(error.failure), kind: ToastKind.warning);
+      toast.show(
+        aiFailureMessage(l10n, error.failure),
+        kind: ToastKind.warning,
+      );
     } finally {
       if (mounted) setState(() => _isLoadingModels = false);
     }
@@ -78,8 +85,8 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final chosen = await showAppDialog<String>(
       context,
       AppDialog(
-        title: '模型',
-        message: models.isEmpty ? '讀不到模型清單，請直接輸入名稱。' : null,
+        title: context.l10n.modelLabel,
+        message: models.isEmpty ? context.l10n.modelListUnavailable : null,
         isChoiceList: true,
         actions: [
           for (final model in models)
@@ -90,7 +97,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             ),
           DialogAction(
             icon: Icons.keyboard_outlined,
-            label: '自己輸入',
+            label: context.l10n.typeOwn,
             onTap: () => Navigator.of(context).pop(_typeModel),
           ),
         ],
@@ -100,11 +107,11 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     if (chosen == _typeModel) {
       final typed = await showTextDialog(
         context,
-        title: '模型',
+        title: context.l10n.modelLabel,
         initial: store.aiModel,
         hint: store.aiProvider == AiProviderKind.azureAiFoundry
-            ? '部署名稱'
-            : '例如 gemini-3.8-flash',
+            ? context.l10n.deploymentName
+            : context.l10n.modelHint,
       );
       if (typed != null) store.setAiModel(typed);
       return;
@@ -120,6 +127,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
   Future<void> _signIn() async {
     final store = AppStoreScope.read(context);
     final toast = ToastScope.read(context);
+    final l10n = context.l10n;
     setState(() => _isSigningIn = true);
     try {
       final prompt = await store.startAiSignIn();
@@ -128,20 +136,21 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       await showAppDialog<void>(
         context,
         AppDialog(
-          title: '在瀏覽器登入',
-          message:
-              '到 ${prompt.verificationUri} 輸入代碼 ${prompt.userCode}，'
-              '以公司或學校帳號登入。',
+          title: l10n.signInInBrowser,
+          message: l10n.signInInstructions(
+            uri: prompt.verificationUri,
+            code: prompt.userCode,
+          ),
           actions: [
             DialogAction(
-              label: '複製代碼',
+              label: l10n.copyCode,
               onTap: () {
                 Clipboard.setData(ClipboardData(text: prompt.userCode));
                 Navigator.of(context).pop();
               },
             ),
             DialogAction(
-              label: '好',
+              label: l10n.okAction,
               tone: DialogTone.primary,
               onTap: () => Navigator.of(context).pop(),
             ),
@@ -150,9 +159,12 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
       );
       await waiting;
       if (!mounted) return;
-      toast.show('已登入 Microsoft 365 Copilot');
+      toast.show(l10n.signedInCopilot);
     } on AiException catch (error) {
-      toast.show(aiFailureMessage(error.failure), kind: ToastKind.warning);
+      toast.show(
+        aiFailureMessage(l10n, error.failure),
+        kind: ToastKind.warning,
+      );
     } finally {
       if (mounted) {
         setState(() => _isSigningIn = false);
@@ -165,9 +177,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final store = AppStoreScope.read(context);
     final id = await showTextDialog(
       context,
-      title: '用戶端 ID',
+      title: context.l10n.clientId,
       initial: store.aiClientId,
-      hint: 'Entra 應用程式註冊的 Application (client) ID',
+      hint: context.l10n.clientIdHint,
     );
     if (id != null) store.setAiClientId(id);
   }
@@ -176,9 +188,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     final store = AppStoreScope.read(context);
     final tenant = await showTextDialog(
       context,
-      title: '租用戶',
+      title: context.l10n.tenant,
       initial: store.aiTenant,
-      hint: '留空代表 organizations',
+      hint: context.l10n.tenantHint,
     );
     if (tenant != null) store.setAiTenant(tenant);
   }
@@ -188,12 +200,15 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     await showAppDialog<void>(
       context,
       AppDialog(
-        title: '撤回同意？',
-        message: '下次使用雲端 AI 前會再次詢問。',
+        title: context.l10n.revokeConsentTitle,
+        message: context.l10n.revokeConsentMessage,
         actions: [
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
           DialogAction(
-            label: '撤回同意',
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          DialogAction(
+            label: context.l10n.revokeConsent,
             tone: DialogTone.destructive,
             onTap: () {
               store
@@ -214,11 +229,11 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     return DetailPage(
       appBar: const PageAppBar(title: 'AI'),
       children: [
-        Gutter(child: const SectionLabel('服務')),
+        Gutter(child: SectionLabel(context.l10n.serviceSection)),
         Gutter(
           child: ChipWrap(
             options: AiProviderKind.values,
-            labelOf: (kind) => kind.label,
+            labelOf: (kind) => kind.labelIn(context.l10n),
             isSelected: (kind) => kind == provider,
             onTap: (kind) {
               store.setAiProvider(kind);
@@ -233,7 +248,10 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             if (provider == null) return const SizedBox.shrink();
             if (provider == AiProviderKind.appleOnDevice) {
               return Gutter(
-                child: Text(_appleStatus(apple), style: AppTextStyles.caption),
+                child: Text(
+                  _appleStatus(context.l10n, apple),
+                  style: AppTextStyles.caption,
+                ),
               );
             }
             return Column(
@@ -244,33 +262,35 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                     children: [
                       if (provider.needsEndpoint)
                         NavRow(
-                          title: 'API 位址',
+                          title: context.l10n.apiEndpoint,
                           subtitle: store.aiEndpoint.isEmpty
-                              ? '未設定'
+                              ? context.l10n.notSet
                               : store.aiEndpoint,
                           onTap: _editEndpoint,
                         ),
                       if (provider.needsSignIn) ...[
                         NavRow(
-                          title: '用戶端 ID',
+                          title: context.l10n.clientId,
                           subtitle: store.aiClientId.isEmpty
-                              ? '未設定'
+                              ? context.l10n.notSet
                               : store.aiClientId,
                           onTap: _editClientId,
                         ),
                         NavRow(
-                          title: '租用戶',
+                          title: context.l10n.tenant,
                           subtitle: store.aiTenant.isEmpty
                               ? 'organizations'
                               : store.aiTenant,
                           onTap: _editTenant,
                         ),
                         NavRow(
-                          title: hasKey ? '已登入' : '登入',
+                          title: hasKey
+                              ? context.l10n.signedIn
+                              : context.l10n.signIn,
                           subtitle: _isSigningIn
-                              ? '等待瀏覽器登入…'
+                              ? context.l10n.waitingForBrowser
                               : hasKey
-                              ? '重新登入'
+                              ? context.l10n.signInAgain
                               : null,
                           onTap: _isSigningIn || store.aiClientId.isEmpty
                               ? null
@@ -279,39 +299,42 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                       ],
                       if (provider.needsKey)
                         NavRow(
-                          title: 'API 金鑰',
+                          title: context.l10n.apiKey,
                           subtitle: hasKey
-                              ? '已設定'
-                              : ['未設定', ?_keySource(provider)].join(' · '),
+                              ? context.l10n.isSet
+                              : [
+                                  context.l10n.notSet,
+                                  ?_keySource(context.l10n, provider),
+                                ].join(' · '),
                           onTap: _editKey,
                         ),
                       if (provider.hasModelChoice)
                         NavRow(
-                          title: '模型',
+                          title: context.l10n.modelLabel,
                           subtitle: _isLoadingModels
-                              ? '讀取模型…'
+                              ? context.l10n.loadingModels
                               : store.aiModel.isEmpty
-                              ? '未選擇'
+                              ? context.l10n.notChosen
                               : store.aiModel,
                           onTap: _isLoadingModels ? null : _editModel,
                         ),
                       if (store.hasCloudConsent || store.hasPhotoConsent)
                         NavRow(
-                          title: '撤回同意',
+                          title: context.l10n.revokeConsent,
                           subtitle: switch ((
                             store.hasCloudConsent,
                             store.hasPhotoConsent,
                           )) {
-                            (true, true) => '目前已同意送出文字與照片',
-                            (true, false) => '目前已同意送出文字',
-                            _ => '目前已同意送出照片',
+                            (true, true) => context.l10n.consentTextAndPhotos,
+                            (true, false) => context.l10n.consentText,
+                            _ => context.l10n.consentPhotos,
                           },
                           onTap: _revokeConsent,
                         ),
                     ],
                   ),
                 ),
-                if (_warningOf(provider) case final warning?)
+                if (_warningOf(context.l10n, provider) case final warning?)
                   Gutter(
                     child: InfoBanner(tone: CardTone.warning, message: warning),
                   ),
@@ -324,54 +347,53 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
   }
 }
 
-String _appleStatus(AiAvailability? availability) => switch (availability) {
-  null => '檢查中…',
-  AiAvailability.available => '在裝置上執行',
-  AiAvailability.deviceNotEligible => '這台裝置不支援 Apple Intelligence',
-  AiAvailability.notEnabled => '到「設定 > Apple Intelligence 與 Siri」開啟',
-  AiAvailability.modelNotReady => '模型下載中',
-  AiAvailability.needsKey ||
-  AiAvailability.unavailable => '需要 iOS 26 以上且支援 Apple Intelligence',
-};
+String _appleStatus(AppLocalizations l10n, AiAvailability? availability) =>
+    switch (availability) {
+      null => l10n.checkingEllipsis,
+      AiAvailability.available => l10n.privacyOnDevice,
+      AiAvailability.deviceNotEligible => l10n.appleNotEligible,
+      AiAvailability.notEnabled => l10n.appleNotEnabled,
+      AiAvailability.modelNotReady => l10n.appleModelNotReady,
+      AiAvailability.needsKey ||
+      AiAvailability.unavailable => l10n.appleUnavailable,
+    };
 
 /// Where a provider's key is created, for a row that has none yet.
-String? _keySource(AiProviderKind provider) => switch (provider) {
-  AiProviderKind.ollamaCloud => 'ollama.com',
-  AiProviderKind.googleAiStudio => 'aistudio.google.com',
-  AiProviderKind.anthropic => 'console.anthropic.com',
-  AiProviderKind.azureAiFoundry => 'Azure 入口網站',
-  _ => null,
-};
+String? _keySource(AppLocalizations l10n, AiProviderKind provider) =>
+    switch (provider) {
+      AiProviderKind.ollamaCloud => 'ollama.com',
+      AiProviderKind.googleAiStudio => 'aistudio.google.com',
+      AiProviderKind.anthropic => 'console.anthropic.com',
+      AiProviderKind.azureAiFoundry => l10n.azurePortal,
+      _ => null,
+    };
 
 /// What a provider's own terms mean for a health log.
-String? _warningOf(AiProviderKind provider) => switch (provider) {
-  AiProviderKind.microsoftCopilot =>
-    'Beta API，不支援正式產品。需要公司或學校帳號、Microsoft 365 Copilot 授權'
-        '與 Entra 應用程式註冊。',
-  AiProviderKind.googleAiStudio =>
-    '免費額度的內容可能被 Google 用於改進產品並經人工審閱。請使用已啟用計費的金鑰。',
-  _ => null,
-};
+String? _warningOf(AppLocalizations l10n, AiProviderKind provider) =>
+    switch (provider) {
+      AiProviderKind.microsoftCopilot => l10n.copilotWarning,
+      AiProviderKind.googleAiStudio => l10n.googleFreeWarning,
+      _ => null,
+    };
 
 /// Asked once, before the first request that leaves the phone; true when
 /// the user agreed, which is then remembered.
 Future<bool> askCloudConsent(BuildContext context) async {
   final store = AppStoreScope.read(context);
-  final provider = store.aiProvider?.label ?? '雲端 AI';
+  final provider =
+      store.aiProvider?.labelIn(context.l10n) ?? context.l10n.cloudAi;
   final agreed = await showAppDialog<bool>(
     context,
     AppDialog(
-      title: '送到 $provider？',
-      message:
-          '只送出輸入的文字或從照片辨識出的文字，不送出照片與其他紀錄。'
-          '可在「我的 > AI」撤回。',
+      title: context.l10n.sendToProvider(provider: provider),
+      message: context.l10n.cloudConsentMessage(me: context.l10n.tabMe),
       actions: [
         DialogAction(
-          label: '取消',
+          label: context.l10n.commonCancel,
           onTap: () => Navigator.of(context).pop(false),
         ),
         DialogAction(
-          label: '同意並送出',
+          label: context.l10n.agreeAndSend,
           tone: DialogTone.primary,
           onTap: () => Navigator.of(context).pop(true),
         ),
@@ -387,21 +409,20 @@ Future<bool> askCloudConsent(BuildContext context) async {
 /// to send text never covered a photo.
 Future<bool> askPhotoConsent(BuildContext context) async {
   final store = AppStoreScope.read(context);
-  final provider = store.aiProvider?.label ?? '雲端 AI';
+  final provider =
+      store.aiProvider?.labelIn(context.l10n) ?? context.l10n.cloudAi;
   final agreed = await showAppDialog<bool>(
     context,
     AppDialog(
-      title: '送出食物照片到 $provider？',
-      message:
-          '只送出這張照片與補充說明，先移除照片裡的位置與拍攝資訊，'
-          '不保存照片。可在「我的 > AI」撤回。',
+      title: context.l10n.sendPhotoToProvider(provider: provider),
+      message: context.l10n.photoConsentMessage(me: context.l10n.tabMe),
       actions: [
         DialogAction(
-          label: '取消',
+          label: context.l10n.commonCancel,
           onTap: () => Navigator.of(context).pop(false),
         ),
         DialogAction(
-          label: '同意並送出',
+          label: context.l10n.agreeAndSend,
           tone: DialogTone.primary,
           onTap: () => Navigator.of(context).pop(true),
         ),
@@ -414,17 +435,20 @@ Future<bool> askPhotoConsent(BuildContext context) async {
 }
 
 /// Why a request produced no draft, in the words the screens show.
-String aiFailureMessage(AiFailure failure) => switch (failure) {
-  AiFailure.unavailable => 'AI 還不能用，到「我的 > AI」設定。',
-  AiFailure.needsConsent => '未同意送出文字。',
-  AiFailure.authentication => '金鑰無效或沒有權限，到「我的 > AI」重新設定。',
-  AiFailure.rateLimited => '請求太頻繁或額度用完，稍後再試。',
-  AiFailure.network => '連不上網路，稍後再試。',
-  AiFailure.providerError => 'AI 服務出了問題，稍後再試。',
-  AiFailure.unreadable => 'AI 的回覆無法解讀，再試一次。',
-  AiFailure.noText => '照片裡讀不到文字，換一張清楚的正面照片。',
-  AiFailure.needsPhotoConsent => '未同意送出照片。',
-  AiFailure.photoUnsupported => '目前的 AI 不能讀照片，到「我的 > AI」換一個。',
-  AiFailure.noFood => '照片裡看不到食物或飲料，換一張再試。',
-  AiFailure.photoFormat => '這張照片的格式無法讀取，換一張再試。',
-};
+String aiFailureMessage(AppLocalizations l10n, AiFailure failure) =>
+    switch (failure) {
+      AiFailure.unavailable => l10n.aiFailureUnavailable(me: l10n.tabMe),
+      AiFailure.needsConsent => l10n.aiFailureNeedsConsent,
+      AiFailure.authentication => l10n.aiFailureAuthentication(me: l10n.tabMe),
+      AiFailure.rateLimited => l10n.aiFailureRateLimited,
+      AiFailure.network => l10n.aiFailureNetwork,
+      AiFailure.providerError => l10n.aiFailureProvider,
+      AiFailure.unreadable => l10n.aiFailureUnreadable,
+      AiFailure.noText => l10n.aiFailureNoText,
+      AiFailure.needsPhotoConsent => l10n.aiFailureNeedsPhotoConsent,
+      AiFailure.photoUnsupported => l10n.aiFailurePhotoUnsupported(
+        me: l10n.tabMe,
+      ),
+      AiFailure.noFood => l10n.aiFailureNoFood,
+      AiFailure.photoFormat => l10n.aiFailurePhotoFormat,
+    };

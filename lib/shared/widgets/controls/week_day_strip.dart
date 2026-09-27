@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
-import '../../format.dart';
 import '../../window_layout.dart';
 import '../page/collapsing_header.dart';
+import '../../../l10n/l10n.dart';
 
 /// Size of the circle round each day's number.
 const _dayCircle = 32.0;
@@ -41,6 +41,7 @@ class WeekDayStrip extends StatefulWidget {
   static double heightOf(BuildContext context) =>
       measureTextHeight(
         context,
+        // l10n-ignore: measures a line of text, never shown.
         '日',
         AppTextStyles.caption,
         maxWidth: double.infinity,
@@ -169,16 +170,18 @@ class _Day extends StatelessWidget {
     return Semantics(
       button: canPick,
       selected: isSelected,
-      label:
-          '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）'
-          '${isMarked ? '，有紀錄' : ''}',
+      label: isMarked
+          ? context.l10n.dayStripHasRecords(
+              date: context.dates.dayWithWeekday(day),
+            )
+          : context.dates.dayWithWeekday(day),
       excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: canPick ? () => strip.onSelected(day) : null,
         child: Column(
           children: [
-            Text(weekdayLabel(day), style: AppTextStyles.caption),
+            Text(context.dates.weekday(day), style: AppTextStyles.caption),
             const SizedBox(height: AppSpacing.xxs),
             Container(
               width: _dayCircle,

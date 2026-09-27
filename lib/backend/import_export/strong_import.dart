@@ -171,8 +171,10 @@ class StrongImporter {
     try {
       rows = parseCsv(content, delimiter: delimiter);
     } on FormatException {
+      // l10n-ignore: an import diagnostic, not shown by the app.
       throw const StrongFormatException('CSV 格式損毀');
     }
+    // l10n-ignore: an import diagnostic, not shown by the app.
     if (rows.isEmpty) throw const StrongFormatException('檔案是空的');
     final header = [for (final name in rows.first) name.trim()];
     final column = {for (final (i, name) in header.indexed) name: i};
@@ -192,6 +194,7 @@ class StrongImporter {
     ];
     final missing = required.where((name) => !column.containsKey(name));
     if (missing.isNotEmpty) {
+      // l10n-ignore: an import diagnostic, not shown by the app.
       throw StrongFormatException('不是可辨識的 Strong 匯出檔（缺少 ${missing.join('、')}）');
     }
 
@@ -224,17 +227,21 @@ class StrongImporter {
         _ => null,
       };
       if (type == null) {
+        // l10n-ignore: an import diagnostic, not shown by the app.
         issues.add(StrongIssue(row, '無法辨識的組別「$setOrder」'));
         continue;
       }
       final startedAt = _parseDate(field('Date'));
       if (startedAt == null) {
+        // l10n-ignore: an import diagnostic, not shown by the app.
         issues.add(StrongIssue(row, '日期格式無法解析「${field('Date') ?? ''}」'));
         continue;
       }
       final exerciseName = field('Exercise Name');
-      final workoutName = field('Workout Name') ?? 'Strong 訓練';
+      final workoutName =
+          field('Workout Name') ?? _backend.l10n.strongWorkoutName;
       if (exerciseName == null) {
+        // l10n-ignore: an import diagnostic, not shown by the app.
         issues.add(StrongIssue(row, '缺少動作名稱'));
         continue;
       }
@@ -242,6 +249,7 @@ class StrongImporter {
       var weight = double.tryParse(field(weightColumn) ?? '0');
       final reps = double.tryParse(field('Reps') ?? '0')?.round();
       if (weight == null || reps == null || weight < 0 || reps < 0) {
+        // l10n-ignore: an import diagnostic, not shown by the app.
         issues.add(StrongIssue(row, '重量或次數不是數字'));
         continue;
       }
@@ -253,11 +261,13 @@ class StrongImporter {
       };
       if (rowUnit == WeightUnit.lb) {
         weight = double.parse((weight * _kilogramsPerPound).toStringAsFixed(2));
+        // l10n-ignore: an import diagnostic, not shown by the app.
         issues.add(StrongIssue(row, '單位是磅，已換算成公斤', isSkipped: false));
       }
       final rpe = double.tryParse(field('RPE') ?? '');
       if (rpe != null && (rpe < 1 || rpe > 10)) {
         issues.add(
+          // l10n-ignore: an import diagnostic, not shown by the app.
           StrongIssue(row, 'RPE「$rpe」超出 1–10，已略過該值', isSkipped: false),
         );
       }
@@ -333,6 +343,7 @@ class StrongImporter {
         issues.add(
           StrongIssue(
             0,
+            // l10n-ignore: an import diagnostic, not shown by the app.
             '「${workout.name}」（${_dateLabel(workout.startedAt)}）沒有訓練時長',
             isSkipped: false,
           ),

@@ -515,24 +515,30 @@ String encodeArchive(Map<String, Object?> archive) =>
 /// store is left untouched.
 void restoreArchive(AppDatabase db, Object? archive) {
   if (archive is! Map<String, Object?>) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw const ArchiveFormatException('封存檔不是 JSON 物件');
   }
   if (archive['format'] != archiveFormat) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw const ArchiveFormatException('不是 MISHIRUBE 封存檔');
   }
   final version = archive['formatVersion'];
   if (version is! int || version < 1) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw const ArchiveFormatException('封存檔版本無法辨識');
   }
   if (version > archiveFormatVersion) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw ArchiveFormatException('封存檔版本 $version 比這個 App 新，請先更新');
   }
   final data = archive['data'];
   if (data is! Map<String, Object?>) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw const ArchiveFormatException('封存檔缺少 data');
   }
   final extensions = archive['extensions'] ?? const <String, Object?>{};
   if (extensions is! Map<String, Object?>) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw const ArchiveFormatException('extensions 必須是物件');
   }
 
@@ -577,12 +583,14 @@ void restoreArchive(AppDatabase db, Object? archive) {
 
 List<Object?> _records(Map<String, Object?> data, String key) {
   final records = data[key] ?? const [];
+  // l10n-ignore: an archive diagnostic, not shown by the app.
   if (records is! List) throw ArchiveFormatException('$key 必須是陣列');
   return records;
 }
 
 List<Object?> _rowFrom(_Table table, Object? record, int index) {
   if (record is! Map<String, Object?>) {
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw ArchiveFormatException('${table.key}[$index] 必須是物件');
   }
   return [
@@ -608,8 +616,10 @@ Object? _toArchive(_Column column, Object? value) {
 Object? _fromArchive(_Column column, Object? value, String where) {
   if (value == null) {
     if (column.isNullable) return null;
+    // l10n-ignore: an archive diagnostic, not shown by the app.
     throw ArchiveFormatException('$where.${column.key} 不可為空');
   }
+  // l10n-ignore: an archive diagnostic, not shown by the app.
   Never invalid() => throw ArchiveFormatException('$where.${column.key} 格式錯誤');
   return switch (column.kind) {
     _Kind.text => value is String ? value : invalid(),

@@ -9,19 +9,23 @@ import '../../shared/window_layout.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_detail_screen.dart';
 import 'exercise_filter_screen.dart';
+import '../../l10n/l10n.dart';
 
 const _maxSuggestions = 3;
 
 /// Search field (56) plus the pinned row's vertical padding.
 enum _PickerTab {
-  recent('最近使用'),
-  favorites('收藏'),
-  homeGym('本健身房'),
-  all('所有動作');
+  recent,
+  favorites,
+  homeGym,
+  all;
 
-  const _PickerTab(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    recent => l10n.pickerTabRecent,
+    favorites => l10n.pickerTabFavorites,
+    homeGym => l10n.pickerTabHomeGym,
+    all => l10n.pickerTabAll,
+  };
 
   bool includes(ExerciseDefinition exercise) => switch (this) {
     _PickerTab.recent => exercise.lastUsedDaysAgo != null,
@@ -35,15 +39,19 @@ enum _PickerTab {
 /// to pick: the search, tabs and filters are the point either way, and a
 /// second catalogue screen would only drift from this one.
 enum PickerPurpose {
-  template('加入課表'),
-  activeWorkout('加入進行中的'),
-  record('加入紀錄'),
-  browse('瀏覽與搜尋所有動作'),
-  single('選擇一個動作');
+  template,
+  activeWorkout,
+  record,
+  browse,
+  single;
 
-  const PickerPurpose(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    template => l10n.pickerAddToRoutine,
+    activeWorkout => l10n.pickerAddToWorkout,
+    record => l10n.pickerAddToEntry,
+    browse => l10n.pickerBrowse,
+    single => l10n.pickerSingle,
+  };
 
   /// Whether tapping a row chooses it at all.
   bool get picks => this != PickerPurpose.browse;
@@ -149,17 +157,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
     final shouldDiscard = await showAppDialog<bool>(
       context,
       AppDialog(
-        title: '放棄已選的 ${_selected.length} 個動作？',
+        title: context.l10n.discardSelectedTitle(count: _selected.length),
         // Not a task and its alternative, but something destructive and
         // the refusal of it, so neither wears the accent.
         actions: [
           DialogAction(
-            label: '放棄已選的動作',
+            label: context.l10n.discardSelected,
             tone: DialogTone.destructive,
             onTap: () => Navigator.of(context).pop(true),
           ),
           DialogAction(
-            label: '繼續選擇',
+            label: context.l10n.keepChoosing,
             onTap: () => Navigator.of(context).pop(false),
           ),
         ],
@@ -184,13 +192,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
       child: PageScaffold(
         appBar: PageAppBar(
           title: switch (widget.purpose) {
-            PickerPurpose.browse => '動作庫',
-            PickerPurpose.single => '選擇動作',
-            _ => '新增動作',
+            PickerPurpose.browse => context.l10n.exerciseLibrary,
+            PickerPurpose.single => context.l10n.chooseExercise,
+            _ => context.l10n.addExercises,
           },
-          subtitle: widget.targetName == null
-              ? widget.purpose.label
-              : '${widget.purpose.label}「${widget.targetName}」',
+          subtitle: switch (widget.targetName) {
+            null => widget.purpose.labelIn(context.l10n),
+            final name => context.l10n.pickerPurposeFor(
+              purpose: widget.purpose.labelIn(context.l10n),
+              name: name,
+            ),
+          },
         ),
         // Searching is the main job here, so the search row stays pinned.
         pinned: Gutter(
@@ -214,7 +226,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
           if (!_filter.isEmpty)
             Gutter(
               child: _FilterSummary(
-                summary: _filter.summary,
+                summary: _filter.summary(context.l10n),
                 onClear: () => setState(() => _filter = const ExerciseFilter()),
               ),
             ),
@@ -258,7 +270,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
               ),
             Gutter(
               child: DashedActionCard(
-                label: '找不到？建立自訂動作',
+                label: context.l10n.cantFindCreate,
                 onTap: _createExercise,
               ),
             ),
@@ -289,7 +301,10 @@ class _SearchRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: SearchField(controller: controller, hint: '搜尋動作、別名或器材…'),
+            child: SearchField(
+              controller: controller,
+              hint: context.l10n.searchExercisesHint,
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Badge(
@@ -299,7 +314,7 @@ class _SearchRow extends StatelessWidget {
             textColor: AppColors.onTraining,
             child: SearchFieldButton(
               icon: Icons.filter_list,
-              tooltip: '篩選',
+              tooltip: context.l10n.filterTitle,
               onPressed: onFilter,
             ),
           ),
@@ -329,7 +344,7 @@ class _TabRow extends StatelessWidget {
         itemBuilder: (_, index) {
           final tab = _PickerTab.values[index];
           return SelectChip(
-            label: tab.label,
+            label: tab.labelIn(context.l10n),
             isSelected: tab == selected,
             onTap: () => onSelect(tab),
           );
@@ -351,7 +366,7 @@ class _FilterSummary extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
       child: Row(
         children: [
-          const Text('篩選  ', style: AppTextStyles.caption),
+          Text('${context.l10n.filterTitle}  ', style: AppTextStyles.caption),
           Expanded(
             child: Text(
               summary,
@@ -362,7 +377,11 @@ class _FilterSummary extends StatelessWidget {
               ),
             ),
           ),
-          LinkText(label: '清除', color: AppColors.textSecondary, onTap: onClear),
+          LinkText(
+            label: context.l10n.clearAction,
+            color: AppColors.textSecondary,
+            onTap: onClear,
+          ),
         ],
       ),
     );
@@ -399,15 +418,17 @@ class _ExerciseTile extends StatelessWidget {
         titleTrailing: exercise.isFavorite
             ? const Icon(Icons.star_border, size: 16, color: AppColors.warning)
             : null,
-        subtitle: '${exercise.equipment.label} · ${exercise.muscleSummary}',
+        subtitle:
+            '${exercise.equipment.labelIn(context.l10n)} · ${exercise.muscleSummary(context.l10n)}',
         detail: exercise.lastPerformance == null
-            ? '沒有紀錄'
-            : '${exercise.lastPerformance} · ${exercise.lastUsedDaysAgo} 天前',
+            ? context.l10n.noEntriesShort
+            : '${exercise.lastPerformance} · '
+                  '${context.l10n.daysAgo(count: exercise.lastUsedDaysAgo!)}',
         trailing: onInfo == null
             ? null
             : SquareIconButton(
                 icon: Icons.info_outline,
-                tooltip: '${exercise.name}說明',
+                tooltip: context.l10n.aboutItem(name: exercise.name),
                 size: 40,
                 onPressed: onInfo!,
               ),
@@ -471,7 +492,7 @@ class _SelectionTray extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('加入順序 · 點一下可移除', style: AppTextStyles.caption),
+          Text(context.l10n.selectionOrderHint, style: AppTextStyles.caption),
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.xs,
@@ -481,14 +502,17 @@ class _SelectionTray extends StatelessWidget {
                 ChipButton(
                   label: '${i + 1}  ${selected[i].name}',
                   tone: TagTone.training,
-                  semanticLabel: '移除第 ${i + 1} 個：${selected[i].name}',
+                  semanticLabel: context.l10n.removeNumbered(
+                    index: i + 1,
+                    name: selected[i].name,
+                  ),
                   onTap: () => onRemove(selected[i]),
                 ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           PrimaryButton(
-            label: '加入 ${selected.length} 個動作',
+            label: context.l10n.addExercisesCount(count: selected.length),
             onPressed: onConfirm,
           ),
         ],
@@ -517,36 +541,42 @@ class _NoResults extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasEquipmentFilter = filter.equipment.isNotEmpty;
-    final equipmentLabel = filter.equipment.map((e) => e.label).join('、');
+    final equipmentLabel = joinList(
+      context.l10n,
+      filter.equipment.map((e) => e.labelIn(context.l10n)),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.sm,
       children: [
         EmptyStateCard(
           icon: Icons.search,
-          title: '沒有符合的動作',
+          title: context.l10n.noMatchingExercises,
           message: hasEquipmentFilter
-              ? '套用了「器材：$equipmentLabel」，要找的動作可能是別種器材。'
-              : '換個說法、英文名稱或別名再試一次。',
+              ? context.l10n.equipmentFilterHint(equipment: equipmentLabel)
+              : context.l10n.searchAgainHint,
           action: hasEquipmentFilter
               ? PrimaryButton(
-                  label: '移除器材篩選再找一次',
+                  label: context.l10n.removeEquipmentFilter,
                   isCompact: true,
                   onPressed: onClearEquipment,
                 )
               : null,
         ),
-        if (suggestions.isNotEmpty) const SectionLabel('相近的動作'),
+        if (suggestions.isNotEmpty) SectionLabel(context.l10n.similarExercises),
         for (final exercise in suggestions)
           AccentRow(
             color: AppColors.training,
             title: exercise.name,
-            subtitle: '${exercise.equipment.label} · ${exercise.muscleSummary}',
+            subtitle:
+                '${exercise.equipment.labelIn(context.l10n)} · ${exercise.muscleSummary(context.l10n)}',
             showChevron: true,
             onTap: () => onOpenSuggestion(exercise),
           ),
         DashedActionCard(
-          label: query.isEmpty ? '建立自訂動作' : '建立「$query」',
+          label: query.isEmpty
+              ? context.l10n.createCustomExercise
+              : context.l10n.createNamed(name: query),
           onTap: onCreate,
         ),
       ],

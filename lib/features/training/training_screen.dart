@@ -10,15 +10,17 @@ import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'describe_workout_screen.dart';
 import 'routine_detail_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Where a workout starts from, besides exercises picked one by one.
 enum _Source {
-  routines('我的課表'),
-  past('載入紀錄');
+  routines,
+  past;
 
-  const _Source(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    routines => l10n.myRoutines,
+    past => l10n.loadFromHistory,
+  };
 }
 
 /// Everything to train from: exercises picked by hand, one of the user's
@@ -52,7 +54,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
     final wasShown = store.selectedRoutine?.id == routine.id;
     store.deleteRoutine(routine);
     ToastScope.read(context).showUndo(
-      '已刪除「${routine.name}」',
+      context.l10n.deletedNamed(name: routine.name),
       onUndo: () => store.undeleteRoutine(routine.id, select: wasShown),
     );
   }
@@ -63,15 +65,18 @@ class _TrainingScreenState extends State<TrainingScreen> {
     pushPage(context, const RoutineDetailScreen());
   }
 
-  void _refuse() =>
-      showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
+  void _refuse() => showToast(
+    context,
+    context.l10n.activityBlocksWorkout,
+    kind: ToastKind.warning,
+  );
 
   Future<void> _pickByHand() async {
     final store = AppStoreScope.read(context);
     if (store.activeWorkout == null) {
       final exercises = await pushModalPage<List<ExerciseDefinition>>(
         context,
-        const ExercisePickerScreen(targetName: '自由訓練'),
+        ExercisePickerScreen(targetName: context.l10n.workoutFreeName),
       );
       if (exercises == null || exercises.isEmpty || !mounted) return;
       if (!store.startFreeWorkout(exercises)) return _refuse();
@@ -101,10 +106,12 @@ class _TrainingScreenState extends State<TrainingScreen> {
         ? store.recentWorkouts
         : const <WorkoutSession>[];
     return DetailPage(
-      appBar: const PageAppBar(title: '訓練'),
+      appBar: PageAppBar(title: context.l10n.moduleTraining),
       footer: _source == _Source.past
           ? PrimaryButton(
-              label: _picked.isEmpty ? '選擇動作' : '開始訓練（${_picked.length} 個動作）',
+              label: _picked.isEmpty
+                  ? context.l10n.chooseExercise
+                  : context.l10n.startWorkoutCount(count: _picked.length),
               onPressed: _picked.isEmpty || store.activeWorkout != null
                   ? null
                   : () => _startFromPast(workouts),
@@ -113,14 +120,16 @@ class _TrainingScreenState extends State<TrainingScreen> {
       children: [
         Gutter(
           child: SecondaryButton(
-            label: '一句話',
+            label: context.l10n.describeInWords,
             icon: Icons.notes,
             onPressed: () => pushPage(context, const DescribeWorkoutScreen()),
           ),
         ),
         Gutter(
           child: SecondaryButton(
-            label: store.activeWorkout == null ? '手動新增動作' : '回到訓練',
+            label: store.activeWorkout == null
+                ? context.l10n.addExercisesByHand
+                : context.l10n.backToWorkout,
             icon: Icons.add,
             onPressed: _pickByHand,
           ),
@@ -129,7 +138,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
           child: SegmentedChoice<_Source>(
             options: _Source.values,
             selected: _source,
-            labelOf: (source) => source.label,
+            labelOf: (source) => source.labelIn(context.l10n),
             onChanged: (source) => setState(() => _source = source),
           ),
         ),
@@ -146,28 +155,28 @@ class _TrainingScreenState extends State<TrainingScreen> {
       Gutter(
         child: SwipeAction(
           key: ValueKey(routine.id),
-          label: '刪除',
-          semanticLabel: '刪除「${routine.name}」',
+          label: context.l10n.deleteAction,
+          semanticLabel: context.l10n.deleteNamed(name: routine.name),
           onAction: () => _delete(routine),
           child: NavCard(
             title: routine.name,
-            subtitle: routineSummary(routine),
+            subtitle: routineSummary(context.l10n, routine),
             detail: routine.lastCompletedLabel,
             onTap: () => _openRoutine(routine),
           ),
         ),
       ),
     Gutter(
-      child: DashedActionCard(label: '新增課表', onTap: _create),
+      child: DashedActionCard(label: context.l10n.newRoutine, onTap: _create),
     ),
   ];
 
   List<Widget> _past(List<WorkoutSession> workouts) => [
     if (workouts.isEmpty)
       Gutter(
-        child: const EmptyStateCard(
+        child: EmptyStateCard(
           icon: Icons.fitness_center,
-          title: '沒有訓練紀錄',
+          title: context.l10n.noWorkouts,
         ),
       ),
     for (final workout in workouts) Gutter(child: _pastCard(workout)),
@@ -182,12 +191,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
       children: [
         NavRow(
           title:
-              '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）· '
-              '${workout.routineName}',
+              '${context.dates.dayWithWeekday(day)} · ${workout.routineName}',
           subtitle: {
             for (final session in workout.exercises)
               for (final muscle in session.exercise.primaryMuscles)
-                muscle.region.label,
+                muscle.region.labelIn(context.l10n),
           }.join(' · '),
           trailing: Icon(
             isOpen ? Icons.expand_less : Icons.expand_more,
@@ -199,7 +207,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
         ),
         if (isOpen) ...[
           CheckRow(
-            title: '選擇全部',
+            title: context.l10n.selectAll,
             isChecked: allPicked,
             onChanged: (picked) => setState(() {
               for (final i in all) {
@@ -214,7 +222,11 @@ class _TrainingScreenState extends State<TrainingScreen> {
               subtitle: [
                 for (final (n, set) in session.sets.indexed)
                   if (set.isDone)
-                    '${n + 1} 組 ${formatWeight(set.weightKg)} kg ${set.reps} 次',
+                    context.l10n.pastSet(
+                      number: n + 1,
+                      weight: formatWeight(set.weightKg),
+                      reps: set.reps,
+                    ),
               ].join('\n'),
               isChecked: _picked.contains((workout.id, i)),
               onChanged: (picked) => _toggle(workout.id, i, picked),
@@ -226,5 +238,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
 }
 
 /// `5 個動作 · 16 組`.
-String routineSummary(Routine routine) =>
-    '${routine.exercises.length} 個動作 · ${routine.totalSets} 組';
+String routineSummary(AppLocalizations l10n, Routine routine) =>
+    l10n.routineSummary(
+      exercises: routine.exercises.length,
+      sets: routine.totalSets,
+    );

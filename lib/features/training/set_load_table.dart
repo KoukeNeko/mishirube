@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// An exercise's sets as a table of weight and reps typed in place, with
 /// a set taken off or added at the end: how a 課表 plans them, and how a
@@ -37,9 +38,9 @@ class SetLoadTable extends StatelessWidget {
       children: [
         Row(
           children: [
-            const SizedBox(
+            SizedBox(
               width: 40,
-              child: Text('組', style: AppTextStyles.caption),
+              child: Text(context.l10n.setColumn, style: AppTextStyles.caption),
             ),
             const Expanded(
               child: Text(
@@ -49,9 +50,9 @@ class SetLoadTable extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.xs),
-            const Expanded(
+            Expanded(
               child: Text(
-                '次',
+                context.l10n.repsColumn,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption,
               ),
@@ -74,7 +75,7 @@ class SetLoadTable extends StatelessWidget {
                 Expanded(
                   child: InlineNumberField(
                     text: formatWeight(load.weightKg),
-                    label: '第 ${i + 1} 組重量',
+                    label: context.l10n.setNumberWeight(number: i + 1),
                     decimal: true,
                     onCommit: (text) {
                       if (double.tryParse(text) case final kg? when kg >= 0) {
@@ -87,7 +88,7 @@ class SetLoadTable extends StatelessWidget {
                 Expanded(
                   child: InlineNumberField(
                     text: '${load.reps}',
-                    label: '第 ${i + 1} 組次數',
+                    label: context.l10n.setNumberReps(number: i + 1),
                     decimal: false,
                     onCommit: (text) {
                       if (int.tryParse(text) case final reps? when reps > 0) {
@@ -105,7 +106,7 @@ class SetLoadTable extends StatelessWidget {
           children: [
             Expanded(
               child: SecondaryButton(
-                label: '刪除組',
+                label: context.l10n.removeSet,
                 icon: Icons.remove,
                 isCompact: true,
                 onPressed: loads.length <= 1
@@ -115,7 +116,7 @@ class SetLoadTable extends StatelessWidget {
             ),
             Expanded(
               child: SecondaryButton(
-                label: '新增組',
+                label: context.l10n.addSet,
                 icon: Icons.add,
                 isCompact: true,
                 onPressed: () => onLoads([...loads, loads.last]),
@@ -154,8 +155,8 @@ class ExerciseLoadsCard extends StatelessWidget {
             children: [
               Expanded(child: Text(name, style: AppTextStyles.itemTitle)),
               ChipButton(
-                label: '移除',
-                semanticLabel: '移除「$name」',
+                label: context.l10n.removeAction,
+                semanticLabel: context.l10n.removeNamed(name: name),
                 onTap: onRemove,
               ),
             ],

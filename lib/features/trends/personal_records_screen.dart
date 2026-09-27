@@ -7,6 +7,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Every exercise's heaviest set and best estimated max, the most
 /// recently set first.
@@ -19,19 +20,19 @@ class PersonalRecordsScreen extends StatelessWidget {
     builder: (context, trends) {
       final records = trends.personalRecords();
       return DetailPage(
-        appBar: PageAppBar(title: '個人紀錄'),
+        appBar: PageAppBar(title: context.l10n.personalRecords),
         children: [
           if (records.isEmpty)
             Gutter(
-              child: const EmptyStateCard(
+              child: EmptyStateCard(
                 icon: Icons.emoji_events_outlined,
-                title: '沒有紀錄',
+                title: context.l10n.noEntriesShort,
               ),
             )
           else ...[
             for (final bests in records)
               Gutter(child: _RecordRow(bests: bests)),
-            Gutter(child: const TagWrap(labels: ['Epley 估計'])),
+            Gutter(child: TagWrap(labels: [context.l10n.epleyEstimate])),
           ],
         ],
       );
@@ -50,13 +51,16 @@ class _RecordRow extends StatelessWidget {
     final estimate = bests.bestEstimate;
     return NavCard(
       title: bests.exercise.name,
-      subtitle:
-          '最重 ${formatWeight(heaviest.weightKg)} kg × ${heaviest.reps} · '
-          '${heaviest.date.month} 月 ${heaviest.date.day} 日',
+      subtitle: context.l10n.heaviestSet(
+        set: '${formatWeight(heaviest.weightKg)} kg × ${heaviest.reps}',
+        date: context.dates.monthDay(heaviest.date),
+      ),
       detail: estimate == null
           ? null
-          : '估計最大重量 ${estimate.oneRepMaxKg!.round()} kg · '
-                '${estimate.date.month} 月 ${estimate.date.day} 日',
+          : context.l10n.estimatedMaxOn(
+              weight: estimate.oneRepMaxKg!.round(),
+              date: context.dates.monthDay(estimate.date),
+            ),
       onTap: () =>
           pushPage(context, ExerciseDetailScreen(exercise: bests.exercise)),
     );

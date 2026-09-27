@@ -15,6 +15,7 @@ import 'meal_group_screen.dart';
 import 'nutrition_target_screen.dart';
 import 'nutrition_view_model.dart';
 import 'split_dish_sheet.dart';
+import '../../l10n/l10n.dart';
 
 class DailyNutritionScreen extends StatefulWidget {
   const DailyNutritionScreen({super.key, this.day});
@@ -65,7 +66,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     ]);
     setState(() => _merging = null);
     ToastScope.read(context).showUndo(
-      '已合併 ${chosen.length} 筆',
+      context.l10n.mergedCount(count: chosen.length),
       onUndo: () => _nutrition.regroupMeals(previous),
     );
   }
@@ -74,7 +75,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   void _removeItem(MealEvent item) {
     _nutrition.deleteMeals([item]);
     ToastScope.read(context).showUndo(
-      '已移除「${item.name}」',
+      context.l10n.removedNamed(name: item.name),
       onUndo: () => _nutrition.restoreMeals([item]),
     );
   }
@@ -83,7 +84,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   void _removeWater(MealEvent glass) {
     _nutrition.deleteMeals([glass]);
     ToastScope.read(context).showUndo(
-      '已移除 ${glass.millilitres} mL 的水',
+      context.l10n.removedWater(millilitres: glass.millilitres ?? 0),
       onUndo: () => _nutrition.restoreMeals([glass]),
     );
   }
@@ -100,6 +101,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
 
   Future<void> _split(MealEvent meal, int dishIndex) async {
     final toast = ToastScope.read(context);
+    final l10n = context.l10n;
     final day = _day;
     final shouldSplit = await showSplitDishSheet(
       context,
@@ -112,7 +114,10 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       day: day,
     );
     if (snapshot == null) return;
-    toast.showUndo('已拆成獨立紀錄', onUndo: () => _nutrition.undoSplit(snapshot));
+    toast.showUndo(
+      l10n.splitDone,
+      onUndo: () => _nutrition.undoSplit(snapshot),
+    );
   }
 
   @override
@@ -160,16 +165,20 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       ),
       pinnedHeight: WeekDayStrip.pinnedHeightOf(context),
       appBar: PageAppBar(
-        title: '飲食',
-        subtitle: '${day.month} 月 ${day.day} 日（週${weekdayLabel(day)}）',
+        title: context.l10n.moduleNutrition,
+        subtitle: context.dates.dayWithWeekday(day),
         actions: [
           // Meals logged apart — a draft split item by item — can be put
           // back together.
           if (eaten.length > 1)
             HeaderAction(
               icon: merging == null ? Icons.call_merge : Icons.close,
-              label: merging == null ? '合併' : '取消',
-              semanticLabel: merging == null ? '合併幾筆紀錄' : '取消合併',
+              label: merging == null
+                  ? context.l10n.mergeAction
+                  : context.l10n.commonCancel,
+              semanticLabel: merging == null
+                  ? context.l10n.mergeEntries
+                  : context.l10n.cancelMerge,
               onTap: () => setState(
                 () => _merging = merging == null ? <String>{} : null,
               ),
@@ -181,8 +190,8 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           : BottomActionBar(
               child: PrimaryButton(
                 label: merging.length < 2
-                    ? '合併成一餐'
-                    : '合併 ${merging.length} 筆成一餐',
+                    ? context.l10n.mergeIntoMeal
+                    : context.l10n.mergeCountIntoMeal(count: merging.length),
                 onPressed: merging.length < 2 ? null : () => _merge(eaten),
               ),
             ),
@@ -190,9 +199,11 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (merging == null) ...[
           Gutter(
             child: SectionLabel(
-              convention.energyName,
+              convention.energyName(context.l10n),
               trailing: LinkText(
-                label: targets.kcal == null ? '設定目標' : '變更',
+                label: targets.kcal == null
+                    ? context.l10n.setGoal
+                    : context.l10n.changeAction,
                 color: AppColors.nutrition,
                 alignment: Alignment.bottomRight,
                 onTap: () => pushPage(context, const NutritionTargetScreen()),
@@ -206,7 +217,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               convention: convention,
             ),
           ),
-          Gutter(child: const SectionLabel('每日指標')),
+          Gutter(child: SectionLabel(context.l10n.dailyIndicators)),
           Gutter(
             child: _IndicatorsCard(
               convention: convention,
@@ -222,9 +233,9 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           ),
           Gutter(
             child: SectionLabel(
-              '餐點',
+              context.l10n.mealsSection,
               trailing: Text(
-                '${summary.mealCount} 餐',
+                context.l10n.mealsCount(count: summary.mealCount),
                 style: AppTextStyles.caption,
               ),
             ),
@@ -232,9 +243,9 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         ],
         if (eaten.isEmpty)
           Gutter(
-            child: const EmptyStateCard(
+            child: EmptyStateCard(
               icon: Icons.no_meals_outlined,
-              title: '這一天沒有記錄任何一餐',
+              title: context.l10n.noMealsThisDay,
             ),
           ),
         if (merging != null)
@@ -280,16 +291,18 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     ),
             ),
         if (water.isNotEmpty && merging == null) ...[
-          Gutter(child: const SectionLabel('水')),
+          Gutter(child: SectionLabel(context.l10n.waterSection)),
           for (final glass in water)
             Gutter(
               child: SwipeAction(
                 key: ValueKey(glass.id),
-                label: '移除',
-                semanticLabel: '移除 ${glass.timeLabel} 的水',
+                label: context.l10n.removeAction,
+                semanticLabel: context.l10n.removeWaterAt(
+                  time: glass.timeLabel,
+                ),
                 onAction: () => _removeWater(glass),
                 child: NavCard(
-                  title: '水',
+                  title: context.l10n.waterSection,
                   subtitle: '${glass.timeLabel} · ${glass.millilitres} mL',
                   onTap: () => pushPage(context, MealDetailScreen(meal: glass)),
                 ),
@@ -306,7 +319,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                   total,
             ]
             case final rest when rest.isNotEmpty && merging == null) ...[
-          Gutter(child: const SectionLabel('其他營養素')),
+          Gutter(child: SectionLabel(context.l10n.otherNutrients)),
           Gutter(
             child: _NutrientTotals(totals: rest, convention: convention),
           ),
@@ -316,7 +329,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (merging == null)
           Gutter(
             child: DashedActionCard(
-              label: '新增紀錄',
+              label: context.l10n.dockAddEntry,
               color: AppColors.nutrition,
               onTap: () => pushPage(context, FoodSearchScreen(day: day)),
             ),
@@ -364,8 +377,8 @@ class _MealGroupCard extends StatelessWidget {
                       Text(
                         [
                           first.timeLabel,
-                          ?first.mealType?.label,
-                          '${items.length} 項',
+                          ?first.mealType?.labelIn(context.l10n),
+                          context.l10n.itemsCountShort(count: items.length),
                         ].join(' · '),
                         style: AppTextStyles.caption,
                       ),
@@ -386,13 +399,13 @@ class _MealGroupCard extends StatelessWidget {
         for (final item in items)
           SwipeAction(
             key: ValueKey(item.id),
-            label: '移除',
-            semanticLabel: '移除「${item.name}」',
+            label: context.l10n.removeAction,
+            semanticLabel: context.l10n.removeNamed(name: item.name),
             radius: 0,
             onAction: () => onRemove(item),
             child: NavRow(
               title: item.name,
-              subtitle: _macrosOf(item, convention),
+              subtitle: _macrosOf(context.l10n, item, convention),
               trailing: Text(
                 '${formatKcalOrDash(item.kcal)} kcal',
                 style: AppTextStyles.caption,
@@ -408,12 +421,16 @@ class _MealGroupCard extends StatelessWidget {
 
 /// `蛋白質 12 g · 碳水化合物 40 g · 脂肪 9 g`, in [convention]'s words,
 /// a dash for a figure not known.
-String _macrosOf(MealEvent item, NutritionConvention convention) {
+String _macrosOf(
+  AppLocalizations l10n,
+  MealEvent item,
+  NutritionConvention convention,
+) {
   String grams(int? value) => value == null ? '—' : '$value g';
   return [
-    '${convention.proteinName} ${grams(item.proteinGrams)}',
-    '${convention.carbName} ${grams(item.carbGrams)}',
-    '${convention.fatName} ${grams(item.fatGrams)}',
+    '${convention.proteinName(l10n)} ${grams(item.proteinGrams)}',
+    '${convention.carbName(l10n)} ${grams(item.carbGrams)}',
+    '${convention.fatName(l10n)} ${grams(item.fatGrams)}',
   ].join(' · ');
 }
 
@@ -456,7 +473,7 @@ class _MealCard extends StatelessWidget {
                       children: [
                         Text(meal.name, style: AppTextStyles.itemTitle),
                         Text(
-                          '${meal.timeLabel} · ${meal.qualityTag}',
+                          '${meal.timeLabel} · ${qualityTagLabel(context.l10n, meal.qualityTag)}',
                           style: AppTextStyles.caption,
                         ),
                       ],
@@ -525,7 +542,10 @@ class _DishRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(dish.name, style: AppTextStyles.itemTitle),
-                      Text(dish.subtitle, style: AppTextStyles.caption),
+                      Text(
+                        qualityTagLabel(context.l10n, dish.subtitle),
+                        style: AppTextStyles.caption,
+                      ),
                     ],
                   ),
                 ),
@@ -560,7 +580,7 @@ class _DishRow extends StatelessWidget {
                 Row(
                   children: [
                     ChipButton(
-                      label: '拆成獨立紀錄',
+                      label: context.l10n.splitIntoEntry,
                       tone: TagTone.nutrition,
                       onTap: onSplit,
                     ),
@@ -591,8 +611,8 @@ class _NutrientTotals extends StatelessWidget {
         children: [
           for (final total in totals)
             KeyValueRow(
-              label: convention.nameOf(total.nutrient),
-              value: total.label,
+              label: convention.nameOf(context.l10n, total.nutrient),
+              value: total.labelIn(context.l10n),
             ),
         ],
       ),
@@ -626,7 +646,9 @@ class _EnergyCard extends StatelessWidget {
         children: [
           if (summary.mealsWithoutFigures > 0) ...[
             Text(
-              '${summary.mealsWithoutFigures} 筆沒有熱量，實際更多',
+              context.l10n.entriesWithoutKcal(
+                count: summary.mealsWithoutFigures,
+              ),
               style: AppTextStyles.caption,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -643,15 +665,18 @@ class _EnergyCard extends StatelessWidget {
                 progress: target == null || target <= 0 ? 0 : eaten / target,
                 color: color,
                 semanticLabel: target == null
-                    ? '已吃 ${formatKcal(eaten)} kcal'
-                    : '已吃 ${formatKcal(eaten)} kcal，目標 ${formatKcal(target)} kcal',
+                    ? context.l10n.eatenKcal(kcal: formatKcal(eaten))
+                    : context.l10n.eatenOfTarget(
+                        kcal: formatKcal(eaten),
+                        target: formatKcal(target),
+                      ),
                 size: 148,
                 strokeWidth: 18,
                 title: left == null
-                    ? '已吃 kcal'
+                    ? context.l10n.eatenKcalTitle
                     : left >= 0
-                    ? '剩餘 kcal'
-                    : '超過 kcal',
+                    ? context.l10n.remainingKcalTitle
+                    : context.l10n.overKcalTitle,
                 footer: target == null
                     ? null
                     : '$mark${formatKcal(eaten)}/${formatKcal(target)}',
@@ -664,7 +689,7 @@ class _EnergyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _MacroLine(
-                    label: convention.carbName,
+                    label: convention.carbName(context.l10n),
                     color: AppColors.macroCarb,
                     grams: convention.countsAvailableCarb
                         ? summary.availableCarbGrams
@@ -673,14 +698,14 @@ class _EnergyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
-                    label: convention.proteinName,
+                    label: convention.proteinName(context.l10n),
                     color: AppColors.macroProtein,
                     grams: summary.proteinGrams,
                     target: targets.proteinGrams,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
-                    label: convention.fatName,
+                    label: convention.fatName(context.l10n),
                     color: AppColors.macroFat,
                     grams: summary.fatGrams,
                     target: targets.fatGrams,
@@ -791,7 +816,7 @@ class _IndicatorsCard extends StatelessWidget {
         : formatAmount((value * 10).round() / 10);
     final rows = [
       _MeterRow(
-        label: convention.fibreName,
+        label: convention.fibreName(context.l10n),
         value: fibreTarget == null
             ? '$fibreGrams g'
             : '$fibreGrams / $fibreTarget g',
@@ -801,35 +826,40 @@ class _IndicatorsCard extends StatelessWidget {
         color: AppColors.macroFibre,
       ),
       _MeterRow(
-        label: convention.nameOf(convention.carbPart),
+        label: convention.nameOf(context.l10n, convention.carbPart),
         value: switch (carbPart) {
           final total? => total.nutrient.format(
             (total.amount * 10).round() / 10,
           ),
           null => '—',
         },
-        note: carbPart?.isWorkedOut == true ? '推算' : null,
+        note: carbPart?.isWorkedOut == true ? context.l10n.workedOut : null,
       ),
       _MeterRow(
-        label: convention.nameOf(saltMeasure),
+        label: convention.nameOf(context.l10n, saltMeasure),
         value:
             '${amount == null ? '—' : figure(amount)}'
             ' / ${figure(saltLimit)} ${saltMeasure.unit.label}',
         progress: amount == null ? null : amount / saltLimit,
         color: (amount ?? 0) > saltLimit ? AppColors.warning : AppColors.body,
-        note: salt?.isWorkedOut == true ? '推算' : null,
+        note: salt?.isWorkedOut == true ? context.l10n.workedOut : null,
       ),
       _MeterRow(
-        label: '飲水',
+        label: context.l10n.fluidIntake,
         value: fluid.hasRecords
-            ? '${formatKcal(fluid.millilitres)} mL · ${fluid.drinkCount} 筆'
+            ? context.l10n.fluidValue(
+                millilitres: formatKcal(fluid.millilitres),
+                count: fluid.drinkCount,
+              )
             : '—',
       ),
       if (caffeineMg case final caffeine? when caffeine >= 1)
         _MeterRow(
-          label: '估計殘留咖啡因',
+          label: context.l10n.caffeineRemaining,
           value: '${caffeine.round()} mg',
-          note: '依半衰期 $caffeineHalfLifeHours 小時推算',
+          note: context.l10n.halfLifeBasis(
+            hours: formatAmount(caffeineHalfLifeHours),
+          ),
         ),
     ];
     // Space between the rows only, so the first and last sit the card's

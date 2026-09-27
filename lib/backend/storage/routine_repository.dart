@@ -2,13 +2,17 @@ import 'dart:convert';
 
 import '../../domain/domain.dart';
 import 'database.dart';
+import '../../l10n/l10n.dart';
 
 /// Training templates (the plan side). Saving a routine never touches
 /// finished workouts, which keep their own copy of what was done.
 class RoutineRepository {
-  RoutineRepository(this._db);
+  RoutineRepository(this._db, this._l10n);
 
   final AppDatabase _db;
+
+  /// The language of a routine's last-done line.
+  final AppLocalizations _l10n;
 
   /// [exercises] resolves the ids stored in the plan.
   Routine? byId(String id, Map<String, ExerciseDefinition> exercises) {
@@ -79,9 +83,9 @@ class RoutineRepository {
       [routineId],
     );
     final last = rows.first['last'] as int?;
-    if (last == null) return '未完成過';
+    if (last == null) return _l10n.routineNeverDone;
     final date = DateTime.fromMillisecondsSinceEpoch(last);
-    return '上次 ${date.month} 月 ${date.day} 日完成';
+    return _l10n.routineLastDone(date: AppDates.of(_l10n).monthDay(date));
   }
 
   /// Replaces the stored plan with [routine]. [action] names the change in

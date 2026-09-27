@@ -18,16 +18,7 @@ double? bmiOf(double weightKg, double? heightCm) {
 
 /// The Health Promotion Administration's adult bands, which are lower
 /// than the WHO's because they were set for Taiwanese adults.
-enum BmiBand {
-  under('體重過輕'),
-  healthy('健康體重'),
-  over('過重'),
-  obese('肥胖');
-
-  const BmiBand(this.label);
-
-  final String label;
-}
+enum BmiBand { under, healthy, over, obese }
 
 BmiBand bmiBandOf(double bmi) => switch (bmi) {
   < 18.5 => BmiBand.under,

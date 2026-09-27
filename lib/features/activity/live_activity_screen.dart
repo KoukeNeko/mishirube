@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import 'activity_detail_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Exercise being timed as it happens: the clock, and the three things
 /// that can be done to it. What was done gets filled in afterwards, on
@@ -21,26 +22,40 @@ class LiveActivityScreen extends StatelessWidget {
   }
 
   void _discard(BuildContext context) {
-    AppStoreScope.read(context).discardActivity();
+    final store = AppStoreScope.read(context);
+    final discarded = switch (store.activeActivity) {
+      final live? => context.l10n.sessionDiscarded(
+        session: live.type.labelIn(context.l10n),
+      ),
+      null => null,
+    };
+    store.discardActivity();
     Navigator.of(context).pop();
-    showToast(context, '已放棄這次運動');
+    if (discarded != null) showToast(context, discarded);
   }
 
   @override
   Widget build(BuildContext context) {
     final live = AppStoreScope.of(context).activeActivity;
     if (live == null) {
-      return const DetailPage(
-        appBar: PageAppBar(title: '運動'),
-        children: [Gutter(child: InfoBanner(message: '這次運動已經結束。'))],
+      return DetailPage(
+        appBar: PageAppBar(title: context.l10n.moduleActivity),
+        children: [
+          Gutter(child: InfoBanner(message: context.l10n.activityEnded)),
+        ],
       );
     }
     return DetailPage(
       appBar: PageAppBar(
-        title: live.type.label,
-        subtitle: live.isPaused ? '已暫停' : '進行中',
+        title: live.type.labelIn(context.l10n),
+        subtitle: live.isPaused
+            ? context.l10n.sessionPausedStatus
+            : context.l10n.sessionInProgress,
       ),
-      footer: PrimaryButton(label: '結束', onPressed: () => _finish(context)),
+      footer: PrimaryButton(
+        label: context.l10n.commonEnd,
+        onPressed: () => _finish(context),
+      ),
       children: [
         Gutter(
           child: AppCard(
@@ -70,7 +85,9 @@ class LiveActivityScreen extends StatelessWidget {
         ),
         Gutter(
           child: SecondaryButton(
-            label: live.isPaused ? '繼續' : '暫停',
+            label: live.isPaused
+                ? context.l10n.commonResume
+                : context.l10n.commonPause,
             icon: live.isPaused
                 ? Icons.play_arrow_rounded
                 : Icons.pause_rounded,
@@ -80,7 +97,7 @@ class LiveActivityScreen extends StatelessWidget {
         Gutter(
           child: Center(
             child: LinkText(
-              label: '放棄這次運動',
+              label: context.l10n.sessionDiscardActivity,
               color: AppColors.warning,
               onTap: () => _discard(context),
             ),

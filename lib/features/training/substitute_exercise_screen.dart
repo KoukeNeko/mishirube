@@ -7,17 +7,23 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 import '../exercise/exercise_picker_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// How far a swap reaches. There is no program above the template, so
 /// there is no third option to offer.
 enum _ReplaceScope {
-  todayOnly('只替換今天', '只有這次用新動作'),
-  template('也更新課表', '之後都改用新動作');
+  todayOnly,
+  template;
 
-  const _ReplaceScope(this.title, this.subtitle);
+  String title(AppLocalizations l10n) => switch (this) {
+    todayOnly => l10n.replaceTodayOnly,
+    template => l10n.replaceInRoutine,
+  };
 
-  final String title;
-  final String subtitle;
+  String subtitle(AppLocalizations l10n) => switch (this) {
+    todayOnly => l10n.replaceTodayOnlyDetail,
+    template => l10n.replaceInRoutineDetail,
+  };
 }
 
 class SubstituteExerciseScreen extends StatefulWidget {
@@ -65,8 +71,13 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
     );
     Navigator.of(context).pop();
     showToast(context, switch (_scope) {
-      _ReplaceScope.todayOnly => '今天改做「${replacement.name}」',
-      _ReplaceScope.template => '今天與之後的「$routineName」都改做「${replacement.name}」',
+      _ReplaceScope.todayOnly => context.l10n.replacedToday(
+        name: replacement.name,
+      ),
+      _ReplaceScope.template => context.l10n.replacedInRoutine(
+        routine: routineName,
+        name: replacement.name,
+      ),
     }, kind: ToastKind.success);
   }
 
@@ -82,30 +93,37 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
 
     return DetailPage(
       appBar: PageAppBar(
-        title: '替換 ${current.pattern.label}',
-        subtitle:
-            '今天的「${workout.routineName}」· 第 '
-            '${workout.currentExerciseIndex + 1} 個動作',
+        title: context.l10n.replacePattern(
+          pattern: current.pattern.labelIn(context.l10n),
+        ),
+        subtitle: context.l10n.todaysExerciseNumber(
+          routine: workout.routineName,
+          number: workout.currentExerciseIndex + 1,
+        ),
       ),
       footer: ButtonPair(
         secondary: SecondaryButton(
-          label: '取消',
+          label: context.l10n.commonCancel,
           onPressed: () => Navigator.of(context).pop(),
         ),
         primary: PrimaryButton(
-          label: '替換',
+          label: context.l10n.replaceAction,
           onPressed: selected == null
               ? null
               : () => _replace(candidates, workout.routineName),
         ),
       ),
       children: [
-        if (candidates.isNotEmpty) Gutter(child: const SectionLabel('候選動作')),
+        if (candidates.isNotEmpty)
+          Gutter(child: SectionLabel(context.l10n.candidateExercises)),
         for (var i = 0; i < candidates.length; i++)
           Gutter(
             child: _CandidateCard(
               exercise: candidates[i].exercise,
-              reasons: candidates[i].reasons,
+              reasons: [
+                for (final reason in candidates[i].reasons)
+                  reason.text(context.l10n),
+              ],
               isSelected: i == _selectedCandidate,
               onTap: () => setState(() => _selectedCandidate = i),
             ),
@@ -120,14 +138,17 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
             ),
           ),
         Gutter(
-          child: DashedActionCard(label: '從所有動作選擇', onTap: _pickAny),
+          child: DashedActionCard(
+            label: context.l10n.chooseFromAll,
+            onTap: _pickAny,
+          ),
         ),
-        Gutter(child: const SectionLabel('套用範圍')),
+        Gutter(child: SectionLabel(context.l10n.applyScope)),
         for (final scope in _ReplaceScope.values)
           Gutter(
             child: RadioRow(
-              title: scope.title,
-              subtitle: scope.subtitle,
+              title: scope.title(context.l10n),
+              subtitle: scope.subtitle(context.l10n),
               isSelected: scope == _scope,
               onTap: () => setState(() => _scope = scope),
             ),
@@ -136,9 +157,10 @@ class _SubstituteExerciseScreenState extends State<SubstituteExerciseScreen> {
           Gutter(
             child: InfoBanner(
               tone: CardTone.warning,
-              message:
-                  '${current.equipment.label}換${selected.equipment.label}'
-                  '沒有可靠的重量換算：保留組數、次數與 RIR，重量重新設定。',
+              message: context.l10n.equipmentChangeWarning(
+                from: current.equipment.labelIn(context.l10n),
+                to: selected.equipment.labelIn(context.l10n),
+              ),
             ),
           ),
       ],
@@ -179,7 +201,7 @@ class _CandidateCard extends StatelessWidget {
                   children: [
                     Text(exercise.name, style: AppTextStyles.itemTitle),
                     Text(
-                      '${exercise.equipment.label} · ${exercise.muscleSummary}',
+                      '${exercise.equipment.labelIn(context.l10n)} · ${exercise.muscleSummary(context.l10n)}',
                       style: AppTextStyles.caption,
                     ),
                   ],
@@ -187,7 +209,7 @@ class _CandidateCard extends StatelessWidget {
               ),
               SquareIconButton(
                 icon: Icons.info_outline,
-                tooltip: '動作說明',
+                tooltip: context.l10n.exerciseInfo,
                 size: 40,
                 onPressed: () =>
                     pushPage(context, ExerciseDetailScreen(exercise: exercise)),

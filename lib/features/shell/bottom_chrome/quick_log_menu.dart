@@ -9,6 +9,7 @@ import 'chrome_metrics.dart';
 import 'press_feedback.dart';
 import 'split_dock.dart';
 import '../../../shared/haptics.dart';
+import '../../../l10n/l10n.dart';
 
 const _menuDuration = Duration(milliseconds: 280);
 
@@ -53,7 +54,7 @@ Future<void> showQuickLogMenu(
 }) {
   final route = RawDialogRoute<void>(
     barrierDismissible: true,
-    barrierLabel: '關閉新增紀錄',
+    barrierLabel: context.l10n.quickLogClose,
     // The recessed app carries the dimming.
     barrierColor: Colors.transparent,
     transitionDuration: chromeDuration(context, _menuDuration),
@@ -212,7 +213,7 @@ class _QuickLogMenu extends StatelessWidget {
                               _MenuItem(
                                 icon: option.icon,
                                 color: option.color,
-                                label: option.title,
+                                label: option.title(context.l10n),
                                 onTap: () =>
                                     openRecordOption(context, option, onOpen),
                               ),
@@ -345,11 +346,11 @@ class _CloseButton extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '關閉',
+      label: context.l10n.commonClose,
       onTap: close,
       excludeSemantics: true,
       child: Tooltip(
-        message: '關閉',
+        message: context.l10n.commonClose,
         excludeFromSemantics: true,
         // Squeezes like the「+」it replaces.
         child: PressScale(

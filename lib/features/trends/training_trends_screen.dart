@@ -12,16 +12,22 @@ import 'muscle_load_card.dart';
 import 'muscle_trends_screen.dart';
 import 'personal_records_screen.dart';
 import 'trends_view_model.dart';
+import '../../l10n/l10n.dart';
 
 enum _TrendRange {
-  fourWeeks('近 4 週', Duration(days: 28)),
-  threeMonths('3 個月', Duration(days: 91)),
-  all('全部', Duration(days: 365));
+  fourWeeks(Duration(days: 28)),
+  threeMonths(Duration(days: 91)),
+  all(Duration(days: 365));
 
-  const _TrendRange(this.label, this.window);
+  const _TrendRange(this.window);
 
-  final String label;
   final Duration window;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    fourWeeks => l10n.last4Weeks,
+    threeMonths => l10n.monthsCount(count: 3),
+    all => l10n.logFilterAll,
+  };
 }
 
 /// Training over a chosen range: how often, what was worked, and each
@@ -54,15 +60,17 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
     final activity = _model.activity(_range.window);
     return DetailPage(
       appBar: PageAppBar(
-        title: '訓練',
-        subtitle: '${_date(overview.from)} – ${_date(overview.to)}',
+        title: context.l10n.moduleTraining,
+        subtitle:
+            '${context.dates.monthDay(overview.from)} – '
+            '${context.dates.monthDay(overview.to)}',
       ),
       children: [
         Gutter(
           child: SegmentedChoice(
             options: _TrendRange.values,
             selected: _range,
-            labelOf: (range) => range.label,
+            labelOf: (range) => range.labelIn(context.l10n),
             onChanged: (range) => setState(() => _range = range),
           ),
         ),
@@ -79,7 +87,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: _SummaryGrid(overview: overview, activity: activity),
         ),
-        Gutter(child: const SectionLabel('肌群')),
+        Gutter(child: SectionLabel(context.l10n.musclesTitle)),
         Gutter(
           child: MuscleLoadCard(
             load: _model.muscleLoad(_range.window),
@@ -90,17 +98,17 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '每週組數',
-            subtitle: '近 8 週',
+            title: context.l10n.weeklySetsTitle,
+            subtitle: context.l10n.last8Weeks,
             showChevron: true,
             onTap: () => pushPage(context, const MuscleTrendsScreen()),
           ),
         ),
-        Gutter(child: const SectionLabel('動作')),
+        Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '估計最大重量',
+            title: context.l10n.estimatedMax,
             showChevron: true,
             onTap: () => pushPage(context, const ExerciseTrendsScreen()),
           ),
@@ -108,7 +116,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '個人紀錄',
+            title: context.l10n.personalRecords,
             showChevron: true,
             onTap: () => pushPage(context, const PersonalRecordsScreen()),
           ),
@@ -116,7 +124,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: AccentRow(
             color: AppColors.training,
-            title: '訓練量',
+            title: context.l10n.volumeTitle,
             showChevron: true,
             onTap: () => pushPage(
               context,
@@ -127,8 +135,6 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
       ],
     );
   }
-
-  static String _date(DateTime day) => '${day.month} 月 ${day.day} 日';
 }
 
 class _SummaryGrid extends StatelessWidget {
@@ -140,20 +146,20 @@ class _SummaryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final workoutsTile = _SummaryTile(
-      category: '每週訓練',
+      category: context.l10n.weeklyWorkouts,
       color: AppColors.training,
       value: '${overview.workoutsThisWeek}',
-      unit: '次 · 本週',
+      unit: context.l10n.timesThisWeekUnit,
       chart: MiniBarChart(bars: overview.weeklyWorkouts, height: 40),
     );
     // Exercise stands beside training rather than inside it: a run is
     // not a workout, and folding them together hides both.
     final activityTile = _SummaryTile(
-      category: '每週運動',
+      category: context.l10n.weeklyActivities,
       color: AppColors.activity,
       value: '${activity.thisWeek}',
-      unit: '次 · 本週',
-      caption: _activityCaption(activity),
+      unit: context.l10n.timesThisWeekUnit,
+      caption: _activityCaption(context.l10n, activity),
       chart: activity.hasRecords
           ? MiniBarChart(bars: activity.weekly, height: 40)
           : null,
@@ -173,12 +179,12 @@ class _SummaryGrid extends StatelessWidget {
 
 /// What the week's minutes mean: against a normal week once there is one,
 /// and plainly until then.
-String _activityCaption(ActivitySummary activity) {
-  if (!activity.hasRecords) return '沒有運動紀錄';
+String _activityCaption(AppLocalizations l10n, ActivitySummary activity) {
+  if (!activity.hasRecords) return l10n.noActivityEntries;
   final minutes = activity.minutesThisWeek;
   final typical = activity.typicalWeeklyMinutes;
-  if (typical == null) return '$minutes 分';
-  return '$minutes 分 · 平常 $typical 分';
+  if (typical == null) return l10n.durationMinutes(minutes: minutes);
+  return l10n.minutesVersusUsual(minutes: minutes, usual: typical);
 }
 
 class _SummaryTile extends StatelessWidget {

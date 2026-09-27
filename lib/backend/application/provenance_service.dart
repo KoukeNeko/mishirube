@@ -190,8 +190,6 @@ class CatalogueRecord {
   /// are one country's.
   final String country;
 
-  /// `7-ELEVEN（台灣）`.
-  String get label => labelOfBrand(brand, country);
   final int products;
 
   /// Cup sizes across those products; each is its own read-only entry.

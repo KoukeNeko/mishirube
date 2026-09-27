@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 import '../engines/activity_metrics.dart';
 import '../engines/body_metrics.dart';
 import '../engines/insight_engine.dart';
@@ -154,6 +155,7 @@ class InsightsService {
     this._meals,
     this._journal,
     this._samples,
+    this._l10n,
   );
 
   final AppDatabase _db;
@@ -162,6 +164,7 @@ class InsightsService {
   final MealRepository _meals;
   final JournalRepository _journal;
   final ActivitySampleRepository _samples;
+  final AppLocalizations _l10n;
 
   /// The most recent insights worth surfacing, strongest first.
   List<Insight> today({Duration window = const Duration(days: 28)}) {
@@ -180,6 +183,7 @@ class InsightsService {
       window: window,
     );
     final weeklyWorkouts = weeklyCounts(
+      _l10n,
       _workouts.completedStarts(since: from),
       now: now,
       weeks: weeks,
@@ -196,8 +200,12 @@ class InsightsService {
       averageSleep: _averageSleep(from, until),
       insights: [
         ?volume?.insight,
-        ?weightTrendInsight(weight, dayCount: window.inDays),
-        ?weeklyTrainingInsight(weeklyWorkouts, goalPerWeek: weeklyTrainingGoal),
+        ?weightTrendInsight(_l10n, weight, dayCount: window.inDays),
+        ?weeklyTrainingInsight(
+          _l10n,
+          weeklyWorkouts,
+          goalPerWeek: weeklyTrainingGoal,
+        ),
       ],
     );
   }
@@ -286,15 +294,15 @@ class InsightsService {
       weekendWake: weekendWake([for (final (wokeAt, _) in nights) wokeAt], now),
       foodDays: kcal.where((day) => !day.$1.isBefore(energyStart)).length,
       weighings: trend.where((point) => !point.$1.isBefore(energyStart)).length,
-      relation: sleepAndTrainingInsight({
+      relation: sleepAndTrainingInsight(_l10n, {
         for (final (wokeAt, minutes) in nights) _dayOf(wokeAt): minutes,
       }, _workouts.completedVolumes(since: from)),
       lines: [
-        ?bodyLine(weights, now),
-        ?trainingLine(starts, now),
-        ?sleepLine(nights, now),
-        ?nutritionLine(kcal, daysTracked, now),
-        ?activityLine(steps, now),
+        ?bodyLine(_l10n, weights, now),
+        ?trainingLine(_l10n, starts, now),
+        ?sleepLine(_l10n, nights, now),
+        ?nutritionLine(_l10n, kcal, daysTracked, now),
+        ?activityLine(_l10n, steps, now),
       ],
     );
   }
@@ -490,6 +498,7 @@ class InsightsService {
   /// Working sets per muscle in each of the last [weeks] weeks.
   List<(MuscleGroup, List<WeeklyBar>)> muscleWeeks({int weeks = 8}) =>
       weeklySetsPerMuscle(
+        _l10n,
         [
           for (final exercise in _exercises.all())
             if (exercise.recordCount > 0)
@@ -547,7 +556,7 @@ class InsightsService {
         .toList();
     if (sessions.isEmpty) return null;
     final weeks = (window.inDays / DateTime.daysPerWeek).ceil();
-    final weeklySets = weeklySums(sessions, now: now, weeks: weeks);
+    final weeklySets = weeklySums(_l10n, sessions, now: now, weeks: weeks);
     final history = _exercises.history(exercise.id);
     return VolumeReport(
       exercise: exercise,
@@ -555,6 +564,7 @@ class InsightsService {
       sessionCount: sessions.length,
       history: history,
       insight: volumeTrendInsight(
+        _l10n,
         exercise.name,
         weeklySets,
         sessionCount: sessions.length,

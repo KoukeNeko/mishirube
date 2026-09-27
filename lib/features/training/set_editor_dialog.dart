@@ -6,6 +6,7 @@ import '../../backend/engines/training_metrics.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// What the set editor answers: the set as it now reads, or that it goes.
 sealed class SetEdit {
@@ -100,8 +101,12 @@ class _SetEditorState extends State<_SetEditor> {
             controller: _weight,
             unit: 'kg',
             allowsDecimal: true,
-            decreaseLabel: '減少 ${formatWeight(plateStepKg)} kg',
-            increaseLabel: '增加 ${formatWeight(plateStepKg)} kg',
+            decreaseLabel: context.l10n.decreaseBy(
+              amount: '${formatWeight(plateStepKg)} kg',
+            ),
+            increaseLabel: context.l10n.increaseBy(
+              amount: '${formatWeight(plateStepKg)} kg',
+            ),
             onDecrease: () => _stepWeight(-plateStepKg),
             onIncrease: () => _stepWeight(plateStepKg),
             onChanged: () => setState(() {}),
@@ -110,7 +115,7 @@ class _SetEditorState extends State<_SetEditor> {
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xxs),
               child: Text(
-                _platesLabel(_weightKg),
+                _platesLabel(context.l10n, _weightKg),
                 textAlign: TextAlign.center,
                 style: AppTextStyles.caption,
               ),
@@ -118,10 +123,10 @@ class _SetEditorState extends State<_SetEditor> {
           const SizedBox(height: AppSpacing.sm),
           _Stepper(
             controller: _reps,
-            unit: '次',
+            unit: context.l10n.repsColumn,
             allowsDecimal: false,
-            decreaseLabel: '少 1 次',
-            increaseLabel: '多 1 次',
+            decreaseLabel: context.l10n.oneRepLess,
+            increaseLabel: context.l10n.oneRepMore,
             onDecrease: () => _stepReps(-1),
             onIncrease: () => _stepReps(1),
             onChanged: () => setState(() {}),
@@ -134,7 +139,7 @@ class _SetEditorState extends State<_SetEditor> {
             runSpacing: AppSpacing.xs,
             children: [
               SelectChip(
-                label: '未記',
+                label: context.l10n.notLogged,
                 isSelected: _rir == null,
                 onTap: () => setState(() => _rir = null),
               ),
@@ -150,28 +155,34 @@ class _SetEditorState extends State<_SetEditor> {
       ),
       actions: [
         DialogAction(
-          label: '儲存',
+          label: context.l10n.commonSave,
           tone: DialogTone.primary,
           onTap: () => Navigator.of(context)
               .pop(SetChanged(weightKg: _weightKg, reps: _repCount, rir: _rir)),
         ),
         DialogAction(
-          label: '刪除這一組',
+          label: context.l10n.deleteThisSet,
           tone: DialogTone.destructive,
           onTap: () => Navigator.of(context).pop(const SetRemoved()),
         ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        DialogAction(
+          label: context.l10n.commonCancel,
+          onTap: () => Navigator.of(context).pop(),
+        ),
       ],
     );
   }
 }
 
 /// What to load on each side of a 20 kg bar.
-String _platesLabel(double totalKg) => switch (platesPerSide(totalKg)) {
-  null => '槓片湊不出這個重量',
-  [] => '空槓',
-  final plates => '每邊 ${plates.map(formatWeight).join(' + ')}',
-};
+String _platesLabel(AppLocalizations l10n, double totalKg) =>
+    switch (platesPerSide(totalKg)) {
+      null => l10n.platesImpossible,
+      [] => l10n.emptyBar,
+      final plates => l10n.platesPerSide(
+        plates: plates.map(formatWeight).join(' + '),
+      ),
+    };
 
 /// A number with a step down and a step up beside it; the number itself
 /// can be typed over.

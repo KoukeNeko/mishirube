@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Fewer records of something eaten than this on a finished day marks
 /// its food log incomplete. Drinks do not count towards it.
@@ -279,9 +280,11 @@ class NutrientTotal {
   bool get isComplete => unknownMeals == 0;
 
   /// `3.4 µg`, marked as a floor while any meal is unaccounted for.
-  String get label => [
-    isComplete ? nutrient.format(amount) : '至少 ${nutrient.format(amount)}',
-    if (isWorkedOut) '推算',
+  String labelIn(AppLocalizations l10n) => [
+    isComplete
+        ? nutrient.format(amount)
+        : l10n.atLeastValue(value: nutrient.format(amount)),
+    if (isWorkedOut) l10n.workedOut,
   ].join(' · ');
 }
 
@@ -396,6 +399,7 @@ Nutrients workedOut(
 /// [nutrients] as lines to read, in the order a label prints them:
 /// `12.4 mg`, and what was worked out rather than printed marked `推算`.
 List<(Nutrient, String)> nutrientLines(
+  AppLocalizations l10n,
   Nutrients nutrients, {
   NutritionConvention convention = NutritionConvention.taiwan,
   num? carbGrams,
@@ -414,7 +418,7 @@ List<(Nutrient, String)> nutrientLines(
       if (nutrients[nutrient] case final amount?)
         (nutrient, nutrient.format(amount))
       else if (made[nutrient] case final amount?)
-        (nutrient, '${nutrient.format(amount)} · 推算'),
+        (nutrient, l10n.workedOutValue(value: nutrient.format(amount))),
   ];
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 const _trackWidth = 10.0;
 
@@ -31,7 +32,9 @@ class WeeklyGoalRing extends StatelessWidget {
   Widget build(BuildContext context) => ProgressRing(
     progress: isPaused || target <= 0 ? 0 : value / target,
     color: isPaused ? AppColors.textTertiary : AppColors.training,
-    semanticLabel: isPaused ? '本週已暫停' : '本週 $value / $target 個運動日',
+    semanticLabel: isPaused
+        ? context.l10n.thisWeekPaused
+        : context.l10n.thisWeekActiveDays(active: value, target: target),
     size: size,
     strokeWidth: strokeWidth,
     child: child,

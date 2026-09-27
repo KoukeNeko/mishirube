@@ -5,13 +5,13 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/training_metrics.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'progression_card.dart';
 import 'set_load_table.dart';
 import 'workout_summary_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// A workout's plan (a template). Editing it never rewrites finished
 /// workouts.
@@ -45,7 +45,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     final removed = routine.exercises[index];
     store.removeRoutineExercise(index);
     ToastScope.read(context).showUndo(
-      '已移除「${removed.exercise.name}」',
+      context.l10n.removedNamed(name: removed.exercise.name),
       onUndo: () => store.restoreRoutine(routine),
     );
   }
@@ -53,7 +53,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
   Future<void> _rename(Routine routine) async {
     final name = await showTextDialog(
       context,
-      title: '課表名稱',
+      title: context.l10n.routineName,
       initial: routine.name,
     );
     if (name == null || name.trim().isEmpty || !mounted) return;
@@ -67,15 +67,18 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     final confirmed = await showAppDialog<bool>(
       context,
       AppDialog(
-        title: '刪除「${routine.name}」？',
-        message: '已完成的訓練紀錄會保留。',
+        title: context.l10n.deleteNamedTitle(name: routine.name),
+        message: context.l10n.routineDeleteKeeps,
         actions: [
           DialogAction(
-            label: '刪除這份課表',
+            label: context.l10n.deleteRoutine,
             tone: DialogTone.destructive,
             onTap: () => Navigator.of(context).pop(true),
           ),
-          DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
         ],
       ),
     );
@@ -84,7 +87,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     Navigator.of(context).pop();
     store.deleteRoutine(routine);
     toast.showUndo(
-      '已刪除「${routine.name}」',
+      context.l10n.deletedNamed(name: routine.name),
       onUndo: () => store.undeleteRoutine(routine.id),
     );
   }
@@ -95,8 +98,8 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     // Deleted from here, while the page leaves.
     final routine = store.selectedRoutine;
     if (routine == null) {
-      return const DetailPage(
-        appBar: PageAppBar(title: '訓練'),
+      return DetailPage(
+        appBar: PageAppBar(title: context.l10n.moduleTraining),
         children: [],
       );
     }
@@ -104,22 +107,30 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: routine.name,
-        subtitle: '約 ${store.expectedMinutes(routine)} 分',
+        subtitle: context.l10n.aboutMinutesShort(
+          minutes: store.expectedMinutes(routine),
+        ),
       ),
       footer: PrimaryButton(
-        label: isWorkoutActive ? '回到訓練' : '開始訓練',
+        label: isWorkoutActive
+            ? context.l10n.backToWorkout
+            : context.l10n.startWorkout,
         icon: Icons.play_arrow_outlined,
         onPressed: () {
           // Exercise being timed is the user's to end first.
           if (!store.startWorkout(sore: _sore)) {
-            showToast(context, '運動進行中，先結束運動才能開始訓練', kind: ToastKind.warning);
+            showToast(
+              context,
+              context.l10n.activityBlocksWorkout,
+              kind: ToastKind.warning,
+            );
             return;
           }
           replaceWithPage(context, const ActiveWorkoutScreen());
         },
       ),
       children: [
-        Gutter(child: const SectionLabel('計畫的動作')),
+        Gutter(child: SectionLabel(context.l10n.plannedExercises)),
         for (final (index, planned) in routine.exercises.indexed)
           Gutter(
             child: _PlannedExerciseCard(
@@ -145,19 +156,19 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
           ),
         Gutter(
           child: DashedActionCard(
-            label: '加入動作',
+            label: context.l10n.addExercise,
             onTap: () => _addExercises(context, routine),
           ),
         ),
         if (!isWorkoutActive) ...[
-          Gutter(child: const SectionLabel('今天酸痛的肌群')),
+          Gutter(child: SectionLabel(context.l10n.soreMusclesToday)),
           Gutter(
             child: ChipWrap(
               options: {
                 for (final planned in routine.exercises)
                   ...planned.exercise.primaryMuscles,
               }.toList(),
-              labelOf: (muscle) => muscle.label,
+              labelOf: (muscle) => muscle.labelIn(context.l10n),
               isSelected: _sore.contains,
               onTap: (muscle) => setState(
                 () => _sore.contains(muscle)
@@ -170,17 +181,16 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         ProgressionSection(routine: routine),
         if (store.recentRoutineWorkouts case final recent
             when recent.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('最近實際完成')),
+          Gutter(child: SectionLabel(context.l10n.recentlyDone)),
           for (final workout in recent)
             Gutter(
               child: AccentRow(
                 color: AppColors.training,
-                title:
-                    '${workout.startedAt.month} 月 ${workout.startedAt.day} 日'
-                    '（週${weekdayLabel(workout.startedAt)}）',
-                subtitle:
-                    '${workout.completedSets} 組 · '
-                    '${workout.elapsedAt(workout.finishedAt!).inMinutes} 分',
+                title: context.dates.dayWithWeekday(workout.startedAt),
+                subtitle: context.l10n.setsAndMinutes(
+                  sets: workout.completedSets,
+                  minutes: workout.elapsedAt(workout.finishedAt!).inMinutes,
+                ),
                 showChevron: true,
                 onTap: () => pushPage(
                   context,
@@ -190,14 +200,17 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
             ),
         ],
         PageSection(
-          label: '管理',
+          label: context.l10n.manageSection,
           children: [
             Gutter(
               child: GroupedCard(
                 children: [
-                  NavRow(title: '改名稱', onTap: () => _rename(routine)),
                   NavRow(
-                    title: '刪除這份課表',
+                    title: context.l10n.rename,
+                    onTap: () => _rename(routine),
+                  ),
+                  NavRow(
+                    title: context.l10n.deleteRoutine,
                     isDestructive: true,
                     onTap: () => _delete(routine),
                   ),
@@ -213,15 +226,19 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
 
 /// What the edit controls on a planned exercise do.
 enum _PlanEdit {
-  up('上移'),
-  down('下移'),
-  join('與下一個組成超級組'),
-  leave('解除超級組'),
-  remove('移除');
+  up,
+  down,
+  join,
+  leave,
+  remove;
 
-  const _PlanEdit(this.label);
-
-  final String label;
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    up => l10n.moveUp,
+    down => l10n.moveDown,
+    join => l10n.joinSuperset,
+    leave => l10n.leaveSuperset,
+    remove => l10n.removeAction,
+  };
 }
 
 class _PlannedExerciseCard extends StatelessWidget {
@@ -276,7 +293,7 @@ class _PlannedExerciseCard extends StatelessWidget {
             _PlanEdit.remove,
           ])
             DialogAction(
-              label: edit.label,
+              label: edit.labelIn(context.l10n),
               tone: edit == _PlanEdit.remove
                   ? DialogTone.destructive
                   : DialogTone.normal,
@@ -304,7 +321,7 @@ class _PlannedExerciseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final qualifier = planned.isUnilateral
-        ? '單邊'
+        ? context.l10n.eachSide
         : planned.rir == null
         ? null
         : 'RIR ${planned.rir}';
@@ -325,7 +342,7 @@ class _PlannedExerciseCard extends StatelessWidget {
                 Text(qualifier, style: AppTextStyles.caption),
               SquareIconButton(
                 icon: Icons.more_horiz,
-                tooltip: '${planned.exercise.name}的選項',
+                tooltip: context.l10n.optionsFor(name: planned.exercise.name),
                 onPressed: () => _menu(context),
               ),
             ],
@@ -348,10 +365,10 @@ class _PlannedExerciseCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isLighter) const TagChip(label: '今天少 1 組'),
+              if (isLighter) TagChip(label: context.l10n.oneSetLessToday),
               if (isInSuperset) ...[
                 const SizedBox(width: AppSpacing.xs),
-                const TagChip(label: '超級組', tone: TagTone.training),
+                TagChip(label: context.l10n.superset, tone: TagTone.training),
               ],
             ],
           ),
@@ -362,8 +379,8 @@ class _PlannedExerciseCard extends StatelessWidget {
             headerAction: last == null
                 ? null
                 : ChipButton(
-                    label: '載入',
-                    semanticLabel: '以上次的重量與次數填入',
+                    label: context.l10n.loadPrevious,
+                    semanticLabel: context.l10n.loadPreviousFill,
                     onTap: () => onLoads([for (final _ in loads) last!]),
                   ),
           ),

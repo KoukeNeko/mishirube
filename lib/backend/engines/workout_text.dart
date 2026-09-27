@@ -52,6 +52,8 @@ class WorkoutLine {
   }
 }
 
+// l10n-ignore-start: how people write workouts, matched, not shown.
+
 /// A range, `10–12`, is read at its low end: what the plan asks at least.
 const _upTo = r'(?:\s*[-–—~～至到]\s*\d+(?:\.\d+)?)?';
 const _times = r'\s*[x×X＊*]\s*';
@@ -98,6 +100,7 @@ final _setLine = RegExp(
   caseSensitive: false,
 );
 final _bareReps = RegExp(r'[x×X＊*]\s*(\d+)');
+// l10n-ignore-end
 
 /// Each line of [text] that names something, in order, with the sets
 /// on the lines under it. Headings, sentences around the list, and lines

@@ -4,6 +4,7 @@ import '../../app/theme.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Full-screen filter; pops with the new [ExerciseFilter].
 class ExerciseFilterScreen extends StatefulWidget {
@@ -27,11 +28,11 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
   Widget build(BuildContext context) {
     return DetailPage(
       appBar: PageAppBar(
-        title: '篩選',
-        subtitle: '已套用 ${_filter.activeCount} 個條件',
+        title: context.l10n.filterTitle,
+        subtitle: context.l10n.filtersApplied(count: _filter.activeCount),
       ),
       footer: PrimaryButton(
-        label: '顯示 $_matchCount 個動作',
+        label: context.l10n.showExercises(count: _matchCount),
         onPressed: () => Navigator.of(context).pop(_filter),
       ),
       children: [
@@ -39,7 +40,7 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: SecondaryButton(
-              label: '清除全部',
+              label: context.l10n.clearAll,
               isCompact: true,
               onPressed: () => _update(const ExerciseFilter()),
             ).withWidth(120),
@@ -50,15 +51,18 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
         for (final region in BodyRegion.values)
           Gutter(
             child: _FilterGroup(
-              title: region.label,
+              title: region.labelIn(context.l10n),
               options: [
                 for (final muscle in MuscleGroup.values)
                   if (muscle.region == region && muscle.isGeneral) muscle,
                 for (final muscle in MuscleGroup.values)
                   if (muscle.region == region && !muscle.isGeneral) muscle,
               ],
-              labelOf: (muscle) =>
-                  muscle.isGeneral ? '整個${muscle.label}' : muscle.label,
+              labelOf: (muscle) => muscle.isGeneral
+                  ? context.l10n.wholeRegion(
+                      region: muscle.labelIn(context.l10n),
+                    )
+                  : muscle.labelIn(context.l10n),
               selected: _filter.muscles,
               onToggle: (muscle) => _update(
                 _filter.copyWith(muscles: toggled(_filter.muscles, muscle)),
@@ -67,9 +71,9 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
           ),
         Gutter(
           child: _FilterGroup(
-            title: '器材',
+            title: context.l10n.equipmentSection,
             options: Equipment.values,
-            labelOf: (item) => item.label,
+            labelOf: (item) => item.labelIn(context.l10n),
             selected: _filter.equipment,
             onToggle: (item) => _update(
               _filter.copyWith(equipment: toggled(_filter.equipment, item)),
@@ -78,9 +82,9 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
         ),
         Gutter(
           child: _FilterGroup(
-            title: '動作模式',
+            title: context.l10n.movementPatternLabel,
             options: MovementPattern.values,
-            labelOf: (pattern) => pattern.label,
+            labelOf: (pattern) => pattern.labelIn(context.l10n),
             selected: _filter.patterns,
             onToggle: (pattern) => _update(
               _filter.copyWith(patterns: toggled(_filter.patterns, pattern)),
@@ -89,9 +93,9 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
         ),
         Gutter(
           child: _FilterGroup(
-            title: '追蹤方式',
+            title: context.l10n.trackingTypeSection,
             options: TrackingType.values,
-            labelOf: (type) => type.label,
+            labelOf: (type) => type.labelIn(context.l10n),
             selected: _filter.trackingTypes,
             onToggle: (type) => _update(
               _filter.copyWith(
@@ -102,9 +106,9 @@ class _ExerciseFilterScreenState extends State<ExerciseFilterScreen> {
         ),
         Gutter(
           child: _FilterGroup(
-            title: '來源',
+            title: context.l10n.sourceLabel,
             options: ExerciseSource.values,
-            labelOf: (source) => source.label,
+            labelOf: (source) => source.labelIn(context.l10n),
             selected: _filter.sources,
             onToggle: (source) => _update(
               _filter.copyWith(sources: toggled(_filter.sources, source)),

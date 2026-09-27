@@ -1,6 +1,7 @@
 import '../../app/change_source_label.dart';
 import '../../app/view_model.dart';
 import '../../domain/domain.dart';
+import '../../l10n/l10n.dart';
 
 /// Weights, tape measurements, nights typed in, check-ins and notes:
 /// reading one, and recording, correcting and removing them.
@@ -14,8 +15,8 @@ class JournalViewModel extends ViewModel {
   Object? entry(String id) => backend.journal.entry(id);
 
   /// Where a record came from, in the words the screen shows.
-  String sourceLabel(String id) =>
-      changeSourceLabel(backend.journal.sourceOf(id));
+  String sourceLabel(AppLocalizations l10n, String id) =>
+      changeSourceLabel(l10n, backend.journal.sourceOf(id));
 
   /// Weights of the last few weeks, oldest first.
   List<BodyWeight> get recentWeights => backend.journal.recentWeights(_recent);

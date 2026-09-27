@@ -1,14 +1,18 @@
+import '../../l10n/l10n.dart';
+
 /// How far back a body chart reaches.
 enum BodyRange {
-  month('30 天', Duration(days: 30)),
-  quarter('90 天', Duration(days: 90)),
-  year('1 年', Duration(days: 365));
+  month(Duration(days: 30)),
+  quarter(Duration(days: 90)),
+  year(Duration(days: 365));
 
-  const BodyRange(this.label, this.window);
+  const BodyRange(this.window);
 
-  final String label;
   final Duration window;
-}
 
-/// `9 月 22 日`.
-String bodyDate(DateTime time) => '${time.month} 月 ${time.day} 日';
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    month => l10n.daysCount(count: 30),
+    quarter => l10n.daysCount(count: 90),
+    year => l10n.yearsCount(count: 1),
+  };
+}

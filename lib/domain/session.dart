@@ -16,9 +16,6 @@ sealed class ActiveSession {
   /// finished pauses are subtracted.
   Duration elapsedAt(DateTime now);
 
-  /// What the chrome calls it while it runs.
-  String get label;
-
   RecordCategory get category;
 }
 
@@ -36,9 +33,6 @@ final class ActiveWorkout extends ActiveSession {
 
   @override
   Duration elapsedAt(DateTime now) => workout.elapsedAt(now);
-
-  @override
-  String get label => '訓練';
 
   @override
   RecordCategory get category => RecordCategory.training;
@@ -59,9 +53,6 @@ final class ActiveActivity extends ActiveSession {
 
   @override
   Duration elapsedAt(DateTime now) => activity.elapsedAt(now);
-
-  @override
-  String get label => activity.type.label;
 
   @override
   RecordCategory get category => RecordCategory.activity;

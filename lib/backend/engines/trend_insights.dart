@@ -291,8 +291,6 @@ ProteinIntake? proteinIntake({
 /// times more the first side is trained than the second.
 enum MusclePair {
   pushPull(
-    '推',
-    '拉',
     {MuscleGroup.chest, MuscleGroup.frontDelts, MuscleGroup.triceps},
     {
       MuscleGroup.lats,
@@ -302,12 +300,9 @@ enum MusclePair {
       MuscleGroup.back,
     },
   ),
-  quadsHamstrings('股四頭', '腿後', {MuscleGroup.quads}, {MuscleGroup.hamstrings});
+  quadsHamstrings({MuscleGroup.quads}, {MuscleGroup.hamstrings});
 
-  const MusclePair(this.first, this.second, this.firstSide, this.secondSide);
-
-  final String first;
-  final String second;
+  const MusclePair(this.firstSide, this.secondSide);
   final Set<MuscleGroup> firstSide;
   final Set<MuscleGroup> secondSide;
 }

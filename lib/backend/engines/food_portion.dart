@@ -1,5 +1,6 @@
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../../l10n/l10n.dart';
 
 /// Bumped whenever the arithmetic below changes.
 const foodPortionVersion = 2;
@@ -72,9 +73,9 @@ class FoodPortion {
 
   /// What the log calls this portion: `150 g`, or `1.5 份` when the
   /// serving is not a measurement.
-  String get label => food.servingUnit.isMeasured
-      ? '${formatAmount(amount)} ${food.servingUnit.label}'
-      : '${formatAmount(servings)} ${ServingUnit.serving.label}';
+  String labelIn(AppLocalizations l10n) => food.servingUnit.isMeasured
+      ? '${formatAmount(amount)} ${food.servingUnit.labelIn(l10n)}'
+      : '${formatAmount(servings)} ${ServingUnit.serving.labelIn(l10n)}';
 
   int? _scaled(double? perServing) =>
       perServing == null ? null : (perServing * servings).round();

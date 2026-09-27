@@ -5,6 +5,7 @@ import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// One food in a list: first whether it is the one, then what tapping
 /// it starts from.
@@ -27,7 +28,7 @@ class FoodRow extends StatelessWidget {
 
   final FoodItem food;
 
-  /// What the food opens at, already written: `上次 200 g · 330 kcal`.
+  /// What the food opens at, already written: `Last time 200 g · 330 kcal`.
   final String adds;
   final bool isOnPlate;
 
@@ -41,8 +42,8 @@ class FoodRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = [
-      if (food.brand.isNotEmpty) food.brandLabel,
-      if (food.isBuiltIn) '官方資料',
+      if (food.brand.isNotEmpty) food.brandLabelIn(context.l10n),
+      if (food.isBuiltIn) context.l10n.foodOfficialData,
     ].join(' · ');
     return Semantics(
       selected: isOnPlate,
@@ -55,7 +56,7 @@ class FoodRow extends StatelessWidget {
         trailing: switch (onQuickAdd) {
           final add? => SquareIconButton(
             icon: Icons.add,
-            tooltip: '加入「${food.name}」',
+            tooltip: context.l10n.foodAdd(food: food.name),
             color: AppColors.nutrition,
             onPressed: add,
           ),
@@ -71,12 +72,22 @@ class FoodRow extends StatelessWidget {
 String kcalOf(FoodItem food, int? kcal) => '${formatKcalOrDash(kcal)} kcal';
 
 /// What a food last eaten at [portion] opens at.
-String addsLastPortion(FoodPortion portion) =>
-    '上次 ${portion.label} · ${kcalOf(portion.food, portion.kcal)}';
+String addsLastPortion(AppLocalizations l10n, FoodPortion portion) =>
+    l10n.foodLastPortion(
+      portion: portion.labelIn(l10n),
+      kcal: kcalOf(portion.food, portion.kcal),
+    );
 
 /// What a food not eaten before opens at: one serving, or the choice of
 /// a cup when it comes in sizes.
-String addsFirstPortion(FoodItem food, {required int sizeCount}) {
-  if (sizeCount > 0) return '$sizeCount 種杯型';
-  return '一份 ${food.servingDescription} · ${kcalOf(food, food.kcal?.round())}';
+String addsFirstPortion(
+  AppLocalizations l10n,
+  FoodItem food, {
+  required int sizeCount,
+}) {
+  if (sizeCount > 0) return l10n.foodCupSizes(count: sizeCount);
+  return l10n.foodOneServing(
+    serving: food.servingDescription(l10n),
+    kcal: kcalOf(food, food.kcal?.round()),
+  );
 }

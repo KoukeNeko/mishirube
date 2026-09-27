@@ -14,6 +14,7 @@ import '../storage/food_repository.dart';
 import '../storage/meal_repository.dart';
 import 'insights_service.dart';
 import 'journal_service.dart';
+import '../../l10n/l10n.dart';
 
 /// An exploded dish, kept so the change can be undone.
 class DishSplitSnapshot {
@@ -73,7 +74,11 @@ class NutritionService {
     this._foods,
     this._journal,
     this._insights,
+    this._l10n,
   );
+
+  /// The language of what is written into a record: a portion's label.
+  final AppLocalizations _l10n;
 
   final AppDatabase _db;
   final MealRepository _meals;
@@ -563,7 +568,7 @@ class NutritionService {
     return logMeal(
       MealEvent(
         id: id ?? _db.newId(),
-        name: '水',
+        name: _l10n.waterSection,
         timeLabel: formatTimeOfDay(eatenAt),
         qualityTag: waterQualityTag,
         dishes: const [],
@@ -627,7 +632,7 @@ class NutritionService {
   }) {
     final eatenAt = at ?? _db.now();
     final food = portion.food;
-    final tag = keepsFood ? '自訂食物' : '快速記錄';
+    final tag = keepsFood ? customFoodQualityTag : quickLogQualityTag;
     return logMeal(
       MealEvent(
         id: _db.newId(),
@@ -650,7 +655,7 @@ class NutritionService {
         dishes: [
           DishEntry(
             name: food.displayName,
-            quantityLabel: portion.label,
+            quantityLabel: portion.labelIn(_l10n),
             subtitle: tag,
           ),
         ],

@@ -14,6 +14,7 @@ const _pillVerticalPadding = AppSpacing.xs;
 double pillHeight(BuildContext context) {
   final label = measureTextHeight(
     context,
+    // l10n-ignore: measures a line of text, never shown.
     '時間軸',
     _pillLabelStyle,
     maxWidth: double.infinity,

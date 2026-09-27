@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import 'database.dart';
 import 'timeline_source.dart';
+import '../../l10n/l10n.dart';
 
 /// Body measurements and wellness check-ins.
 class JournalRepository {
@@ -724,7 +725,7 @@ class JournalRepository {
 
 /// Body weights as log rows.
 class BodyWeightTimelineSource extends TimelineSource {
-  BodyWeightTimelineSource(this._journal);
+  BodyWeightTimelineSource(this._journal, super.l10n);
 
   final JournalRepository _journal;
 
@@ -751,7 +752,7 @@ class BodyWeightTimelineSource extends TimelineSource {
           at: at,
           recordId: weight.id,
           category: RecordCategory.body,
-          title: '體重 ${_label(weight)}',
+          title: l10n.timelineWeight(weight: _label(weight)),
           detail: weight.note,
         ),
       ),
@@ -763,7 +764,7 @@ class BodyWeightTimelineSource extends TimelineSource {
           at: at,
           recordId: measurement.id,
           category: RecordCategory.body,
-          title: '${measurement.site.label} ${_size(measurement)}',
+          title: '${measurement.site.labelIn(l10n)} ${_size(measurement)}',
           detail: measurement.note,
         ),
       ),
@@ -776,8 +777,8 @@ class BodyWeightTimelineSource extends TimelineSource {
           recordId: reading.id,
           category: RecordCategory.body,
           title:
-              '${reading.metric.label} ${formatAmount(reading.value)} '
-              '${reading.metric.unit}',
+              '${reading.metric.labelIn(l10n)} ${formatAmount(reading.value)} '
+              '${reading.metric.unitIn(l10n)}',
           detail: reading.note,
         ),
       ),
@@ -796,7 +797,7 @@ class BodyWeightTimelineSource extends TimelineSource {
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
     // A weight is the headline of a day that has both.
     for (final (day, _, measurement) in _measurements(start, end))
-      day % 100: '${measurement.site.label} ${_size(measurement)}',
+      day % 100: '${measurement.site.labelIn(l10n)} ${_size(measurement)}',
     for (final (day, _, weight) in _weights(start, end))
       day % 100: _label(weight),
   };
@@ -830,7 +831,7 @@ class BodyWeightTimelineSource extends TimelineSource {
 
 /// Nights of sleep as log rows.
 class SleepTimelineSource extends TimelineSource {
-  SleepTimelineSource(this._journal);
+  SleepTimelineSource(this._journal, super.l10n);
 
   final JournalRepository _journal;
 
@@ -852,8 +853,9 @@ class SleepTimelineSource extends TimelineSource {
           category: RecordCategory.wellness,
           title: _label(night),
           detail: [
-            if (night.score != null) '品質 ${night.score} / 5',
-            if (night.note.isNotEmpty) '備註：${night.note}',
+            if (night.score case final score?)
+              l10n.sleepQualityScore(score: score),
+            if (night.note.isNotEmpty) l10n.noteLine(note: night.note),
           ].join(' · '),
         ),
       ),
@@ -875,13 +877,13 @@ class SleepTimelineSource extends TimelineSource {
         _journal._sleepFrom,
       );
 
-  static String _label(SleepEntry sleep) =>
-      '${sleep.kind.label} ${formatHoursMinutes(sleep.duration)}';
+  String _label(SleepEntry sleep) =>
+      '${sleep.kind.labelIn(l10n)} ${formatHoursMinutes(sleep.duration)}';
 }
 
 /// Energy, mood and symptom check-ins as log rows.
 class WellnessTimelineSource extends TimelineSource {
-  WellnessTimelineSource(this._journal);
+  WellnessTimelineSource(this._journal, super.l10n);
 
   final JournalRepository _journal;
 
@@ -902,7 +904,7 @@ class WellnessTimelineSource extends TimelineSource {
           recordId: entry.id,
           category: RecordCategory.wellness,
           title: _label(entry),
-          detail: entry.note.isEmpty ? '' : '備註：${entry.note}',
+          detail: entry.note.isEmpty ? '' : l10n.noteLine(note: entry.note),
         ),
       ),
   ];
@@ -922,13 +924,13 @@ class WellnessTimelineSource extends TimelineSource {
         _journal._wellnessFrom,
       );
 
-  static String _label(WellnessEntry entry) =>
-      '${entry.kind.label} ${entry.score} / 5';
+  String _label(WellnessEntry entry) =>
+      '${entry.kind.labelIn(l10n)} ${entry.score} / 5';
 }
 
 /// Notes about a day, as rows of their own under the day's state.
 class NoteTimelineSource extends TimelineSource {
-  NoteTimelineSource(this._journal);
+  NoteTimelineSource(this._journal, super.l10n);
 
   final JournalRepository _journal;
 
@@ -948,7 +950,7 @@ class NoteTimelineSource extends TimelineSource {
           at: at,
           recordId: note.id,
           category: RecordCategory.wellness,
-          title: '筆記',
+          title: l10n.moduleNotes,
           detail: note.text,
         ),
       ),

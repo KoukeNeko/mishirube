@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 void main() {
   testWidgets('the field is a full box, easy to hit, and takes a number', (
@@ -10,6 +11,8 @@ void main() {
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: NumberFieldRow(
             fieldKey: const ValueKey('fat'),

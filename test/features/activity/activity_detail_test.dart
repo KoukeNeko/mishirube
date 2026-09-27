@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/l10n/l10n.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/health/health_source.dart';
@@ -17,7 +18,7 @@ class _Health implements HealthSource {
   final asked = <String>[];
 
   @override
-  String get name => 'Apple 健康';
+  String nameIn(AppLocalizations l10n) => l10n.appleHealth;
   @override
   ChangeSource get changeSource => ChangeSource.healthKit;
   @override

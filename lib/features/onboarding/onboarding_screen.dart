@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// First-run module picker; also reused from「我的 → 模組」for editing.
 class OnboardingScreen extends StatelessWidget {
@@ -24,15 +25,17 @@ class OnboardingScreen extends StatelessWidget {
     final enabled = store.enabledModules;
     return PageScaffold(
       appBar: isEditing
-          ? const PageAppBar(title: '模組')
-          : const PageAppBar(
-              title: '模組',
-              subtitle: '可複選',
+          ? PageAppBar(title: context.l10n.modulesTitle)
+          : PageAppBar(
+              title: context.l10n.modulesTitle,
+              subtitle: context.l10n.modulesPickSeveral,
               leading: AppBarLeading.none,
             ),
       footer: BottomActionBar(
         child: PrimaryButton(
-          label: isEditing ? '完成' : '繼續',
+          label: isEditing
+              ? context.l10n.commonDone
+              : context.l10n.commonContinue,
           onPressed: enabled.isEmpty ? null : () => _continue(context),
         ),
       ),
@@ -68,8 +71,8 @@ class _ModuleTile extends StatelessWidget {
       child: NavCard(
         tone: isEnabled ? CardTone.training : CardTone.neutral,
         leading: CheckSquare(isChecked: isEnabled),
-        title: module.title,
-        subtitle: module.description,
+        title: module.title(context.l10n),
+        subtitle: module.description(context.l10n),
         onTap: onTap,
         showChevron: false,
       ),

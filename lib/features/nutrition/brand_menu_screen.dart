@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// One chain's menu as it shipped with the app.
 ///
@@ -70,11 +70,12 @@ class _BrandMenuScreenState extends State<BrandMenuScreen> {
         .firstOrNull;
     return DetailPage(
       appBar: PageAppBar(
-        title: record?.label ?? widget.brand,
+        title: record?.labelIn(context.l10n) ?? widget.brand,
         subtitle: [
-          '${menu.length} 款',
-          '官方資料',
-          if (record?.checkedAt case final at?) '更新 ${formatDate(at)}',
+          context.l10n.productsCount(count: menu.length),
+          context.l10n.officialData,
+          if (record?.checkedAt case final at?)
+            context.l10n.updatedOn(date: context.dates.date(at)),
         ].join(' · '),
       ),
       footer: widget.footer(),

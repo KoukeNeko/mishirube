@@ -6,6 +6,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// When a night is assumed to begin and end before anything was logged.
 const _defaultBedtime = TimeOfDay(hour: 23, minute: 0);
@@ -135,22 +136,24 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      '${editing == null ? '已記錄' : '已更新'}${_kind.label} '
-      '${formatHoursMinutes(_length)}',
+      (editing == null ? context.l10n.loggedValue : context.l10n.updatedValue)(
+        item: _kind.labelIn(context.l10n),
+        value: formatHoursMinutes(_length),
+      ),
       kind: ToastKind.success,
     );
   }
 
-  static String _when(DateTime time) =>
-      '${time.month} 月 ${time.day} 日 ${formatTimeOfDay(time)}';
+  String _when(DateTime time) =>
+      '${context.dates.monthDay(time)} ${formatTimeOfDay(time)}';
 
   @override
   Widget build(BuildContext context) {
     final length = _length;
     return DetailPage(
-      appBar: PageAppBar(title: '睡眠'),
+      appBar: PageAppBar(title: context.l10n.moduleSleep),
       footer: PrimaryButton(
-        label: '儲存',
+        label: context.l10n.commonSave,
         onPressed: _isValid || !_ownsTimes ? _save : null,
       ),
       children: [
@@ -160,7 +163,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
               child: SegmentedChoice<SleepKind>(
                 options: SleepKind.values,
                 selected: _kind,
-                labelOf: (kind) => kind.label,
+                labelOf: (kind) => kind.labelIn(context.l10n),
                 selectedColor: AppColors.wellness,
                 onChanged: (kind) => setState(() {
                   _kind = kind;
@@ -182,10 +185,10 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
                   if (!_isValid)
                     Text(
                       length <= Duration.zero
-                          ? '起床時間要在入睡之後'
+                          ? context.l10n.sleepWakeBeforeBed
                           : length > const Duration(hours: 24)
-                          ? '一次睡眠不超過 24 小時'
-                          : '起床時間不能晚於現在',
+                          ? context.l10n.sleepOver24Hours
+                          : context.l10n.sleepWakeInFuture,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.destructive,
                       ),
@@ -198,12 +201,12 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
             child: GroupedCard(
               children: [
                 NavRow(
-                  title: '入睡',
+                  title: context.l10n.sleepStartLabel,
                   subtitle: _when(_start),
                   onTap: () => _pick(isStart: true),
                 ),
                 NavRow(
-                  title: '起床',
+                  title: context.l10n.sleepEndLabel,
                   subtitle: _when(_end),
                   onTap: () => _pick(isStart: false),
                 ),
@@ -211,7 +214,11 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
             ),
           ),
         ],
-        Gutter(child: const SectionLabel('品質（選填）')),
+        Gutter(
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.qualityLabel),
+          ),
+        ),
         Gutter(
           child: ChipWrap(
             options: const [1, 2, 3, 4, 5],
@@ -224,11 +231,15 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
                 setState(() => _score = _score == score ? null : score),
           ),
         ),
-        Gutter(child: const SectionLabel('備註（選填）')),
+        Gutter(
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.notesSection),
+          ),
+        ),
         Gutter(
           child: AppTextField(
             controller: _note,
-            hint: '例如：睡前喝了咖啡、半夜醒來',
+            hint: context.l10n.sleepNoteHint,
             maxLines: 3,
           ),
         ),

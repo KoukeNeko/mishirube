@@ -1,4 +1,5 @@
 import '../../domain/domain.dart';
+import '../../l10n/app_localizations.dart';
 import 'trend_engine.dart';
 
 /// Bumped whenever a rule below changes, so an insight can say which
@@ -23,26 +24,32 @@ const _completeShare = 0.8;
 /// complete that data is, and the window it covers.
 
 /// Where the weight is heading over [trend]'s window.
-Insight? weightTrendInsight(MeasurementTrend trend, {required int dayCount}) {
+Insight? weightTrendInsight(
+  AppLocalizations l10n,
+  MeasurementTrend trend, {
+  required int dayCount,
+}) {
   final perWeek = trend.changePerWeek;
   if (perWeek == null) return null;
   final size = perWeek.abs();
-  final direction = perWeek < 0 ? '下降' : '上升';
   final statement = size < _steadyWeightKgPerWeek
-      ? '體重在這段期間大致持平，沒有明顯變化。'
-      : '體重以每週約 ${size.toStringAsFixed(1)} kg 的速度$direction。';
+      ? l10n.weightSteady
+      : (perWeek < 0 ? l10n.weightFalling : l10n.weightRising)(
+          kg: size.toStringAsFixed(1),
+        );
   return Insight(
     statement: statement,
     evidence: [
-      '依據 ${trend.values.length} 筆體重紀錄',
-      ..._quality(trend.values.length, dayCount),
-      _window(trend.days),
+      l10n.basedOnWeights(count: trend.values.length),
+      ..._quality(l10n, trend.values.length, dayCount),
+      _window(l10n, trend.days),
     ],
   );
 }
 
 /// Whether this week has already met [goalPerWeek] training sessions.
 Insight? weeklyTrainingInsight(
+  AppLocalizations l10n,
   List<WeeklyBar> weeks, {
   required int goalPerWeek,
 }) {
@@ -50,17 +57,25 @@ Insight? weeklyTrainingInsight(
   final (_, thisWeek) = weeks.last;
   if (thisWeek == 0) return null;
   final statement = thisWeek >= goalPerWeek
-      ? '這是本週第 $thisWeek 次訓練，達成每週 $goalPerWeek 次的目標。'
-      : '本週已完成 $thisWeek 次訓練，距離每週 $goalPerWeek 次還差 ${goalPerWeek - thisWeek} 次。';
+      ? l10n.trainingGoalMet(count: thisWeek, goal: goalPerWeek)
+      : l10n.trainingGoalShort(
+          count: thisWeek,
+          goal: goalPerWeek,
+          left: goalPerWeek - thisWeek,
+        );
   return Insight(
     statement: statement,
-    evidence: ['依據本週訓練紀錄', '每週目標 $goalPerWeek 次'],
+    evidence: [
+      l10n.basedOnThisWeek,
+      l10n.weeklyGoalTimes(goal: goalPerWeek),
+    ],
   );
 }
 
 /// A drop in weekly working sets for one exercise, and whether the
 /// estimated max followed it down.
 Insight? volumeTrendInsight(
+  AppLocalizations l10n,
   String exerciseName,
   List<WeeklyBar> weeklySets, {
   required int sessionCount,
@@ -70,24 +85,29 @@ Insight? volumeTrendInsight(
   final first = weeklySets.first.$2;
   final last = weeklySets.last.$2;
   if (first == 0 || last >= first * (1 - _meaningfulVolumeDrop)) return null;
-  final maxNote = isMaxHolding ? '，估計最大重量沒有跟著掉' : '，估計最大重量也跟著下降';
   return Insight(
-    statement: '$exerciseName的每週組數從 $first 組掉到 $last 組$maxNote。',
+    statement:
+        (isMaxHolding ? l10n.volumeDropMaxHolding : l10n.volumeDropMaxFalling)(
+          exercise: exerciseName,
+          first: first,
+          last: last,
+        ),
     evidence: [
-      '依據 $sessionCount 次訓練紀錄',
-      '不含熱身組',
-      _window(weeklySets.length * DateTime.daysPerWeek),
+      l10n.basedOnWorkouts(count: sessionCount),
+      l10n.excludesWarmups,
+      _window(l10n, weeklySets.length * DateTime.daysPerWeek),
     ],
   );
 }
 
-List<String> _quality(int points, int dayCount) => [
+List<String> _quality(AppLocalizations l10n, int points, int dayCount) => [
   if (dayCount > 0 && points >= dayCount * _completeShare)
-    '資料完整'
+    l10n.dataComplete
   else
-    '資料不完整，只有 $points / $dayCount 天有紀錄',
+    l10n.dataIncomplete(points: points, days: dayCount),
 ];
 
-String _window(int days) => days % DateTime.daysPerWeek == 0 && days <= 56
-    ? '近 ${days ~/ DateTime.daysPerWeek} 週'
-    : '近 $days 天';
+String _window(AppLocalizations l10n, int days) =>
+    days % DateTime.daysPerWeek == 0 && days <= 56
+    ? l10n.lastWeeksCount(count: days ~/ DateTime.daysPerWeek)
+    : l10n.lastDaysCount(count: days);

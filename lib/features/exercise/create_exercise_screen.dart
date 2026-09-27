@@ -4,22 +4,31 @@ import '../../app/theme.dart';
 import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
+import '../../l10n/l10n.dart';
 
 const _maxDuplicateCandidates = 3;
 
 /// Coarse body regions offered when creating an exercise; details come later.
 enum _BodyRegion {
-  chest('胸', MuscleGroup.chest),
-  back('背', MuscleGroup.back),
-  legs('腿', MuscleGroup.quads),
-  shoulders('肩', MuscleGroup.shoulders),
-  arms('手臂', MuscleGroup.arms),
-  core('核心', MuscleGroup.core);
+  chest(MuscleGroup.chest),
+  back(MuscleGroup.back),
+  legs(MuscleGroup.quads),
+  shoulders(MuscleGroup.shoulders),
+  arms(MuscleGroup.arms),
+  core(MuscleGroup.core);
 
-  const _BodyRegion(this.label, this.muscle);
+  const _BodyRegion(this.muscle);
 
-  final String label;
   final MuscleGroup muscle;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    chest => l10n.bodyRegionChest,
+    back => l10n.bodyRegionBack,
+    legs => l10n.bodyRegionLegs,
+    shoulders => l10n.bodyRegionShoulders,
+    arms => l10n.bodyRegionArms,
+    core => l10n.bodyRegionCore,
+  };
 }
 
 const _equipmentChoices = <Equipment?>[
@@ -114,9 +123,9 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
       AppStoreScope.read(context).updateExercise(exercise);
     } on TrackingChangeRefused catch (refusal) {
       setState(
-        () => _error =
-            '已有 ${refusal.sessionCount} 次紀錄用這個追蹤方式，改了會讓舊紀錄變成另一種意思。'
-            '要換成別的追蹤方式，請建立一個新動作。',
+        () => _error = context.l10n.trackingChangeRefused(
+          count: refusal.sessionCount,
+        ),
       );
       return;
     }
@@ -128,11 +137,19 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
     final duplicates = _possibleDuplicates();
     return DetailPage(
       appBar: PageAppBar(
-        title: _editing == null ? '建立自訂動作' : '編輯動作',
-        subtitle: _editing == null ? null : '${_editing!.source.label}動作',
+        title: _editing == null
+            ? context.l10n.createCustomExercise
+            : context.l10n.editExercise,
+        subtitle: _editing == null
+            ? null
+            : context.l10n.exerciseOfSource(
+                source: _editing!.source.labelIn(context.l10n),
+              ),
       ),
       footer: PrimaryButton(
-        label: _editing == null ? '建立並加入' : '儲存',
+        label: _editing == null
+            ? context.l10n.createAndAdd
+            : context.l10n.commonSave,
         onPressed: _name.isEmpty ? null : _submit,
       ),
       children: [
@@ -147,36 +164,43 @@ class _CreateExerciseScreenState extends State<CreateExerciseScreen> {
               onUse: (exercise) => Navigator.of(context).pop(exercise),
             ),
           ),
-        Gutter(child: const SectionLabel('名稱')),
+        Gutter(child: SectionLabel(context.l10n.nameSection)),
         Gutter(
-          child: AppTextField(controller: _nameController, hint: '例如：啞鈴臥推'),
+          child: AppTextField(
+            controller: _nameController,
+            hint: context.l10n.exerciseNameHint,
+          ),
         ),
-        Gutter(child: const SectionLabel('追蹤方式')),
+        Gutter(child: SectionLabel(context.l10n.trackingTypeSection)),
         Gutter(
           child: ChipWrap(
             options: TrackingType.values,
-            labelOf: (type) => type.label,
+            labelOf: (type) => type.labelIn(context.l10n),
             isSelected: (type) => type == _trackingType,
             onTap: (type) => setState(() => _trackingType = type),
           ),
         ),
         Gutter(
-          child: const Text('建立後不能改成不相容的追蹤方式。', style: AppTextStyles.caption),
+          child: Text(
+            context.l10n.trackingTypeLocked,
+            style: AppTextStyles.caption,
+          ),
         ),
-        Gutter(child: const SectionLabel('主要肌群或動作模式')),
+        Gutter(child: SectionLabel(context.l10n.primaryMuscleOrPattern)),
         Gutter(
           child: ChipWrap(
             options: _BodyRegion.values,
-            labelOf: (region) => region.label,
+            labelOf: (region) => region.labelIn(context.l10n),
             isSelected: (region) => region == _region,
             onTap: (region) => setState(() => _region = region),
           ),
         ),
-        Gutter(child: const SectionLabel('器材')),
+        Gutter(child: SectionLabel(context.l10n.equipmentSection)),
         Gutter(
           child: ChipWrap(
             options: _equipmentChoices,
-            labelOf: (equipment) => equipment?.label ?? '不指定',
+            labelOf: (equipment) =>
+                equipment?.labelIn(context.l10n) ?? context.l10n.equipmentAny,
             isSelected: (equipment) => equipment == _equipment,
             onTap: (equipment) => setState(() => _equipment = equipment),
           ),
@@ -199,15 +223,21 @@ class _DuplicateWarning extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.error_outline, color: AppColors.warning, size: 20),
-              SizedBox(width: AppSpacing.xs),
-              Text(
-                '可能已經有這個動作',
-                style: TextStyle(
-                  color: AppColors.warning,
-                  fontWeight: FontWeight.w800,
+              const Icon(
+                Icons.error_outline,
+                color: AppColors.warning,
+                size: 20,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  context.l10n.possibleDuplicate,
+                  style: const TextStyle(
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
@@ -217,12 +247,16 @@ class _DuplicateWarning extends StatelessWidget {
             NavCard(
               title: exercise.name,
               subtitle:
-                  '${exercise.source.label} · ${exercise.recordCount} 筆紀錄',
-              trailing: LinkText(label: '使用這個', onTap: () => onUse(exercise)),
+                  '${exercise.source.labelIn(context.l10n)} · '
+                  '${context.l10n.entriesCount(count: exercise.recordCount)}',
+              trailing: LinkText(
+                label: context.l10n.useThis,
+                onTap: () => onUse(exercise),
+              ),
             ),
             const SizedBox(height: AppSpacing.xs),
           ],
-          const Text('選既有動作，歷史與個人紀錄才不會被拆成好幾份。', style: AppTextStyles.caption),
+          Text(context.l10n.duplicateAdvice, style: AppTextStyles.caption),
         ],
       ),
     );

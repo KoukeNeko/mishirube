@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/motion.dart';
+import '../../l10n/l10n.dart';
 
 const _weekdayHeight = 24.0;
 const _titleHeight = 36.0;
@@ -76,8 +76,9 @@ double _heightOf(DateTime month, int firstWeekday) =>
     _titleHeight + _weeksIn(month, firstWeekday) * _rowHeight;
 
 /// `9月`, and with its year in January, as the system writes months.
-String _monthTitle(DateTime month) =>
-    month.month == 1 ? '${month.year}年1月' : '${month.month}月';
+String _monthTitle(AppDates dates, DateTime month) => month.month == 1
+    ? dates.compactYearMonth(month)
+    : dates.compactMonth(month);
 
 class _MonthCalendarState extends State<MonthCalendar> {
   late List<DateTime> _months;
@@ -197,7 +198,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 Expanded(
                   child: Center(
                     child: Text(
-                      weekdayName(
+                      context.dates.weekdayNumber(
                         (widget.firstWeekday - 1 + i) % DateTime.daysPerWeek +
                             1,
                       ),
@@ -279,7 +280,7 @@ class _MonthBlock extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.bottomLeft,
                   child: Text(
-                    _monthTitle(month),
+                    _monthTitle(context.dates, month),
                     maxLines: 1,
                     style: AppTextStyles.itemTitle.copyWith(fontSize: 17),
                   ),
@@ -345,7 +346,7 @@ class _DayCell extends StatelessWidget {
     return Semantics(
       button: !isFuture,
       selected: isSelected,
-      label: '${date.month}月${date.day}日',
+      label: context.dates.compactMonthDay(date),
       excludeSemantics: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,

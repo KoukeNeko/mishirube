@@ -6,32 +6,30 @@ import 'nutrition.dart';
 /// what is typed leaves the phone.
 enum AiProviderKind {
   /// Apple's on-device model. Nothing is sent anywhere.
-  appleOnDevice('Apple Intelligence', leavesDevice: false),
+  appleOnDevice(leavesDevice: false),
 
   /// Models hosted by Ollama, reached with the user's own key.
-  ollamaCloud('Ollama Cloud', leavesDevice: true),
+  ollamaCloud(leavesDevice: true),
 
   /// Google's Gemini API, the key from AI Studio.
-  googleAiStudio('Google AI Studio', leavesDevice: true),
+  googleAiStudio(leavesDevice: true),
 
   /// Anthropic's Claude API.
-  anthropic('Anthropic', leavesDevice: true),
+  anthropic(leavesDevice: true),
 
   /// Microsoft's Azure AI Foundry, a model deployed in the user's own
   /// Azure resource.
-  azureAiFoundry('Azure AI Foundry', leavesDevice: true),
+  azureAiFoundry(leavesDevice: true),
 
   /// Microsoft 365 Copilot, through its Chat API: a sign-in with a work
   /// or school account rather than a key.
-  microsoftCopilot('Microsoft 365 Copilot', leavesDevice: true),
+  microsoftCopilot(leavesDevice: true),
 
   /// Anything else speaking OpenAI's chat API at an address the user
   /// gives: a gateway, a server of their own.
-  openAiCompatible('OpenAI 相容端點', leavesDevice: true);
+  openAiCompatible(leavesDevice: true);
 
-  const AiProviderKind(this.label, {required this.leavesDevice});
-
-  final String label;
+  const AiProviderKind({required this.leavesDevice});
 
   /// Whether a request sends what the user typed to someone else.
   final bool leavesDevice;
@@ -117,6 +115,7 @@ class AiException implements Exception {
 }
 
 /// How a meal logged from a confirmed AI draft is tagged.
+// l10n-ignore: stored with the meal; shown through qualityTagLabel.
 const aiDraftQualityTag = 'AI 估計';
 
 /// A meal as a model read it from a sentence. Nothing here is a record:
@@ -141,7 +140,7 @@ class MealDraft {
   /// What a photo cannot show and the figures depend on — oil, sauce, a
   /// drink's sugar — or what does not add up, in the words the review
   /// shows.
-  final List<String> warnings;
+  final List<DraftWarning> warnings;
 
   /// The model's own name, kept with what it produced.
   final String model;
@@ -245,7 +244,7 @@ class FoodLabelDraft {
 
   /// What did not add up, in the words the form shows: the figures are
   /// still filled in, and these say where to look.
-  final List<String> warnings;
+  final List<DraftWarning> warnings;
 
   bool get isEmpty =>
       kcal == null &&
@@ -253,4 +252,36 @@ class FoodLabelDraft {
       carbGrams == null &&
       fatGrams == null &&
       nutrients.isEmpty;
+}
+
+/// What a draft asks the user to look at before anything is saved; the
+/// screen puts it into words.
+sealed class DraftWarning {
+  const DraftWarning();
+}
+
+/// What the model said a photo cannot show, in its own words.
+final class ModelNote extends DraftWarning {
+  const ModelNote(this.text);
+
+  final String text;
+}
+
+/// The energy is far from what the macronutrients add up to; [item] names
+/// the draft item, when the draft has several.
+final class EnergyMismatch extends DraftWarning {
+  const EnergyMismatch([this.item]);
+
+  final String? item;
+}
+
+/// A scanned label's per-serving figures may be from its per-100 column.
+final class ColumnMismatch extends DraftWarning {
+  const ColumnMismatch();
+}
+
+/// A scanned label's carbohydrate leaves out the fibre it does not print,
+/// so the total is left blank.
+final class CarbWithoutFibre extends DraftWarning {
+  const CarbWithoutFibre();
 }

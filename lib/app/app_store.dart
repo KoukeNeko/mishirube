@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import '../backend/application/training_service.dart'
-    show routineNameFor, untitledRoutineName;
+import '../backend/application/training_service.dart' show routineNameFor;
 import '../backend/engines/workout_text.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
@@ -29,20 +28,9 @@ export '../backend/application/provenance_service.dart'
 export '../backend/application/nutrition_service.dart'
     show DishSplitSnapshot, RecentFood, RecentMeal;
 
-enum AppModule {
-  nutrition('飲食', '一餐、料理、成分與營養'),
-  weight('體重', '體重與圍度'),
-  training('訓練', '動作、課表與訓練紀錄'),
-  activity('運動', '跑步、健走、騎車、球類、瑜伽'),
-  sleep('睡眠', '睡眠時間與品質'),
-  wellness('心情、精力、症狀', '一天的狀態日誌'),
-  notes('筆記', '和任何一天或一筆紀錄關聯');
-
-  const AppModule(this.title, this.description);
-
-  final String title;
-  final String description;
-}
+/// A part of the app the user can switch on; named in the app's language
+/// by [AppModuleText].
+enum AppModule { nutrition, weight, training, activity, sleep, wellness, notes }
 
 enum HomeTab { today, log, trends, me }
 
@@ -464,7 +452,7 @@ class AppStore extends ChangeNotifier {
 
   /// The name a template of [planned] gets: what it trains.
   String routineNameOf(List<PlannedExercise> planned) =>
-      routineNameFor(planned);
+      routineNameFor(planned, _backend.l10n);
 
   /// Finished workouts to start a new one from, newest first.
   List<WorkoutSession> get recentWorkouts => _backend.training.recentFinished();
@@ -672,8 +660,10 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Adds an empty template and opens it.
-  Routine createRoutine([String name = untitledRoutineName]) {
-    final created = _backend.training.createRoutine(name);
+  Routine createRoutine([String? name]) {
+    final created = _backend.training.createRoutine(
+      name ?? _backend.l10n.routineUntitled,
+    );
     selectRoutine(created);
     return created;
   }
@@ -1064,7 +1054,7 @@ class AppStore extends ChangeNotifier {
   }
 
   /// The health platform on this device: Apple Health or Health Connect.
-  String get healthSourceName => _health.source.name;
+  String get healthSourceName => _health.source.nameIn(_backend.l10n);
 
   /// What it can be read for.
   Set<HealthDataKind> get healthKinds => _health.source.kinds;

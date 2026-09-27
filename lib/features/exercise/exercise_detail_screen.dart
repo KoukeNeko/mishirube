@@ -10,6 +10,7 @@ import 'exercise_picker_screen.dart';
 import '../trends/muscle_map.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_demo.dart';
+import '../../l10n/l10n.dart';
 
 /// Asks for the names this user wants to find [exercise] by.
 Future<void> _editAliases(
@@ -19,16 +20,16 @@ Future<void> _editAliases(
   final store = AppStoreScope.read(context);
   final entered = await showTextDialog(
     context,
-    title: '我的別名',
-    initial: exercise.personalAliases.join('、'),
-    hint: '用、分隔，例如：深蹲、squat',
+    title: context.l10n.myAliases,
+    initial: joinList(context.l10n, exercise.personalAliases),
+    hint: context.l10n.aliasesHint,
   );
   if (entered == null || !context.mounted) return;
   store.setPersonalAliases(exercise, [
     for (final alias in entered.split(RegExp('[、,，]')))
       if (alias.trim().isNotEmpty) alias.trim(),
   ]);
-  showToast(context, '已更新別名');
+  showToast(context, context.l10n.aliasesUpdated);
 }
 
 /// Folds this exercise into another one, after the user picks which and
@@ -45,30 +46,38 @@ Future<void> _mergeInto(
   final canonical = picked?.firstOrNull;
   if (canonical == null || !context.mounted) return;
   if (canonical.id == duplicate.id) {
-    showToast(context, '不能和自己合併', kind: ToastKind.warning);
+    showToast(context, context.l10n.cannotMergeSelf, kind: ToastKind.warning);
     return;
   }
   final confirmed = await showAppDialog<bool>(
     context,
     AppDialog(
-      title: '把「${duplicate.name}」併入「${canonical.name}」？',
-      message:
-          '過去的紀錄改算在「${canonical.name}」下，動作不再出現在選擇器。'
-          '紀錄的內容不會被改寫，但這個合併無法復原。',
+      title: context.l10n.mergeTitle(
+        duplicate: duplicate.name,
+        canonical: canonical.name,
+      ),
+      message: context.l10n.mergeMessage(canonical: canonical.name),
       actions: [
         DialogAction(
-          label: '併入「${canonical.name}」',
+          label: context.l10n.mergeInto(canonical: canonical.name),
           tone: DialogTone.destructive,
           onTap: () => Navigator.of(context).pop(true),
         ),
-        DialogAction(label: '取消', onTap: () => Navigator.of(context).pop()),
+        DialogAction(
+          label: context.l10n.commonCancel,
+          onTap: () => Navigator.of(context).pop(),
+        ),
       ],
     ),
   );
   if (confirmed != true || !context.mounted) return;
   store.mergeExercise(duplicate: duplicate, canonical: canonical);
   Navigator.of(context).pop();
-  showToast(context, '已併入「${canonical.name}」', kind: ToastKind.success);
+  showToast(
+    context,
+    context.l10n.mergedInto(canonical: canonical.name),
+    kind: ToastKind.success,
+  );
 }
 
 class ExerciseDetailScreen extends StatelessWidget {
@@ -95,11 +104,13 @@ class ExerciseDetailScreen extends StatelessWidget {
     return DetailPage(
       appBar: PageAppBar(
         title: exercise.name,
-        subtitle: '${exercise.equipment.label} · ${exercise.source.label}動作',
+        subtitle:
+            '${exercise.equipment.labelIn(context.l10n)} · '
+            '${context.l10n.exerciseOfSource(source: exercise.source.labelIn(context.l10n))}',
       ),
       footer: canAdd
           ? PrimaryButton(
-              label: '加入這個動作',
+              label: context.l10n.addThisExercise,
               onPressed: () => Navigator.of(context).pop(true),
             )
           : null,
@@ -123,14 +134,14 @@ class ExerciseDetailScreen extends StatelessWidget {
         ),
         if (_sameMovement(store, exercise) case final others
             when others.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('同一動作的其他做法')),
+          Gutter(child: SectionLabel(context.l10n.otherVariations)),
           Gutter(
             child: GroupedCard(
               children: [
                 for (final other in others)
                   NavRow(
                     title: other.name,
-                    subtitle: other.equipment.label,
+                    subtitle: other.equipment.labelIn(context.l10n),
                     onTap: () => pushModalPage<void>(
                       context,
                       ExerciseDetailScreen(exercise: other),
@@ -141,60 +152,68 @@ class ExerciseDetailScreen extends StatelessWidget {
           ),
         ],
         if (exercise.cues.isNotEmpty) ...[
-          Gutter(child: const SectionLabel('重點提示')),
+          Gutter(child: SectionLabel(context.l10n.cuesSection)),
           Gutter(child: _CueList(cues: exercise.cues)),
         ],
-        Gutter(child: const SectionLabel('紀錄')),
+        Gutter(child: SectionLabel(context.l10n.recordTitle)),
         if (history.last != null)
           Gutter(child: _HistoryCard(history: history))
         else
-          Gutter(child: const InfoBanner(message: '沒有紀錄。')),
-        Gutter(child: const SectionLabel('管理')),
+          Gutter(child: InfoBanner(message: context.l10n.noEntriesSentence)),
+        Gutter(child: SectionLabel(context.l10n.manageSection)),
         Gutter(
           child: GroupedCard(
             children: [
               NavRow(
-                title: exercise.isFavorite ? '取消收藏' : '加入收藏',
+                title: exercise.isFavorite
+                    ? context.l10n.removeFavorite
+                    : context.l10n.addFavorite,
                 onTap: () {
                   store.toggleFavorite(exercise);
                   showToast(
                     context,
-                    exercise.isFavorite ? '已取消收藏' : '已加入收藏',
+                    exercise.isFavorite
+                        ? context.l10n.favoriteRemoved
+                        : context.l10n.favoriteAdded,
                     kind: ToastKind.success,
                   );
                 },
               ),
               if (exercise.source != ExerciseSource.builtIn)
                 NavRow(
-                  title: '編輯動作',
-                  subtitle: '名稱、器材、部位',
+                  title: context.l10n.editExercise,
+                  subtitle: context.l10n.editExerciseDetail,
                   onTap: () => pushModalPage<void>(
                     context,
                     CreateExerciseScreen(editing: exercise),
                   ),
                 ),
               NavRow(
-                title: '編輯我的別名',
+                title: context.l10n.editMyAliases,
                 subtitle: exercise.personalAliases.isEmpty
-                    ? '目前用內建名稱：${exercise.aliases.join('、')}'
-                    : exercise.personalAliases.join('、'),
+                    ? context.l10n.builtInNames(
+                        names: joinList(context.l10n, exercise.aliases),
+                      )
+                    : joinList(context.l10n, exercise.personalAliases),
                 onTap: () => _editAliases(context, exercise),
               ),
               if (exercise.source != ExerciseSource.builtIn)
                 NavRow(
-                  title: '合併到另一個動作',
-                  subtitle: '重複建立時，把紀錄併到同一個動作下',
+                  title: context.l10n.mergeIntoAnother,
+                  subtitle: context.l10n.mergeIntoAnotherDetail,
                   onTap: () => _mergeInto(context, exercise),
                 ),
               NavRow(
-                title: exercise.isHidden ? '取消隱藏' : '隱藏這個動作',
+                title: exercise.isHidden
+                    ? context.l10n.unhide
+                    : context.l10n.hideExercise,
                 onTap: () {
                   store.toggleHidden(exercise);
                   showToast(
                     context,
                     exercise.isHidden
-                        ? '已取消隱藏「${exercise.name}」'
-                        : '已隱藏「${exercise.name}」',
+                        ? context.l10n.unhidden(name: exercise.name)
+                        : context.l10n.hidden(name: exercise.name),
                   );
                 },
               ),
@@ -228,19 +247,39 @@ class _SpecCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondary = exercise.secondaryMuscles.map((m) => m.label).join('、');
-    final regions = {
-      for (final muscle in exercise.primaryMuscles) muscle.region.label,
-    }.join('、');
+    final secondary = joinList(
+      context.l10n,
+      exercise.secondaryMuscles.map((m) => m.labelIn(context.l10n)),
+    );
+    final regions = joinList(context.l10n, {
+      for (final muscle in exercise.primaryMuscles)
+        muscle.region.labelIn(context.l10n),
+    });
     return GroupedCard(
       children: [
-        KeyValueRow(label: '部位', value: regions),
-        KeyValueRow(label: '主要肌群', value: exercise.muscleSummary),
-        if (secondary.isNotEmpty) KeyValueRow(label: '次要肌群', value: secondary),
-        KeyValueRow(label: '器材', value: exercise.equipment.label),
-        KeyValueRow(label: '動作模式', value: exercise.pattern.label),
-        KeyValueRow(label: '左右', value: exercise.laterality.label),
-        KeyValueRow(label: '追蹤方式', value: exercise.trackingType.label),
+        KeyValueRow(label: context.l10n.bodyPartLabel, value: regions),
+        KeyValueRow(
+          label: context.l10n.primaryMuscles,
+          value: exercise.muscleSummary(context.l10n),
+        ),
+        if (secondary.isNotEmpty)
+          KeyValueRow(label: context.l10n.secondaryMuscles, value: secondary),
+        KeyValueRow(
+          label: context.l10n.equipmentSection,
+          value: exercise.equipment.labelIn(context.l10n),
+        ),
+        KeyValueRow(
+          label: context.l10n.movementPatternLabel,
+          value: exercise.pattern.labelIn(context.l10n),
+        ),
+        KeyValueRow(
+          label: context.l10n.lateralityLabel,
+          value: exercise.laterality.labelIn(context.l10n),
+        ),
+        KeyValueRow(
+          label: context.l10n.trackingTypeSection,
+          value: exercise.trackingType.labelIn(context.l10n),
+        ),
       ],
     );
   }
@@ -306,25 +345,25 @@ class _HistoryCard extends StatelessWidget {
               StatBlock(
                 value: formatWeight(history.last!.weightKg),
                 unit: 'kg',
-                label: '上次工作組',
+                label: context.l10n.lastWorkingSet,
               ),
               StatBlock(
                 value: estimate == null ? '—' : estimate.round().toString(),
                 unit: estimate == null ? null : 'kg',
-                label: '估計最大重量',
+                label: context.l10n.estimatedMax,
                 valueColor: AppColors.training,
               ),
               StatBlock(
                 value: '${history.sessionCount}',
-                unit: '次',
-                label: '訓練紀錄',
+                unit: context.l10n.sessionsUnit,
+                label: context.l10n.trainingEntries,
               ),
             ],
           ),
           if (_estimates case final estimates when estimates.length > 1) ...[
             const SizedBox(height: AppSpacing.md),
             Semantics(
-              label: '估計最大重量走勢，${estimates.length} 次訓練',
+              label: context.l10n.estimatedMaxTrend(count: estimates.length),
               excludeSemantics: true,
               child: Sparkline(values: estimates, color: AppColors.training),
             ),
@@ -336,7 +375,7 @@ class _HistoryCard extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    '${entry.date.month} / ${entry.date.day}',
+                    context.dates.compactMonthDay(entry.date),
                     style: AppTextStyles.itemTitle,
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -352,7 +391,9 @@ class _HistoryCard extends StatelessWidget {
               ),
             ),
           const SizedBox(height: AppSpacing.sm),
-          const TagWrap(labels: ['Epley 估計', '近 90 天']),
+          TagWrap(
+            labels: [context.l10n.epleyEstimate, context.l10n.last90Days],
+          ),
         ],
       ),
     );

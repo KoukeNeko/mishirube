@@ -9,6 +9,7 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// One logged meal as it was: what it came to and what it held. Changing
 /// it is the pencil's, which opens the same form foods are added with.
@@ -52,13 +53,12 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         title: meal.name,
         subtitle: eatenAt == null
             ? meal.timeLabel
-            : '${eatenAt.month} 月 ${eatenAt.day} 日（週${weekdayLabel(eatenAt)}）'
-                  ' · ${meal.timeLabel}',
+            : '${context.dates.dayWithWeekday(eatenAt)} · ${meal.timeLabel}',
         actions: [
           HeaderAction(
             icon: Icons.edit_outlined,
-            label: '編輯',
-            semanticLabel: '編輯這一餐',
+            label: context.l10n.commonEdit,
+            semanticLabel: context.l10n.editThisMeal,
             onTap: () => _edit(meal),
           ),
         ],
@@ -69,8 +69,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             meal: meal,
             convention: _nutrition.convention,
             details: [
-              ?meal.mealType?.label,
-              if (meal.kind != ConsumptionKind.unknown) meal.kind.label,
+              ?meal.mealType?.labelIn(context.l10n),
+              if (meal.kind != ConsumptionKind.unknown)
+                meal.kind.labelIn(context.l10n),
               if (meal.millilitres case final millilitres?) '$millilitres mL',
             ],
           ),
@@ -78,6 +79,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         // What the card above does not show already.
         if ([
               for (final line in nutrientLines(
+                context.l10n,
                 meal.nutrients,
                 convention: _nutrition.convention,
                 carbGrams: meal.carbGrams,
@@ -90,14 +92,17 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             ]
             case final rest when rest.isNotEmpty)
           PageSection(
-            label: '營養素',
+            label: context.l10n.nutrientsSection,
             children: [
               Gutter(
                 child: GroupedCard(
                   children: [
                     for (final (nutrient, value) in rest)
                       KeyValueRow(
-                        label: _nutrition.convention.nameOf(nutrient),
+                        label: _nutrition.convention.nameOf(
+                          context.l10n,
+                          nutrient,
+                        ),
                         value: value,
                       ),
                   ],
@@ -107,7 +112,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           ),
         if (meal.dishes.isNotEmpty)
           PageSection(
-            label: '內容',
+            label: context.l10n.contentsSection,
             children: [
               Gutter(
                 child: GroupedCard(
@@ -158,7 +163,7 @@ class MealSummaryCard extends StatelessWidget {
         _Macros(meal: meal, convention: convention),
         if (meal.qualityTag.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
-          TagWrap(labels: [meal.qualityTag]),
+          TagWrap(labels: [qualityTagLabel(context.l10n, meal.qualityTag)]),
         ],
       ],
     ),
@@ -182,7 +187,7 @@ class _Macros extends StatelessWidget {
     final energy = energyParts(meal);
     final main = [
       (
-        convention.carbName,
+        convention.carbName(context.l10n),
         AppColors.macroCarb,
         // Where the carbohydrate leaves its fibre out, so does this.
         convention.countsAvailableCarb
@@ -191,30 +196,35 @@ class _Macros extends StatelessWidget {
         energy.carb,
       ),
       (
-        convention.proteinName,
+        convention.proteinName(context.l10n),
         AppColors.macroProtein,
         meal.proteinGrams,
         energy.protein,
       ),
-      (convention.fatName, AppColors.macroFat, meal.fatGrams, energy.fat),
+      (
+        convention.fatName(context.l10n),
+        AppColors.macroFat,
+        meal.fatGrams,
+        energy.fat,
+      ),
     ];
     // Always all three, and nothing on record reads as none: most food
     // has no alcohol or sugar alcohols, and a label that has them says so.
     final minor = [
       (
-        convention.fibreName,
+        convention.fibreName(context.l10n),
         AppColors.macroFibre,
         meal.fibreGrams,
         energy.fibre,
       ),
       (
-        convention.nameOf(Nutrient.polyols),
+        convention.nameOf(context.l10n, Nutrient.polyols),
         AppColors.macroPolyols,
         meal.nutrients[Nutrient.polyols],
         energy.polyols,
       ),
       (
-        convention.nameOf(Nutrient.alcohol),
+        convention.nameOf(context.l10n, Nutrient.alcohol),
         AppColors.macroAlcohol,
         meal.nutrients[Nutrient.alcohol],
         energy.alcohol,

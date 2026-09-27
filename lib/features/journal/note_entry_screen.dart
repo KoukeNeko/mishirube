@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'journal_view_model.dart';
+import '../../l10n/l10n.dart';
 
 /// Writing down something about today, in the user's own words.
 ///
@@ -51,7 +52,7 @@ class _NoteEntryScreenState extends State<NoteEntryScreen> {
     Navigator.of(context).pop();
     showToast(
       context,
-      editing == null ? '已記錄筆記' : '已更新筆記',
+      editing == null ? context.l10n.noteLogged : context.l10n.noteUpdated,
       kind: ToastKind.success,
     );
   }
@@ -59,16 +60,16 @@ class _NoteEntryScreenState extends State<NoteEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return DetailPage(
-      appBar: PageAppBar(title: '筆記'),
+      appBar: PageAppBar(title: context.l10n.moduleNotes),
       footer: PrimaryButton(
-        label: '儲存',
+        label: context.l10n.commonSave,
         onPressed: _text.text.trim().isEmpty ? null : _save,
       ),
       children: [
         Gutter(
           child: AppTextField(
             controller: _text,
-            hint: '例如：晚上聚餐，吃得比平常多',
+            hint: context.l10n.noteHint,
             autofocus: widget.editing == null,
             maxLines: 6,
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/sleep/sleep_stage_chart.dart';
+import 'package:mishirube/l10n/l10n.dart';
 
 void main() {
   final bed = DateTime(2026, 9, 23, 2);
@@ -19,6 +20,8 @@ void main() {
 
   Future<void> pump(WidgetTester tester) => tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Center(
           child: SizedBox(width: 400, child: SleepStageChart(stages: night)),

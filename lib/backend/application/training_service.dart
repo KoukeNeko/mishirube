@@ -6,6 +6,7 @@ import '../engines/progression_engine.dart';
 import '../engines/workout_review.dart';
 import '../storage/routine_repository.dart';
 import '../storage/workout_repository.dart';
+import '../../l10n/l10n.dart';
 
 /// How many of a template's last workouts its length is judged from.
 const _recentForLength = 5;
@@ -15,33 +16,40 @@ const _addedSets = 3;
 
 /// What a template the user made themselves belongs to, where a seeded
 /// one names its program.
+// l10n-ignore: stored, never shown.
 const _ownProgramName = '自己的訓練';
 
 /// What a workout started from no routine is called.
-const freeWorkoutName = '自由訓練';
 
 /// What a new template is called until it has exercises to be named
 /// after, or the user names it.
-const untitledRoutineName = '新的課表';
+/// Whether [name] is the name a new routine was given, in any of the
+/// app's languages: still unnamed, it takes its name from what it trains.
+bool isUntitledRoutineName(String name) => {
+  for (final locale in AppLocalizations.supportedLocales)
+    lookupAppLocalizations(locale).routineUntitled,
+}.contains(name);
 
 /// How many muscles a template's own name lists.
 const _namedMuscles = 2;
 
 /// A template's name from what it trains: its two most trained muscles
-/// (by planned sets), `胸・三頭肌`; [untitledRoutineName] with nothing in
-/// it yet.
-String routineNameFor(List<PlannedExercise> exercises) {
+/// (by planned sets), `胸・三頭肌`; the untitled name with nothing in it
+/// yet.
+String routineNameFor(List<PlannedExercise> exercises, AppLocalizations l10n) {
   final sets = <MuscleGroup, int>{};
   for (final planned in exercises) {
     for (final muscle in planned.exercise.primaryMuscles) {
       sets[muscle] = (sets[muscle] ?? 0) + planned.sets;
     }
   }
-  if (sets.isEmpty) return untitledRoutineName;
+  if (sets.isEmpty) return l10n.routineUntitled;
   final ranked = sets.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
-  return [for (final entry in ranked.take(_namedMuscles)) entry.key.label]
-      .join('・');
+  return [
+    for (final entry in ranked.take(_namedMuscles)) entry.key.labelIn(l10n),
+    // l10n-ignore: a separator, not a word.
+  ].join('・');
 }
 
 const _addedReps = 10;
@@ -51,12 +59,21 @@ const _addedWeightKg = 20.0;
 /// written when. Every change is committed as it happens, so a workout
 /// survives the app being killed.
 class TrainingService {
-  TrainingService(this._db, this._workouts, this._exercises, this._routines);
+  TrainingService(
+    this._db,
+    this._workouts,
+    this._exercises,
+    this._routines,
+    this._l10n,
+  );
 
   final AppDatabase _db;
   final WorkoutRepository _workouts;
   final ExerciseRepository _exercises;
   final RoutineRepository _routines;
+
+  /// The language of the names made up here.
+  final AppLocalizations _l10n;
 
   WorkoutSession? active() => _workouts.active(_exercise);
 
@@ -99,7 +116,7 @@ class TrainingService {
   WorkoutSession startFrom(List<ExerciseSession> done) {
     final workout = WorkoutSession(
       id: _db.newId(),
-      routineName: freeWorkoutName,
+      routineName: _l10n.workoutFreeName,
       startedAt: _db.now(),
       exercises: [
         for (final session in done)
@@ -117,7 +134,7 @@ class TrainingService {
   WorkoutSession startPlanned(List<PlannedExercise> planned) {
     final workout = WorkoutSession(
       id: _db.newId(),
-      routineName: freeWorkoutName,
+      routineName: _l10n.workoutFreeName,
       startedAt: _db.now(),
       exercises: [for (final item in planned) plan(item)],
     );
@@ -131,7 +148,7 @@ class TrainingService {
   WorkoutSession startFree(List<ExerciseDefinition> exercises) {
     final workout = WorkoutSession(
       id: _db.newId(),
-      routineName: freeWorkoutName,
+      routineName: _l10n.workoutFreeName,
       startedAt: _db.now(),
       exercises: [for (final exercise in exercises) plan(planFor(exercise))],
     );
@@ -571,8 +588,10 @@ class TrainingService {
       for (final exercise in exercises) planFor(exercise),
     ];
     // Still unnamed, it takes its name from what it now trains.
-    final updated = routine.name == untitledRoutineName
-        ? routine.renamed(routineNameFor(planned)).copyWith(exercises: planned)
+    final updated = isUntitledRoutineName(routine.name)
+        ? routine
+              .renamed(routineNameFor(planned, _l10n))
+              .copyWith(exercises: planned)
         : routine.copyWith(exercises: planned);
     _routines.save(updated, action: action, source: source);
     return updated;
@@ -647,6 +666,7 @@ class TrainingService {
     final out = <(PlannedExercise, ProgressionSuggestion)>[];
     for (final planned in routine.exercises) {
       final suggestion = suggestProgression(
+        _l10n,
         planned: planned,
         recent: _attempts(planned.exercise.id),
       );
@@ -746,7 +766,7 @@ class TrainingService {
       name: name,
       programName: _ownProgramName,
       estimatedMinutes: 0,
-      lastCompletedLabel: '未完成過',
+      lastCompletedLabel: _l10n.routineNeverDone,
       exercises: exercises,
     );
     _routines.save(routine, action: 'create');
@@ -766,7 +786,7 @@ class TrainingService {
       sets: _addedSets,
       reps: last?.reps ?? _addedReps,
       targetWeightKg: last?.weightKg ?? _addedWeightKg,
-      progressionLabel: '維持',
+      progressionLabel: _l10n.progressionHold,
     );
   }
 }
