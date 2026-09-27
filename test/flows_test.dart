@@ -2657,7 +2657,7 @@ void main() {
 
     // A name of its own, and blank goes back to its items.
     Future<void> rename(String name) async {
-      await _tapText(tester, '改名稱');
+      await _tapText(tester, '重新命名');
       await tester.enterText(find.byType(TextField), name);
       await _tapText(tester, '儲存');
       await tester.pumpAndSettle();

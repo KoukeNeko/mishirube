@@ -5707,7 +5707,7 @@
       }
     }
   },
-  "rename": "改名稱",
+  "rename": "重新命名",
   "@rename": {
     "description": "Row."
   },

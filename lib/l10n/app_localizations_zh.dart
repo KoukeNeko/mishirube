@@ -3754,7 +3754,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get rename => '改名稱';
+  String get rename => '重新命名';
 
   @override
   String get moveUp => '上移';
@@ -9366,7 +9366,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get rename => '改名称';
+  String get rename => '重命名';
 
   @override
   String get moveUp => '上移';
