@@ -57,6 +57,32 @@ void main() {
   final now = FakeClock().now();
 
   group('nutrition summary', () {
+    test('a meal says how much, then what it was made of', () {
+      MealEvent meal(
+        String name, {
+        String amount = '',
+        List<DishEntry> dishes = const [],
+      }) => MealEvent(
+        id: name,
+        name: name,
+        timeLabel: '12:00',
+        qualityTag: '',
+        dishes: dishes,
+        amount: amount,
+      );
+      DishEntry dish(String name, [String quantity = '']) =>
+          DishEntry(name: name, quantityLabel: quantity, subtitle: '');
+
+      expect(mealContentsOf(meal('木瓜', amount: '半條')), ['半條']);
+      expect(mealContentsOf(meal('統一 雞胸肉', dishes: [dish('統一 雞胸肉', '2 份')])), [
+        '2 份',
+      ], reason: 'a food logged is its own dish: only how much of it');
+      expect(mealContentsOf(meal('午餐', dishes: [dish('白飯'), dish('雞腿')])), [
+        '白飯、雞腿',
+      ]);
+      expect(mealContentsOf(meal('水')), isEmpty);
+    });
+
     test('every convention reads salt one way, against its own limit', () {
       for (final convention in NutritionConvention.values) {
         expect(convention.saltLimit(null), greaterThan(0));

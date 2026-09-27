@@ -1152,6 +1152,7 @@
   "qualityCustomFood": "사용자 음식",
   "qualityQuickLog": "빠른 기록",
   "qualityAiEstimate": "AI 추정",
+  "qualityAiEstimateBy": "{source} 추정",
   "scanFood": "음식",
   "scanFoodDetail": "영양 추정",
   "nutritionLabel": "영양성분표",

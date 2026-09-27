@@ -4050,6 +4050,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get qualityAiEstimate => 'AI推定';
 
   @override
+  String qualityAiEstimateBy({required String source}) {
+    return '$source 推定';
+  }
+
+  @override
   String get scanFood => '食べ物';
 
   @override

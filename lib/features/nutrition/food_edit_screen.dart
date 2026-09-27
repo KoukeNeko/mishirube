@@ -58,8 +58,8 @@ class FoodEditScreen extends StatefulWidget {
   /// A logged meal being corrected: its time and sitting join the form,
   /// and a food's own parts (brand, serving, sizes, the label's basis)
   /// leave it, since a record keeps what was eaten, not a food. Saving
-  /// confirms the figures, so an estimate stops being one. Pops `true`
-  /// when the meal was deleted.
+  /// confirms the figures, so an estimate stops being one. Deleting it is
+  /// the meal page's.
   final MealEvent? meal;
 
   /// An item of an AI draft being checked before it is logged: like a
@@ -95,9 +95,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         '',
   );
 
-  /// A draft item's amount, in the model's words: `約 180 g`.
-  late final _draftAmount = TextEditingController(
-    text: widget.draftItem?.amount ?? '',
+  /// How much was eaten, in words: a draft item's `約 180 g`, which a
+  /// meal logged from it keeps.
+  late final _amountInWords = TextEditingController(
+    text: widget.draftItem?.amount ?? widget.meal?.amount ?? '',
   );
   late final _servingAmount = TextEditingController(
     text: formatAmount(widget.editing?.servingAmount ?? 1),
@@ -218,6 +219,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _name,
       _sizeName,
       _brand,
+      _amountInWords,
       _servingAmount,
       _kcal,
       _protein,
@@ -610,6 +612,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         groupId: meal.groupId,
         labelCountry: meal.labelCountry,
         brand: _brand.text.trim(),
+        amount: _amountInWords.text.trim(),
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
         kcal: whole(_kcal),
@@ -644,7 +647,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     Navigator.of(context).pop(
       DraftItem(
         name: _name.text.trim(),
-        amount: _draftAmount.text.trim(),
+        amount: _amountInWords.text.trim(),
         kcal: whole(_kcal),
         proteinGrams: whole(_protein),
         carbGrams: whole(_carb),
@@ -653,17 +656,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         nutrients: _typedNutrients(),
         isDrink: _kind == ConsumptionKind.beverage,
       ),
-    );
-  }
-
-  /// A tombstone, taken back from the toast, as a workout's delete is.
-  void _deleteMeal(MealEvent meal) {
-    final toast = ToastScope.read(context);
-    _nutrition.deleteMeals([meal]);
-    Navigator.of(context).pop(true);
-    toast.showUndo(
-      context.l10n.deletedNamed(name: meal.name),
-      onUndo: () => _nutrition.restoreMeals([meal]),
     );
   }
 
@@ -976,11 +968,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               controller: _millilitres,
             ),
           ),
-        if (draftItem != null) ...[
+        if (draftItem != null || (meal?.amount.isNotEmpty ?? false)) ...[
           Gutter(child: SectionLabel(context.l10n.portionSection)),
           Gutter(
             child: AppTextField(
-              controller: _draftAmount,
+              controller: _amountInWords,
               hint: context.l10n.portionHint,
             ),
           ),
@@ -1109,18 +1101,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         if (_error case final error?)
           Gutter(
             child: InfoBanner(tone: CardTone.warning, message: error),
-          ),
-        if (meal != null)
-          Gutter(
-            child: GroupedCard(
-              children: [
-                NavRow(
-                  title: context.l10n.deleteThisMeal,
-                  isDestructive: true,
-                  onTap: () => _deleteMeal(meal),
-                ),
-              ],
-            ),
           ),
       ],
     );

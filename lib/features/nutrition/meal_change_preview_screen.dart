@@ -172,7 +172,7 @@ class _Items extends StatelessWidget {
       for (final item in items)
         NavRow(
           title: item.name,
-          subtitle: item.timeLabel,
+          subtitle: [item.timeLabel, ...mealContentsOf(item)].join(' · '),
           trailing: Text(
             '${formatKcalOrDash(item.kcal)} kcal',
             style: AppTextStyles.caption,

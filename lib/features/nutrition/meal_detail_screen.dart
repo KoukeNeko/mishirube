@@ -7,12 +7,15 @@ import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../me/ai_draft_parts.dart';
+import '../me/ai_settings_screen.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
 
 /// One logged meal as it was: what it came to and what it held. Changing
-/// it is the pencil's, which opens the same form foods are added with.
+/// it is the pencil's, which opens the same form foods are added with;
+/// the bin deletes it.
 class MealDetailScreen extends StatefulWidget {
   const MealDetailScreen({super.key, required this.meal});
 
@@ -33,10 +36,34 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     super.dispose();
   }
 
-  /// The form closes itself; a meal deleted there takes this page with it.
-  Future<void> _edit(MealEvent meal) async {
-    final deleted = await pushPage<bool>(context, FoodEditScreen(meal: meal));
-    if (deleted == true && mounted) Navigator.of(context).pop();
+  void _edit(MealEvent meal) => pushPage(context, FoodEditScreen(meal: meal));
+
+  /// A tombstone once confirmed, taken back from the toast; the page goes
+  /// with it.
+  Future<void> _delete(MealEvent meal) async {
+    final confirmed = await showAppDialog<bool>(
+      context,
+      AppDialog(
+        title: context.l10n.deleteNamedTitle(name: meal.name),
+        actions: [
+          DialogAction(
+            label: context.l10n.deleteThisMeal,
+            tone: DialogTone.destructive,
+            onTap: () => Navigator.of(context).pop(true),
+          ),
+          DialogAction(
+            label: context.l10n.commonCancel,
+            onTap: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final toast = ToastScope.read(context);
+    final message = context.l10n.deletedNamed(name: meal.name);
+    _nutrition.deleteMeals([meal]);
+    Navigator.of(context).pop();
+    toast.showUndo(message, onUndo: () => _nutrition.restoreMeals([meal]));
   }
 
   @override
@@ -51,15 +78,22 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: meal.name,
-        subtitle: eatenAt == null
-            ? meal.timeLabel
-            : '${context.dates.dayWithWeekday(eatenAt)} · ${meal.timeLabel}',
+        // How much goes by the time, as it does in the day's list.
+        subtitle: [
+          if (eatenAt != null) context.dates.dayWithWeekday(eatenAt),
+          meal.timeLabel,
+          if (meal.amount.isNotEmpty) meal.amount,
+        ].join(' · '),
         actions: [
           HeaderAction(
             icon: Icons.edit_outlined,
-            label: context.l10n.commonEdit,
             semanticLabel: context.l10n.editThisMeal,
             onTap: () => _edit(meal),
+          ),
+          HeaderAction(
+            icon: Icons.delete_outline,
+            semanticLabel: context.l10n.deleteThisMeal,
+            onTap: () => _delete(meal),
           ),
         ],
       ),
@@ -125,6 +159,11 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               ),
             ],
           ),
+        ?mealQualityTag(
+          context,
+          meal,
+          draftedBy: _nutrition.draftedBy(meal.id),
+        ),
       ],
     );
   }
@@ -162,10 +201,6 @@ class MealSummaryCard extends StatelessWidget {
           Text(details.join(' · '), style: AppTextStyles.caption),
         const SizedBox(height: AppSpacing.md),
         _Macros(meal: meal, convention: convention),
-        if (meal.qualityTag.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          TagWrap(labels: [qualityTagLabel(context.l10n, meal.qualityTag)]),
-        ],
       ],
     ),
   );
@@ -322,6 +357,38 @@ class _MacroColumn extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+/// Where [meal]'s figures came from, last on its page: an AI's estimate
+/// names the AI that [draftedBy] it, `Ollama Cloud / gemma4:31b 估計`,
+/// and opens the AI's settings. Null when nobody said.
+Widget? mealQualityTag(
+  BuildContext context,
+  MealEvent meal, {
+  (AiProviderKind, String)? draftedBy,
+}) {
+  if (meal.qualityTag.isEmpty) return null;
+  final l10n = context.l10n;
+  final estimate = switch (draftedBy) {
+    (final provider, final model) when meal.qualityTag == aiDraftQualityTag =>
+      l10n.qualityAiEstimateBy(source: aiLabel(l10n, provider, model)),
+    _ => null,
+  };
+  return Gutter(
+    child: estimate == null
+        ? TagWrap(labels: [qualityTagLabel(l10n, meal.qualityTag)])
+        : Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ChipButton(
+              label: estimate,
+              semanticLabel: [
+                estimate,
+                l10n.openAiSettings(me: l10n.tabMe),
+              ].join(' · '),
+              onTap: () => pushPage(context, const AiSettingsScreen()),
+            ),
+          ),
   );
 }
 

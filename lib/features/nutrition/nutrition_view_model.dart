@@ -143,6 +143,9 @@ class NutritionViewModel extends ViewModel {
 
   DateTime? eatenAtOf(String id) => backend.nutrition.eatenAtOf(id);
 
+  (AiProviderKind, String)? draftedBy(String id) =>
+      backend.nutrition.draftedBy(id);
+
   /// Moves [meal] to [eatenAt]; an item of a group moves its whole meal.
   void retimeMeal(MealEvent meal, DateTime eatenAt) =>
       backend.nutrition.retimeMeal(meal, eatenAt);

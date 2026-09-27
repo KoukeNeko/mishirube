@@ -6160,6 +6160,15 @@
   "@qualityAiEstimate": {
     "description": "Logged from an AI draft."
   },
+  "qualityAiEstimateBy": "{source} 估計",
+  "@qualityAiEstimateBy": {
+    "description": "Logged from an AI draft, naming which AI and model: `Ollama Cloud / gemma4:31b 估計`.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
   "scanFood": "食物",
   "@scanFood": {
     "description": "Scan choice and camera title."

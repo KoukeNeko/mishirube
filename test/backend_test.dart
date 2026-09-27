@@ -1376,7 +1376,7 @@ void main() {
         ) as Map<String, dynamic>,
       );
       final pilkul = parsed.firstWhere(
-        (food) => food.name == '日清ヨーク　ピルクル４００鉄分　４５５ｍｌ',
+        (food) => food.name == '日清ヨーク ピルクル400鉄分 455ml',
       );
       expect(pilkul.country, 'JP');
       expect(pilkul.brandLabelIn(testL10n), 'セブン‐イレブン（日本）');
@@ -1390,10 +1390,30 @@ void main() {
         reason: 'printed as a range, 36～106 μg',
       );
       final yogurt = parsed.firstWhere(
-        (food) => food.name == '７プレミアム　のむヨーグルト　いちご　１９０ｇ',
+        (food) => food.name == '7プレミアム のむヨーグルト いちご 190g',
       );
       expect(yogurt.nutrients[Nutrient.netCarb], 23.6);
       expect(yogurt.servingUnit, ServingUnit.serving, reason: 'no basis given');
+    });
+
+    test('a note printed in a name is kept apart from it', () {
+      final parsed = parseCatalogue(
+        jsonDecode(
+          File('assets/catalogue/7eleven-bread-jp.json').readAsStringSync(),
+        ) as Map<String, dynamic>,
+      );
+      final bread = parsed.firstWhere(
+        (food) => food.name == 'ソースが決めての焼きそばパン（マヨネーズ入り）',
+      );
+      expect(bread.note, '首都圏のみ');
+      expect(catalogueNameAndNote('バナナジュース\u3000※一部店舗限定'), (
+        'バナナジュース',
+        '一部店舗限定',
+      ));
+      expect(catalogueNameAndNote('茶裏王 日式綠茶（無糖）'), (
+        '茶裏王 日式綠茶（無糖）',
+        '',
+      ), reason: 'full-width brackets are the language, not width');
     });
 
     test('a label per 100 mL stays per 100 mL', () {
@@ -1403,7 +1423,7 @@ void main() {
         ) as Map<String, dynamic>,
       );
       final aquarius = drinks.firstWhere(
-        (food) => food.name == 'コカ・コーラ　アクエリアス　950ml',
+        (food) => food.name == 'コカ・コーラ アクエリアス 950ml',
       );
       expect(aquarius.servingAmount, 100, reason: '栄養成分表示 100ml当たり');
       expect(aquarius.kcal, 19);
@@ -2304,62 +2324,24 @@ void main() {
       expect(mealsOf(nutrition.mealsOn(noon)).single, hasLength(2));
     });
 
-    test('meals merged before groups come back as their items', () {
-      final path = '${directory.path}/store.sqlite3';
-      final noon = DateTime(2026, 9, 19, 12, 10);
-      var backend = openFile();
-      final parts = [
-        for (final (name, kcal) in [('白飯', 280), ('紅茶', 90)])
-          backend.nutrition.logMeal(
-            MealEvent(
-              id: name,
-              name: name,
-              timeLabel: '12:10',
-              qualityTag: '手動',
-              dishes: const [],
-              kcal: kcal,
-            ),
-            eatenAt: noon,
-          ),
-      ];
-      // What a merge used to write: one meal holding the sum, the parts
-      // tombstoned, and their ids in its audit trail.
-      backend.nutrition.deleteMeals([for (final part in parts) part.id]);
-      backend.storage.meals.insert(
-        const MealEvent(
-          id: 'merged',
-          name: '白飯、紅茶',
-          timeLabel: '12:10',
-          qualityTag: '合併',
-          dishes: [],
-          kcal: 370,
-          mealType: MealType.lunch,
-        ),
-        eatenAt: noon.add(const Duration(hours: 1)),
-        auditPayload: {
-          'mergedFrom': ['白飯', '紅茶'],
-        },
-      );
-      backend.close();
-      // Back to before groups, their names and meals' label countries
-      // and brands.
-      final raw = sqlite3.open(path)
-        ..execute('ALTER TABLE meals DROP COLUMN brand')
-        ..execute('ALTER TABLE meals DROP COLUMN label_country')
-        ..execute('DROP TABLE meal_groups')
-        ..execute('ALTER TABLE meals DROP COLUMN group_id')
-        ..userVersion = latestSchemaVersion - 4;
-      raw.close();
-
-      backend = openFile();
+    test('a drafted amount reads beside the time in the day', () {
+      final backend = openFile();
       addTearDown(backend.close);
-      final meal = mealsOf(backend.nutrition.mealsOn(noon)).single;
-      expect(meal.map((item) => item.id), ['白飯', '紅茶']);
-      expect(mealKcalOf(meal), 370);
-      expect(meal.map((item) => item.timeLabel).toSet(), {
-        '13:10',
-      }, reason: 'when the merged meal said it was eaten');
-      expect(meal.map((item) => item.mealType).toSet(), {MealType.lunch});
+      const salad = DraftItem(name: '總匯沙拉', amount: '180 g', kcal: 178);
+      backend.nutrition.logDraft(
+        const MealDraft(
+          items: [salad],
+          provider: AiProviderKind.ollamaCloud,
+          model: 'm',
+        ),
+        [salad],
+      );
+
+      final entry = backend.timeline
+          .day(backend.db.now())
+          .singleWhere((entry) => entry.title == '總匯沙拉');
+      expect(entry.detail, '180 g', reason: 'not part of the name any more');
+      expect(entry.tags, ['178 kcal'], reason: 'AI 估計 is for its page');
     });
 
     test('a draft item keeps every nutrient when logged', () {

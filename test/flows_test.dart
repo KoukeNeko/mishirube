@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/me/references_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
@@ -645,6 +646,58 @@ void main() {
     await tester.pumpAndSettle();
     expect(store.showsDemo, isTrue);
     expect(store.demoRecordCounts, isNotEmpty);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a drafted amount reads beside the time, not in the name', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    const salad = DraftItem(name: '總匯沙拉', amount: '180 g', kcal: 178);
+    final logged = store.backend.nutrition.logDraft(
+      const MealDraft(
+        items: [salad],
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      ),
+      [salad],
+    ).single;
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    await tester.dragUntilVisible(
+      find.text('總匯沙拉'),
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+
+    expect(find.text('總匯沙拉'), findsOneWidget);
+    expect(find.text('${logged.timeLabel} · 180 g'), findsOneWidget);
+    expect(find.text('AI 估計'), findsNothing, reason: 'only on its page');
+
+    await tester.tap(find.text('總匯沙拉'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('· ${logged.timeLabel} · 180 g'),
+      findsOneWidget,
+      reason: "the meal's page says it by the time too",
+    );
+    expect(
+      find.descendant(
+        of: find.byType(MealSummaryCard),
+        matching: find.textContaining('估計'),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.text('Ollama Cloud / m 估計'),
+      findsOneWidget,
+      reason: 'last on the page, naming the AI that drafted it',
+    );
+
+    await tester.ensureVisible(find.text('Ollama Cloud / m 估計'));
+    await tester.tap(find.text('Ollama Cloud / m 估計'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AiSettingsScreen), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -2761,7 +2814,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a logged meal is deleted from its editor, undoably', (
+  testWidgets('a logged meal is deleted from its page, undoably', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -2779,29 +2832,19 @@ void main() {
       eatenAt: store.now(),
     );
     final before = nutrition.mealsOn(store.now()).length;
-    await _openFromHost(tester, FoodEditScreen(meal: meal), store);
+    await _openFromHost(tester, MealDetailScreen(meal: meal), store);
+    expect(find.text('編輯'), findsNothing, reason: 'the pencil alone');
 
-    await tester.scrollUntilVisible(
-      find.text('刪除這一餐'),
-      200,
-      scrollable: find
-          .descendant(
-            of: find.byType(FoodEditScreen),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    // Clear of the footer's 儲存, which sits over the bottom edge.
-    await Scrollable.ensureVisible(
-      tester.element(find.text('刪除這一餐')),
-      alignment: 0.5,
-    );
+    await tester.tap(find.bySemanticsLabel('刪除這一餐'));
     await tester.pumpAndSettle();
+    expect(find.text('刪除「吐司」？'), findsOneWidget);
+    expect(nutrition.mealsOn(store.now()), hasLength(before), reason: 'asks');
     await tester.tap(find.text('刪除這一餐'));
     // Not settled: the undo's countdown would run out.
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(nutrition.mealsOn(store.now()), hasLength(before - 1));
+    expect(find.byType(MealDetailScreen), findsNothing, reason: 'it left');
 
     await tester.tap(find.text('復原'));
     await tester.pump();

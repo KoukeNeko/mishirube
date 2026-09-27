@@ -7072,6 +7072,12 @@ abstract class AppLocalizations {
   /// **'AI 估計'**
   String get qualityAiEstimate;
 
+  /// Logged from an AI draft, naming which AI and model: `Ollama Cloud / gemma4:31b 估計`.
+  ///
+  /// In zh, this message translates to:
+  /// **'{source} 估計'**
+  String qualityAiEstimateBy({required String source});
+
   /// Scan choice and camera title.
   ///
   /// In zh, this message translates to:

@@ -43,14 +43,13 @@ class FoodRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final source = [
       if (food.brand.isNotEmpty) food.brandLabelIn(context.l10n),
+      if (food.note.isNotEmpty) food.note,
       if (food.isBuiltIn) context.l10n.foodOfficialData,
     ].join(' · ');
     return Semantics(
       selected: isOnPlate,
       child: NavCard(
-        title: food.sizeName.isEmpty
-            ? food.name
-            : '${food.name} ${food.sizeName}',
+        title: food.nameWithSize,
         subtitle: [if (source.isNotEmpty) source, adds].join('\n'),
         onTap: onTap,
         trailing: switch (onQuickAdd) {

@@ -26,7 +26,9 @@ import 'storage/timeline_query.dart';
 import 'storage/workout_repository.dart';
 import '../l10n/l10n.dart';
 
-const _databaseFileName = 'mishirube.sqlite3';
+/// Not `mishirube.sqlite3`: that name is the store from before the schema
+/// restarted, which this app must never open as its own.
+const _databaseFileName = 'mishirube-v2.sqlite3';
 
 /// The SQLite store and the repositories over it. Screens go through the
 /// services on [Backend] instead; this layer serves the backend itself,

@@ -1152,6 +1152,7 @@
   "qualityCustomFood": "Custom food",
   "qualityQuickLog": "Quick log",
   "qualityAiEstimate": "AI estimate",
+  "qualityAiEstimateBy": "{source} estimate",
   "scanFood": "Food",
   "scanFoodDetail": "Estimate nutrition",
   "nutritionLabel": "Nutrition label",

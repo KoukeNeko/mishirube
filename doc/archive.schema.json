@@ -605,6 +605,7 @@
               "searchTerms",
               "isCupCapacity",
               "series",
+              "note",
               "country",
               "caffeineBasis",
               "createdAt",
@@ -693,6 +694,9 @@
                 "type": "boolean"
               },
               "series": {
+                "type": "string"
+              },
+              "note": {
                 "type": "string"
               },
               "country": {
@@ -820,6 +824,7 @@
             "required": [
               "id",
               "name",
+              "amount",
               "eatenAt",
               "consumptionKind",
               "valueType",
@@ -838,6 +843,9 @@
                 "type": "string"
               },
               "name": {
+                "type": "string"
+              },
+              "amount": {
                 "type": "string"
               },
               "eatenAt": {

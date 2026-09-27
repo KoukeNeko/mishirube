@@ -69,10 +69,15 @@ class MealEvent {
     this.groupId,
     this.labelCountry = '',
     this.brand = '',
+    this.amount = '',
   });
 
   final String id;
   final String name;
+
+  /// How much was eaten, in words, when that is not a food's servings:
+  /// an AI draft's `180 g`. Empty when nobody said.
+  final String amount;
   final String timeLabel;
 
   /// The saved food this was logged from, and how many of its servings,
@@ -164,12 +169,14 @@ class MealEvent {
     NutrientValueType? valueType,
     String? Function()? groupId,
     String? brand,
+    String? amount,
   }) => MealEvent(
     foodId: foodId,
     servings: servings,
     groupId: groupId == null ? this.groupId : groupId(),
     labelCountry: labelCountry,
     brand: brand ?? this.brand,
+    amount: amount ?? this.amount,
     id: id ?? this.id,
     name: name ?? this.name,
     timeLabel: timeLabel ?? this.timeLabel,
@@ -334,6 +341,7 @@ class FoodItem {
     this.searchTerms = '',
     this.isCupCapacity = false,
     this.series = '',
+    this.note = '',
     this.country = '',
     this.caffeineBasis = CaffeineBasis.serving,
     this.allergens,
@@ -350,6 +358,10 @@ class FoodItem {
   /// The maker's own line the food belongs to, when it names one:
   /// 7-ELEVEN sells CITY CAFE and CITY TEA, and both have a 拿鐵.
   final String series;
+
+  /// What the maker says about it beside its name, which is not part of
+  /// the name: `一部店舗限定`, `首都圏のみ`. Empty when nothing.
+  final String note;
 
   /// Where the maker sells it, as an ISO 3166-1 code (`TW`, `JP`): the
   /// same chain prints different figures for the same drink in each
@@ -434,6 +446,10 @@ class FoodItem {
 
   bool get isSize => parentId != null;
 
+  /// Its name and, for a cup size, which size: `美式咖啡 Tall`. What a
+  /// food is called where its maker is shown apart from it.
+  String get nameWithSize => sizeName.isEmpty ? name : '$name $sizeName';
+
   /// `統一 雞胸肉` when it has a maker, otherwise just the name. A size
   /// says which one it is: `星巴克 美式咖啡 Tall`, and a line which it
   /// belongs to: `7-ELEVEN CITY CAFE 拿鐵咖啡`.
@@ -469,6 +485,7 @@ class FoodItem {
     String? searchTerms,
     bool? isCupCapacity,
     String? series,
+    String? note,
     String? country,
     CaffeineBasis? caffeineBasis,
     Set<Allergen>? allergens,
@@ -477,6 +494,7 @@ class FoodItem {
     allergens: allergens ?? this.allergens,
     barcode: barcode ?? this.barcode,
     series: series ?? this.series,
+    note: note ?? this.note,
     country: country ?? this.country,
     caffeineBasis: caffeineBasis ?? this.caffeineBasis,
     searchTerms: searchTerms ?? this.searchTerms,

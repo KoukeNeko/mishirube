@@ -100,6 +100,29 @@ List<List<MealEvent>> mealsOf(Iterable<MealEvent> records) {
 String mealNameOf(List<MealEvent> items, {String? groupName}) =>
     groupName ?? items.map((item) => item.name).join('、');
 
+/// What a row under [meal]'s name says was eaten, for a row that does not
+/// list the meal's dishes itself: how much, then what it was made of —
+/// `180 g`, `白飯、雞腿`. A meal logged from a food is its one dish, named
+/// as the meal is, so that dish says only how much: `2 份`.
+List<String> mealContentsOf(MealEvent meal) {
+  final itself = [
+    for (final dish in meal.dishes)
+      if (dish.name == meal.name) dish,
+  ];
+  final parts = [
+    for (final dish in meal.dishes)
+      if (dish.name != meal.name) dish.name,
+  ];
+  return [
+    if (meal.amount.isNotEmpty)
+      meal.amount
+    else
+      for (final dish in itself)
+        if (dish.quantityLabel.isNotEmpty) dish.quantityLabel,
+    if (parts.isNotEmpty) parts.join('、'),
+  ];
+}
+
 /// A meal's energy: its items' sum, or null when any item has none, so
 /// the meal is not shown as less than it was.
 int? mealKcalOf(List<MealEvent> meal) {

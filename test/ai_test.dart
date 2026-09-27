@@ -1227,7 +1227,8 @@ void main() {
           reason: 'only what was kept',
         );
         final tea = logged.single;
-        expect(tea.name, '冰奶茶（大杯）');
+        expect(tea.name, '冰奶茶', reason: 'the amount is kept apart');
+        expect(tea.amount, '大杯');
         expect(tea.isEstimated, isTrue);
         expect(tea.valueType, NutrientValueType.estimate);
         expect(tea.qualityTag, aiDraftQualityTag);
@@ -1281,7 +1282,8 @@ void main() {
       );
 
       expect(store.todayMeals, hasLength(before + 2));
-      expect(items.map((item) => item.name), ['白飯（一碗）', '味噌湯（一碗）']);
+      expect(items.map((item) => item.name), ['白飯', '味噌湯']);
+      expect(items.map((item) => item.amount), ['一碗', '一碗']);
       expect(
         items.map((item) => item.groupId).toSet(),
         hasLength(1),
@@ -1366,7 +1368,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(store.todayMeals, hasLength(before + 1));
-    expect(store.todayMeals.last.name, '蛋餅（兩份）');
+    expect(store.todayMeals.last.name, '蛋餅');
+    expect(store.todayMeals.last.amount, '兩份');
     expect(store.todayMeals.last.proteinGrams, 9);
     await disposeTree(tester);
   });

@@ -326,6 +326,9 @@ class NutritionService {
   /// When meal [id] was eaten.
   DateTime? eatenAtOf(String id) => _meals.eatenAtOf(id);
 
+  /// Which AI, and which of its models, drafted the meal [id].
+  (AiProviderKind, String)? draftedBy(String id) => _meals.draftedBy(id);
+
   /// Moves a meal to when it was really eaten, another day included; an
   /// item of a group moves the whole meal with it.
   void retimeMeal(MealEvent meal, DateTime eatenAt) => _db.transaction(() {
@@ -563,9 +566,8 @@ class NutritionService {
           () {
             final meal = MealEvent(
               id: _db.newId(),
-              name: item.amount.isEmpty
-                  ? item.name
-                  : '${item.name}（${item.amount}）',
+              name: item.name,
+              amount: item.amount,
               timeLabel: formatTimeOfDay(eatenAt),
               qualityTag: aiDraftQualityTag,
               dishes: const [],

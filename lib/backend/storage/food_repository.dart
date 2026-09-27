@@ -129,7 +129,8 @@ class FoodRepository {
           'carb_g = ?, fat_g = ?, fibre_g = ?, parent_id = ?, '
           'size_name = ?, consumption_kind = ?, value_type = ?, '
           'source_url = ?, checked_at = ?, search_terms = ?, '
-          'is_cup_capacity = ?, series = ?, country = ?, caffeine_basis = ?, '
+          'is_cup_capacity = ?, series = ?, note = ?, country = ?, '
+          'caffeine_basis = ?, '
           'allergens = ?, barcode = ?, '
           'deleted_at = NULL, updated_at = ?, revision = revision + 1 '
           'WHERE id = ?',
@@ -153,6 +154,7 @@ class FoodRepository {
             food.searchTerms,
             food.isCupCapacity ? 1 : 0,
             food.series,
+            food.note,
             food.country,
             food.caffeineBasis.name,
             _allergensColumn(food.allergens),
@@ -167,11 +169,10 @@ class FoodRepository {
           'serving_amount, serving_unit, kcal, protein_g, carb_g, fat_g, '
           'fibre_g, parent_id, size_name, consumption_kind, value_type, '
           'source_url, checked_at, search_terms, is_cup_capacity, series, '
-          'country, caffeine_basis, allergens, barcode, created_at, '
-          'updated_at, '
-          'source) '
+          'note, country, caffeine_basis, allergens, barcode, created_at, '
+          'updated_at, source) '
           'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-          '?, ?, ?, ?, ?, ?)',
+          '?, ?, ?, ?, ?, ?, ?)',
           [
             food.id,
             food.name,
@@ -193,6 +194,7 @@ class FoodRepository {
             food.searchTerms,
             food.isCupCapacity ? 1 : 0,
             food.series,
+            food.note,
             food.country,
             food.caffeineBasis.name,
             _allergensColumn(food.allergens),
@@ -321,6 +323,7 @@ class FoodRepository {
       searchTerms: row['search_terms']! as String,
       isCupCapacity: row['is_cup_capacity'] == 1,
       series: row['series']! as String,
+      note: row['note']! as String,
       country: row['country']! as String,
       caffeineBasis: CaffeineBasis.values.byName(
         row['caffeine_basis']! as String,

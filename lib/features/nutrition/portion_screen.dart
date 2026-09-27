@@ -329,12 +329,21 @@ class _PortionScreenState extends State<PortionScreen> {
     final portion = _portion;
     final type = food.valueType;
     final isStarred = _nutrition.isFavoriteFood(food.id);
-    return DetailPage(
-      appBar: PageAppBar(
-        title: food.displayName,
-        subtitle: context.l10n.oneServingIs(
+    final about = [
+      if (food.brand.isNotEmpty) food.brandLabelIn(context.l10n),
+      if (food.note.isNotEmpty) food.note,
+      // A serving that is only a serving would read `一份 = 一份`.
+      if (_isMeasured)
+        context.l10n.oneServingIs(
           serving: food.servingDescription(context.l10n),
         ),
+    ];
+    return DetailPage(
+      appBar: PageAppBar(
+        // The maker goes under the name, so a long one does not push the
+        // name itself out of the title.
+        title: food.nameWithSize,
+        subtitle: about.isEmpty ? null : about.join(' · '),
         // Food that ships with the app is read-only: the next release
         // replaces it, so an edit here would not survive.
         actions: [

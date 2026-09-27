@@ -1152,6 +1152,7 @@
   "qualityCustomFood": "自定义食物",
   "qualityQuickLog": "快速记录",
   "qualityAiEstimate": "AI 估计",
+  "qualityAiEstimateBy": "{source} 估计",
   "scanFood": "食物",
   "scanFoodDetail": "估算营养",
   "nutritionLabel": "营养成分表",

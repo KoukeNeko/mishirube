@@ -92,6 +92,9 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
             !convention.foldedAway.contains(nutrient.nutrient))
           nutrient,
     ];
+    // One draft's items were all drafted by the same AI.
+    final drafters = {for (final item in items) _nutrition.draftedBy(item.id)};
+    final draftedBy = drafters.length == 1 ? drafters.single : null;
     return DetailPage(
       appBar: PageAppBar(
         title: total.name,
@@ -139,6 +142,10 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
                   for (final item in items)
                     NavRow(
                       title: item.name,
+                      subtitle: switch (mealContentsOf(item)) {
+                        [] => null,
+                        final contents => contents.join(' · '),
+                      },
                       trailing: Text(
                         '${formatKcalOrDash(item.kcal)} kcal',
                         style: AppTextStyles.caption,
@@ -152,6 +159,7 @@ class _MealGroupScreenState extends State<MealGroupScreen> {
             ),
           ],
         ),
+        ?mealQualityTag(context, total, draftedBy: draftedBy),
         Gutter(
           child: GroupedCard(
             children: [

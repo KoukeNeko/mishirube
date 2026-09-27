@@ -1152,6 +1152,7 @@
   "qualityCustomFood": "カスタム食品",
   "qualityQuickLog": "クイック記録",
   "qualityAiEstimate": "AI推定",
+  "qualityAiEstimateBy": "{source} 推定",
   "scanFood": "食べ物",
   "scanFoodDetail": "栄養を推定",
   "nutritionLabel": "栄養成分表示",

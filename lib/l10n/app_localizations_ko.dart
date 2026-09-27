@@ -4051,6 +4051,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get qualityAiEstimate => 'AI 추정';
 
   @override
+  String qualityAiEstimateBy({required String source}) {
+    return '$source 추정';
+  }
+
+  @override
   String get scanFood => '음식';
 
   @override

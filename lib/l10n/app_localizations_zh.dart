@@ -4043,6 +4043,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qualityAiEstimate => 'AI 估計';
 
   @override
+  String qualityAiEstimateBy({required String source}) {
+    return '$source 估計';
+  }
+
+  @override
   String get scanFood => '食物';
 
   @override
@@ -9659,6 +9664,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get qualityAiEstimate => 'AI 估计';
+
+  @override
+  String qualityAiEstimateBy({required String source}) {
+    return '$source 估计';
+  }
 
   @override
   String get scanFood => '食物';

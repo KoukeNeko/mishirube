@@ -291,6 +291,23 @@ class MealRepository {
       ),
   ];
 
+  /// Which AI, and which of its models, drafted [mealId], as the audit
+  /// trail kept them when it was logged; null for a meal no draft logged.
+  (AiProviderKind, String)? draftedBy(String mealId) {
+    final rows = _db.select(
+      "SELECT json_extract(payload, '\$.provider') AS provider, "
+      "json_extract(payload, '\$.model') AS model FROM audit_events "
+      "WHERE entity_type = 'meal' AND entity_id = ? AND action = 'create' "
+      'AND source = ? AND json_valid(payload)',
+      [mealId, ChangeSource.aiDraft.name],
+    );
+    if (rows.isEmpty) return null;
+    final provider = AiProviderKind.values.asNameMap()[rows.first['provider']];
+    final model = rows.first['model'];
+    if (provider == null || model is! String) return null;
+    return (provider, model);
+  }
+
   bool exists(String id) =>
       _db.select('SELECT 1 FROM meals WHERE id = ?', [id]).isNotEmpty;
 
@@ -309,9 +326,9 @@ class MealRepository {
         'fat_g, fibre_g, millilitres, consumption_kind, meal_type, '
         'value_type, quality_tag, is_estimated, created_at, updated_at, '
         'source, import_batch_id, local_day, utc_offset_minutes, food_id, '
-        'servings, group_id, label_country, brand) '
+        'servings, group_id, label_country, brand, amount) '
         'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '
-        '?, ?, ?, ?, ?)',
+        '?, ?, ?, ?, ?, ?)',
         [
           meal.id,
           meal.name,
@@ -338,6 +355,7 @@ class MealRepository {
           meal.groupId,
           meal.labelCountry,
           meal.brand,
+          meal.amount,
         ],
       );
       _writeDishes(meal);
@@ -361,7 +379,8 @@ class MealRepository {
       _db.execute(
         'UPDATE meals SET name = ?, kcal = ?, protein_g = ?, carb_g = ?, '
         'fat_g = ?, fibre_g = ?, millilitres = ?, is_estimated = ?, '
-        'quality_tag = ?, meal_type = ?, brand = ?, updated_at = ?, '
+        'quality_tag = ?, meal_type = ?, brand = ?, amount = ?, '
+        'updated_at = ?, '
         'revision = revision + 1 WHERE id = ?',
         [
           meal.name,
@@ -375,6 +394,7 @@ class MealRepository {
           meal.qualityTag,
           meal.mealType?.name,
           meal.brand,
+          meal.amount,
           _db.now().millisecondsSinceEpoch,
           meal.id,
         ],
@@ -397,6 +417,7 @@ class MealRepository {
             'millilitres': previous.millilitres,
             'meal_type': previous.mealType?.name,
             'brand': previous.brand,
+            'amount': previous.amount,
             'nutrients': {
               for (final MapEntry(key: nutrient, value: amount)
                   in previous.nutrients.entries)
@@ -508,6 +529,7 @@ class MealRepository {
       groupId: row['group_id'] as String?,
       labelCountry: row['label_country']! as String,
       brand: row['brand']! as String,
+      amount: row['amount']! as String,
       mealType: switch (row['meal_type'] as String?) {
         final name? => MealType.values.byName(name),
         null => null,
@@ -602,12 +624,9 @@ class MealTimelineSource extends TimelineSource {
         },
       ),
       detail: meal.length == 1
-          ? first.dishes.map((dish) => dish.name).join('、')
+          ? mealContentsOf(first).join(' · ')
           : l10n.itemsCount(count: meal.length),
-      tags: [
-        '${formatKcalOrDash(mealKcalOf(meal))} kcal',
-        if (meal.length == 1) first.qualityTag,
-      ],
+      tags: ['${formatKcalOrDash(mealKcalOf(meal))} kcal'],
     );
   }
 

@@ -140,6 +140,8 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
           _ => valueType,
         };
 
+        final (name, note) = catalogueNameAndNote(drink['name']! as String);
+
         FoodItem build({
           required String itemId,
           required String sizeName,
@@ -155,7 +157,8 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
           };
           return FoodItem(
             id: itemId,
-            name: drink['name']! as String,
+            name: name,
+            note: note,
             brand: brand,
             // A drink shop's lines (原茶, 奶茶) share one file.
             series: drink['series'] as String? ?? series,
@@ -232,6 +235,28 @@ List<FoodItem> parseCatalogue(Map<String, dynamic> file) {
         ];
       })(),
   ];
+}
+
+/// A published item name as the app shows it, and the note printed in
+/// it: `ソースが決めての焼きそばパン（マヨネーズ入り）※首都圏のみ` is
+/// the bread, noted `首都圏のみ`. Ideographic spaces and full-width
+/// letters and digits (`１８０ｇ`) read as ordinary ones; full-width
+/// brackets stay, being what the language writes.
+(String, String) catalogueNameAndNote(String published) {
+  final plain = published
+      .replaceAllMapped(
+        RegExp('[\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A]'),
+        (match) => String.fromCharCode(match[0]!.codeUnitAt(0) - 0xFEE0),
+      )
+      .replaceAll(RegExp('[\u3000 ]+'), ' ');
+  final [name, ...notes] = plain.split('※');
+  return (
+    name.trim(),
+    [
+      for (final note in notes)
+        if (note.trim().isNotEmpty) note.trim(),
+    ].join(' · '),
+  );
 }
 
 /// Energy is kept in whole kcal. A published ceiling of 15.4 rounds up,

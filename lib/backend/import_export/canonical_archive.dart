@@ -184,6 +184,7 @@ const _tables = [
     _Column('search_terms', _Kind.text),
     _Column('is_cup_capacity', _Kind.boolean),
     _Column('series', _Kind.text),
+    _Column('note', _Kind.text),
     _Column('country', _Kind.text),
     _Column('caffeine_basis', _Kind.text),
     _Column('allergens', _Kind.text, isNullable: true),
@@ -202,6 +203,7 @@ const _tables = [
   _Table('meals', 'meals', [
     _Column('id', _Kind.text),
     _Column('name', _Kind.text),
+    _Column('amount', _Kind.text),
     _Column('eaten_at', _Kind.time),
     _Column('kcal', _Kind.integer, isNullable: true),
     _Column('protein_g', _Kind.integer, isNullable: true),

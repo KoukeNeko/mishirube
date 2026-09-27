@@ -437,7 +437,13 @@ class _MealGroupCard extends StatelessWidget {
             onAction: () => onRemove(item),
             child: NavRow(
               title: item.name,
-              subtitle: _macrosOf(context.l10n, item, convention),
+              // What it was first, when there is anything to say.
+              subtitle: mealContentsOf(item).isEmpty
+                  ? _macrosOf(context.l10n, item, convention)
+                  : mealContentsOf(item).join(' · '),
+              detail: mealContentsOf(item).isEmpty
+                  ? null
+                  : _macrosOf(context.l10n, item, convention),
               trailing: Text(
                 '${formatKcalOrDash(item.kcal)} kcal',
                 style: AppTextStyles.caption,
@@ -505,7 +511,10 @@ class _MealCard extends StatelessWidget {
                       children: [
                         Text(meal.name, style: AppTextStyles.itemTitle),
                         Text(
-                          '${meal.timeLabel} · ${qualityTagLabel(context.l10n, meal.qualityTag)}',
+                          [
+                            meal.timeLabel,
+                            if (meal.amount.isNotEmpty) meal.amount,
+                          ].join(' · '),
                           style: AppTextStyles.caption,
                         ),
                       ],
@@ -570,16 +579,7 @@ class _DishRow extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(dish.name, style: AppTextStyles.itemTitle),
-                      Text(
-                        qualityTagLabel(context.l10n, dish.subtitle),
-                        style: AppTextStyles.caption,
-                      ),
-                    ],
-                  ),
+                  child: Text(dish.name, style: AppTextStyles.itemTitle),
                 ),
                 Text(
                   dish.quantityLabel,
