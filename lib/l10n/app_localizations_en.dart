@@ -5065,8 +5065,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyNotUsed => 'Not used';
 
   @override
-  String get privacyAppleIntelligence =>
-      'Runs on the device or on Apple\'s Private Cloud Compute';
+  String get privacyAppleIntelligence => 'Runs on the device';
 
   @override
   String get privacyCloudReceives => 'Cloud AI receives';

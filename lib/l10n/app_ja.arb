@@ -1427,7 +1427,7 @@
   "privacyKinds": "読み取る種類",
   "privacyDefault": "既定",
   "privacyNotUsed": "使用しない",
-  "privacyAppleIntelligence": "端末上またはAppleのPrivate Cloud Computeで実行",
+  "privacyAppleIntelligence": "端末上で実行",
   "privacyCloudReceives": "クラウドAIが受け取るもの",
   "privacyCloudReceivesValue": "入力した文字、写真から読み取った文字、推定用の食べ物の写真",
   "privacyFoodPhotos": "食べ物の写真",

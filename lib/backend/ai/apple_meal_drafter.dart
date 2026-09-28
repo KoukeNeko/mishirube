@@ -10,9 +10,8 @@ import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
 import 'workout_draft_json.dart';
 
-/// Apple Intelligence: Apple's server model on Private Cloud Compute, or
-/// the device's own when that cannot take a request, reached through a
-/// small channel to Swift
+/// Apple Intelligence's on-device model, reached through a small channel
+/// to Swift
 /// (`AppleIntelligence` in `ios/Runner/AppDelegate.swift`). There is no Flutter plugin
 /// from Apple, and the job is small enough not to hang it on a 0.x one.
 class AppleMealDrafter implements MealDrafter {

@@ -125,8 +125,8 @@ class AiService {
   final LabelReader labelReader;
 
   /// The chosen provider; until the user picks one, Apple Intelligence
-  /// when it is on, since it needs no key and what it is given stays
-  /// with Apple's own models; else null, and nothing is sent anywhere.
+  /// when it is on, since it needs no key and nothing it is given leaves
+  /// the device; else null, and nothing is sent anywhere.
   AiProviderKind? get provider => switch (_db.setting(_providerKey)) {
     final name? => AiProviderKind.values.asNameMap()[name],
     null => _isOnDeviceReady ? AiProviderKind.appleOnDevice : null,

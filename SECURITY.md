@@ -34,10 +34,9 @@ by Apple's and Google's terms, not by this app.
 ### AI providers
 
 - **Apple Intelligence** is used, without asking, when it is on and no
-  other provider is chosen. A request goes to Apple's Private Cloud
-  Compute when it is available, and to the on-device model otherwise.
-  Photos are handed over as pixels only, without location or capture
-  metadata.
+  other provider is chosen. It runs Apple's on-device model, so nothing
+  it is given leaves the device; photos are handed to it as pixels
+  only, without location or capture metadata.
 - **A cloud provider** (Ollama Cloud, Google AI Studio, Anthropic, Azure
   AI Foundry, an OpenAI-compatible address, Microsoft 365 Copilot) is
   off until chosen. The app asks for consent before the first text is

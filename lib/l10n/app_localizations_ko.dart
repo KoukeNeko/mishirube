@@ -5003,8 +5003,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get privacyNotUsed => '사용 안 함';
 
   @override
-  String get privacyAppleIntelligence =>
-      '기기 또는 Apple Private Cloud Compute에서 실행';
+  String get privacyAppleIntelligence => '기기에서 실행';
 
   @override
   String get privacyCloudReceives => '클라우드 AI가 받는 것';

@@ -5001,7 +5001,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get privacyNotUsed => '使用しない';
 
   @override
-  String get privacyAppleIntelligence => '端末上またはAppleのPrivate Cloud Computeで実行';
+  String get privacyAppleIntelligence => '端末上で実行';
 
   @override
   String get privacyCloudReceives => 'クラウドAIが受け取るもの';

@@ -17,9 +17,9 @@ read from Apple Health (iOS) or Health Connect (Android), and what the
 user logs in the app is written to it (`HealthExport`), never what came
 from it. AI is
 optional and only drafts or words figures the app already worked out:
-Apple Intelligence (Apple's server model on Private Cloud Compute,
-else the device's own), used without asking whenever it is on and
-nothing else was chosen, or a cloud provider
+Apple Intelligence's on-device model, used without asking whenever it
+is on and nothing else was chosen (Private Cloud Compute needs a
+managed entitlement the app does not have), or a cloud provider
 with the user's own key (Ollama Cloud, Google AI Studio, Anthropic,
 Azure AI Foundry, or any OpenAI-compatible address), or Microsoft 365
 Copilot signed in to, and nothing a model returns is logged

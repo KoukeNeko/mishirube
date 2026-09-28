@@ -7611,7 +7611,7 @@
   "@privacyNotUsed": {
     "description": "Privacy value."
   },
-  "privacyAppleIntelligence": "在裝置上或 Apple 私密雲端運算執行",
+  "privacyAppleIntelligence": "在裝置上執行",
   "@privacyAppleIntelligence": {
     "description": "Privacy value."
   },

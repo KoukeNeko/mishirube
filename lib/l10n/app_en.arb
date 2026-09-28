@@ -1427,7 +1427,7 @@
   "privacyKinds": "Kinds read",
   "privacyDefault": "Default",
   "privacyNotUsed": "Not used",
-  "privacyAppleIntelligence": "Runs on the device or on Apple's Private Cloud Compute",
+  "privacyAppleIntelligence": "Runs on the device",
   "privacyCloudReceives": "Cloud AI receives",
   "privacyCloudReceivesValue": "Typed text, text read from photos, food photos to estimate",
   "privacyFoodPhotos": "Food photos",

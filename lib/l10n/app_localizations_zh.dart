@@ -4995,7 +4995,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get privacyNotUsed => '不使用';
 
   @override
-  String get privacyAppleIntelligence => '在裝置上或 Apple 私密雲端運算執行';
+  String get privacyAppleIntelligence => '在裝置上執行';
 
   @override
   String get privacyCloudReceives => '雲端 AI 收到';
@@ -10612,7 +10612,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get privacyNotUsed => '不使用';
 
   @override
-  String get privacyAppleIntelligence => '在设备上或 Apple 私密云计算上运行';
+  String get privacyAppleIntelligence => '在设备上运行';
 
   @override
   String get privacyCloudReceives => '云端 AI 收到';
