@@ -7,6 +7,7 @@ import '../../backend/engines/caffeine.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
+import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import 'component_list.dart';
 import 'food_search_screen.dart';
@@ -182,42 +183,91 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     final nutrients = summariseNutrients(meals, convention: convention);
     NutrientTotal? total(Nutrient nutrient) =>
         nutrients.where((total) => total.nutrient == nutrient).firstOrNull;
-    // Each meal's share of what the day's meals add up to so far, in
-    // energy and in each daily indicator; a figure the meal did not
-    // record, or the day holds none of, has no share.
-    final eatenKcal = eaten.map(mealKcalOf).nonNulls.fold(0, (a, b) => a + b);
-    final eatenFibre = [
-      for (final meal in eaten)
-        for (final item in meal) ?item.fibreGrams,
-    ].fold(0, (a, b) => a + b);
-    List<(String, int)> sharesOf(List<MealEvent> meal) {
-      (String, int)? share(String label, num? part, num whole) =>
-          part == null || whole <= 0
-          ? null
-          : (label, (part * 100 / whole).round());
-      final fibres = [for (final item in meal) ?item.fibreGrams];
-      final own = summariseNutrients(meal, convention: convention);
-      num? amountOf(Nutrient nutrient) =>
-          own.where((total) => total.nutrient == nutrient).firstOrNull?.amount;
+    // Each meal's share of what the day's meals add up to so far, for
+    // each figure drawn as a bar above, in that bar's colour and order;
+    // a figure the meal did not record, or the day holds none of, has
+    // no share. Every meal has the same parts in the same places, so a
+    // figure reads down the list as one column.
+    final eatenDay = summariseDay([for (final meal in eaten) ...meal]);
+    List<_Share> sharesOf(List<MealEvent> meal) {
+      final own = summariseDay(meal);
+      _Share share(
+        String label,
+        Color color,
+        num part,
+        num whole,
+        int unseen,
+      ) => (
+        label: label,
+        color: color,
+        percent: switch (unseen == meal.length || whole <= 0
+            ? 0
+            : (part * 100 / whole).round()) {
+          // A share that rounds to nothing is left empty.
+          0 => null,
+          final percent => percent,
+        },
+      );
+      final salt = summariseNutrients(
+        meal,
+        convention: convention,
+      ).where((total) => total.nutrient == convention.saltMeasure).firstOrNull;
+      final l10n = context.l10n;
       return [
-        ?share(
-          convention.energyName(context.l10n),
-          mealKcalOf(meal),
-          eatenKcal,
+        share(
+          convention.energyName(l10n),
+          AppColors.nutrition,
+          own.kcal,
+          eatenDay.kcal,
+          own.mealsWithoutFigures,
         ),
-        ?share(
-          convention.fibreName(context.l10n),
-          fibres.isEmpty ? null : fibres.fold<int>(0, (a, b) => a + b),
-          eatenFibre,
+        convention.countsAvailableCarb
+            ? share(
+                convention.carbName(l10n),
+                AppColors.macroCarb,
+                own.availableCarbGrams,
+                eatenDay.availableCarbGrams,
+                own.mealsWithoutAvailableCarb,
+              )
+            : share(
+                convention.carbName(l10n),
+                AppColors.macroCarb,
+                own.carbGrams,
+                eatenDay.carbGrams,
+                own.mealsWithoutCarb,
+              ),
+        share(
+          convention.proteinName(l10n),
+          AppColors.macroProtein,
+          own.proteinGrams,
+          eatenDay.proteinGrams,
+          own.mealsWithoutProtein,
         ),
-        for (final nutrient in [convention.carbPart, convention.saltMeasure])
-          ?share(
-            convention.nameOf(context.l10n, nutrient),
-            amountOf(nutrient),
-            total(nutrient)?.amount ?? 0,
-          ),
+        share(
+          convention.fatName(l10n),
+          AppColors.macroFat,
+          own.fatGrams,
+          eatenDay.fatGrams,
+          own.mealsWithoutFat,
+        ),
+        share(
+          convention.fibreName(l10n),
+          AppColors.macroFibre,
+          own.fibreGrams,
+          eatenDay.fibreGrams,
+          own.mealsWithoutFibre,
+        ),
+        share(
+          convention.nameOf(l10n, convention.saltMeasure),
+          AppColors.body,
+          salt?.amount ?? 0,
+          total(convention.saltMeasure)?.amount ?? 0,
+          salt == null ? meal.length : 0,
+        ),
       ];
     }
+
+    final showsShare = _showsShare && eaten.length > 1;
 
     return PageScaffold(
       // Any day is a swipe away, the way a calendar's week header works.
@@ -309,7 +359,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               // A text action like 變更 above, naming what a tap does.
               trailing: eaten.length > 1
                   ? LinkText(
-                      label: _showsShare
+                      label: showsShare
                           ? context.l10n.mealShareHide
                           : context.l10n.mealShare,
                       color: AppColors.nutrition,
@@ -356,7 +406,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               child: meal.length == 1
                   ? _MealCard(
                       meal: meal.single,
-                      shares: _showsShare ? sharesOf(meal) : const [],
+                      shares: showsShare ? sharesOf(meal) : const [],
                       isExpanded: (dish) =>
                           _expanded.contains('${meal.single.id}/${dish.name}'),
                       onToggle: (dish) =>
@@ -365,7 +415,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     )
                   : _MealGroupCard(
                       items: meal,
-                      shares: _showsShare ? sharesOf(meal) : const [],
+                      shares: showsShare ? sharesOf(meal) : const [],
                       name: _nutrition.nameOfMeal(meal),
                       convention: convention,
                       onRemove: _removeItem,
@@ -420,53 +470,93 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   }
 }
 
-/// A meal's share of the day so far, a row for each figure it recorded:
-/// its name, a bar and the percent. The names and bars line up across
-/// the rows, however long a name reads at a large text size.
+/// One figure's share of the day that a meal holds, in the colour that
+/// figure's bar has above; null when it holds none.
+typedef _Share = ({String label, Color color, int? percent});
+
+/// A meal's shares of the day so far in one bar, drawn as the meal
+/// page's [SegmentBar]: a part for each figure, filled to the meal's
+/// share of it in the colour of that figure's bar above, which names it,
+/// with the percent at the part's end, clear of the fill until the
+/// share is large.
 class _MealShares extends StatelessWidget {
   const _MealShares({required this.shares});
 
-  final List<(String, int)> shares;
+  final List<_Share> shares;
+
+  static const _height = 20.0;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: AppSpacing.xs),
-    child: Table(
-      columnWidths: const {
-        0: IntrinsicColumnWidth(),
-        1: FlexColumnWidth(),
-        2: IntrinsicColumnWidth(),
-      },
-      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      children: [
-        for (final (label, percent) in shares)
-          TableRow(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: AppSpacing.sm,
-                  top: AppSpacing.xxs,
-                  bottom: AppSpacing.xxs,
+    padding: const EdgeInsets.only(top: AppSpacing.sm),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(_height),
+      child: SizedBox(
+        height: _height,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 2,
+          children: [
+            for (final share in shares)
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    const ColoredBox(color: AppColors.surfaceRaised),
+                    if (share.percent case final percent?) ...[
+                      FractionallySizedBox(
+                        alignment: AlignmentDirectional.centerStart,
+                        widthFactor: (percent / 100).clamp(0.0, 1.0),
+                        child: ColoredBox(color: share.color),
+                      ),
+                      Semantics(
+                        label: '${share.label} $percent%',
+                        excludeSemantics: true,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.xs,
+                          ),
+                          // Six parts share a card's width; a large text
+                          // size shrinks to fit rather than overflowing.
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Text(
+                              '$percent%',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                child: Text(label, style: AppTextStyles.caption),
               ),
-              ProgressLine(
-                progress: percent / 100,
-                color: AppColors.nutrition,
-                height: 6,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: AppSpacing.sm),
-                child: Text(
-                  '$percent%',
-                  style: AppTextStyles.caption,
-                  textAlign: TextAlign.end,
-                ),
-              ),
-            ],
-          ),
-      ],
+          ],
+        ),
+      ),
     ),
+  );
+}
+
+/// Where a meal card's share bar opens and closes, growing rather than
+/// jumping the cards below it.
+class _SharesSlot extends StatelessWidget {
+  const _SharesSlot({required this.shares});
+
+  /// Empty while shares are not shown.
+  final List<_Share> shares;
+
+  @override
+  Widget build(BuildContext context) => AnimatedSize(
+    duration: chromeDuration(context, const Duration(milliseconds: 200)),
+    curve: Curves.easeOut,
+    alignment: Alignment.topCenter,
+    child: shares.isEmpty
+        ? const SizedBox(width: double.infinity)
+        : _MealShares(shares: shares),
   );
 }
 
@@ -484,7 +574,7 @@ class _MealGroupCard extends StatelessWidget {
   final List<MealEvent> items;
 
   /// Its share of the day so far, per figure; empty when not shown.
-  final List<(String, int)> shares;
+  final List<_Share> shares;
   final String name;
   final NutritionConvention convention;
   final ValueChanged<MealEvent> onRemove;
@@ -499,34 +589,41 @@ class _MealGroupCard extends StatelessWidget {
           onTap: () => pushPage(context, MealGroupScreen(items: items)),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
+            child: Column(
               children: [
-                const AccentBar(color: AppColors.nutrition),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: AppTextStyles.itemTitle),
-                      Text(
-                        [
-                          first.timeLabel,
-                          ?first.mealType?.labelIn(context.l10n),
-                          context.l10n.itemsCountShort(count: items.length),
-                        ].join(' · '),
-                        style: AppTextStyles.caption,
+                Row(
+                  children: [
+                    const AccentBar(color: AppColors.nutrition),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name, style: AppTextStyles.itemTitle),
+                          Text(
+                            [
+                              first.timeLabel,
+                              ?first.mealType?.labelIn(context.l10n),
+                              context.l10n.itemsCountShort(count: items.length),
+                            ].join(' · '),
+                            style: AppTextStyles.caption,
+                          ),
+                        ],
                       ),
-                      if (shares.isNotEmpty) _MealShares(shares: shares),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    ValueWithUnit(
+                      value: formatKcalOrDash(mealKcalOf(items)),
+                      unit: 'kcal',
+                      style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: AppColors.textTertiary,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                ValueWithUnit(
-                  value: formatKcalOrDash(mealKcalOf(items)),
-                  unit: 'kcal',
-                  style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-                ),
-                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+                _SharesSlot(shares: shares),
               ],
             ),
           ),
@@ -587,7 +684,7 @@ class _MealCard extends StatelessWidget {
   final MealEvent meal;
 
   /// Its share of the day so far, per figure; empty when not shown.
-  final List<(String, int)> shares;
+  final List<_Share> shares;
   final bool Function(DishEntry dish) isExpanded;
   final ValueChanged<DishEntry> onToggle;
   final ValueChanged<int> onSplit;
@@ -606,38 +703,42 @@ class _MealCard extends StatelessWidget {
             onTap: () => pushPage(context, MealDetailScreen(meal: meal)),
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
+              child: Column(
                 children: [
-                  const AccentBar(color: AppColors.nutrition),
-                  const SizedBox(width: AppSpacing.sm),
-                  // The name takes the row and wraps; the time goes under
-                  // it so a long name is not squeezed into a column.
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(meal.name, style: AppTextStyles.itemTitle),
-                        Text(
-                          [
-                            meal.timeLabel,
-                            if (meal.amount.isNotEmpty) meal.amount,
-                          ].join(' · '),
-                          style: AppTextStyles.caption,
+                  Row(
+                    children: [
+                      const AccentBar(color: AppColors.nutrition),
+                      const SizedBox(width: AppSpacing.sm),
+                      // The name takes the row and wraps; the time goes under
+                      // it so a long name is not squeezed into a column.
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(meal.name, style: AppTextStyles.itemTitle),
+                            Text(
+                              [
+                                meal.timeLabel,
+                                if (meal.amount.isNotEmpty) meal.amount,
+                              ].join(' · '),
+                              style: AppTextStyles.caption,
+                            ),
+                          ],
                         ),
-                        if (shares.isNotEmpty) _MealShares(shares: shares),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      ValueWithUnit(
+                        value: formatKcalOrDash(meal.kcal),
+                        unit: 'kcal',
+                        style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: AppColors.textTertiary,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  ValueWithUnit(
-                    value: formatKcalOrDash(meal.kcal),
-                    unit: 'kcal',
-                    style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-                  ),
-                  const Icon(
-                    Icons.chevron_right,
-                    color: AppColors.textTertiary,
-                  ),
+                  _SharesSlot(shares: shares),
                 ],
               ),
             ),

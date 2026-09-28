@@ -31,6 +31,14 @@ void main() {
     );
   }
 
+  /// A part of a meal's share bar, by what a screen reader hears. The
+  /// row it sits in merges it into one node, so this looks at the part.
+  Finder shareLabelled(RegExp label) => find.byWidgetPredicate(
+    (widget) =>
+        widget is Semantics && label.hasMatch(widget.properties.label ?? ''),
+    skipOffstage: false,
+  );
+
   /// A drink with caffeine in it, the way task A3 asks for.
   FoodPortion coffee() => FoodPortion(
     FoodItem(
@@ -95,10 +103,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('佔比'));
     await tester.pumpAndSettle();
-    final energyShares = find.descendant(
-      of: find.byType(Table, skipOffstage: false),
-      matching: find.text('熱量', skipOffstage: false),
-    );
+    final energyShares = shareLabelled(RegExp(r'^熱量 \d+%$'));
     expect(
       energyShares,
       findsNWidgets(meals),
@@ -115,12 +120,14 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     final kcalBefore = store.todaySummary.kcal;
     final fibreBefore = store.todaySummary.fibreGrams;
+    final proteinBefore = store.todaySummary.proteinGrams;
     store.backend.nutrition.logPortion(
       FoodPortion(
         FoodItem(
           id: 'bento',
           name: '便當',
           kcal: 1440,
+          proteinGrams: 40,
           fibreGrams: 15,
           nutrients: const {Nutrient.sodium: 300},
         ),
@@ -134,10 +141,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     int percent(num part, num whole) => (part * 100 / whole).round();
-    Finder shareRow(String label) => find.descendant(
-      of: find.byType(Table, skipOffstage: false),
-      matching: find.text(label, skipOffstage: false),
-    );
+    // Each part of a meal's bar reads as its figure and the percent.
+    Finder shareRow(String label) => shareLabelled(RegExp('^$label \\d+%\$'));
+    Finder share(String label, int percent) =>
+        shareLabelled(RegExp('^$label $percent%\$'));
     expect(shareRow('熱量'), findsNothing, reason: 'shown only when asked');
 
     await tester.ensureVisible(find.text('佔比'));
@@ -148,28 +155,25 @@ void main() {
 
     final kcalTotal = kcalBefore + 1440;
     expect(shareRow('熱量'), findsNWidgets(2), reason: 'both meals');
-    expect(
-      find.text('${percent(1440, kcalTotal)}%', skipOffstage: false),
-      findsOneWidget,
-    );
-    expect(
-      find.text('${percent(kcalBefore, kcalTotal)}%', skipOffstage: false),
-      findsOneWidget,
-    );
+    expect(share('熱量', percent(1440, kcalTotal)), findsOneWidget);
+    expect(share('熱量', percent(kcalBefore, kcalTotal)), findsOneWidget);
     expect(
       shareRow('膳食纖維'),
       findsNWidgets(fibreBefore > 0 ? 2 : 1),
       reason: 'a meal without fibre recorded has no fibre share',
     );
+    expect(share('膳食纖維', percent(15, fibreBefore + 15)), findsOneWidget);
     expect(
-      find.text('${percent(15, fibreBefore + 15)}%', skipOffstage: false),
-      findsWidgets,
-    );
-    expect(
-      shareRow('鈉'),
+      share('蛋白質', percent(40, proteinBefore + 40)),
       findsOneWidget,
-      reason: 'only the bento recorded sodium',
+      reason: 'every figure with a bar above has its part, macros too',
     );
+    expect(
+      share('鈉', 100),
+      findsOneWidget,
+      reason: 'only the bento had sodium',
+    );
+    expect(shareRow('糖'), findsNothing, reason: 'no bar above to match');
     await disposeTree(tester);
   });
 
