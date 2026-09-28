@@ -385,13 +385,25 @@ class WorkoutTimelineSource extends TimelineSource {
         : DateTime.fromMillisecondsSinceEpoch(first as int);
   }
 
+  /// Each exercise looked up once for a month, not once per set: a lookup
+  /// reads the exercise's whole history.
+  ExerciseResolver _resolverForMonth() {
+    final known = <String, ExerciseDefinition>{};
+    return (id) => known[id] ??= _exercises.byId(id)!;
+  }
+
   @override
   List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) {
-    // One lookup per exercise per month, not per set.
-    final known = <String, ExerciseDefinition>{};
-    ExerciseDefinition resolve(String id) => known[id] ??= _exercises.byId(id)!;
+    // Each exercise's history read once for the month, not per workout.
+    final histories = <String, ExerciseHistory>{};
+    ExerciseHistory historyOf(String id) =>
+        histories[id] ??= _exercises.history(id);
     return [
-      for (final (_, offset, workout) in _completed(start, end, resolve))
+      for (final (_, offset, workout) in _completed(
+        start,
+        end,
+        _resolverForMonth(),
+      ))
         (
           asLived(workout.finishedAt!, offset),
           TimelineEntry(
@@ -405,7 +417,7 @@ class WorkoutTimelineSource extends TimelineSource {
               l10n.durationMinutes(
                 minutes: workout.elapsedAt(workout.finishedAt!).inMinutes,
               ),
-              ?_personalRecord(workout),
+              ?_personalRecord(workout, historyOf),
             ].join(' · '),
           ),
         ),
@@ -414,11 +426,7 @@ class WorkoutTimelineSource extends TimelineSource {
 
   @override
   Map<int, String> summariesIn(DateTime start, DateTime end) => {
-    for (final (day, _, workout) in _completed(
-      start,
-      end,
-      (id) => _exercises.byId(id)!,
-    ))
+    for (final (day, _, workout) in _completed(start, end, _resolverForMonth()))
       day % 100:
           '${workout.routineName} · '
           '${l10n.setsCount(count: workout.completedSets)}',
@@ -446,13 +454,15 @@ class WorkoutTimelineSource extends TimelineSource {
   ];
 
   /// The first record the workout set, in the words of its row.
-  String? _personalRecord(WorkoutSession workout) {
+  String? _personalRecord(
+    WorkoutSession workout,
+    ExerciseHistory Function(String exerciseId) historyOf,
+  ) {
     final review = reviewWorkout(
       workout,
       earlier: {
         for (final session in workout.exercises)
-          session.exercise.id: _exercises
-              .history(session.exercise.id)
+          session.exercise.id: historyOf(session.exercise.id)
               .before(workout.startedAt),
       },
     );
