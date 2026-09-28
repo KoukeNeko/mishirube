@@ -1414,7 +1414,7 @@
   "privacyScalePhotosValue": "기기에서 읽으며 전송하지 않음",
   "privacyHealthSection": "건강 데이터({platform})",
   "privacyPermission": "권한",
-  "privacyPermissionValue": "읽기만, 쓰지 않음",
+  "privacyPermissionValue": "읽기와 쓰기",
   "privacyReading": "읽기",
   "privacyReadingValue": "처음에는 전체, 이후 앱을 열 때 최근 30일",
   "privacyLeavesDevice": "기기 밖 전송",

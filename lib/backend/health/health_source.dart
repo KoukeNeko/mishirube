@@ -6,8 +6,43 @@ import '../../domain/domain.dart';
 import '../../l10n/app_localizations.dart';
 import '../storage/database.dart';
 
-/// A health platform the app reads from. Read only: nothing is written
-/// back.
+/// Where a record goes in a health platform.
+enum HealthWriteKind { weight, waist, body, sleep, workout, food, water, mood }
+
+/// One record for a health platform to hold, as it is now, or to remove.
+///
+/// The platform keeps it under [id], the app's own, and replaces what it
+/// holds under that id with a later [version], so writing a record again
+/// after an edit updates it rather than adding a second.
+class HealthWrite {
+  const HealthWrite({
+    required this.kind,
+    required this.id,
+    required this.version,
+    this.isDelete = false,
+    this.values = const {},
+  });
+
+  final HealthWriteKind kind;
+  final String id;
+  final int version;
+  final bool isDelete;
+
+  /// The record's figures, in the shapes the bridges read: times in
+  /// ms since the epoch, amounts in the app's units.
+  final Map<String, Object?> values;
+
+  Map<String, Object?> toMap() => {
+    'kind': kind.name,
+    'id': id,
+    'version': version,
+    'delete': isDelete,
+    ...values,
+  };
+}
+
+/// A health platform the app reads from, and writes what the user logs
+/// in the app to.
 abstract interface class HealthSource {
   /// What the user calls it: `Apple 健康`, `Health Connect`.
   String nameIn(AppLocalizations l10n);
@@ -25,9 +60,9 @@ abstract interface class HealthSource {
   /// Whether this device has the platform, ready to use.
   Future<bool> isAvailable();
 
-  /// Asks for read access. True when the request went through; neither
-  /// platform says which kinds were allowed, so an empty read afterwards
-  /// may also mean "not allowed".
+  /// Asks for access to read and write. True when the request went
+  /// through; neither platform says which kinds may be read, so an empty
+  /// read afterwards may also mean "not allowed".
   Future<bool> requestAccess(Set<HealthDataKind> kinds);
 
   /// The kinds the user allowed, or null when the platform will not
@@ -52,6 +87,13 @@ abstract interface class HealthSource {
   Future<List<HealthBodyReading>> bodyReadings(DateTime from, DateTime to);
   Future<List<HealthWorkout>> workouts(DateTime from, DateTime to);
   Future<List<HealthWater>> water(DateTime from, DateTime to);
+  Future<List<HealthFood>> foods(DateTime from, DateTime to);
+  Future<List<HealthMood>> moods(DateTime from, DateTime to);
+
+  /// Stores or removes [writes] in the platform. A kind it has no place
+  /// for, or the user did not allow writing, is passed over. Throws when
+  /// the platform fails, so they are written again later.
+  Future<void> write(List<HealthWrite> writes);
 
   /// Every [ActivityMetric] the platform keeps over [from]–[to]: counted
   /// ones as hourly totals ([isHourly]) or daily ones, measured ones as
@@ -106,16 +148,18 @@ class PlatformHealthSource implements HealthSource {
     kinds: HealthDataKind.values.toSet(),
   );
 
-  /// Health Connect has no waist circumference record, and no exercise
-  /// minutes, walking heart rate or SDNN variability; its absent metrics
-  /// just never come back from a read.
+  /// Health Connect has no waist circumference or mood record, and no
+  /// exercise minutes, walking heart rate or SDNN variability; its absent
+  /// metrics just never come back from a read.
   static final healthConnect = PlatformHealthSource._(
     const MethodChannel('mishirube/healthconnect'),
     () => Platform.isAndroid,
     _healthConnectName,
     changeSource: ChangeSource.healthConnect,
     idPrefix: 'healthconnect',
-    kinds: {...HealthDataKind.values}..remove(HealthDataKind.waist),
+    kinds: {...HealthDataKind.values}
+      ..remove(HealthDataKind.waist)
+      ..remove(HealthDataKind.mood),
   );
 
   final String Function(AppLocalizations l10n) _name;
@@ -297,6 +341,53 @@ class PlatformHealthSource implements HealthSource {
   ];
 
   @override
+  Future<List<HealthFood>> foods(DateTime from, DateTime to) async {
+    double? number(Object? value) => (value as num?)?.toDouble();
+    final nutrientsByName = Nutrient.values.asNameMap();
+    return [
+      for (final row in await _read(HealthDataKind.nutrition, from, to))
+        HealthFood(
+          id: row['id']! as String,
+          at: _time(row['at']),
+          sourceName: row['source'] as String? ?? '',
+          name: switch (row['name']) {
+            final String name when name.trim().isNotEmpty => name.trim(),
+            _ => null,
+          },
+          mealType: MealType.values.asNameMap()[row['mealType']],
+          kcal: number(row['kcal']),
+          proteinGrams: number(row['protein']),
+          carbGrams: number(row['carb']),
+          fatGrams: number(row['fat']),
+          fibreGrams: number(row['fibre']),
+          nutrients: {
+            for (final MapEntry(:key, :value)
+                in ((row['nutrients'] as Map?) ?? const {}).entries)
+              ?nutrientsByName[key]: ?number(value),
+          },
+        ),
+    ];
+  }
+
+  @override
+  Future<void> write(List<HealthWrite> writes) async {
+    if (!_isThisPlatform() || writes.isEmpty) return;
+    await _channel.invokeMethod<void>('write', {
+      'writes': [for (final write in writes) write.toMap()],
+    });
+  }
+
+  @override
+  Future<List<HealthMood>> moods(DateTime from, DateTime to) async => [
+    for (final row in await _read(HealthDataKind.mood, from, to))
+      HealthMood(
+        id: row['id']! as String,
+        at: _time(row['at']),
+        valence: (row['valence']! as num).toDouble(),
+      ),
+  ];
+
+  @override
   Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
     DateTime from,
     DateTime to,
@@ -405,6 +496,12 @@ class NoHealthSource implements HealthSource {
       const [];
   @override
   Future<List<HealthWater>> water(DateTime from, DateTime to) async => const [];
+  @override
+  Future<List<HealthFood>> foods(DateTime from, DateTime to) async => const [];
+  @override
+  Future<List<HealthMood>> moods(DateTime from, DateTime to) async => const [];
+  @override
+  Future<void> write(List<HealthWrite> writes) async {}
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,

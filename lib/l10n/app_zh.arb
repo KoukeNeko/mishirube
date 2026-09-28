@@ -7559,7 +7559,7 @@
   "@privacyPermission": {
     "description": "Privacy row."
   },
-  "privacyPermissionValue": "只讀，不寫入",
+  "privacyPermissionValue": "讀取與寫入",
   "@privacyPermissionValue": {
     "description": "Privacy value."
   },

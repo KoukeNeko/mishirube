@@ -893,6 +893,8 @@ extension HealthDataKindText on HealthDataKind {
     HealthDataKind.body => l10n.healthDataBody,
     HealthDataKind.workouts => l10n.healthDataWorkouts,
     HealthDataKind.water => l10n.healthDataWater,
+    HealthDataKind.nutrition => l10n.moduleNutrition,
+    HealthDataKind.mood => l10n.wellnessKindMood,
     HealthDataKind.overnight => l10n.healthDataOvernight,
     HealthDataKind.activity => l10n.healthDataActivity,
   };

@@ -1,4 +1,4 @@
 "NSCameraUsageDescription" = "拍下食物、营养成分表、体脂秤画面或围度记录，估算营养或读取数字后填进记录。";
-"NSHealthShareUsageDescription" = "读取“健康”App 里的睡眠、体重、腰围、身高与身体成分、体能训练、喝水、步数与活动量、心率与有氧体能记录，记进你的记录。只读取，不会写入。";
+"NSHealthShareUsageDescription" = "读取“健康”App 里的睡眠、体重、腰围、身高与身体成分、体能训练、喝水、饮食与咖啡因、心情、步数与活动量、心率与有氧体能记录，记进你的记录。";
 "NSPhotoLibraryUsageDescription" = "在相机画面显示最新一张照片，并从相册选食物或营养成分表的照片，估算营养或读取标示数字。";
-"NSHealthUpdateUsageDescription" = "不会写入“健康”App：只读取，不会新增或更改任何数据。";
+"NSHealthUpdateUsageDescription" = "把在 App 里记录的体重、身体数据、腰围、睡眠、体能训练、饮食、喝水与心情写入“健康”App，并在修改或删除时同步更新。";

@@ -1,4 +1,4 @@
 "NSCameraUsageDescription" = "Photograph food, nutrition labels, scale screens or measurements to estimate nutrition or read the figures into your entries.";
-"NSHealthShareUsageDescription" = "Reads sleep, weight, waist, height and body composition, workouts, water, steps and activity, heart rate and cardio fitness from the Health app into your entries. Read only; nothing is written.";
+"NSHealthShareUsageDescription" = "Reads sleep, weight, waist, height and body composition, workouts, water, food and caffeine, mood, steps and activity, heart rate and cardio fitness from the Health app into your entries.";
 "NSPhotoLibraryUsageDescription" = "Shows the latest photo on the camera screen and lets you pick photos of food or nutrition labels to estimate nutrition or read label figures.";
-"NSHealthUpdateUsageDescription" = "Nothing is written to the Health app: it is only read, never added to or changed.";
+"NSHealthUpdateUsageDescription" = "Writes the weight, body figures, waist, sleep, workouts, food, water and mood you log in the app to the Health app, and updates them when you edit or delete them.";

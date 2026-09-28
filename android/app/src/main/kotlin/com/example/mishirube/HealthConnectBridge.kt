@@ -10,9 +10,12 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import android.location.Geocoder
 import androidx.health.connect.client.contracts.ExerciseRouteRequestContract
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseRouteResult
+import androidx.health.connect.client.records.MealType
+import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
@@ -44,6 +47,12 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Length
+import androidx.health.connect.client.units.Percentage
+import androidx.health.connect.client.units.Power
+import androidx.health.connect.client.units.Volume
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.time.Duration
@@ -109,7 +118,9 @@ class HealthConnectBridge(
     /** The kinds whose read permission is granted; a workout needs its session. */
     private suspend fun grantedKinds(): List<String> {
         val granted = client.permissionController.getGrantedPermissions()
-        return listOf("sleep", "weight", "body", "workouts", "water", "overnight", "activity").filter { kind ->
+        return listOf(
+            "sleep", "weight", "body", "workouts", "water", "nutrition", "overnight", "activity",
+        ).filter { kind ->
             val needed = when (kind) {
                 // Steps stand for the rest: each allowed one is read.
                 "activity" -> HealthPermission.getReadPermission(StepsRecord::class)
@@ -141,7 +152,8 @@ class HealthConnectBridge(
                 }
             }
             "requestAccess" -> {
-                val permissions = permissionsFor(call.argument<List<String>>("kinds").orEmpty())
+                val kinds = call.argument<List<String>>("kinds").orEmpty()
+                val permissions = permissionsFor(kinds) + writePermissionsFor(kinds)
                 scope.launch {
                     try {
                         val granted = client.permissionController.getGrantedPermissions()
@@ -194,6 +206,17 @@ class HealthConnectBridge(
                 scope.launch {
                     try {
                         result.success(workoutDetail(id))
+                    } catch (error: Exception) {
+                        result.error("failed", error.message, null)
+                    }
+                }
+            }
+            "write" -> {
+                val writes = call.argument<List<Map<String, Any?>>>("writes").orEmpty()
+                scope.launch {
+                    try {
+                        write(writes)
+                        result.success(null)
                     } catch (error: Exception) {
                         result.error("failed", error.message, null)
                     }
@@ -257,6 +280,7 @@ class HealthConnectBridge(
                 StepsRecord::class,
             )
             "water" -> listOf(HydrationRecord::class)
+            "nutrition" -> listOf(NutritionRecord::class)
             "overnight" -> overnightTypes
             "body" -> bodyTypes
             "activity" -> activityTypes
@@ -271,6 +295,7 @@ class HealthConnectBridge(
         LeanBodyMassRecord::class,
         BoneMassRecord::class,
         BasalMetabolicRateRecord::class,
+        BodyWaterMassRecord::class,
     )
 
     /** Each allowed body figure in the app's metric and unit. */
@@ -299,6 +324,23 @@ class HealthConnectBridge(
         if (allowed(BoneMassRecord::class)) {
             rows += readAll(BoneMassRecord::class, from, to).map {
                 row(it.metadata.id, it.time, "boneMass", it.mass.inKilograms)
+            }
+        }
+        // Kept here as a share of body weight, as a scale shows it: each
+        // mass over the weighing taken with it, and left out without one.
+        if (allowed(BodyWaterMassRecord::class) && allowed(WeightRecord::class)) {
+            val weights = readAll(WeightRecord::class, from, to)
+            rows += readAll(BodyWaterMassRecord::class, from, to).mapNotNull { water ->
+                val weighing = weights
+                    .minByOrNull { Duration.between(it.time, water.time).abs() }
+                    ?.takeIf { Duration.between(it.time, water.time).abs() <= Duration.ofHours(1) }
+                    ?: return@mapNotNull null
+                row(
+                    water.metadata.id,
+                    water.time,
+                    "bodyWater",
+                    water.mass.inKilograms / weighing.weight.inKilograms * 100,
+                )
             }
         }
         if (allowed(BasalMetabolicRateRecord::class)) {
@@ -421,6 +463,7 @@ class HealthConnectBridge(
                     "ml" to it.volume.inMilliliters,
                 )
             }
+            "nutrition" -> readAll(NutritionRecord::class, from, to).map(::foodRow)
             "workouts" -> readAll(ExerciseSessionRecord::class, from, to).map { session ->
                 val row = mutableMapOf<String, Any>(
                     "id" to session.metadata.id,
@@ -434,6 +477,280 @@ class HealthConnectBridge(
             }
             else -> emptyList()
         }
+
+    /**
+     * One food entry in the app's fields and units: energy and the four
+     * figures every meal has by field, the rest by `Nutrient` name.
+     */
+    private fun foodRow(food: NutritionRecord): Map<String, Any> {
+        fun grams(mass: Mass?) = mass?.inGrams
+        fun milligrams(mass: Mass?) = mass?.inGrams?.times(1_000)
+        fun micrograms(mass: Mass?) = mass?.inGrams?.times(1_000_000)
+        val nutrients = mapOf(
+            "saturatedFat" to grams(food.saturatedFat),
+            "transFat" to grams(food.transFat),
+            "sugar" to grams(food.sugar),
+            "sodium" to milligrams(food.sodium),
+            "cholesterol" to milligrams(food.cholesterol),
+            "caffeine" to milligrams(food.caffeine),
+            "calcium" to milligrams(food.calcium),
+            "phosphorus" to milligrams(food.phosphorus),
+            "magnesium" to milligrams(food.magnesium),
+            "iron" to milligrams(food.iron),
+            "zinc" to milligrams(food.zinc),
+            "potassium" to milligrams(food.potassium),
+            "iodine" to micrograms(food.iodine),
+            "selenium" to micrograms(food.selenium),
+            "vitaminA" to micrograms(food.vitaminA),
+            "vitaminD" to micrograms(food.vitaminD),
+            "vitaminE" to milligrams(food.vitaminE),
+            "vitaminK" to micrograms(food.vitaminK),
+            "vitaminC" to milligrams(food.vitaminC),
+            "vitaminB1" to milligrams(food.thiamin),
+            "vitaminB2" to milligrams(food.riboflavin),
+            "niacin" to milligrams(food.niacin),
+            "vitaminB6" to milligrams(food.vitaminB6),
+            "vitaminB12" to micrograms(food.vitaminB12),
+            "folate" to micrograms(food.folate),
+            "pantothenicAcid" to milligrams(food.pantothenicAcid),
+            "biotin" to micrograms(food.biotin),
+        ).filterValues { it != null }
+        val row = mutableMapOf<String, Any>(
+            "id" to food.metadata.id,
+            "at" to food.startTime.toEpochMilli(),
+            "source" to food.metadata.dataOrigin.packageName,
+            "nutrients" to nutrients,
+        )
+        food.name?.let { row["name"] = it }
+        when (food.mealType) {
+            MealType.MEAL_TYPE_BREAKFAST -> "breakfast"
+            MealType.MEAL_TYPE_LUNCH -> "lunch"
+            MealType.MEAL_TYPE_DINNER -> "dinner"
+            MealType.MEAL_TYPE_SNACK -> "snack"
+            else -> null
+        }?.let { row["mealType"] = it }
+        food.energy?.let { row["kcal"] = it.inKilocalories }
+        grams(food.protein)?.let { row["protein"] = it }
+        grams(food.totalCarbohydrate)?.let { row["carb"] = it }
+        grams(food.totalFat)?.let { row["fat"] = it }
+        grams(food.dietaryFiber)?.let { row["fibre"] = it }
+        return row
+    }
+
+    /** What each kind writes, by the kinds the app reads. */
+    private fun writePermissionsFor(kinds: List<String>): Set<String> = kinds.flatMap { kind ->
+        when (kind) {
+            "weight" -> listOf(WeightRecord::class)
+            "body" -> bodyTypes
+            "sleep" -> listOf(SleepSessionRecord::class)
+            "workouts" -> listOf(ExerciseSessionRecord::class)
+            "water" -> listOf(HydrationRecord::class)
+            "nutrition" -> listOf(NutritionRecord::class)
+            else -> emptyList()
+        }
+    }.map { HealthPermission.getWritePermission(it) }.toSet()
+
+    /**
+     * Stores or removes what the user logged in the app. Every record
+     * carries the app's own id as its client id and the time it last
+     * changed as its version, so writing it again after an edit replaces
+     * it, and a deleted one is found by the same id. A type the user did
+     * not allow writing, or one Health Connect has no record for (waist,
+     * mood), is passed over.
+     */
+    private suspend fun write(writes: List<Map<String, Any?>>) {
+        val granted = client.permissionController.getGrantedPermissions()
+        fun canWrite(type: KClass<out Record>) = HealthPermission.getWritePermission(type) in granted
+        val records = mutableListOf<Record>()
+        val deletes = mutableMapOf<KClass<out Record>, MutableList<String>>()
+        for (write in writes) {
+            val kind = write["kind"] as? String ?: continue
+            val id = write["id"] as? String ?: continue
+            val version = (write["version"] as? Number)?.toLong() ?: continue
+            val isDelete = write["delete"] as? Boolean ?: false
+            fun time(key: String) = (write[key] as? Number)?.toLong()?.let(Instant::ofEpochMilli)
+            fun number(key: String) = (write[key] as? Number)?.toDouble()
+            fun offset(at: Instant) = ZoneId.systemDefault().rules.getOffset(at)
+            fun remove(type: KClass<out Record>) {
+                if (canWrite(type)) deletes.getOrPut(type) { mutableListOf() } += id
+            }
+            fun add(type: KClass<out Record>, record: () -> Record?) {
+                if (canWrite(type)) record()?.let { records += it }
+            }
+            val metadata = Metadata.manualEntry(clientRecordId = id, clientRecordVersion = version)
+            val at = time("at")
+            when (kind) {
+                "weight" -> if (isDelete) remove(WeightRecord::class) else add(WeightRecord::class) {
+                    val kg = number("kg") ?: return@add null
+                    WeightRecord(
+                        time = at ?: return@add null,
+                        zoneOffset = offset(at),
+                        weight = Mass.kilograms(kg),
+                        metadata = metadata,
+                    )
+                }
+                "body" -> if (isDelete) {
+                    bodyTypes.forEach(::remove)
+                } else if (at != null) {
+                    val value = number("value") ?: continue
+                    when (write["metric"]) {
+                        "height" -> add(HeightRecord::class) {
+                            HeightRecord(at, offset(at), Length.meters(value / 100), metadata)
+                        }
+                        "bodyFat" -> add(BodyFatRecord::class) {
+                            BodyFatRecord(at, offset(at), Percentage(value), metadata)
+                        }
+                        "leanMass" -> add(LeanBodyMassRecord::class) {
+                            LeanBodyMassRecord(at, offset(at), Mass.kilograms(value), metadata)
+                        }
+                        "boneMass" -> add(BoneMassRecord::class) {
+                            BoneMassRecord(at, offset(at), Mass.kilograms(value), metadata)
+                        }
+                        "basalMetabolicRate" -> add(BasalMetabolicRateRecord::class) {
+                            BasalMetabolicRateRecord(
+                                at, offset(at), Power.kilocaloriesPerDay(value), metadata,
+                            )
+                        }
+                        // A share of weight here, a mass there: left out
+                        // without the weighing it was taken with.
+                        "bodyWater" -> add(BodyWaterMassRecord::class) {
+                            val weight = number("weightKg") ?: return@add null
+                            BodyWaterMassRecord(
+                                at, offset(at), Mass.kilograms(weight * value / 100), metadata,
+                            )
+                        }
+                    }
+                }
+                "sleep" -> if (isDelete) remove(SleepSessionRecord::class) else add(SleepSessionRecord::class) {
+                    val start = time("start") ?: return@add null
+                    val end = time("end")?.takeIf { it.isAfter(start) } ?: return@add null
+                    SleepSessionRecord(
+                        startTime = start,
+                        startZoneOffset = offset(start),
+                        endTime = end,
+                        endZoneOffset = offset(end),
+                        metadata = metadata,
+                        // Time in bed only is the session with no stage in it.
+                        stages = if (write["measure"] == "inBed") emptyList() else listOf(
+                            SleepSessionRecord.Stage(start, end, SleepSessionRecord.STAGE_TYPE_SLEEPING),
+                        ),
+                    )
+                }
+                "water" -> if (isDelete) remove(HydrationRecord::class) else add(HydrationRecord::class) {
+                    val ml = number("ml") ?: return@add null
+                    HydrationRecord(
+                        startTime = at ?: return@add null,
+                        startZoneOffset = offset(at),
+                        // A drink has to last a moment here.
+                        endTime = at.plusSeconds(60),
+                        endZoneOffset = offset(at),
+                        volume = Volume.milliliters(ml),
+                        metadata = metadata,
+                    )
+                }
+                "food" -> if (isDelete) remove(NutritionRecord::class) else add(NutritionRecord::class) {
+                    foodRecord(write, at ?: return@add null, offset(at), metadata)
+                }
+                "workout" -> if (isDelete) remove(ExerciseSessionRecord::class) else add(ExerciseSessionRecord::class) {
+                    val start = time("start") ?: return@add null
+                    val end = time("end")?.takeIf { it.isAfter(start) } ?: return@add null
+                    ExerciseSessionRecord(
+                        startTime = start,
+                        startZoneOffset = offset(start),
+                        endTime = end,
+                        endZoneOffset = offset(end),
+                        metadata = metadata,
+                        exerciseType = exerciseType(write["activity"] as? String),
+                        title = write["title"] as? String,
+                    )
+                }
+            }
+        }
+        for ((type, ids) in deletes) {
+            client.deleteRecords(type, recordIdsList = emptyList(), clientRecordIdsList = ids)
+        }
+        if (records.isNotEmpty()) client.insertRecords(records)
+    }
+
+    /** A meal as Health Connect keeps one, from the app's fields and units. */
+    private fun foodRecord(
+        write: Map<String, Any?>,
+        at: Instant,
+        offset: java.time.ZoneOffset,
+        metadata: Metadata,
+    ): NutritionRecord {
+        val nutrients = write["nutrients"] as? Map<*, *> ?: emptyMap<String, Any>()
+        fun amount(key: String) = (nutrients[key] as? Number)?.toDouble()
+        fun grams(value: Double?) = value?.let(Mass::grams)
+        fun milligrams(value: Double?) = value?.let(Mass::milligrams)
+        fun micrograms(value: Double?) = value?.let(Mass::micrograms)
+        fun number(key: String) = (write[key] as? Number)?.toDouble()
+        return NutritionRecord(
+            startTime = at,
+            startZoneOffset = offset,
+            endTime = at.plusSeconds(60),
+            endZoneOffset = offset,
+            metadata = metadata,
+            name = write["name"] as? String,
+            mealType = when (write["mealType"]) {
+                "breakfast" -> MealType.MEAL_TYPE_BREAKFAST
+                "lunch" -> MealType.MEAL_TYPE_LUNCH
+                "dinner" -> MealType.MEAL_TYPE_DINNER
+                "snack" -> MealType.MEAL_TYPE_SNACK
+                else -> MealType.MEAL_TYPE_UNKNOWN
+            },
+            energy = number("kcal")?.let(Energy::kilocalories),
+            protein = grams(number("protein")),
+            totalCarbohydrate = grams(number("carb")),
+            totalFat = grams(number("fat")),
+            dietaryFiber = grams(number("fibre")),
+            saturatedFat = grams(amount("saturatedFat")),
+            transFat = grams(amount("transFat")),
+            sugar = grams(amount("sugar")),
+            sodium = milligrams(amount("sodium")),
+            cholesterol = milligrams(amount("cholesterol")),
+            caffeine = milligrams(amount("caffeine")),
+            calcium = milligrams(amount("calcium")),
+            phosphorus = milligrams(amount("phosphorus")),
+            magnesium = milligrams(amount("magnesium")),
+            iron = milligrams(amount("iron")),
+            zinc = milligrams(amount("zinc")),
+            potassium = milligrams(amount("potassium")),
+            iodine = micrograms(amount("iodine")),
+            selenium = micrograms(amount("selenium")),
+            vitaminA = micrograms(amount("vitaminA")),
+            vitaminD = micrograms(amount("vitaminD")),
+            vitaminE = milligrams(amount("vitaminE")),
+            vitaminK = micrograms(amount("vitaminK")),
+            vitaminC = milligrams(amount("vitaminC")),
+            thiamin = milligrams(amount("vitaminB1")),
+            riboflavin = milligrams(amount("vitaminB2")),
+            niacin = milligrams(amount("niacin")),
+            vitaminB6 = milligrams(amount("vitaminB6")),
+            vitaminB12 = micrograms(amount("vitaminB12")),
+            folate = micrograms(amount("folate")),
+            pantothenicAcid = milligrams(amount("pantothenicAcid")),
+            biotin = micrograms(amount("biotin")),
+        )
+    }
+
+    /** Health Connect's type for one of the app's activity ids; the other
+     *  way from [activity]. */
+    private fun exerciseType(activity: String?): Int = when (activity) {
+        "strength" -> ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING
+        "running" -> ExerciseSessionRecord.EXERCISE_TYPE_RUNNING
+        "walking" -> ExerciseSessionRecord.EXERCISE_TYPE_WALKING
+        "hiking" -> ExerciseSessionRecord.EXERCISE_TYPE_HIKING
+        "cycling" -> ExerciseSessionRecord.EXERCISE_TYPE_BIKING
+        "swimming" -> ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_POOL
+        "rowing" -> ExerciseSessionRecord.EXERCISE_TYPE_ROWING
+        "elliptical" -> ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL
+        "stairs" -> ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING
+        "basketball" -> ExerciseSessionRecord.EXERCISE_TYPE_BASKETBALL
+        "badminton" -> ExerciseSessionRecord.EXERCISE_TYPE_BADMINTON
+        "yoga" -> ExerciseSessionRecord.EXERCISE_TYPE_YOGA
+        else -> ExerciseSessionRecord.EXERCISE_TYPE_OTHER_WORKOUT
+    }
 
     /** Everyday movement and the fitness figures measured through the day. */
     private val activityTypes = listOf(
@@ -722,7 +1039,10 @@ class HealthConnectBridge(
             val response = client.readRecords(
                 ReadRecordsRequest(type, TimeRangeFilter.between(from, to), pageToken = pageToken)
             )
-            records += response.records
+            // What this app wrote is already in its own records.
+            records += response.records.filter {
+                it.metadata.dataOrigin.packageName != activity.packageName
+            }
             pageToken = response.pageToken
         } while (pageToken != null)
         return records

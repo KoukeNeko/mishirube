@@ -116,12 +116,31 @@ enum HealthKitBridge {
         if kinds.contains("activity") {
           types.formUnion(activityTypes.map(\.type))
         }
-        store.requestAuthorization(toShare: [], read: types) { success, error in
+        if kinds.contains("nutrition") {
+          types.formUnion(dietaryTypes.map(\.type))
+        }
+        if kinds.contains("mood"), #available(iOS 18.0, *) {
+          types.insert(HKObjectType.stateOfMindType())
+        }
+        store.requestAuthorization(toShare: HealthKitWriter.shareTypes(for: kinds), read: types) {
+          success, error in
           DispatchQueue.main.async {
             if let error {
               result(FlutterError(code: "failed", message: "\(error)", details: nil))
             } else {
               result(success)
+            }
+          }
+        }
+      case "write":
+        let writes = arguments["writes"] as? [[String: Any]] ?? []
+        Task {
+          do {
+            try await HealthKitWriter.write(writes)
+            await MainActor.run { result(nil) }
+          } catch {
+            await MainActor.run {
+              result(FlutterError(code: "failed", message: "\(error)", details: nil))
             }
           }
         }
@@ -140,6 +159,24 @@ enum HealthKitBridge {
           from: Date(timeIntervalSince1970: Double(from) / 1000),
           to: Date(timeIntervalSince1970: Double(to) / 1000),
           daily: arguments["daily"] as? Bool ?? false,
+          result: result)
+      case "read" where arguments["kind"] as? String == "nutrition":
+        guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        readFoods(
+          from: Date(timeIntervalSince1970: Double(from) / 1000),
+          to: Date(timeIntervalSince1970: Double(to) / 1000),
+          result: result)
+      case "read" where arguments["kind"] as? String == "mood":
+        guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        readMoods(
+          from: Date(timeIntervalSince1970: Double(from) / 1000),
+          to: Date(timeIntervalSince1970: Double(to) / 1000),
           result: result)
       case "read" where arguments["kind"] as? String == "body":
         guard let from = arguments["from"] as? Int, let to = arguments["to"] as? Int else {
@@ -211,7 +248,7 @@ enum HealthKitBridge {
       ) { _, samples, error in
         lock.lock()
         if let error { failure = error }
-        for case let sample as HKQuantitySample in samples ?? [] {
+        for case let sample as HKQuantitySample in samples ?? [] where !isOurs(sample) {
           rows.append([
             "id": sample.uuid.uuidString, "at": milliseconds(sample.startDate),
             "metric": body.metric,
@@ -232,6 +269,175 @@ enum HealthKitBridge {
         result(rows)
       }
     }
+  }
+
+  /// What a food entry's figures are called in the app, in the app's
+  /// unit: energy and the four figures every meal has by field, the rest
+  /// by `Nutrient` name. Water is read under its own kind.
+  static let dietaryTypes: [(type: HKQuantityType, field: String, unit: HKUnit)] = {
+    let milligram = HKUnit.gramUnit(with: .milli)
+    let microgram = HKUnit.gramUnit(with: .micro)
+    return [
+      (HKQuantityType(.dietaryEnergyConsumed), "kcal", .kilocalorie()),
+      (HKQuantityType(.dietaryProtein), "protein", .gram()),
+      (HKQuantityType(.dietaryCarbohydrates), "carb", .gram()),
+      (HKQuantityType(.dietaryFatTotal), "fat", .gram()),
+      (HKQuantityType(.dietaryFiber), "fibre", .gram()),
+      (HKQuantityType(.dietaryFatSaturated), "saturatedFat", .gram()),
+      (HKQuantityType(.dietarySugar), "sugar", .gram()),
+      (HKQuantityType(.dietarySodium), "sodium", milligram),
+      (HKQuantityType(.dietaryCholesterol), "cholesterol", milligram),
+      (HKQuantityType(.dietaryCaffeine), "caffeine", milligram),
+      (HKQuantityType(.dietaryCalcium), "calcium", milligram),
+      (HKQuantityType(.dietaryPhosphorus), "phosphorus", milligram),
+      (HKQuantityType(.dietaryMagnesium), "magnesium", milligram),
+      (HKQuantityType(.dietaryIron), "iron", milligram),
+      (HKQuantityType(.dietaryZinc), "zinc", milligram),
+      (HKQuantityType(.dietaryPotassium), "potassium", milligram),
+      (HKQuantityType(.dietaryIodine), "iodine", microgram),
+      (HKQuantityType(.dietarySelenium), "selenium", microgram),
+      (HKQuantityType(.dietaryVitaminA), "vitaminA", microgram),
+      (HKQuantityType(.dietaryVitaminD), "vitaminD", microgram),
+      (HKQuantityType(.dietaryVitaminE), "vitaminE", milligram),
+      (HKQuantityType(.dietaryVitaminK), "vitaminK", microgram),
+      (HKQuantityType(.dietaryVitaminC), "vitaminC", milligram),
+      (HKQuantityType(.dietaryThiamin), "vitaminB1", milligram),
+      (HKQuantityType(.dietaryRiboflavin), "vitaminB2", milligram),
+      (HKQuantityType(.dietaryNiacin), "niacin", milligram),
+      (HKQuantityType(.dietaryVitaminB6), "vitaminB6", milligram),
+      (HKQuantityType(.dietaryVitaminB12), "vitaminB12", microgram),
+      (HKQuantityType(.dietaryFolate), "folate", microgram),
+      (HKQuantityType(.dietaryPantothenicAcid), "pantothenicAcid", milligram),
+      (HKQuantityType(.dietaryBiotin), "biotin", microgram),
+    ]
+  }()
+
+  /// The fields a meal keeps outside its nutrients.
+  static let mealFields: Set<String> = ["kcal", "protein", "carb", "fat", "fibre"]
+
+  /// Every food entry in the window, one row each. An app that logs a
+  /// food writes a food correlation holding one sample per figure; one
+  /// that writes the samples alone is grouped by app, time and food
+  /// name, so each entry comes in once with all its figures.
+  static func readFoods(from: Date, to: Date, result: @escaping FlutterResult) {
+    let predicate = HKQuery.predicateForSamples(withStart: from, end: to)
+    let fieldOf = Dictionary(
+      uniqueKeysWithValues: dietaryTypes.map { ($0.type, ($0.field, $0.unit)) })
+
+    struct Entry {
+      var id: String
+      var at: Date
+      var name: String?
+      var source: String
+      var values: [String: Double] = [:]
+    }
+    func add(_ sample: HKQuantitySample, to entry: inout Entry) {
+      guard let (field, unit) = fieldOf[sample.quantityType] else { return }
+      entry.values[field, default: 0] += sample.quantity.doubleValue(for: unit)
+    }
+    func row(_ entry: Entry) -> [String: Any]? {
+      guard !entry.values.isEmpty else { return nil }
+      var row: [String: Any] = [
+        "id": entry.id, "at": milliseconds(entry.at), "source": entry.source,
+      ]
+      if let name = entry.name { row["name"] = name }
+      var nutrients: [String: Double] = [:]
+      for (field, value) in entry.values {
+        if mealFields.contains(field) { row[field] = value } else { nutrients[field] = value }
+      }
+      row["nutrients"] = nutrients
+      return row
+    }
+
+    let foods = HKSampleQuery(
+      sampleType: HKCorrelationType(.food), predicate: predicate,
+      limit: HKObjectQueryNoLimit, sortDescriptors: nil
+    ) { _, correlations, correlationError in
+      var entries: [Entry] = []
+      var inFoods = Set<UUID>()
+      for case let food as HKCorrelation in correlations ?? [] where !isOurs(food) {
+        var entry = Entry(
+          id: food.uuid.uuidString, at: food.startDate,
+          name: food.metadata?[HKMetadataKeyFoodType] as? String,
+          source: food.sourceRevision.source.name)
+        for case let sample as HKQuantitySample in food.objects {
+          inFoods.insert(sample.uuid)
+          add(sample, to: &entry)
+        }
+        entries.append(entry)
+      }
+
+      let group = DispatchGroup()
+      let lock = NSLock()
+      var loose: [String: Entry] = [:]
+      var failure: Error? = correlationError
+      for dietary in dietaryTypes {
+        group.enter()
+        let query = HKSampleQuery(
+          sampleType: dietary.type, predicate: predicate,
+          limit: HKObjectQueryNoLimit, sortDescriptors: nil
+        ) { _, samples, error in
+          lock.lock()
+          if let error { failure = error }
+          for case let sample as HKQuantitySample in samples ?? []
+          where !inFoods.contains(sample.uuid) && !isOurs(sample) {
+            let source = sample.sourceRevision.source
+            let name = sample.metadata?[HKMetadataKeyFoodType] as? String
+            let key = "\(source.bundleIdentifier)|\(milliseconds(sample.startDate))|\(name ?? "")"
+            var entry =
+              loose[key]
+              ?? Entry(
+                id: sample.uuid.uuidString, at: sample.startDate, name: name, source: source.name)
+            // Named by its smallest sample id, so a re-read finds the same one.
+            entry.id = min(entry.id, sample.uuid.uuidString)
+            add(sample, to: &entry)
+            loose[key] = entry
+          }
+          lock.unlock()
+          group.leave()
+        }
+        store.execute(query)
+      }
+      group.notify(queue: .main) {
+        let rows = (entries + loose.values).compactMap(row)
+        if let failure, rows.isEmpty {
+          result(FlutterError(code: "failed", message: "\(failure)", details: nil))
+        } else {
+          result(rows)
+        }
+      }
+    }
+    store.execute(foods)
+  }
+
+  /// Every mood logged in the window (State of Mind, from iOS 18): how
+  /// pleasant it felt, −1 to 1.
+  static func readMoods(from: Date, to: Date, result: @escaping FlutterResult) {
+    guard #available(iOS 18.0, *) else {
+      result([])
+      return
+    }
+    let query = HKSampleQuery(
+      sampleType: HKObjectType.stateOfMindType(),
+      predicate: HKQuery.predicateForSamples(withStart: from, end: to),
+      limit: HKObjectQueryNoLimit, sortDescriptors: nil
+    ) { _, samples, error in
+      let rows: [[String: Any]] = (samples ?? []).compactMap { sample in
+        guard let mood = sample as? HKStateOfMind, !isOurs(mood) else { return nil }
+        return [
+          "id": mood.uuid.uuidString, "at": milliseconds(mood.startDate),
+          "valence": mood.valence,
+        ]
+      }
+      DispatchQueue.main.async {
+        if let error {
+          result(FlutterError(code: "failed", message: "\(error)", details: nil))
+        } else {
+          result(rows)
+        }
+      }
+    }
+    store.execute(query)
   }
 
   /// Everyday movement and the fitness figures measured through the day,
@@ -378,7 +584,7 @@ enum HealthKitBridge {
       // Turned into rows here, on HealthKit's own queue: a month of sleep
       // stages is thousands of samples, and the main thread, which also
       // takes the touches, only needs to hand the rows over.
-      let rows = (samples ?? []).compactMap { row(kind: kind, sample: $0) }
+      let rows = (samples ?? []).filter { !isOurs($0) }.compactMap { row(kind: kind, sample: $0) }
       DispatchQueue.main.async {
         if let error {
           result(FlutterError(code: "failed", message: "\(error)", details: nil))
@@ -391,6 +597,12 @@ enum HealthKitBridge {
   }
 
   static func milliseconds(_ date: Date) -> Int { Int(date.timeIntervalSince1970 * 1000) }
+
+  /// Whether this app wrote [sample]: what it wrote is already in its
+  /// own records, and reading it back would count it twice.
+  static func isOurs(_ sample: HKObject) -> Bool {
+    sample.sourceRevision.source.bundleIdentifier == HKSource.default().bundleIdentifier
+  }
 
   static func row(kind: String, sample: HKSample) -> [String: Any]? {
     let id = sample.uuid.uuidString
@@ -1018,6 +1230,200 @@ enum PhotoLibrary {
       }
     default:
       result(nil)
+    }
+  }
+}
+
+/// What the user logs in the app, written to Apple Health, for
+/// `HealthSource.write` in `lib/backend/health/health_source.dart`.
+///
+/// Every sample carries the app's own id as its sync identifier and the
+/// time the record last changed as its version, so Health replaces what
+/// it holds when a record is written again after an edit, and a deleted
+/// record is found by the same id. A type the user did not allow writing
+/// is passed over rather than failing the rest.
+enum HealthKitWriter {
+  static var store: HKHealthStore { HealthKitBridge.store }
+
+  /// What each kind asks to write, by the kinds the app reads.
+  static func shareTypes(for kinds: [String]) -> Set<HKSampleType> {
+    var types = Set<HKSampleType>()
+    for kind in kinds {
+      switch kind {
+      case "weight": types.insert(HKQuantityType(.bodyMass))
+      case "waist": types.insert(HKQuantityType(.waistCircumference))
+      case "body": types.formUnion(bodyTypes.values.map(\.type))
+      case "sleep": types.insert(HKCategoryType(.sleepAnalysis))
+      case "workouts": types.insert(HKWorkoutType.workoutType())
+      case "water": types.insert(HKQuantityType(.dietaryWater))
+      case "nutrition": types.formUnion(HealthKitBridge.dietaryTypes.map(\.type))
+      case "mood":
+        if #available(iOS 18.0, *) { types.insert(HKObjectType.stateOfMindType()) }
+      default: break
+      }
+    }
+    return types
+  }
+
+  /// The body figures Health has a type for, in the app's unit: body fat
+  /// is a percentage here and a fraction there.
+  static let bodyTypes: [String: (type: HKQuantityType, unit: HKUnit, scale: Double)] = [
+    "height": (HKQuantityType(.height), .meterUnit(with: .centi), 1),
+    "bodyFat": (HKQuantityType(.bodyFatPercentage), .percent(), 0.01),
+    "leanMass": (HKQuantityType(.leanBodyMass), .gramUnit(with: .kilo), 1),
+  ]
+
+  static func canWrite(_ type: HKObjectType) -> Bool {
+    store.authorizationStatus(for: type) == .sharingAuthorized
+  }
+
+  static func write(_ writes: [[String: Any]]) async throws {
+    var saves: [HKObject] = []
+    var deletes: [HKObjectType: [String]] = [:]
+    var workouts: [(HKWorkoutActivityType, Date, Date, [String: Any])] = []
+
+    for write in writes {
+      guard let kind = write["kind"] as? String, let id = write["id"] as? String,
+        let version = write["version"] as? Int
+      else { continue }
+      let isDelete = write["delete"] as? Bool ?? false
+      func date(_ key: String) -> Date? {
+        (write[key] as? Int).map { Date(timeIntervalSince1970: Double($0) / 1000) }
+      }
+      func number(_ key: String) -> Double? { (write[key] as? NSNumber)?.doubleValue }
+      func metadata(_ syncId: String = id) -> [String: Any] {
+        [
+          HKMetadataKeySyncIdentifier: syncId,
+          HKMetadataKeySyncVersion: version,
+          HKMetadataKeyWasUserEntered: true,
+        ]
+      }
+      func remove(_ type: HKObjectType, _ syncIds: [String] = [id]) {
+        if canWrite(type) { deletes[type, default: []].append(contentsOf: syncIds) }
+      }
+      func quantity(_ type: HKQuantityType, _ value: Double?, _ unit: HKUnit, at: Date?) {
+        guard canWrite(type), let value, let at else { return }
+        saves.append(
+          HKQuantitySample(
+            type: type, quantity: HKQuantity(unit: unit, doubleValue: value),
+            start: at, end: at, metadata: metadata()))
+      }
+
+      switch kind {
+      case "weight":
+        let type = HKQuantityType(.bodyMass)
+        if isDelete { remove(type) } else {
+          quantity(type, number("kg"), .gramUnit(with: .kilo), at: date("at"))
+        }
+      case "waist":
+        let type = HKQuantityType(.waistCircumference)
+        if isDelete { remove(type) } else {
+          quantity(type, number("cm"), .meterUnit(with: .centi), at: date("at"))
+        }
+      case "body":
+        if isDelete {
+          for body in bodyTypes.values { remove(body.type) }
+        } else if let metric = write["metric"] as? String, let body = bodyTypes[metric] {
+          quantity(body.type, number("value").map { $0 * body.scale }, body.unit, at: date("at"))
+        }
+      case "sleep":
+        let type = HKCategoryType(.sleepAnalysis)
+        if isDelete {
+          remove(type)
+        } else if canWrite(type), let start = date("start"), let end = date("end"), end > start {
+          let asleep: HKCategoryValueSleepAnalysis
+          if #available(iOS 16.0, *) { asleep = .asleepUnspecified } else { asleep = .asleep }
+          let value = write["measure"] as? String == "inBed" ? .inBed : asleep
+          saves.append(
+            HKCategorySample(
+              type: type, value: value.rawValue, start: start, end: end, metadata: metadata()))
+        }
+      case "water":
+        let type = HKQuantityType(.dietaryWater)
+        if isDelete { remove(type) } else {
+          quantity(type, number("ml"), .literUnit(with: .milli), at: date("at"))
+        }
+      case "food":
+        // One sample per figure, each under the meal's id and the figure's
+        // name; a figure the meal no longer has is removed.
+        let nutrients = write["nutrients"] as? [String: Any] ?? [:]
+        for dietary in HealthKitBridge.dietaryTypes {
+          let syncId = "\(id)/\(dietary.field)"
+          let value =
+            HealthKitBridge.mealFields.contains(dietary.field)
+            ? number(dietary.field) : (nutrients[dietary.field] as? NSNumber)?.doubleValue
+          guard !isDelete, let value, canWrite(dietary.type), let at = date("at") else {
+            remove(dietary.type, [syncId])
+            continue
+          }
+          var meta = metadata(syncId)
+          if let name = write["name"] as? String { meta[HKMetadataKeyFoodType] = name }
+          saves.append(
+            HKQuantitySample(
+              type: dietary.type, quantity: HKQuantity(unit: dietary.unit, doubleValue: value),
+              start: at, end: at, metadata: meta))
+        }
+      case "mood":
+        guard #available(iOS 18.0, *) else { continue }
+        let type = HKObjectType.stateOfMindType()
+        if isDelete {
+          remove(type)
+        } else if canWrite(type), let at = date("at"), let valence = number("valence") {
+          saves.append(
+            HKStateOfMind(
+              date: at, kind: .momentaryEmotion, valence: valence, labels: [],
+              associations: [], metadata: metadata()))
+        }
+      case "workout":
+        let type = HKWorkoutType.workoutType()
+        if isDelete {
+          remove(type)
+        } else if canWrite(type), let start = date("start"), let end = date("end"), end > start {
+          workouts.append((activityType(of: write["activity"] as? String), start, end, metadata()))
+        }
+      default:
+        continue
+      }
+    }
+
+    for (type, syncIds) in deletes {
+      _ = try await store.deleteObjects(
+        of: type,
+        predicate: HKQuery.predicateForObjects(
+          withMetadataKey: HKMetadataKeySyncIdentifier, allowedValues: syncIds))
+    }
+    if !saves.isEmpty {
+      try await store.save(saves)
+    }
+    for (activity, start, end, metadata) in workouts {
+      let configuration = HKWorkoutConfiguration()
+      configuration.activityType = activity
+      let builder = HKWorkoutBuilder(
+        healthStore: store, configuration: configuration, device: .local())
+      try await builder.beginCollection(at: start)
+      try await builder.addMetadata(metadata)
+      try await builder.endCollection(at: end)
+      _ = try await builder.finishWorkout()
+    }
+  }
+
+  /// Health's type for one of the app's activity ids; the other way from
+  /// `HealthKitBridge.activity(of:)`.
+  static func activityType(of activity: String?) -> HKWorkoutActivityType {
+    switch activity {
+    case "strength": return .traditionalStrengthTraining
+    case "running": return .running
+    case "walking": return .walking
+    case "hiking": return .hiking
+    case "cycling": return .cycling
+    case "swimming": return .swimming
+    case "rowing": return .rowing
+    case "elliptical": return .elliptical
+    case "stairs": return .stairClimbing
+    case "basketball": return .basketball
+    case "badminton": return .badminton
+    case "yoga": return .yoga
+    default: return .other
     }
   }
 }

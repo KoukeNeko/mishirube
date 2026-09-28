@@ -641,6 +641,41 @@ class NutritionService {
     fatGrams: 0,
   );
 
+  /// The record a food another app logged in a health platform is kept
+  /// as, before it is logged. It is marked with that app's name, and
+  /// named after the food, or after what is known of it: caffeine logged
+  /// on its own is a drink of caffeine.
+  MealEvent healthFoodRecord(HealthFood food, {required String id}) {
+    final isCaffeineAlone =
+        food.kcal == null &&
+        food.nutrients.keys.every(
+          (nutrient) => nutrient == Nutrient.caffeine,
+        ) &&
+        food.nutrients.isNotEmpty;
+    int? whole(double? value) => value?.round();
+    return MealEvent(
+      id: id,
+      name:
+          food.name ??
+          (isCaffeineAlone
+              ? Nutrient.caffeine.labelIn(_l10n)
+              : food.mealType?.labelIn(_l10n) ?? _l10n.moduleNutrition),
+      timeLabel: formatTimeOfDay(food.at),
+      qualityTag: food.sourceName,
+      dishes: const [],
+      kind: isCaffeineAlone
+          ? ConsumptionKind.beverage
+          : ConsumptionKind.unknown,
+      mealType: food.mealType,
+      kcal: whole(food.kcal),
+      proteinGrams: whole(food.proteinGrams),
+      carbGrams: whole(food.carbGrams),
+      fatGrams: whole(food.fatGrams),
+      fibreGrams: whole(food.fibreGrams),
+      nutrients: food.nutrients,
+    );
+  }
+
   /// The sizes of a food, smallest first.
   List<FoodItem> sizesOf(String foodId) => _foods.sizesOf(foodId);
 

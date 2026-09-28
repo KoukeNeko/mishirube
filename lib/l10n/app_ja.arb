@@ -1414,7 +1414,7 @@
   "privacyScalePhotosValue": "端末上で読み取り、送信しない",
   "privacyHealthSection": "ヘルスケアデータ（{platform}）",
   "privacyPermission": "権限",
-  "privacyPermissionValue": "読み取りのみ、書き込みなし",
+  "privacyPermissionValue": "読み取りと書き込み",
   "privacyReading": "読み取り",
   "privacyReadingValue": "初回はすべて、以降は起動時に過去30日分",
   "privacyLeavesDevice": "端末外への送信",

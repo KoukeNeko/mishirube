@@ -4956,7 +4956,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get privacyPermission => '權限';
 
   @override
-  String get privacyPermissionValue => '只讀，不寫入';
+  String get privacyPermissionValue => '讀取與寫入';
 
   @override
   String get privacyReading => '讀取';
@@ -10570,7 +10570,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get privacyPermission => '权限';
 
   @override
-  String get privacyPermissionValue => '只读，不写入';
+  String get privacyPermissionValue => '读取与写入';
 
   @override
   String get privacyReading => '读取';

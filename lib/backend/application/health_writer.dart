@@ -31,6 +31,8 @@ class HealthBatch {
     required this.body,
     required this.workouts,
     required this.water,
+    required this.foods,
+    required this.moods,
     required this.activity,
   });
 
@@ -53,6 +55,10 @@ class HealthBatch {
 
   /// Each glass as the record it becomes, and when it was drunk.
   final List<(MealEvent, DateTime)> water;
+
+  /// Each food another app logged as the record it becomes, and when.
+  final List<(MealEvent, DateTime)> foods;
+  final List<WellnessEntry> moods;
   final List<ActivitySample> activity;
 }
 
@@ -140,6 +146,16 @@ class HealthWriter {
       if (_db.hasRow('meals', glass.id)) continue;
       _meals.insert(glass, eatenAt: at, source: source);
       added.update(HealthDataKind.water, (n) => n + 1);
+    }
+    for (final (food, at) in batch.foods) {
+      if (_db.hasRow('meals', food.id)) continue;
+      _meals.insert(food, eatenAt: at, source: source);
+      added.update(HealthDataKind.nutrition, (n) => n + 1);
+    }
+    for (final mood in batch.moods) {
+      if (_db.hasRow('wellness_entries', mood.id)) continue;
+      _journal.addWellness(mood, source: source);
+      added.update(HealthDataKind.mood, (n) => n + 1);
     }
 
     if (kinds.contains(HealthDataKind.activity)) {

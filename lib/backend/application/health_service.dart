@@ -3,6 +3,7 @@ import '../engines/sleep_nights.dart';
 import '../health/health_source.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
+import 'health_export.dart';
 import 'health_writer.dart';
 import 'nutrition_service.dart';
 
@@ -43,9 +44,13 @@ class HealthImport {
       added.values.every((count) => count == 0) && updated == 0 && skipped == 0;
 }
 
+/// A mood's pleasantness, −1 to 1, as the 1–5 a check-in rates: the
+/// scale's middle is neutral and its ends are the ends of the range.
+int moodScore(double valence) => (3 + valence.clamp(-1.0, 1.0) * 2).round();
+
 /// Records read from a health platform into the log: sleep, weight,
-/// waist, body composition, workouts, water, and everyday activity.
-/// Read only.
+/// waist, body composition, workouts, water, food, mood and everyday
+/// activity; and what the user logs in the app written back to it.
 ///
 /// Every record gets an id from the platform's own — a night from its
 /// morning — so reading the same weeks again finds what came in before
@@ -64,9 +69,16 @@ class HealthService {
   /// it already had (a workout's route, heart rate and running figures
   /// under workouts): Apple Health never says a read was refused, so
   /// without asking again those reads would quietly come back empty.
-  static const _accessVersion = 3;
+  static const _accessVersion = 5;
   static const _askedVersionKey = 'health.asked_version';
   static const _syncedKey = 'health.synced_at';
+
+  /// The last change (ms) written to the platform: everything changed
+  /// up to it is there.
+  static const _writtenKey = 'health.written_through';
+
+  /// How many writes go to the platform at a time.
+  static const _writeChunk = 100;
 
   /// How far back an import reads: far enough to catch a record changed
   /// on the platform since the last read.
@@ -189,7 +201,33 @@ class HealthService {
     }
     _db.setSetting(_syncedKey, '${now.millisecondsSinceEpoch}');
     if (isFullRead) _db.setSetting(_fullReadKey, '$_accessVersion');
+    await writeChanges();
     return total;
+  }
+
+  /// Writes to the platform what the user logged, edited or deleted in
+  /// the app since the last write, the first time everything. Throws
+  /// when the platform fails; what it took by then is not written again.
+  Future<void> writeChanges() async {
+    if (!isConnected) return;
+    final since = int.tryParse(_db.setting(_writtenKey) ?? '') ?? 0;
+    final changes = HealthExport(_db).changesSince(since);
+    for (var start = 0; start < changes.length; start += _writeChunk) {
+      final chunk = changes.sublist(
+        start,
+        (start + _writeChunk).clamp(0, changes.length),
+      );
+      await source.write([for (final (writes, _) in chunk) ...writes]);
+      // Through the last change of this chunk, unless the next one
+      // changed in the same millisecond: then only through the one before,
+      // so it is not passed over.
+      final last = chunk.last.$2;
+      final next = start + _writeChunk < changes.length
+          ? changes[start + _writeChunk].$2
+          : null;
+      final through = next == last ? last - 1 : last;
+      if (through > since) _db.setSetting(_writtenKey, '$through');
+    }
   }
 
   /// A year at a time from [now] back to [earliest], newest first. Each
@@ -232,6 +270,12 @@ class HealthService {
     final water = kinds.contains(HealthDataKind.water)
         ? await source.water(from, now)
         : const <HealthWater>[];
+    final foods = kinds.contains(HealthDataKind.nutrition)
+        ? await source.foods(from, now)
+        : const <HealthFood>[];
+    final moods = kinds.contains(HealthDataKind.mood)
+        ? await source.moods(from, now)
+        : const <HealthMood>[];
     final activity = kinds.contains(HealthDataKind.activity)
         ? await source.activitySamples(from, now, isHourly: isHourly)
         : const <ActivitySample>[];
@@ -266,6 +310,25 @@ class HealthService {
               ),
               glass.at,
             ),
+      ],
+      foods: [
+        for (final food in foods)
+          (
+            _nutrition.healthFoodRecord(
+              food,
+              id: '${source.idPrefix}-food-${food.id}',
+            ),
+            food.at,
+          ),
+      ],
+      moods: [
+        for (final mood in moods)
+          WellnessEntry(
+            id: '${source.idPrefix}-mood-${mood.id}',
+            recordedAt: mood.at,
+            kind: WellnessKind.mood,
+            score: moodScore(mood.valence),
+          ),
       ],
       activity: activity,
     );

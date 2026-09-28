@@ -117,8 +117,8 @@ class _Counts extends StatelessWidget {
   }
 }
 
-/// Apple Health or Health Connect: connect once, then read again on
-/// every launch. Read only — nothing goes back to the platform.
+/// Apple Health or Health Connect: connect once, then read again, and
+/// what was logged here written there, on every launch.
 class _HealthPlatform extends StatefulWidget {
   const _HealthPlatform();
 

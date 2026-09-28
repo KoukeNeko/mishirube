@@ -1,4 +1,4 @@
 "NSCameraUsageDescription" = "拍下食物、營養標示、體脂計畫面或圍度紀錄，估算營養或讀取數字後填進紀錄。";
-"NSHealthShareUsageDescription" = "讀取「健康」App 裡的睡眠、體重、腰圍、身高與身體組成、體能訓練、喝水、步數與活動量、心率與有氧體能紀錄，記進你的紀錄。只讀取，不會寫入。";
+"NSHealthShareUsageDescription" = "讀取「健康」App 裡的睡眠、體重、腰圍、身高與身體組成、體能訓練、喝水、飲食與咖啡因、心情、步數與活動量、心率與有氧體能紀錄，記進你的紀錄。";
 "NSPhotoLibraryUsageDescription" = "在相機畫面顯示最新一張照片，並從相簿選食物或營養標示的照片，估算營養或讀取標示數字。";
-"NSHealthUpdateUsageDescription" = "不會寫入「健康」App：只讀取，不會新增或更改任何資料。";
+"NSHealthUpdateUsageDescription" = "把在 App 裡記錄的體重、身體數據、腰圍、睡眠、體能訓練、飲食、喝水與心情寫入「健康」App，並在修改或刪除時同步更新。";

@@ -1414,7 +1414,7 @@
   "privacyScalePhotosValue": "在设备上读取数字，不发送",
   "privacyHealthSection": "健康数据（{platform}）",
   "privacyPermission": "权限",
-  "privacyPermissionValue": "只读，不写入",
+  "privacyPermissionValue": "读取与写入",
   "privacyReading": "读取",
   "privacyReadingValue": "第一次读取全部记录，之后打开 App 时读取最近 30 天",
   "privacyLeavesDevice": "发送出设备",

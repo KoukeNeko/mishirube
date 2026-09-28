@@ -57,6 +57,12 @@ class _Health implements HealthSource {
   @override
   Future<List<HealthWater>> water(DateTime from, DateTime to) async => const [];
   @override
+  Future<List<HealthFood>> foods(DateTime from, DateTime to) async => const [];
+  @override
+  Future<List<HealthMood>> moods(DateTime from, DateTime to) async => const [];
+  @override
+  Future<void> write(List<HealthWrite> writes) async {}
+  @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
     DateTime to, {

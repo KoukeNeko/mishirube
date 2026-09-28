@@ -5025,7 +5025,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyPermission => 'Permission';
 
   @override
-  String get privacyPermissionValue => 'Read only, never written';
+  String get privacyPermissionValue => 'Read and write';
 
   @override
   String get privacyReading => 'Reading';

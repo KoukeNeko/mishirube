@@ -4962,7 +4962,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get privacyPermission => '権限';
 
   @override
-  String get privacyPermissionValue => '読み取りのみ、書き込みなし';
+  String get privacyPermissionValue => '読み取りと書き込み';
 
   @override
   String get privacyReading => '読み取り';

@@ -1160,6 +1160,18 @@ class AppStore extends ChangeNotifier {
 
   void _reloadAfterImport() => notifyListeners();
 
+  /// Writes to the platform what was logged since the last write, as the
+  /// app leaves the front. A failure is kept like a failed sync's; what
+  /// was not written goes the next time.
+  Future<void> writeHealthInBackground() async {
+    try {
+      await _health.writeChanges();
+    } on Exception {
+      _healthSyncFailed = true;
+      notifyListeners();
+    }
+  }
+
   /// Accepts the AI's routine proposal: it changes the template only, and
   /// the audit log records that the change came from an AI draft.
   void applyAiProposal() {

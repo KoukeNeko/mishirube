@@ -1,4 +1,5 @@
 import 'body.dart';
+import 'nutrition.dart';
 
 /// What the app reads from a health platform. Each has a record of its
 /// own here already; nothing is read that would have nowhere to go.
@@ -11,6 +12,14 @@ enum HealthDataKind {
   body,
   workouts,
   water,
+
+  /// What was eaten and drunk, as another app logged it: each entry with
+  /// its energy and nutrients, caffeine logged on its own among them.
+  nutrition,
+
+  /// How the user said they felt (Apple Health's State of Mind); Health
+  /// Connect keeps no such record.
+  mood,
 
   /// Heart rate, breathing, blood oxygen, temperature and heart rate
   /// variability, read only for the time a sleep covers.
@@ -84,4 +93,50 @@ class HealthWater {
   final String id;
   final DateTime at;
   final int ml;
+}
+
+/// Something eaten or drunk, from a health platform: one entry as the app
+/// that wrote it logged it.
+class HealthFood {
+  const HealthFood({
+    required this.id,
+    required this.at,
+    required this.sourceName,
+    this.name,
+    this.mealType,
+    this.kcal,
+    this.proteinGrams,
+    this.carbGrams,
+    this.fatGrams,
+    this.fibreGrams,
+    this.nutrients = const {},
+  });
+
+  final String id;
+  final DateTime at;
+
+  /// The app that logged it, such as `MyFitnessPal`.
+  final String sourceName;
+
+  /// The food's name, when the app gave one.
+  final String? name;
+  final MealType? mealType;
+  final double? kcal;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
+  final double? fibreGrams;
+
+  /// Everything else it recorded, in each nutrient's own unit.
+  final Nutrients nutrients;
+}
+
+/// A mood the user logged in a health platform: how pleasant it felt,
+/// from −1 (very unpleasant) to 1 (very pleasant).
+class HealthMood {
+  const HealthMood({required this.id, required this.at, required this.valence});
+
+  final String id;
+  final DateTime at;
+  final double valence;
 }

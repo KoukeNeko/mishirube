@@ -1,4 +1,4 @@
 "NSCameraUsageDescription" = "음식, 영양성분표, 체지방계 화면, 둘레 기록을 촬영해 영양을 추정하거나 수치를 읽어 기록에 입력합니다.";
-"NSHealthShareUsageDescription" = "건강 앱의 수면, 체중, 허리둘레, 키와 체성분, 운동, 물, 걸음 수와 활동량, 심박수, 심폐 체력 기록을 읽어 기록에 가져옵니다. 읽기만 하며 쓰지 않습니다.";
+"NSHealthShareUsageDescription" = "건강 앱의 수면, 체중, 허리둘레, 키와 체성분, 운동, 물, 식사와 카페인, 기분, 걸음 수와 활동량, 심박수, 심폐 체력 기록을 읽어 기록에 가져옵니다.";
 "NSPhotoLibraryUsageDescription" = "카메라 화면에 최신 사진을 표시하고, 앨범에서 음식이나 영양성분표 사진을 골라 영양을 추정하거나 표시 수치를 읽습니다.";
-"NSHealthUpdateUsageDescription" = "건강 앱에는 쓰지 않습니다. 읽기만 하며 추가하거나 바꾸지 않습니다.";
+"NSHealthUpdateUsageDescription" = "앱에서 기록한 체중, 체성분, 허리둘레, 수면, 운동, 식사, 물, 기분을 건강 앱에 쓰고, 수정하거나 삭제하면 함께 반영합니다.";

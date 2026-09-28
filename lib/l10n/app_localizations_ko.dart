@@ -4964,7 +4964,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get privacyPermission => '권한';
 
   @override
-  String get privacyPermissionValue => '읽기만, 쓰지 않음';
+  String get privacyPermissionValue => '읽기와 쓰기';
 
   @override
   String get privacyReading => '읽기';

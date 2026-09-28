@@ -28,6 +28,8 @@ class _FakeHealth implements HealthSource {
     this.bodyRows = const [],
     this.workoutRows = const [],
     this.waterRows = const [],
+    this.foodRows = const [],
+    this.moodRows = const [],
     this.overnightRows = const [],
     this.activityRows = const [],
   });
@@ -38,6 +40,8 @@ class _FakeHealth implements HealthSource {
   List<HealthBodyReading> bodyRows;
   List<HealthWorkout> workoutRows;
   List<HealthWater> waterRows;
+  List<HealthFood> foodRows;
+  List<HealthMood> moodRows;
   List<ActivitySample> activityRows;
 
   /// What is measured over every sleep asked about.
@@ -132,6 +136,21 @@ class _FakeHealth implements HealthSource {
     for (final row in waterRows)
       if (_within(row.at, from, to)) row,
   ];
+  @override
+  Future<List<HealthFood>> foods(DateTime from, DateTime to) async => [
+    for (final row in foodRows)
+      if (_within(row.at, from, to)) row,
+  ];
+  @override
+  Future<List<HealthMood>> moods(DateTime from, DateTime to) async => [
+    for (final row in moodRows)
+      if (_within(row.at, from, to)) row,
+  ];
+
+  /// Everything written to it, in order.
+  final written = <HealthWrite>[];
+  @override
+  Future<void> write(List<HealthWrite> writes) async => written.addAll(writes);
   @override
   Future<List<ActivitySample>> activitySamples(
     DateTime from,
@@ -534,6 +553,8 @@ void main() {
         HealthDataKind.body: 2,
         HealthDataKind.workouts: 1,
         HealthDataKind.water: 1,
+        HealthDataKind.nutrition: 0,
+        HealthDataKind.mood: 0,
         HealthDataKind.overnight: 0,
         HealthDataKind.activity: 0,
       });
@@ -568,6 +589,134 @@ void main() {
       );
     });
 
+    test('food and moods another app logged come in once each', () async {
+      final at = clock.now().subtract(const Duration(hours: 3));
+      final health = _FakeHealth(
+        const [],
+        foodRows: [
+          HealthFood(
+            id: 'f1',
+            at: at,
+            sourceName: 'MyFitnessPal',
+            name: '燕麥粥',
+            mealType: MealType.breakfast,
+            kcal: 310.4,
+            proteinGrams: 11.6,
+            carbGrams: 52.2,
+            fatGrams: 6.1,
+            fibreGrams: 7.8,
+            nutrients: const {Nutrient.sodium: 120, Nutrient.sugar: 9.5},
+          ),
+          HealthFood(
+            id: 'f2',
+            at: at,
+            sourceName: 'Caffeine Tracker',
+            nutrients: const {Nutrient.caffeine: 95},
+          ),
+        ],
+        moodRows: [
+          HealthMood(id: 'm1', at: at, valence: 0.6),
+          HealthMood(id: 'm2', at: at, valence: -1),
+        ],
+      );
+      final store = storeWith(health);
+
+      final first = await store.connectHealth();
+      expect(first!.added[HealthDataKind.nutrition], 2);
+      expect(first.added[HealthDataKind.mood], 2);
+
+      final meals = {
+        for (final meal in store.backend.nutrition.mealsOn(at))
+          if (meal.id.startsWith('healthkit-food-')) meal.id: meal,
+      };
+      final oats = meals['healthkit-food-f1']!;
+      expect(oats.name, '燕麥粥');
+      expect(oats.qualityTag, 'MyFitnessPal', reason: 'marked with its app');
+      expect(oats.mealType, MealType.breakfast);
+      expect(
+        [oats.kcal, oats.proteinGrams, oats.carbGrams, oats.fatGrams],
+        [310, 12, 52, 6],
+      );
+      expect(oats.fibreGrams, 8);
+      expect(oats.nutrients, {Nutrient.sodium: 120, Nutrient.sugar: 9.5});
+      final coffee = meals['healthkit-food-f2']!;
+      expect(coffee.name, '咖啡因', reason: 'caffeine alone, named for it');
+      expect(coffee.kind, ConsumptionKind.beverage);
+      expect(coffee.kcal, isNull, reason: 'not recorded is not zero');
+
+      final moods = store.backend.journal
+          .recentWellness(const Duration(days: 1))
+          .where((entry) => entry.id.startsWith('healthkit-mood-'));
+      expect(
+        {for (final mood in moods) mood.id: mood.score},
+        {'healthkit-mood-m1': 4, 'healthkit-mood-m2': 1},
+      );
+
+      final again = await store.syncHealth();
+      expect(again!.foundNothing, isTrue);
+    });
+
+    test('what is logged in the app is written, and follows edits', () async {
+      final health = _FakeHealth(
+        const [],
+        weightRows: [
+          HealthWeight(
+            id: 'w1',
+            at: clock.now().subtract(const Duration(hours: 5)),
+            kg: 70,
+          ),
+        ],
+      );
+      final store = storeWith(health);
+      await store.connectHealth();
+      expect(
+        health.written,
+        isEmpty,
+        reason: 'the demo content and what was read in are not written',
+      );
+
+      clock.advance(const Duration(minutes: 1));
+      final journal = store.backend.journal;
+      final weight = journal.recordWeight(71.2);
+      journal.recordWellness(WellnessKind.mood, 5);
+      journal.recordWellness(WellnessKind.energy, 2);
+      final water = store.backend.nutrition.logWater(250);
+      await store.syncHealth();
+
+      Map<HealthWriteKind, HealthWrite> byKind() => {
+        for (final write in health.written) write.kind: write,
+      };
+      expect(byKind().keys, {
+        HealthWriteKind.weight,
+        HealthWriteKind.mood,
+        HealthWriteKind.water,
+      }, reason: 'energy has no place on a platform');
+      expect(byKind()[HealthWriteKind.weight]!.id, weight.id);
+      expect(byKind()[HealthWriteKind.weight]!.values['kg'], 71.2);
+      expect(byKind()[HealthWriteKind.mood]!.values['valence'], 1.0);
+      expect(byKind()[HealthWriteKind.water]!.values['ml'], 250);
+      final firstVersion = byKind()[HealthWriteKind.weight]!.version;
+
+      health.written.clear();
+      await store.syncHealth();
+      expect(health.written, isEmpty, reason: 'nothing changed since');
+
+      clock.advance(const Duration(minutes: 1));
+      journal.updateWeight(
+        BodyWeight(id: weight.id, measuredAt: weight.measuredAt, weightKg: 71),
+      );
+      store.backend.nutrition.deleteMeals([water.id]);
+      await store.syncHealth();
+      final edited = byKind()[HealthWriteKind.weight]!;
+      expect(edited.values['kg'], 71.0);
+      expect(edited.version, greaterThan(firstVersion));
+      expect(
+        health.written.where((write) => write.isDelete).map((w) => w.id),
+        everyElement(water.id),
+        reason: 'a deleted glass is removed wherever it was written',
+      );
+    });
+
     test('a kind the user did not allow is not read, and is named', () async {
       final at = clock.now().subtract(const Duration(hours: 3));
       final health = _FakeHealth(
@@ -593,6 +742,8 @@ void main() {
         HealthDataKind.body,
         HealthDataKind.workouts,
         HealthDataKind.water,
+        HealthDataKind.nutrition,
+        HealthDataKind.mood,
         HealthDataKind.overnight,
         HealthDataKind.activity,
       });
@@ -739,8 +890,8 @@ void main() {
       await tester.pumpWidget(MishirubeApp(store: store));
       await tester.pumpAndSettle();
       expect(find.byType(PrivacyScreen), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('只讀，不寫入'), 200);
-      expect(find.text('只讀，不寫入'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('讀取與寫入'), 200);
+      expect(find.text('讀取與寫入'), findsOneWidget);
       await disposeTree(tester);
     });
 

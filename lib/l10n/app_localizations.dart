@@ -8647,7 +8647,7 @@ abstract class AppLocalizations {
   /// Privacy value.
   ///
   /// In zh, this message translates to:
-  /// **'只讀，不寫入'**
+  /// **'讀取與寫入'**
   String get privacyPermissionValue;
 
   /// Privacy row.

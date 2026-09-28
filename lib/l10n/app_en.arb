@@ -1414,7 +1414,7 @@
   "privacyScalePhotosValue": "Read on the device, not sent",
   "privacyHealthSection": "Health data ({platform})",
   "privacyPermission": "Permission",
-  "privacyPermissionValue": "Read only, never written",
+  "privacyPermissionValue": "Read and write",
   "privacyReading": "Reading",
   "privacyReadingValue": "All records the first time, then the last 30 days on each launch",
   "privacyLeavesDevice": "Leaves the device",

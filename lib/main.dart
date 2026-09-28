@@ -38,9 +38,13 @@ Future<void> main() async {
   // Apple Health or Health Connect is read again on every launch once
   // connected, so last night is there without asking, and again each
   // time the app comes back to the front: a phone keeps it running in
-  // between, so that is what most openings are.
+  // between, so that is what most openings are. What was logged is
+  // written there then too, and as the app leaves the front.
   store.syncHealthInBackground();
-  AppLifecycleListener(onResume: store.syncHealthInBackground);
+  AppLifecycleListener(
+    onResume: store.syncHealthInBackground,
+    onHide: store.writeHealthInBackground,
+  );
   store.refreshOnDeviceAi();
   store.refreshFirstWeekday();
 }
