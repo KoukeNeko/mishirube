@@ -224,17 +224,15 @@ void main() {
         );
       }
 
-      // Without a compact bar the pinned switch takes the toolbar's place.
+      // Without a compact bar the pinned strip takes the toolbar's place.
       store.selectTab(HomeTab.log);
       await tester.pump(_settle);
       for (var i = 0; i < 3; i++) {
         await _dragAndSettle(tester, 600);
       }
-      final chip = tester.getRect(find.text('2026 年 9 月').hitTestable());
-      expect(
-        chip.center.dy,
-        closeTo(phoneTopInset + toolbar.controlRowHeight / 2, 0.5),
-      );
+      final strip = tester.getRect(find.byType(WeekDayStrip));
+      expect(strip.top, greaterThanOrEqualTo(phoneTopInset));
+      expect(strip.top, lessThan(phoneTopInset + toolbar.controlRowHeight));
       await disposeTree(tester);
 
       await pumpScreen(tester, const WeightEntryScreen(), store: store);
@@ -257,7 +255,7 @@ void main() {
           .height;
 
       expect(pillHeight(find.text('今天')), toolbar.actionVisualSize);
-      expect(pillHeight(find.text('2026 年 9 月')), toolbar.actionVisualSize);
+      expect(pillHeight(find.text('2026年9月')), toolbar.actionVisualSize);
       expect(pillHeight(find.text('訓練').first), toolbar.actionVisualSize);
       await disposeTree(tester);
     },
@@ -308,7 +306,6 @@ void main() {
     variant: iosOnly,
     (tester) async {
       await _pumpShell(tester, tab: HomeTab.log);
-      final toolbar = ToolbarMetrics.of(tester.element(_header));
       final delegate =
           tester
                   .widget<SliverPersistentHeader>(
@@ -333,13 +330,15 @@ void main() {
         tester.getCenter(_visibleScrollView),
       );
       await gesture.moveBy(const Offset(0, -_slop));
+      double? gap;
       for (final dy in [delegate.largeHeight + 15, 15.0]) {
         await gesture.moveBy(Offset(0, -dy));
         await tester.pump();
-        expect(
-          pill('2026 年 9 月').top - pill('今天').bottom,
-          closeTo(toolbar.height - toolbar.controlRowHeight, 0.001),
-        );
+        final now =
+            tester.getRect(find.byType(WeekDayStrip)).top - pill('今天').bottom;
+        expect(now, greaterThanOrEqualTo(0), reason: 'never under it');
+        if (gap != null) expect(now, closeTo(gap, 0.001));
+        gap = now;
       }
       await gesture.up();
       await disposeTree(tester);

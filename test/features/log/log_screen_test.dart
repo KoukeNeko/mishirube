@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
+import 'package:mishirube/shared/window_layout.dart';
 
 import '../../support/harness.dart';
 
@@ -52,26 +54,108 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the month steps back, and not past the current one', (
+  testWidgets('a day picked on the week strip scrolls the timeline to it', (
     tester,
   ) async {
     usePhoneViewport(tester);
-    await tester.pumpWidget(MishirubeApp(store: storeWithNotes()));
+    final clock = FakeClock();
+    final store = AppStore(
+      clock: clock.now,
+      isOnboarded: true,
+      backend: Backend.inMemory(clock: clock.now),
+    )..selectTab(HomeTab.log);
+    // Enough days that the 14th starts below the screen.
+    for (var day = 14; day <= 19; day++) {
+      for (var hour = 8; hour < 14; hour++) {
+        store.backend.journal.recordNote(
+          '$day 號 $hour 點',
+          at: DateTime(2026, 9, day, hour),
+        );
+      }
+    }
+    await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
+    final note = find.text('14 號 13 點');
+    expect(note.hitTestable(), findsNothing, reason: 'further down');
 
-    await tester.tap(find.bySemanticsLabel('下個月').hitTestable());
+    final strip = find.byType(WeekDayStrip);
+    await tester.tap(
+      find.descendant(of: strip, matching: find.text('14')).hitTestable(),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('2026 年 9 月'), findsOneWidget, reason: 'no future');
-
-    await tester.tap(find.bySemanticsLabel('上個月').hitTestable());
-    await tester.pumpAndSettle();
-    expect(find.text('2026 年 8 月'), findsOneWidget);
-
-    await tester.tap(find.bySemanticsLabel('下個月').hitTestable());
-    await tester.pumpAndSettle();
-    expect(find.text('2026 年 9 月'), findsOneWidget);
+    expect(note.hitTestable(), findsOneWidget);
+    expect(
+      tester.getRect(note).top,
+      greaterThan(tester.getRect(strip).bottom),
+      reason: 'under the pinned strip, not behind it',
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.selected == true &&
+            (widget.properties.label?.contains('14') ?? false),
+      ),
+      findsOneWidget,
+      reason: 'the strip still has the day picked once the list stops',
+    );
     await disposeTree(tester);
   });
+
+  testWidgets(
+    'swiping the week strip ticks per day, a week turned to does not',
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    (tester) async {
+      usePhoneViewport(tester);
+      final haptics = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'HapticFeedback.vibrate') {
+            haptics.add(call.arguments);
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.pumpWidget(MishirubeApp(store: storeWithNotes()));
+      await tester.pumpAndSettle();
+
+      final strip = find.byType(WeekDayStrip);
+      // Slowly, a frame at a time, so no day is skipped in one frame.
+      final gesture = await tester.startGesture(tester.getCenter(strip));
+      final week =
+          tester.getSize(strip).width -
+          PageColumn.gutterOf(tester.element(strip)).horizontal;
+      for (var moved = 0.0; moved < week; moved += 8) {
+        await gesture.moveBy(const Offset(8, 0));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(
+        haptics.where((type) => type == 'HapticFeedbackType.selectionClick'),
+        hasLength(7),
+        reason: 'a day at a time, as the Digital Crown',
+      );
+      expect(haptics.last, 'HapticFeedbackType.lightImpact', reason: 'settled');
+
+      // A day picked from there turns the strip back without a tick.
+      await tester.tap(find.text('今天').hitTestable().first);
+      await tester.pumpAndSettle();
+      expect(
+        haptics.where((type) => type == 'HapticFeedbackType.selectionClick'),
+        hasLength(7),
+        reason: 'the button taps; the strip turning back does not tick',
+      );
+      await disposeTree(tester);
+    },
+  );
 
   testWidgets('the calendar scrolls through months, the month following', (
     tester,

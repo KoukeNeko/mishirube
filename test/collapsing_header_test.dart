@@ -158,22 +158,22 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('Log has no compact bar: only the month switch stays', (
+  testWidgets('Log has no compact bar: only the week strip stays', (
     tester,
   ) async {
     await _pumpApp(tester, tab: HomeTab.log);
 
     await _scroll(tester, 500);
-    final pinnedTop = tester.getRect(find.text('2026 年 9 月').hitTestable()).top;
+    final pinnedTop = tester.getRect(find.byType(WeekDayStrip)).top;
     expect(
       pinnedTop,
       lessThan(phoneTopInset + _toolbarHeight),
-      reason: 'no toolbar row above the pinned switch',
+      reason: 'no toolbar row above the pinned strip',
     );
 
     await _scroll(tester, -120);
     expect(
-      tester.getRect(find.text('2026 年 9 月').hitTestable()).top,
+      tester.getRect(find.byType(WeekDayStrip)).top,
       pinnedTop,
       reason: 'scrolling up does not bring a small bar back',
     );

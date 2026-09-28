@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
+import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import 'month_calendar.dart';
 import 'log_view_model.dart';
@@ -54,9 +55,20 @@ class _LogScreenState extends State<LogScreen> {
   /// First day of the month being browsed.
   late DateTime _month;
 
-  /// The day the calendar lists; it may lie outside [_month] once the
-  /// calendar has been scrolled on.
+  /// The day the calendar lists, or the timeline has at its top; it may
+  /// lie outside [_month] once the calendar has been scrolled on.
   late DateTime _selected;
+
+  /// Each listed day's header on the timeline, to scroll to and to read
+  /// which day is at the top.
+  final _dayKeys = <DateTime, GlobalKey>{};
+
+  /// The pinned strip, whose bottom edge is where the list shows from.
+  final _pinnedKey = GlobalKey();
+
+  /// Set while the timeline scrolls to a picked day, so that scroll does
+  /// not pick a day of its own.
+  bool _isRevealing = false;
 
   late final _log = LogViewModel(AppStoreScope.read(context).backend);
 
@@ -81,14 +93,178 @@ class _LogScreenState extends State<LogScreen> {
   bool get _isCurrentMonth =>
       _month.year == _today.year && _month.month == _today.month;
 
-  bool get _isEarliestMonth => !_month.isAfter(_log.earliestMonth);
-
   void _setMonth(DateTime month) {
     setState(() {
       _month = month;
-      // Today in the current month; otherwise the month's first day.
-      _selected = _isCurrentMonth ? _dayOf(_today) : month;
+      // Today in the current month; otherwise the month's first day, or
+      // on the timeline, which lists newest first, its last.
+      _selected = _isCurrentMonth
+          ? _dayOf(_today)
+          : _view == _LogView.timeline
+          ? DateTime(month.year, month.month + 1, 0)
+          : month;
     });
+    _revealSelected();
+  }
+
+  /// A day picked on the week strip: its month is listed, and the list
+  /// scrolls to it.
+  void _pickDay(DateTime day) {
+    setState(() {
+      _selected = day;
+      _month = DateTime(day.year, day.month);
+    });
+    _revealSelected();
+  }
+
+  /// Scrolls the timeline to [_selected]'s header, or to the nearest
+  /// listed day before it, once the list has been built. The list is
+  /// built lazily, so a header not yet built is reached by stepping a
+  /// screen at a time towards it.
+  void _revealSelected() {
+    if (_view != _LogView.timeline) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final listed = _listedDays();
+      if (listed.isEmpty) return;
+      final target =
+          listed.where((day) => !day.isAfter(_selected)).firstOrNull ??
+          listed.last;
+      _isRevealing = true;
+      try {
+        for (var step = 0; step < 100 && mounted; step++) {
+          final built = [
+            for (final day in listed)
+              if (_dayKeys[day]?.currentContext != null) day,
+          ];
+          if (built.isEmpty) return;
+          final position = Scrollable.of(_dayKeys[built.first]!.currentContext!)
+              .position;
+          // The newest day is the list's top, toolbar and all.
+          if (target == listed.first) {
+            await _scrollTo(position, position.minScrollExtent);
+            return;
+          }
+          if (_dayKeys[target]?.currentContext != null) {
+            await _settle(position, _dayKeys[target]!);
+            return;
+          }
+          // Newest first: an older day lies further down.
+          final isBelow = target.isBefore(built.last);
+          final next =
+              position.pixels +
+              (isBelow ? 1 : -1) * position.viewportDimension * 0.8;
+          position.jumpTo(
+            next.clamp(position.minScrollExtent, position.maxScrollExtent),
+          );
+          await WidgetsBinding.instance.endOfFrame;
+        }
+      } finally {
+        _isRevealing = false;
+      }
+    });
+  }
+
+  Future<void> _scrollTo(ScrollPosition position, double offset) {
+    final duration = chromeDuration(context, const Duration(milliseconds: 250));
+    if (duration == Duration.zero) {
+      position.jumpTo(offset);
+      return Future.value();
+    }
+    return position.animateTo(
+      offset,
+      duration: duration,
+      curve: Curves.easeOut,
+    );
+  }
+
+  /// Brings [header] to just under the pinned strip. The toolbar scrolls
+  /// away above the strip, which moves it, so the offset is measured
+  /// again once and corrected.
+  Future<void> _settle(ScrollPosition position, GlobalKey header) async {
+    final duration = chromeDuration(context, const Duration(milliseconds: 250));
+    for (var pass = 0; pass < 2 && mounted; pass++) {
+      final strip = _pinnedKey.currentContext?.findRenderObject() as RenderBox?;
+      final box = header.currentContext?.findRenderObject() as RenderBox?;
+      if (strip == null || box == null || !box.attached) return;
+      final stripBottom = strip.localToGlobal(Offset(0, strip.size.height)).dy;
+      final delta = box.localToGlobal(Offset.zero).dy - stripBottom;
+      if (delta.abs() < 1) return;
+      final to = (position.pixels + delta).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      );
+      if (duration == Duration.zero || pass > 0) {
+        position.jumpTo(to);
+      } else {
+        await position.animateTo(to, duration: duration, curve: Curves.easeOut);
+      }
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
+
+  /// The days the timeline lists, newest first, under the filter and
+  /// search.
+  List<DateTime> _listedDays() => [
+    for (final day in _log.month(_month).days)
+      if (day.entries.where(_filter.accepts).where(_matchesQuery).isNotEmpty ||
+          _query.isEmpty)
+        day.date,
+  ];
+
+  /// Once the timeline stops, the week strip picks the day at its top.
+  bool _followScroll(ScrollEndNotification notification) {
+    // The page's own list only, not the strip's or the chips' rows.
+    if (_isRevealing ||
+        _view != _LogView.timeline ||
+        notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
+    // A scroll can end mid-build, when the list under it changes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_isRevealing) _pickDayAtTop();
+    });
+    return false;
+  }
+
+  void _pickDayAtTop() {
+    final strip = _pinnedKey.currentContext?.findRenderObject() as RenderBox?;
+    if (strip == null) return;
+    final top = strip.localToGlobal(Offset(0, strip.size.height)).dy;
+    DateTime? atTop;
+    for (final day in _listedDays()) {
+      final box =
+          _dayKeys[day]?.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.attached) continue;
+      // The last header at or above the strip's edge owns the top of the
+      // list; before any has reached it, the first one built does.
+      if (box.localToGlobal(Offset.zero).dy <= top + 1) {
+        atTop = day;
+      } else {
+        atTop ??= day;
+        break;
+      }
+    }
+    if (atTop != null && atTop != _selected) {
+      setState(() => _selected = atTop!);
+    }
+  }
+
+  /// Which of the strip's weeks have records the filter keeps.
+  Set<DateTime> _markedDays() {
+    final day = _selected;
+    final marked = <DateTime>{};
+    for (var back = -35; back <= 35; back += 7) {
+      final month = DateTime(day.year, day.month, day.day + back);
+      final first = DateTime(month.year, month.month);
+      for (final MapEntry(key: date, value: categories)
+          in _log.categoriesIn(first).entries) {
+        if (_filter.category == null || categories.contains(_filter.category)) {
+          marked.add(DateTime(first.year, first.month, date));
+        }
+      }
+    }
+    return marked;
   }
 
   void _search(String query) {
@@ -117,6 +293,7 @@ class _LogScreenState extends State<LogScreen> {
       _month = DateTime(_today.year, _today.month);
       _selected = _dayOf(_today);
     });
+    _revealSelected();
   }
 
   /// Opens the month wheels under [buttonContext]'s button.
@@ -143,6 +320,13 @@ class _LogScreenState extends State<LogScreen> {
 
   Widget _page() {
     final isTimeline = _view == _LogView.timeline;
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: _followScroll,
+      child: _pageBody(isTimeline),
+    );
+  }
+
+  Widget _pageBody(bool isTimeline) {
     return CollapsingPage(
       // The tab names the page. The calendar reads as Apple Calendar's
       // month view: its month pinned as a title, and the year to reach
@@ -151,8 +335,19 @@ class _LogScreenState extends State<LogScreen> {
       compactBar: isTimeline
           ? CompactBarBehavior.none
           : CompactBarBehavior.pinned,
+      // On the timeline the month is picked here; the week strip under
+      // the toolbar picks the day.
       leading: isTimeline
-          ? null
+          ? Builder(
+              builder: (buttonContext) => HeaderAction(
+                icon: Icons.calendar_month_outlined,
+                label: context.dates.compactYearMonth(_month),
+                semanticLabel: context.l10n.pickMonthCurrent(
+                  month: context.dates.yearMonth(_month),
+                ),
+                onTap: () => _pickMonth(buttonContext),
+              ),
+            )
           : Builder(
               builder: (buttonContext) => HeaderAction(
                 icon: Icons.chevron_left,
@@ -202,51 +397,16 @@ class _LogScreenState extends State<LogScreen> {
               ),
             )
           : Column(
+              key: _pinnedKey,
               children: [
-                SizedBox(
-                  // The switch takes the toolbar's row once it has
-                  // scrolled away, centred in it as the toolbar's buttons.
-                  height: ToolbarMetrics.of(context).controlRowHeight,
-                  child: Gutter(
-                    child: Row(
-                      children: [
-                        _MonthStep(
-                          icon: Icons.chevron_left,
-                          semanticLabel: context.l10n.previousMonth,
-                          onTap: _isEarliestMonth
-                              ? null
-                              : () => _setMonth(
-                                  DateTime(_month.year, _month.month - 1),
-                                ),
-                        ),
-                        Expanded(
-                          // Shrinks rather than overflows at large text sizes.
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Builder(
-                              builder: (buttonContext) => HeaderAction(
-                                icon: Icons.calendar_month_outlined,
-                                label: context.dates.yearMonth(_month),
-                                semanticLabel: context.l10n.pickMonthCurrent(
-                                  month: context.dates.yearMonth(_month),
-                                ),
-                                onTap: () => _pickMonth(buttonContext),
-                              ),
-                            ),
-                          ),
-                        ),
-                        _MonthStep(
-                          icon: Icons.chevron_right,
-                          semanticLabel: context.l10n.nextMonth,
-                          onTap: _isCurrentMonth
-                              ? null
-                              : () => _setMonth(
-                                  DateTime(_month.year, _month.month + 1),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
+                // The same week header as 睡眠 and 飲食.
+                WeekDayStrip(
+                  selected: _selected,
+                  latest: _dayOf(_today),
+                  firstWeekday: AppStoreScope.of(context).firstWeekday,
+                  color: _filter.color,
+                  markedDays: _markedDays(),
+                  onSelected: _pickDay,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 FilterChipBar<_LogFilter>(
@@ -259,11 +419,11 @@ class _LogScreenState extends State<LogScreen> {
                 ),
               ],
             ),
-      // The chips' row, then the switch's, as tall as the toolbar's row.
+      // The week strip, then the chips' row.
       pinnedHeight: isTimeline
           ? measurePinnedControlHeight(context) +
                 AppSpacing.xs +
-                ToolbarMetrics.of(context).controlRowHeight
+                WeekDayStrip.heightOf(context)
           : measurePinnedControlHeight(context) -
                 pillHeight(context) +
                 measureTextHeight(
@@ -303,7 +463,10 @@ class _LogScreenState extends State<LogScreen> {
         )
       else
         for (final (day, entries) in days) ...[
-          Gutter(child: _DayHeader(day: day)),
+          Gutter(
+            key: _dayKeys.putIfAbsent(day.date, GlobalKey.new),
+            child: _DayHeader(day: day),
+          ),
           for (final entry in entries)
             Gutter(
               child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
@@ -341,31 +504,6 @@ class _LogScreenState extends State<LogScreen> {
             child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
           ),
     ];
-  }
-}
-
-/// A step to the month before or after; dimmed where there is none.
-class _MonthStep extends StatelessWidget {
-  const _MonthStep({
-    required this.icon,
-    required this.semanticLabel,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String semanticLabel;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: onTap == null ? 0.35 : 1,
-      child: HeaderAction(
-        icon: icon,
-        semanticLabel: semanticLabel,
-        onTap: onTap,
-      ),
-    );
   }
 }
 

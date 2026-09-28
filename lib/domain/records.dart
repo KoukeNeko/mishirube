@@ -39,8 +39,15 @@ class TimelineEntry {
 }
 
 class TimelineDay {
-  const TimelineDay({required this.label, required this.entries, this.warning});
+  const TimelineDay({
+    required this.date,
+    required this.label,
+    required this.entries,
+    this.warning,
+  });
 
+  /// Midnight of the day.
+  final DateTime date;
   final String label;
   final List<TimelineEntry> entries;
   final String? warning;

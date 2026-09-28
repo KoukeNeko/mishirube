@@ -416,11 +416,11 @@ void main() {
 
     final button = tester.getRect(
       find.ancestor(
-        of: find.text('2026 年 9 月').hitTestable(),
+        of: find.text('2026年9月').hitTestable(),
         matching: find.byType(HeaderAction),
       ),
     );
-    await tester.tap(find.text('2026 年 9 月').hitTestable());
+    await tester.tap(find.text('2026年9月').hitTestable());
     await tester.pump();
     await tester.pump(_pageTransition);
     final september = find.text('9 月');
@@ -433,16 +433,16 @@ void main() {
           .first,
     );
     expect(popover.top, button.bottom + 8, reason: 'hangs under the button');
-    expect(popover.right, button.right);
+    expect(popover.left, button.left, reason: 'from the leading edge');
 
     // A future month settles back to the latest one.
     await tester.drag(september, const Offset(0, -60));
     await tester.pumpAndSettle();
-    expect(find.text('2026 年 9 月'), findsOneWidget);
+    expect(find.text('2026年9月'), findsOneWidget);
 
     await tester.drag(september, const Offset(0, 60));
     await tester.pumpAndSettle();
-    expect(find.text('2026 年 8 月'), findsOneWidget);
+    expect(find.text('2026年8月'), findsOneWidget);
 
     // Tapping outside closes it.
     await tester.tapAt(const Offset(20, 600));
@@ -457,7 +457,7 @@ void main() {
     // 「今天」jumps back to the current month.
     await tester.tap(find.text('今天').hitTestable().first);
     await tester.pump();
-    expect(find.text('2026 年 9 月'), findsOneWidget);
+    expect(find.text('2026年9月'), findsOneWidget);
     await disposeTree(tester);
   });
 

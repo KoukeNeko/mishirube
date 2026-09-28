@@ -82,6 +82,7 @@ class TimelineQuery {
       days: [
         for (final day in days)
           TimelineDay(
+            date: DateTime(month.year, month.month, day),
             label: _dayLabel(DateTime(month.year, month.month, day), today),
             warning: warnings[day],
             entries: [
