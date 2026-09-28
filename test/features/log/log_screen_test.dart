@@ -103,7 +103,7 @@ void main() {
   });
 
   testWidgets(
-    'swiping the week strip ticks per day, a week turned to does not',
+    'the week strip ticks per day, swiped or turned to',
     variant: TargetPlatformVariant.only(TargetPlatform.iOS),
     (tester) async {
       usePhoneViewport(tester);
@@ -145,14 +145,16 @@ void main() {
       );
       expect(haptics.last, 'HapticFeedbackType.lightImpact', reason: 'settled');
 
-      // A day picked from there turns the strip back without a tick.
+      // Turned back to today's week by the app, it ticks the same.
+      haptics.clear();
       await tester.tap(find.text('今天').hitTestable().first);
       await tester.pumpAndSettle();
       expect(
         haptics.where((type) => type == 'HapticFeedbackType.selectionClick'),
-        hasLength(7),
-        reason: 'the button taps; the strip turning back does not tick',
+        isNotEmpty,
+        reason: 'the row moved, so the hand feels it',
       );
+      expect(haptics.last, 'HapticFeedbackType.lightImpact', reason: 'settled');
       await disposeTree(tester);
     },
   );

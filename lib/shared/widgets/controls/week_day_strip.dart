@@ -74,21 +74,19 @@ class _WeekDayStripState extends State<WeekDayStrip> {
   /// reads as one that goes on past the screen.
   PageController? _pages;
 
-  /// Whether a finger moved the weeks, so a week turned to by picking a
-  /// day does not tick as a swipe does.
-  bool _isSwiping = false;
-
-  /// The day cell last under the strip's centre while swiping, counted
-  /// in days from the first week.
+  /// The day cell last under the strip's centre, counted in days from
+  /// the first week; null between scrolls.
   int? _detent;
 
-  /// Whether this swipe crossed a day; one that did not has nothing to
+  /// Whether this scroll crossed a day; one that did not has nothing to
   /// settle.
   bool _hasTicked = false;
 
   /// Ticks as the Digital Crown does: once for each day that crosses the
   /// strip, however fast, never a burst to catch up on days skipped in
-  /// one frame; then a firmer one when the swipe settles on a week.
+  /// one frame; then a firmer one when it settles on a week. A week the
+  /// strip turns to by itself ticks as a swiped one does, so the hand
+  /// feels every move of the row, not only its own.
   bool _tickDetents(ScrollNotification notification) {
     if (notification.depth != 0) return false;
     final page = switch (notification.metrics) {
@@ -100,19 +98,18 @@ class _WeekDayStripState extends State<WeekDayStrip> {
     // exact as one forward.
     final detent = (page * 7).round();
     switch (notification) {
-      case ScrollStartNotification(:final dragDetails):
-        _isSwiping = dragDetails != null;
+      case ScrollStartNotification():
         _detent = detent;
         _hasTicked = false;
-      case ScrollUpdateNotification() when _isSwiping:
+      case ScrollUpdateNotification() when _detent != null:
         if (detent != _detent) {
           _detent = detent;
           _hasTicked = true;
           AppHaptics.selection(context);
         }
       case ScrollEndNotification():
-        if (_isSwiping && _hasTicked) AppHaptics.settle(context);
-        _isSwiping = false;
+        if (_hasTicked) AppHaptics.settle(context);
+        _detent = null;
       default:
     }
     return false;
