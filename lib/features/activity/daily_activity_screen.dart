@@ -48,23 +48,24 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
     final totals = _model.totals;
     final sessions = _model.sessions;
     final lead = ActivityMetric.headline.where(totals.containsKey).firstOrNull;
-    return DetailPage(
+    return PageScaffold(
       appBar: PageAppBar(
         title: context.l10n.dailyActivityTitle,
         subtitle: context.dates.dayWithWeekday(day),
-        actions: [
-          HeaderAction(
-            icon: Icons.chevron_left,
-            semanticLabel: context.l10n.previousDay,
-            onTap: () => _model.step(-1),
-          ),
-          HeaderAction(
-            icon: Icons.chevron_right,
-            semanticLabel: context.l10n.nextDay,
-            onTap: _model.canGoForward ? () => _model.step(1) : null,
-          ),
-        ],
       ),
+      // The same week header as 睡眠 and 飲食: any day is a swipe away.
+      pinned: WeekDayStrip(
+        selected: day,
+        latest: _model.today,
+        firstWeekday: AppStoreScope.of(context).firstWeekday,
+        color: AppColors.activity,
+        markedDays: _model.daysWithActivity([
+          for (var back = -35; back <= 35; back++)
+            DateTime(day.year, day.month, day.day + back),
+        ]),
+        onSelected: _model.show,
+      ),
+      pinnedHeight: WeekDayStrip.pinnedHeightOf(context),
       children: [
         if (metrics.isEmpty) ...[
           Gutter(

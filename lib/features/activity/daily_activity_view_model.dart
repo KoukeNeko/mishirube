@@ -21,11 +21,29 @@ class DailyActivityViewModel extends ViewModel {
   bool get canGoForward => _day.isBefore(today);
 
   /// Moves the page [days] days, never past today.
-  void step(int days) {
-    final next = DateTime(_day.year, _day.month, _day.day + days);
-    if (next.isAfter(today)) return;
-    _day = next;
+  void step(int days) => show(DateTime(_day.year, _day.month, _day.day + days));
+
+  /// Shows [day], never past today.
+  void show(DateTime day) {
+    final picked = _dateOf(day);
+    if (picked.isAfter(today) || picked == _day) return;
+    _day = picked;
     notifyListeners();
+  }
+
+  /// Which of [days] have the lead figure recorded, read in one range.
+  Set<DateTime> daysWithActivity(List<DateTime> days) {
+    final recorded = metrics;
+    final lead = ActivityMetric.headline.where(recorded.contains).firstOrNull;
+    if (lead == null || days.isEmpty) return const {};
+    return {
+      for (final (day, _) in backend.activity.daily(
+        lead,
+        days.first,
+        days.last,
+      ))
+        _dateOf(day),
+    };
   }
 
   /// The metrics any source recorded; one nobody records is never shown.
