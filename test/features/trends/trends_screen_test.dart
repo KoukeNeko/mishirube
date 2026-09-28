@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:flutter/material.dart';
+import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -36,6 +37,29 @@ void main() {
       );
       expect(row, findsOneWidget, reason: area);
     }
+    await disposeTree(tester);
+  });
+
+  testWidgets("the week's training shows where the sets went", (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const TrendsScreen(), store: store);
+
+    final map = find.byType(MuscleMap);
+    await tester.dragUntilVisible(
+      map,
+      find.byType(CustomScrollView).hitTestable().first,
+      const Offset(0, -200),
+    );
+    expect(map, findsOneWidget);
+    final card = tester.getSize(
+      find.ancestor(of: map, matching: find.byType(AppCard)),
+    );
+    expect(
+      tester.getSize(map).height,
+      lessThanOrEqualTo(card.width / 2),
+      reason: 'a glance, not the whole card',
+    );
     await disposeTree(tester);
   });
 }

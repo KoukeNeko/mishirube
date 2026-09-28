@@ -13,6 +13,7 @@ import '../../shared/widgets/widgets.dart';
 import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
+import 'muscle_map.dart';
 import 'muscle_trends_screen.dart';
 import 'trend_detail_screen.dart';
 import 'trends_view_model.dart';
@@ -33,15 +34,19 @@ class TrendsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       create: TrendsViewModel.new,
-      builder: (context, model) => _TrendsPage(report: model.report),
+      builder: (context, model) =>
+          _TrendsPage(report: model.report, figure: model.muscleFigure),
     );
   }
 }
 
 class _TrendsPage extends StatelessWidget {
-  const _TrendsPage({required this.report});
+  const _TrendsPage({required this.report, required this.figure});
 
   final TrendsReport report;
+
+  /// The body the muscle map is drawn on.
+  final MuscleFigure figure;
 
   /// Narrowest a column reads well at, gutters included.
   static const _minColumnWidth = 380.0;
@@ -112,6 +117,7 @@ class _TrendsPage extends StatelessWidget {
               child: switch (report.training) {
                 final training? => _TrainingBalanceCard(
                   balance: training,
+                  figure: figure,
                   onTap: () => pushPage(context, const MuscleTrendsScreen()),
                 ),
                 null => _Missing(
@@ -227,6 +233,7 @@ class _InsightCard extends StatelessWidget {
   const _InsightCard({
     required this.domain,
     required this.headline,
+    this.picture,
     this.value,
     this.unit,
     this.lines = const [],
@@ -237,6 +244,9 @@ class _InsightCard extends StatelessWidget {
 
   final TrendDomain domain;
   final String headline;
+
+  /// A figure above the headline, for an insight a picture says faster.
+  final Widget? picture;
   final String? value;
   final String? unit;
   final List<String> lines;
@@ -264,7 +274,12 @@ class _InsightCard extends StatelessWidget {
                 const Icon(Icons.chevron_right, color: AppColors.textTertiary),
             ],
           ),
-          const SizedBox(height: AppSpacing.xs),
+          if (picture case final picture?) ...[
+            const SizedBox(height: AppSpacing.sm),
+            picture,
+            const SizedBox(height: AppSpacing.sm),
+          ] else
+            const SizedBox(height: AppSpacing.xs),
           Text(headline, style: AppTextStyles.itemTitle),
           if (value case final value?) ...[
             const SizedBox(height: AppSpacing.xs),
@@ -421,9 +436,14 @@ class _ProteinCard extends StatelessWidget {
 }
 
 class _TrainingBalanceCard extends StatelessWidget {
-  const _TrainingBalanceCard({required this.balance, required this.onTap});
+  const _TrainingBalanceCard({
+    required this.balance,
+    required this.figure,
+    required this.onTap,
+  });
 
   final TrainingBalance balance;
+  final MuscleFigure figure;
   final VoidCallback onTap;
 
   static (String, String) _sides(AppLocalizations l10n, MusclePair pair) =>
@@ -445,6 +465,22 @@ class _TrainingBalanceCard extends StatelessWidget {
     final short = balance.short;
     return _InsightCard(
       domain: TrendDomain.training,
+      // Where the week's work went, at a glance; the full map and the
+      // sets beside it are a tap away.
+      picture: LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: constraints.maxWidth / 2,
+          child: Center(
+            child: MuscleMap(
+              setsByMuscle: {
+                for (final (muscle, sets) in [...balance.enough, ...short])
+                  muscle: sets,
+              },
+              figure: figure,
+            ),
+          ),
+        ),
+      ),
       headline: short.isEmpty
           ? l10n.allMusclesEnough(target: weeklySetTarget)
           : l10n.muscleOnlySets(
