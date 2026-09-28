@@ -6567,9 +6567,13 @@
   "@mealsSection": {
     "description": "Section."
   },
-  "mealShare": "占比",
+  "mealShare": "佔比",
   "@mealShare": {
-    "description": "Toggle beside the meals section: shows each meal's share of the day's energy."
+    "description": "Link beside the meals section: shows each meal's share of the day's energy and daily indicators."
+  },
+  "mealShareHide": "隱藏佔比",
+  "@mealShareHide": {
+    "description": "Link beside the meals section, while shares are shown: hides them again."
   },
   "noMealsThisDay": "這一天沒有記錄任何一餐",
   "@noMealsThisDay": {

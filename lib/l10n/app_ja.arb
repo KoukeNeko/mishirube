@@ -1235,6 +1235,7 @@
   "dailyIndicators": "1日の指標",
   "mealsSection": "食事",
   "mealShare": "割合",
+  "mealShareHide": "割合を隠す",
   "noMealsThisDay": "この日の食事記録なし",
   "waterSection": "水",
   "removeWaterAt": "{time}の水を削除",

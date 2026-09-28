@@ -1235,6 +1235,7 @@
   "dailyIndicators": "Daily indicators",
   "mealsSection": "Meals",
   "mealShare": "Share",
+  "mealShareHide": "Hide share",
   "noMealsThisDay": "No meals logged this day",
   "waterSection": "Water",
   "removeWaterAt": "Remove water at {time}",

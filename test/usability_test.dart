@@ -6,7 +6,6 @@ import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/today/today_screen.dart';
-import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -90,15 +89,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // With shares shown, each meal card gives one, so the cards counted
-    // are the day's meals.
-    await tester.ensureVisible(find.text('占比'));
+    // With shares shown, each meal card gives its share of the energy,
+    // so the cards counted are the day's meals.
+    await tester.ensureVisible(find.text('佔比'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('占比'));
+    await tester.tap(find.text('佔比'));
     await tester.pumpAndSettle();
-    final shares = find.textContaining(RegExp(r'^\d+%$'), skipOffstage: false);
+    final energyShares = find.descendant(
+      of: find.byType(Table, skipOffstage: false),
+      matching: find.text('熱量', skipOffstage: false),
+    );
     expect(
-      shares,
+      energyShares,
       findsNWidgets(meals),
       reason:
           'two screens answering the same question differently is '
@@ -107,11 +109,23 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets("each meal gives its share of the day's energy", (tester) async {
+  testWidgets("each meal gives its share of the day's energy and indicators", (
+    tester,
+  ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    final before = store.todaySummary.kcal;
+    final kcalBefore = store.todaySummary.kcal;
+    final fibreBefore = store.todaySummary.fibreGrams;
     store.backend.nutrition.logPortion(
-      FoodPortion(FoodItem(id: 'bento', name: '便當', kcal: 1440), 1),
+      FoodPortion(
+        FoodItem(
+          id: 'bento',
+          name: '便當',
+          kcal: 1440,
+          fibreGrams: 15,
+          nutrients: const {Nutrient.sodium: 300},
+        ),
+        1,
+      ),
     );
     await pumpScreen(
       tester,
@@ -119,21 +133,43 @@ void main() {
       store: store,
     );
     await tester.pumpAndSettle();
+    int percent(num part, num whole) => (part * 100 / whole).round();
+    Finder shareRow(String label) => find.descendant(
+      of: find.byType(Table, skipOffstage: false),
+      matching: find.text(label, skipOffstage: false),
+    );
+    expect(shareRow('熱量'), findsNothing, reason: 'shown only when asked');
 
-    final total = before + 1440;
-    final bento = find.text('${(1440 * 100 / total).round()}%');
-    expect(bento, findsNothing, reason: 'shown only when asked for');
-    final bars = find.byType(ProgressLine, skipOffstage: false);
-    final barsBefore = bars.evaluate().length;
+    await tester.ensureVisible(find.text('佔比'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('佔比'));
+    await tester.pumpAndSettle();
+    expect(find.text('隱藏佔比'), findsOneWidget, reason: 'says what a tap does');
 
-    await tester.ensureVisible(find.text('占比'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('占比'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(bento);
-    expect(bento, findsOneWidget);
-    expect(find.text('${(before * 100 / total).round()}%'), findsOneWidget);
-    expect(bars, findsNWidgets(barsBefore + 2), reason: 'one bar each');
+    final kcalTotal = kcalBefore + 1440;
+    expect(shareRow('熱量'), findsNWidgets(2), reason: 'both meals');
+    expect(
+      find.text('${percent(1440, kcalTotal)}%', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('${percent(kcalBefore, kcalTotal)}%', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      shareRow('膳食纖維'),
+      findsNWidgets(fibreBefore > 0 ? 2 : 1),
+      reason: 'a meal without fibre recorded has no fibre share',
+    );
+    expect(
+      find.text('${percent(15, fibreBefore + 15)}%', skipOffstage: false),
+      findsWidgets,
+    );
+    expect(
+      shareRow('鈉'),
+      findsOneWidget,
+      reason: 'only the bento recorded sodium',
+    );
     await disposeTree(tester);
   });
 

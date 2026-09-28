@@ -1235,6 +1235,7 @@
   "dailyIndicators": "每日指标",
   "mealsSection": "餐点",
   "mealShare": "占比",
+  "mealShareHide": "隐藏占比",
   "noMealsThisDay": "这一天没有记录任何一餐",
   "waterSection": "水",
   "removeWaterAt": "移除 {time} 的水",

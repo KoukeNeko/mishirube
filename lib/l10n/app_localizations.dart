@@ -7564,11 +7564,17 @@ abstract class AppLocalizations {
   /// **'餐點'**
   String get mealsSection;
 
-  /// Toggle beside the meals section: shows each meal's share of the day's energy.
+  /// Link beside the meals section: shows each meal's share of the day's energy and daily indicators.
   ///
   /// In zh, this message translates to:
-  /// **'占比'**
+  /// **'佔比'**
   String get mealShare;
+
+  /// Link beside the meals section, while shares are shown: hides them again.
+  ///
+  /// In zh, this message translates to:
+  /// **'隱藏佔比'**
+  String get mealShareHide;
 
   /// Empty state.
   ///

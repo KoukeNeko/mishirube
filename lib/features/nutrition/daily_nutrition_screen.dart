@@ -171,13 +171,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (!meal.isWater) meal,
     ]);
     final summary = _nutrition.summaryOf(day);
-    // Each meal's share of what the day's meals add up to, so far; none
-    // for a meal whose energy is not known.
-    final eatenKcal = eaten.map(mealKcalOf).nonNulls.fold(0, (a, b) => a + b);
-    int? shareOf(List<MealEvent> meal) => switch (mealKcalOf(meal)) {
-      final kcal? when eatenKcal > 0 => (kcal * 100 / eatenKcal).round(),
-      _ => null,
-    };
     final merging = _merging;
     final water = [
       for (final meal in meals)
@@ -189,6 +182,43 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     final nutrients = summariseNutrients(meals, convention: convention);
     NutrientTotal? total(Nutrient nutrient) =>
         nutrients.where((total) => total.nutrient == nutrient).firstOrNull;
+    // Each meal's share of what the day's meals add up to so far, in
+    // energy and in each daily indicator; a figure the meal did not
+    // record, or the day holds none of, has no share.
+    final eatenKcal = eaten.map(mealKcalOf).nonNulls.fold(0, (a, b) => a + b);
+    final eatenFibre = [
+      for (final meal in eaten)
+        for (final item in meal) ?item.fibreGrams,
+    ].fold(0, (a, b) => a + b);
+    List<(String, int)> sharesOf(List<MealEvent> meal) {
+      (String, int)? share(String label, num? part, num whole) =>
+          part == null || whole <= 0
+          ? null
+          : (label, (part * 100 / whole).round());
+      final fibres = [for (final item in meal) ?item.fibreGrams];
+      final own = summariseNutrients(meal, convention: convention);
+      num? amountOf(Nutrient nutrient) =>
+          own.where((total) => total.nutrient == nutrient).firstOrNull?.amount;
+      return [
+        ?share(
+          convention.energyName(context.l10n),
+          mealKcalOf(meal),
+          eatenKcal,
+        ),
+        ?share(
+          convention.fibreName(context.l10n),
+          fibres.isEmpty ? null : fibres.fold<int>(0, (a, b) => a + b),
+          eatenFibre,
+        ),
+        for (final nutrient in [convention.carbPart, convention.saltMeasure])
+          ?share(
+            convention.nameOf(context.l10n, nutrient),
+            amountOf(nutrient),
+            total(nutrient)?.amount ?? 0,
+          ),
+      ];
+    }
+
     return PageScaffold(
       // Any day is a swipe away, the way a calendar's week header works.
       pinned: WeekDayStrip(
@@ -276,11 +306,14 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           Gutter(
             child: SectionLabel(
               context.l10n.mealsSection,
+              // A text action like 變更 above, naming what a tap does.
               trailing: eaten.length > 1
-                  ? SelectChip(
-                      label: context.l10n.mealShare,
-                      isSelected: _showsShare,
-                      selectedColor: AppColors.nutrition,
+                  ? LinkText(
+                      label: _showsShare
+                          ? context.l10n.mealShareHide
+                          : context.l10n.mealShare,
+                      color: AppColors.nutrition,
+                      alignment: Alignment.bottomRight,
                       onTap: () => setState(() => _showsShare = !_showsShare),
                     )
                   : null,
@@ -323,7 +356,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               child: meal.length == 1
                   ? _MealCard(
                       meal: meal.single,
-                      share: _showsShare ? shareOf(meal) : null,
+                      shares: _showsShare ? sharesOf(meal) : const [],
                       isExpanded: (dish) =>
                           _expanded.contains('${meal.single.id}/${dish.name}'),
                       onToggle: (dish) =>
@@ -332,7 +365,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     )
                   : _MealGroupCard(
                       items: meal,
-                      share: _showsShare ? shareOf(meal) : null,
+                      shares: _showsShare ? sharesOf(meal) : const [],
                       name: _nutrition.nameOfMeal(meal),
                       convention: convention,
                       onRemove: _removeItem,
@@ -387,38 +420,62 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   }
 }
 
-/// A meal's name: its items' names, one after another.
-/// A meal of several items: their sum at the top, then each item with
-/// its own figures, which open to edit and swipe away.
-/// A meal's share of the day's energy so far, as a bar and its percent.
-class _MealShare extends StatelessWidget {
-  const _MealShare({required this.share});
+/// A meal's share of the day so far, a row for each figure it recorded:
+/// its name, a bar and the percent. The names and bars line up across
+/// the rows, however long a name reads at a large text size.
+class _MealShares extends StatelessWidget {
+  const _MealShares({required this.shares});
 
-  final int share;
+  final List<(String, int)> shares;
 
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: AppSpacing.xs),
-    child: Row(
+    child: Table(
+      columnWidths: const {
+        0: IntrinsicColumnWidth(),
+        1: FlexColumnWidth(),
+        2: IntrinsicColumnWidth(),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
-        Expanded(
-          child: ProgressLine(
-            progress: share / 100,
-            color: AppColors.nutrition,
-            height: 6,
+        for (final (label, percent) in shares)
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: AppSpacing.sm,
+                  top: AppSpacing.xxs,
+                  bottom: AppSpacing.xxs,
+                ),
+                child: Text(label, style: AppTextStyles.caption),
+              ),
+              ProgressLine(
+                progress: percent / 100,
+                color: AppColors.nutrition,
+                height: 6,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: AppSpacing.sm),
+                child: Text(
+                  '$percent%',
+                  style: AppTextStyles.caption,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Text('$share%', style: AppTextStyles.caption),
       ],
     ),
   );
 }
 
+/// A meal of several items: their sum at the top, then each item with
+/// its own figures, which open to edit and swipe away.
 class _MealGroupCard extends StatelessWidget {
   const _MealGroupCard({
     required this.items,
-    required this.share,
+    required this.shares,
     required this.name,
     required this.convention,
     required this.onRemove,
@@ -426,9 +483,8 @@ class _MealGroupCard extends StatelessWidget {
 
   final List<MealEvent> items;
 
-  /// Its share of the day's energy so far, in percent; null when not
-  /// shown.
-  final int? share;
+  /// Its share of the day so far, per figure; empty when not shown.
+  final List<(String, int)> shares;
   final String name;
   final NutritionConvention convention;
   final ValueChanged<MealEvent> onRemove;
@@ -460,7 +516,7 @@ class _MealGroupCard extends StatelessWidget {
                         ].join(' · '),
                         style: AppTextStyles.caption,
                       ),
-                      if (share case final share?) _MealShare(share: share),
+                      if (shares.isNotEmpty) _MealShares(shares: shares),
                     ],
                   ),
                 ),
@@ -522,7 +578,7 @@ String _macrosOf(
 class _MealCard extends StatelessWidget {
   const _MealCard({
     required this.meal,
-    required this.share,
+    required this.shares,
     required this.isExpanded,
     required this.onToggle,
     required this.onSplit,
@@ -530,9 +586,8 @@ class _MealCard extends StatelessWidget {
 
   final MealEvent meal;
 
-  /// Its share of the day's energy so far, in percent; null when not
-  /// shown.
-  final int? share;
+  /// Its share of the day so far, per figure; empty when not shown.
+  final List<(String, int)> shares;
   final bool Function(DishEntry dish) isExpanded;
   final ValueChanged<DishEntry> onToggle;
   final ValueChanged<int> onSplit;
@@ -569,7 +624,7 @@ class _MealCard extends StatelessWidget {
                           ].join(' · '),
                           style: AppTextStyles.caption,
                         ),
-                        if (share case final share?) _MealShare(share: share),
+                        if (shares.isNotEmpty) _MealShares(shares: shares),
                       ],
                     ),
                   ),

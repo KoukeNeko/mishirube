@@ -4327,6 +4327,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mealShare => '割合';
 
   @override
+  String get mealShareHide => '割合を隠す';
+
+  @override
   String get noMealsThisDay => 'この日の食事記録なし';
 
   @override

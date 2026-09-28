@@ -1235,6 +1235,7 @@
   "dailyIndicators": "일일 지표",
   "mealsSection": "식사",
   "mealShare": "비율",
+  "mealShareHide": "비율 숨기기",
   "noMealsThisDay": "이날 기록된 식사 없음",
   "waterSection": "물",
   "removeWaterAt": "{time} 물 제거",

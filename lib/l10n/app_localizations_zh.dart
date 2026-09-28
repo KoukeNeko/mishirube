@@ -4317,7 +4317,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mealsSection => '餐點';
 
   @override
-  String get mealShare => '占比';
+  String get mealShare => '佔比';
+
+  @override
+  String get mealShareHide => '隱藏佔比';
 
   @override
   String get noMealsThisDay => '這一天沒有記錄任何一餐';
@@ -9935,6 +9938,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mealShare => '占比';
+
+  @override
+  String get mealShareHide => '隐藏占比';
 
   @override
   String get noMealsThisDay => '这一天没有记录任何一餐';

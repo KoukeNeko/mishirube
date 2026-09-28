@@ -4328,6 +4328,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mealShare => '비율';
 
   @override
+  String get mealShareHide => '비율 숨기기';
+
+  @override
   String get noMealsThisDay => '이날 기록된 식사 없음';
 
   @override
