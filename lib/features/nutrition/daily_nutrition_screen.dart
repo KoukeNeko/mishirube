@@ -168,6 +168,13 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
         if (!meal.isWater) meal,
     ]);
     final summary = _nutrition.summaryOf(day);
+    // Each meal's share of what the day's meals add up to, so far; none
+    // for a meal whose energy is not known.
+    final eatenKcal = eaten.map(mealKcalOf).nonNulls.fold(0, (a, b) => a + b);
+    int? shareOf(List<MealEvent> meal) => switch (mealKcalOf(meal)) {
+      final kcal? when eatenKcal > 0 => (kcal * 100 / eatenKcal).round(),
+      _ => null,
+    };
     final merging = _merging;
     final water = [
       for (final meal in meals)
@@ -263,15 +270,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               caffeineMg: day == today ? _nutrition.estimatedCaffeineMg : null,
             ),
           ),
-          Gutter(
-            child: SectionLabel(
-              context.l10n.mealsSection,
-              trailing: Text(
-                context.l10n.mealsCount(count: summary.mealCount),
-                style: AppTextStyles.caption,
-              ),
-            ),
-          ),
+          Gutter(child: SectionLabel(context.l10n.mealsSection)),
         ],
         if (eaten.isEmpty)
           Gutter(
@@ -309,6 +308,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               child: meal.length == 1
                   ? _MealCard(
                       meal: meal.single,
+                      share: shareOf(meal),
                       isExpanded: (dish) =>
                           _expanded.contains('${meal.single.id}/${dish.name}'),
                       onToggle: (dish) =>
@@ -317,6 +317,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     )
                   : _MealGroupCard(
                       items: meal,
+                      share: shareOf(meal),
                       name: _nutrition.nameOfMeal(meal),
                       convention: convention,
                       onRemove: _removeItem,
@@ -377,12 +378,16 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
 class _MealGroupCard extends StatelessWidget {
   const _MealGroupCard({
     required this.items,
+    required this.share,
     required this.name,
     required this.convention,
     required this.onRemove,
   });
 
   final List<MealEvent> items;
+
+  /// Its share of the day's energy so far, in percent.
+  final int? share;
   final String name;
   final NutritionConvention convention;
   final ValueChanged<MealEvent> onRemove;
@@ -411,6 +416,7 @@ class _MealGroupCard extends StatelessWidget {
                           first.timeLabel,
                           ?first.mealType?.labelIn(context.l10n),
                           context.l10n.itemsCountShort(count: items.length),
+                          if (share case final share?) '$share%',
                         ].join(' · '),
                         style: AppTextStyles.caption,
                       ),
@@ -475,12 +481,16 @@ String _macrosOf(
 class _MealCard extends StatelessWidget {
   const _MealCard({
     required this.meal,
+    required this.share,
     required this.isExpanded,
     required this.onToggle,
     required this.onSplit,
   });
 
   final MealEvent meal;
+
+  /// Its share of the day's energy so far, in percent.
+  final int? share;
   final bool Function(DishEntry dish) isExpanded;
   final ValueChanged<DishEntry> onToggle;
   final ValueChanged<int> onSplit;
@@ -514,6 +524,7 @@ class _MealCard extends StatelessWidget {
                           [
                             meal.timeLabel,
                             if (meal.amount.isNotEmpty) meal.amount,
+                            if (share case final share?) '$share%',
                           ].join(' · '),
                           style: AppTextStyles.caption,
                         ),

@@ -86,14 +86,44 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await reveal(tester, find.textContaining('$meals 餐'));
+    // Each meal card gives its share of the day, so the cards counted
+    // are the day's meals.
+    final shares = find.textContaining(RegExp(r'\d+%$'));
+    await reveal(tester, shares);
     expect(
-      find.textContaining('$meals 餐'),
-      findsOneWidget,
+      shares,
+      findsNWidgets(meals),
       reason:
           'two screens answering the same question differently is '
           'the failure the density test is looking for',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets("each meal gives its share of the day's energy", (tester) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final before = store.todaySummary.kcal;
+    store.backend.nutrition.logPortion(
+      FoodPortion(FoodItem(id: 'bento', name: '便當', kcal: 1440), 1),
+    );
+    await pumpScreen(
+      tester,
+      DailyNutritionScreen(day: store.now()),
+      store: store,
+    );
+    await tester.pumpAndSettle();
+
+    final total = before + 1440;
+    final bento = find.textContaining(
+      RegExp('· ${(1440 * 100 / total).round()}%\$'),
+    );
+    await reveal(tester, bento);
+    expect(bento, findsOneWidget);
+    expect(
+      find.textContaining(RegExp('· ${(before * 100 / total).round()}%\$')),
+      findsOneWidget,
+    );
+    expect(find.textContaining(' 餐'), findsNothing, reason: 'no count');
     await disposeTree(tester);
   });
 
