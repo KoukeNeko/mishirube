@@ -74,21 +74,53 @@ final photoInstructions =
 - 其他情況（餐點、飲料、沒有營養表格的包裝）照下面「食物」的方式估計，回傳 {"items":[…],"notes":[…]}。
 
 【營養標示】
-一列一列對著表格讀：每個數字屬於同一列左邊的那個營養素，不要照常見的順序猜。表格裡有意料之外的列（胺基酸、維生素、礦物質）時，它們各占自己的一列，後面各列的數字不會因此往上或往下移。
+一列一列對著表格讀：
+$labelRowRule
 $labelReadingRules
 
 【食物】
 辨識照片裡每一項食物或飲料，估計份量與營養，格式：
 {"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
 規則：
-- name 用台灣常用的說法，繁體中文。便當、自助餐拆成看得到的每一項（白飯、雞腿、青菜），一碗滷肉飯這種一道菜就算一項。
-- amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
-- 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。
+$_photoItemRules
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計；不確定就填 null，不要填 0。
 $_nutrientRules
-- 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
-- 同一份食物只算一次，只列照片裡看得到的東西。
+$_photoNoteRules
 - 照片裡沒有食物、飲料或營養標示時回傳 {"items":[],"notes":[]}。''';
+
+/// [photoInstructions] for Apple's on-device model: the same judgement
+/// without the JSON, which its guided schema enforces and whose fields'
+/// descriptions carry each label's rows. Spelled out, it would not fit
+/// the model's context beside the schema and the photo.
+final applePhotoInstructions =
+    '''
+你會看到一張照片，可能還有使用者補充的一句話。先判斷照片拍的是什麼：
+- 照片裡有包裝的營養標示表格時，照表格填 label，items 留空。
+- 其他情況（餐點、飲料、沒有營養表格的包裝）估計每一項食物填 items，label 留空。
+
+【營養標示】
+一列一列對著表格讀：
+$labelRowRule
+$labelColumnRules
+$labelFigureRules
+$appleEmptyFieldRule
+
+【食物】
+$_photoItemRules
+- 熱量與營養素是你對這個份量的估計；不確定就留空，不要填 0。
+$_photoNoteRules
+- 照片裡沒有食物、飲料或營養標示時，items 與 notes 都是空的。''';
+
+/// How each food in a photo is named and measured.
+const _photoItemRules = '''
+- name 用台灣常用的說法，繁體中文。便當、自助餐拆成看得到的每一項（白飯、雞腿、青菜），一碗滷肉飯這種一道菜就算一項。
+- amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
+- 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。''';
+
+/// What a photo cannot show, and what it must not count twice.
+const _photoNoteRules = '''
+- 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
+- 同一份食物只算一次，只列照片裡看得到的東西。''';
 
 /// Reads a model's answer about a photo ([photoInstructions]): a label
 /// when it answered with one, otherwise the food it saw. Throws as

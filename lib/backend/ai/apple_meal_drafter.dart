@@ -55,7 +55,7 @@ class AppleMealDrafter implements MealDrafter {
   @override
   Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
       parseFoodLabel(
-        await _ask('draftFoodLabel', foodLabelInstructions, labelText),
+        await _ask('draftFoodLabel', appleFoodLabelInstructions, labelText),
         provider: kind,
         model: await modelName(),
       );
@@ -84,7 +84,7 @@ class AppleMealDrafter implements MealDrafter {
       parsePhoto(
         await _ask(
           'draftPhoto',
-          photoInstructions,
+          applePhotoInstructions,
           note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
           path: photo.path,
         ),

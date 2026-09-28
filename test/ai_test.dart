@@ -222,6 +222,21 @@ void main() {
       expect(foodLabelInstructions, contains('polyols_g'));
     });
 
+    test("Apple's prompts leave room in its context for the schema", () {
+      // The on-device model holds 4,096 tokens. The photo schema alone
+      // takes about 1,600 and the photo more; the cloud prompt, about
+      // 3,000 tokens of its own, made every photo request fail. Chinese
+      // runs near one token a character, so the prompts stay short.
+      expect(applePhotoInstructions.length, lessThan(1200));
+      expect(appleFoodLabelInstructions.length, lessThan(800));
+      for (final prompt in [
+        applePhotoInstructions,
+        appleFoodLabelInstructions,
+      ]) {
+        expect(prompt, isNot(contains('{"')), reason: 'the schema is the JSON');
+      }
+    });
+
     test('a drink with alcohol carries its grams', () {
       expect(mealDraftInstructions, contains('alcohol_g'));
       final beer = parse(

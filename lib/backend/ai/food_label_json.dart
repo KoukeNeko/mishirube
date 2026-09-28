@@ -9,6 +9,39 @@ final foodLabelInstructions = '''
 你會拿到一張食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。
 $labelReadingRules''';
 
+/// What Apple's on-device model is asked when reading a label's text.
+/// Its guided schema already names each country's rows in its fields'
+/// descriptions and enforces the answer's shape, so the prompt keeps
+/// only what no field says; the JSON other providers need spelled out
+/// would not fit its small context with the schema.
+final appleFoodLabelInstructions =
+    '''
+你會拿到一張食品營養標示的文字，是從照片辨識出來的，一行是表格的一列。照標示填每個欄位。
+$labelRowRule
+$labelColumnRules
+$labelFigureRules
+$appleEmptyFieldRule''';
+
+/// For Apple's schema, where null is a field left empty: without it the
+/// model fills an energy column the label does not print.
+const appleEmptyFieldRule =
+    '- 欄位留空就是 null：標示上沒有印的列（包括 kJ 與「每100」那一欄的熱量）都留空，不要填 0。';
+
+/// Every figure stays on its row: the mistake a model makes most.
+const labelRowRule =
+    '- 每個數字屬於同一列左邊的那個營養素，不要照常見的順序猜。表格裡有意料之外的列（胺基酸、維生素、礦物質）時，它們各占自己的一列，後面各列的數字不會因此往上或往下移。';
+
+/// Which column of a label is read.
+const labelColumnRules = '''
+- 一律用「每份」那一欄，不要用「每100公克」或「每100毫升」那一欄。只有每100一欄時，數字照填，每一份量填 100。
+- 「每日參考值百分比」那一欄是百分比，不是份量，不要填進任何欄位。''';
+
+/// How a label's figures are copied.
+const labelFigureRules = '''
+- 數字照標示寫，保留小數點，例如 6.7、274.4，不要四捨五入。
+- 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。標示上沒有的列（例如沒有膳食纖維那一列）填 null，不要填 0。
+- 看不到或不確定的欄位填 null，不要猜。''';
+
 /// How a nutrition label is read into JSON, whether the model gets its
 /// text or the photo itself ([photoInstructions]): its layout in each
 /// country, the answer's shape, and the rules that keep every figure on
@@ -48,15 +81,12 @@ final labelReadingRules =
 - 加拿大（Nutrition Facts / Valeur nutritive）：label_region 是 CA。Calories 是 kcal，Carbohydrate / Glucides 是 carb_g（含 Fibre），Fibre / Fibres 是 fibre_g，Sugars / Sucres 是 sugar_g，Sodium 是 sodium_mg。
 - 看不出是哪一國的就填 null，照台灣的方式填。
 規則：
-- 一律用「每份」那一欄，不要用「每100公克」或「每100毫升」那一欄。只有每100一欄時，數字照填，serving_amount 填 100。
-- 「每日參考值百分比」那一欄是百分比，不是份量，不要填進任何欄位。
+$labelColumnRules
 - kcal_per_100 是「每100公克／毫升」那一欄的熱量，只用來核對；沒有那一欄就填 null。
 - serving_amount 是「每一份量」的數字，serving_unit 是它的單位（公克是 g，毫升是 ml）。
 - 鈉的單位是毫克（mg）；如果標示寫的是公克，換成毫克。
-- 數字照標示寫，保留小數點，例如 6.7、274.4，不要四捨五入。
-- 標示上有的每一列都要填，包括縮排的那幾列；標示上是 0 就填 0。標示上沒有的列（例如沒有膳食纖維那一列）填 null，不要填 0。
+$labelFigureRules
 - 照片可能歪斜，一行文字裡的數字可能屬於上一列或下一列。照營養素的順序對齊：台灣標示每一欄由上到下依序是熱量、蛋白質、脂肪、飽和脂肪、反式脂肪、碳水化合物、糖、鈉；飽和脂肪與反式脂肪不會大於脂肪，糖不會大於碳水化合物。
-- 看不到或不確定的欄位填 null，不要猜。
 - 辨識錯字要照上下文判斷，例如把字母 O 當成 0；但無法判斷就填 null。
 - 上面沒有欄位的列（鈣、膽固醇、胺基酸、維生素等）照「每份」放進 nutrients，鍵只能用這些（單位在鍵名裡：g 公克、mg 毫克、ug 微克）：
   ${Nutrient.values.map(nutrientAnswerKey).join('、')}
