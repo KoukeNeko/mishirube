@@ -4325,6 +4325,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mealsSection => '식사';
 
   @override
+  String get mealShare => '비율';
+
+  @override
   String get noMealsThisDay => '이날 기록된 식사 없음';
 
   @override

@@ -7564,6 +7564,12 @@ abstract class AppLocalizations {
   /// **'餐點'**
   String get mealsSection;
 
+  /// Toggle beside the meals section: shows each meal's share of the day's energy.
+  ///
+  /// In zh, this message translates to:
+  /// **'占比'**
+  String get mealShare;
+
   /// Empty state.
   ///
   /// In zh, this message translates to:

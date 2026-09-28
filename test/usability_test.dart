@@ -6,6 +6,7 @@ import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -75,6 +76,9 @@ void main() {
 
   testWidgets('the day counts the same meals Today does', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.nutrition.logPortion(
+      FoodPortion(FoodItem(id: 'bar', name: '能量棒', kcal: 200), 1),
+    );
     final meals = store.todaySummary.mealCount;
     NutritionViewModel(store.backend)
       ..logWater()
@@ -86,10 +90,13 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Each meal card gives its share of the day, so the cards counted
+    // With shares shown, each meal card gives one, so the cards counted
     // are the day's meals.
-    final shares = find.textContaining(RegExp(r'\d+%$'));
-    await reveal(tester, shares);
+    await tester.ensureVisible(find.text('占比'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('占比'));
+    await tester.pumpAndSettle();
+    final shares = find.textContaining(RegExp(r'^\d+%$'), skipOffstage: false);
     expect(
       shares,
       findsNWidgets(meals),
@@ -114,16 +121,19 @@ void main() {
     await tester.pumpAndSettle();
 
     final total = before + 1440;
-    final bento = find.textContaining(
-      RegExp('· ${(1440 * 100 / total).round()}%\$'),
-    );
-    await reveal(tester, bento);
+    final bento = find.text('${(1440 * 100 / total).round()}%');
+    expect(bento, findsNothing, reason: 'shown only when asked for');
+    final bars = find.byType(ProgressLine, skipOffstage: false);
+    final barsBefore = bars.evaluate().length;
+
+    await tester.ensureVisible(find.text('占比'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('占比'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(bento);
     expect(bento, findsOneWidget);
-    expect(
-      find.textContaining(RegExp('· ${(before * 100 / total).round()}%\$')),
-      findsOneWidget,
-    );
-    expect(find.textContaining(' 餐'), findsNothing, reason: 'no count');
+    expect(find.text('${(before * 100 / total).round()}%'), findsOneWidget);
+    expect(bars, findsNWidgets(barsBefore + 2), reason: 'one bar each');
     await disposeTree(tester);
   });
 

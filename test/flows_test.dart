@@ -706,11 +706,7 @@ void main() {
     );
 
     expect(find.text('總匯沙拉'), findsOneWidget);
-    expect(
-      find.textContaining(RegExp('^${logged.timeLabel} · 180 g · \\d+%\$')),
-      findsOneWidget,
-      reason: 'with its share of the day after it',
-    );
+    expect(find.text('${logged.timeLabel} · 180 g'), findsOneWidget);
     expect(find.text('AI 估計'), findsNothing, reason: 'only on its page');
 
     await tester.tap(find.text('總匯沙拉'));

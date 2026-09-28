@@ -6567,6 +6567,10 @@
   "@mealsSection": {
     "description": "Section."
   },
+  "mealShare": "占比",
+  "@mealShare": {
+    "description": "Toggle beside the meals section: shows each meal's share of the day's energy."
+  },
   "noMealsThisDay": "這一天沒有記錄任何一餐",
   "@noMealsThisDay": {
     "description": "Empty state."

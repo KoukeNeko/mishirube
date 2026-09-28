@@ -4382,6 +4382,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealsSection => 'Meals';
 
   @override
+  String get mealShare => 'Share';
+
+  @override
   String get noMealsThisDay => 'No meals logged this day';
 
   @override
