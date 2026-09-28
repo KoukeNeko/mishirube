@@ -14,6 +14,15 @@ abstract final class AppHaptics {
   /// A timer ran out: the strongest of the set, felt through a pocket.
   static void alert() => HapticFeedback.heavyImpact();
 
+  /// A swiped row of options came to rest on one: a firmer knock than
+  /// the ticks it passed, as a view snapping into place. iOS only, as
+  /// [selection] is.
+  static void settle(BuildContext context) {
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      HapticFeedback.lightImpact();
+    }
+  }
+
   /// The chosen option changed (tabs, chips, segments). iOS ticks; Android
   /// selection controls stay silent, as Material's do.
   static void selection(BuildContext context) {

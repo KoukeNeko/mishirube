@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../haptics.dart';
+import '../../motion.dart';
 import '../../window_layout.dart';
 import '../page/collapsing_header.dart';
 import '../../../l10n/l10n.dart';
@@ -8,6 +10,20 @@ import '../../../l10n/l10n.dart';
 /// Size of the circle round each day's number.
 const _dayCircle = 32.0;
 const _markDot = 4.0;
+
+/// Where a day's circle starts, under its weekday.
+double _circleTop(BuildContext context) =>
+    measureTextHeight(
+      context,
+      // l10n-ignore: measures a line of text, never shown.
+      '日',
+      AppTextStyles.caption,
+      maxWidth: double.infinity,
+    ) +
+    AppSpacing.xxs;
+
+/// How long the picked day's circle takes to move, and a week to turn.
+const _moveDuration = Duration(milliseconds: 250);
 
 /// One week of days to pick from, swiped sideways to earlier weeks, as a
 /// calendar app's week header. A mark under a day says it has records.
@@ -39,17 +55,7 @@ class WeekDayStrip extends StatefulWidget {
 
   /// How tall the strip is at the current text size.
   static double heightOf(BuildContext context) =>
-      measureTextHeight(
-        context,
-        // l10n-ignore: measures a line of text, never shown.
-        '日',
-        AppTextStyles.caption,
-        maxWidth: double.infinity,
-      ) +
-      AppSpacing.xxs +
-      _dayCircle +
-      AppSpacing.xxs +
-      _markDot;
+      _circleTop(context) + _dayCircle + AppSpacing.xxs + _markDot;
 
   /// How tall the page's pinned slot is with the strip in it.
   static double pinnedHeightOf(BuildContext context) =>
@@ -67,6 +73,50 @@ class _WeekDayStripState extends State<WeekDayStrip> {
   /// wide, so the weeks either side show in the margins and the row
   /// reads as one that goes on past the screen.
   PageController? _pages;
+
+  /// Whether a finger moved the weeks, so a week turned to by picking a
+  /// day does not tick as a swipe does.
+  bool _isSwiping = false;
+
+  /// The day cell last under the strip's centre while swiping, counted
+  /// in days from the first week.
+  int? _detent;
+
+  /// Whether this swipe crossed a day; one that did not has nothing to
+  /// settle.
+  bool _hasTicked = false;
+
+  /// Ticks as the Digital Crown does: once for each day that crosses the
+  /// strip, however fast, never a burst to catch up on days skipped in
+  /// one frame; then a firmer one when the swipe settles on a week.
+  bool _tickDetents(ScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    final page = switch (notification.metrics) {
+      final PageMetrics metrics => metrics.page,
+      _ => null,
+    };
+    if (page == null) return false;
+    // A day's cell is crossed at its middle, so a swipe back is as
+    // exact as one forward.
+    final detent = (page * 7).round();
+    switch (notification) {
+      case ScrollStartNotification(:final dragDetails):
+        _isSwiping = dragDetails != null;
+        _detent = detent;
+        _hasTicked = false;
+      case ScrollUpdateNotification() when _isSwiping:
+        if (detent != _detent) {
+          _detent = detent;
+          _hasTicked = true;
+          AppHaptics.selection(context);
+        }
+      case ScrollEndNotification():
+        if (_isSwiping && _hasTicked) AppHaptics.settle(context);
+        _isSwiping = false;
+      default:
+    }
+    return false;
+  }
 
   DateTime _startOf(DateTime day) {
     final back = (day.weekday - widget.firstWeekday + 7) % 7;
@@ -106,7 +156,12 @@ class _WeekDayStripState extends State<WeekDayStrip> {
     final page = _pageOf(widget.selected);
     final pages = _pages;
     if (pages != null && pages.hasClients && pages.page?.round() != page) {
-      pages.jumpToPage(page);
+      final duration = chromeDuration(context, _moveDuration);
+      if (duration == Duration.zero) {
+        pages.jumpToPage(page);
+      } else {
+        pages.animateToPage(page, duration: duration, curve: Curves.easeOut);
+      }
     }
   }
 
@@ -123,33 +178,62 @@ class _WeekDayStripState extends State<WeekDayStrip> {
       builder: (context, space) {
         final gutter = PageColumn.gutterOf(context);
         final width = space.maxWidth;
+        // A first frame laid out with the screen off has no width.
+        if (width <= 0) return const SizedBox.shrink();
         final column = (width - gutter.horizontal).clamp(1.0, width);
-        return PageView.builder(
-          controller: _controllerFor(column / width),
-          itemCount: _weeks + 1,
-          itemBuilder: (context, page) {
-            final start = _startOf(widget.latest);
-            final weekStart = DateTime(
-              start.year,
-              start.month,
-              start.day - (_weeks - 1 - page) * 7,
-            );
-            return Row(
-              children: [
+        return NotificationListener<ScrollNotification>(
+          onNotification: _tickDetents,
+          child: PageView.builder(
+            controller: _controllerFor(column / width),
+            itemCount: _weeks + 1,
+            itemBuilder: (context, page) {
+              final start = _startOf(widget.latest);
+              final weekStart = DateTime(
+                start.year,
+                start.month,
+                start.day - (_weeks - 1 - page) * 7,
+              );
+              final days = [
                 for (var i = 0; i < 7; i++)
-                  Expanded(
-                    child: _Day(
-                      day: DateTime(
-                        weekStart.year,
-                        weekStart.month,
-                        weekStart.day + i,
+                  DateTime(weekStart.year, weekStart.month, weekStart.day + i),
+              ];
+              final picked = days.indexOf(widget.selected);
+              final duration = chromeDuration(context, _moveDuration);
+              return LayoutBuilder(
+                builder: (context, week) => Stack(
+                  children: [
+                    // One circle for the week, sliding to the day picked
+                    // rather than one day's going out as another's comes on.
+                    if (picked >= 0)
+                      AnimatedPositioned(
+                        duration: duration,
+                        curve: Curves.easeOut,
+                        top: _circleTop(context),
+                        left:
+                            (picked + 0.5) * week.maxWidth / 7 - _dayCircle / 2,
+                        width: _dayCircle,
+                        height: _dayCircle,
+                        child: AnimatedContainer(
+                          duration: duration,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: widget.color,
+                          ),
+                        ),
                       ),
-                      strip: widget,
+                    Row(
+                      children: [
+                        for (final day in days)
+                          Expanded(
+                            child: _Day(day: day, strip: widget),
+                          ),
+                      ],
                     ),
-                  ),
-              ],
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     ),
@@ -183,16 +267,13 @@ class _Day extends StatelessWidget {
           children: [
             Text(context.dates.weekday(day), style: AppTextStyles.caption),
             const SizedBox(height: AppSpacing.xxs),
+            // The circle behind is the week's, sliding under the day.
             Container(
               width: _dayCircle,
               height: _dayCircle,
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? strip.color : Colors.transparent,
-              ),
-              child: Text(
-                '${day.day}',
+              child: AnimatedDefaultTextStyle(
+                duration: chromeDuration(context, _moveDuration),
                 style: AppTextStyles.body.copyWith(
                   fontSize: 15,
                   color: isSelected
@@ -201,6 +282,7 @@ class _Day extends StatelessWidget {
                       ? AppColors.textPrimary
                       : AppColors.textTertiary,
                 ),
+                child: Text('${day.day}'),
               ),
             ),
             const SizedBox(height: AppSpacing.xxs),
