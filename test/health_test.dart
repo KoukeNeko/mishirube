@@ -657,6 +657,9 @@ void main() {
     });
 
     test('what is logged in the app is written, and follows edits', () async {
+      // The group's clock is shared: put it back for the tests after.
+      final started = clock.current;
+      addTearDown(() => clock.current = started);
       final health = _FakeHealth(
         const [],
         weightRows: [
@@ -681,6 +684,11 @@ void main() {
       journal.recordWellness(WellnessKind.mood, 5);
       journal.recordWellness(WellnessKind.energy, 2);
       final water = store.backend.nutrition.logWater(250);
+      store
+        ..startWorkout()
+        ..beginWorkout();
+      clock.advance(const Duration(minutes: 40));
+      store.finishWorkout();
       await store.syncHealth();
 
       Map<HealthWriteKind, HealthWrite> byKind() => {
@@ -690,7 +698,14 @@ void main() {
         HealthWriteKind.weight,
         HealthWriteKind.mood,
         HealthWriteKind.water,
+        HealthWriteKind.workout,
       }, reason: 'energy has no place on a platform');
+      final workout = byKind()[HealthWriteKind.workout]!;
+      expect(workout.values['activity'], 'strength');
+      expect(
+        (workout.values['end']! as int) - (workout.values['start']! as int),
+        const Duration(minutes: 40).inMilliseconds,
+      );
       expect(byKind()[HealthWriteKind.weight]!.id, weight.id);
       expect(byKind()[HealthWriteKind.weight]!.values['kg'], 71.2);
       expect(byKind()[HealthWriteKind.mood]!.values['valence'], 1.0);

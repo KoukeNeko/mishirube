@@ -16,7 +16,8 @@ typedef HealthChange = ({
 /// back to one, and the demo content is not the user's.
 ///
 /// Only a waist measurement and a mood have a place there among their
-/// kinds; a workout or an activity only once it is finished.
+/// kinds; a workout or an activity only once it is done (a workout's
+/// status says `completed`, an activity's `finished`).
 List<HealthChange> healthChangesSince(AppDatabase db, int since) {
   const notOurs = "source NOT IN ('healthKit', 'healthConnect', 'seed')";
   const changed = 'updated_at > ? AND $notOurs';
@@ -41,7 +42,7 @@ List<HealthChange> healthChangesSince(AppDatabase db, int since) {
     UNION ALL
     SELECT 'workouts', id, updated_at, deleted_at, NULL
       FROM workouts WHERE $changed
-        AND (status = 'finished' OR deleted_at IS NOT NULL)
+        AND (status = 'completed' OR deleted_at IS NOT NULL)
     UNION ALL
     SELECT 'activities', id, updated_at, deleted_at, NULL
       FROM activities WHERE $changed
@@ -68,7 +69,7 @@ List<HealthChange> healthChangesSince(AppDatabase db, int since) {
 ) {
   final rows = db.select(
     'SELECT started_at, finished_at, name FROM workouts '
-    "WHERE id = ? AND deleted_at IS NULL AND status = 'finished' "
+    "WHERE id = ? AND deleted_at IS NULL AND status = 'completed' "
     'AND finished_at IS NOT NULL',
     [id],
   );
