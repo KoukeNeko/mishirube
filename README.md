@@ -195,6 +195,7 @@ requires each read to finish within 2 s with 10,000 sets. TestFlight builds are 
   <img alt="Flutter 3.47" src="https://img.shields.io/badge/FLUTTER-3.47-02569B?style=for-the-badge&logo=flutter&logoColor=white">
   <img alt="Dart 3.13" src="https://img.shields.io/badge/DART-3.13-0175C2?style=for-the-badge&logo=dart&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLITE-003B57?style=for-the-badge&logo=sqlite&logoColor=white">
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/LICENSE-APACHE--2.0-4CAF50?style=for-the-badge&logo=apache"></a>
 </p>
 
 ## Third-party content
@@ -204,6 +205,12 @@ requires each read to finish within 2 s with 10,000 sets. TestFlight builds are 
 - Exercise list and demonstration images from
   [Workout Guide](https://github.com/bryllim/workout-guide): metadata under MIT, images under
   CC BY-SA 4.0 from Everkinetic ([details](third_party/workout-guide/README.md)).
+
+These keep their own licenses, separate from this project's Apache-2.0 license below.
+
+## License
+
+[Apache-2.0](LICENSE) © 2026 KoukeNeko
 
 Apple Health, HealthKit and Apple Watch are trademarks of Apple Inc. Health Connect is a trademark
 of Google LLC.
