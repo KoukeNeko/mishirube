@@ -150,7 +150,8 @@ class _SparklinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final known = [...values.nonNulls];
-    if (known.length < 2 && levels.isEmpty) return;
+    // One week is still a point to show; only nothing at all is blank.
+    if (known.isEmpty && levels.isEmpty) return;
     final all = [
       ...known,
       if (normal case (final low, final high)) ...[low, high],
@@ -158,14 +159,18 @@ class _SparklinePainter extends CustomPainter {
     ];
     final minValue = all.reduce((a, b) => a < b ? a : b);
     final maxValue = all.reduce((a, b) => a > b ? a : b);
-    final range = (maxValue - minValue).abs() < 0.001 ? 1 : maxValue - minValue;
+    // A single value, or a line that never moves, sits in the middle
+    // rather than along the top edge.
+    final isFlat = (maxValue - minValue).abs() < 0.001;
+    final range = isFlat ? 1 : maxValue - minValue;
     final stepX = values.length < 2
         ? 0.0
         : (size.width - _endDotRadius) / (values.length - 1);
     double xOf(int index) => index * stepX;
-    double yOf(double value) =>
-        _endDotRadius +
-        (maxValue - value) / range * (size.height - _endDotRadius * 2);
+    double yOf(double value) => isFlat
+        ? size.height / 2
+        : _endDotRadius +
+              (maxValue - value) / range * (size.height - _endDotRadius * 2);
 
     if (normal case (final low, final high)) {
       canvas.drawRect(

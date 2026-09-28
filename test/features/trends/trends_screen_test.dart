@@ -62,4 +62,50 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets('before four workouts the map shows, with what the rest needs', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    // Past the demo's workouts, then one of the user's own.
+    clock.advance(const Duration(days: 90));
+    // The first set is a warm-up, which counts for no muscle.
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..completeNextSet()
+      ..completeNextSet()
+      ..finishWorkout();
+    await pumpScreen(tester, const TrendsScreen(), store: store);
+
+    final map = find.byType(MuscleMap);
+    await tester.dragUntilVisible(
+      map,
+      find.byType(CustomScrollView).hitTestable().first,
+      const Offset(0, -200),
+    );
+    expect(map, findsOneWidget);
+    expect(find.textContaining('4'), findsWidgets);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a single week is still drawn', (tester) async {
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: Sparkline(values: [null, null, 3742]),
+      ),
+    );
+    expect(
+      tester.renderObject(
+        find.descendant(
+          of: find.byType(Sparkline),
+          matching: find.byType(CustomPaint),
+        ),
+      ),
+      paints..circle(),
+    );
+  });
 }
