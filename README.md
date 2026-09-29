@@ -129,11 +129,13 @@ When an analysis lacks the records it needs, it says which records are missing i
 |---|---|---|
 | Sleep | Stages, heart rate, breathing, blood oxygen, temperature, HRV | Sleep logged by hand |
 | Body | Weight, waist, height, body fat, lean mass, bone mass, body water | The same, as logged |
+| Vitals | Body temperature, blood pressure, daytime respiratory rate and blood oxygen | — |
 | Training | Workouts with route, heart rate and pace | Strength workouts and activities |
-| Food | Meals and caffeine other apps logged | Meals and their supported nutrients |
+| Food | Meals, caffeine and 32 other nutrients other apps logged | Meals and their supported nutrients |
 | Water | Water records | Water records |
 | Mood | State of Mind (iOS 18+) | Mood check-ins (iOS 18+) |
-| Activity | Steps, energy, heart and fitness figures | — |
+| Activity | Steps, energy, move and exercise minutes, heart, mobility and fitness figures | — |
+| Mindfulness | Mindful minutes | — |
 
 Edit or delete a record in MISHIRUBE and the copy on the platform follows. Imported records are
 never written back, and records the app wrote are never imported again, so nothing is counted
