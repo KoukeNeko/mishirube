@@ -290,6 +290,7 @@
   "activityMetricBasalEnergy": "Resting energy",
   "activityMetricExerciseTime": "Exercise time",
   "activityMetricStandTime": "Stand time",
+  "activityMetricMoveTime": "Move minutes",
   "activityMetricFloors": "Flights climbed",
   "activityMetricElevationGained": "Elevation gained",
   "activityMetricTimeInDaylight": "Time in daylight",

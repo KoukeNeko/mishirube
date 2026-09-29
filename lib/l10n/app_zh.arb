@@ -1315,6 +1315,10 @@
   "@activityMetricStandTime": {
     "description": "A movement or fitness figure from a health platform. (ActivityMetric.standTime)"
   },
+  "activityMetricMoveTime": "移動時間",
+  "@activityMetricMoveTime": {
+    "description": "Apple Watch move minutes, from Apple Health."
+  },
   "activityMetricFloors": "爬樓",
   "@activityMetricFloors": {
     "description": "A movement or fitness figure from a health platform. (ActivityMetric.floors)"

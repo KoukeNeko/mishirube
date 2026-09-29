@@ -57,6 +57,9 @@ enum WorkoutDetail {
         (HKQuantityType(.cyclingCadence), "cadence", perMinute),
       ]
     }
+    if #available(iOS 18.0, *) {
+      types.append((HKQuantityType(.rowingSpeed), "speed", metresPerSecond))
+    }
     return types
   }
 

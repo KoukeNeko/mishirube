@@ -290,6 +290,7 @@
   "activityMetricBasalEnergy": "静息能量",
   "activityMetricExerciseTime": "运动时间",
   "activityMetricStandTime": "站立时间",
+  "activityMetricMoveTime": "活动时间",
   "activityMetricFloors": "爬楼",
   "activityMetricElevationGained": "爬升高度",
   "activityMetricTimeInDaylight": "日光时间",

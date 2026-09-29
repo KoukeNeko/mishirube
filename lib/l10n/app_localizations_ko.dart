@@ -941,6 +941,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityMetricStandTime => '일어서기 시간';
 
   @override
+  String get activityMetricMoveTime => '움직이기 시간';
+
+  @override
   String get activityMetricFloors => '오른 층수';
 
   @override

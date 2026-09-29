@@ -290,6 +290,7 @@
   "activityMetricBasalEnergy": "安静時消費エネルギー",
   "activityMetricExerciseTime": "エクササイズ時間",
   "activityMetricStandTime": "スタンド時間",
+  "activityMetricMoveTime": "ムーブ時間",
   "activityMetricFloors": "上った階数",
   "activityMetricElevationGained": "獲得標高",
   "activityMetricTimeInDaylight": "日光を浴びた時間",

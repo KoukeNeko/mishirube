@@ -940,6 +940,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get activityMetricStandTime => 'スタンド時間';
 
   @override
+  String get activityMetricMoveTime => 'ムーブ時間';
+
+  @override
   String get activityMetricFloors => '上った階数';
 
   @override

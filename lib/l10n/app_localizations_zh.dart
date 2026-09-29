@@ -936,6 +936,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityMetricStandTime => '站立時間';
 
   @override
+  String get activityMetricMoveTime => '移動時間';
+
+  @override
   String get activityMetricFloors => '爬樓';
 
   @override
@@ -6668,6 +6671,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get activityMetricStandTime => '站立时间';
+
+  @override
+  String get activityMetricMoveTime => '活动时间';
 
   @override
   String get activityMetricFloors => '爬楼';

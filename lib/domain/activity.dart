@@ -273,6 +273,10 @@ enum ActivityMetric {
   /// more.
   exerciseTime(ActivityMetricGroup.movement, isCumulative: true),
 
+  /// Apple Watch's move minutes, the Move ring's measure for those who
+  /// close it by time rather than energy. Apple Health only.
+  moveTime(ActivityMetricGroup.movement, isCumulative: true),
+
   /// Minutes on one's feet, not the stand hours of Apple's ring.
   standTime(ActivityMetricGroup.movement, isCumulative: true),
   floors(ActivityMetricGroup.movement, isCumulative: true),
@@ -373,7 +377,11 @@ enum ActivityMetric {
     steps => 200000,
     distance => 500000,
     activeEnergy || basalEnergy => 20000,
-    exerciseTime || standTime || timeInDaylight || mindfulTime => 1440,
+    exerciseTime ||
+    moveTime ||
+    standTime ||
+    timeInDaylight ||
+    mindfulTime => 1440,
     floors => 3000,
     elevationGained => 20000,
     _ => null,

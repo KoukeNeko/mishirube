@@ -464,6 +464,7 @@ enum HealthKitBridge {
         (HKQuantityType(.basalEnergyBurned), "basalEnergy", .kilocalorie(), true),
         (HKQuantityType(.appleExerciseTime), "exerciseTime", .minute(), true),
         (HKQuantityType(.appleStandTime), "standTime", .minute(), true),
+        (HKQuantityType(.appleMoveTime), "moveTime", .minute(), true),
         (HKQuantityType(.flightsClimbed), "floors", .count(), true),
         (HKQuantityType(.heartRate), "heartRate", bpm, false),
         (HKQuantityType(.restingHeartRate), "restingHeartRate", bpm, false),

@@ -1844,6 +1844,12 @@ abstract class AppLocalizations {
   /// **'站立時間'**
   String get activityMetricStandTime;
 
+  /// Apple Watch move minutes, from Apple Health.
+  ///
+  /// In zh, this message translates to:
+  /// **'移動時間'**
+  String get activityMetricMoveTime;
+
   /// A movement or fitness figure from a health platform. (ActivityMetric.floors)
   ///
   /// In zh, this message translates to:

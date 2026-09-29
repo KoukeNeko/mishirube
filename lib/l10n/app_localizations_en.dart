@@ -943,6 +943,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityMetricStandTime => 'Stand time';
 
   @override
+  String get activityMetricMoveTime => 'Move minutes';
+
+  @override
   String get activityMetricFloors => 'Flights climbed';
 
   @override

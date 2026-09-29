@@ -290,6 +290,7 @@
   "activityMetricBasalEnergy": "휴식 에너지",
   "activityMetricExerciseTime": "운동 시간",
   "activityMetricStandTime": "일어서기 시간",
+  "activityMetricMoveTime": "움직이기 시간",
   "activityMetricFloors": "오른 층수",
   "activityMetricElevationGained": "상승 고도",
   "activityMetricTimeInDaylight": "일광 노출 시간",
