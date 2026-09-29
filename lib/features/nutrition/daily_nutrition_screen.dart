@@ -905,12 +905,9 @@ class _EnergyCard extends StatelessWidget {
               // Side by side where there is room; the ring above the
               // macros at large text sizes.
               final isWide = space.maxWidth >= 300;
-              final color = left != null && left < 0
-                  ? AppColors.warning
-                  : AppColors.nutrition;
               final ring = ProgressRing(
                 progress: target == null || target <= 0 ? 0 : eaten / target,
-                color: color,
+                color: AppColors.nutrition,
                 semanticLabel: target == null
                     ? context.l10n.eatenKcal(kcal: formatKcal(eaten))
                     : context.l10n.eatenOfTarget(
@@ -1099,7 +1096,7 @@ class _IndicatorsCard extends StatelessWidget {
             '${amount == null ? '—' : figure(amount)}'
             ' / ${figure(saltLimit)} ${saltMeasure.unit.label}',
         progress: amount == null ? null : amount / saltLimit,
-        color: (amount ?? 0) > saltLimit ? AppColors.warning : AppColors.body,
+        color: AppColors.body,
         note: salt?.isWorkedOut == true ? context.l10n.workedOut : null,
       ),
       _MeterRow(
