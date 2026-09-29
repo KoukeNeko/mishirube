@@ -1047,6 +1047,34 @@
   "@nutrientBiotin": {
     "description": "A nutrient beyond the five every record has. (Nutrient.biotin)"
   },
+  "nutrientMonounsaturatedFat": "單元不飽和脂肪",
+  "@nutrientMonounsaturatedFat": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.monounsaturatedFat)"
+  },
+  "nutrientPolyunsaturatedFat": "多元不飽和脂肪",
+  "@nutrientPolyunsaturatedFat": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.polyunsaturatedFat)"
+  },
+  "nutrientCopper": "銅",
+  "@nutrientCopper": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.copper)"
+  },
+  "nutrientManganese": "錳",
+  "@nutrientManganese": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.manganese)"
+  },
+  "nutrientChromium": "鉻",
+  "@nutrientChromium": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.chromium)"
+  },
+  "nutrientMolybdenum": "鉬",
+  "@nutrientMolybdenum": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.molybdenum)"
+  },
+  "nutrientChloride": "氯",
+  "@nutrientChloride": {
+    "description": "A nutrient beyond the five every record has. (Nutrient.chloride)"
+  },
   "conventionTaiwan": "台灣",
   "@conventionTaiwan": {
     "description": "A country whose way of reading nutrition labels the user follows. (NutritionConvention.taiwan)"

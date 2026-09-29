@@ -354,6 +354,13 @@ extension NutrientText on Nutrient {
     Nutrient.folate => l10n.nutrientFolate,
     Nutrient.pantothenicAcid => l10n.nutrientPantothenicAcid,
     Nutrient.biotin => l10n.nutrientBiotin,
+    Nutrient.monounsaturatedFat => l10n.nutrientMonounsaturatedFat,
+    Nutrient.polyunsaturatedFat => l10n.nutrientPolyunsaturatedFat,
+    Nutrient.copper => l10n.nutrientCopper,
+    Nutrient.manganese => l10n.nutrientManganese,
+    Nutrient.chromium => l10n.nutrientChromium,
+    Nutrient.molybdenum => l10n.nutrientMolybdenum,
+    Nutrient.chloride => l10n.nutrientChloride,
   };
 }
 

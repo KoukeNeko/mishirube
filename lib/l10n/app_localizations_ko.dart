@@ -752,6 +752,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get nutrientBiotin => '비오틴';
 
   @override
+  String get nutrientMonounsaturatedFat => '단일불포화지방';
+
+  @override
+  String get nutrientPolyunsaturatedFat => '다중불포화지방';
+
+  @override
+  String get nutrientCopper => '구리';
+
+  @override
+  String get nutrientManganese => '망간';
+
+  @override
+  String get nutrientChromium => '크롬';
+
+  @override
+  String get nutrientMolybdenum => '몰리브덴';
+
+  @override
+  String get nutrientChloride => '염소';
+
+  @override
   String get conventionTaiwan => '대만';
 
   @override

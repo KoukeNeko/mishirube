@@ -1496,6 +1496,48 @@ abstract class AppLocalizations {
   /// **'生物素'**
   String get nutrientBiotin;
 
+  /// A nutrient beyond the five every record has. (Nutrient.monounsaturatedFat)
+  ///
+  /// In zh, this message translates to:
+  /// **'單元不飽和脂肪'**
+  String get nutrientMonounsaturatedFat;
+
+  /// A nutrient beyond the five every record has. (Nutrient.polyunsaturatedFat)
+  ///
+  /// In zh, this message translates to:
+  /// **'多元不飽和脂肪'**
+  String get nutrientPolyunsaturatedFat;
+
+  /// A nutrient beyond the five every record has. (Nutrient.copper)
+  ///
+  /// In zh, this message translates to:
+  /// **'銅'**
+  String get nutrientCopper;
+
+  /// A nutrient beyond the five every record has. (Nutrient.manganese)
+  ///
+  /// In zh, this message translates to:
+  /// **'錳'**
+  String get nutrientManganese;
+
+  /// A nutrient beyond the five every record has. (Nutrient.chromium)
+  ///
+  /// In zh, this message translates to:
+  /// **'鉻'**
+  String get nutrientChromium;
+
+  /// A nutrient beyond the five every record has. (Nutrient.molybdenum)
+  ///
+  /// In zh, this message translates to:
+  /// **'鉬'**
+  String get nutrientMolybdenum;
+
+  /// A nutrient beyond the five every record has. (Nutrient.chloride)
+  ///
+  /// In zh, this message translates to:
+  /// **'氯'**
+  String get nutrientChloride;
+
   /// A country whose way of reading nutrition labels the user follows. (NutritionConvention.taiwan)
   ///
   /// In zh, this message translates to:

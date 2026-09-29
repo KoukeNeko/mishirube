@@ -751,6 +751,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get nutrientBiotin => 'ビオチン';
 
   @override
+  String get nutrientMonounsaturatedFat => '一価不飽和脂肪酸';
+
+  @override
+  String get nutrientPolyunsaturatedFat => '多価不飽和脂肪酸';
+
+  @override
+  String get nutrientCopper => '銅';
+
+  @override
+  String get nutrientManganese => 'マンガン';
+
+  @override
+  String get nutrientChromium => 'クロム';
+
+  @override
+  String get nutrientMolybdenum => 'モリブデン';
+
+  @override
+  String get nutrientChloride => '塩素';
+
+  @override
   String get conventionTaiwan => '台湾';
 
   @override

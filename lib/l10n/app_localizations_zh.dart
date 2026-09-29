@@ -750,6 +750,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nutrientBiotin => '生物素';
 
   @override
+  String get nutrientMonounsaturatedFat => '單元不飽和脂肪';
+
+  @override
+  String get nutrientPolyunsaturatedFat => '多元不飽和脂肪';
+
+  @override
+  String get nutrientCopper => '銅';
+
+  @override
+  String get nutrientManganese => '錳';
+
+  @override
+  String get nutrientChromium => '鉻';
+
+  @override
+  String get nutrientMolybdenum => '鉬';
+
+  @override
+  String get nutrientChloride => '氯';
+
+  @override
   String get conventionTaiwan => '台灣';
 
   @override
@@ -6434,6 +6455,27 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get nutrientBiotin => '生物素';
+
+  @override
+  String get nutrientMonounsaturatedFat => '单不饱和脂肪';
+
+  @override
+  String get nutrientPolyunsaturatedFat => '多不饱和脂肪';
+
+  @override
+  String get nutrientCopper => '铜';
+
+  @override
+  String get nutrientManganese => '锰';
+
+  @override
+  String get nutrientChromium => '铬';
+
+  @override
+  String get nutrientMolybdenum => '钼';
+
+  @override
+  String get nutrientChloride => '氯';
 
   @override
   String get conventionTaiwan => '台湾';

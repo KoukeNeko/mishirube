@@ -668,6 +668,10 @@ enum Nutrient {
   polyols(NutrientUnit.gram),
   alcohol(NutrientUnit.gram),
 
+  // The other fats a US or EU label may break the total into.
+  monounsaturatedFat(NutrientUnit.gram),
+  polyunsaturatedFat(NutrientUnit.gram),
+
   // Commonly declared voluntarily.
   cholesterol(NutrientUnit.milligram),
   caffeine(NutrientUnit.milligram),
@@ -691,6 +695,11 @@ enum Nutrient {
   potassium(NutrientUnit.milligram),
   iodine(NutrientUnit.microgram),
   selenium(NutrientUnit.microgram),
+  copper(NutrientUnit.milligram),
+  manganese(NutrientUnit.milligram),
+  chromium(NutrientUnit.microgram),
+  molybdenum(NutrientUnit.microgram),
+  chloride(NutrientUnit.milligram),
 
   // Vitamins in the DRIs.
   vitaminA(NutrientUnit.microgram),
