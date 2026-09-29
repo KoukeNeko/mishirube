@@ -43,6 +43,7 @@ import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
@@ -2150,6 +2151,22 @@ void main() {
     );
     expect(find.text('睡眠階段'), findsNothing, reason: 'no stages to show');
     expect(find.text('品質 4 / 5'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('the day\'s food is a card of its own, labelled 飲食', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    expect(
+      find.widgetWithText(CategoryLabel, testL10n.moduleNutrition),
+      findsOneWidget,
+      reason: 'marked in the colour the module reads in',
+    );
+    expect(find.text('今日攝取'), findsNothing);
     await disposeTree(tester);
   });
 

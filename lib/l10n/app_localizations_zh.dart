@@ -2743,9 +2743,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nextStep => '下一步';
 
   @override
-  String get todayIntake => '今日攝取';
-
-  @override
   String get includesEstimates => '含估計值';
 
   @override
@@ -8392,9 +8389,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get nextStep => '下一步';
-
-  @override
-  String get todayIntake => '今日摄入';
 
   @override
   String get includesEstimates => '含估计值';

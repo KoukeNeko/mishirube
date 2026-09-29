@@ -16,7 +16,7 @@ enum TodaySection {
   String labelIn(AppLocalizations l10n) => switch (this) {
     glance => l10n.todaySectionGlance,
     activity => l10n.todaySectionActivity,
-    intake => l10n.todayIntake,
+    intake => l10n.moduleNutrition,
     week => l10n.todaySectionWeek,
     records => l10n.todaySectionRecords,
     insights => l10n.todaySectionInsights,

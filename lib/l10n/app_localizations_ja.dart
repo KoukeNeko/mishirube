@@ -2749,9 +2749,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get nextStep => '次のステップ';
 
   @override
-  String get todayIntake => '今日の摂取';
-
-  @override
   String get includesEstimates => '推定値を含む';
 
   @override

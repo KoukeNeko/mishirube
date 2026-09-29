@@ -812,7 +812,6 @@
   "customiseToday": "Customize Today",
   "showAll": "Show all",
   "nextStep": "Next",
-  "todayIntake": "Today's intake",
   "includesEstimates": "Includes estimates",
   "partialMacros": "Some entries lack {macros}; not counted.",
   "routineCompleted": "{name} done",

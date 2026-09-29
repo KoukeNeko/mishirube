@@ -2779,9 +2779,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextStep => 'Next';
 
   @override
-  String get todayIntake => 'Today\'s intake';
-
-  @override
   String get includesEstimates => 'Includes estimates';
 
   @override

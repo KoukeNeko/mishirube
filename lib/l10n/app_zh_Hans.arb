@@ -812,7 +812,6 @@
   "customiseToday": "自定义首页",
   "showAll": "全部显示",
   "nextStep": "下一步",
-  "todayIntake": "今日摄入",
   "includesEstimates": "含估计值",
   "partialMacros": "{macros}有记录没有数字，未计入。",
   "routineCompleted": "{name} 已完成",

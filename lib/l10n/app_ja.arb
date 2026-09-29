@@ -812,7 +812,6 @@
   "customiseToday": "ホームをカスタマイズ",
   "showAll": "すべて表示",
   "nextStep": "次のステップ",
-  "todayIntake": "今日の摂取",
   "includesEstimates": "推定値を含む",
   "partialMacros": "{macros}の数値がない記録があり、含めていません。",
   "routineCompleted": "{name} 完了",

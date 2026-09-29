@@ -4063,10 +4063,6 @@
   "@nextStep": {
     "description": "Eyebrow of the next-meal card."
   },
-  "todayIntake": "今日攝取",
-  "@todayIntake": {
-    "description": "Today's food section."
-  },
   "includesEstimates": "含估計值",
   "@includesEstimates": {
     "description": "Tag when some figures are estimated."

@@ -2749,9 +2749,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get nextStep => '다음 단계';
 
   @override
-  String get todayIntake => '오늘 섭취';
-
-  @override
   String get includesEstimates => '추정치 포함';
 
   @override

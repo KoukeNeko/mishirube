@@ -4989,12 +4989,6 @@ abstract class AppLocalizations {
   /// **'下一步'**
   String get nextStep;
 
-  /// Today's food section.
-  ///
-  /// In zh, this message translates to:
-  /// **'今日攝取'**
-  String get todayIntake;
-
   /// Tag when some figures are estimated.
   ///
   /// In zh, this message translates to:

@@ -812,7 +812,6 @@
   "customiseToday": "홈 맞춤 설정",
   "showAll": "모두 표시",
   "nextStep": "다음 단계",
-  "todayIntake": "오늘 섭취",
   "includesEstimates": "추정치 포함",
   "partialMacros": "일부 기록에 {macros} 수치가 없어 포함하지 않았습니다.",
   "routineCompleted": "{name} 완료",

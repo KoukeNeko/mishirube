@@ -266,7 +266,10 @@ class IntakeCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(context.l10n.todayIntake, style: AppTextStyles.overline),
+              CategoryLabel(
+                label: context.l10n.moduleNutrition,
+                color: AppColors.nutrition,
+              ),
               const Spacer(),
               if (summary.hasEstimates)
                 TagChip(
