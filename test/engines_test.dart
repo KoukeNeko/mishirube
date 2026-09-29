@@ -1521,11 +1521,46 @@ void main() {
         weeks: 4,
       );
 
-      expect(weeks.map((entry) => entry.$1), [
+      final barsOf = {
+        for (final (muscle, bars) in weeks)
+          muscle: [for (final bar in bars) bar.$2],
+      };
+      expect(
+        weeks,
+        hasLength(MuscleGroup.values.length),
+        reason: 'every muscle is listed, trained or not',
+      );
+      expect(barsOf[MuscleGroup.quads], [
+        0,
+        0,
+        3,
+        4,
+      ], reason: 'primary work, week by week');
+      expect(barsOf[MuscleGroup.glutes], [0, 0, 3, 4]);
+      expect(barsOf[MuscleGroup.hamstrings], [
+        0,
+        0,
+        0,
+        0,
+      ], reason: 'secondary work does not count');
+      expect(barsOf[MuscleGroup.arms], [
+        0,
+        0,
+        0,
+        0,
+      ], reason: 'the curls are older than the span');
+      expect(weeks.take(2).map((entry) => entry.$1).toSet(), {
         MuscleGroup.quads,
         MuscleGroup.glutes,
-      ], reason: 'secondary work and weeks outside the span do not count');
-      expect(weeks.first.$2.map((bar) => bar.$2), [0, 0, 3, 4]);
+      }, reason: 'the trained muscles lead');
+      expect(
+        weeks.skip(2).every((entry) => entry.$2.every((bar) => bar.$2 == 0)),
+        isTrue,
+        reason: 'the untrained ones follow at zero',
+      );
+    });
+  });
+
   group('relative load', () {
     const barbell = ExerciseDefinition(
       id: 'squat',

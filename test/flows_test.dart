@@ -43,6 +43,7 @@ import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/water_card.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
@@ -924,6 +925,31 @@ void main() {
       MuscleFigure.female,
       reason: 'the choice of drawing is stored, so it survives a restart',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the muscle page lists every muscle, trained or not', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const MuscleTrendsScreen(), store: store);
+
+    expect(
+      find.text(MuscleGroup.glutes.labelIn(testL10n)),
+      findsOneWidget,
+      reason: 'the most trained leads',
+    );
+    // The last of them never trained in the demo records: it is still
+    // there, so the page says what the span is missing.
+    final untrained = find.text(MuscleGroup.core.labelIn(testL10n));
+    await tester.dragUntilVisible(
+      untrained,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    expect(untrained, findsOneWidget);
+    expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });
 

@@ -27,18 +27,10 @@ class MuscleTrendsScreen extends StatelessWidget {
           subtitle: context.l10n.weeklySetsLast8,
         ),
         children: [
-          if (muscles.isEmpty)
+          for (final (muscle, weeks) in muscles)
             Gutter(
-              child: EmptyStateCard(
-                icon: Icons.accessibility_new,
-                title: context.l10n.noWorkingSets,
-              ),
-            )
-          else
-            for (final (muscle, weeks) in muscles)
-              Gutter(
-                child: _MuscleCard(muscle: muscle, weeks: weeks),
-              ),
+              child: _MuscleCard(muscle: muscle, weeks: weeks),
+            ),
         ],
       );
     },

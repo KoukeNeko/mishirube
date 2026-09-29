@@ -3,7 +3,7 @@ import '../../l10n/app_localizations.dart';
 
 /// Bumped whenever a rule below changes, so a stored or exported result can
 /// say which version produced it.
-const trendEngineVersion = 1;
+const trendEngineVersion = 2;
 
 /// Below this many measurements a trend is not reported at all.
 const minimumPointsForTrend = 4;
@@ -154,8 +154,9 @@ String _label(DateTime day) => '${day.month}/${day.day}';
 /// Working sets per muscle in each of the last [weeks] weeks, oldest
 /// first, from each exercise's sessions: when, and how many working sets.
 /// A set counts for the exercise's primary muscles only, as in
-/// `setsByMuscle`. Muscles with no set in the whole span are left out;
-/// the rest come most trained first.
+/// `setsByMuscle`. Every muscle is listed, trained or not, so the page can
+/// show what the span is missing; the most trained come first, and the
+/// untrained follow in the order the muscles are defined.
 List<(MuscleGroup, List<WeeklyBar>)> weeklySetsPerMuscle(
   AppLocalizations l10n,
   Iterable<(ExerciseDefinition, List<(DateTime, int)>)> sessions, {
@@ -169,11 +170,22 @@ List<(MuscleGroup, List<WeeklyBar>)> weeklySetsPerMuscle(
     }
   }
   final out = [
-    for (final MapEntry(key: muscle, value: done) in byMuscle.entries)
-      if (weeklySums(l10n, done, now: now, weeks: weeks) case final bars
-          when bars.any((bar) => bar.$2 > 0))
-        (muscle, bars),
+    for (final muscle in MuscleGroup.values)
+      (
+        muscle,
+        weeklySums(
+          l10n,
+          byMuscle[muscle] ?? const <(DateTime, int)>[],
+          now: now,
+          weeks: weeks,
+        ),
+      ),
   ];
   int total(List<WeeklyBar> bars) => bars.fold(0, (sum, bar) => sum + bar.$2);
-  return out..sort((a, b) => total(b.$2).compareTo(total(a.$2)));
+  // Ties — which is every untrained muscle — keep the order they are
+  // defined in, so the list reads the same every time.
+  return out..sort((a, b) {
+    final trained = total(b.$2).compareTo(total(a.$2));
+    return trained != 0 ? trained : a.$1.index.compareTo(b.$1.index);
+  });
 }

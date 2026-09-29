@@ -1,6 +1,6 @@
 # engine versions
 training metrics: 3
-trend: 1
+trend: 2
 insight: 1
 substitution: 1
 exercise search: 1
