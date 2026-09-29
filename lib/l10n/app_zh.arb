@@ -7153,6 +7153,35 @@
   "@waterPerTapMl": {
     "description": "Dialog title."
   },
+  "waterReference": "每日參考量",
+  "@waterReference": {
+    "description": "Water: the daily amount the level fills towards."
+  },
+  "waterReferenceMl": "每日參考量 mL",
+  "@waterReferenceMl": {
+    "description": "Title of the dialog typing a custom daily water reference."
+  },
+  "waterReferenceNote": "族群參考值，實際需求因人而異",
+  "@waterReferenceNote": {
+    "description": "The one line on the choice of a daily water reference."
+  },
+  "waterReferenceHpa": "國健署",
+  "@waterReferenceHpa": {
+    "description": "Source tag: Taiwan Health Promotion Administration."
+  },
+  "waterReferenceNone": "不設定",
+  "@waterReferenceNone": {
+    "description": "Choice: no daily water reference, so no level."
+  },
+  "waterFastWarning": "1 小時內已記錄 {millilitres} mL。短時間大量喝水可能造成低血鈉，請分次慢慢喝。",
+  "@waterFastWarning": {
+    "description": "Warning when a lot of water is logged within an hour; millilitres formatted.",
+    "placeholders": {
+      "millilitres": {
+        "type": "String"
+      }
+    }
+  },
   "waterPerTapLabel": "一次記多少，目前 {millilitres} 毫升",
   "@waterPerTapLabel": {
     "description": "Screen-reader label.",
@@ -7819,6 +7848,14 @@
   "refUse46": "35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算",
   "@refUse46": {
     "description": "What Gardiner et al. (2023) support."
+  },
+  "refUse47": "每日參考量 1,500 mL，只計白開水",
+  "@refUse47": {
+    "description": "What 國健署 (2021) supports."
+  },
+  "refUse48": "腎臟每小時約可排出 0.7–1.0 L，1 小時內 1,000 mL 以上時提醒",
+  "@refUse48": {
+    "description": "What the Institute of Medicine (2005) supports."
   },
   "refUse24": "未設定目標時以每晚 8 小時計（共識為 7 小時以上）",
   "@refUse24": {

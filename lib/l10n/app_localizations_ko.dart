@@ -4700,6 +4700,26 @@ class AppLocalizationsKo extends AppLocalizations {
   String get waterPerTapMl => '1회 기록량(mL)';
 
   @override
+  String get waterReference => '하루 참고량';
+
+  @override
+  String get waterReferenceMl => '하루 참고량(mL)';
+
+  @override
+  String get waterReferenceNote => '집단 참고값이며 실제 필요량은 사람마다 다름';
+
+  @override
+  String get waterReferenceHpa => '대만 국민건강서';
+
+  @override
+  String get waterReferenceNone => '설정 안 함';
+
+  @override
+  String waterFastWarning({required String millilitres}) {
+    return '1시간 안에 $millilitres mL 기록. 짧은 시간에 많이 마시면 저나트륨혈증이 생길 수 있으니 나눠서 천천히 마실 것.';
+  }
+
+  @override
   String waterPerTapLabel({required int millilitres}) {
     return '1회 기록량, 현재 $millilitres밀리리터';
   }
@@ -5153,6 +5173,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get refUse46 => '35 mg 참고선은 취침 8.8시간 전 107 mg, 13.2시간 전 217.5 mg에서 추산';
+
+  @override
+  String get refUse47 => '하루 참고량 1,500 mL, 물만 계산';
+
+  @override
+  String get refUse48 => '신장은 시간당 약 0.7–1.0 L 배출. 1시간 안에 1,000 mL 이상이면 경고';
 
   @override
   String get refUse24 => '목표가 없으면 하룻밤 8시간 기준(합의는 7시간 이상)';

@@ -4758,6 +4758,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get waterPerTapMl => 'Amount per tap (mL)';
 
   @override
+  String get waterReference => 'Daily reference';
+
+  @override
+  String get waterReferenceMl => 'Daily reference (mL)';
+
+  @override
+  String get waterReferenceNote => 'A population reference; actual needs vary';
+
+  @override
+  String get waterReferenceHpa => 'Taiwan HPA';
+
+  @override
+  String get waterReferenceNone => 'None';
+
+  @override
+  String waterFastWarning({required String millilitres}) {
+    return '$millilitres mL logged within an hour. Drinking a lot quickly can cause low blood sodium; drink slowly, a little at a time.';
+  }
+
+  @override
   String waterPerTapLabel({required int millilitres}) {
     return 'Amount per tap, now $millilitres millilitres';
   }
@@ -5232,6 +5252,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get refUse46 =>
       '35 mg reference worked out from 107 mg 8.8 h and 217.5 mg 13.2 h before bed';
+
+  @override
+  String get refUse47 => 'A daily reference of 1,500 mL, plain water only';
+
+  @override
+  String get refUse48 =>
+      'Kidneys clear about 0.7–1.0 L an hour; 1,000 mL within an hour is warned';
 
   @override
   String get refUse24 => 'Without a goal, 8 hours a night (consensus is 7+)';

@@ -4699,6 +4699,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get waterPerTapMl => '1回の量（mL）';
 
   @override
+  String get waterReference => '1日の目安量';
+
+  @override
+  String get waterReferenceMl => '1日の目安量（mL）';
+
+  @override
+  String get waterReferenceNote => '集団の参考値で、実際の必要量は人によって異なる';
+
+  @override
+  String get waterReferenceHpa => '台湾 国民健康署';
+
+  @override
+  String get waterReferenceNone => '設定しない';
+
+  @override
+  String waterFastWarning({required String millilitres}) {
+    return '1時間以内に $millilitres mL を記録。短時間に大量の水を飲むと低ナトリウム血症になることがあるので、少しずつ飲む。';
+  }
+
+  @override
   String waterPerTapLabel({required int millilitres}) {
     return '1回の量、現在$millilitresミリリットル';
   }
@@ -5151,6 +5171,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refUse46 => '35 mg の目安は就寝 8.8 時間前の 107 mg、13.2 時間前の 217.5 mg から推算';
+
+  @override
+  String get refUse47 => '1日の目安量 1,500 mL、水のみ';
+
+  @override
+  String get refUse48 => '腎臓が1時間に排出できるのは約 0.7–1.0 L。1時間に 1,000 mL 以上で注意';
 
   @override
   String get refUse24 => '目標未設定時は1晩8時間で計算（合意は7時間以上）';

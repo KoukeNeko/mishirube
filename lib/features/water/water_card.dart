@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/meal_detail_screen.dart';
 import '../../app/app_store.dart';
@@ -16,12 +17,13 @@ List<(String, int)> _presets(AppLocalizations l10n) => [
 
 /// A day's plain water, logged in one tap on today.
 ///
-/// The card states facts and nothing else: how much water that day, how
-/// many times, the last one. There is no target, percentage or filling
-/// glass — the app has no validated daily amount, and a glass that fills
-/// up is read as distance to one. Other drinks with a volume are counted
-/// on a quieter line of their own rather than folded into a number
-/// labelled 「水」.
+/// The card states facts: how much water that day, how many times, the
+/// last one, and, when the user keeps one, the daily reference it fills
+/// towards. That is a population reference, not a requirement, so it is
+/// never called a target and the level stops at full rather than
+/// rewarding more. Other drinks with a volume are counted on a quieter
+/// line of their own rather than folded into a number labelled 「水」:
+/// the reference is for plain water.
 ///
 /// How much the next tap adds is chosen on the card itself, since it is
 /// part of logging, not a setting. Another day shows its figures only:
@@ -108,6 +110,7 @@ class WaterCard extends StatelessWidget {
     final fluid = nutrition.fluidOn(day);
     final glass = nutrition.glassMillilitres;
     final isToday = DateUtils.isSameDay(day, nutrition.now());
+    final reference = nutrition.waterReferenceMl;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -138,10 +141,21 @@ class WaterCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           StatBlock(
-            value: '${water.millilitres}',
-            unit: 'mL',
+            value: formatKcal(water.millilitres),
+            unit: switch (reference) {
+              final reference? => '/ ${formatKcal(reference)} mL',
+              null => 'mL',
+            },
             valueStyle: AppTextStyles.hugeNumber,
           ),
+          if (reference case final reference? when reference > 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            ProgressLine(
+              progress: water.millilitres / reference,
+              color: AppColors.water,
+              height: 6,
+            ),
+          ],
           const SizedBox(height: AppSpacing.xxs),
           Text(switch (water.lastTimeLabel) {
             final last? => context.l10n.waterTimesLast(

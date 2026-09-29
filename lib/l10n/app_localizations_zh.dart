@@ -4692,6 +4692,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get waterPerTapMl => '一次記多少 mL';
 
   @override
+  String get waterReference => '每日參考量';
+
+  @override
+  String get waterReferenceMl => '每日參考量 mL';
+
+  @override
+  String get waterReferenceNote => '族群參考值，實際需求因人而異';
+
+  @override
+  String get waterReferenceHpa => '國健署';
+
+  @override
+  String get waterReferenceNone => '不設定';
+
+  @override
+  String waterFastWarning({required String millilitres}) {
+    return '1 小時內已記錄 $millilitres mL。短時間大量喝水可能造成低血鈉，請分次慢慢喝。';
+  }
+
+  @override
   String waterPerTapLabel({required int millilitres}) {
     return '一次記多少，目前 $millilitres 毫升';
   }
@@ -5145,6 +5165,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get refUse46 => '35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算';
+
+  @override
+  String get refUse47 => '每日參考量 1,500 mL，只計白開水';
+
+  @override
+  String get refUse48 => '腎臟每小時約可排出 0.7–1.0 L，1 小時內 1,000 mL 以上時提醒';
 
   @override
   String get refUse24 => '未設定目標時以每晚 8 小時計（共識為 7 小時以上）';
@@ -10349,6 +10375,26 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get waterPerTapMl => '一次记多少 mL';
 
   @override
+  String get waterReference => '每日参考量';
+
+  @override
+  String get waterReferenceMl => '每日参考量 mL';
+
+  @override
+  String get waterReferenceNote => '人群参考值，实际需求因人而异';
+
+  @override
+  String get waterReferenceHpa => '台湾国健署';
+
+  @override
+  String get waterReferenceNone => '不设定';
+
+  @override
+  String waterFastWarning({required String millilitres}) {
+    return '1 小时内已记录 $millilitres mL。短时间大量喝水可能造成低血钠，请分次慢慢喝。';
+  }
+
+  @override
   String waterPerTapLabel({required int millilitres}) {
     return '一次记多少，目前 $millilitres 毫升';
   }
@@ -10802,6 +10848,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get refUse46 => '35 mg 参考线由睡前 8.8 小时 107 mg、13.2 小时 217.5 mg 推算';
+
+  @override
+  String get refUse47 => '每日参考量 1,500 mL，只计白开水';
+
+  @override
+  String get refUse48 => '肾脏每小时约可排出 0.7–1.0 L，1 小时内 1,000 mL 以上时提醒';
 
   @override
   String get refUse24 => '未设置目标时以每晚 8 小时计（共识为 7 小时以上）';

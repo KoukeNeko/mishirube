@@ -214,6 +214,22 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
     ],
   ),
   (
+    l10n.healthDataWater,
+    [
+      (
+        // l10n-ignore: cited in its own language.
+        citation: '衛生福利部國民健康署（2021年8月27日，2025年3月19日更新）。清涼消暑 聰明喝水笑「喝」呵。',
+        use: l10n.refUse47,
+        url: 'https://www.hpa.gov.tw/Pages/Detail.aspx?nodeid=4306&pid=14493',
+      ),
+      (
+        citation: 'Institute of Medicine. (2005). Dietary reference intakes for water, potassium, sodium, chloride, and sulfate. The National Academies Press.',
+        use: l10n.refUse48,
+        url: 'https://doi.org/10.17226/10925',
+      ),
+    ],
+  ),
+  (
     l10n.refSectionCaffeine,
     [
       (

@@ -162,6 +162,7 @@ class QuickStatTile extends StatelessWidget {
     this.unit,
     this.caption,
     this.visual,
+    this.level,
     this.onTap,
   });
 
@@ -175,13 +176,16 @@ class QuickStatTile extends StatelessWidget {
 
   /// A progress line or sparkline, drawn in [color].
   final Widget? visual;
+
+  /// How full the tile is drawn, 0–1 from the bottom, in [color]; null
+  /// for no level.
+  final double? level;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final value = this.value;
-    return AppCard(
-      onTap: onTap,
+    final content = Padding(
       padding: const EdgeInsets.all(AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,6 +220,23 @@ class QuickStatTile extends StatelessWidget {
           ],
         ],
       ),
+    );
+    // The level reaches the card's edges, so the card pads nothing and
+    // the content pads itself.
+    return AppCard(
+      onTap: onTap,
+      padding: EdgeInsets.zero,
+      child: switch (level) {
+        final level? => Stack(
+          children: [
+            Positioned.fill(
+              child: LevelFill(level: level, color: color),
+            ),
+            content,
+          ],
+        ),
+        null => content,
+      },
     );
   }
 }

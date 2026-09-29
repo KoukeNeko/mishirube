@@ -147,6 +147,26 @@ void main() {
       );
     });
 
+    test('the water reference is 國健署\'s only where the day is Taiwan\'s', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final nutrition = backend.nutrition;
+
+      expect(nutrition.waterReferenceMl, 1500, reason: 'prefilled in Taiwan');
+      nutrition.setConvention(NutritionConvention.japan);
+      expect(nutrition.waterReferenceMl, isNull, reason: 'none elsewhere');
+      nutrition.setWaterReferenceMl(2000);
+      expect(nutrition.waterReferenceMl, 2000);
+      nutrition
+        ..setConvention(NutritionConvention.taiwan)
+        ..setWaterReferenceMl(null);
+      expect(
+        nutrition.waterReferenceMl,
+        isNull,
+        reason: 'cleared stays cleared, even in Taiwan',
+      );
+    });
+
     test('plain water is not a record of food on the day', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

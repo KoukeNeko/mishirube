@@ -120,6 +120,27 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('water fills the tile up to its reference and no further', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.nutrition
+      ..logWater(500)
+      ..logWater(500);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    expect(find.text('1,000 / 1,500 mL', findRichText: true), findsOneWidget);
+    expect(tester.widget<LevelFill>(find.byType(LevelFill)).level, 1000 / 1500);
+    await disposeTree(tester);
+
+    store.backend.nutrition.setWaterReferenceMl(null);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    expect(find.text('1,000 mL', findRichText: true), findsOneWidget);
+    expect(find.byType(LevelFill), findsNothing, reason: 'no reference');
+    await disposeTree(tester);
+  });
+
   testWidgets('after training the workout done shows', (tester) async {
     usePhoneViewport(tester);
     final store = emptyDay()

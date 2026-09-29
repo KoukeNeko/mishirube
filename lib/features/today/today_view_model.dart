@@ -94,6 +94,9 @@ class TodayViewModel extends ViewModel {
     );
   }
 
+  /// The plain water the day's level fills towards; null draws none.
+  int? get waterReferenceMl => backend.nutrition.waterReferenceMl;
+
   /// Water drunk today.
   WaterLogged get water => summariseWater(backend.nutrition.mealsOn(_today));
 

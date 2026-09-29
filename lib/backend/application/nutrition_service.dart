@@ -104,6 +104,28 @@ class NutritionService {
   void setConvention(NutritionConvention convention) =>
       _db.setSetting(_conventionKey, convention.name);
 
+  static const _waterReferenceKey = 'water.reference_ml';
+
+  /// 國健署's adult reference for plain water: at least 1,500 mL a day
+  /// (2021). A population figure, not anyone's requirement, and the only
+  /// official one given as plain water rather than total water.
+  static const taiwanWaterReferenceMl = 1500;
+
+  /// The plain water a day's level fills towards; null draws no level.
+  /// Until the user chooses, Taiwan's reference while the day follows
+  /// Taiwan's rules, and none elsewhere.
+  int? get waterReferenceMl => switch (_db.setting(_waterReferenceKey)) {
+    null || '' =>
+      convention == NutritionConvention.taiwan ? taiwanWaterReferenceMl : null,
+    final stored => int.tryParse(stored),
+  };
+
+  /// Sets the reference, or clears it with null so no level is drawn.
+  void setWaterReferenceMl(int? millilitres) => _db.setSetting(
+    _waterReferenceKey,
+    millilitres == null ? 'none' : '$millilitres',
+  );
+
   /// The day's salt limit in [convention]'s measure: mg of sodium, or g
   /// of salt for the user's sex.
   double get saltLimit => convention.saltLimit(_journal.sex);

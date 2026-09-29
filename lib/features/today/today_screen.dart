@@ -247,6 +247,7 @@ class TodayScreen extends StatelessWidget {
     Set<AppModule> modules,
   ) {
     final water = today.water;
+    final waterReference = today.waterReferenceMl;
     final night = store.lastNight;
     final sleepGoal = today.sleepGoal;
     final tiles = [
@@ -283,10 +284,18 @@ class TodayScreen extends StatelessWidget {
         QuickStatTile(
           category: context.l10n.healthDataWater,
           color: AppColors.water,
-          value: water.times == 0
-              ? null
-              : formatAmount(water.millilitres.toDouble()),
-          unit: 'mL',
+          value: water.times == 0 ? null : formatKcal(water.millilitres),
+          unit: switch (waterReference) {
+            final reference? => '/ ${formatKcal(reference)} mL',
+            null => 'mL',
+          },
+          // Up to the reference and no further: past it the tile stays
+          // full rather than rewarding more.
+          level: switch (waterReference) {
+            final reference? when reference > 0 =>
+              water.millilitres / reference,
+            _ => null,
+          },
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),

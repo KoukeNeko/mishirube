@@ -2690,6 +2690,29 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the water reference is chosen, and a fast hour is warned', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const WaterScreen(), store: store);
+
+    expect(find.text('國健署'), findsOneWidget, reason: 'prefilled in Taiwan');
+    await _tapText(tester, '每日參考量');
+    expect(find.text('族群參考值，實際需求因人而異'), findsOneWidget);
+    await _tapText(tester, '不設定');
+    await tester.pumpAndSettle();
+    expect(store.backend.nutrition.waterReferenceMl, isNull);
+    expect(find.text('未設定'), findsOneWidget);
+
+    store.backend.nutrition
+      ..logWater(600)
+      ..logWater(600);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('低血鈉'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('leaving any field puts the keyboard away', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const FoodEditScreen(), store: store);
@@ -3591,9 +3614,9 @@ void main() {
 
     await pumpScreen(tester, const WaterScreen(), store: store);
     expect(
-      find.text('500 mL', findRichText: true),
+      find.text('500 / 1,500 mL', findRichText: true),
       findsOneWidget,
-      reason: 'the day\'s water',
+      reason: 'the day\'s water, against 國健署\'s reference',
     );
     expect(find.text('250 mL'), findsNWidgets(2), reason: 'each glass');
     await disposeTree(tester);

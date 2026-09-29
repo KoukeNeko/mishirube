@@ -602,3 +602,63 @@ class _CurvePainter extends CustomPainter {
       old.reference != reference ||
       old.referenceLabel != referenceLabel;
 }
+
+/// A level rising from the bottom to [level] of the height, with a soft
+/// wave along its top: how full something is, drawn behind what sits on
+/// it. Past 1 it stays full, neither overflowing nor changing colour.
+class LevelFill extends StatelessWidget {
+  const LevelFill({super.key, required this.level, required this.color});
+
+  final double level;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: CustomPaint(
+      painter: _LevelPainter(level: level.clamp(0, 1), color: color),
+      size: Size.infinite,
+    ),
+  );
+}
+
+class _LevelPainter extends CustomPainter {
+  _LevelPainter({required this.level, required this.color});
+
+  static const _wave = 3.0;
+
+  final double level;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (level <= 0) return;
+    final top = _wave + (size.height - _wave) * (1 - level);
+    // Two gentle swells across the width.
+    final crest = size.width / 4;
+    final surface = Path()..moveTo(0, top);
+    for (var i = 0; i < 4; i++) {
+      surface.quadraticBezierTo(
+        crest * i + crest / 2,
+        top + (i.isEven ? -_wave : _wave),
+        crest * (i + 1),
+        top,
+      );
+    }
+    final water = Path.from(surface)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(water, Paint()..color = color.withValues(alpha: 0.2));
+    canvas.drawPath(
+      surface,
+      Paint()
+        ..color = color.withValues(alpha: 0.7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_LevelPainter old) =>
+      old.level != level || old.color != color;
+}

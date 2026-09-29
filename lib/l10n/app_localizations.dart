@@ -8182,6 +8182,42 @@ abstract class AppLocalizations {
   /// **'一次記多少 mL'**
   String get waterPerTapMl;
 
+  /// Water: the daily amount the level fills towards.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日參考量'**
+  String get waterReference;
+
+  /// Title of the dialog typing a custom daily water reference.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日參考量 mL'**
+  String get waterReferenceMl;
+
+  /// The one line on the choice of a daily water reference.
+  ///
+  /// In zh, this message translates to:
+  /// **'族群參考值，實際需求因人而異'**
+  String get waterReferenceNote;
+
+  /// Source tag: Taiwan Health Promotion Administration.
+  ///
+  /// In zh, this message translates to:
+  /// **'國健署'**
+  String get waterReferenceHpa;
+
+  /// Choice: no daily water reference, so no level.
+  ///
+  /// In zh, this message translates to:
+  /// **'不設定'**
+  String get waterReferenceNone;
+
+  /// Warning when a lot of water is logged within an hour; millilitres formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'1 小時內已記錄 {millilitres} mL。短時間大量喝水可能造成低血鈉，請分次慢慢喝。'**
+  String waterFastWarning({required String millilitres});
+
   /// Screen-reader label.
   ///
   /// In zh, this message translates to:
@@ -9009,6 +9045,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算'**
   String get refUse46;
+
+  /// What 國健署 (2021) supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日參考量 1,500 mL，只計白開水'**
+  String get refUse47;
+
+  /// What the Institute of Medicine (2005) supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'腎臟每小時約可排出 0.7–1.0 L，1 小時內 1,000 mL 以上時提醒'**
+  String get refUse48;
 
   /// What a reference supports.
   ///

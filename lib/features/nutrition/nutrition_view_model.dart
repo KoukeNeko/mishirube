@@ -293,6 +293,30 @@ class NutritionViewModel extends ViewModel {
       if (glassesOn(day).isNotEmpty) day,
   };
 
+  /// 國健署's plain-water reference, offered while the day follows
+  /// Taiwan's rules.
+  static const taiwanWaterReferenceMl = NutritionService.taiwanWaterReferenceMl;
+
+  /// The plain water a day's level fills towards; null draws none.
+  int? get waterReferenceMl => backend.nutrition.waterReferenceMl;
+
+  void setWaterReferenceMl(int? millilitres) =>
+      backend.nutrition.setWaterReferenceMl(millilitres);
+
+  /// Plain water logged in the hour up to now, for the warning about
+  /// drinking a lot quickly.
+  int get waterInLastHour {
+    final at = now();
+    return [
+      for (final (_, meal) in backend.nutrition.between(
+        at.subtract(const Duration(hours: 1)),
+        // A glass logged this very moment is in the hour too.
+        at.add(const Duration(milliseconds: 1)),
+      ))
+        if (meal.isWater) meal.millilitres ?? 0,
+    ].fold(0, (sum, ml) => sum + ml);
+  }
+
   /// Logs a glass of water. It writes the same record every drink
   /// writes, so the day's fluid stays one total.
   MealEvent logWater([int? millilitres]) =>
