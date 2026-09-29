@@ -116,7 +116,7 @@ class WaterCard extends StatelessWidget {
             children: [
               const Icon(
                 Icons.water_drop_outlined,
-                color: AppColors.nutrition,
+                color: AppColors.water,
                 size: 20,
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -152,9 +152,10 @@ class WaterCard extends StatelessWidget {
           }, style: AppTextStyles.caption),
           if (isToday) ...[
             const SizedBox(height: AppSpacing.md),
-            NutritionButton(
+            PrimaryButton(
               label: '＋ $glass mL',
               onPressed: () => _logGlass(context, nutrition),
+              color: AppColors.water,
             ),
           ],
           // Only when other drinks added something, and never under the

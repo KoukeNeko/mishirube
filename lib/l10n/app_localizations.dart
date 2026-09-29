@@ -7684,6 +7684,12 @@ abstract class AppLocalizations {
   /// **'就寢參考 {mg} mg'**
   String caffeineReference({required String mg});
 
+  /// Section label: records of the last 24 hours.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 24 小時'**
+  String get last24Hours;
+
   /// A figure worked out from others; value formatted.
   ///
   /// In zh, this message translates to:

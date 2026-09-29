@@ -4402,6 +4402,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get last24Hours => '過去 24 時間';
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 算出';
   }

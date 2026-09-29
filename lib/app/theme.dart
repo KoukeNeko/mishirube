@@ -28,6 +28,15 @@ abstract final class AppColors {
   static const nutritionOutline = Color(0xFF5B2F1A);
 
   static const body = Color(0xFF5B8DEF);
+
+  /// Water: a sky blue, apart from 飲食's orange, the body's deeper
+  /// blue, activity's cyan and the sugar alcohols' pale blue (CIEDE2000
+  /// at least 11 from each accent).
+  static const water = Color(0xFF2FA8E6);
+
+  /// Caffeine: a roasted coffee bean's brown, lifted to 5:1 on a card
+  /// and kept apart from 飲食's orange beside it on Today (CIEDE2000 18).
+  static const caffeine = Color(0xFFA58566);
   static const wellness = Color(0xFF8C7CF4);
 
   /// General exercise: far enough from the training green to tell a run

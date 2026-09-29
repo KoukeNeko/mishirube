@@ -17,6 +17,8 @@ import '../log/timeline_destination.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../sleep/sleep_screen.dart';
+import '../caffeine/caffeine_card.dart';
+import '../caffeine/caffeine_screen.dart';
 import '../training/workout_summary_screen.dart';
 import '../water/water_screen.dart';
 import '../trends/insight_detail_screen.dart';
@@ -211,7 +213,7 @@ class TodayScreen extends StatelessWidget {
             child: CaffeineCard(
               curve: curve,
               nowIndex: nowIndex,
-              onTap: () => pushPage(context, const DailyNutritionScreen()),
+              onTap: () => pushPage(context, const CaffeineScreen()),
             ),
           ),
       if (!hidden.contains(TodaySection.week) &&
@@ -280,7 +282,7 @@ class TodayScreen extends StatelessWidget {
       if (modules.contains(AppModule.water))
         QuickStatTile(
           category: context.l10n.healthDataWater,
-          color: AppColors.nutrition,
+          color: AppColors.water,
           value: water.times == 0
               ? null
               : formatAmount(water.millilitres.toDouble()),

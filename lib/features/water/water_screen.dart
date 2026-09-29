@@ -69,7 +69,7 @@ class _WaterScreenState extends State<WaterScreen> {
         selected: day,
         latest: DateUtils.dateOnly(_nutrition.now()),
         firstWeekday: AppStoreScope.of(context).firstWeekday,
-        color: AppColors.nutrition,
+        color: AppColors.water,
         markedDays: _nutrition.daysWithWater([
           for (var back = -35; back <= 35; back++)
             DateTime(day.year, day.month, day.day + back),

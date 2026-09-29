@@ -6695,6 +6695,10 @@
       }
     }
   },
+  "last24Hours": "近 24 小時",
+  "@last24Hours": {
+    "description": "Section label: records of the last 24 hours."
+  },
   "workedOutValue": "{value} · 推算",
   "@workedOutValue": {
     "description": "A figure worked out from others; value formatted.",

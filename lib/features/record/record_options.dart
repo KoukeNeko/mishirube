@@ -80,7 +80,7 @@ final recordOptions = [
   // in case the tap was a slip.
   RecordOption.action(
     icon: Icons.water_drop_outlined,
-    color: AppColors.nutrition,
+    color: AppColors.water,
     title: (l10n) => l10n.recordWater,
     module: AppModule.water,
     onSelect: (context) {

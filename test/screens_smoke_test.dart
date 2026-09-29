@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/activity/activity_detail_screen.dart';
 import 'package:mishirube/features/activity/activity_type_picker.dart';
 import 'package:mishirube/features/activity/live_activity_screen.dart';
@@ -63,6 +64,7 @@ import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/personal_records_screen.dart';
+import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -71,6 +73,23 @@ import 'support/harness.dart';
 typedef _StoreSetup = void Function(AppStore store);
 
 void _noSetup(AppStore store) {}
+
+/// A coffee drunk three hours ago, so the caffeine page has a curve.
+void _withCoffee(AppStore store) {
+  final at = store.now().subtract(const Duration(hours: 3));
+  store.backend.nutrition.logMeal(
+    MealEvent(
+      id: 'smoke-coffee',
+      name: '美式',
+      timeLabel: '09:00',
+      qualityTag: '手動',
+      dishes: const [],
+      kind: ConsumptionKind.beverage,
+      nutrients: const {Nutrient.caffeine: 150},
+    ),
+    eatenAt: at,
+  );
+}
 
 /// A month of what a phone and a watch counted: steps, distance and
 /// energy through the waking hours, a resting heart rate each morning,
@@ -295,6 +314,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'sleep': ((_) => const SleepScreen(), _withStagedNight),
+  'water': ((_) => const WaterScreen(), _noSetup),
+  'caffeine': ((_) => const CaffeineScreen(), _withCoffee),
   'sleep shortfall': (
     (store) => SleepShortfallScreen(day: store.now()),
     _withStagedNight,

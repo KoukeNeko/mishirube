@@ -4395,6 +4395,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get last24Hours => '近 24 小時';
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 推算';
   }
@@ -10044,6 +10047,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String caffeineReference({required String mg}) {
     return '就寝参考 $mg mg';
   }
+
+  @override
+  String get last24Hours => '近 24 小时';
 
   @override
   String workedOutValue({required String value}) {

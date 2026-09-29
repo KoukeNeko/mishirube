@@ -80,25 +80,17 @@ class TodayViewModel extends ViewModel {
   List<double>? activityHours(ActivityMetric metric) =>
       backend.activity.hourly(metric, _today);
 
-  /// The caffeine likely still in the body from eight hours ago to
-  /// sixteen ahead, and where now falls on it; null when none of it
-  /// comes to a milligram.
+  /// The caffeine likely still in the body around now ([caffeineAround]).
   ({List<(DateTime, double)> curve, int nowIndex})? get caffeine {
     final at = now();
-    final from = at.subtract(const Duration(hours: 8));
-    const step = Duration(minutes: 10);
-    final curve = caffeineCurve(
+    return caffeineAround(
       caffeineIntakes(
-        backend.nutrition.between(from.subtract(const Duration(days: 1)), at),
+        backend.nutrition.between(
+          at.subtract(caffeineCurveBack + const Duration(days: 1)),
+          at,
+        ),
       ),
-      from: from,
-      to: at.add(const Duration(hours: 16)),
-      step: step,
-    );
-    if (!curve.any((point) => point.$2 >= 1)) return null;
-    return (
-      curve: curve,
-      nowIndex: at.difference(from).inMinutes ~/ step.inMinutes,
+      at: at,
     );
   }
 

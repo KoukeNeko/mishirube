@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/caffeine/caffeine_card.dart';
+import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
@@ -110,6 +112,11 @@ void main() {
       closeTo(nowX, 1),
       reason: 'the time of now sits under the line drawn at now',
     );
+
+    await tester.tap(find.byType(CaffeineCard));
+    await tester.pumpAndSettle();
+    expect(find.byType(CaffeineScreen), findsOneWidget, reason: 'its own page');
+    expect(find.text('美式'), findsOneWidget, reason: 'the cup it came from');
     await disposeTree(tester);
   });
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
-import '../../backend/engines/caffeine.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
@@ -527,66 +526,6 @@ class TodayActivityCard extends StatelessWidget {
               color: AppColors.activity,
               dimColor: AppColors.activity.withValues(alpha: 0.4),
               highlightsLast: false,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Caffeine likely still in the body, now and as it falls away, with the
-/// bedtime reference dashed across the curve while it fits under it.
-class CaffeineCard extends StatelessWidget {
-  const CaffeineCard({
-    super.key,
-    required this.curve,
-    required this.nowIndex,
-    required this.onTap,
-  });
-
-  final List<(DateTime, double)> curve;
-  final int nowIndex;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final now = curve[nowIndex].$2.round();
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CategoryLabel(
-            label: context.l10n.nutrientCaffeine,
-            color: AppColors.nutrition,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          ValueWithUnit(value: '$now', unit: 'mg'),
-          Text(
-            context.l10n.halfLifeBasis(
-              hours: formatAmount(caffeineHalfLifeHours),
-            ),
-            style: AppTextStyles.caption,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Semantics(
-            label: context.l10n.caffeineRemaining,
-            value: '$now mg',
-            child: ExcludeSemantics(
-              child: CurveChart(
-                values: [for (final (_, mg) in curve) mg],
-                nowIndex: nowIndex,
-                color: AppColors.nutrition,
-                start: formatTimeOfDay(curve.first.$1),
-                now: formatTimeOfDay(curve[nowIndex].$1),
-                end: formatTimeOfDay(curve.last.$1),
-                height: 88,
-                reference: caffeineBedtimeReferenceMg,
-                referenceLabel: context.l10n.caffeineReference(
-                  mg: formatAmount(caffeineBedtimeReferenceMg),
-                ),
-              ),
             ),
           ),
         ],

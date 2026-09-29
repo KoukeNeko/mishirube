@@ -87,3 +87,29 @@ List<(DateTime, double)> caffeineCurve(
       ),
     ),
 ];
+
+/// How far back and ahead of now the caffeine curve is drawn.
+const caffeineCurveBack = Duration(hours: 8);
+const caffeineCurveAhead = Duration(hours: 16);
+
+/// [caffeineCurve] from [caffeineCurveBack] before [at] to
+/// [caffeineCurveAhead] after it, and where [at] falls on it; null when
+/// none of it comes to a milligram.
+({List<(DateTime, double)> curve, int nowIndex})? caffeineAround(
+  Iterable<CaffeineIntake> intakes, {
+  required DateTime at,
+  Duration step = const Duration(minutes: 10),
+}) {
+  final from = at.subtract(caffeineCurveBack);
+  final curve = caffeineCurve(
+    intakes,
+    from: from,
+    to: at.add(caffeineCurveAhead),
+    step: step,
+  );
+  if (!curve.any((point) => point.$2 >= 1)) return null;
+  return (
+    curve: curve,
+    nowIndex: at.difference(from).inMinutes ~/ step.inMinutes,
+  );
+}
