@@ -879,6 +879,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityMetricGroupHeart => '心臟與心肺';
 
   @override
+  String get activityMetricGroupVitals => '生命徵象';
+
+  @override
+  String get activityMetricBodyTemperature => '體溫';
+
+  @override
+  String get activityMetricBloodPressureSystolic => '收縮壓';
+
+  @override
+  String get activityMetricBloodPressureDiastolic => '舒張壓';
+
+  @override
+  String get activityMetricRespiratoryRate => '呼吸速率';
+
+  @override
+  String get activityMetricOxygenSaturation => '血氧';
+
+  @override
+  String get activityMetricUnitRespiratoryRate => '次/分';
+
+  @override
   String get activityMetricGroupMobility => '行動能力';
 
   @override
@@ -6584,6 +6605,27 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get activityMetricGroupHeart => '心脏与心肺';
+
+  @override
+  String get activityMetricGroupVitals => '生命体征';
+
+  @override
+  String get activityMetricBodyTemperature => '体温';
+
+  @override
+  String get activityMetricBloodPressureSystolic => '收缩压';
+
+  @override
+  String get activityMetricBloodPressureDiastolic => '舒张压';
+
+  @override
+  String get activityMetricRespiratoryRate => '呼吸频率';
+
+  @override
+  String get activityMetricOxygenSaturation => '血氧';
+
+  @override
+  String get activityMetricUnitRespiratoryRate => '次/分';
 
   @override
   String get activityMetricGroupMobility => '行动能力';

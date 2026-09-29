@@ -1730,6 +1730,48 @@ abstract class AppLocalizations {
   /// **'心臟與心肺'**
   String get activityMetricGroupHeart;
 
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'生命徵象'**
+  String get activityMetricGroupVitals;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'體溫'**
+  String get activityMetricBodyTemperature;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'收縮壓'**
+  String get activityMetricBloodPressureSystolic;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'舒張壓'**
+  String get activityMetricBloodPressureDiastolic;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'呼吸速率'**
+  String get activityMetricRespiratoryRate;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'血氧'**
+  String get activityMetricOxygenSaturation;
+
+  /// Activity metric from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'次/分'**
+  String get activityMetricUnitRespiratoryRate;
+
   /// How the activity page groups its health metrics, following Apple Health. (ActivityMetricGroup.mobility)
   ///
   /// In zh, this message translates to:

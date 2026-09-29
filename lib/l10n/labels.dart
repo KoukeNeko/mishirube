@@ -631,6 +631,7 @@ extension ActivityMetricGroupText on ActivityMetricGroup {
   String labelIn(AppLocalizations l10n) => switch (this) {
     ActivityMetricGroup.movement => l10n.activityMetricGroupMovement,
     ActivityMetricGroup.heart => l10n.activityMetricGroupHeart,
+    ActivityMetricGroup.vitals => l10n.activityMetricGroupVitals,
     ActivityMetricGroup.mobility => l10n.activityMetricGroupMobility,
     ActivityMetricGroup.running => l10n.activityMetricGroupRunning,
     ActivityMetricGroup.cycling => l10n.activityMetricGroupCycling,
@@ -658,6 +659,13 @@ extension ActivityMetricText on ActivityMetric {
     ActivityMetric.heartRateRecovery => l10n.activityMetricHeartRateRecovery,
     ActivityMetric.vo2Max => l10n.activityMetricVo2Max,
     ActivityMetric.physicalEffort => l10n.activityMetricPhysicalEffort,
+    ActivityMetric.bodyTemperature => l10n.activityMetricBodyTemperature,
+    ActivityMetric.bloodPressureSystolic =>
+      l10n.activityMetricBloodPressureSystolic,
+    ActivityMetric.bloodPressureDiastolic =>
+      l10n.activityMetricBloodPressureDiastolic,
+    ActivityMetric.respiratoryRate => l10n.activityMetricRespiratoryRate,
+    ActivityMetric.oxygenSaturation => l10n.activityMetricOxygenSaturation,
     ActivityMetric.walkingSpeed => l10n.activityMetricWalkingSpeed,
     ActivityMetric.walkingStepLength => l10n.activityMetricWalkingStepLength,
     ActivityMetric.walkingAsymmetry => l10n.activityMetricWalkingAsymmetry,
@@ -706,6 +714,11 @@ extension ActivityMetricUnitText on ActivityMetric {
       l10n.activityMetricUnitHeartRateRecovery,
     ActivityMetric.vo2Max => l10n.activityMetricUnitVo2Max,
     ActivityMetric.physicalEffort => l10n.activityMetricUnitPhysicalEffort,
+    ActivityMetric.bodyTemperature => '°C',
+    ActivityMetric.bloodPressureSystolic ||
+    ActivityMetric.bloodPressureDiastolic => 'mmHg',
+    ActivityMetric.respiratoryRate => l10n.activityMetricUnitRespiratoryRate,
+    ActivityMetric.oxygenSaturation => '%',
     ActivityMetric.walkingSpeed => l10n.activityMetricUnitWalkingSpeed,
     ActivityMetric.walkingStepLength =>
       l10n.activityMetricUnitWalkingStepLength,

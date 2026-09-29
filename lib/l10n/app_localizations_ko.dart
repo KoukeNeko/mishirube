@@ -884,6 +884,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityMetricGroupHeart => '심장·심폐';
 
   @override
+  String get activityMetricGroupVitals => '바이탈';
+
+  @override
+  String get activityMetricBodyTemperature => '체온';
+
+  @override
+  String get activityMetricBloodPressureSystolic => '수축기 혈압';
+
+  @override
+  String get activityMetricBloodPressureDiastolic => '이완기 혈압';
+
+  @override
+  String get activityMetricRespiratoryRate => '호흡수';
+
+  @override
+  String get activityMetricOxygenSaturation => '혈중 산소';
+
+  @override
+  String get activityMetricUnitRespiratoryRate => '회/분';
+
+  @override
   String get activityMetricGroupMobility => '이동성';
 
   @override

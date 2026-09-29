@@ -26,6 +26,8 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.LeanBodyMassRecord
@@ -777,6 +779,10 @@ class HealthConnectBridge(
         RestingHeartRateRecord::class,
         HeartRateVariabilityRmssdRecord::class,
         Vo2MaxRecord::class,
+        BodyTemperatureRecord::class,
+        BloodPressureRecord::class,
+        RespiratoryRateRecord::class,
+        OxygenSaturationRecord::class,
     )
 
     /**
@@ -908,6 +914,38 @@ class HealthConnectBridge(
                 "vo2Max",
                 readAll(Vo2MaxRecord::class, from, to)
                     .map { it.time to it.vo2MillilitersPerMinuteKilogram },
+            )
+        }
+        if (allowed(BodyTemperatureRecord::class)) {
+            daily(
+                "bodyTemperature",
+                readAll(BodyTemperatureRecord::class, from, to)
+                    .map { it.time to it.temperature.inCelsius },
+            )
+        }
+        if (allowed(BloodPressureRecord::class)) {
+            val readings = readAll(BloodPressureRecord::class, from, to)
+            daily(
+                "bloodPressureSystolic",
+                readings.map { it.time to it.systolic.inMillimetersOfMercury },
+            )
+            daily(
+                "bloodPressureDiastolic",
+                readings.map { it.time to it.diastolic.inMillimetersOfMercury },
+            )
+        }
+        if (allowed(RespiratoryRateRecord::class)) {
+            daily(
+                "respiratoryRate",
+                readAll(RespiratoryRateRecord::class, from, to).map { it.time to it.rate },
+            )
+        }
+        // A percentage there, a fraction here.
+        if (allowed(OxygenSaturationRecord::class)) {
+            daily(
+                "oxygenSaturation",
+                readAll(OxygenSaturationRecord::class, from, to)
+                    .map { it.time to it.percentage.value / 100 },
             )
         }
         return rows

@@ -469,6 +469,17 @@ enum HealthKitBridge {
         (HKQuantityType(.walkingHeartRateAverage), "walkingHeartRate", bpm, false),
         (HKQuantityType(.heartRateVariabilitySDNN), "hrvSdnn", .secondUnit(with: .milli), false),
         (HKQuantityType(.vo2Max), "vo2Max", HKUnit(from: "ml/kg*min"), false),
+        (HKQuantityType(.bodyTemperature), "bodyTemperature", .degreeCelsius(), false),
+        (
+          HKQuantityType(.bloodPressureSystolic), "bloodPressureSystolic",
+          .millimeterOfMercury(), false
+        ),
+        (
+          HKQuantityType(.bloodPressureDiastolic), "bloodPressureDiastolic",
+          .millimeterOfMercury(), false
+        ),
+        (HKQuantityType(.respiratoryRate), "respiratoryRate", bpm, false),
+        (HKQuantityType(.oxygenSaturation), "oxygenSaturation", .percent(), false),
         (HKQuantityType(.walkingSpeed), "walkingSpeed", metresPerSecond, false),
         (HKQuantityType(.walkingStepLength), "walkingStepLength", .meter(), false),
         (HKQuantityType(.walkingAsymmetryPercentage), "walkingAsymmetry", .percent(), false),

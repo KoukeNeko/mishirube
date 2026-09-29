@@ -883,6 +883,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get activityMetricGroupHeart => '心臓・心肺';
 
   @override
+  String get activityMetricGroupVitals => 'バイタル';
+
+  @override
+  String get activityMetricBodyTemperature => '体温';
+
+  @override
+  String get activityMetricBloodPressureSystolic => '収縮期血圧';
+
+  @override
+  String get activityMetricBloodPressureDiastolic => '拡張期血圧';
+
+  @override
+  String get activityMetricRespiratoryRate => '呼吸数';
+
+  @override
+  String get activityMetricOxygenSaturation => '血中酸素';
+
+  @override
+  String get activityMetricUnitRespiratoryRate => '回/分';
+
+  @override
   String get activityMetricGroupMobility => '移動能力';
 
   @override

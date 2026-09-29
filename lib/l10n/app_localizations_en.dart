@@ -886,6 +886,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityMetricGroupHeart => 'Heart & fitness';
 
   @override
+  String get activityMetricGroupVitals => 'Vitals';
+
+  @override
+  String get activityMetricBodyTemperature => 'Body temperature';
+
+  @override
+  String get activityMetricBloodPressureSystolic => 'Systolic';
+
+  @override
+  String get activityMetricBloodPressureDiastolic => 'Diastolic';
+
+  @override
+  String get activityMetricRespiratoryRate => 'Respiratory rate';
+
+  @override
+  String get activityMetricOxygenSaturation => 'Blood oxygen';
+
+  @override
+  String get activityMetricUnitRespiratoryRate => 'breaths/min';
+
+  @override
   String get activityMetricGroupMobility => 'Mobility';
 
   @override

@@ -238,6 +238,7 @@ class LiveActivity {
 enum ActivityMetricGroup {
   movement,
   heart,
+  vitals,
   mobility,
   running,
   cycling,
@@ -289,6 +290,21 @@ enum ActivityMetric {
 
   /// Apple Watch's estimate of effort, in METs.
   physicalEffort(ActivityMetricGroup.heart, decimals: 1),
+
+  /// Degrees Celsius, as taken with a thermometer or a watch.
+  bodyTemperature(ActivityMetricGroup.vitals, decimals: 1),
+
+  /// mmHg, each reading's two figures kept as two metrics, as both
+  /// platforms store them.
+  bloodPressureSystolic(ActivityMetricGroup.vitals),
+  bloodPressureDiastolic(ActivityMetricGroup.vitals),
+
+  /// Breaths a minute through the day; the night's own is on the sleep
+  /// page.
+  respiratoryRate(ActivityMetricGroup.vitals, decimals: 1),
+
+  /// Fractions, shown as percentages.
+  oxygenSaturation(ActivityMetricGroup.vitals, displayScale: 100),
 
   /// Metres per second, shown in km/h.
   walkingSpeed(ActivityMetricGroup.mobility, displayScale: 3.6, decimals: 1),

@@ -1239,6 +1239,34 @@
   "@activityMetricGroupHeart": {
     "description": "How the activity page groups its health metrics, following Apple Health. (ActivityMetricGroup.heart)"
   },
+  "activityMetricGroupVitals": "生命徵象",
+  "@activityMetricGroupVitals": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricBodyTemperature": "體溫",
+  "@activityMetricBodyTemperature": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricBloodPressureSystolic": "收縮壓",
+  "@activityMetricBloodPressureSystolic": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricBloodPressureDiastolic": "舒張壓",
+  "@activityMetricBloodPressureDiastolic": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricRespiratoryRate": "呼吸速率",
+  "@activityMetricRespiratoryRate": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricOxygenSaturation": "血氧",
+  "@activityMetricOxygenSaturation": {
+    "description": "Activity metric from a health platform."
+  },
+  "activityMetricUnitRespiratoryRate": "次/分",
+  "@activityMetricUnitRespiratoryRate": {
+    "description": "Activity metric from a health platform."
+  },
   "activityMetricGroupMobility": "行動能力",
   "@activityMetricGroupMobility": {
     "description": "How the activity page groups its health metrics, following Apple Health. (ActivityMetricGroup.mobility)"

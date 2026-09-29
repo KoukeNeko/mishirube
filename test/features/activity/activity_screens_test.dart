@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/storage/database.dart';
@@ -87,6 +88,37 @@ void main() {
       findsOneWidget,
       reason: 'VO₂ max has no reading today, and says so instead of 0',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('vitals read from the platform have a group of their own', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    ActivitySample day(ActivityMetric metric, DateTime today, double value) =>
+        ActivitySample(
+          metric: metric,
+          start: DateTime(today.year, today.month, today.day),
+          end: DateTime(today.year, today.month, today.day + 1),
+          value: value,
+        );
+    final store = storeWith(
+      (today) => [
+        at(ActivityMetric.steps, today, 9, 5000),
+        day(ActivityMetric.bloodPressureSystolic, today, 118),
+        day(ActivityMetric.oxygenSaturation, today, 0.97),
+      ],
+    );
+    await pumpScreen(tester, const DailyActivityScreen(), store: store);
+
+    await tester.scrollUntilVisible(
+      find.text('收縮壓'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('生命徵象'), findsOneWidget);
+    expect(find.text('血氧'), findsOneWidget);
+    expect(find.textContaining('97'), findsWidgets, reason: 'a fraction as %');
     await disposeTree(tester);
   });
 
