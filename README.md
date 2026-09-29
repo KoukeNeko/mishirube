@@ -75,6 +75,28 @@ Drinks and food from 7-Eleven, FamilyMart, Hi-Life, OK Mart, Lawson, Ministop, S
 Starbucks, MOS Burger, Sukiya and other chains use their published nutrition values, including
 caffeine where the chain publishes it.
 
+### Every food you have eaten, one scroll away
+
+*Recent* lists every food you have logged, newest first, then the meals you have eaten, going as
+far back as your log goes.
+
+### Water on its own
+
+Water is its own module, with its own page and a tile on Today that fills towards a daily
+reference. The reference is prefilled with Taiwan's Health Promotion Administration's 1,500 mL
+of plain water while the day follows Taiwan's label rules. You can set your own or none, and with
+none no level is drawn. The level stops at full and never celebrates. Coffee, tea and other
+drinks are counted on a line of their own, and logging 1,000 mL or more within an hour brings up
+a warning about drinking too much too fast.
+
+### Caffeine as a curve
+
+Today shows the caffeine likely still in your body as a curve from eight hours ago to sixteen
+ahead. A line marks now, and a dashed 35 mg line marks a bedtime reference. The estimate uses a
+fixed 5-hour half-life. The 35 mg line is what that model leaves of the timing a 2023
+meta-analysis found keeps total sleep time from falling; it is a reference, not a safe threshold.
+Caffeine has its own page listing each drink of the last 24 hours.
+
 ## Targets that follow your body
 
 Daily energy starts from maintenance. Once the last 21 days hold 14 complete food days and 10
@@ -85,6 +107,13 @@ follow the goal unless you set them by hand.
 
 Every formula is listed under **Me → References** with its source in the original language and the
 rule it supports.
+
+## One scale reading, one record
+
+A body composition scale gives weight, body fat, skeletal muscle and more at once, and MISHIRUBE
+keeps them together. Weight is the first field of the form, what you save shares one measurement
+on its page and one row in the log, and it is corrected or deleted as a whole. Each figure still
+has its own trend.
 
 ## Trends that say what changed
 
