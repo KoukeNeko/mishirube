@@ -2981,6 +2981,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get epleyEstimate => 'Epley 估計';
 
   @override
+  String relativeLoadPercent({required int percent}) {
+    return '相對負荷 $percent%';
+  }
+
+  @override
   String get last90Days => '近 90 天';
 
   @override
@@ -5153,6 +5158,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get refUse31 => '次數越多，個人與動作之間的差異越大';
+
+  @override
+  String get refUse42 => '以 %1RM 表示訓練負荷';
+
+  @override
+  String get refUse43 => '以 %1RM 表示負荷的更新指引';
+
+  @override
+  String get refUse44 => '負荷與接近力竭程度是不同變數';
+
+  @override
+  String get refUse45 => '以剩餘次數（RIR）表示接近力竭程度';
 
   @override
   String get refUse32 => '每肌群每週 10 組以上的組數劑量反應';
@@ -8610,6 +8627,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get epleyEstimate => 'Epley 估计';
 
   @override
+  String relativeLoadPercent({required int percent}) {
+    return '相对负荷 $percent%';
+  }
+
+  @override
   String get last90Days => '近 90 天';
 
   @override
@@ -10782,6 +10804,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get refUse31 => '次数越多，个人与动作之间的差异越大';
+
+  @override
+  String get refUse42 => '以 %1RM 表示训练负荷';
+
+  @override
+  String get refUse43 => '以 %1RM 表示负荷的更新指引';
+
+  @override
+  String get refUse44 => '负荷与接近力竭程度是不同变量';
+
+  @override
+  String get refUse45 => '以剩余次数（RIR）表示接近力竭程度';
 
   @override
   String get refUse32 => '每肌群每周 10 组以上的组数剂量反应';

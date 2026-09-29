@@ -2,7 +2,7 @@ import '../../domain/domain.dart';
 
 /// Bumped whenever a formula below changes, so stored or exported results
 /// can say which rules produced them.
-const trainingMetricsVersion = 2;
+const trainingMetricsVersion = 3;
 
 /// The most reps a set can have and still give an estimate. Linear
 /// formulas such as Epley are validated to 10 (Reynolds 2006, Mayhew
@@ -109,6 +109,60 @@ double? estimateOneRepMax(double weightKg, int reps) {
   if (reps <= 0 || reps > maxRepsForEstimate || weightKg <= 0) return null;
   if (reps == 1) return weightKg;
   return weightKg * (1 + reps / 30);
+}
+
+/// The best estimated max from completed sessions in the 90 days before
+/// [startedAt]. A session at the same time is not its own reference.
+ExerciseHistoryEntry? relativeLoadReference(
+  ExerciseDefinition exercise,
+  ExerciseHistory history,
+  DateTime startedAt,
+) {
+  final hasExternalWeight = switch (exercise.equipment) {
+    Equipment.barbell ||
+    Equipment.dumbbell ||
+    Equipment.cable ||
+    Equipment.machine ||
+    Equipment.smithMachine ||
+    Equipment.kettlebell ||
+    Equipment.ezBar ||
+    Equipment.trapBar ||
+    Equipment.landmine ||
+    Equipment.plate => true,
+    _ => false,
+  };
+  if (exercise.trackingType != TrackingType.weightReps || !hasExternalWeight) {
+    return null;
+  }
+
+  final since = startedAt.subtract(oneRepMaxWindow);
+  ExerciseHistoryEntry? best;
+  for (final entry in history.recent) {
+    if (entry.date.isBefore(since) || !entry.date.isBefore(startedAt)) continue;
+    final estimate = entry.oneRepMaxKg;
+    if (estimate == null || !estimate.isFinite || estimate <= 0) continue;
+    if (best == null ||
+        estimate > best.oneRepMaxKg! ||
+        (estimate == best.oneRepMaxKg && entry.date.isAfter(best.date))) {
+      best = entry;
+    }
+  }
+  return best;
+}
+
+/// External weight as a share of the reference estimated max, not how
+/// close this set was to failure. Reps and RIR do not change the ratio.
+double? relativeLoadPercent(double weightKg, ExerciseHistoryEntry? reference) {
+  final max = reference?.oneRepMaxKg;
+  if (!weightKg.isFinite ||
+      weightKg <= 0 ||
+      max == null ||
+      !max.isFinite ||
+      max <= 0) {
+    return null;
+  }
+  final percent = weightKg / max * 100;
+  return percent.isFinite ? percent : null;
 }
 
 /// Sets that count for progress: done and not warm-ups.

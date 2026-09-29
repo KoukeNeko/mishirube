@@ -1526,6 +1526,127 @@ void main() {
         MuscleGroup.glutes,
       ], reason: 'secondary work and weeks outside the span do not count');
       expect(weeks.first.$2.map((bar) => bar.$2), [0, 0, 3, 4]);
+  group('relative load', () {
+    const barbell = ExerciseDefinition(
+      id: 'squat',
+      name: '深蹲',
+      equipment: Equipment.barbell,
+      primaryMuscles: [MuscleGroup.quads],
+      pattern: MovementPattern.squat,
+    );
+    final start = DateTime(2026, 9, 19, 18);
+    ExerciseHistoryEntry entry(DateTime date, double? max) =>
+        ExerciseHistoryEntry(
+          date: date,
+          weightKg: 90,
+          reps: 1,
+          oneRepMaxKg: max,
+        );
+    ExerciseHistory history(List<ExerciseHistoryEntry> entries) =>
+        ExerciseHistory(recent: entries, sessionCount: entries.length);
+
+    test('uses the best qualifying estimate before the workout began', () {
+      final older = entry(start.subtract(const Duration(days: 80)), 100);
+      final newer = entry(start.subtract(const Duration(days: 3)), 100);
+      final reference = relativeLoadReference(
+        barbell,
+        history([
+          entry(start.add(const Duration(days: 1)), 200),
+          entry(start, 180),
+          entry(start.subtract(const Duration(days: 1)), null),
+          newer,
+          entry(start.subtract(const Duration(days: 2)), 90),
+          older,
+          entry(start.subtract(oneRepMaxWindow), 99),
+          entry(
+            start.subtract(oneRepMaxWindow + const Duration(seconds: 1)),
+            300,
+          ),
+        ]),
+        start,
+      );
+      expect(reference, same(newer), reason: 'ties use the newer source');
+      expect(relativeLoadPercent(75, reference), 75);
+      expect(relativeLoadPercent(120, reference), 120);
+      expect(relativeLoadPercent(0, reference), isNull);
+      expect(relativeLoadPercent(-2, reference), isNull);
+      expect(relativeLoadPercent(double.nan, reference), isNull);
+      expect(relativeLoadPercent(double.infinity, reference), isNull);
+      expect(relativeLoadPercent(75, null), isNull);
+      expect(relativeLoadPercent(75, entry(start, 0)), isNull);
+      expect(relativeLoadPercent(75, entry(start, -1)), isNull);
+      expect(relativeLoadPercent(75, entry(start, double.infinity)), isNull);
+    });
+
+    test('includes the first day of the window, never a later session', () {
+      final boundary = entry(start.subtract(oneRepMaxWindow), 100);
+      expect(
+        relativeLoadReference(barbell, history([boundary]), start),
+        same(boundary),
+      );
+      expect(
+        relativeLoadReference(barbell, history([entry(start, 100)]), start),
+        isNull,
+      );
+      expect(
+        relativeLoadReference(
+          barbell,
+          history([
+            entry(
+              start.subtract(oneRepMaxWindow + const Duration(microseconds: 1)),
+              100,
+            ),
+          ]),
+          start,
+        ),
+        isNull,
+      );
+      expect(
+        relativeLoadReference(barbell, ExerciseHistory.empty, start),
+        isNull,
+      );
+      expect(relativeLoadPercent(50, entry(start, double.nan)), isNull);
+    });
+
+    test('only externally weighted exercises have a relative load', () {
+      for (final equipment in [
+        Equipment.bodyweight,
+        Equipment.band,
+        Equipment.cardio,
+        Equipment.other,
+      ]) {
+        final exercise = ExerciseDefinition(
+          id: 'squat',
+          name: '深蹲',
+          equipment: equipment,
+          primaryMuscles: const [MuscleGroup.quads],
+          pattern: MovementPattern.squat,
+        );
+        expect(
+          relativeLoadReference(
+            exercise,
+            history([entry(start.subtract(const Duration(days: 1)), 100)]),
+            start,
+          ),
+          isNull,
+        );
+      }
+      const repsOnly = ExerciseDefinition(
+        id: 'squat',
+        name: '深蹲',
+        equipment: Equipment.machine,
+        primaryMuscles: [MuscleGroup.quads],
+        pattern: MovementPattern.squat,
+        trackingType: TrackingType.reps,
+      );
+      expect(
+        relativeLoadReference(
+          repsOnly,
+          history([entry(start.subtract(const Duration(days: 1)), 100)]),
+          start,
+        ),
+        isNull,
+      );
     });
   });
 

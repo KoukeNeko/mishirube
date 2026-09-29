@@ -2988,6 +2988,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get epleyEstimate => 'Epley 추정';
 
   @override
+  String relativeLoadPercent({required int percent}) {
+    return '상대 부하 $percent%';
+  }
+
+  @override
   String get last90Days => '최근 90일';
 
   @override
@@ -5161,6 +5166,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get refUse31 => '횟수가 많을수록 개인·운동 간 차이가 커짐';
+
+  @override
+  String get refUse42 => '훈련 부하를 %1RM으로 표시';
+
+  @override
+  String get refUse43 => '%1RM을 사용한 부하 지침 업데이트';
+
+  @override
+  String get refUse44 => '부하와 실패 근접도는 서로 다른 변수';
+
+  @override
+  String get refUse45 => '여유 반복 횟수(RIR)로 실패 근접도 표시';
 
   @override
   String get refUse32 => '근육당 주 10세트 이상의 용량 반응';

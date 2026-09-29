@@ -282,6 +282,26 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         url: 'https://doi.org/10.1007/s40279-023-01937-7',
       ),
       (
+        citation: 'American College of Sports Medicine. (2009). American College of Sports Medicine position stand. Progression models in resistance training for healthy adults. Medicine & Science in Sports & Exercise, 41(3), 687–708.',
+        use: l10n.refUse42,
+        url: 'https://doi.org/10.1249/MSS.0b013e3181915670',
+      ),
+      (
+        citation: 'Currier, B. S., D’Souza, A. C., Singh, M. A. F., Lowisz, C. V., Rawson, E. S., Schoenfeld, B. J., Smith-Ryan, A. E., Steen, J. P., Thomas, G. A., Triplett, N. T., Washington, T. A., Werner, T. J., & Phillips, S. M. (2026). American College of Sports Medicine position stand. Resistance training prescription for muscle function, hypertrophy, and physical performance in healthy adults: An overview of reviews. Medicine & Science in Sports & Exercise, 58(4), 851–872.',
+        use: l10n.refUse43,
+        url: 'https://doi.org/10.1249/MSS.0000000000003897',
+      ),
+      (
+        citation: 'Pelland, J. C., Robinson, Z. P., Remmert, J. F., Cerminaro, R. M., Benitez, B., John, T. A., Helms, E. R., & Zourdos, M. C. (2022). Methods for controlling and reporting resistance training proximity to failure: Current issues and future directions. Sports Medicine, 52(7), 1461–1472.',
+        use: l10n.refUse44,
+        url: 'https://doi.org/10.1007/s40279-022-01667-2',
+      ),
+      (
+        citation: 'Zourdos, M. C., Klemp, A., Dolan, C., Quiles, J. M., Schau, K. A., Jo, E., Helms, E., Esgro, B., Duncan, S., Garcia Merino, S., & Blanco, R. (2016). Novel resistance training-specific rating of perceived exertion scale measuring repetitions in reserve. Journal of Strength and Conditioning Research, 30(1), 267–275.',
+        use: l10n.refUse45,
+        url: 'https://doi.org/10.1519/JSC.0000000000001049',
+      ),
+      (
         citation: 'Schoenfeld, B. J., Ogborn, D., & Krieger, J. W. (2017). Dose-response relationship between weekly resistance training volume and increases in muscle mass: A systematic review and meta-analysis. Journal of Sports Sciences, 35(11), 1073–1082.',
         use: l10n.refUse32,
         url: 'https://doi.org/10.1080/02640414.2016.1210197',

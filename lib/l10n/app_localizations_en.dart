@@ -3027,6 +3027,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get epleyEstimate => 'Epley estimate';
 
   @override
+  String relativeLoadPercent({required int percent}) {
+    return 'Relative load $percent%';
+  }
+
+  @override
   String get last90Days => 'Last 90 days';
 
   @override
@@ -5239,6 +5244,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get refUse31 =>
       'More reps widen differences between people and exercises';
+
+  @override
+  String get refUse42 => 'Training load expressed as %1RM';
+
+  @override
+  String get refUse43 => 'Updated guidance using %1RM for load';
+
+  @override
+  String get refUse44 => 'Load and proximity to failure are distinct variables';
+
+  @override
+  String get refUse45 =>
+      'Repetitions in reserve (RIR) measure proximity to failure';
 
   @override
   String get refUse32 => 'Dose response for 10+ weekly sets per muscle';

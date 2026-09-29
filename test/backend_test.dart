@@ -2121,6 +2121,155 @@ void main() {
       expect(squat.lastUsedDaysAgo, 3);
     });
 
+    test('relative load follows completed history before the workout', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      const lift = ExerciseDefinition(
+        id: 'relative-load-lift',
+        name: '測試負重',
+        equipment: Equipment.barbell,
+        primaryMuscles: [MuscleGroup.quads],
+        pattern: MovementPattern.squat,
+      );
+      const other = ExerciseDefinition(
+        id: 'other-relative-load-lift',
+        name: '其他負重',
+        equipment: Equipment.barbell,
+        primaryMuscles: [MuscleGroup.quads],
+        pattern: MovementPattern.squat,
+      );
+      store.backend.catalog.create(lift);
+      store.backend.catalog.create(other);
+
+      WorkoutSet set(
+        double kg,
+        int reps, {
+        SetType type = SetType.working,
+        bool done = true,
+      }) => WorkoutSet(
+        weightKg: kg,
+        reps: reps,
+        previousWeightKg: 0,
+        previousReps: 0,
+        type: type,
+        isDone: done,
+      );
+      WorkoutSession save(
+        String id,
+        ExerciseDefinition exercise,
+        DateTime date,
+        List<WorkoutSet> sets,
+      ) {
+        final session = WorkoutSession(
+          id: id,
+          routineName: '負荷測試',
+          startedAt: date,
+          exercises: [ExerciseSession(exercise: exercise, sets: sets)],
+        );
+        session.finishedAt = date.add(const Duration(minutes: 30));
+        store.backend.storage.workouts.save(session, action: 'create');
+        return session;
+      }
+
+      final earlier = clock.now().subtract(const Duration(days: 5));
+      save('earlier', lift, earlier, [
+        set(90, 1),
+        set(75, 10), // The lighter set estimates 100 kg.
+        set(60, 5, type: SetType.drop),
+        set(200, 1, type: SetType.warmup),
+        set(200, 1, done: false),
+      ]);
+      save('drop-estimate', lift, earlier.subtract(const Duration(days: 1)), [
+        set(72, 10, type: SetType.drop),
+      ]);
+      save(
+        'failure-estimate',
+        lift,
+        earlier.subtract(const Duration(days: 2)),
+        [set(65, 10, type: SetType.failure)],
+      );
+      final history = store.exerciseHistory(lift);
+      expect(history.recent.first.weightKg, 90);
+      expect(history.recent.first.oneRepMaxKg, 100);
+      expect(history.recent[1].oneRepMaxKg, 96);
+      expect(history.recent[2].oneRepMaxKg, closeTo(65 * (1 + 10 / 30), 0.001));
+      save('other', other, earlier, [set(220, 1)]);
+      save('no-estimate', lift, earlier.add(const Duration(hours: 2)), [
+        set(60, 12),
+      ]);
+      save('at-start', lift, clock.now(), [set(205, 1)]);
+      save('in-future', lift, clock.now().add(const Duration(days: 1)), [
+        set(220, 1),
+      ]);
+
+      expect(store.startFreeWorkout([lift]), isTrue);
+      final current = store.activeWorkout!;
+      ExerciseHistoryEntry? reference() => relativeLoadReference(
+        lift,
+        store.exerciseHistory(lift),
+        current.startedAt,
+      );
+      expect(reference()!.date, earlier);
+      expect(reference()!.oneRepMaxKg, 100);
+      expect(relativeLoadPercent(75, reference()), 75);
+      save('excluded', lift, earlier.add(const Duration(hours: 1)), [
+        set(210, 1),
+      ]);
+      store.backend.training.delete('excluded');
+      expect(reference()!.oneRepMaxKg, 100);
+      save('unfinished-set', lift, earlier.add(const Duration(hours: 3)), [
+        set(215, 1, done: false),
+      ]);
+      expect(reference()!.oneRepMaxKg, 100);
+      store.editSet(0, weightKg: 75, reps: 12, rir: 2);
+      expect(
+        relativeLoadPercent(
+          current.currentExercise.sets.first.weightKg,
+          reference(),
+        ),
+        75,
+      );
+      store.toggleSet(0);
+      store.finishWorkout();
+      expect(
+        relativeLoadPercent(75, reference()),
+        75,
+        reason: 'the just-finished workout is excluded by its start time',
+      );
+      clock.advance(const Duration(days: 2));
+      save('later', lift, clock.now(), [set(300, 1)]);
+      expect(
+        relativeLoadPercent(75, reference()),
+        75,
+        reason: 'later records cannot change the older workout',
+      );
+
+      final source = store.workoutById('earlier')!;
+      store.correctWorkout(source, [
+        (
+          exercise: lift,
+          was: source.exercises.first,
+          loads: [(weightKg: 84.0, reps: 10)],
+        ),
+      ]);
+      expect(
+        relativeLoadPercent(75, reference()),
+        closeTo(75 / 112 * 100, 0.001),
+      );
+      store.deleteWorkout('earlier');
+      expect(
+        reference()!.oneRepMaxKg,
+        96,
+        reason: 'the older drop set remains',
+      );
+      expect(relativeLoadPercent(75, reference()), 75 / 96 * 100);
+      store.restoreWorkout('earlier');
+      expect(
+        relativeLoadPercent(75, reference()),
+        closeTo(75 / 112 * 100, 0.001),
+      );
+    });
+
     test('the timeline merges domains and flags incomplete food days', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

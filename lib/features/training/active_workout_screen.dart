@@ -11,6 +11,7 @@ import '../../shared/haptics.dart';
 import '../../shared/motion.dart';
 import '../../shared/screen_awake.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
+import '../../backend/engines/training_metrics.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
@@ -574,13 +575,18 @@ class _ExerciseCard extends StatelessWidget {
 
   /// The whole set in the editor: reps in reserve, the plates to load,
   /// or taking it off.
-  Future<void> _edit(BuildContext context, int setIndex) async {
+  Future<void> _edit(
+    BuildContext context,
+    int setIndex,
+    ExerciseHistoryEntry? reference,
+  ) async {
     final set = exercise.sets[setIndex];
     final edit = await showSetEditor(
       context,
       title: _setName(context.l10n, set, _ordinal(exercise.sets, setIndex)),
       set: set,
       equipment: exercise.exercise.equipment,
+      reference: reference,
     );
     if (!context.mounted) return;
     final store = _focused(context, index);
@@ -632,7 +638,13 @@ class _ExerciseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final last = store.exerciseHistory(exercise.exercise).last;
+    final history = store.exerciseHistory(exercise.exercise);
+    final last = history.last;
+    final reference = relativeLoadReference(
+      exercise.exercise,
+      history,
+      store.activeWorkout!.startedAt,
+    );
     final volume = _volumeOf(exercise);
     return AppCard(
       borderColor: isCurrent ? AppColors.training : null,
@@ -733,6 +745,7 @@ class _ExerciseCard extends StatelessWidget {
                 // key per set keeps them with it when one is removed.
                 key: ObjectKey(set),
                 set: set,
+                reference: reference,
                 ordinal: _ordinal(exercise.sets, setIndex),
                 isNext: isCurrent && setIndex == exercise.nextSetIndex,
                 setColumn: _setColumn,
@@ -740,7 +753,7 @@ class _ExerciseCard extends StatelessWidget {
                 onWeight: (kg) => _commit(context, setIndex, weightKg: kg),
                 onReps: (reps) => _commit(context, setIndex, reps: reps),
                 onToggle: () => _toggle(context, setIndex),
-                onEdit: () => _edit(context, setIndex),
+                onEdit: () => _edit(context, setIndex, reference),
               ),
             ),
           const SizedBox(height: AppSpacing.sm),
@@ -780,6 +793,7 @@ class _SetRow extends StatelessWidget {
   const _SetRow({
     super.key,
     required this.set,
+    required this.reference,
     required this.ordinal,
     required this.isNext,
     required this.setColumn,
@@ -791,6 +805,7 @@ class _SetRow extends StatelessWidget {
   });
 
   final WorkoutSet set;
+  final ExerciseHistoryEntry? reference;
 
   /// Opens the whole set: reps in reserve, plates, removing it.
   final VoidCallback onEdit;
@@ -810,81 +825,95 @@ class _SetRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = _setName(context.l10n, set, ordinal);
-    return Row(
+    final percent = relativeLoadPercent(set.weightKg, reference);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: setColumn,
-          height: 48,
-          child: Semantics(
-            button: true,
-            label: context.l10n.editItem(item: name),
-            excludeSemantics: true,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onEdit,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  ordinal == null
-                      ? set.type.labelIn(context.l10n).characters.first
-                      : '$ordinal',
-                  style: AppTextStyles.itemTitle.copyWith(
-                    color: ordinal == null
-                        ? AppColors.textSecondary
-                        : isNext
-                        ? AppColors.training
-                        : AppColors.textPrimary,
+        Row(
+          children: [
+            SizedBox(
+              width: setColumn,
+              height: 48,
+              child: Semantics(
+                button: true,
+                label: context.l10n.editItem(item: name),
+                excludeSemantics: true,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onEdit,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      ordinal == null
+                          ? set.type.labelIn(context.l10n).characters.first
+                          : '$ordinal',
+                      style: AppTextStyles.itemTitle.copyWith(
+                        color: ordinal == null
+                            ? AppColors.textSecondary
+                            : isNext
+                            ? AppColors.training
+                            : AppColors.textPrimary,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-        Expanded(
-          child: InlineNumberField(
-            text: formatWeight(set.weightKg),
-            label: context.l10n.setWeight(set: name),
-            decimal: true,
-            onCommit: (text) {
-              if (double.tryParse(text) case final kg? when kg >= 0) {
-                onWeight(kg);
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: InlineNumberField(
-            text: '${set.reps}',
-            label: context.l10n.setReps(set: name),
-            decimal: false,
-            onCommit: (text) {
-              if (int.tryParse(text) case final reps? when reps >= 0) {
-                onReps(reps);
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        SizedBox(
-          width: doneColumn,
-          child: Semantics(
-            label: context.l10n.setDone(set: name),
-            checked: set.isDone,
-            child: GestureDetector(
-              onTap: onToggle,
-              child: Center(
-                child: CheckSquare(
-                  isChecked: set.isDone,
-                  size: 44,
-                  uncheckedColor: isNext
-                      ? AppColors.trainingSurface
-                      : AppColors.surfaceRaised,
+            Expanded(
+              child: InlineNumberField(
+                text: formatWeight(set.weightKg),
+                label: context.l10n.setWeight(set: name),
+                decimal: true,
+                onCommit: (text) {
+                  if (double.tryParse(text) case final kg? when kg >= 0) {
+                    onWeight(kg);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: InlineNumberField(
+                text: '${set.reps}',
+                label: context.l10n.setReps(set: name),
+                decimal: false,
+                onCommit: (text) {
+                  if (int.tryParse(text) case final reps? when reps >= 0) {
+                    onReps(reps);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            SizedBox(
+              width: doneColumn,
+              child: Semantics(
+                label: context.l10n.setDone(set: name),
+                checked: set.isDone,
+                child: GestureDetector(
+                  onTap: onToggle,
+                  child: Center(
+                    child: CheckSquare(
+                      isChecked: set.isDone,
+                      size: 44,
+                      uncheckedColor: isNext
+                          ? AppColors.trainingSurface
+                          : AppColors.surfaceRaised,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
+        if (percent case final percent?)
+          Padding(
+            padding: EdgeInsets.only(left: setColumn),
+            child: Text(
+              context.l10n.relativeLoadPercent(percent: percent.round()),
+              style: AppTextStyles.caption,
+            ),
+          ),
       ],
     );
   }

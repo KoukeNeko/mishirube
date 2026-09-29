@@ -2988,6 +2988,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get epleyEstimate => 'Epley推定';
 
   @override
+  String relativeLoadPercent({required int percent}) {
+    return '相対負荷 $percent%';
+  }
+
+  @override
   String get last90Days => '過去90日';
 
   @override
@@ -5159,6 +5164,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refUse31 => '回数が多いほど個人差と種目差が大きい';
+
+  @override
+  String get refUse42 => 'トレーニング負荷を%1RMで表す';
+
+  @override
+  String get refUse43 => '%1RMによる負荷の最新指針';
+
+  @override
+  String get refUse44 => '負荷と限界への近さは異なる変数';
+
+  @override
+  String get refUse45 => '残りの反復回数（RIR）による限界への近さの評価';
 
   @override
   String get refUse32 => '筋群ごとに週10セット以上の用量反応';

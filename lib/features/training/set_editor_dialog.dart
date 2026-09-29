@@ -40,9 +40,15 @@ Future<SetEdit?> showSetEditor(
   required String title,
   required WorkoutSet set,
   required Equipment equipment,
+  ExerciseHistoryEntry? reference,
 }) => showAppDialog<SetEdit>(
   context,
-  _SetEditor(title: title, set: set, equipment: equipment),
+  _SetEditor(
+    title: title,
+    set: set,
+    equipment: equipment,
+    reference: reference,
+  ),
 );
 
 class _SetEditor extends StatefulWidget {
@@ -50,10 +56,12 @@ class _SetEditor extends StatefulWidget {
     required this.title,
     required this.set,
     required this.equipment,
+    required this.reference,
   });
 
   final String title;
   final WorkoutSet set;
+  final ExerciseHistoryEntry? reference;
 
   /// A barbell's weight is also read as the plates to load.
   final Equipment equipment;
@@ -91,6 +99,7 @@ class _SetEditorState extends State<_SetEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final percent = relativeLoadPercent(_weightKg, widget.reference);
     return AppDialog(
       title: widget.title,
       content: Column(
@@ -131,6 +140,18 @@ class _SetEditorState extends State<_SetEditor> {
             onIncrease: () => _stepReps(1),
             onChanged: () => setState(() {}),
           ),
+          if (percent case final percent?) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              context.l10n.relativeLoadPercent(percent: percent.round()),
+              style: AppTextStyles.body,
+            ),
+            Text(
+              '${context.l10n.estimatedMax} ${formatWeight(widget.reference!.oneRepMaxKg!)} kg · '
+              '${context.dates.monthDay(widget.reference!.date)} · ${context.l10n.epleyEstimate}',
+              style: AppTextStyles.caption,
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           const Text('RIR', style: AppTextStyles.overline),
           const SizedBox(height: AppSpacing.xs),

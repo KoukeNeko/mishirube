@@ -31,6 +31,7 @@ import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
+import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -50,6 +51,7 @@ import 'package:mishirube/features/training/training_screen.dart';
 import 'package:mishirube/features/training/routine_detail_screen.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
+import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/l10n/l10n.dart';
 
@@ -319,19 +321,77 @@ void main() {
     final sets = store.activeWorkout!.currentExercise.sets;
     final count = sets.length;
     final weight = sets.first.weightKg;
+    final reps = sets.first.reps;
+    final squat = store.activeWorkout!.currentExercise.exercise;
+    final source = relativeLoadReference(
+      squat,
+      store.exerciseHistory(squat),
+      store.activeWorkout!.startedAt,
+    )!;
+    final reference = source.oneRepMaxKg!;
+    final percent = (weight / reference * 100).round();
+    expect(find.text('相對負荷 $percent%'), findsWidgets);
 
     await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
     await tester.pumpAndSettle();
+    final dialog = find.byType(AppDialog);
     expect(find.textContaining('每邊'), findsOneWidget, reason: 'a barbell');
+    expect(
+      find.descendant(
+        of: dialog,
+        matching: find.text(
+          '估計最大重量 ${formatWeight(reference)} kg · '
+          '${source.date.month} 月 ${source.date.day} 日 · Epley 估計',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: dialog, matching: find.text('相對負荷 $percent%')),
+      findsOneWidget,
+    );
     await tester.tap(find.byTooltip('增加 2.5 kg'));
+    await tester.pump();
+    final updatedPercent = ((weight + 2.5) / reference * 100).round();
+    expect(
+      find.descendant(of: dialog, matching: find.text('相對負荷 $updatedPercent%')),
+      findsOneWidget,
+    );
     await tester.tap(find.byTooltip('多 1 次'));
     await tester.tap(find.widgetWithText(SelectChip, '2'));
     await tester.pump();
+    expect(
+      find.descendant(of: dialog, matching: find.text('相對負荷 $updatedPercent%')),
+      findsOneWidget,
+    );
     await _tapText(tester, '儲存');
     final edited = store.activeWorkout!.currentExercise.sets.first;
     expect(edited.weightKg, weight + 2.5);
-    expect(edited.reps, sets.first.reps);
+    expect(edited.reps, reps + 1);
     expect(edited.rir, 2);
+    expect(find.text('相對負荷 $updatedPercent%'), findsWidgets);
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(SelectChip, '未記'));
+    await _tapText(tester, '儲存');
+    expect(store.activeWorkout!.currentExercise.sets.first.rir, isNull);
+    expect(
+      store.backend.training.active()!.currentExercise.sets.first.rir,
+      isNull,
+    );
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(SelectChip, '未記'), findsOneWidget);
+    await tester.tap(find.byTooltip('增加 2.5 kg'));
+    await tester.tap(find.widgetWithText(SelectChip, '3'));
+    await _tapText(tester, '取消');
+    expect(
+      store.activeWorkout!.currentExercise.sets.first.weightKg,
+      weight + 2.5,
+    );
+    expect(store.activeWorkout!.currentExercise.sets.first.rir, isNull);
 
     await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
     await tester.pumpAndSettle();
@@ -1278,6 +1338,54 @@ void main() {
       [60.0, 60.0, 60.0, 60.0],
     );
     expect(workout.isReady, isTrue);
+    await disposeTree(tester);
+  });
+
+  testWidgets('relative load stays the same after finishing and reopening', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final semantics = tester.ensureSemantics();
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await _startFromRoutine(tester);
+    final workout = store.activeWorkout!;
+    final squat = workout.currentExercise.exercise;
+    final source = relativeLoadReference(
+      squat,
+      store.exerciseHistory(squat),
+      workout.startedAt,
+    )!;
+    final set = workout.currentExercise.sets.first;
+    final label = '相對負荷 ${relativeLoadPercent(set.weightKg, source)!.round()}%';
+    expect(find.text(label), findsWidgets);
+
+    // 還留幾下 is optional: cleared here, then unrecorded all the way through.
+    await tester.tap(find.bySemanticsLabel(RegExp('^編輯第 1 組')).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(SelectChip, '未記'));
+    await _tapText(tester, '儲存');
+    expect(store.activeWorkout!.currentExercise.sets.first.rir, isNull);
+    expect(find.text(label), findsWidgets, reason: 'RIR does not change it');
+
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+    await tester.pump();
+    expect(store.activeWorkout!.currentExercise.sets.first.rir, isNull);
+    await _tapText(tester, '結束');
+    await _tapText(tester, '結束並儲存');
+    expect(find.byType(WorkoutSummaryScreen), findsOneWidget);
+    expect(find.text(label), findsWidgets);
+    expect(store.lastFinishedWorkout!.exercises.first.sets.first.rir, isNull);
+    semantics.dispose();
+    await disposeTree(tester);
+
+    await pumpScreen(
+      tester,
+      WorkoutSummaryScreen(workoutId: workout.id),
+      store: store,
+    );
+    expect(find.text(label), findsWidgets);
+    expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });
 
@@ -3015,6 +3123,55 @@ void main() {
     await tester.tap(find.text('取消'));
     await tester.pumpAndSettle();
     expect(find.byType(AppDialog), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('relative load and RIR sources appear in training references', (
+    tester,
+  ) async {
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const ReferencesScreen(), store: store);
+    for (final (author, use, doi) in [
+      (
+        'American College of Sports Medicine. (2009).',
+        '以 %1RM 表示訓練負荷',
+        '10.1249/MSS.0b013e3181915670',
+      ),
+      ('Currier, B. S.', '以 %1RM 表示負荷的更新指引', '10.1249/MSS.0000000000003897'),
+      ('Pelland, J. C.', '負荷與接近力竭程度是不同變數', '10.1007/s40279-022-01667-2'),
+      // Pelland’s paper names Zourdos too, so this row needs its co-author.
+      (
+        'Zourdos, M. C., Klemp, A.',
+        '以剩餘次數（RIR）表示接近力竭程度',
+        '10.1519/JSC.0000000000001049',
+      ),
+    ]) {
+      // 45 rows of a page this tall: a step has to cover the height of one.
+      final citation = find.textContaining(author);
+      await tester.scrollUntilVisible(
+        citation,
+        400,
+        scrollable: _pageScroll,
+        maxScrolls: 200,
+      );
+      // Centred first: a row caught at the bottom edge cannot be tapped.
+      await Scrollable.ensureVisible(tester.element(citation), alignment: 0.5);
+      await tester.pump();
+      expect(citation, findsOneWidget);
+      expect(find.text(use), findsOneWidget);
+      await tester.tap(citation);
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(
+          of: find.byType(AppDialog),
+          matching: find.text('https://doi.org/$doi'),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('取消'));
+      await tester.pumpAndSettle();
+    }
+    expect(tester.takeException(), isNull);
     await disposeTree(tester);
   });
 

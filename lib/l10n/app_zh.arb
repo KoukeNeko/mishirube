@@ -4429,6 +4429,15 @@
   "@epleyEstimate": {
     "description": "Tag naming the formula."
   },
+  "relativeLoadPercent": "相對負荷 {percent}%",
+  "@relativeLoadPercent": {
+    "description": "A set's external weight as a percentage of the previous estimated one-rep max.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "last90Days": "近 90 天",
   "@last90Days": {
     "description": "Tag naming the window."
@@ -7828,6 +7837,22 @@
   "refUse31": "次數越多，個人與動作之間的差異越大",
   "@refUse31": {
     "description": "What a reference supports."
+  },
+  "refUse42": "以 %1RM 表示訓練負荷",
+  "@refUse42": {
+    "description": "What the 2009 ACSM position stand supports."
+  },
+  "refUse43": "以 %1RM 表示負荷的更新指引",
+  "@refUse43": {
+    "description": "What the 2026 ACSM position stand supports."
+  },
+  "refUse44": "負荷與接近力竭程度是不同變數",
+  "@refUse44": {
+    "description": "What Pelland et al. (2022) support."
+  },
+  "refUse45": "以剩餘次數（RIR）表示接近力竭程度",
+  "@refUse45": {
+    "description": "What Zourdos et al. (2016) support."
   },
   "refUse32": "每肌群每週 10 組以上的組數劑量反應",
   "@refUse32": {

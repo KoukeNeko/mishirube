@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../backend/engines/training_metrics.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
@@ -51,6 +52,17 @@ class WorkoutSummaryScreen extends StatelessWidget {
     }
     final finishedAt = workout.finishedAt!;
     final review = store.workoutReview(workout);
+    final references = <String, ExerciseHistoryEntry?>{};
+    for (final item in review.exercises) {
+      references.putIfAbsent(
+        item.exercise.id,
+        () => relativeLoadReference(
+          item.exercise,
+          store.exerciseHistory(item.exercise),
+          workout.startedAt,
+        ),
+      );
+    }
     final records = [
       for (final item in review.exercises)
         if (item.record != null) item,
@@ -122,7 +134,12 @@ class WorkoutSummaryScreen extends StatelessWidget {
             label: context.l10n.exercisesLabel,
             children: [
               for (final item in review.exercises)
-                Gutter(child: _ExerciseResult(item: item)),
+                Gutter(
+                  child: _ExerciseResult(
+                    item: item,
+                    reference: references[item.exercise.id],
+                  ),
+                ),
             ],
           ),
         if (review.exercises.isNotEmpty)
@@ -243,9 +260,10 @@ class _RecordRow extends StatelessWidget {
 /// An exercise as it was done: its sets and total, and each set, the
 /// record marked.
 class _ExerciseResult extends StatelessWidget {
-  const _ExerciseResult({required this.item});
+  const _ExerciseResult({required this.item, required this.reference});
 
   final ExerciseReview item;
+  final ExerciseHistoryEntry? reference;
 
   static String _figuresOf(WorkoutSet set) => switch (set) {
     WorkoutSet(durationSeconds: final seconds?) => formatClock(
@@ -287,6 +305,12 @@ class _ExerciseResult extends StatelessWidget {
             ),
             style: AppTextStyles.caption,
           ),
+          if (reference case final reference?)
+            Text(
+              '${context.l10n.estimatedMax} ${formatWeight(reference.oneRepMaxKg!)} kg · '
+              '${context.dates.monthDay(reference.date)} · ${context.l10n.epleyEstimate}',
+              style: AppTextStyles.caption,
+            ),
           const SizedBox(height: AppSpacing.xs),
           for (final (index, set) in item.done.indexed)
             Padding(
@@ -301,9 +325,22 @@ class _ExerciseResult extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: Text(
-                      _figuresOf(set),
-                      style: AppTextStyles.body.merge(figures),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _figuresOf(set),
+                          style: AppTextStyles.body.merge(figures),
+                        ),
+                        if (relativeLoadPercent(set.weightKg, reference)
+                            case final percent?)
+                          Text(
+                            context.l10n.relativeLoadPercent(
+                              percent: percent.round(),
+                            ),
+                            style: AppTextStyles.caption,
+                          ),
+                      ],
                     ),
                   ),
                   if (identical(set, item.record))

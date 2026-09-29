@@ -5397,6 +5397,12 @@ abstract class AppLocalizations {
   /// **'Epley 估計'**
   String get epleyEstimate;
 
+  /// A set's external weight as a percentage of the previous estimated one-rep max.
+  ///
+  /// In zh, this message translates to:
+  /// **'相對負荷 {percent}%'**
+  String relativeLoadPercent({required int percent});
+
   /// Tag naming the window.
   ///
   /// In zh, this message translates to:
@@ -9033,6 +9039,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'次數越多，個人與動作之間的差異越大'**
   String get refUse31;
+
+  /// What the 2009 ACSM position stand supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'以 %1RM 表示訓練負荷'**
+  String get refUse42;
+
+  /// What the 2026 ACSM position stand supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'以 %1RM 表示負荷的更新指引'**
+  String get refUse43;
+
+  /// What Pelland et al. (2022) support.
+  ///
+  /// In zh, this message translates to:
+  /// **'負荷與接近力竭程度是不同變數'**
+  String get refUse44;
+
+  /// What Zourdos et al. (2016) support.
+  ///
+  /// In zh, this message translates to:
+  /// **'以剩餘次數（RIR）表示接近力竭程度'**
+  String get refUse45;
 
   /// What a reference supports.
   ///

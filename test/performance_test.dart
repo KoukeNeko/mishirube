@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/seed/seed.dart';
 import 'package:mishirube/backend/storage/database.dart';
@@ -68,15 +69,32 @@ void main() {
     );
     final trends = _time(backend.insights.trends);
     final history = _time(() => backend.catalog.history('back-squat'));
+    final relativeLoad = _time(() {
+      final exercise = DemoExercises.backSquat;
+      final reference = relativeLoadReference(
+        exercise,
+        backend.catalog.history(exercise.id),
+        clock.now(),
+      );
+      expect(reference, isNotNull);
+      for (var i = 0; i < _setsPerWorkout; i++) {
+        expect(relativeLoadPercent(60 + i.toDouble(), reference), isNotNull);
+      }
+    });
 
     printOnFailure(
       'write $written, catalog $catalog, month $month, trends $trends, '
-      'history $history',
+      'history $history, relative load $relativeLoad',
     );
     expect(catalog, lessThan(_readBudget), reason: 'catalog with usage');
     expect(month, lessThan(_readBudget), reason: 'a month of the log');
     expect(trends, lessThan(_readBudget), reason: 'the trends overview');
     expect(history, lessThan(_readBudget), reason: 'one exercise history');
+    expect(
+      relativeLoad,
+      lessThan(_readBudget),
+      reason: 'one history lookup per exercise, then set ratios',
+    );
   });
 }
 
