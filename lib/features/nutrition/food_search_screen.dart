@@ -91,6 +91,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// How many recent meals 「全部」 offers to log again.
   static const _mealPreview = 3;
 
+  /// How many more of what was eaten 「最近」 lists each time the end of
+  /// the list comes into sight.
+  static const _recentPage = 30;
+
   final _query = TextEditingController();
 
   /// What has been picked so far, in the order it was picked.
@@ -119,6 +123,39 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   MealType? _mealType;
 
   _Scope _scope = _Scope.all;
+
+  /// How much of what was eaten 「最近」 lists so far: foods first, then,
+  /// once every food is listed, meals, as far back as the log goes.
+  int _recentShown = _recentPage;
+
+  /// What 「最近」 lists within [_recentShown], and whether there is more.
+  ({List<RecentFood> foods, List<RecentMeal> meals, bool hasMore}) _recentUpTo(
+    int shown,
+  ) {
+    final foods = _nutrition.recentFoodsUpTo(shown + 1);
+    if (foods.length > shown) {
+      return (foods: foods.take(shown).toList(), meals: [], hasMore: true);
+    }
+    final room = shown - foods.length;
+    final meals = _nutrition.recentMealsUpTo(room + 1);
+    return (
+      foods: foods,
+      meals: meals.take(room).toList(),
+      hasMore: meals.length > room,
+    );
+  }
+
+  /// Lists the next page of 「最近」 once its end is near.
+  bool _onScroll(ScrollNotification notification) {
+    if (_scope == _Scope.recent &&
+        _query.text.trim().isEmpty &&
+        notification.metrics.axis == Axis.vertical &&
+        notification.metrics.extentAfter < 600 &&
+        _recentUpTo(_recentShown).hasMore) {
+      setState(() => _recentShown += _recentPage);
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -353,7 +390,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _nutrition,
-    builder: (context, _) => _page(context),
+    builder: (context, _) => NotificationListener<ScrollNotification>(
+      onNotification: _onScroll,
+      child: _page(context),
+    ),
   );
 
   Widget _page(BuildContext context) {
@@ -434,9 +474,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
-        ..._section(context.l10n.foodScopeRecent, [
-          for (final r in recent.take(_preview)) r.food,
-        ]),
+        ..._section(
+          context.l10n.foodScopeRecent,
+          [for (final r in recent.take(_preview)) r.food],
+          // The rest is under 「最近」, which goes as far back as the log.
+          more: recent.length > _preview
+              ? () => setState(() => _scope = _Scope.recent)
+              : null,
+        ),
         ..._section(
           context.l10n.foodScopeStarred,
           starred.take(_preview).toList(),
@@ -457,15 +502,17 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             ),
           ),
       ],
-      _Scope.recent => [
-        ..._section(context.l10n.eatenFoods, [for (final r in recent) r.food]),
-        if (_nutrition.recentMeals case final meals when meals.isNotEmpty) ...[
-          Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
-          for (final meal in meals) Gutter(child: _mealRow(meal)),
+      _Scope.recent => switch (_recentUpTo(_recentShown)) {
+        (:final foods, :final meals, hasMore: _) => [
+          ..._section(context.l10n.eatenFoods, [for (final r in foods) r.food]),
+          if (meals.isNotEmpty) ...[
+            Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
+            for (final meal in meals) Gutter(child: _mealRow(meal)),
+          ],
+          if (foods.isEmpty && meals.isEmpty)
+            Gutter(child: InfoBanner(message: context.l10n.noRecentFoods)),
         ],
-        if (recent.isEmpty && _nutrition.recentMeals.isEmpty)
-          Gutter(child: InfoBanner(message: context.l10n.noRecentFoods)),
-      ],
+      },
       _Scope.starred => [
         ..._section(context.l10n.starredFoods, starred),
         if (_nutrition.favoriteMeals case final meals
@@ -557,9 +604,26 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     ];
   }
 
-  List<Widget> _section(String label, List<FoodItem> foods) => [
+  /// A labelled list of [foods]; [more] opens the rest of them.
+  List<Widget> _section(
+    String label,
+    List<FoodItem> foods, {
+    VoidCallback? more,
+  }) => [
     if (foods.isNotEmpty) ...[
-      Gutter(child: SectionLabel(label)),
+      Gutter(
+        child: SectionLabel(
+          label,
+          trailing: more == null
+              ? null
+              : LinkText(
+                  label: context.l10n.moreAction,
+                  color: AppColors.nutrition,
+                  alignment: Alignment.bottomRight,
+                  onTap: more,
+                ),
+        ),
+      ),
       for (final food in foods) Gutter(child: _row(food)),
     ],
   ];

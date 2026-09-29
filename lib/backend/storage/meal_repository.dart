@@ -270,12 +270,13 @@ class MealRepository {
   /// many servings, which meal it was called and when.
   List<(String, double, MealType?, DateTime)> portionsLogged({
     int limit = 200,
+    int offset = 0,
   }) => [
     for (final row in _db.select(
       'SELECT food_id, servings, meal_type, eaten_at, utc_offset_minutes '
       'FROM meals WHERE deleted_at IS NULL AND food_id IS NOT NULL '
-      'AND servings IS NOT NULL ORDER BY eaten_at DESC LIMIT ?',
-      [limit],
+      'AND servings IS NOT NULL ORDER BY eaten_at DESC, id LIMIT ? OFFSET ?',
+      [limit, offset],
     ))
       (
         row['food_id']! as String,

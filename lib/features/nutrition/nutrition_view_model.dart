@@ -60,6 +60,14 @@ class NutritionViewModel extends ViewModel {
   /// Meals worth offering again, newest first.
   List<RecentMeal> get recentMeals => backend.nutrition.recent();
 
+  /// Up to [limit] foods eaten, newest first, from any time.
+  List<RecentFood> recentFoodsUpTo(int limit) =>
+      backend.nutrition.recentFoods(limit: limit);
+
+  /// Up to [limit] meals eaten, newest first, from any time.
+  List<RecentMeal> recentMealsUpTo(int limit) =>
+      backend.nutrition.recent(limit: limit, window: null);
+
   /// Starred meals, for logging again without going looking.
   List<RecentMeal> get favoriteMeals => backend.nutrition.favorites();
 

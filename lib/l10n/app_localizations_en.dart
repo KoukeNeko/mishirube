@@ -4755,6 +4755,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customAction => 'Custom';
 
   @override
+  String get moreAction => 'More';
+
+  @override
   String get waterPerTapMl => 'Amount per tap (mL)';
 
   @override

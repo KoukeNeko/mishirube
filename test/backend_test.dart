@@ -3033,6 +3033,24 @@ void main() {
       expect(recent.first.portion.amount, 200);
     });
 
+    test('recent foods reach as far back as the log', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final oats = backend.nutrition.saveFood(food('oats', '燕麥'));
+      backend.nutrition.logPortion(FoodPortion(oats, 1));
+      final coffee = backend.nutrition.saveFood(food('coffee', '美式'));
+      // More portions of one food than a page of the log holds.
+      for (var i = 0; i < 250; i++) {
+        clock.advance(const Duration(minutes: 10));
+        backend.nutrition.logPortion(FoodPortion(coffee, 1));
+      }
+
+      expect(backend.nutrition.recentFoods(limit: 10).map((r) => r.food.id), [
+        'coffee',
+        'oats',
+      ], reason: 'the oats are still recent, behind 250 coffees');
+    });
+
     test('a deleted food is no longer offered', () {
       final backend = Backend.inMemory(clock: FakeClock().now);
       addTearDown(backend.close);

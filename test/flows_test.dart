@@ -2013,6 +2013,34 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('最近 lists every food eaten, a page at a time', (tester) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    for (var i = 1; i <= 45; i++) {
+      final food = store.backend.nutrition.saveFood(
+        FoodItem(id: 'food-$i', name: '食物 $i', kcal: 100),
+      );
+      clock.advance(const Duration(minutes: 5));
+      store.backend.nutrition.logPortion(FoodPortion(food, 1));
+    }
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    await _tapText(tester, '更多');
+    await tester.scrollUntilVisible(
+      find.text('食物 1'),
+      400,
+      scrollable: _pageScroll,
+      maxScrolls: 200,
+    );
+    expect(
+      find.text('食物 1'),
+      findsOneWidget,
+      reason: 'the first food eaten, past the first page of 30',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('several foods go on one plate and are logged together', (
     tester,
   ) async {

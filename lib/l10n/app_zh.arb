@@ -7149,6 +7149,10 @@
   "@customAction": {
     "description": "Choice."
   },
+  "moreAction": "更多",
+  "@moreAction": {
+    "description": "Link beside a shortened list that opens the rest of it."
+  },
   "waterPerTapMl": "一次記多少 mL",
   "@waterPerTapMl": {
     "description": "Dialog title."

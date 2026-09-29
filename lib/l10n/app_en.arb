@@ -1336,6 +1336,7 @@
   "waterBottle": "Bottle",
   "waterPerTap": "Amount per tap",
   "customAction": "Custom",
+  "moreAction": "More",
   "waterPerTapMl": "Amount per tap (mL)",
   "waterReference": "Daily reference",
   "waterReferenceMl": "Daily reference (mL)",

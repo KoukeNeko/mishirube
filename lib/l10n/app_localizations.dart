@@ -8176,6 +8176,12 @@ abstract class AppLocalizations {
   /// **'自訂'**
   String get customAction;
 
+  /// Link beside a shortened list that opens the rest of it.
+  ///
+  /// In zh, this message translates to:
+  /// **'更多'**
+  String get moreAction;
+
   /// Dialog title.
   ///
   /// In zh, this message translates to:

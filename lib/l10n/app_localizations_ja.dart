@@ -4696,6 +4696,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get customAction => 'カスタム';
 
   @override
+  String get moreAction => 'もっと見る';
+
+  @override
   String get waterPerTapMl => '1回の量（mL）';
 
   @override

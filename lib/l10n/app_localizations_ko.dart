@@ -4697,6 +4697,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get customAction => '직접 입력';
 
   @override
+  String get moreAction => '더 보기';
+
+  @override
   String get waterPerTapMl => '1회 기록량(mL)';
 
   @override

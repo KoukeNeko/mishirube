@@ -4689,6 +4689,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customAction => '自訂';
 
   @override
+  String get moreAction => '更多';
+
+  @override
   String get waterPerTapMl => '一次記多少 mL';
 
   @override
@@ -10370,6 +10373,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customAction => '自定义';
+
+  @override
+  String get moreAction => '更多';
 
   @override
   String get waterPerTapMl => '一次记多少 mL';

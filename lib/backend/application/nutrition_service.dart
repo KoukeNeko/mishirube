@@ -201,14 +201,18 @@ class NutritionService {
 
   /// Meals eaten recently, newest first and one per dish, so the same
   /// lunch three days running is offered once.
+  /// A null [window] reaches back to the first meal.
   List<RecentMeal> recent({
     int limit = 3,
-    Duration window = const Duration(days: 30),
+    Duration? window = const Duration(days: 30),
   }) {
     final now = _db.now();
     final seen = <String>{};
     final recent = <RecentMeal>[];
-    for (final (eatenAt, meal) in between(now.subtract(window), now).reversed) {
+    final since = window == null
+        ? DateTime.fromMillisecondsSinceEpoch(0)
+        : now.subtract(window);
+    for (final (eatenAt, meal) in between(since, now).reversed) {
       final label = RecentMeal(meal: meal, eatenAt: eatenAt).label;
       if (!seen.add(label)) continue;
       recent.add(RecentMeal(meal: meal, eatenAt: eatenAt));
@@ -222,21 +226,26 @@ class NutritionService {
   /// numbers have changed is offered with its current numbers, since
   /// logging it again is a new meal.
   List<RecentFood> recentFoods({int limit = 12}) {
+    const page = 200;
     final recent = <String, RecentFood>{};
-    for (final (foodId, servings, mealType, eatenAt)
-        in _meals.portionsLogged()) {
-      if (recent.containsKey(foodId)) continue;
-      final food = _foods.byId(foodId);
-      if (food == null) continue;
-      recent[foodId] = RecentFood(
-        food: food,
-        servings: servings,
-        eatenAt: eatenAt,
-        mealType: mealType,
-      );
-      if (recent.length == limit) break;
+    // Read the log a page at a time, as far back as it takes: a food
+    // eaten every day fills pages without adding a new one.
+    for (var offset = 0; ; offset += page) {
+      final portions = _meals.portionsLogged(limit: page, offset: offset);
+      for (final (foodId, servings, mealType, eatenAt) in portions) {
+        if (recent.containsKey(foodId)) continue;
+        final food = _foods.byId(foodId);
+        if (food == null) continue;
+        recent[foodId] = RecentFood(
+          food: food,
+          servings: servings,
+          eatenAt: eatenAt,
+          mealType: mealType,
+        );
+        if (recent.length == limit) return recent.values.toList();
+      }
+      if (portions.length < page) return recent.values.toList();
     }
-    return recent.values.toList();
   }
 
   /// Logs several portions as eaten now, or [at], all or none: a plate
