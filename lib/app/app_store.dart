@@ -854,6 +854,16 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Where a page opened from chrome that has no page of its own goes: a
+  /// toast after a record was logged, whose screen has usually closed by
+  /// the time it is tapped. [HomeShell] sets this while it is mounted, so
+  /// such a page lands beside the selected tab's list when the window has
+  /// two panes; with no shell mounted there is nowhere to open into.
+  Future<void> Function(Widget page)? opensFromChrome;
+
+  /// Opens [page] the way the dock opens one.
+  void openFromChrome(Widget page) => opensFromChrome?.call(page);
+
   void finishWorkout() {
     final workout = activeWorkout;
     if (workout == null) return;

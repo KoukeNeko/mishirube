@@ -48,6 +48,22 @@ class _HomeShellState extends State<HomeShell> {
         pushPage<T>(context, page);
   }
 
+  /// Held from [initState], so clearing it in [dispose] needs no lookup.
+  late final AppStore _store;
+
+  @override
+  void initState() {
+    super.initState();
+    _store = AppStoreScope.read(context);
+    _store.opensFromChrome = (page) => _open<void>(page);
+  }
+
+  @override
+  void dispose() {
+    _store.opensFromChrome = null;
+    super.dispose();
+  }
+
   void _setMinimized(bool value) {
     if (_isChromeMinimized != value) {
       setState(() => _isChromeMinimized = value);

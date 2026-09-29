@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/body_reading_entry_screen.dart';
+import '../nutrition/meal_detail_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
 import '../journal/note_entry_screen.dart';
@@ -90,13 +91,15 @@ final recordOptions = [
     module: AppModule.nutrition,
     isBesidePrevious: true,
     onSelect: (context) {
-      final nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+      final store = AppStoreScope.read(context);
+      final nutrition = NutritionViewModel(store.backend);
       final logged = nutrition.logWater();
       // Nothing here rebuilds from it; the undo only writes.
       nutrition.dispose();
       ToastScope.read(context).showUndo(
         context.l10n.waterLogged(millilitres: logged.millilitres!),
         onUndo: () => nutrition.deleteMeals([logged]),
+        onTap: () => store.openFromChrome(MealDetailScreen(meal: logged)),
       );
     },
   ),

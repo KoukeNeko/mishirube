@@ -193,61 +193,68 @@ class _ToastCard extends StatelessWidget {
     return Semantics(
       container: true,
       liveRegion: true,
+      // The whole toast goes to what it is about; the undo beside it
+      // stays the action of its own button.
+      onTap: toast.opensSomething ? controller.runTap : null,
       child: Dismissible(
         key: ValueKey(toast.id),
         onDismissed: (_) => controller.dismiss(toast.id),
-        child: ChromeSurface(
-          radius: _radius,
-          tint: AppColors.surfaceRaised,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              actionLabel == null ? AppSpacing.md : AppSpacing.xs,
-              AppSpacing.sm,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: _minHeight - AppSpacing.sm * 2,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(icon, color: iconColor, size: 22),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          toast.message,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.body.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            height: 1.35,
-                          ),
-                        ),
-                      ),
-                      if (actionLabel != null)
-                        TextButton(
-                          onPressed: controller.runAction,
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.training,
-                            minimumSize: const Size(48, 44),
-                            textStyle: const TextStyle(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: toast.opensSomething ? controller.runTap : null,
+          child: ChromeSurface(
+            radius: _radius,
+            tint: AppColors.surfaceRaised,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                actionLabel == null ? AppSpacing.md : AppSpacing.xs,
+                AppSpacing.sm,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: _minHeight - AppSpacing.sm * 2,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(icon, color: iconColor, size: 22),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            toast.message,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body.copyWith(
                               fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w600,
+                              height: 1.35,
                             ),
                           ),
-                          child: Text(actionLabel),
                         ),
-                    ],
+                        if (actionLabel != null)
+                          TextButton(
+                            onPressed: controller.runAction,
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.training,
+                              minimumSize: const Size(48, 44),
+                              textStyle: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            child: Text(actionLabel),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                if (toast.hasAction && !controller.keepsActionableToasts)
-                  _UndoCountdown(duration: toast.duration),
-              ],
+                  if (toast.hasAction && !controller.keepsActionableToasts)
+                    _UndoCountdown(duration: toast.duration),
+                ],
+              ),
             ),
           ),
         ),

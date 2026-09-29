@@ -17,6 +17,7 @@ class ToastMessage {
     required this.duration,
     this.actionLabel,
     this.onAction,
+    this.onTap,
   });
 
   final int id;
@@ -26,7 +27,13 @@ class ToastMessage {
   final String? actionLabel;
   final VoidCallback? onAction;
 
+  /// Where tapping the toast goes: the record it is about, when it is
+  /// about one. It opens through [openFromChrome], because the page that
+  /// logged the record has usually closed by the time it is tapped.
+  final VoidCallback? onTap;
+
   bool get hasAction => onAction != null;
+  bool get opensSomething => onTap != null;
 }
 
 /// Owns the one visible toast, one waiting toast, their timers and where
@@ -50,7 +57,11 @@ class ToastController extends ChangeNotifier {
       ? null
       : _obstructionTops.values.reduce((a, b) => a < b ? a : b);
 
-  void show(String message, {ToastKind kind = ToastKind.info}) {
+  void show(
+    String message, {
+    ToastKind kind = ToastKind.info,
+    VoidCallback? onTap,
+  }) {
     if (kind == ToastKind.warning) HapticFeedback.mediumImpact();
     _enqueue(
       ToastMessage(
@@ -58,13 +69,18 @@ class ToastController extends ChangeNotifier {
         message: message,
         kind: kind,
         duration: kind == ToastKind.warning ? _warningDuration : _infoDuration,
+        onTap: onTap,
       ),
     );
   }
 
   /// A reversible change: stays for 30 seconds with an undo action, which
   /// the host names.
-  void showUndo(String message, {required VoidCallback onUndo}) {
+  void showUndo(
+    String message, {
+    required VoidCallback onUndo,
+    VoidCallback? onTap,
+  }) {
     _enqueue(
       ToastMessage(
         id: _nextId++,
@@ -72,6 +88,7 @@ class ToastController extends ChangeNotifier {
         kind: ToastKind.success,
         duration: _undoDuration,
         onAction: onUndo,
+        onTap: onTap,
       ),
     );
   }
@@ -110,6 +127,15 @@ class ToastController extends ChangeNotifier {
     HapticFeedback.selectionClick();
     dismiss();
     onAction();
+  }
+
+  /// Tapping the toast itself: it goes where the record is, and leaves.
+  void runTap() {
+    final onTap = _current?.onTap;
+    if (onTap == null) return;
+    HapticFeedback.selectionClick();
+    dismiss();
+    onTap();
   }
 
   void reportObstruction(Object owner, double? top) {
@@ -153,4 +179,5 @@ void showToast(
   BuildContext context,
   String message, {
   ToastKind kind = ToastKind.info,
-}) => ToastScope.read(context).show(message, kind: kind);
+  VoidCallback? onTap,
+}) => ToastScope.read(context).show(message, kind: kind, onTap: onTap);

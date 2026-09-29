@@ -9,7 +9,9 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_settings_screen.dart';
 import 'camera_screen.dart';
+import 'daily_nutrition_screen.dart';
 import 'describe_meal_screen.dart';
+import 'meal_detail_screen.dart';
 import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
@@ -392,6 +394,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     toast.showUndo(
       context.l10n.loggedItemsCount(count: logged.length),
       onUndo: () => _nutrition.deleteMeals(logged),
+      onTap: () => AppStoreScope.read(context).openFromChrome(
+        logged.length == 1
+            ? MealDetailScreen(meal: logged.single)
+            : DailyNutritionScreen(day: widget.at),
+      ),
     );
   }
 

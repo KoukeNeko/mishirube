@@ -8,6 +8,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'daily_nutrition_screen.dart';
+import 'meal_detail_screen.dart';
 import 'describe_meal_screen.dart';
 import 'food_edit_screen.dart';
 import 'food_row.dart';
@@ -223,6 +224,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           ? context.l10n.loggedNamed(name: logged.single.name)
           : context.l10n.loggedItemsCount(count: count),
       onUndo: () => _nutrition.deleteMeals(logged),
+      onTap: () => _openLogged(AppStoreScope.read(context), logged),
     );
   }
 
@@ -300,23 +302,43 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           ? context.l10n.loggedNamed(name: logged.single.name)
           : context.l10n.loggedItemsCount(count: logged.length),
       onUndo: () => _nutrition.deleteMeals(logged),
+      onTap: () => _openLogged(AppStoreScope.read(context), logged),
     );
   }
 
   Future<void> _quickAdd() async {
-    final logged = await pushPage<FoodItem>(
+    final logged = await pushPage<MealEvent>(
       context,
       FoodEditScreen(initialName: _query.text.trim(), logsOnce: true, at: _at),
     );
     if (logged == null || !mounted) return;
-    showToast(context, context.l10n.loggedToast, kind: ToastKind.success);
+    showToast(
+      context,
+      context.l10n.loggedToast,
+      kind: ToastKind.success,
+      onTap: () =>
+          AppStoreScope.read(context)
+              .openFromChrome(MealDetailScreen(meal: logged)),
+    );
   }
+
+  /// Where a toast after logging goes: the meal itself when one was
+  /// logged, the day when several were.
+  void _openLogged(AppStore store, List<MealEvent> logged) =>
+      store.openFromChrome(
+        logged.length == 1
+            ? MealDetailScreen(meal: logged.single)
+            : DailyNutritionScreen(day: _at),
+      );
 
   void _logAgain(RecentMeal recent) {
     final logged = _nutrition.copyMeal(recent.meal, at: _at);
     ToastScope.read(context).showUndo(
       context.l10n.loggedNamed(name: recent.label),
       onUndo: () => _nutrition.deleteMeals([logged]),
+      onTap: () =>
+          AppStoreScope.read(context)
+              .openFromChrome(MealDetailScreen(meal: logged)),
     );
   }
 

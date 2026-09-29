@@ -2565,6 +2565,37 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the toast after a record opens that record', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    // The toast is app chrome: it opens the record through the shell,
+    // as the dock opens a page.
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+    store.openFromChrome(const FoodSearchScreen());
+    await tester.pumpAndSettle();
+
+    await _tapText(
+      tester,
+      '＋ ${NutritionViewModel(store.backend).glassMillilitres} mL',
+    );
+    final logged = store.backend.nutrition
+        .mealsOn(store.now())
+        .firstWhere((meal) => meal.isWater);
+    // Not settled: the undo's countdown would run out and take the toast.
+    final message = testL10n.waterLogged(millilitres: logged.millilitres ?? 0);
+    expect(find.text(message), findsOneWidget, reason: 'the toast');
+
+    await tester.tap(find.text(message));
+    await tester.pumpAndSettle();
+    expect(
+      find.byType(MealDetailScreen),
+      findsOneWidget,
+      reason: 'the glass the toast was about',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('the water card logs a glass and keeps water apart', (
     tester,
   ) async {

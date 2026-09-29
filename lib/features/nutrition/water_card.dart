@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
+import 'meal_detail_screen.dart';
+import '../../app/app_store.dart';
 import 'nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
 
@@ -33,9 +35,11 @@ class WaterCard extends StatelessWidget {
 
   void _logGlass(BuildContext context, NutritionViewModel nutrition) {
     final logged = nutrition.logWater();
+    final store = AppStoreScope.read(context);
     ToastScope.read(context).showUndo(
       context.l10n.waterLogged(millilitres: logged.millilitres ?? 0),
       onUndo: () => nutrition.deleteMeals([logged]),
+      onTap: () => store.openFromChrome(MealDetailScreen(meal: logged)),
     );
   }
 
