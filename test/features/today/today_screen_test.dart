@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/shared/format.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
 
@@ -28,6 +31,7 @@ void main() {
     );
     expect(find.text('今天的紀錄'), findsNothing);
     expect(find.byType(IntakeCard), findsNothing, reason: 'not 0 kcal');
+    expect(find.byType(CaffeineCard), findsNothing, reason: 'not 0 mg');
     expect(find.text('沒有紀錄'), findsWidgets);
     expect(find.textContaining('0 kcal'), findsNothing);
     await disposeTree(tester);
@@ -64,6 +68,34 @@ void main() {
     expect(find.text('睡眠'), findsNothing, reason: 'the module is off');
     expect(find.text('體重'), findsOneWidget);
     expect(find.text('今天的紀錄'), findsNothing, reason: 'hidden');
+    await disposeTree(tester);
+  });
+
+  testWidgets('caffeine drunk today shows as a falling curve', (tester) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    final at = store.now().subtract(const Duration(hours: 5));
+    store.backend.nutrition.logMeal(
+      MealEvent(
+        id: 'coffee',
+        name: '美式',
+        timeLabel: formatTimeOfDay(at),
+        qualityTag: '手動',
+        dishes: const [],
+        kind: ConsumptionKind.beverage,
+        nutrients: const {Nutrient.caffeine: 200},
+      ),
+      eatenAt: at,
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    await tester.scrollUntilVisible(find.byType(CaffeineCard), 200);
+    expect(
+      find.text('100 mg', findRichText: true),
+      findsOneWidget,
+      reason: 'half of it after one half-life',
+    );
+    expect(find.byType(CurveChart), findsOneWidget);
     await disposeTree(tester);
   });
 

@@ -4390,6 +4390,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String caffeineReference({required String mg}) {
+    return '$mg mg 參考';
+  }
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 推算';
   }
@@ -5130,7 +5135,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get refUse22 => '半衰期因人而異，推算值不是量測';
 
   @override
-  String get refUse23 => '不設就寢前的咖啡因門檻';
+  String get refUse23 => '睡前 4 小時 100 mg 未測得影響，參考線不是安全門檻';
+
+  @override
+  String get refUse46 => '35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算';
 
   @override
   String get refUse24 => '未設定目標時以每晚 8 小時計（共識為 7 小時以上）';
@@ -10033,6 +10041,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
+  String caffeineReference({required String mg}) {
+    return '$mg mg 参考';
+  }
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 推算';
   }
@@ -10773,7 +10786,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get refUse22 => '半衰期因人而异，推算值不是测量';
 
   @override
-  String get refUse23 => '不设就寝前的咖啡因门槛';
+  String get refUse23 => '睡前 4 小时 100 mg 未测得影响，参考线不是安全门槛';
+
+  @override
+  String get refUse46 => '35 mg 参考线由睡前 8.8 小时 107 mg、13.2 小时 217.5 mg 推算';
 
   @override
   String get refUse24 => '未设置目标时以每晚 8 小时计（共识为 7 小时以上）';

@@ -4397,6 +4397,11 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String caffeineReference({required String mg}) {
+    return '$mg mg 目安';
+  }
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 算出';
   }
@@ -5136,7 +5141,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get refUse22 => '半減期には個人差があり、算出値は測定値ではない';
 
   @override
-  String get refUse23 => '就寝前のカフェインの閾値は設けない';
+  String get refUse23 => '就寝 4 時間前の 100 mg で影響なし。目安は安全な閾値ではない';
+
+  @override
+  String get refUse46 => '35 mg の目安は就寝 8.8 時間前の 107 mg、13.2 時間前の 217.5 mg から推算';
 
   @override
   String get refUse24 => '目標未設定時は1晩8時間で計算（合意は7時間以上）';

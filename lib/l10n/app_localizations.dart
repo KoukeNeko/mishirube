@@ -7678,6 +7678,12 @@ abstract class AppLocalizations {
   /// **'依半衰期 {hours} 小時推算'**
   String halfLifeBasis({required String hours});
 
+  /// Label on the dashed bedtime reference line of the caffeine curve; mg is formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'{mg} mg 參考'**
+  String caffeineReference({required String mg});
+
   /// A figure worked out from others; value formatted.
   ///
   /// In zh, this message translates to:
@@ -8983,8 +8989,14 @@ abstract class AppLocalizations {
   /// What a reference supports.
   ///
   /// In zh, this message translates to:
-  /// **'不設就寢前的咖啡因門檻'**
+  /// **'睡前 4 小時 100 mg 未測得影響，參考線不是安全門檻'**
   String get refUse23;
+
+  /// What Gardiner et al. (2023) support.
+  ///
+  /// In zh, this message translates to:
+  /// **'35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算'**
+  String get refUse46;
 
   /// What a reference supports.
   ///

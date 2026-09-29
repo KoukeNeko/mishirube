@@ -1,4 +1,5 @@
 import '../../app/view_model.dart';
+import '../../backend/engines/caffeine.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../l10n/l10n.dart';
@@ -9,6 +10,7 @@ enum TodaySection {
   glance,
   activity,
   intake,
+  caffeine,
   week,
   records,
   insights;
@@ -17,6 +19,7 @@ enum TodaySection {
     glance => l10n.todaySectionGlance,
     activity => l10n.todaySectionActivity,
     intake => l10n.moduleNutrition,
+    caffeine => l10n.nutrientCaffeine,
     week => l10n.todaySectionWeek,
     records => l10n.todaySectionRecords,
     insights => l10n.todaySectionInsights,
@@ -76,6 +79,28 @@ class TodayViewModel extends ViewModel {
   /// [metric] hour by hour today; null without a reading.
   List<double>? activityHours(ActivityMetric metric) =>
       backend.activity.hourly(metric, _today);
+
+  /// The caffeine likely still in the body from eight hours ago to
+  /// sixteen ahead, and where now falls on it; null when none of it
+  /// comes to a milligram.
+  ({List<(DateTime, double)> curve, int nowIndex})? get caffeine {
+    final at = now();
+    final from = at.subtract(const Duration(hours: 8));
+    const step = Duration(minutes: 10);
+    final curve = caffeineCurve(
+      caffeineIntakes(
+        backend.nutrition.between(from.subtract(const Duration(days: 1)), at),
+      ),
+      from: from,
+      to: at.add(const Duration(hours: 16)),
+      step: step,
+    );
+    if (!curve.any((point) => point.$2 >= 1)) return null;
+    return (
+      curve: curve,
+      nowIndex: at.difference(from).inMinutes ~/ step.inMinutes,
+    );
+  }
 
   /// Water drunk today.
   WaterLogged get water => summariseWater(backend.nutrition.mealsOn(_today));

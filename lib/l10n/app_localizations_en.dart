@@ -4455,6 +4455,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String caffeineReference({required String mg}) {
+    return '$mg mg reference';
+  }
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · worked out';
   }
@@ -5215,7 +5220,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Half-life varies by person; the figure is not a measurement';
 
   @override
-  String get refUse23 => 'No caffeine threshold before bed';
+  String get refUse23 =>
+      '100 mg 4 h before bed showed no effect; the reference is not a safe threshold';
+
+  @override
+  String get refUse46 =>
+      '35 mg reference worked out from 107 mg 8.8 h and 217.5 mg 13.2 h before bed';
 
   @override
   String get refUse24 => 'Without a goal, 8 hours a night (consensus is 7+)';

@@ -231,6 +231,11 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         use: l10n.refUse23,
         url: 'https://doi.org/10.1093/sleep/zsae230',
       ),
+      (
+        citation: 'Gardiner, C., Weakley, J., Burke, L. M., Roach, G. D., Sargent, C., Maniar, N., Townshend, A., & Halson, S. L. (2023). The effect of caffeine on subsequent sleep: A systematic review and meta-analysis. Sleep Medicine Reviews, 69, Article 101764.',
+        use: l10n.refUse46,
+        url: 'https://doi.org/10.1016/j.smrv.2023.101764',
+      ),
     ],
   ),
   (

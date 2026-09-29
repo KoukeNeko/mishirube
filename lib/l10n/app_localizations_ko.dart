@@ -4398,6 +4398,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String caffeineReference({required String mg}) {
+    return '$mg mg 참고';
+  }
+
+  @override
   String workedOutValue({required String value}) {
     return '$value · 계산값';
   }
@@ -5138,7 +5143,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get refUse22 => '반감기는 사람마다 달라 계산값은 측정값이 아님';
 
   @override
-  String get refUse23 => '취침 전 카페인 기준은 두지 않음';
+  String get refUse23 => '취침 4시간 전 100 mg은 영향 없음. 참고선은 안전 기준이 아님';
+
+  @override
+  String get refUse46 => '35 mg 참고선은 취침 8.8시간 전 107 mg, 13.2시간 전 217.5 mg에서 추산';
 
   @override
   String get refUse24 => '목표가 없으면 하룻밤 8시간 기준(합의는 7시간 이상)';

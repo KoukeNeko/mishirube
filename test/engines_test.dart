@@ -2024,6 +2024,37 @@ void main() {
       );
     });
 
+    test('the bedtime reference is what the model leaves of the timing '
+        'a meta-analysis found safe for total sleep time', () {
+      // Gardiner et al. 2023: 107 mg at least 8.8 h, 217.5 mg at least
+      // 13.2 h before bed.
+      for (final (mg, hours) in [(107.0, 8.8), (217.5, 13.2)]) {
+        final left = estimatedCaffeineRemaining([
+          intake(mg, Duration(minutes: (hours * 60).round())),
+        ], now: clock.now());
+        expect(left, lessThanOrEqualTo(caffeineBedtimeReferenceMg));
+        expect(left, greaterThan(caffeineBedtimeReferenceMg - 4));
+      }
+    });
+
+    test('the curve is the estimate at each step, now included', () {
+      final doses = [intake(200, const Duration(hours: 2))];
+      final curve = caffeineCurve(
+        doses,
+        from: clock.now().subtract(const Duration(hours: 3)),
+        to: clock.now().add(const Duration(hours: 5)),
+        step: const Duration(hours: 1),
+      );
+
+      expect(curve, hasLength(9));
+      expect(curve.first.$2, 0, reason: 'before the cup');
+      expect(
+        curve[3].$2,
+        closeTo(estimatedCaffeineRemaining(doses, now: clock.now()), 0.001),
+      );
+      expect(curve.last.$2, lessThan(curve[3].$2), reason: 'it falls away');
+    });
+
     test('caffeine not yet drunk is not counted', () {
       final remaining = estimatedCaffeineRemaining([
         CaffeineIntake(

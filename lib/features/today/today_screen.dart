@@ -204,6 +204,16 @@ class TodayScreen extends StatelessWidget {
             onTap: () => pushPage(context, const DailyNutritionScreen()),
           ),
         ),
+      if (!hidden.contains(TodaySection.caffeine) &&
+          modules.contains(AppModule.nutrition))
+        if (today.caffeine case (:final curve, :final nowIndex))
+          Gutter(
+            child: CaffeineCard(
+              curve: curve,
+              nowIndex: nowIndex,
+              onTap: () => pushPage(context, const DailyNutritionScreen()),
+            ),
+          ),
       if (!hidden.contains(TodaySection.week) &&
           (modules.contains(AppModule.training) ||
               modules.contains(AppModule.activity)))

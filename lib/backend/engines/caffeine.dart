@@ -15,6 +15,17 @@ const caffeineEngineVersion = 1;
 /// something the user could calibrate.
 const caffeineHalfLifeHours = 5.0;
 
+/// What this model leaves at bedtime from the timing a meta-analysis
+/// found keeps total sleep time from falling: 107 mg at least 8.8 h
+/// before bed, or 217.5 mg at least 13.2 h before (Gardiner et al.,
+/// 2023, Sleep Med Rev 69:101764, PMID 36870101). At
+/// [caffeineHalfLifeHours] those leave 31.6 and 34.9 mg.
+///
+/// Worked out here, not measured: the study set no residual threshold,
+/// and clearance and sensitivity vary from person to person. It is drawn
+/// as a dashed reference, never as a safe line.
+const caffeineBedtimeReferenceMg = 35.0;
+
 /// One recorded caffeine intake.
 class CaffeineIntake {
   const CaffeineIntake({required this.at, required this.milligrams});
@@ -31,10 +42,10 @@ class CaffeineIntake {
 /// this particular person, which is why nothing here is a measurement.
 ///
 /// **This is an estimate, never a reading.** It must not become a
-/// bedtime threshold or a budget for another cup: there is no validated
-/// residual figure below which sleep is unaffected, and trials find
-/// 400 mg twelve hours before bed still changes sleep while 100 mg four
-/// hours before does not.
+/// budget for another cup, and no residual figure is a validated line
+/// below which sleep is unaffected: trials find 400 mg twelve hours
+/// before bed still changes sleep while 100 mg four hours before does
+/// not. [caffeineBedtimeReferenceMg] is a reference, not such a line.
 double estimatedCaffeineRemaining(
   Iterable<CaffeineIntake> intakes, {
   required DateTime now,
@@ -55,4 +66,24 @@ List<CaffeineIntake> caffeineIntakes(Iterable<(DateTime, MealEvent)> meals) => [
   for (final (at, meal) in meals)
     if (meal.nutrients[Nutrient.caffeine] case final milligrams?)
       CaffeineIntake(at: at, milligrams: milligrams),
+];
+
+/// [estimatedCaffeineRemaining] every [step] from [from] to [to], both
+/// included: the curve the estimate draws, past and still to come.
+List<(DateTime, double)> caffeineCurve(
+  Iterable<CaffeineIntake> intakes, {
+  required DateTime from,
+  required DateTime to,
+  Duration step = const Duration(minutes: 10),
+  double halfLifeHours = caffeineHalfLifeHours,
+}) => [
+  for (var at = from; !at.isAfter(to); at = at.add(step))
+    (
+      at,
+      estimatedCaffeineRemaining(
+        intakes,
+        now: at,
+        halfLifeHours: halfLifeHours,
+      ),
+    ),
 ];

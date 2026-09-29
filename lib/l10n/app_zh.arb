@@ -6686,6 +6686,15 @@
       }
     }
   },
+  "caffeineReference": "{mg} mg 參考",
+  "@caffeineReference": {
+    "description": "Label on the dashed bedtime reference line of the caffeine curve; mg is formatted.",
+    "placeholders": {
+      "mg": {
+        "type": "String"
+      }
+    }
+  },
   "workedOutValue": "{value} · 推算",
   "@workedOutValue": {
     "description": "A figure worked out from others; value formatted.",
@@ -7795,9 +7804,13 @@
   "@refUse22": {
     "description": "What a reference supports."
   },
-  "refUse23": "不設就寢前的咖啡因門檻",
+  "refUse23": "睡前 4 小時 100 mg 未測得影響，參考線不是安全門檻",
   "@refUse23": {
     "description": "What a reference supports."
+  },
+  "refUse46": "35 mg 參考線由睡前 8.8 小時 107 mg、13.2 小時 217.5 mg 推算",
+  "@refUse46": {
+    "description": "What Gardiner et al. (2023) support."
   },
   "refUse24": "未設定目標時以每晚 8 小時計（共識為 7 小時以上）",
   "@refUse24": {

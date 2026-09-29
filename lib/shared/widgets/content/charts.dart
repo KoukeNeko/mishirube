@@ -399,3 +399,170 @@ class _RangeBarPainter extends CustomPainter {
   bool shouldRepaint(_RangeBarPainter old) =>
       old.ranges != ranges || old.color != color || old.selected != selected;
 }
+
+/// A quantity over time from zero up, filled beneath its line: what has
+/// happened up to [nowIndex] drawn solid, what is still to come fainter,
+/// and a dot on now. A [reference] is a dashed level named by
+/// [referenceLabel], drawn only while it fits under the curve's peak so
+/// it never stretches the axis. [start] and [end] sit under the axis.
+class CurveChart extends StatelessWidget {
+  const CurveChart({
+    super.key,
+    required this.values,
+    required this.nowIndex,
+    required this.color,
+    required this.start,
+    required this.end,
+    this.reference,
+    this.referenceLabel,
+    this.height = 120,
+  });
+
+  final List<double> values;
+  final int nowIndex;
+  final Color color;
+  final String start;
+  final String end;
+  final double? reference;
+  final String? referenceLabel;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: height,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _CurvePainter(
+              values: values,
+              nowIndex: nowIndex,
+              color: color,
+              reference: reference,
+              referenceLabel: referenceLabel,
+              labelStyle: AppTextStyles.caption,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          children: [
+            Text(start, style: AppTextStyles.caption),
+            const Spacer(),
+            Text(end, style: AppTextStyles.caption),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _CurvePainter extends CustomPainter {
+  _CurvePainter({
+    required this.values,
+    required this.nowIndex,
+    required this.color,
+    required this.reference,
+    required this.referenceLabel,
+    required this.labelStyle,
+  });
+
+  static const _nowRadius = 4.5;
+  static const _dash = 5.0;
+  static const _gap = 4.0;
+
+  final List<double> values;
+  final int nowIndex;
+  final Color color;
+  final double? reference;
+  final String? referenceLabel;
+  final TextStyle labelStyle;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.length < 2) return;
+    final peak = values.reduce((a, b) => a > b ? a : b);
+    if (peak <= 0) return;
+    final top = _nowRadius;
+    final bottom = size.height;
+    double xOf(int index) => index * size.width / (values.length - 1);
+    double yOf(double value) => bottom - value / peak * (bottom - top);
+
+    Path lineThrough(int from, int to) {
+      final path = Path()..moveTo(xOf(from), yOf(values[from]));
+      for (var i = from + 1; i <= to; i++) {
+        path.lineTo(xOf(i), yOf(values[i]));
+      }
+      return path;
+    }
+
+    final now = nowIndex.clamp(0, values.length - 1);
+    final area = lineThrough(0, values.length - 1)
+      ..lineTo(size.width, bottom)
+      ..lineTo(0, bottom)
+      ..close();
+    canvas.drawPath(
+      area,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [color.withValues(alpha: 0.32), color.withValues(alpha: 0)],
+        ).createShader(Rect.fromLTRB(0, top, size.width, bottom)),
+    );
+
+    Paint stroke(double alpha) => Paint()
+      ..color = color.withValues(alpha: alpha)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+    if (now > 0) canvas.drawPath(lineThrough(0, now), stroke(1));
+    if (now < values.length - 1) {
+      canvas.drawPath(lineThrough(now, values.length - 1), stroke(0.45));
+    }
+
+    if (reference case final level? when level > 0 && level <= peak) {
+      final y = yOf(level);
+      final dash = Paint()
+        ..color = AppColors.textSecondary
+        ..strokeWidth = 1;
+      for (var x = 0.0; x < size.width; x += _dash + _gap) {
+        canvas.drawLine(
+          Offset(x, y),
+          Offset((x + _dash).clamp(0, size.width), y),
+          dash,
+        );
+      }
+      if (referenceLabel case final label?) {
+        final text = TextPainter(
+          text: TextSpan(text: label, style: labelStyle),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        // Above the line at the right end, below it when there is no room.
+        final above = y - text.height - 2;
+        text.paint(
+          canvas,
+          Offset(size.width - text.width, above >= 0 ? above : y + 2),
+        );
+      }
+    }
+
+    final point = Offset(xOf(now), yOf(values[now]));
+    canvas.drawCircle(
+      point,
+      _nowRadius + 2,
+      Paint()..color = AppColors.surface,
+    );
+    canvas.drawCircle(point, _nowRadius, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_CurvePainter old) =>
+      old.values != values ||
+      old.nowIndex != nowIndex ||
+      old.color != color ||
+      old.reference != reference ||
+      old.referenceLabel != referenceLabel;
+}
