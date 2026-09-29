@@ -85,6 +85,16 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           if (meal.amount.isNotEmpty) meal.amount,
         ].join(' · '),
         actions: [
+          // The star the meal's row in 近期用餐 carries, kept here too, so
+          // it does not have to be found in the list to be changed.
+          HeaderAction(
+            icon: meal.isFavorite ? Icons.star : Icons.star_border,
+            semanticLabel: meal.isFavorite
+                ? context.l10n.removeFavorite
+                : context.l10n.addFavorite,
+            onTap: () =>
+                _nutrition.setMealFavorite(meal, isFavorite: !meal.isFavorite),
+          ),
           HeaderAction(
             icon: Icons.edit_outlined,
             semanticLabel: context.l10n.editThisMeal,

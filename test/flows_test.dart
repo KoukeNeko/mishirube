@@ -3104,6 +3104,41 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a meal is starred from its page, as from its row', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    final meal = nutrition.logMeal(
+      const MealEvent(
+        id: 'toast',
+        name: '吐司',
+        timeLabel: '08:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 180,
+      ),
+      eatenAt: store.now(),
+    );
+    await _openFromHost(tester, MealDetailScreen(meal: meal), store);
+
+    await tester.tap(find.bySemanticsLabel('加入收藏'));
+    await tester.pumpAndSettle();
+    expect(
+      nutrition.mealById(meal.id)!.isFavorite,
+      isTrue,
+      reason: 'kept, not only on screen',
+    );
+    expect(find.bySemanticsLabel('取消收藏'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('取消收藏'));
+    await tester.pumpAndSettle();
+    expect(nutrition.mealById(meal.id)!.isFavorite, isFalse);
+    expect(find.bySemanticsLabel('加入收藏'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a logged meal is deleted from its page, undoably', (
     tester,
   ) async {
