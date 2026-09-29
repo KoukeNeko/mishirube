@@ -1246,6 +1246,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordDelete => 'Delete entry';
 
   @override
+  String get deleteMeasurement => 'Delete this measurement';
+
+  @override
   String get activityActiveTime => 'Workout time';
 
   @override

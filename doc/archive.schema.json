@@ -1143,6 +1143,12 @@
               "note": {
                 "type": "string"
               },
+              "sessionId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",
@@ -1802,6 +1808,12 @@
               },
               "note": {
                 "type": "string"
+              },
+              "sessionId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "localDay": {
                 "type": [

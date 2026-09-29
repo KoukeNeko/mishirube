@@ -35,6 +35,33 @@ class JournalViewModel extends ViewModel {
   Map<BodyMetric, BodyReading> get latestBodyReadings =>
       backend.journal.latestBodyReadings();
 
+  BodySession recordBodySession({
+    double? weightKg,
+    Map<BodyMetric, double> readings = const {},
+  }) =>
+      backend.journal.recordBodySession(weightKg: weightKg, readings: readings);
+
+  BodySession? bodySession(String sessionId) =>
+      backend.journal.bodySession(sessionId);
+
+  void updateBodySession(
+    BodySession session, {
+    double? weightKg,
+    Map<BodyMetric, double> readings = const {},
+  }) => backend.journal.updateBodySession(
+    session,
+    weightKg: weightKg,
+    readings: readings,
+  );
+
+  List<String> deleteBodySession(BodySession session) =>
+      backend.journal.deleteBodySession(session);
+
+  void restoreRecords(List<String> ids) => backend.journal.restoreRecords(ids);
+
+  /// The last weighing, to show beside the weight field.
+  BodyWeight? get latestWeight => backend.journal.weightOn(now());
+
   void recordBodyReadings(Map<BodyMetric, double> values) =>
       backend.journal.recordBodyReadings(values);
 

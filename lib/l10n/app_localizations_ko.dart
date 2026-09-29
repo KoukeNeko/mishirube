@@ -1242,6 +1242,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recordDelete => '이 기록 삭제';
 
   @override
+  String get deleteMeasurement => '이 측정 삭제';
+
+  @override
   String get activityActiveTime => '운동 시간';
 
   @override

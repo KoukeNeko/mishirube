@@ -1237,6 +1237,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recordDelete => '刪除這筆紀錄';
 
   @override
+  String get deleteMeasurement => '刪除這次量測';
+
+  @override
   String get activityActiveTime => '運動時間';
 
   @override
@@ -6889,6 +6892,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get recordDelete => '删除这笔记录';
+
+  @override
+  String get deleteMeasurement => '删除这次测量';
 
   @override
   String get activityActiveTime => '运动时间';

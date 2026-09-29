@@ -27,6 +27,7 @@ import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
+import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
@@ -1122,6 +1123,11 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('拍照讀取身體組成'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('照片讀到 2 項，請核對'),
+      200,
+      scrollable: _pageScroll,
+    );
     expect(find.text('照片讀到 2 項，請核對'), findsOneWidget);
     expect(
       store.backend.journal.latestBodyReadings(),
@@ -1171,6 +1177,41 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a scale\'s weight and figures are logged and kept as one', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    await pumpScreen(tester, const BodyReadingEntryScreen(), store: store);
+
+    await tester.enterText(find.byKey(const ValueKey('body-weight')), '72.4');
+    await tester.enterText(find.byKey(const ValueKey('body-bodyFat')), '17.8');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+    final weight = store.backend.journal.weightOn(store.now())!;
+    expect(weight.weightKg, 72.4);
+    final session = store.backend.journal.bodySession(weight.sessionId!)!;
+    expect(session.readings.single.metric, BodyMetric.bodyFat);
+    await disposeTree(tester);
+
+    await pumpScreen(
+      tester,
+      JournalDetailScreen(id: weight.id, at: weight.measuredAt),
+      store: store,
+    );
+    expect(find.text('72.4 kg'), findsOneWidget);
+    expect(find.text('17.8 %'), findsOneWidget, reason: 'read together');
+    await _tapText(tester, '刪除這次量測');
+    expect(store.backend.journal.bodySession(session.id), isNull);
+    expect(
+      store.backend.journal.latestBodyReadings()[BodyMetric.bodyFat],
+      isNull,
+      reason: 'the figures went with the weight',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a figure out of range is refused, not saved', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -1178,6 +1219,11 @@ void main() {
 
     await tester.enterText(find.byKey(const ValueKey('body-bodyFat')), '182');
     await _tapText(tester, '儲存');
+    await tester.scrollUntilVisible(
+      find.textContaining('體脂率請輸入'),
+      200,
+      scrollable: _pageScroll,
+    );
     expect(find.textContaining('體脂率請輸入'), findsOneWidget);
     expect(store.backend.journal.latestBodyReadings(), isEmpty);
     await disposeTree(tester);

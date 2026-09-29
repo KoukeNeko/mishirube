@@ -18,13 +18,14 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO body_weights (id, measured_at, weight_kg, note, '
-        'created_at, updated_at, source, local_day, utc_offset_minutes) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'session_id, created_at, updated_at, source, local_day, '
+        'utc_offset_minutes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           weight.id,
           weight.measuredAt.millisecondsSinceEpoch,
           weight.weightKg,
           weight.note,
+          weight.sessionId,
           now,
           now,
           source.name,
@@ -428,14 +429,15 @@ class JournalRepository {
       final now = _db.now().millisecondsSinceEpoch;
       _db.execute(
         'INSERT INTO body_readings (id, measured_at, metric, value, note, '
-        'created_at, updated_at, source, local_day, utc_offset_minutes) '
-        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'session_id, created_at, updated_at, source, local_day, '
+        'utc_offset_minutes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           reading.id,
           reading.measuredAt.millisecondsSinceEpoch,
           reading.metric.name,
           reading.value,
           reading.note,
+          reading.sessionId,
           now,
           now,
           source.name,
@@ -481,7 +483,38 @@ class JournalRepository {
     metric: BodyMetric.values.byName(row['metric']! as String),
     value: (row['value']! as num).toDouble(),
     note: row['note']! as String,
+    sessionId: row['session_id'] as String?,
   );
+
+  /// The live records of one body composition measurement; null when
+  /// none of it is left.
+  BodySession? session(String sessionId) {
+    final weights = [
+      for (final row in _db.select(
+        'SELECT * FROM body_weights WHERE session_id = ? '
+        'AND deleted_at IS NULL',
+        [sessionId],
+      ))
+        _weightFrom(row),
+    ];
+    final readings = [
+      for (final row in _db.select(
+        'SELECT * FROM body_readings WHERE session_id = ? '
+        'AND deleted_at IS NULL',
+        [sessionId],
+      ))
+        _bodyReadingFrom(row),
+    ]..sort((a, b) => a.metric.index.compareTo(b.metric.index));
+    final first =
+        weights.firstOrNull?.measuredAt ?? readings.firstOrNull?.measuredAt;
+    if (first == null) return null;
+    return BodySession(
+      id: sessionId,
+      measuredAt: first,
+      weight: weights.firstOrNull,
+      readings: readings,
+    );
+  }
 
   /// The last weighing before [end]; null when there is none.
   BodyWeight? latestWeightBefore(DateTime end) {
@@ -507,6 +540,7 @@ class JournalRepository {
     measuredAt: DateTime.fromMillisecondsSinceEpoch(row['measured_at']! as int),
     weightKg: (row['weight_kg']! as num).toDouble(),
     note: row['note']! as String,
+    sessionId: row['session_id'] as String?,
   );
 
   /// Check-ins recorded in `[start, end)`, oldest first.
@@ -743,19 +777,66 @@ class BodyWeightTimelineSource extends TimelineSource {
   }
 
   @override
-  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) => [
-    for (final (_, at, weight) in _weights(start, end))
-      (
-        at,
-        TimelineEntry(
-          timeLabel: formatTimeOfDay(at),
-          at: at,
-          recordId: weight.id,
-          category: RecordCategory.body,
-          title: l10n.timelineWeight(weight: _label(weight)),
-          detail: weight.note,
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) {
+    final weights = _weights(start, end);
+    final readings = _readings(start, end);
+    // A measurement's weight and figures are one row, as they were taken.
+    final sessions = <String, List<String>>{};
+    final sessionAt = <String, (DateTime, String)>{};
+    for (final (_, at, weight) in weights) {
+      if (weight.sessionId case final id?) {
+        sessions
+            .putIfAbsent(id, () => [])
+            .add('${l10n.moduleWeight} ${_label(weight)}');
+        sessionAt[id] = (at, weight.id);
+      }
+    }
+    for (final (_, at, reading) in readings) {
+      if (reading.sessionId case final id?) {
+        sessions.putIfAbsent(id, () => []).add(_reading(reading));
+        sessionAt.putIfAbsent(id, () => (at, reading.id));
+      }
+    }
+    return [
+      for (final MapEntry(key: id, value: figures) in sessions.entries)
+        (
+          sessionAt[id]!.$1,
+          TimelineEntry(
+            timeLabel: formatTimeOfDay(sessionAt[id]!.$1),
+            at: sessionAt[id]!.$1,
+            recordId: sessionAt[id]!.$2,
+            category: RecordCategory.body,
+            title: l10n.recordBodyComposition,
+            detail: figures.join(' · '),
+          ),
         ),
-      ),
+      ..._alone(weights, readings, start, end),
+    ];
+  }
+
+  String _reading(BodyReading reading) =>
+      '${reading.metric.labelIn(l10n)} ${formatAmount(reading.value)} '
+      '${reading.metric.unitIn(l10n)}';
+
+  List<(DateTime, TimelineEntry)> _alone(
+    List<(int, DateTime, BodyWeight)> weights,
+    List<(int, DateTime, BodyReading)> readings,
+    DateTime start,
+    DateTime end,
+  ) => [
+    for (final (_, at, weight) in weights)
+      if (weight.sessionId == null)
+        (
+          at,
+          TimelineEntry(
+            timeLabel: formatTimeOfDay(at),
+            at: at,
+            recordId: weight.id,
+            category: RecordCategory.body,
+            title: l10n.timelineWeight(weight: _label(weight)),
+            detail: weight.note,
+          ),
+        ),
     for (final (_, at, measurement) in _measurements(start, end))
       (
         at,
@@ -768,20 +849,19 @@ class BodyWeightTimelineSource extends TimelineSource {
           detail: measurement.note,
         ),
       ),
-    for (final (_, at, reading) in _readings(start, end))
-      (
-        at,
-        TimelineEntry(
-          timeLabel: formatTimeOfDay(at),
-          at: at,
-          recordId: reading.id,
-          category: RecordCategory.body,
-          title:
-              '${reading.metric.labelIn(l10n)} ${formatAmount(reading.value)} '
-              '${reading.metric.unitIn(l10n)}',
-          detail: reading.note,
+    for (final (_, at, reading) in readings)
+      if (reading.sessionId == null)
+        (
+          at,
+          TimelineEntry(
+            timeLabel: formatTimeOfDay(at),
+            at: at,
+            recordId: reading.id,
+            category: RecordCategory.body,
+            title: _reading(reading),
+            detail: reading.note,
+          ),
         ),
-      ),
   ];
 
   List<(int, DateTime, BodyReading)> _readings(DateTime start, DateTime end) =>

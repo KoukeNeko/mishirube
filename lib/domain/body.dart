@@ -24,12 +24,17 @@ class BodyWeight {
     required this.measuredAt,
     required this.weightKg,
     this.note = '',
+    this.sessionId,
   });
 
   final String id;
   final DateTime measuredAt;
   final double weightKg;
   final String note;
+
+  /// The body composition measurement it was weighed in, shared with that
+  /// measurement's [BodyReading]s; null for a weighing on its own.
+  final String? sessionId;
 }
 
 /// A body figure other than weight and girth: height, and what a body
@@ -61,6 +66,7 @@ class BodyReading {
     required this.metric,
     required this.value,
     this.note = '',
+    this.sessionId,
   });
 
   final String id;
@@ -68,6 +74,29 @@ class BodyReading {
   final BodyMetric metric;
   final double value;
   final String note;
+
+  /// The measurement it was read in, as one scale gives its figures
+  /// together with the weight; null for one taken on its own.
+  final String? sessionId;
+}
+
+/// What one body composition measurement recorded: the weight and each
+/// figure, taken at once and kept together.
+class BodySession {
+  const BodySession({
+    required this.id,
+    required this.measuredAt,
+    this.weight,
+    this.readings = const [],
+  });
+
+  final String id;
+  final DateTime measuredAt;
+  final BodyWeight? weight;
+  final List<BodyReading> readings;
+
+  /// Every record in it, weight first, for deleting or restoring it whole.
+  List<String> get recordIds => [?weight?.id, for (final r in readings) r.id];
 }
 
 /// Sex as the energy equations take it: they differ by a constant, and

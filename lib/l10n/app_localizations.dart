@@ -2438,6 +2438,12 @@ abstract class AppLocalizations {
   /// **'刪除這筆紀錄'**
   String get recordDelete;
 
+  /// Deletes a whole body composition measurement: its weight and every figure.
+  ///
+  /// In zh, this message translates to:
+  /// **'刪除這次量測'**
+  String get deleteMeasurement;
+
   /// Time spent moving in an activity.
   ///
   /// In zh, this message translates to:

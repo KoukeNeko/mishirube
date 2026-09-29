@@ -23,19 +23,26 @@ const _ranges = {
   BodyMetric.basalMetabolicRate: (500.0, 4000.0),
 };
 
+/// A weighing, as a body composition scale gives it with the rest.
+const _weightRange = (20.0, 400.0);
+
 /// Logging height or what a body composition scale showed. Only the
-/// figures filled in are saved, all at the same moment, as a scale gives
-/// them.
+/// figures filled in are saved; a measurement's weight and figures are
+/// saved as one, at the same moment, as the scale gave them.
 class BodyReadingEntryScreen extends StatefulWidget {
   const BodyReadingEntryScreen({
     super.key,
     this.editing,
+    this.session,
     this.only,
     this.takePhoto,
   });
 
   /// One reading to correct; only its figure is shown.
   final BodyReading? editing;
+
+  /// A whole measurement to correct: its weight and every figure.
+  final BodySession? session;
 
   /// A single figure to log, such as height; every figure when null.
   final BodyMetric? only;
@@ -53,9 +60,33 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
   late final _fields = {
     for (final metric in _metrics)
       metric: TextEditingController(
-        text: widget.editing == null ? '' : formatAmount(widget.editing!.value),
+        text: switch ((widget.editing, _sessionValue(metric))) {
+          (final editing?, _) => formatAmount(editing.value),
+          (_, final value?) => formatAmount(value),
+          _ => '',
+        },
       ),
   };
+
+  /// The weight a measurement is logged with; null when only a figure or
+  /// a single reading is being entered.
+  late final TextEditingController? _weight = _isMeasurement
+      ? TextEditingController(
+          text: switch (widget.session?.weight) {
+            final weight? => formatWeight(weight.weightKg),
+            null => '',
+          },
+        )
+      : null;
+
+  bool get _isMeasurement => widget.editing == null && widget.only == null;
+
+  double? _sessionValue(BodyMetric metric) => widget.session?.readings
+      .where((reading) => reading.metric == metric)
+      .firstOrNull
+      ?.value;
+
+  late final BodyWeight? _lastWeight = _journal.latestWeight;
   String? _error;
 
   /// How many figures the last photo filled in, for the note to check
@@ -78,6 +109,7 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
   @override
   void dispose() {
     _journal.dispose();
+    _weight?.dispose();
     for (final controller in _fields.values) {
       controller.dispose();
     }
@@ -122,6 +154,23 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
   }
 
   void _save() {
+    double? weightKg;
+    if (_weight?.text.trim() case final text? when text.isNotEmpty) {
+      final value = double.tryParse(text);
+      final (low, high) = _weightRange;
+      if (value == null || value < low || value > high) {
+        setState(
+          () => _error = context.l10n.valueRangeError(
+            field: context.l10n.moduleWeight,
+            min: formatAmount(low),
+            max: formatAmount(high),
+            unit: 'kg',
+          ),
+        );
+        return;
+      }
+      weightKg = value;
+    }
     final entered = <BodyMetric, double>{};
     for (final MapEntry(key: metric, value: field) in _fields.entries) {
       final text = field.text.trim();
@@ -141,11 +190,34 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
       }
       entered[metric] = value;
     }
-    if (entered.isEmpty) {
+    if (entered.isEmpty && weightKg == null) {
       setState(() => _error = context.l10n.fillAtLeastOne);
       return;
     }
     final editing = widget.editing;
+    if (_isMeasurement) {
+      final count = entered.length + (weightKg == null ? 0 : 1);
+      if (widget.session case final session?) {
+        _journal.updateBodySession(
+          session,
+          weightKg: weightKg,
+          readings: entered,
+        );
+      } else {
+        _journal.recordBodySession(weightKg: weightKg, readings: entered);
+      }
+      Navigator.of(context).pop();
+      showToast(
+        context,
+        widget.session == null
+            ? context.l10n.loggedItemsCount(count: count)
+            : context.l10n.updatedNamed(
+                name: context.l10n.recordBodyComposition,
+              ),
+        kind: ToastKind.success,
+      );
+      return;
+    }
     if (editing != null) {
       final value = entered[editing.metric]!;
       _journal.updateBodyReading(
@@ -196,6 +268,23 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
       ),
       footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
+        if (_weight case final weight?)
+          Gutter(
+            child: NumberFieldRow(
+              fieldKey: const ValueKey('body-weight'),
+              label: context.l10n.moduleWeight,
+              unit: 'kg',
+              controller: weight,
+              caption: switch (_lastWeight) {
+                final last? when widget.session == null =>
+                  context.l10n.lastReadingOn(
+                    value: '${formatWeight(last.weightKg)} kg',
+                    date: context.dates.compactMonthDay(last.measuredAt),
+                  ),
+                _ => null,
+              },
+            ),
+          ),
         for (final metric in metrics)
           Gutter(
             child: NumberFieldRow(
@@ -204,12 +293,13 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
               unit: metric.unitIn(context.l10n),
               controller: _fields[metric]!,
               caption: switch (_previous[metric]) {
-                final last? => context.l10n.lastReadingOn(
-                  value:
-                      '${formatAmount(last.value)} ${metric.unitIn(context.l10n)}',
-                  date: context.dates.compactMonthDay(last.measuredAt),
-                ),
-                null => null,
+                final last? when widget.session == null =>
+                  context.l10n.lastReadingOn(
+                    value:
+                        '${formatAmount(last.value)} ${metric.unitIn(context.l10n)}',
+                    date: context.dates.compactMonthDay(last.measuredAt),
+                  ),
+                _ => null,
               },
             ),
           ),

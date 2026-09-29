@@ -534,6 +534,17 @@ final List<String> _migrations = [
   );
   CREATE INDEX notes_day ON notes(local_day) WHERE deleted_at IS NULL;
   ''',
+  // One body composition measurement: its weight and each figure share a
+  // session id, so it opens, is corrected and goes as one. Records from
+  // before are left without one rather than grouped by a guess.
+  '''
+  ALTER TABLE body_weights ADD COLUMN session_id TEXT;
+  ALTER TABLE body_readings ADD COLUMN session_id TEXT;
+  CREATE INDEX body_weights_session ON body_weights(session_id)
+    WHERE session_id IS NOT NULL;
+  CREATE INDEX body_readings_session ON body_readings(session_id)
+    WHERE session_id IS NOT NULL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

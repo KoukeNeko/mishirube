@@ -389,6 +389,7 @@
   "activityEdit": "内容を編集",
   "activityEditDetail": "種類・時刻・時間",
   "recordDelete": "この記録を削除",
+  "deleteMeasurement": "この測定を削除",
   "activityActiveTime": "運動時間",
   "activityDistance": "距離",
   "activityTotalEnergy": "総消費エネルギー",

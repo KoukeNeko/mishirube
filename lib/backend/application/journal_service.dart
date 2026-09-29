@@ -93,6 +93,134 @@ class JournalService {
     return readings;
   }
 
+  /// One body composition measurement: the weight, when given, and each
+  /// figure, all at [at] and under one session so they stay together.
+  BodySession recordBodySession({
+    double? weightKg,
+    Map<BodyMetric, double> readings = const {},
+    DateTime? at,
+  }) {
+    final id = _db.newId();
+    final measuredAt = at ?? _db.now();
+    final session = BodySession(
+      id: id,
+      measuredAt: measuredAt,
+      weight: weightKg == null
+          ? null
+          : BodyWeight(
+              id: _db.newId(),
+              measuredAt: measuredAt,
+              weightKg: weightKg,
+              sessionId: id,
+            ),
+      readings: [
+        for (final MapEntry(key: metric, value: value) in readings.entries)
+          BodyReading(
+            id: _db.newId(),
+            measuredAt: measuredAt,
+            metric: metric,
+            value: value,
+            sessionId: id,
+          ),
+      ],
+    );
+    _db.transaction(() {
+      if (session.weight case final weight?) _journal.addWeight(weight);
+      for (final reading in session.readings) {
+        _journal.addBodyReading(reading);
+      }
+    });
+    return session;
+  }
+
+  /// The live records of a measurement; null once none is left.
+  BodySession? bodySession(String sessionId) => _journal.session(sessionId);
+
+  /// Corrects [session] to [weightKg] and [readings]: a changed figure is
+  /// edited, a new one joins the measurement at its time, and one left
+  /// out is deleted. Its time stays as it was.
+  void updateBodySession(
+    BodySession session, {
+    double? weightKg,
+    Map<BodyMetric, double> readings = const {},
+  }) {
+    _db.transaction(() {
+      switch ((session.weight, weightKg)) {
+        case (final old?, final kg?) when old.weightKg != kg:
+          _journal.updateWeight(
+            BodyWeight(
+              id: old.id,
+              measuredAt: old.measuredAt,
+              weightKg: kg,
+              note: old.note,
+              sessionId: old.sessionId,
+            ),
+          );
+        case (final old?, null):
+          _journal.delete(old.id);
+        case (null, final kg?):
+          _journal.addWeight(
+            BodyWeight(
+              id: _db.newId(),
+              measuredAt: session.measuredAt,
+              weightKg: kg,
+              sessionId: session.id,
+            ),
+          );
+        default:
+      }
+      final before = {
+        for (final reading in session.readings) reading.metric: reading,
+      };
+      for (final metric in {...before.keys, ...readings.keys}) {
+        switch ((before[metric], readings[metric])) {
+          case (final old?, final value?) when old.value != value:
+            _journal.updateBodyReading(
+              BodyReading(
+                id: old.id,
+                measuredAt: old.measuredAt,
+                metric: metric,
+                value: value,
+                note: old.note,
+                sessionId: old.sessionId,
+              ),
+            );
+          case (final old?, null):
+            _journal.delete(old.id);
+          case (null, final value?):
+            _journal.addBodyReading(
+              BodyReading(
+                id: _db.newId(),
+                measuredAt: session.measuredAt,
+                metric: metric,
+                value: value,
+                sessionId: session.id,
+              ),
+            );
+          default:
+        }
+      }
+    });
+  }
+
+  /// Deletes every live record of [session] at once; the ids go back to
+  /// [restoreRecords] to take it back.
+  List<String> deleteBodySession(BodySession session) {
+    final ids = session.recordIds;
+    _db.transaction(() {
+      for (final id in ids) {
+        _journal.delete(id);
+      }
+    });
+    return ids;
+  }
+
+  void restoreRecords(List<String> ids) => _db.transaction(() {
+    for (final id in ids) {
+      _journal.restore(id);
+    }
+  });
+
   Map<BodyMetric, BodyReading> latestBodyReadings() =>
       _journal.latestBodyReadings();
 

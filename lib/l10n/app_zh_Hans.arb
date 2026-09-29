@@ -389,6 +389,7 @@
   "activityEdit": "编辑内容",
   "activityEditDetail": "类型、时间、时长",
   "recordDelete": "删除这笔记录",
+  "deleteMeasurement": "删除这次测量",
   "activityActiveTime": "运动时间",
   "activityDistance": "距离",
   "activityTotalEnergy": "总能量",

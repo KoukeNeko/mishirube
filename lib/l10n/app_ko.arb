@@ -389,6 +389,7 @@
   "activityEdit": "내용 편집",
   "activityEditDetail": "종류, 시간, 길이",
   "recordDelete": "이 기록 삭제",
+  "deleteMeasurement": "이 측정 삭제",
   "activityActiveTime": "운동 시간",
   "activityDistance": "거리",
   "activityTotalEnergy": "총 에너지",

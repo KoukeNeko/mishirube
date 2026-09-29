@@ -2766,6 +2766,68 @@ void main() {
       );
     });
 
+    test('a scale\'s weight and figures are one measurement', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final session = backend.journal.recordBodySession(
+        weightKg: 72.4,
+        readings: {BodyMetric.bodyFat: 17.8, BodyMetric.skeletalMuscle: 33.1},
+      );
+
+      final reopened = backend.journal.bodySession(session.id)!;
+      expect(reopened.weight!.weightKg, 72.4);
+      expect(reopened.readings.map((r) => r.metric), [
+        BodyMetric.bodyFat,
+        BodyMetric.skeletalMuscle,
+      ]);
+      expect(
+        backend.journal.weightOn(clock.now())!.weightKg,
+        72.4,
+        reason: 'its weight is a weighing like any other',
+      );
+      final rows = backend.timeline
+          .month(DateTime(2026, 9))
+          .days
+          .expand((day) => day.entries)
+          .where((e) => e.title == '身體組成')
+          .toList();
+      expect(rows, hasLength(1), reason: 'one row, not three');
+      expect(rows.single.detail, contains('體重 72.4 kg'));
+    });
+
+    test('a measurement is corrected and deleted as one', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final journal = backend.journal;
+      final session = journal.recordBodySession(
+        weightKg: 72.4,
+        readings: {BodyMetric.bodyFat: 17.8, BodyMetric.boneMass: 3.1},
+      );
+
+      journal.updateBodySession(
+        session,
+        weightKg: 72.0,
+        readings: {BodyMetric.bodyFat: 18, BodyMetric.skeletalMuscle: 33},
+      );
+      final corrected = journal.bodySession(session.id)!;
+      expect(corrected.weight!.weightKg, 72.0);
+      expect(
+        {for (final r in corrected.readings) r.metric: r.value},
+        {BodyMetric.bodyFat: 18, BodyMetric.skeletalMuscle: 33},
+        reason: 'changed, added, and the cleared bone mass gone',
+      );
+      expect(
+        corrected.readings.every((r) => r.measuredAt == session.measuredAt),
+        isTrue,
+        reason: 'a figure added later still belongs to that moment',
+      );
+
+      final ids = journal.deleteBodySession(corrected);
+      expect(journal.bodySession(session.id), isNull);
+      journal.restoreRecords(ids);
+      expect(journal.bodySession(session.id)!.recordIds, hasLength(3));
+    });
+
     test('a later measurement replaces the one shown as last', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
@@ -3287,6 +3349,11 @@ void main() {
         BodyMetric.height: 175,
         BodyMetric.bodyFat: 18.2,
       });
+      // A scale's weight and figures, kept as one measurement.
+      source.backend.journal.recordBodySession(
+        weightKg: 72.4,
+        readings: {BodyMetric.skeletalMuscle: 33.1},
+      );
       source
         ..backend.nutrition.saveFood(
           FoodItem(
@@ -3323,7 +3390,15 @@ void main() {
       final roundTripped = exportArchive(target.db);
 
       expect(roundTripped, archive);
-      expect((archive['data'] as Map)['bodyReadings'], hasLength(2));
+      expect((archive['data'] as Map)['bodyReadings'], hasLength(3));
+      expect(
+        [
+          for (final row in (archive['data'] as Map)['bodyReadings'] as List)
+            row['sessionId'],
+        ].nonNulls,
+        hasLength(1),
+        reason: 'the measurement keeps its session through a restore',
+      );
       expect(
         (archive['data'] as Map)['workoutExercises'].first['joinsNext'],
         isTrue,

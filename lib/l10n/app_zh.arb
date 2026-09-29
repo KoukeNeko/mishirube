@@ -1721,6 +1721,10 @@
   "@recordDelete": {
     "description": "Deletes the record this page shows."
   },
+  "deleteMeasurement": "刪除這次量測",
+  "@deleteMeasurement": {
+    "description": "Deletes a whole body composition measurement: its weight and every figure."
+  },
   "activityActiveTime": "運動時間",
   "@activityActiveTime": {
     "description": "Time spent moving in an activity."

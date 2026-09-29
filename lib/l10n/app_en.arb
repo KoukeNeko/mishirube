@@ -389,6 +389,7 @@
   "activityEdit": "Edit details",
   "activityEditDetail": "Type, time, duration",
   "recordDelete": "Delete entry",
+  "deleteMeasurement": "Delete this measurement",
   "activityActiveTime": "Workout time",
   "activityDistance": "Distance",
   "activityTotalEnergy": "Total energy",

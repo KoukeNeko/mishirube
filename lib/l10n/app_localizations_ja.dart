@@ -1241,6 +1241,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get recordDelete => 'この記録を削除';
 
   @override
+  String get deleteMeasurement => 'この測定を削除';
+
+  @override
   String get activityActiveTime => '運動時間';
 
   @override

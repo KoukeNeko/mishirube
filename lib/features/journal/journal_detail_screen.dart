@@ -56,6 +56,16 @@ class JournalDetailScreen extends StatelessWidget {
         ],
       );
     }
+    final sessionId = switch (entry) {
+      BodyWeight(:final sessionId?) ||
+      BodyReading(:final sessionId?) => sessionId,
+      _ => null,
+    };
+    if (sessionId != null) {
+      if (journal.bodySession(sessionId) case final session?) {
+        return _sessionPage(context, journal, session, when);
+      }
+    }
     final view = _viewOf(context, entry, journal);
     return DetailPage(
       appBar: PageAppBar(title: view.title, subtitle: when),
@@ -112,6 +122,80 @@ class JournalDetailScreen extends StatelessWidget {
                 title: context.l10n.recordDelete,
                 isDestructive: true,
                 onTap: () => _delete(context, journal, view.title),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+extension on JournalDetailScreen {
+  /// A body composition measurement, weight and figures together, opened
+  /// from any of them: it was taken at once, so it is read, corrected and
+  /// deleted at once.
+  Widget _sessionPage(
+    BuildContext context,
+    JournalViewModel journal,
+    BodySession session,
+    String when,
+  ) {
+    final title = context.l10n.recordBodyComposition;
+    return DetailPage(
+      appBar: PageAppBar(title: title, subtitle: when),
+      children: [
+        Gutter(
+          child: GroupedCard(
+            children: [
+              if (session.weight case final weight?)
+                KeyValueRow(
+                  label: context.l10n.moduleWeight,
+                  value: '${formatWeight(weight.weightKg)} kg',
+                ),
+              for (final reading in session.readings)
+                KeyValueRow(
+                  label: reading.metric.labelIn(context.l10n),
+                  value:
+                      '${formatAmount(reading.value)} '
+                      '${reading.metric.unitIn(context.l10n)}',
+                ),
+            ],
+          ),
+        ),
+        if (session.readings.any((reading) => reading.metric.isEstimated))
+          Gutter(child: TagWrap(labels: [context.l10n.bodyScaleEstimate])),
+        Gutter(
+          child: GroupedCard(
+            children: [
+              KeyValueRow(
+                label: context.l10n.journalSourceRow,
+                value: journal.sourceLabel(context.l10n, id),
+              ),
+            ],
+          ),
+        ),
+        Gutter(child: SectionLabel(context.l10n.manageSection)),
+        Gutter(
+          child: GroupedCard(
+            children: [
+              NavRow(
+                title: context.l10n.commonEdit,
+                onTap: () =>
+                    pushPage(context, BodyReadingEntryScreen(session: session)),
+              ),
+              NavRow(
+                title: context.l10n.deleteMeasurement,
+                isDestructive: true,
+                onTap: () {
+                  final toast = ToastScope.read(context);
+                  final ids = journal.deleteBodySession(session);
+                  Navigator.of(context).pop();
+                  toast.showUndo(
+                    context.l10n.deletedItem(item: title),
+                    onUndo: () => journal.restoreRecords(ids),
+                  );
+                },
               ),
             ],
           ),
