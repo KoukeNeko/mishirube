@@ -11,10 +11,11 @@ final mealDraftInstructions =
     '''
 你把使用者描述的一餐拆成一項一項的食物或飲料。
 只回傳 JSON，不要任何說明文字，格式：
-{"name":"這一餐的名稱","items":[{"name":"品名","amount":"份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
+{"name":"這一餐的名稱","items":[{"name":"品名","brand":"品牌","amount":"份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
 規則：
 - 最外層的 name 是整餐的簡短名稱，例如「雞腿便當」「蛋餅加奶茶」，繁體中文，不超過 12 個字。
 - items 裡的 name 用使用者的說法，繁體中文。
+$_brandRule
 - amount 照使用者說的份量；沒說就寫「一份」。
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計，不確定就填 null。
 $_nutrientRules
@@ -80,9 +81,10 @@ $labelReadingRules
 
 【食物】
 辨識照片裡每一項食物或飲料，估計份量與營養，格式：
-{"items":[{"name":"品名","amount":"估計份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
+{"items":[{"name":"品名","brand":"品牌","amount":"估計份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
 規則：
 $_photoItemRules
+$_brandRule
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計；不確定就填 null，不要填 0。
 $_nutrientRules
 $_photoNoteRules
@@ -110,6 +112,10 @@ $_photoItemRules
 - 熱量與營養素是你對這個份量的估計；不確定就留空，不要填 0。
 $_photoNoteRules
 - 照片裡沒有食物、飲料或營養標示時，items 與 notes 都是空的。''';
+
+/// Who made an item, which the review keeps apart from its name.
+const _brandRule =
+    '- brand 是使用者說的或看得到的品牌、連鎖店（例如 7-ELEVEN、麥當勞、統一），不要寫進 name；沒有就填空字串。';
 
 /// How each food in a photo is named and measured.
 const _photoItemRules = '''
@@ -189,6 +195,10 @@ List<DraftItem> _itemsOf(Object? decoded, String answer) {
       if (entry case {'name': final String name} when name.trim().isNotEmpty)
         DraftItem(
           name: name.trim(),
+          brand: switch (entry['brand']) {
+            final String brand => brand.trim(),
+            _ => '',
+          },
           amount: switch (entry['amount']) {
             final String amount when amount.trim().isNotEmpty => amount.trim(),
             // Nothing said: the item is one of whatever it is.

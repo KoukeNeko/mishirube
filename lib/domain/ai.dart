@@ -146,6 +146,7 @@ class MealDraft {
 class DraftItem {
   const DraftItem({
     required this.name,
+    this.brand = '',
     this.amount = '',
     this.kcal,
     this.proteinGrams,
@@ -157,6 +158,9 @@ class DraftItem {
   });
 
   final String name;
+
+  /// Who made it, as a label or the user said; empty when nobody did.
+  final String brand;
 
   /// How much, in the words the model used: `一個`, `700 ml`.
   final String amount;
@@ -256,11 +260,12 @@ class FoodLabelDraft {
   /// the meal page, not the food form.
   MealDraft asMealDraft() {
     final amount = servingAmount;
-    final named = [?brand, ?name].where((part) => part.isNotEmpty).join(' ');
     return MealDraft(
       items: [
         DraftItem(
-          name: named,
+          // A label without a name is still its brand's product.
+          name: name ?? brand ?? '',
+          brand: brand ?? '',
           amount: amount == null
               ? ''
               : '${amount == amount.roundToDouble() ? amount.round() : amount} '

@@ -567,6 +567,7 @@ class NutritionService {
             final meal = MealEvent(
               id: _db.newId(),
               name: item.name,
+              brand: item.brand,
               amount: item.amount,
               timeLabel: formatTimeOfDay(eatenAt),
               qualityTag: aiDraftQualityTag,

@@ -184,6 +184,24 @@ void main() {
       expect(item.carbGrams, isNull, reason: 'unknown stays unknown');
     });
 
+    test('keeps an item\'s brand apart from its name', () {
+      final item = parse(
+        '{"items":[{"name":"大杯那堤","brand":" 星巴克 ","kcal":190}]}',
+      ).items.single;
+      expect(item.name, '大杯那堤');
+      expect(item.brand, '星巴克');
+      expect(parse('{"items":[{"name":"蛋餅"}]}').items.single.brand, '');
+
+      final label = parseFoodLabel(
+        '{"name":"鮮乳","brand":"統一","kcal":95.3,"fat_g":2.1}',
+        provider: AiProviderKind.ollamaCloud,
+        model: 'm',
+      ).asMealDraft().items.single;
+      expect(label.name, '鮮乳', reason: 'a label logged as a meal');
+      expect(label.brand, '統一');
+      expect(label.fatGrams, 2.1);
+    });
+
     test('keeps the name of the meal as a whole, when there is one', () {
       const items = '"items":[{"name":"雞腿","amount":"一隻","kcal":300}]';
       expect(parse('{"name":" 雞腿便當 ",$items}').name, '雞腿便當');

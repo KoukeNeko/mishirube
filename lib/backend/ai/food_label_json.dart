@@ -83,6 +83,7 @@ final labelReadingRules =
 規則：
 $labelColumnRules
 - kcal_per_100 是「每100公克／毫升」那一欄的熱量，只用來核對；沒有那一欄就填 null。
+- name 是品名，brand 是包裝上的品牌或製造商（例如「統一」「義美」「明治」），不要把品牌寫進 name；看不到就填 null。
 - serving_amount 是「每一份量」的數字，serving_unit 是它的單位（公克是 g，毫升是 ml）。
 - 鈉的單位是毫克（mg）；如果標示寫的是公克，換成毫克。
 $labelFigureRules

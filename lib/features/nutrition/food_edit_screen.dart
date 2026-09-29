@@ -92,6 +92,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         widget.editing?.brand ??
         widget.sizeOf?.brand ??
         widget.meal?.brand ??
+        widget.draftItem?.brand ??
         '',
   );
 
@@ -406,6 +407,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       if (_name.text.trim().isEmpty) {
         _name.text = items.map((item) => item.name).join('、');
       }
+      final brands = {for (final item in items) item.brand};
+      if (_brand.text.trim().isEmpty && brands.length == 1) {
+        _brand.text = brands.single;
+      }
       _servingUnit = isMeasured ? unit : ServingUnit.serving;
       _servingAmount.text = formatAmount(
         isMeasured ? amounts.fold(0.0, (sum, amount) => sum + amount!.$1) : 1,
@@ -584,6 +589,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     Navigator.of(context).pop(
       DraftItem(
         name: _name.text.trim(),
+        brand: _brand.text.trim(),
         amount: _amountInWords.text.trim(),
         kcal: _perServing(_kcal),
         proteinGrams: _perServing(_protein),
@@ -871,20 +877,14 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
               ),
             ),
         ],
-        // A logged meal keeps who made it; a draft item is not yet one.
-        if (draftItem == null) ...[
-          Gutter(
-            child: SectionLabel(
-              context.l10n.optionalField(field: context.l10n.brandLabel),
-            ),
+        Gutter(
+          child: SectionLabel(
+            context.l10n.optionalField(field: context.l10n.brandLabel),
           ),
-          Gutter(
-            child: AppTextField(
-              controller: _brand,
-              hint: context.l10n.brandHint,
-            ),
-          ),
-        ],
+        ),
+        Gutter(
+          child: AppTextField(controller: _brand, hint: context.l10n.brandHint),
+        ),
         Gutter(child: SectionLabel(context.l10n.foodOrDrink)),
         Gutter(
           child: ChipWrap(
