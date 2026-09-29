@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import '../../domain/domain.dart';
 
 /// Bumped whenever a rule below changes.
-const nutritionTargetsVersion = 5;
+const nutritionTargetsVersion = 6;
 
 /// Fibre per 1,000 kcal eaten: the Adequate Intake the Dietary Reference
 /// Intakes set, 14 g per 1,000 kcal.
@@ -12,7 +12,7 @@ const fibreGramsPer1000Kcal = 14;
 /// Resting energy by Mifflin-St Jeor (1990), the equation the Academy of
 /// Nutrition and Dietetics found closest to measured resting energy in
 /// healthy adults.
-int restingEnergyKcal({
+double restingEnergyKcal({
   required double weightKg,
   required double heightCm,
   required int age,
@@ -25,7 +25,7 @@ int restingEnergyKcal({
               Sex.male => 5,
               Sex.female => -161,
             })
-        .round();
+        .roundToDouble();
 
 /// Energy per kg of body weight gained or lost, to turn a weekly rate
 /// into a daily difference: the familiar 7,700 kcal, a rough figure to
@@ -42,8 +42,13 @@ const proteinWeightMaxBmi = 30;
 
 /// The daily energy difference that moves [weightKg] by [weeklyPercent]
 /// of it a week; negative is a deficit.
-int dailyKcalForRate(double weightKg, double weeklyPercent) =>
-    (weightKg * weeklyPercent / 100 * kcalPerKgBodyWeight / 7).round();
+double dailyKcalForRate(double weightKg, double weeklyPercent) =>
+    (weightKg * weeklyPercent / 100 * kcalPerKgBodyWeight / 7).roundToDouble();
+
+/// A worked-out figure to the tenth, the precision the app writes
+/// figures in: an equation's noise past that is not a target, and a
+/// whole one stays whole however it was computed.
+double _toATenth(double value) => (value * 10).roundToDouble() / 10;
 
 /// A day's targets from what the user chose and what is known of them.
 ///
@@ -96,9 +101,9 @@ NutritionTargets nutritionTargets(
     _ => null,
   };
   final maintenance =
-      measured ??
+      measured?.toDouble() ??
       switch (resting) {
-        final resting? => (resting * settings.activity.factor).round(),
+        final resting? => (resting * settings.activity.factor).roundToDouble(),
         null => null,
       };
   final kcal =
@@ -114,15 +119,17 @@ NutritionTargets nutritionTargets(
       math.min(weightKg, proteinWeightMaxBmi * math.pow(heightCm / 100, 2)),
     (final weightKg, _) => weightKg,
   };
+  // Nothing here is rounded: a target the user typed is theirs, and the
+  // macros follow it. What is shown can be read to the tenth.
   final protein = proteinWeight == null
       ? null
-      : (proteinWeight * settings.proteinPerKgInUse).round();
+      : _toATenth(proteinWeight * settings.proteinPerKgInUse);
   final fat = kcal == null
       ? null
-      : (kcal * settings.fatPercentInUse / 100 / 9).round();
+      : _toATenth(kcal * settings.fatPercentInUse / 100 / 9);
   final carb = kcal == null || protein == null || fat == null
       ? null
-      : math.max(0, ((kcal - protein * 4 - fat * 9) / 4).round());
+      : _toATenth(math.max(0.0, (kcal - protein * 4 - fat * 9) / 4));
   return NutritionTargets(
     kcal: kcal,
     proteinGrams: protein,
@@ -130,7 +137,7 @@ NutritionTargets nutritionTargets(
     fatGrams: fat,
     fibreGrams: kcal == null
         ? null
-        : (kcal / 1000 * fibreGramsPer1000Kcal).round(),
+        : _toATenth(kcal / 1000 * fibreGramsPer1000Kcal),
     restingKcal: resting,
     maintenanceKcal: settings.isCustom ? null : maintenance,
     maintenanceSource: settings.isCustom || maintenance == null

@@ -8374,11 +8374,11 @@ abstract class AppLocalizations {
   /// **'每週 {target} 個運動日 · 本週 {active}'**
   String goalSummaryText({required int target, required int active});
 
-  /// Row detail.
+  /// Row detail; grams is formatted.
   ///
   /// In zh, this message translates to:
   /// **'蛋白質 {grams} g'**
-  String proteinGrams({required int grams});
+  String proteinGrams({required String grams});
 
   /// Row subtitle.
   ///

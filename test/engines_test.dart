@@ -2209,18 +2209,18 @@ void main() {
       expect(targets.maintenanceKcal, 2556);
       expect(targets.kcal, 2171);
       expect(targets.proteinGrams, 154, reason: '2.2 g per kg, losing fat');
-      expect(targets.fatGrams, 60, reason: '25 % of energy');
+      expect(targets.fatGrams, 60.3, reason: '25 % of energy, to the tenth');
       expect(
         targets.carbGrams,
-        254,
-        reason: 'the rest of the energy: (2171 - 154 x 4 - 60 x 9) / 4',
+        253.1,
+        reason: 'the rest of the energy: (2171 - 154 x 4 - 60.3 x 9) / 4',
       );
-      expect(targets.fibreGrams, 30, reason: '14 g per 1,000 kcal');
+      expect(targets.fibreGrams, 30.4, reason: '14 g per 1,000 kcal');
       expect(targets.missing, isEmpty);
     });
 
     test('the goal moves energy by a share of body weight a week', () {
-      int? kcal(NutritionTargetSettings settings, double weightKg) =>
+      double? kcal(NutritionTargetSettings settings, double weightKg) =>
           nutritionTargets(
             settings,
             weightKg: weightKg,
@@ -2228,7 +2228,7 @@ void main() {
             age: 30,
             sex: Sex.male,
           ).kcal;
-      int? difference(NutritionTargetSettings settings, double weightKg) =>
+      double? difference(NutritionTargetSettings settings, double weightKg) =>
           kcal(settings, weightKg)! -
           kcal(const NutritionTargetSettings(), weightKg)!;
 
@@ -2295,7 +2295,7 @@ void main() {
     });
 
     test('protein follows the goal unless it was set', () {
-      int? protein(NutritionTargetSettings settings) =>
+      double? protein(NutritionTargetSettings settings) =>
           nutritionTargets(settings, weightKg: 70).proteinGrams;
       expect(protein(const NutritionTargetSettings()), 112, reason: '1.6');
       expect(
@@ -2343,7 +2343,7 @@ void main() {
       );
       expect(
         targets(recomp, weightKg: 120).proteinGrams,
-        202,
+        202.1,
         reason: 'by the 91.9 kg of BMI 30 at 175 cm, not the whole 120 kg',
       );
       expect(

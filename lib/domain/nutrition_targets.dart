@@ -72,8 +72,9 @@ class NutritionTargetSettings {
   /// and the 15–30 % Helms 2014 gives lifters; no goal calls for another.
   static const defaultFatPercent = 25;
 
-  /// The energy target typed in; null to work it out from the body.
-  final int? customKcal;
+  /// The energy target typed in; null to work it out from the body. A
+  /// figure of the user's own, so it keeps whatever they typed.
+  final double? customKcal;
   final ActivityLevel activity;
   final WeightGoal goal;
 
@@ -102,7 +103,7 @@ class NutritionTargetSettings {
   int get fatPercentInUse => fatPercent ?? defaultFatPercent;
 
   NutritionTargetSettings copyWith({
-    int? Function()? customKcal,
+    double? Function()? customKcal,
     ActivityLevel? activity,
     WeightGoal? goal,
     double? Function()? weeklyPercent,
@@ -146,18 +147,21 @@ class NutritionTargets {
     this.missing = const [],
   });
 
-  final int? kcal;
-  final int? proteinGrams;
-  final int? carbGrams;
-  final int? fatGrams;
-  final int? fibreGrams;
+  /// The day's targets, kept as the sums they come out of rather than
+  /// rounded: a typed-in energy target is the user's own figure, and the
+  /// macronutrients it leaves room for follow it exactly.
+  final double? kcal;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
+  final double? fibreGrams;
 
   /// Resting energy from the equation, when the target was worked out.
-  final int? restingKcal;
+  final double? restingKcal;
 
   /// Energy to keep weight where it is, when the target was worked out:
   /// what the goal's rate moves away from.
-  final int? maintenanceKcal;
+  final double? maintenanceKcal;
 
   /// How [maintenanceKcal] was worked out; null without it.
   final MaintenanceSource? maintenanceSource;

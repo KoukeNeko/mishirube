@@ -344,7 +344,7 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
             child: _IndicatorsCard(
               convention: convention,
               fibreGrams: summary.fibreGrams,
-              fibreTarget: targets.fibreGrams,
+              fibreTarget: targets.fibreGrams?.toDouble(),
               carbPart: total(convention.carbPart),
               salt: total(convention.saltMeasure),
               saltMeasure: convention.saltMeasure,
@@ -941,21 +941,21 @@ class _EnergyCard extends StatelessWidget {
                     grams: convention.countsAvailableCarb
                         ? summary.availableCarbGrams
                         : summary.carbGrams,
-                    target: targets.carbGrams,
+                    target: targets.carbGrams?.toDouble(),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
                     label: convention.proteinName(context.l10n),
                     color: AppColors.macroProtein,
                     grams: summary.proteinGrams,
-                    target: targets.proteinGrams,
+                    target: targets.proteinGrams?.toDouble(),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MacroLine(
                     label: convention.fatName(context.l10n),
                     color: AppColors.macroFat,
                     grams: summary.fatGrams,
-                    target: targets.fatGrams,
+                    target: targets.fatGrams?.toDouble(),
                   ),
                 ],
               );
@@ -992,34 +992,45 @@ class _MacroLine extends StatelessWidget {
 
   final String label;
   final Color color;
-  final int grams;
-  final int? target;
+  final double grams;
+  final double? target;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  Widget build(BuildContext context) {
+    final target = this.target;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(child: Text(label, style: AppTextStyles.caption)),
+          ],
+        ),
+        // One line always: a figure with a decimal is wider, and the
+        // column is narrow beside the ring.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            target == null
+                ? '${formatAmount(grams)} g'
+                : '${formatAmount(grams)} / ${formatAmount(target)} g',
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(width: AppSpacing.xs),
-          Flexible(child: Text(label, style: AppTextStyles.caption)),
+        ),
+        if (target case final target? when target > 0) ...[
+          const SizedBox(height: AppSpacing.xxs),
+          ProgressLine(progress: grams / target, color: color, height: 6),
         ],
-      ),
-      Text(
-        target == null ? '$grams g' : '$grams / $target g',
-        style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
-      ),
-      if (target case final target? when target > 0) ...[
-        const SizedBox(height: AppSpacing.xxs),
-        ProgressLine(progress: grams / target, color: color, height: 6),
       ],
-    ],
-  );
+    );
+  }
 }
 
 /// The rest of the day at a glance, one row each: fibre against its
@@ -1038,8 +1049,8 @@ class _IndicatorsCard extends StatelessWidget {
     required this.caffeineMg,
   });
 
-  final int fibreGrams;
-  final int? fibreTarget;
+  final double fibreGrams;
+  final double? fibreTarget;
   final NutritionConvention convention;
 
   /// Sugar, or 糖質 read the Japanese way: [NutritionConvention.carbPart].
@@ -1065,8 +1076,8 @@ class _IndicatorsCard extends StatelessWidget {
       _MeterRow(
         label: convention.fibreName(context.l10n),
         value: fibreTarget == null
-            ? '$fibreGrams g'
-            : '$fibreGrams / $fibreTarget g',
+            ? '${formatAmount(fibreGrams)} g'
+            : '${formatAmount(fibreGrams)} / ${formatAmount(fibreTarget!)} g',
         progress: fibreTarget == null || fibreTarget == 0
             ? null
             : fibreGrams / fibreTarget!,

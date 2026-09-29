@@ -33,20 +33,29 @@ String formatTimeOfDay(DateTime time) {
   return '$hour:$minute';
 }
 
-/// Adds thousands separators: 1180 → `1,180`.
 /// A calorie figure, or a dash when nobody wrote one down. The dash is
 /// not a zero: it says the record has no number, not that the food had
 /// none in it.
-String formatKcalOrDash(num? kcal) =>
-    kcal == null ? '—' : formatKcal(kcal.round());
+String formatKcalOrDash(num? kcal) => kcal == null ? '—' : formatKcal(kcal);
 
-String formatKcal(int kcal) {
-  final digits = kcal.toString();
-  final buffer = StringBuffer();
+/// Adds thousands separators: 1180 → `1,180`. A figure a label or a
+/// model gave with a decimal keeps it — 55.5 kcal is what the label
+/// says — and a whole one is written as it is.
+String formatKcal(num kcal) {
+  final isWholeNumber = kcal == kcal.roundToDouble();
+  final written = isWholeNumber
+      ? kcal.round().toString()
+      : kcal.toStringAsFixed(1);
+  final sign = written.startsWith('-') ? '-' : '';
+  final body = sign.isEmpty ? written : written.substring(1);
+  final point = body.indexOf('.');
+  final digits = point < 0 ? body : body.substring(0, point);
+  final decimals = point < 0 ? '' : body.substring(point);
+  final buffer = StringBuffer(sign);
   for (var i = 0; i < digits.length; i++) {
     final remaining = digits.length - i;
     if (i > 0 && remaining % 3 == 0) buffer.write(',');
     buffer.write(digits[i]);
   }
-  return buffer.toString();
+  return '$buffer$decimals';
 }

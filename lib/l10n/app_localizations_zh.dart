@@ -4806,7 +4806,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String proteinGrams({required int grams}) {
+  String proteinGrams({required String grams}) {
     return '蛋白質 $grams g';
   }
 
@@ -10454,7 +10454,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String proteinGrams({required int grams}) {
+  String proteinGrams({required String grams}) {
     return '蛋白质 $grams g';
   }
 

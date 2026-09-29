@@ -393,7 +393,7 @@ String _nutritionTargetSummary(
   return [
     '${formatKcal(kcal)} kcal',
     if (targets.proteinGrams case final protein?)
-      l10n.proteinGrams(grams: protein),
+      l10n.proteinGrams(grams: formatAmount(protein)),
   ].join(' · ');
 }
 

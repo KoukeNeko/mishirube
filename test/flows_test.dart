@@ -771,7 +771,7 @@ void main() {
     expect(find.text('${logged.timeLabel} · 180 g'), findsOneWidget);
     expect(find.text('AI 估計'), findsNothing, reason: 'only on its page');
 
-    await tester.tap(find.text('總匯沙拉'));
+    await _tapText(tester, '總匯沙拉');
     await tester.pumpAndSettle();
     expect(
       find.textContaining('· ${logged.timeLabel} · 180 g'),
@@ -1927,7 +1927,11 @@ void main() {
 
     await tester.tap(find.text('記錄 1 項'));
     await tester.pumpAndSettle();
-    expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
+    expect(
+      store.todayKcal,
+      before + 247.5,
+      reason: '165 × 1.5: the day keeps what the portion came to',
+    );
     expect(store.todayMeals.last.proteinGrams, 46.5, reason: '31 × 1.5');
     expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
     await disposeTree(tester);
@@ -2132,6 +2136,38 @@ void main() {
     expect(nutrition.mealsOn(today), hasLength(todayBefore));
     final logged = nutrition.mealsOn(yesterday).last;
     expect(logged.groupId, isNull, reason: 'a copy is a meal on its own');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a label\'s decimal energy is kept, and shown', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final before = store.todaySummary.kcal;
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'soy-milk',
+        name: '豆漿',
+        timeLabel: '08:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 55.5,
+      ),
+      eatenAt: store.now(),
+    );
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+
+    expect(
+      store.todaySummary.kcal,
+      before + 55.5,
+      reason: 'the day adds up what the records say, decimals included',
+    );
+    final figure = find.textContaining('55.5', findRichText: true);
+    await tester.scrollUntilVisible(figure, 200, scrollable: _pageScroll);
+    expect(
+      figure,
+      findsWidgets,
+      reason: 'the row reads the label, not a rounded version of it',
+    );
     await disposeTree(tester);
   });
 
@@ -3424,6 +3460,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(store.backend.nutrition.targetSettings.weeklyPercent, -0.25);
     expect(find.text('維持熱量'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a typed-in energy target keeps its decimals', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const NutritionTargetScreen(), store: store);
+
+    await _tapText(tester, '自己設定');
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '2150.5');
+    await _tapText(tester, '儲存');
+    await tester.pumpAndSettle();
+
+    expect(store.backend.nutrition.targetSettings.customKcal, 2150.5);
+    expect(
+      find.textContaining('2,150.5'),
+      findsWidgets,
+      reason: 'the figure the user typed, not a rounded one',
+    );
+
+    // The macronutrients follow it, worked out to the tenth.
+    await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    expect(
+      find.textContaining('59.7'),
+      findsWidgets,
+      reason: 'fat: 2150.5 kcal x 25 % / 9',
+    );
     await disposeTree(tester);
   });
 

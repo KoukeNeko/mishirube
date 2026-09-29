@@ -350,7 +350,7 @@ class AppStore extends ChangeNotifier {
   /// Today's food totals and how complete the day's log is.
   DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
 
-  int get todayKcal => todaySummary.kcal;
+  double get todayKcal => todaySummary.kcal;
 
   @override
   void dispose() {

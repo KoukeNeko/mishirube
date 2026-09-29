@@ -51,7 +51,7 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
       hint: 'kcal',
     );
     if (typed == null) return;
-    final kcal = int.tryParse(typed.trim());
+    final kcal = double.tryParse(typed.trim());
     if (kcal == null || kcal < 800 || kcal > 6000) {
       if (mounted) {
         showToast(
@@ -396,7 +396,8 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
 
 Widget _value(String text) => Text(text, style: AppTextStyles.caption);
 
-String _grams(int? grams) => grams == null ? '—' : '$grams g';
+String _grams(num? grams) =>
+    grams == null ? '—' : '${formatAmount(grams.toDouble())} g';
 
 /// `−0.5% · −0.35 kg`: a weekly rate, and what it is for this body
 /// when its weight is known.

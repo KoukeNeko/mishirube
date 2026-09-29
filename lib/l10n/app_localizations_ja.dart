@@ -4813,7 +4813,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String proteinGrams({required int grams}) {
+  String proteinGrams({required String grams}) {
     return 'タンパク質 $grams g';
   }
 

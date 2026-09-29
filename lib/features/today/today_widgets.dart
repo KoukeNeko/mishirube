@@ -396,7 +396,7 @@ class _MacroTotal extends StatelessWidget {
   });
 
   final String label;
-  final int grams;
+  final double grams;
 
   /// Records in the day with no figure for this macro, out of [records].
   final int missing;
@@ -406,7 +406,7 @@ class _MacroTotal extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUnknown = missing == records && records > 0;
     return StatBlock(
-      value: isUnknown ? '—' : '$grams',
+      value: isUnknown ? '—' : formatAmount(grams),
       unit: isUnknown ? null : 'g',
       label: label,
       valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 20),

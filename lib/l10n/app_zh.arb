@@ -7337,10 +7337,10 @@
   },
   "proteinGrams": "蛋白質 {grams} g",
   "@proteinGrams": {
-    "description": "Row detail.",
+    "description": "Row detail; grams is formatted.",
     "placeholders": {
       "grams": {
-        "type": "int"
+        "type": "String"
       }
     }
   },

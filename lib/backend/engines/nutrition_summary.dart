@@ -42,11 +42,13 @@ class DaySummary {
     isComplete: false,
   );
 
-  final int kcal;
-  final int proteinGrams;
-  final int carbGrams;
-  final int fatGrams;
-  final int fibreGrams;
+  /// The day's figures, as the records keep them: a label's decimals
+  /// are not rounded away, so a packet's 55.5 kcal still reads 55.5.
+  final double kcal;
+  final double proteinGrams;
+  final double carbGrams;
+  final double fatGrams;
+  final double fibreGrams;
   final int mealCount;
 
   /// Some portion in the day was estimated, so totals read as `~`.
@@ -68,7 +70,7 @@ class DaySummary {
   /// The carbohydrate less its fibre, for a convention that reads it that
   /// way ([availableCarbOf]), and the records it could not be worked out
   /// for.
-  final int availableCarbGrams;
+  final double availableCarbGrams;
   final int mealsWithoutAvailableCarb;
 
   /// Records counted in the totals, drinks included — what the
@@ -234,10 +236,10 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
   final records = meals.toList();
   // A missing figure is counted, not skipped and not added as zero: the
   // day has to be able to say how much of itself it could not see.
-  // Records keep a label's decimals; the day's total is whole.
-  int sumOf(double? Function(MealEvent) figure) => records
-      .fold<double>(0, (total, meal) => total + (figure(meal) ?? 0))
-      .round();
+  double sumOf(double? Function(MealEvent) figure) => records.fold<double>(
+    0,
+    (total, meal) => total + (figure(meal) ?? 0),
+  );
   int missing(double? Function(MealEvent) figure) =>
       records.where((meal) => figure(meal) == null).length;
 
@@ -257,9 +259,10 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
     mealsWithoutCarb: missing((meal) => meal.carbGrams),
     mealsWithoutFat: missing((meal) => meal.fatGrams),
     mealsWithoutFibre: missing((meal) => meal.fibreGrams),
-    availableCarbGrams: records
-        .fold<double>(0, (total, meal) => total + (availableCarbOf(meal) ?? 0))
-        .round(),
+    availableCarbGrams: records.fold<double>(
+      0,
+      (total, meal) => total + (availableCarbOf(meal) ?? 0),
+    ),
     mealsWithoutAvailableCarb: records
         .where((meal) => availableCarbOf(meal) == null)
         .length,

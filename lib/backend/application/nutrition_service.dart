@@ -123,7 +123,7 @@ class NutritionService {
       if (fat == 25) fat = null;
     }
     return NutritionTargetSettings(
-      customKcal: fields['customKcal'] as int?,
+      customKcal: (fields['customKcal'] as num?)?.toDouble(),
       activity:
           ActivityLevel.values.asNameMap()[fields['activity']] ??
           ActivityLevel.moderate,

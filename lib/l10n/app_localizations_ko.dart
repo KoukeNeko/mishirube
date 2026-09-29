@@ -4814,7 +4814,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String proteinGrams({required int grams}) {
+  String proteinGrams({required String grams}) {
     return '단백질 $grams g';
   }
 
