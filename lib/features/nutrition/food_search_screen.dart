@@ -17,7 +17,6 @@ import 'nutrition_view_model.dart';
 import 'plate_screen.dart';
 import 'portion_screen.dart';
 import 'recent_meal_row.dart';
-import 'water_card.dart';
 import '../../l10n/l10n.dart';
 
 /// Which part of the list is showing. A scope narrows what is listed; it
@@ -411,8 +410,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     return switch (_scope) {
       _Scope.all => [
         // The quickest ways in lead: a photo, words or both for the AI to
-        // draft, numbers typed once, or a whole meal eaten before. The
-        // water follows; it also has its own place under ＋.
+        // draft, numbers typed once, or a whole meal eaten before.
         Gutter(
           child: Row(
             spacing: AppSpacing.sm,
@@ -436,13 +434,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
           for (final meal in meals) Gutter(child: _mealRow(meal)),
         ],
-        // Water gets a card of its own: it is the most repeated record
-        // there is, logged in one tap and never through the plate.
-        Gutter(
-          child: WaterCard(
-            onOpenDay: () => pushPage(context, const DailyNutritionScreen()),
-          ),
-        ),
         ..._section(context.l10n.foodScopeRecent, [
           for (final r in recent.take(_preview)) r.food,
         ]),

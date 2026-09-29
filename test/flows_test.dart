@@ -41,7 +41,8 @@ import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
-import 'package:mishirube/features/nutrition/water_card.dart';
+import 'package:mishirube/features/water/water_card.dart';
+import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
@@ -2572,7 +2573,7 @@ void main() {
     // as the dock opens a page.
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
-    store.openFromChrome(const FoodSearchScreen());
+    store.openFromChrome(const WaterScreen());
     await tester.pumpAndSettle();
 
     await _tapText(
@@ -2613,7 +2614,7 @@ void main() {
         1,
       ),
     );
-    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    await pumpScreen(tester, const WaterScreen(), store: store);
     final nutrition = NutritionViewModel(store.backend);
     addTearDown(nutrition.dispose);
     final glass = nutrition.glassMillilitres;
@@ -3522,9 +3523,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('water is counted under 飲品, not listed as a meal', (
-    tester,
-  ) async {
+  testWidgets('water has a page of its own, apart from 飲食', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     final today = store.now();
@@ -3535,17 +3534,22 @@ void main() {
     store.backend.nutrition.logWater(250);
     await pumpScreen(tester, const DailyNutritionScreen(), store: store);
 
-    expect(
-      find.text('500 mL · 2 筆'),
-      findsOneWidget,
-      reason: 'the day\'s water total',
-    );
     await tester.scrollUntilVisible(
       find.text('這一天沒有記錄任何一餐'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('這一天沒有記錄任何一餐'), findsOneWidget);
+    expect(find.textContaining('250 mL'), findsNothing, reason: 'not on 飲食');
+    await disposeTree(tester);
+
+    await pumpScreen(tester, const WaterScreen(), store: store);
+    expect(
+      find.text('500 mL', findRichText: true),
+      findsOneWidget,
+      reason: 'the day\'s water',
+    );
+    expect(find.text('250 mL'), findsNWidgets(2), reason: 'each glass');
     await disposeTree(tester);
   });
 
@@ -3553,7 +3557,7 @@ void main() {
     tester,
   ) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+    await pumpScreen(tester, const WaterScreen(), store: store);
     final before = summariseFluid(store.todayMeals).millilitres;
 
     await _tapText(tester, '＋ 250 mL');

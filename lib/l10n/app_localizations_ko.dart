@@ -69,6 +69,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get moduleNutritionDescription => '식사, 요리, 재료와 영양';
 
   @override
+  String get moduleWaterDescription => '마신 물의 양과 시간';
+
+  @override
   String get moduleWeight => '체중';
 
   @override
@@ -4385,14 +4388,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get workedOut => '계산값';
-
-  @override
-  String get fluidIntake => '수분';
-
-  @override
-  String fluidValue({required String millilitres, required int count}) {
-    return '$millilitres mL · $count건';
-  }
 
   @override
   String get caffeineRemaining => '추정 잔류 카페인';

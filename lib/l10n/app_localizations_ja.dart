@@ -69,6 +69,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get moduleNutritionDescription => '食事、料理、材料、栄養';
 
   @override
+  String get moduleWaterDescription => '飲んだ水の量と時刻';
+
+  @override
   String get moduleWeight => '体重';
 
   @override
@@ -4384,14 +4387,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get workedOut => '算出';
-
-  @override
-  String get fluidIntake => '水分';
-
-  @override
-  String fluidValue({required String millilitres, required int count}) {
-    return '$millilitres mL · $count件';
-  }
 
   @override
   String get caffeineRemaining => '残存カフェイン推定';

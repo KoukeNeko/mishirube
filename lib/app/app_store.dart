@@ -31,7 +31,16 @@ export '../backend/application/nutrition_service.dart'
 
 /// A part of the app the user can switch on; named in the app's language
 /// by [AppModuleText].
-enum AppModule { nutrition, weight, training, activity, sleep, wellness, notes }
+enum AppModule {
+  nutrition,
+  water,
+  weight,
+  training,
+  activity,
+  sleep,
+  wellness,
+  notes,
+}
 
 enum HomeTab { today, log, trends, me }
 
@@ -62,7 +71,15 @@ class AppStore extends ChangeNotifier {
           for (final name in (jsonDecode(stored) as List).cast<String>())
             AppModule.values.byName(name),
         ]);
+      // Water was part of 飲食 before it was a module of its own: whoever
+      // kept 飲食 on keeps it.
+      if (_backend.db.setting(_waterModuleKey) == null &&
+          _enabledModules.contains(AppModule.nutrition)) {
+        _enabledModules.add(AppModule.water);
+        _saveModules();
+      }
     }
+    _backend.db.setSetting(_waterModuleKey, 'true');
     _reloadExercises();
     _routine = _backend.training.routines(_exercisesById).firstOrNull;
     _session = switch ((
@@ -96,6 +113,9 @@ class AppStore extends ChangeNotifier {
   static const _onboardedKey = 'onboarded';
   static const _modulesKey = 'enabled_modules';
 
+  /// Set once the stored modules have had water split from 飲食.
+  static const _waterModuleKey = 'water_module';
+
   final DateTime Function() _clock;
   final Backend _backend;
   late final AiService _ai;
@@ -108,6 +128,7 @@ class AppStore extends ChangeNotifier {
   /// can actually log today.
   final Set<AppModule> _enabledModules = {
     AppModule.nutrition,
+    AppModule.water,
     AppModule.weight,
     AppModule.training,
     AppModule.activity,
@@ -347,8 +368,12 @@ class AppStore extends ChangeNotifier {
 
   List<CatalogueRecord> get catalogues => _backend.provenance.catalogues();
 
-  /// Today's food totals and how complete the day's log is.
-  DaySummary get todaySummary => summariseDay(_todayMeals, isOver: false);
+  /// Today's food totals and how complete the day's log is. Plain water
+  /// is 喝水's, not a record of food.
+  DaySummary get todaySummary => summariseDay([
+    for (final meal in _todayMeals)
+      if (!meal.isWater) meal,
+  ], isOver: false);
 
   double get todayKcal => todaySummary.kcal;
 
@@ -368,12 +393,14 @@ class AppStore extends ChangeNotifier {
 
   void toggleModule(AppModule module) {
     if (!_enabledModules.remove(module)) _enabledModules.add(module);
-    _backend.db.setSetting(
-      _modulesKey,
-      jsonEncode([for (final m in _enabledModules) m.name]),
-    );
+    _saveModules();
     notifyListeners();
   }
+
+  void _saveModules() => _backend.db.setSetting(
+    _modulesKey,
+    jsonEncode([for (final m in _enabledModules) m.name]),
+  );
 
   void completeOnboarding() {
     _isOnboarded = true;

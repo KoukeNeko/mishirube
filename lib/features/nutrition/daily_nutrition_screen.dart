@@ -116,15 +116,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
     );
   }
 
-  /// Takes a glass of water back out of the day.
-  void _removeWater(MealEvent glass) {
-    _nutrition.deleteMeals([glass]);
-    ToastScope.read(context).showUndo(
-      context.l10n.removedWater(millilitres: glass.millilitres ?? 0),
-      onUndo: () => _nutrition.restoreMeals([glass]),
-    );
-  }
-
   /// The day shown: the one opened, then whichever the strip picks.
   late DateTime _day = _dateOf(widget.day ?? AppStoreScope.read(context).now());
 
@@ -165,18 +156,14 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
   Widget _page(BuildContext context) {
     final day = _day;
     final meals = _nutrition.mealsOn(day);
-    // Plain water is counted under 飲品 below; as a meal it would be a
-    // card reading 0.
+    // Plain water has a page of its own; as a meal it would be a card
+    // reading 0.
     final eaten = mealsOf([
       for (final meal in meals)
         if (!meal.isWater) meal,
     ]);
     final summary = _nutrition.summaryOf(day);
     final merging = _merging;
-    final water = [
-      for (final meal in meals)
-        if (meal.isWater) meal,
-    ];
     final today = _dateOf(_nutrition.now());
     final targets = _nutrition.targetsOn(day);
     final convention = _nutrition.convention;
@@ -349,7 +336,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               salt: total(convention.saltMeasure),
               saltMeasure: convention.saltMeasure,
               saltLimit: _nutrition.saltLimit,
-              fluid: summariseFluid(meals),
               caffeineMg: day == today ? _nutrition.estimatedCaffeineMg : null,
             ),
           ),
@@ -421,25 +407,6 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                       onRemove: _removeItem,
                     ),
             ),
-        if (water.isNotEmpty && merging == null) ...[
-          Gutter(child: SectionLabel(context.l10n.waterSection)),
-          for (final glass in water)
-            Gutter(
-              child: SwipeAction(
-                key: ValueKey(glass.id),
-                label: context.l10n.removeAction,
-                semanticLabel: context.l10n.removeWaterAt(
-                  time: glass.timeLabel,
-                ),
-                onAction: () => _removeWater(glass),
-                child: NavCard(
-                  title: context.l10n.waterSection,
-                  subtitle: '${glass.timeLabel} · ${glass.millilitres} mL',
-                  onTap: () => pushPage(context, MealDetailScreen(meal: glass)),
-                ),
-              ),
-            ),
-        ],
         // Sugar and salt are up with the day's limits, salt in one measure
         // with the other folded into it.
         if ([
@@ -1031,8 +998,7 @@ class _MacroLine extends StatelessWidget {
 }
 
 /// The rest of the day at a glance, one row each: fibre against its
-/// target, sugar (or 糖質) as eaten, salt against its limit, what was drunk,
-/// and, today, the caffeine still in the body.
+/// target, sugar (or 糖質) as eaten, salt against its limit, and, today, the caffeine still in the body.
 class _IndicatorsCard extends StatelessWidget {
   const _IndicatorsCard({
     required this.fibreGrams,
@@ -1042,7 +1008,6 @@ class _IndicatorsCard extends StatelessWidget {
     required this.salt,
     required this.saltMeasure,
     required this.saltLimit,
-    required this.fluid,
     required this.caffeineMg,
   });
 
@@ -1057,7 +1022,6 @@ class _IndicatorsCard extends StatelessWidget {
   final NutrientTotal? salt;
   final Nutrient saltMeasure;
   final double saltLimit;
-  final FluidLogged fluid;
 
   /// Null on a day other than today, which has no "still in the body".
   final double? caffeineMg;
@@ -1098,15 +1062,6 @@ class _IndicatorsCard extends StatelessWidget {
         progress: amount == null ? null : amount / saltLimit,
         color: AppColors.body,
         note: salt?.isWorkedOut == true ? context.l10n.workedOut : null,
-      ),
-      _MeterRow(
-        label: context.l10n.fluidIntake,
-        value: fluid.hasRecords
-            ? context.l10n.fluidValue(
-                millilitres: formatKcal(fluid.millilitres),
-                count: fluid.drinkCount,
-              )
-            : '—',
       ),
       if (caffeineMg case final caffeine? when caffeine >= 1)
         _MeterRow(

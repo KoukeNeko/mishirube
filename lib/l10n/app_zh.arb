@@ -81,6 +81,10 @@
   "@moduleNutritionDescription": {
     "description": "Onboarding: what the food module covers."
   },
+  "moduleWaterDescription": "每次喝水的量與時間",
+  "@moduleWaterDescription": {
+    "description": "Onboarding: what the water module covers."
+  },
   "moduleWeight": "體重",
   "@moduleWeight": {
     "description": "Module: body weight and measurements."
@@ -6668,22 +6672,6 @@
   "workedOut": "推算",
   "@workedOut": {
     "description": "Note beside a figure worked out from others."
-  },
-  "fluidIntake": "飲水",
-  "@fluidIntake": {
-    "description": "Meter."
-  },
-  "fluidValue": "{millilitres} mL · {count} 筆",
-  "@fluidValue": {
-    "description": "Fluid meter; millilitres formatted.",
-    "placeholders": {
-      "millilitres": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "caffeineRemaining": "估計殘留咖啡因",
   "@caffeineRemaining": {

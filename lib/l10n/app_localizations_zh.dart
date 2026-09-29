@@ -69,6 +69,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleNutritionDescription => '一餐、料理、成分與營養';
 
   @override
+  String get moduleWaterDescription => '每次喝水的量與時間';
+
+  @override
   String get moduleWeight => '體重';
 
   @override
@@ -4379,14 +4382,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workedOut => '推算';
 
   @override
-  String get fluidIntake => '飲水';
-
-  @override
-  String fluidValue({required String millilitres, required int count}) {
-    return '$millilitres mL · $count 筆';
-  }
-
-  @override
   String get caffeineRemaining => '估計殘留咖啡因';
 
   @override
@@ -5715,6 +5710,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get moduleNutritionDescription => '一餐、菜品、成分与营养';
+
+  @override
+  String get moduleWaterDescription => '每次喝水的量与时间';
 
   @override
   String get moduleWeight => '体重';
@@ -10025,14 +10023,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get workedOut => '推算';
-
-  @override
-  String get fluidIntake => '饮水';
-
-  @override
-  String fluidValue({required String millilitres, required int count}) {
-    return '$millilitres mL · $count 条';
-  }
 
   @override
   String get caffeineRemaining => '估计残留咖啡因';

@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'一餐、料理、成分與營養'**
   String get moduleNutritionDescription;
 
+  /// Onboarding: what the water module covers.
+  ///
+  /// In zh, this message translates to:
+  /// **'每次喝水的量與時間'**
+  String get moduleWaterDescription;
+
   /// Module: body weight and measurements.
   ///
   /// In zh, this message translates to:
@@ -7659,18 +7665,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'推算'**
   String get workedOut;
-
-  /// Meter.
-  ///
-  /// In zh, this message translates to:
-  /// **'飲水'**
-  String get fluidIntake;
-
-  /// Fluid meter; millilitres formatted.
-  ///
-  /// In zh, this message translates to:
-  /// **'{millilitres} mL · {count} 筆'**
-  String fluidValue({required String millilitres, required int count});
 
   /// Meter.
   ///

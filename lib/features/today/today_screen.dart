@@ -18,6 +18,7 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
 import '../sleep/sleep_screen.dart';
 import '../training/workout_summary_screen.dart';
+import '../water/water_screen.dart';
 import '../trends/insight_detail_screen.dart';
 import 'active_workout_today.dart';
 import 'today_layout_screen.dart';
@@ -266,7 +267,7 @@ class TodayScreen extends StatelessWidget {
           onTap: () => pushPage(context, const SleepScreen()),
         ),
       if (modules.contains(AppModule.weight)) const _WeightTile(),
-      if (modules.contains(AppModule.nutrition))
+      if (modules.contains(AppModule.water))
         QuickStatTile(
           category: context.l10n.healthDataWater,
           color: AppColors.nutrition,
@@ -277,7 +278,7 @@ class TodayScreen extends StatelessWidget {
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),
-          onTap: () => pushPage(context, const DailyNutritionScreen()),
+          onTap: () => pushPage(context, const WaterScreen()),
         ),
     ];
     if (tiles.isEmpty) return const [];

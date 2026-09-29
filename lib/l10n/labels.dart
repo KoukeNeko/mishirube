@@ -64,6 +64,7 @@ extension CatalogueRecordText on CatalogueRecord {
 extension AppModuleText on AppModule {
   String title(AppLocalizations l10n) => switch (this) {
     AppModule.nutrition => l10n.moduleNutrition,
+    AppModule.water => l10n.healthDataWater,
     AppModule.weight => l10n.moduleWeight,
     AppModule.training => l10n.moduleTraining,
     AppModule.activity => l10n.moduleActivity,
@@ -74,6 +75,7 @@ extension AppModuleText on AppModule {
 
   String description(AppLocalizations l10n) => switch (this) {
     AppModule.nutrition => l10n.moduleNutritionDescription,
+    AppModule.water => l10n.moduleWaterDescription,
     AppModule.weight => l10n.moduleWeightDescription,
     AppModule.training => l10n.moduleTrainingDescription,
     AppModule.activity => l10n.moduleActivityDescription,

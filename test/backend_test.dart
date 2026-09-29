@@ -128,6 +128,36 @@ void main() {
     });
   });
 
+  group('modules', () {
+    test('water stays on for whoever kept 飲食 on before it was apart', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      // Modules as saved before water was a module of its own.
+      backend.db.setSetting('enabled_modules', '["nutrition","sleep"]');
+
+      final store = AppStore(clock: clock.now, backend: backend);
+      expect(store.enabledModules, contains(AppModule.water));
+
+      store.toggleModule(AppModule.water);
+      final reloaded = AppStore(clock: clock.now, backend: backend);
+      expect(
+        reloaded.enabledModules,
+        isNot(contains(AppModule.water)),
+        reason: 'switched off, it stays off',
+      );
+    });
+
+    test('plain water is not a record of food on the day', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final before = store.todaySummary.recordCount;
+
+      store.backend.nutrition.logWater(250);
+
+      expect(store.todaySummary.recordCount, before);
+    });
+  });
+
   group('workout persistence', () {
     test('a workout is restored as it was after the app is killed', () {
       final firstRun = openFile();

@@ -70,6 +70,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Meals, dishes, ingredients and nutrition';
 
   @override
+  String get moduleWaterDescription => 'How much water, and when';
+
+  @override
   String get moduleWeight => 'Weight';
 
   @override
@@ -4442,14 +4445,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workedOut => 'Worked out';
-
-  @override
-  String get fluidIntake => 'Fluids';
-
-  @override
-  String fluidValue({required String millilitres, required int count}) {
-    return '$millilitres mL · $count drinks';
-  }
 
   @override
   String get caffeineRemaining => 'Estimated caffeine left';

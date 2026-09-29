@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../app/view_model.dart';
 import '../../shared/widgets/widgets.dart';
-import 'meal_detail_screen.dart';
+import '../nutrition/meal_detail_screen.dart';
 import '../../app/app_store.dart';
-import 'nutrition_view_model.dart';
+import '../nutrition/nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
 
 /// The amounts offered for one tap, named after what holds them.
@@ -15,22 +14,31 @@ List<(String, int)> _presets(AppLocalizations l10n) => [
   (l10n.waterBottle, 500),
 ];
 
-/// Plain water, logged in one tap.
+/// A day's plain water, logged in one tap on today.
 ///
-/// The card states facts and nothing else: how much water today, how many
-/// times, the last one. There is no target, percentage or filling glass —
-/// the app has no validated daily amount, and a glass that fills up is
-/// read as distance to one. Other drinks with a volume are counted on a
-/// quieter line of their own rather than folded into a number labelled
-/// 「水」.
+/// The card states facts and nothing else: how much water that day, how
+/// many times, the last one. There is no target, percentage or filling
+/// glass — the app has no validated daily amount, and a glass that fills
+/// up is read as distance to one. Other drinks with a volume are counted
+/// on a quieter line of their own rather than folded into a number
+/// labelled 「水」.
 ///
 /// How much the next tap adds is chosen on the card itself, since it is
-/// part of logging, not a setting.
+/// part of logging, not a setting. Another day shows its figures only:
+/// a tap logs now, which is not that day.
 class WaterCard extends StatelessWidget {
-  const WaterCard({super.key, required this.onOpenDay});
+  const WaterCard({
+    super.key,
+    required this.nutrition,
+    required this.day,
+    required this.onOpenDay,
+  });
 
-  /// Opens the day's food and drink, where every drink is listed and can
-  /// be corrected.
+  final NutritionViewModel nutrition;
+  final DateTime day;
+
+  /// Opens the day's food and drink, where every other drink is listed
+  /// and can be corrected.
   final VoidCallback onOpenDay;
 
   void _logGlass(BuildContext context, NutritionViewModel nutrition) {
@@ -95,13 +103,11 @@ class WaterCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      ViewModelBuilder(create: NutritionViewModel.new, builder: _card);
-
-  Widget _card(BuildContext context, NutritionViewModel nutrition) {
-    final water = nutrition.todayWater;
-    final fluid = nutrition.todayFluid;
+  Widget build(BuildContext context) {
+    final water = nutrition.waterOn(day);
+    final fluid = nutrition.fluidOn(day);
     final glass = nutrition.glassMillilitres;
+    final isToday = DateUtils.isSameDay(day, nutrition.now());
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,20 +126,20 @@ class WaterCard extends StatelessWidget {
                   style: AppTextStyles.itemTitle,
                 ),
               ),
-              ChipButton(
-                label: '$glass mL ▾',
-                semanticLabel: context.l10n.waterPerTapLabel(
-                  millilitres: glass,
+              if (isToday)
+                ChipButton(
+                  label: '$glass mL ▾',
+                  semanticLabel: context.l10n.waterPerTapLabel(
+                    millilitres: glass,
+                  ),
+                  onTap: () => _pickAmount(context, nutrition),
                 ),
-                onTap: () => _pickAmount(context, nutrition),
-              ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           StatBlock(
             value: '${water.millilitres}',
             unit: 'mL',
-            label: context.l10n.tabToday,
             valueStyle: AppTextStyles.hugeNumber,
           ),
           const SizedBox(height: AppSpacing.xxs),
@@ -144,11 +150,13 @@ class WaterCard extends StatelessWidget {
             ),
             null => context.l10n.noEntriesShort,
           }, style: AppTextStyles.caption),
-          const SizedBox(height: AppSpacing.md),
-          NutritionButton(
-            label: '＋ $glass mL',
-            onPressed: () => _logGlass(context, nutrition),
-          ),
+          if (isToday) ...[
+            const SizedBox(height: AppSpacing.md),
+            NutritionButton(
+              label: '＋ $glass mL',
+              onPressed: () => _logGlass(context, nutrition),
+            ),
+          ],
           // Only when other drinks added something, and never under the
           // name 「水」.
           if (fluid.millilitres > water.millilitres) ...[

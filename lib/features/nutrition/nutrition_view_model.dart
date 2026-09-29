@@ -48,10 +48,10 @@ class NutritionViewModel extends ViewModel {
 
   BodyWeight? weightOn(DateTime day) => backend.journal.weightOn(day);
 
-  /// Which of [days] have anything eaten or drunk logged.
+  /// Which of [days] have anything eaten or drunk logged, water aside.
   Set<DateTime> daysWithMeals(Iterable<DateTime> days) => {
     for (final day in days)
-      if (backend.nutrition.mealsOn(day).isNotEmpty) day,
+      if (backend.nutrition.mealsOn(day).any((meal) => !meal.isWater)) day,
   };
 
   /// Food totals for [day] and how complete its log is.
@@ -271,11 +271,27 @@ class NutritionViewModel extends ViewModel {
   void setGlassMillilitres(int millilitres) =>
       backend.db.setSetting(_glassKey, '$millilitres');
 
-  /// What today's drinks came to, counting only those logged by volume.
-  FluidLogged get todayFluid => summariseFluid(mealsOn(now()));
+  /// What [day]'s drinks came to, counting only those logged by volume.
+  FluidLogged fluidOn(DateTime day) => summariseFluid(mealsOn(day));
 
-  /// Today's plain water, apart from every other drink.
-  WaterLogged get todayWater => summariseWater(mealsOn(now()));
+  FluidLogged get todayFluid => fluidOn(now());
+
+  /// [day]'s plain water, apart from every other drink.
+  WaterLogged waterOn(DateTime day) => summariseWater(mealsOn(day));
+
+  WaterLogged get todayWater => waterOn(now());
+
+  /// The glasses of plain water drunk on [day], in the order drunk.
+  List<MealEvent> glassesOn(DateTime day) => [
+    for (final meal in mealsOn(day))
+      if (meal.isWater) meal,
+  ];
+
+  /// Which of [days] had water logged, for the week strip.
+  Set<DateTime> daysWithWater(Iterable<DateTime> days) => {
+    for (final day in days)
+      if (glassesOn(day).isNotEmpty) day,
+  };
 
   /// Logs a glass of water. It writes the same record every drink
   /// writes, so the day's fluid stays one total.

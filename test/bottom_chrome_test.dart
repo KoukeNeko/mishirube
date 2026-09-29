@@ -118,8 +118,7 @@ void main() {
       of: find.byKey(quickLogMenuKey),
       matching: find.byType(InkWell),
     );
-    // One rhythm all the way down, × included. A row can hold two pills
-    // (water beside food), so rows are told apart by where they start.
+    // One rhythm all the way down, × included.
     final byTop = <int, Rect>{
       for (var i = 0; i < pills.evaluate().length; i++)
         tester.getRect(pills.at(i)).top.round(): tester.getRect(pills.at(i)),
@@ -146,8 +145,11 @@ void main() {
         matching: find.text('水'),
       ),
     );
-    expect(water.center.dy, closeTo(food.center.dy, 1), reason: 'one row');
-    expect(water.left, greaterThan(food.right), reason: 'to its right');
+    expect(
+      water.top,
+      greaterThan(food.bottom),
+      reason: 'water is a module of its own, on a row of its own',
+    );
 
     await tester.tap(find.byTooltip('關閉'));
     await tester.pump();

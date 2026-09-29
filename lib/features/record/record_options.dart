@@ -24,8 +24,7 @@ class RecordOption {
     required this.title,
     required this.module,
     required Widget Function() this.destination,
-  }) : onSelect = null,
-       isBesidePrevious = false;
+  }) : onSelect = null;
 
   /// An option that is done in one tap and opens nothing, such as logging
   /// a glass of water.
@@ -35,7 +34,6 @@ class RecordOption {
     required this.title,
     required this.module,
     required void Function(BuildContext context) this.onSelect,
-    this.isBesidePrevious = false,
   }) : destination = null;
 
   final IconData icon;
@@ -51,10 +49,6 @@ class RecordOption {
   /// nowhere would be a button that only says it is not done yet.
   final Widget Function()? destination;
   final void Function(BuildContext context)? onSelect;
-
-  /// Shown on the same row as the option before it, as a shortcut that
-  /// belongs to it — water beside food.
-  final bool isBesidePrevious;
 }
 
 /// What the user can add, most used first. The menu shows the ones whose
@@ -82,14 +76,13 @@ final recordOptions = [
     destination: () => const FoodSearchScreen(),
   ),
   // The most repeated record there is, so it is one tap from anywhere:
-  // the same drink record the food page's water button writes, with an
-  // undo in case the tap was a slip.
+  // the same drink record the water page's button writes, with an undo
+  // in case the tap was a slip.
   RecordOption.action(
     icon: Icons.water_drop_outlined,
     color: AppColors.nutrition,
     title: (l10n) => l10n.recordWater,
-    module: AppModule.nutrition,
-    isBesidePrevious: true,
+    module: AppModule.water,
     onSelect: (context) {
       final store = AppStoreScope.read(context);
       final nutrition = NutritionViewModel(store.backend);
