@@ -20,6 +20,10 @@ import '../../l10n/l10n.dart';
 ///
 /// Every number here is typed by hand, so the screen never dresses them
 /// up as a lookup: what goes in is what comes back out.
+/// What the form hands back when it logs what it saved: the food, and
+/// the model that read its figures when one did.
+typedef FoodEdit = ({FoodItem food, (AiProviderKind, String)? draftedBy});
+
 class FoodEditScreen extends StatefulWidget {
   const FoodEditScreen({
     super.key,
@@ -139,6 +143,10 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// Whose rules a scanned label followed, kept with the food so its
   /// page reads as the label does; a food being corrected keeps its own.
   late String _country = widget.editing?.country ?? '';
+
+  /// The model that read the figures, when one did: a scan keeps saying
+  /// so on the record it becomes.
+  (AiProviderKind, String)? _drafter;
 
   /// A drink's alcohol by volume, in %: not kept, only a way to fill in
   /// the grams of alcohol a label rarely prints.
@@ -391,6 +399,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// added up, so a figure any item lacks is left empty rather than
   /// undercounted. The name typed so far is kept.
   void _fillFromPhoto(MealDraft draft) {
+    _drafter = (draft.provider, draft.model);
     final items = draft.items;
     double? total(double? Function(DraftItem) figure) {
       final figures = items.map(figure);
@@ -451,6 +460,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// kept; a figure the label did not give leaves its field as it was.
   void _fillFrom(FoodLabelDraft draft) {
     if (!mounted) return;
+    _drafter = (draft.provider, draft.model);
     void put(TextEditingController field, num? value) {
       if (value != null) field.text = formatAmount(value.toDouble());
     }
@@ -494,7 +504,8 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   void _save({required bool logNow}) {
     final food = _food();
     _nutrition.saveFood(food);
-    Navigator.of(context).pop(logNow ? food : null);
+    Navigator.of(context)
+        .pop(logNow ? (food: food, draftedBy: _drafter) : null);
   }
 
   /// Logs the form as one serving eaten now, keeping the food only when
@@ -502,17 +513,24 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   void _logOnce() {
     final food = _food();
     final at = _eatenAt ?? widget.at;
-    if (_keepsFood) {
-      _nutrition.saveFood(food);
-      _nutrition.logPortions(
-        [FoodPortion(food, 1)],
-        mealType: _mealType,
-        at: at,
-      );
-    } else {
-      _nutrition.logOnce(food, mealType: _mealType, at: at);
-    }
-    Navigator.of(context).pop(food);
+    if (_keepsFood) _nutrition.saveFood(food);
+    final logged = _keepsFood
+        ? _nutrition
+              .logPortions(
+                [FoodPortion(food, 1)],
+                mealType: _mealType,
+                at: at,
+                draftedByOf: (_) => _drafter,
+              )
+              .single
+        : _nutrition.logOnce(
+            food,
+            mealType: _mealType,
+            at: at,
+            draftedBy: _drafter,
+          );
+    // What was logged, not the food: the caller's toast opens it.
+    Navigator.of(context).pop(logged);
   }
 
   Future<void> _pickTime() async {
@@ -686,12 +704,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   Future<void> _addSize() async {
     final editing = widget.editing;
     if (editing == null) return;
-    await pushPage<FoodItem>(context, FoodEditScreen(sizeOf: editing));
+    await pushPage<FoodEdit>(context, FoodEditScreen(sizeOf: editing));
     if (mounted) setState(() {});
   }
 
   Future<void> _editSize(FoodItem size) async {
-    await pushPage<FoodItem>(context, FoodEditScreen(editing: size));
+    await pushPage<FoodEdit>(context, FoodEditScreen(editing: size));
     if (mounted) setState(() {});
   }
 

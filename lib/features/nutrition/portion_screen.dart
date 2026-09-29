@@ -293,7 +293,7 @@ class _PortionScreenState extends State<PortionScreen> {
   /// Edits the food itself, then leaves: the portion on this page was
   /// worked out from the numbers that were just changed.
   Future<void> _edit() async {
-    await pushPage<FoodItem>(context, FoodEditScreen(editing: widget.food));
+    await pushPage<FoodEdit>(context, FoodEditScreen(editing: widget.food));
     if (mounted) Navigator.of(context).pop();
   }
 

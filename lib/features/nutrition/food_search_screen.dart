@@ -96,6 +96,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// What has been picked so far, in the order it was picked.
   final _plate = <FoodPortion>[];
 
+  /// Which model read each food's figures, by food id: what is logged
+  /// from here then says so on the record.
+  final _drafted = <String, (AiProviderKind, String)>{};
+
   /// Ticks whenever the plate changes, so a brand's menu opened over this
   /// page — which this page's rebuilds never reach — shows it too.
   final _plateChanges = ValueNotifier(0);
@@ -139,14 +143,19 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   }
 
   Future<void> _create() async {
-    // A food comes back when the user asked to log it straight away.
-    final created = await pushPage<FoodItem>(
+    // A food comes back when the user asked to log it straight away,
+    // along with the model that read its figures when one did.
+    final created = await pushPage<FoodEdit>(
       context,
       FoodEditScreen(initialName: _query.text.trim()),
     );
     if (!mounted) return;
     setState(() {});
-    if (created != null) await _choose(created);
+    if (created == null) return;
+    if (created.draftedBy case final draftedBy?) {
+      _drafted[created.food.id] = draftedBy;
+    }
+    await _choose(created.food);
   }
 
   bool _isOnPlate(FoodItem food) => _plate.any(
@@ -204,6 +213,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       List.of(_plate),
       mealType: _mealType,
       at: _at,
+      draftedByOf: (portion) => _drafted[portion.food.id],
     );
     navigator
       ..popUntil((route) => route == ownRoute)

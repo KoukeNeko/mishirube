@@ -223,10 +223,16 @@ class NutritionService {
     List<FoodPortion> portions, {
     MealType? mealType,
     DateTime? at,
+    (AiProviderKind, String)? Function(FoodPortion portion)? draftedByOf,
   }) => _db.transaction(
     () => [
       for (final portion in portions)
-        logPortion(portion, mealType: mealType, at: at),
+        logPortion(
+          portion,
+          mealType: mealType,
+          at: at,
+          draftedBy: draftedByOf?.call(portion),
+        ),
     ],
   );
 
@@ -412,11 +418,17 @@ class NutritionService {
     MealEvent meal, {
     required DateTime eatenAt,
     ChangeSource source = ChangeSource.local,
+    Object? auditPayload,
   }) {
     final stored = _meals.exists(meal.id)
         ? meal.copyWith(id: _db.newId())
         : meal;
-    _meals.insert(stored, eatenAt: eatenAt, source: source);
+    _meals.insert(
+      stored,
+      eatenAt: eatenAt,
+      source: source,
+      auditPayload: auditPayload,
+    );
     return stored;
   }
 
@@ -704,27 +716,51 @@ class NutritionService {
   /// The numbers are copied, not linked: correcting the food later is not
   /// a claim about what was eaten last Tuesday. They are also not marked
   /// as estimated — the user typed them and chose the portion.
+  /// [draftedBy] is the model that read the figures, when one did: the
+  /// record then says so, and says which one, rather than reading as the
+  /// user's own numbers.
   MealEvent logPortion(
     FoodPortion portion, {
     MealType? mealType,
     DateTime? at,
-  }) => _logPortion(portion, mealType: mealType, keepsFood: true, at: at);
+    (AiProviderKind, String)? draftedBy,
+  }) => _logPortion(
+    portion,
+    mealType: mealType,
+    keepsFood: true,
+    at: at,
+    draftedBy: draftedBy,
+  );
 
   /// Logs [portion] of a food typed for this one meal and not kept, as
   /// 快速記錄 does: the same record as [logPortion], with nothing tying it
   /// to a food the list would offer again.
-  MealEvent logOnce(FoodPortion portion, {MealType? mealType, DateTime? at}) =>
-      _logPortion(portion, mealType: mealType, keepsFood: false, at: at);
+  MealEvent logOnce(
+    FoodPortion portion, {
+    MealType? mealType,
+    DateTime? at,
+    (AiProviderKind, String)? draftedBy,
+  }) => _logPortion(
+    portion,
+    mealType: mealType,
+    keepsFood: false,
+    at: at,
+    draftedBy: draftedBy,
+  );
 
   MealEvent _logPortion(
     FoodPortion portion, {
     required MealType? mealType,
     required bool keepsFood,
     DateTime? at,
+    (AiProviderKind, String)? draftedBy,
   }) {
     final eatenAt = at ?? _db.now();
     final food = portion.food;
-    final tag = keepsFood ? customFoodQualityTag : quickLogQualityTag;
+    final tag = switch (draftedBy) {
+      _? => aiDraftQualityTag,
+      null => keepsFood ? customFoodQualityTag : quickLogQualityTag,
+    };
     return logMeal(
       MealEvent(
         id: _db.newId(),
@@ -739,7 +775,10 @@ class NutritionService {
         millilitres: portion.millilitres,
         kind: food.kind,
         mealType: mealType,
-        valueType: food.valueType,
+        valueType: draftedBy == null
+            ? food.valueType
+            : NutrientValueType.estimate,
+        isEstimated: draftedBy != null,
         foodId: keepsFood ? food.id : null,
         servings: keepsFood ? portion.servings : null,
         labelCountry: food.country,
@@ -754,6 +793,14 @@ class NutritionService {
         ],
       ),
       eatenAt: eatenAt,
+      source: draftedBy == null ? ChangeSource.local : ChangeSource.aiDraft,
+      auditPayload: switch (draftedBy) {
+        (final provider, final model) => {
+          'provider': provider.name,
+          'model': model,
+        },
+        null => null,
+      },
     );
   }
 

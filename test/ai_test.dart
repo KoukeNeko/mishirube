@@ -17,6 +17,7 @@ import 'package:mishirube/backend/ai/secret_store.dart';
 import 'package:mishirube/backend/ai/workout_draft_json.dart';
 import 'package:mishirube/backend/application/ai_service.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/engines/label_text.dart';
 import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
@@ -25,6 +26,7 @@ import 'package:mishirube/features/me/ai_draft_parts.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/l10n/l10n.dart';
@@ -1562,6 +1564,51 @@ void main() {
         });
       },
     );
+
+    testWidgets('figures a model read keep saying which model, logged '
+        'from the form', (tester) async {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      const food = FoodItem(
+        id: 'scanned-milk',
+        name: '福樂超能蛋白營養牛乳',
+        kcal: 55.5,
+        servingAmount: 375,
+        servingUnit: ServingUnit.millilitre,
+      );
+
+      // The form saves a food the model read and hands the meal page the
+      // same provenance it was read with.
+      final logged = store.backend.nutrition.logPortion(
+        const FoodPortion(food, 1),
+        draftedBy: (AiProviderKind.ollamaCloud, 'gemma4:31b'),
+      );
+
+      expect(logged.kcal, 55.5, reason: 'the label has a decimal');
+      expect(logged.qualityTag, aiDraftQualityTag);
+      expect(logged.isEstimated, isTrue);
+      expect(logged.valueType, NutrientValueType.estimate);
+      final audit = store.backend.db.select(
+        'SELECT source, payload FROM audit_events WHERE entity_id = ?',
+        [logged.id],
+      ).single;
+      expect(audit['source'], 'aiDraft');
+      expect(jsonDecode(audit['payload']! as String), {
+        'provider': 'ollamaCloud',
+        'model': 'gemma4:31b',
+      });
+      expect(store.backend.nutrition.draftedBy(logged.id), (
+        AiProviderKind.ollamaCloud,
+        'gemma4:31b',
+      ));
+
+      await pumpScreen(tester, MealDetailScreen(meal: logged), store: store);
+      expect(
+        find.text('Ollama Cloud / gemma4:31b 估計'),
+        findsOneWidget,
+        reason: 'not 已確認: a model read these figures',
+      );
+      await disposeTree(tester);
+    });
 
     test('a draft of several items can be one meal of those items', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);

@@ -50,7 +50,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   }
 
   Future<void> _create() async {
-    await pushPage<FoodItem>(
+    await pushPage<FoodEdit>(
       context,
       FoodEditScreen(initialName: _query.text.trim()),
     );
@@ -58,7 +58,7 @@ class _FoodLibraryScreenState extends State<FoodLibraryScreen> {
   }
 
   Future<void> _edit(FoodItem food) async {
-    await pushPage<FoodItem>(context, FoodEditScreen(editing: food));
+    await pushPage<FoodEdit>(context, FoodEditScreen(editing: food));
     if (mounted) setState(() {});
   }
 

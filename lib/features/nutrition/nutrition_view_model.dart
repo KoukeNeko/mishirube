@@ -105,15 +105,26 @@ class NutritionViewModel extends ViewModel {
     List<FoodPortion> portions, {
     MealType? mealType,
     DateTime? at,
-  }) => backend.nutrition.logPortions(portions, mealType: mealType, at: at);
+    (AiProviderKind, String)? Function(FoodPortion portion)? draftedByOf,
+  }) => backend.nutrition.logPortions(
+    portions,
+    mealType: mealType,
+    at: at,
+    draftedByOf: draftedByOf,
+  );
 
   /// Logs one serving of [food] without keeping the food: 快速記錄.
-  MealEvent logOnce(FoodItem food, {MealType? mealType, DateTime? at}) =>
-      backend.nutrition.logOnce(
-        FoodPortion(food, 1),
-        mealType: mealType,
-        at: at,
-      );
+  MealEvent logOnce(
+    FoodItem food, {
+    MealType? mealType,
+    DateTime? at,
+    (AiProviderKind, String)? draftedBy,
+  }) => backend.nutrition.logOnce(
+    FoodPortion(food, 1),
+    mealType: mealType,
+    at: at,
+    draftedBy: draftedBy,
+  );
 
   /// Takes logged meals back out; [restoreMeals] puts them back.
   void deleteMeals(List<MealEvent> meals) =>
