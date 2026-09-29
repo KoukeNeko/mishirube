@@ -376,6 +376,7 @@ class TodayScreen extends StatelessWidget {
                 onTap: switch (timelineDestination(
                   entry,
                   isSleep: today.isSleep,
+                  mealById: today.backend.nutrition.mealById,
                 )) {
                   final page? => () => pushPage(context, page),
                   null => null,

@@ -2212,6 +2212,56 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a food row opens that meal, not its day', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.nutrition.logMeal(
+      MealEvent(
+        id: 'today-lunch',
+        name: '雞腿便當',
+        timeLabel: '12:30',
+        qualityTag: '手動',
+        dishes: const [],
+        kcal: 780,
+      ),
+      eatenAt: store.now(),
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final row = find.text('雞腿便當');
+    await tester.dragUntilVisible(
+      row,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    await Scrollable.ensureVisible(tester.element(row), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    expect(find.byType(MealDetailScreen), findsOneWidget);
+    expect(
+      find.byType(DailyNutritionScreen),
+      findsNothing,
+      reason: 'the meal it names, not the day it was eaten on',
+    );
+    await disposeTree(tester);
+
+    // The same row in 紀錄 opens the same page.
+    await pumpScreen(tester, const LogScreen(), store: store);
+    final logged = find.text('雞腿便當');
+    await tester.dragUntilVisible(
+      logged,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    await Scrollable.ensureVisible(tester.element(logged), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(logged);
+    await tester.pumpAndSettle();
+    expect(find.byType(MealDetailScreen), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a weight in the log opens, corrects and deletes with undo', (
     tester,
   ) async {

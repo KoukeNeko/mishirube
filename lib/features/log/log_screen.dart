@@ -310,7 +310,11 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   void _openEntry(TimelineEntry entry) {
-    final destination = timelineDestination(entry, isSleep: _log.isSleep);
+    final destination = timelineDestination(
+      entry,
+      isSleep: _log.isSleep,
+      mealById: _log.backend.nutrition.mealById,
+    );
     if (destination != null) pushPage(context, destination);
   }
 
