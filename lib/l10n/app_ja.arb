@@ -60,6 +60,7 @@
   "sessionPausedStatus": "一時停止中",
   "sessionRunningStatus": "{session}中",
   "dockAddEntry": "記録を追加",
+  "addEntryToDay": "{date}に記録を追加",
   "tabToday": "今日",
   "tabLog": "記録",
   "tabTrends": "トレンド",

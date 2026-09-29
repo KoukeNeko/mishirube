@@ -210,6 +210,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dockAddEntry => '新增紀錄';
 
   @override
+  String addEntryToDay({required String date}) {
+    return '新增紀錄到 $date';
+  }
+
+  @override
   String get tabToday => '今天';
 
   @override
@@ -5854,6 +5859,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get dockAddEntry => '添加记录';
+
+  @override
+  String addEntryToDay({required String date}) {
+    return '添加记录到 $date';
+  }
 
   @override
   String get tabToday => '今天';

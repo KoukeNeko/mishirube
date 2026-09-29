@@ -211,6 +211,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dockAddEntry => '記録を追加';
 
   @override
+  String addEntryToDay({required String date}) {
+    return '$dateに記録を追加';
+  }
+
+  @override
   String get tabToday => '今日';
 
   @override

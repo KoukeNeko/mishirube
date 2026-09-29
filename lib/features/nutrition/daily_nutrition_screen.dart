@@ -456,11 +456,16 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
           ),
         ],
         // Logs to the day shown, as the training page's 新增課表 adds a
-        // routine: another day is a swipe away on the strip above.
+        // routine: another day is a swipe away on the strip above, and the
+        // label says so.
         if (merging == null)
           Gutter(
             child: DashedActionCard(
-              label: context.l10n.dockAddEntry,
+              label: day == today
+                  ? context.l10n.dockAddEntry
+                  : context.l10n.addEntryToDay(
+                      date: context.dates.monthDay(day),
+                    ),
               color: AppColors.nutrition,
               onTap: () => pushPage(context, FoodSearchScreen(day: day)),
             ),

@@ -212,6 +212,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dockAddEntry => '기록 추가';
 
   @override
+  String addEntryToDay({required String date}) {
+    return '$date에 기록 추가';
+  }
+
+  @override
   String get tabToday => '오늘';
 
   @override

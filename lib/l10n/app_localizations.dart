@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'新增紀錄'**
   String get dockAddEntry;
 
+  /// A page's add button while it shows another day than today, naming the day it logs to; date is formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'新增紀錄到 {date}'**
+  String addEntryToDay({required String date});
+
   /// Bottom tab.
   ///
   /// In zh, this message translates to:

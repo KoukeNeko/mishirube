@@ -290,6 +290,15 @@
   "@dockAddEntry": {
     "description": "The dock's centre button that opens the add menu; the same action as the add buttons on pages."
   },
+  "addEntryToDay": "新增紀錄到 {date}",
+  "@addEntryToDay": {
+    "description": "A page's add button while it shows another day than today, naming the day it logs to; date is formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "tabToday": "今天",
   "@tabToday": {
     "description": "Bottom tab."

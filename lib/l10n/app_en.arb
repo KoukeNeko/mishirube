@@ -60,6 +60,7 @@
   "sessionPausedStatus": "Paused",
   "sessionRunningStatus": "In progress",
   "dockAddEntry": "Add entry",
+  "addEntryToDay": "Add entry to {date}",
   "tabToday": "Today",
   "tabLog": "Log",
   "tabTrends": "Trends",

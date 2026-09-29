@@ -214,6 +214,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dockAddEntry => 'Add entry';
 
   @override
+  String addEntryToDay({required String date}) {
+    return 'Add entry to $date';
+  }
+
+  @override
   String get tabToday => 'Today';
 
   @override

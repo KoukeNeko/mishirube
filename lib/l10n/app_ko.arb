@@ -60,6 +60,7 @@
   "sessionPausedStatus": "일시정지됨",
   "sessionRunningStatus": "{session} 진행 중",
   "dockAddEntry": "기록 추가",
+  "addEntryToDay": "{date}에 기록 추가",
   "tabToday": "오늘",
   "tabLog": "기록",
   "tabTrends": "추세",

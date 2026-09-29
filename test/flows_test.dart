@@ -2102,14 +2102,26 @@ void main() {
     final today = store.now();
     final yesterday = DateTime(today.year, today.month, today.day - 1);
     await pumpScreen(tester, const DailyNutritionScreen(), store: store);
+    final page = find.byType(CustomScrollView).hitTestable().first;
+    final addToday = find.text(testL10n.dockAddEntry);
+    await tester.dragUntilVisible(addToday, page, _scrollStep);
+    expect(addToday, findsOneWidget, reason: 'today needs no day named');
+
     await tester.tap(
       find.bySemanticsLabel(RegExp('^${yesterday.month} 月 ${yesterday.day} 日')),
     );
     await tester.pumpAndSettle();
+    // The button says which day it logs to once that is not today.
+    final label = testL10n.addEntryToDay(
+      date: AppDates.of(testL10n).monthDay(yesterday),
+    );
+    await tester.dragUntilVisible(find.text(label), page, _scrollStep);
+    expect(find.text(label), findsOneWidget);
+    expect(addToday, findsNothing);
     final before = nutrition.mealsOn(yesterday).length;
     final todayBefore = nutrition.mealsOn(today).length;
 
-    await _tapText(tester, '新增紀錄');
+    await _tapText(tester, label);
     await tester.pumpAndSettle();
     expect(find.byType(FoodSearchScreen), findsOneWidget);
     await tester.tap(find.byTooltip(RegExp('^加入(?!收藏)')).first);

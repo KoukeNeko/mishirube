@@ -60,6 +60,7 @@
   "sessionPausedStatus": "已暂停",
   "sessionRunningStatus": "{session}进行中",
   "dockAddEntry": "添加记录",
+  "addEntryToDay": "添加记录到 {date}",
   "tabToday": "今天",
   "tabLog": "记录",
   "tabTrends": "趋势",
