@@ -272,6 +272,8 @@
   "activityMetricGroupMovement": "Daily activity",
   "activityMetricGroupHeart": "Heart & fitness",
   "activityMetricGroupVitals": "Vitals",
+  "activityMetricMindfulTime": "Mindful minutes",
+  "activityMetricGroupMindfulness": "Mindfulness",
   "activityMetricBodyTemperature": "Body temperature",
   "activityMetricBloodPressureSystolic": "Systolic",
   "activityMetricBloodPressureDiastolic": "Diastolic",

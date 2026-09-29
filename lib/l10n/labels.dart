@@ -632,6 +632,7 @@ extension ActivityMetricGroupText on ActivityMetricGroup {
     ActivityMetricGroup.movement => l10n.activityMetricGroupMovement,
     ActivityMetricGroup.heart => l10n.activityMetricGroupHeart,
     ActivityMetricGroup.vitals => l10n.activityMetricGroupVitals,
+    ActivityMetricGroup.mindfulness => l10n.activityMetricGroupMindfulness,
     ActivityMetricGroup.mobility => l10n.activityMetricGroupMobility,
     ActivityMetricGroup.running => l10n.activityMetricGroupRunning,
     ActivityMetricGroup.cycling => l10n.activityMetricGroupCycling,
@@ -660,6 +661,7 @@ extension ActivityMetricText on ActivityMetric {
     ActivityMetric.vo2Max => l10n.activityMetricVo2Max,
     ActivityMetric.physicalEffort => l10n.activityMetricPhysicalEffort,
     ActivityMetric.bodyTemperature => l10n.activityMetricBodyTemperature,
+    ActivityMetric.mindfulTime => l10n.activityMetricMindfulTime,
     ActivityMetric.bloodPressureSystolic =>
       l10n.activityMetricBloodPressureSystolic,
     ActivityMetric.bloodPressureDiastolic =>
@@ -715,6 +717,7 @@ extension ActivityMetricUnitText on ActivityMetric {
     ActivityMetric.vo2Max => l10n.activityMetricUnitVo2Max,
     ActivityMetric.physicalEffort => l10n.activityMetricUnitPhysicalEffort,
     ActivityMetric.bodyTemperature => '°C',
+    ActivityMetric.mindfulTime => l10n.activityMetricUnitExerciseTime,
     ActivityMetric.bloodPressureSystolic ||
     ActivityMetric.bloodPressureDiastolic => 'mmHg',
     ActivityMetric.respiratoryRate => l10n.activityMetricUnitRespiratoryRate,

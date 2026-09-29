@@ -882,6 +882,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityMetricGroupVitals => '生命徵象';
 
   @override
+  String get activityMetricMindfulTime => '正念時間';
+
+  @override
+  String get activityMetricGroupMindfulness => '正念';
+
+  @override
   String get activityMetricBodyTemperature => '體溫';
 
   @override
@@ -6608,6 +6614,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get activityMetricGroupVitals => '生命体征';
+
+  @override
+  String get activityMetricMindfulTime => '正念时间';
+
+  @override
+  String get activityMetricGroupMindfulness => '正念';
 
   @override
   String get activityMetricBodyTemperature => '体温';

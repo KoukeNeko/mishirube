@@ -27,6 +27,8 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.MindfulnessSessionRecord
+import androidx.health.connect.client.feature.ExperimentalMindfulnessSessionApi
 import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BoneMassRecord
@@ -285,10 +287,22 @@ class HealthConnectBridge(
             "nutrition" -> listOf(NutritionRecord::class)
             "overnight" -> overnightTypes
             "body" -> bodyTypes
-            "activity" -> activityTypes
+            "activity" -> activityTypes + mindfulnessTypes()
             else -> emptyList()
         }
     }.map { HealthPermission.getReadPermission(it) }.toSet()
+
+    /** Mindfulness sessions, where this Health Connect keeps them. */
+    @OptIn(ExperimentalMindfulnessSessionApi::class)
+    private fun mindfulnessTypes(): List<KClass<out Record>> =
+        if (client.features.getFeatureStatus(
+                HealthConnectFeatures.FEATURE_MINDFULNESS_SESSION,
+            ) == HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+        ) {
+            listOf(MindfulnessSessionRecord::class)
+        } else {
+            emptyList()
+        }
 
     /** Body figures Health Connect keeps; there is no skeletal muscle. */
     private val bodyTypes = listOf(
@@ -791,6 +805,7 @@ class HealthConnectBridge(
      * source the user ranked first where a phone and a watch overlap;
      * measured ones as each local day's average.
      */
+    @OptIn(ExperimentalMindfulnessSessionApi::class)
     private suspend fun activityRows(
         from: Instant,
         to: Instant,
@@ -915,6 +930,48 @@ class HealthConnectBridge(
                 readAll(Vo2MaxRecord::class, from, to)
                     .map { it.time to it.vo2MillilitersPerMinuteKilogram },
             )
+        }
+        // Minutes in each hour, or day for years long past: a phone's and
+        // a watch's overlapping sessions count once.
+        if (mindfulnessTypes().isNotEmpty() && allowed(MindfulnessSessionRecord::class)) {
+            val sessions = readAll(MindfulnessSessionRecord::class, from, to)
+                .map { it.startTime to it.endTime }
+                .sortedBy { it.first }
+            val spans = mutableListOf<Pair<Instant, Instant>>()
+            for ((start, end) in sessions) {
+                val last = spans.lastOrNull()
+                if (last != null && !start.isAfter(last.second)) {
+                    spans[spans.size - 1] = last.first to maxOf(last.second, end)
+                } else {
+                    spans += start to end
+                }
+            }
+            val minutes = sortedMapOf<Instant, Double>()
+            for ((start, end) in spans) {
+                var cursor = start
+                while (cursor.isBefore(end)) {
+                    val local = cursor.atZone(zone)
+                    val bucket = if (daily) {
+                        local.toLocalDate().atStartOfDay(zone)
+                    } else {
+                        local.truncatedTo(java.time.temporal.ChronoUnit.HOURS)
+                    }
+                    val next = (if (daily) bucket.plusDays(1) else bucket.plusHours(1))
+                        .toInstant()
+                    val stop = minOf(end, next)
+                    minutes[bucket.toInstant()] = (minutes[bucket.toInstant()] ?: 0.0) +
+                        Duration.between(cursor, stop).toMillis() / 60_000.0
+                    cursor = stop
+                }
+            }
+            for ((bucket, value) in minutes) {
+                val next = if (daily) {
+                    bucket.atZone(zone).plusDays(1).toInstant()
+                } else {
+                    bucket.plus(Duration.ofHours(1))
+                }
+                row("mindfulTime", bucket, next, value)
+            }
         }
         if (allowed(BodyTemperatureRecord::class)) {
             daily(

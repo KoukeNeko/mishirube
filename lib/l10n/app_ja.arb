@@ -272,6 +272,8 @@
   "activityMetricGroupMovement": "日常の活動",
   "activityMetricGroupHeart": "心臓・心肺",
   "activityMetricGroupVitals": "バイタル",
+  "activityMetricMindfulTime": "マインドフルネスの時間",
+  "activityMetricGroupMindfulness": "マインドフルネス",
   "activityMetricBodyTemperature": "体温",
   "activityMetricBloodPressureSystolic": "収縮期血圧",
   "activityMetricBloodPressureDiastolic": "拡張期血圧",

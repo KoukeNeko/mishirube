@@ -272,6 +272,8 @@
   "activityMetricGroupMovement": "일상 활동",
   "activityMetricGroupHeart": "심장·심폐",
   "activityMetricGroupVitals": "바이탈",
+  "activityMetricMindfulTime": "마음챙김 시간",
+  "activityMetricGroupMindfulness": "마음챙김",
   "activityMetricBodyTemperature": "체온",
   "activityMetricBloodPressureSystolic": "수축기 혈압",
   "activityMetricBloodPressureDiastolic": "이완기 혈압",

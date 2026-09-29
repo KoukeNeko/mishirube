@@ -1243,6 +1243,14 @@
   "@activityMetricGroupVitals": {
     "description": "Activity metric from a health platform."
   },
+  "activityMetricMindfulTime": "正念時間",
+  "@activityMetricMindfulTime": {
+    "description": "Minutes of mindfulness sessions from a health platform."
+  },
+  "activityMetricGroupMindfulness": "正念",
+  "@activityMetricGroupMindfulness": {
+    "description": "Activity page group: mindfulness."
+  },
   "activityMetricBodyTemperature": "體溫",
   "@activityMetricBodyTemperature": {
     "description": "Activity metric from a health platform."

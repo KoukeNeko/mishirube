@@ -887,6 +887,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityMetricGroupVitals => '바이탈';
 
   @override
+  String get activityMetricMindfulTime => '마음챙김 시간';
+
+  @override
+  String get activityMetricGroupMindfulness => '마음챙김';
+
+  @override
   String get activityMetricBodyTemperature => '체온';
 
   @override

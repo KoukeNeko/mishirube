@@ -889,6 +889,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityMetricGroupVitals => 'Vitals';
 
   @override
+  String get activityMetricMindfulTime => 'Mindful minutes';
+
+  @override
+  String get activityMetricGroupMindfulness => 'Mindfulness';
+
+  @override
   String get activityMetricBodyTemperature => 'Body temperature';
 
   @override

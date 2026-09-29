@@ -1736,6 +1736,18 @@ abstract class AppLocalizations {
   /// **'生命徵象'**
   String get activityMetricGroupVitals;
 
+  /// Minutes of mindfulness sessions from a health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'正念時間'**
+  String get activityMetricMindfulTime;
+
+  /// Activity page group: mindfulness.
+  ///
+  /// In zh, this message translates to:
+  /// **'正念'**
+  String get activityMetricGroupMindfulness;
+
   /// Activity metric from a health platform.
   ///
   /// In zh, this message translates to:

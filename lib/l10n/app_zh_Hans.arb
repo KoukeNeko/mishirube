@@ -272,6 +272,8 @@
   "activityMetricGroupMovement": "日常活动",
   "activityMetricGroupHeart": "心脏与心肺",
   "activityMetricGroupVitals": "生命体征",
+  "activityMetricMindfulTime": "正念时间",
+  "activityMetricGroupMindfulness": "正念",
   "activityMetricBodyTemperature": "体温",
   "activityMetricBloodPressureSystolic": "收缩压",
   "activityMetricBloodPressureDiastolic": "舒张压",

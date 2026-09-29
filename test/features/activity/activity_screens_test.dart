@@ -122,6 +122,28 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('mindful minutes are counted like exercise minutes', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWith(
+      (today) => [
+        at(ActivityMetric.steps, today, 9, 5000),
+        at(ActivityMetric.mindfulTime, today, 7, 10),
+        at(ActivityMetric.mindfulTime, today, 21, 5),
+      ],
+    );
+    await pumpScreen(tester, const DailyActivityScreen(), store: store);
+
+    await tester.scrollUntilVisible(
+      find.text('正念時間'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('15', findRichText: true), findsWidgets, reason: 'summed');
+    await disposeTree(tester);
+  });
+
   testWidgets('a measured metric has no hours to show', (tester) async {
     usePhoneViewport(tester);
     final store = storeWith(

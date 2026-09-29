@@ -115,6 +115,7 @@ enum HealthKitBridge {
         }
         if kinds.contains("activity") {
           types.formUnion(activityTypes.map(\.type))
+          types.insert(HKCategoryType(.mindfulSession))
         }
         if kinds.contains("nutrition") {
           types.formUnion(dietaryTypes.map(\.type))
@@ -574,6 +575,14 @@ enum HealthKitBridge {
       }
       store.execute(query)
     }
+    group.enter()
+    readMindfulMinutes(from: anchor, to: to, daily: daily) { minutes, error in
+      lock.lock()
+      if let error { failure = error }
+      rows += minutes
+      lock.unlock()
+      group.leave()
+    }
     group.notify(queue: .main) {
       // A type never allowed reads as nothing; only when nothing came
       // back at all is an error the answer.
@@ -583,6 +592,59 @@ enum HealthKitBridge {
         result(rows)
       }
     }
+  }
+
+  /// Minutes of mindfulness in each hour, or each day for years long
+  /// past. A category type has no statistics query, so the sessions are
+  /// read and a phone's and a watch's overlapping ones counted once.
+  static func readMindfulMinutes(
+    from: Date, to: Date, daily: Bool,
+    completion: @escaping ([[String: Any]], Error?) -> Void
+  ) {
+    let query = HKSampleQuery(
+      sampleType: HKCategoryType(.mindfulSession),
+      predicate: HKQuery.predicateForSamples(withStart: from, end: to),
+      limit: HKObjectQueryNoLimit,
+      sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]
+    ) { _, samples, error in
+      var spans: [(start: Date, end: Date)] = []
+      for sample in (samples ?? []) where !isOurs(sample) {
+        if let last = spans.last, sample.startDate <= last.end {
+          spans[spans.count - 1].end = max(last.end, sample.endDate)
+        } else {
+          spans.append((sample.startDate, sample.endDate))
+        }
+      }
+      let calendar = Calendar.current
+      var minutes: [Date: Double] = [:]
+      for span in spans {
+        var cursor = span.start
+        while cursor < span.end {
+          let bucket = daily
+            ? calendar.startOfDay(for: cursor)
+            : calendar.dateInterval(of: .hour, for: cursor)!.start
+          let next = daily
+            ? calendar.date(byAdding: .day, value: 1, to: bucket)!
+            : calendar.date(byAdding: .hour, value: 1, to: bucket)!
+          let stop = min(span.end, next)
+          minutes[bucket, default: 0] += stop.timeIntervalSince(cursor) / 60
+          cursor = stop
+        }
+      }
+      let rows: [[String: Any]] = minutes.map { bucket, value in
+        [
+          "metric": "mindfulTime",
+          "start": milliseconds(bucket),
+          "end": milliseconds(
+            daily
+              ? calendar.date(byAdding: .day, value: 1, to: bucket)!
+              : calendar.date(byAdding: .hour, value: 1, to: bucket)!),
+          "value": value,
+        ]
+      }
+      completion(rows, error)
+    }
+    store.execute(query)
   }
 
   static let distanceTypes: [HKQuantityType] = [

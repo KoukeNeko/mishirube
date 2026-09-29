@@ -239,6 +239,7 @@ enum ActivityMetricGroup {
   movement,
   heart,
   vitals,
+  mindfulness,
   mobility,
   running,
   cycling,
@@ -306,6 +307,9 @@ enum ActivityMetric {
   /// Fractions, shown as percentages.
   oxygenSaturation(ActivityMetricGroup.vitals, displayScale: 100),
 
+  /// Minutes of mindfulness sessions, overlapping ones counted once.
+  mindfulTime(ActivityMetricGroup.mindfulness, isCumulative: true),
+
   /// Metres per second, shown in km/h.
   walkingSpeed(ActivityMetricGroup.mobility, displayScale: 3.6, decimals: 1),
 
@@ -369,7 +373,7 @@ enum ActivityMetric {
     steps => 200000,
     distance => 500000,
     activeEnergy || basalEnergy => 20000,
-    exerciseTime || standTime || timeInDaylight => 1440,
+    exerciseTime || standTime || timeInDaylight || mindfulTime => 1440,
     floors => 3000,
     elevationGained => 20000,
     _ => null,
