@@ -1602,5 +1602,7 @@
   "afterMerge": "After",
   "splitAction": "Split",
   "aiDraftAction": "AI draft",
-  "removePhoto": "Remove photo"
+  "removePhoto": "Remove photo",
+  "privacyWebSearch": "Web search",
+  "privacyWebSearchValue": "Anthropic and Google AI Studio look up published nutrition figures from what is sent"
 }

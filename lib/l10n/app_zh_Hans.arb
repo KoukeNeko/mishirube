@@ -1602,5 +1602,7 @@
   "afterMerge": "合并后",
   "splitAction": "拆开",
   "aiDraftAction": "AI 草稿",
-  "removePhoto": "移除照片"
+  "removePhoto": "移除照片",
+  "privacyWebSearch": "网络搜索",
+  "privacyWebSearchValue": "Anthropic、Google AI Studio 依内容搜索公开的营养资料"
 }

@@ -1602,5 +1602,7 @@
   "afterMerge": "병합 후",
   "splitAction": "분리",
   "aiDraftAction": "AI 초안",
-  "removePhoto": "사진 제거"
+  "removePhoto": "사진 제거",
+  "privacyWebSearch": "웹 검색",
+  "privacyWebSearchValue": "Anthropic, Google AI Studio는 보낸 내용으로 공개된 영양 정보를 검색"
 }

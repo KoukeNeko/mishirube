@@ -5727,4 +5727,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removePhoto => 'Remove photo';
+
+  @override
+  String get privacyWebSearch => 'Web search';
+
+  @override
+  String get privacyWebSearchValue =>
+      'Anthropic and Google AI Studio look up published nutrition figures from what is sent';
 }

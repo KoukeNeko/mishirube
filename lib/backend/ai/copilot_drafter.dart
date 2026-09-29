@@ -207,6 +207,7 @@ class CopilotDrafter extends CloudDrafter {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
     if (photo != null) throw const AiException(AiFailure.photoUnsupported);
     final token = await key();

@@ -1602,5 +1602,7 @@
   "afterMerge": "まとめた後",
   "splitAction": "分ける",
   "aiDraftAction": "AI 下書き",
-  "removePhoto": "写真を削除"
+  "removePhoto": "写真を削除",
+  "privacyWebSearch": "ウェブ検索",
+  "privacyWebSearchValue": "Anthropic と Google AI Studio は送った内容から公開されている栄養成分を検索"
 }

@@ -8584,5 +8584,13 @@
   "removePhoto": "移除照片",
   "@removePhoto": {
     "description": "Takes the photo off an AI draft before it is sent."
+  },
+  "privacyWebSearch": "網路搜尋",
+  "@privacyWebSearch": {
+    "description": "Privacy fact label."
+  },
+  "privacyWebSearchValue": "Anthropic、Google AI Studio 依內容搜尋公開的營養資料",
+  "@privacyWebSearchValue": {
+    "description": "Privacy fact: which providers search the web while drafting."
   }
 }

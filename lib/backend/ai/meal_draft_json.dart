@@ -37,6 +37,14 @@ final _nutrientRules =
 const _maxKcal = 4000;
 const _maxGrams = 500;
 
+/// What a provider that can search the web is also told when drafting a
+/// meal or reading a photo: published figures over a guess, and a
+/// printed label over either.
+const webSearchRule = '''
+可以用網路搜尋：使用者說的或照片裡看得到的品牌、連鎖店、包裝食品有公布營養資料時，先查，照查到的份量與數字填；查不到才自己估計。
+照片裡的營養標示照標示填，不要用查到的數字取代。
+搜尋完只回傳上面說的 JSON。''';
+
 /// Reads a model's answer into a draft, or throws
 /// [AiFailure.unreadable].
 ///

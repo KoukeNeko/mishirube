@@ -1005,6 +1005,152 @@ void main() {
     });
   });
 
+  group('web search', () {
+    http.Response answer(Map<String, Object?> body) =>
+        http.Response.bytes(utf8.encode(jsonEncode(body)), 200);
+
+    test('Claude may search for a meal, and a paused search goes on', () async {
+      final sent = <Map<String, dynamic>>[];
+      final client = MockClient((request) async {
+        sent.add(jsonDecode(request.body) as Map<String, dynamic>);
+        if (sent.length == 1) {
+          return answer({
+            'stop_reason': 'pause_turn',
+            'content': [
+              {'type': 'text', 'text': '查一下 {'},
+            ],
+          });
+        }
+        return answer({
+          'stop_reason': 'end_turn',
+          'content': [
+            {'type': 'text', 'text': '查一下 {'},
+            {
+              'type': 'server_tool_use',
+              'id': 's1',
+              'name': 'web_search',
+              'input': {'query': '星巴克 那堤 熱量'},
+            },
+            {
+              'type': 'web_search_tool_result',
+              'tool_use_id': 's1',
+              'content': [],
+            },
+            {'type': 'text', 'text': '{"items":[{"name":"那堤",'},
+            {'type': 'text', 'text': '"brand":"星巴克","kcal":190.5}]}'},
+          ],
+        });
+      });
+      final anthropic = AnthropicDrafter(
+        client: client,
+        readKey: () async => 'a-key',
+        readModel: () => 'claude-opus-4-5',
+      );
+
+      final draft = await anthropic.draftMeal('星巴克 大杯那堤');
+
+      expect(sent.first['tools'], [
+        {
+          'type': 'web_search_20250305',
+          'name': 'web_search',
+          'max_uses': AnthropicDrafter.maxSearches,
+        },
+      ]);
+      expect(sent.first['system'], contains(webSearchRule));
+      expect(sent, hasLength(2), reason: 'the paused turn is continued');
+      expect(
+        (sent.last['messages'] as List).last,
+        containsPair('role', 'assistant'),
+      );
+      expect(
+        draft.items.single.brand,
+        '星巴克',
+        reason: 'what came before the search is not the answer',
+      );
+      expect(draft.items.single.kcal, 190.5);
+    });
+
+    test('a key that cannot search still drafts, without it', () async {
+      final sent = <Map<String, dynamic>>[];
+      final client = MockClient((request) async {
+        sent.add(jsonDecode(request.body) as Map<String, dynamic>);
+        if (sent.length == 1) {
+          return http.Response('{"error":"web search is not enabled"}', 400);
+        }
+        return answer({
+          'content': [
+            {'type': 'text', 'text': '{"items":[{"name":"蛋餅"}]}'},
+          ],
+        });
+      });
+      final anthropic = AnthropicDrafter(
+        client: client,
+        readKey: () async => 'a-key',
+        readModel: () => 'claude-opus-4-5',
+      );
+
+      final draft = await anthropic.draftMeal('蛋餅');
+
+      expect(sent, hasLength(2));
+      expect(sent.last.containsKey('tools'), isFalse);
+      expect(sent.last['system'], isNot(contains(webSearchRule)));
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('a label\'s text is read as printed, not searched', () async {
+      late Map<String, dynamic> sent;
+      final client = MockClient((request) async {
+        sent = jsonDecode(request.body) as Map<String, dynamic>;
+        return answer({
+          'content': [
+            {'type': 'text', 'text': '{"kcal":120}'},
+          ],
+        });
+      });
+      await AnthropicDrafter(
+        client: client,
+        readKey: () async => 'a-key',
+        readModel: () => 'claude-opus-4-5',
+      ).draftFoodLabel('熱量 120 大卡');
+
+      expect(sent.containsKey('tools'), isFalse);
+    });
+
+    test('Gemini is grounded with Google Search, its parts joined', () async {
+      late Map<String, dynamic> sent;
+      final client = MockClient((request) async {
+        sent = jsonDecode(request.body) as Map<String, dynamic>;
+        return answer({
+          'candidates': [
+            {
+              'content': {
+                'parts': [
+                  {'text': '{"items":[{"name":"大麥克",'},
+                  {'text': '"brand":"麥當勞","kcal":530}]}'},
+                ],
+              },
+            },
+          ],
+        });
+      });
+      final draft = await GoogleAiStudioDrafter(
+        client: client,
+        readKey: () async => 'g-key',
+        readModel: () => 'gemini-3.8-flash',
+      ).draftMeal('麥當勞 大麥克');
+
+      expect(sent['tools'], [
+        {'google_search': <String, Object>{}},
+      ]);
+      expect(
+        sent.containsKey('generationConfig'),
+        isFalse,
+        reason: 'older models refuse JSON mode beside a search',
+      );
+      expect(draft.items.single.brand, '麥當勞');
+    });
+  });
+
   group('Microsoft 365 Copilot', () {
     CopilotDrafter copilot(
       http.Client client, {

@@ -5633,4 +5633,11 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get removePhoto => '写真を削除';
+
+  @override
+  String get privacyWebSearch => 'ウェブ検索';
+
+  @override
+  String get privacyWebSearchValue =>
+      'Anthropic と Google AI Studio は送った内容から公開されている栄養成分を検索';
 }

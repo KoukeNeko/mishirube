@@ -5626,6 +5626,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get removePhoto => '移除照片';
+
+  @override
+  String get privacyWebSearch => '網路搜尋';
+
+  @override
+  String get privacyWebSearchValue => 'Anthropic、Google AI Studio 依內容搜尋公開的營養資料';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11249,6 +11255,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get removePhoto => '移除照片';
+
+  @override
+  String get privacyWebSearch => '网络搜索';
+
+  @override
+  String get privacyWebSearchValue => 'Anthropic、Google AI Studio 依内容搜索公开的营养资料';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

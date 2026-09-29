@@ -62,6 +62,7 @@ class PrivacyScreen extends StatelessWidget {
             (l10n.privacyDefault, l10n.privacyNotUsed),
             ('Apple Intelligence', l10n.privacyAppleIntelligence),
             (l10n.privacyCloudReceives, l10n.privacyCloudReceivesValue),
+            (l10n.privacyWebSearch, l10n.privacyWebSearchValue),
             (l10n.privacyFoodPhotos, l10n.privacyFoodPhotosValue),
             (l10n.privacyOtherData, l10n.privacyNotSent),
             (l10n.privacyFirstSend, l10n.privacyFirstSendValue(me: l10n.tabMe)),

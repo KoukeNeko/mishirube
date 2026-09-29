@@ -9797,6 +9797,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'移除照片'**
   String get removePhoto;
+
+  /// Privacy fact label.
+  ///
+  /// In zh, this message translates to:
+  /// **'網路搜尋'**
+  String get privacyWebSearch;
+
+  /// Privacy fact: which providers search the web while drafting.
+  ///
+  /// In zh, this message translates to:
+  /// **'Anthropic、Google AI Studio 依內容搜尋公開的營養資料'**
+  String get privacyWebSearchValue;
 }
 
 class _AppLocalizationsDelegate

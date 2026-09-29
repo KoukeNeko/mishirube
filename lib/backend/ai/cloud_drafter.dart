@@ -43,7 +43,7 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
 
   @override
   Future<MealDraft> draftMeal(String description) async => parseMealDraft(
-    await chat(mealDraftInstructions, description),
+    await _chatSearching(mealDraftInstructions, description),
     provider: kind,
     // What answered, which for Copilot is not a model the user picked.
     model: await modelName(),
@@ -67,7 +67,7 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
   @override
   Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
       parsePhoto(
-        await chat(
+        await _chatSearching(
           photoInstructions,
           note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
           photo: photo,
@@ -77,8 +77,41 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
       );
 
   /// One question, one whole answer: the model's reply text. [photo]
-  /// goes with [message] when there is one.
-  Future<String> chat(String instructions, String message, {FoodPhoto? photo});
+  /// goes with [message] when there is one. With [search] the model may
+  /// look things up on the web first; a provider without that ignores it.
+  Future<String> chat(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+    bool search = false,
+  });
+
+  /// Whether the provider can search the web while it drafts a meal, so
+  /// a chain's or a packet's published figures can stand in for a guess.
+  bool get searchesWeb => false;
+
+  /// [chat], searching the web where the provider can. A key whose
+  /// organisation turned search off, or a model without it, refuses the
+  /// whole request; the draft is asked for again without it, since it
+  /// never needed the search to be made.
+  Future<String> _chatSearching(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+  }) async {
+    if (!searchesWeb) return chat(instructions, message, photo: photo);
+    try {
+      return await chat(
+        '$instructions\n$webSearchRule',
+        message,
+        photo: photo,
+        search: true,
+      );
+    } on AiException catch (error) {
+      if (error.failure != AiFailure.providerError) rethrow;
+      return chat(instructions, message, photo: photo);
+    }
+  }
 
   /// The key, or [AiFailure.unavailable] when there is none: a request
   /// without one is not sent at all.
@@ -155,6 +188,7 @@ class OllamaDrafter extends CloudDrafter {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
     final body = await send(
       () async => client.post(
@@ -208,11 +242,16 @@ class GoogleAiStudioDrafter extends CloudDrafter {
   @override
   AiProviderKind get kind => AiProviderKind.googleAiStudio;
 
+  /// Grounding with Google Search.
+  @override
+  bool get searchesWeb => true;
+
   @override
   Future<String> chat(
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
     // The key goes in a header, never in the URL: a query string ends up
     // in logs and history.
@@ -244,18 +283,28 @@ class GoogleAiStudioDrafter extends CloudDrafter {
               ],
             },
           ],
-          'generationConfig': {'responseMimeType': 'application/json'},
+          // Older models refuse JSON mode beside a search, and the
+          // answer is read out of whatever text surrounds it anyway.
+          if (search)
+            'tools': [
+              {'google_search': <String, Object>{}},
+            ]
+          else
+            'generationConfig': {'responseMimeType': 'application/json'},
         }),
       ),
     );
     return switch (body) {
       {
-        'candidates': [
-          {'content': {'parts': [{'text': final String text}, ...]}},
-          ...,
-        ],
+        'candidates': [{'content': {'parts': final List<dynamic> parts}}, ...],
       } =>
-        text,
+        // A grounded answer can come in several parts.
+        [
+          for (final part in parts)
+            if (part case {'text': final String text}
+                when part['thought'] != true)
+              text,
+        ].join(),
       _ => unreadable(body),
     };
   }
@@ -302,6 +351,17 @@ class AnthropicDrafter extends CloudDrafter {
   @override
   AiProviderKind get kind => AiProviderKind.anthropic;
 
+  /// The Messages API's web search tool.
+  @override
+  bool get searchesWeb => true;
+
+  /// Searches one draft may run: a chain's menu and a packet's label
+  /// take one or two, and each is billed to the user's key.
+  static const maxSearches = 3;
+
+  /// How many times a search that paused is continued before giving up.
+  static const _maxContinuations = 3;
+
   Future<Map<String, String>> _headers() async => {
     'x-api-key': await key(),
     'anthropic-version': version,
@@ -313,40 +373,68 @@ class AnthropicDrafter extends CloudDrafter {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
-    final body = await send(
-      () async => client.post(
-        endpoint,
-        headers: await _headers(),
-        body: jsonEncode({
-          'model': readModel(),
-          'max_tokens': 2048,
-          'system': instructions,
-          'messages': [
-            {
-              'role': 'user',
-              'content': photo == null
-                  ? message
-                  : [
-                      {
-                        'type': 'image',
-                        'source': {
-                          'type': 'base64',
-                          'media_type': photo.mimeType,
-                          'data': photo.base64,
-                        },
-                      },
-                      {'type': 'text', 'text': message},
-                    ],
-            },
-          ],
-        }),
-      ),
-    );
-    return switch (body) {
-      {'content': [{'text': final String text}, ...]} => text,
-      _ => unreadable(body),
-    };
+    final messages = <Map<String, Object?>>[
+      {
+        'role': 'user',
+        'content': photo == null
+            ? message
+            : [
+                {
+                  'type': 'image',
+                  'source': {
+                    'type': 'base64',
+                    'media_type': photo.mimeType,
+                    'data': photo.base64,
+                  },
+                },
+                {'type': 'text', 'text': message},
+              ],
+      },
+    ];
+    for (var turn = 0; ; turn++) {
+      final body = await send(
+        () async => client.post(
+          endpoint,
+          headers: await _headers(),
+          body: jsonEncode({
+            'model': readModel(),
+            'max_tokens': 2048,
+            'system': instructions,
+            'messages': messages,
+            if (search)
+              'tools': [
+                {
+                  'type': 'web_search_20250305',
+                  'name': 'web_search',
+                  'max_uses': maxSearches,
+                },
+              ],
+          }),
+        ),
+      );
+      final content = switch (body) {
+        {'content': final List<dynamic> content} => content,
+        _ => unreadable(body),
+      };
+      // A long search can pause; it goes on from where it stopped when
+      // its answer so far is sent back as it came.
+      if (body['stop_reason'] == 'pause_turn' && turn < _maxContinuations) {
+        messages.add({'role': 'assistant', 'content': content});
+        continue;
+      }
+      // The answer is what was written after the last search: before it
+      // the model only says what it is about to look up.
+      final lastSearch = content.lastIndexWhere(
+        (block) => block is Map && block['type'] == 'web_search_tool_result',
+      );
+      final text = [
+        for (final block in content.skip(lastSearch + 1))
+          if (block case {'type': 'text', 'text': final String text}) text,
+      ].join();
+      return text.isEmpty ? unreadable(body) : text;
+    }
   }
 
   @override
@@ -388,6 +476,7 @@ class AzureAiFoundryDrafter extends CloudDrafter {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
     final base = baseOf(readEndpoint());
     if (base == null) throw const AiException(AiFailure.unavailable);
@@ -451,6 +540,7 @@ class OpenAiCompatibleDrafter extends CloudDrafter {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    bool search = false,
   }) async {
     final body = await send(
       () async => client.post(
