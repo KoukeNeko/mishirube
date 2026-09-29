@@ -209,6 +209,81 @@ void main() {
       expect(parse('{$items}').name, isNull);
     });
 
+    test('reads the items a model sent without the object around them', () {
+      // A model that answers with one item's own fields, as a small one
+      // asked for a list sometimes does.
+      final single = parse('{"name":"雞腿","amount":"一隻","kcal":300}');
+      expect(single.items.single.name, '雞腿');
+
+      // And one that answers with the list alone.
+      final list = parse('[{"name":"蛋餅","kcal":250},{"name":"奶茶","kcal":300}]');
+      expect(list.items.map((item) => item.name), ['蛋餅', '奶茶']);
+    });
+
+    test('an answer with nothing in it is not a meal of nothing', () {
+      expect(
+        () => parse('{}'),
+        throwsA(
+          isA<AiException>().having(
+            (e) => e.failure,
+            'failure',
+            AiFailure.unreadable,
+          ),
+        ),
+      );
+    });
+
+    test('a label is never read as a meal', () {
+      expect(
+        () => parse('{"serving_amount":200,"serving_unit":"ml","kcal":120}'),
+        throwsA(
+          isA<AiException>().having(
+            (e) => e.failure,
+            'failure',
+            AiFailure.unreadable,
+          ),
+        ),
+        reason: 'its keys are a label\'s, so it needs the label reader',
+      );
+    });
+
+    test('reads a label a model sent without the wrapper', () {
+      PhotoDraft photo(String answer) =>
+          parsePhoto(answer, provider: AiProviderKind.ollamaCloud, model: 'm');
+      final label =
+          '{"serving_amount":375,"serving_unit":"ml","kcal":55,"protein_g":3}';
+
+      expect(
+        photo('{"label":$label}'),
+        isA<PhotoOfLabel>(),
+        reason: 'as asked',
+      );
+      expect(
+        photo(label),
+        isA<PhotoOfLabel>().having((d) => d.label.kcal, 'kcal', 55),
+        reason: 'a model that answered with the fields themselves',
+      );
+      expect(
+        photo('{"label":${jsonEncode(label)}}'),
+        isA<PhotoOfLabel>().having((d) => d.label.kcal, 'kcal', 55),
+        reason: 'and one that sent the object as a string',
+      );
+    });
+
+    test('a word after the answer does not hide it', () {
+      final draft = parse('''
+以下是結果：
+```json
+{"items":[{"name":"蛋餅","kcal":250}]}
+```
+祝用餐愉快 :)}''');
+      expect(
+        draft.items.single.name,
+        '蛋餅',
+        reason: 'the brace in the sign-off',
+      );
+    });
+
     test('keeps every row a printed label gave', () {
       final item = parse(
         '{"items":[{"name":"巧克力乳清蛋白飲","amount":"250 ml","kcal":186,'

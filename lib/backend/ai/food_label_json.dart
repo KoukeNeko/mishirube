@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import '../../domain/domain.dart';
+import 'answer_json.dart';
 
 /// What every provider is asked when reading a nutrition label's text,
 /// already read off the photo on the phone, one table row per line: for
@@ -117,6 +116,40 @@ const _limits = {
   'caffeine_mg': 1000.0,
 };
 
+/// The keys only a label's answer has. A meal's JSON carries none of
+/// them, so an answer with one is a label however it is wrapped.
+const _labelOnlyKeys = {
+  'label_region',
+  'serving_amount',
+  'serving_unit',
+  'kcal_per_100',
+  'kj',
+  'net_carb_g',
+  'salt_g',
+  'saturated_fat_g',
+  'trans_fat_g',
+};
+
+/// Whether [fields] is a label rather than a meal or one of its items.
+bool looksLikeLabel(Map<String, dynamic> fields) =>
+    fields.keys.any(_labelOnlyKeys.contains);
+
+/// The label's own fields in [answer], or null when it holds none.
+///
+/// The photo prompt asks for the label under `label`, and every other
+/// one asks for the fields themselves; a model may send either, and may
+/// send the object as a string. All four are read here.
+Map<String, dynamic>? labelFields(String answer) =>
+    switch (decodeAnswer(answer)) {
+      {'label': final Map<String, dynamic> label} => label,
+      {'label': final String encoded} => switch (decodeAnswer(encoded)) {
+        final Map<String, dynamic> label => label,
+        _ => null,
+      },
+      final Map<String, dynamic> fields => fields,
+      _ => null,
+    };
+
 /// Reads a model's answer into a label draft, or throws
 /// [AiFailure.unreadable].
 ///
@@ -128,21 +161,10 @@ FoodLabelDraft parseFoodLabel(
   required AiProviderKind provider,
   required String model,
 }) {
-  final start = answer.indexOf('{');
-  final end = answer.lastIndexOf('}');
-  if (start < 0 || end <= start) {
+  final fields = labelFields(answer);
+  if (fields == null) {
     throw AiException(AiFailure.unreadable, answer);
   }
-  final Object? decoded;
-  try {
-    decoded = jsonDecode(answer.substring(start, end + 1));
-  } on FormatException {
-    throw AiException(AiFailure.unreadable, answer);
-  }
-  if (decoded is! Map<String, dynamic>) {
-    throw AiException(AiFailure.unreadable, answer);
-  }
-  final fields = decoded;
 
   double? figure(String key) => switch (_number(fields[key])) {
     final value? when value >= 0 && value <= _limits[key]! => value,

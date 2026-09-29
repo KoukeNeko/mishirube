@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import '../../domain/domain.dart';
+import 'answer_json.dart';
 import 'food_label_json.dart';
 
 /// What every provider is asked for, in one place, so Apple's model and
@@ -144,12 +143,16 @@ PhotoDraft parsePhoto(
   required AiProviderKind provider,
   required String model,
 }) {
-  if (_decode(answer) case {'label': final Map<String, dynamic> label}) {
-    return PhotoOfLabel(
-      parseFoodLabel(jsonEncode(label), provider: provider, model: model),
-    );
-  }
-  return PhotoOfFood(parseMealPhoto(answer, provider: provider, model: model));
+  final isLabel = switch (decodeAnswer(answer)) {
+    {'label': _} => true,
+    // The prompt asks for the label under `label`; a model may answer
+    // with the label's own fields, which its keys give away.
+    final Map<String, dynamic> fields => looksLikeLabel(fields),
+    _ => false,
+  };
+  return isLabel
+      ? PhotoOfLabel(parseFoodLabel(answer, provider: provider, model: model))
+      : PhotoOfFood(parseMealPhoto(answer, provider: provider, model: model));
 }
 
 /// Reads a model's answer about a food photo into a draft. Throws
@@ -182,24 +185,25 @@ MealDraft parseMealPhoto(
 }
 
 Object? _decode(String answer) {
-  final start = answer.indexOf('{');
-  final end = answer.lastIndexOf('}');
-  if (start < 0 || end <= start) {
-    throw AiException(AiFailure.unreadable, answer);
-  }
-  try {
-    return jsonDecode(answer.substring(start, end + 1));
-  } on FormatException {
-    throw AiException(AiFailure.unreadable, answer);
-  }
+  final decoded = decodeAnswer(answer);
+  if (decoded == null) throw AiException(AiFailure.unreadable, answer);
+  return decoded;
 }
 
 List<DraftItem> _itemsOf(Object? decoded, String answer) {
-  if (decoded is! Map<String, dynamic> || decoded['items'] is! List) {
-    throw AiException(AiFailure.unreadable, answer);
-  }
+  final items = switch (decoded) {
+    {'items': final List<dynamic> items} => items,
+    // A model may answer with the list alone, or with one item's own
+    // fields when it saw a single thing. A label is neither, and is
+    // never read as food.
+    final List<dynamic> items => items,
+    final Map<String, dynamic> fields
+        when fields['name'] is String && !looksLikeLabel(fields) =>
+      [fields],
+    _ => throw AiException(AiFailure.unreadable, answer),
+  };
   return [
-    for (final entry in decoded['items'] as List<dynamic>)
+    for (final entry in items)
       if (entry case {'name': final String name} when name.trim().isNotEmpty)
         DraftItem(
           name: name.trim(),
