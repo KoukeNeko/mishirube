@@ -120,10 +120,12 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// none unless picked.
   late MealType? _mealType = widget.meal?.mealType;
 
-  /// When a logged meal was eaten; changed here, the meal moves, to
-  /// another day too.
+  /// When the meal was eaten: a logged one's own time, or the time a
+  /// quick record goes in at. The row below changes it, moving the meal
+  /// to another day too. A food that is only saved carries no time.
   late DateTime? _eatenAt = switch (widget.meal) {
     final meal? => _nutrition.eatenAtOf(meal.id),
+    null when widget.logsOnce => widget.at ?? _nutrition.now(),
     null => null,
   };
 
@@ -499,15 +501,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// asked to.
   void _logOnce() {
     final food = _food();
+    final at = _eatenAt ?? widget.at;
     if (_keepsFood) {
       _nutrition.saveFood(food);
       _nutrition.logPortions(
         [FoodPortion(food, 1)],
         mealType: _mealType,
-        at: widget.at,
+        at: at,
       );
     } else {
-      _nutrition.logOnce(food, mealType: _mealType, at: widget.at);
+      _nutrition.logOnce(food, mealType: _mealType, at: at);
     }
     Navigator.of(context).pop(food);
   }

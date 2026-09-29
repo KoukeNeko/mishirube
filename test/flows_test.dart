@@ -2170,6 +2170,48 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the food form carries the time a meal is logged at', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final at = DateTime(2026, 9, 18, 15, 40);
+
+    // 快速記錄: the meal about to be logged, its time changeable there.
+    await pumpScreen(
+      tester,
+      FoodEditScreen(initialName: '蛋糕', logsOnce: true, at: at),
+      store: store,
+    );
+    expect(find.text('時間'), findsOneWidget);
+    expect(
+      find.textContaining(formatTimeOfDay(at)),
+      findsOneWidget,
+      reason: 'the time it will be logged at',
+    );
+    await _tapText(tester, '記錄');
+    final logged = store.backend.nutrition
+        .mealsOn(at)
+        .firstWhere((meal) => meal.name == '蛋糕');
+    expect(store.backend.nutrition.eatenAtOf(logged.id), at);
+    await disposeTree(tester);
+
+    // A logged meal is corrected at the time it was eaten, as before.
+    await pumpScreen(tester, FoodEditScreen(meal: logged), store: store);
+    expect(find.text('時間'), findsOneWidget);
+    expect(find.textContaining(formatTimeOfDay(at)), findsOneWidget);
+    await disposeTree(tester);
+
+    // A food that is only saved was not eaten, so it carries no time.
+    await pumpScreen(
+      tester,
+      FoodEditScreen(initialName: '蛋糕', logsOnce: false),
+      store: store,
+    );
+    expect(find.text('時間'), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('a weight in the log opens, corrects and deletes with undo', (
     tester,
   ) async {
