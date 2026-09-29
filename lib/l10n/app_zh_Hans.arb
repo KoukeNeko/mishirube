@@ -1275,7 +1275,6 @@
   "logItemsCount": "记录 {count} 项",
   "plateEmpty": "这一餐没有项目。",
   "photoEstimate": "照片估算",
-  "describeMealTitle": "用一句话记录",
   "retry": "重试",
   "chooseAiFirst": "先选一个 AI 才能生成草稿。",
   "foodPhoto": "食物照片",
@@ -1601,5 +1600,7 @@
   "healthDataGeneric": "健康数据",
   "strongWorkoutName": "Strong 训练",
   "afterMerge": "合并后",
-  "splitAction": "拆开"
+  "splitAction": "拆开",
+  "aiDraftAction": "AI 草稿",
+  "removePhoto": "移除照片"
 }

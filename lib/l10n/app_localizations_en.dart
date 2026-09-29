@@ -4533,9 +4533,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoEstimate => 'Photo estimate';
 
   @override
-  String get describeMealTitle => 'Describe a meal';
-
-  @override
   String get retry => 'Retry';
 
   @override
@@ -5724,4 +5721,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get splitAction => 'Split';
+
+  @override
+  String get aiDraftAction => 'AI draft';
+
+  @override
+  String get removePhoto => 'Remove photo';
 }

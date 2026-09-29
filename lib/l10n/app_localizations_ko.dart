@@ -4476,9 +4476,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get photoEstimate => '사진 추정';
 
   @override
-  String get describeMealTitle => '한 줄로 기록';
-
-  @override
   String get retry => '다시 시도';
 
   @override
@@ -5632,4 +5629,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get splitAction => '분리';
+
+  @override
+  String get aiDraftAction => 'AI 초안';
+
+  @override
+  String get removePhoto => '사진 제거';
 }

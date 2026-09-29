@@ -7,7 +7,6 @@ import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
-import 'camera_screen.dart';
 import 'daily_nutrition_screen.dart';
 import 'describe_meal_screen.dart';
 import 'food_edit_screen.dart';
@@ -115,10 +114,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   /// suggests to begin with, changed from the header. Optional.
   MealType? _mealType;
 
-  /// Whether the chosen AI can read a food photo; the camera is offered
-  /// only then.
-  late final Future<bool> _readsPhotos;
-
   _Scope _scope = _Scope.all;
 
   @override
@@ -127,9 +122,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final store = AppStoreScope.read(context);
     _nutrition = NutritionViewModel(store.backend);
     _mealType = _nutrition.suggestedMealType();
-    _readsPhotos = store.aiProvider == null
-        ? Future.value(false)
-        : store.readsFoodPhotos();
     _query.addListener(() => setState(() {}));
   }
 
@@ -282,13 +274,14 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     );
   }
 
-  /// A meal drafted by the AI and confirmed on its own page; once it is
-  /// logged, this page closes too and offers the undo, as a plate does.
-  Future<void> _describe({String? photoPath}) async {
+  /// A meal drafted by the AI from a photo, words or both, and confirmed
+  /// on its own page; once it is logged, this page closes too and offers
+  /// the undo, as a plate does.
+  Future<void> _describe() async {
     final toast = ToastScope.read(context);
     final logged = await pushPage<List<MealEvent>>(
       context,
-      DescribeMealScreen(mealType: _mealType, photoPath: photoPath, at: _at),
+      DescribeMealScreen(mealType: _mealType, at: _at),
     );
     if (logged == null || logged.isEmpty || !mounted) return;
     Navigator.of(context).pop();
@@ -298,14 +291,6 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           : context.l10n.loggedItemsCount(count: logged.length),
       onUndo: () => _nutrition.deleteMeals(logged),
     );
-  }
-
-  /// A photo, drafted on the draft page as the AI finds it: the meal
-  /// item by item, or a label as one serving.
-  Future<void> _photo() async {
-    final path = await takePhoto(context, context.l10n.scanAction);
-    if (path == null || !mounted) return;
-    await _describe(photoPath: path);
   }
 
   Future<void> _quickAdd() async {
@@ -393,33 +378,24 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final own = _nutrition.searchFoods('').where((food) => !food.isBuiltIn);
     return switch (_scope) {
       _Scope.all => [
-        // The quickest ways in lead: a photo or a sentence for the AI to
+        // The quickest ways in lead: a photo, words or both for the AI to
         // draft, numbers typed once, or a whole meal eaten before. The
         // water follows; it also has its own place under ＋.
         Gutter(
-          child: FutureBuilder(
-            future: _readsPhotos,
-            builder: (context, readsPhotos) => Row(
-              spacing: AppSpacing.sm,
-              children: [
-                if (readsPhotos.data ?? false)
-                  _WayIn(
-                    icon: Icons.photo_camera_outlined,
-                    label: context.l10n.takePhotoAction,
-                    onTap: _photo,
-                  ),
-                _WayIn(
-                  icon: Icons.auto_awesome_outlined,
-                  label: context.l10n.describeInWords,
-                  onTap: _describe,
-                ),
-                _WayIn(
-                  icon: Icons.edit_note_outlined,
-                  label: context.l10n.qualityQuickLog,
-                  onTap: _quickAdd,
-                ),
-              ],
-            ),
+          child: Row(
+            spacing: AppSpacing.sm,
+            children: [
+              _WayIn(
+                icon: Icons.auto_awesome_outlined,
+                label: context.l10n.aiDraftAction,
+                onTap: _describe,
+              ),
+              _WayIn(
+                icon: Icons.edit_note_outlined,
+                label: context.l10n.qualityQuickLog,
+                onTap: _quickAdd,
+              ),
+            ],
           ),
         ),
         // A whole meal eaten before is the fastest record there is.

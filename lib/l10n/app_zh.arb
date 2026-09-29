@@ -6807,10 +6807,6 @@
   "@photoEstimate": {
     "description": "Title."
   },
-  "describeMealTitle": "用一句話記錄",
-  "@describeMealTitle": {
-    "description": "Title."
-  },
   "retry": "重試",
   "@retry": {
     "description": "Button."
@@ -8580,5 +8576,13 @@
   "splitAction": "拆開",
   "@splitAction": {
     "description": "Button that takes a meal apart."
+  },
+  "aiDraftAction": "AI 草稿",
+  "@aiDraftAction": {
+    "description": "Way in to drafting a meal from a photo, words or both, and that page's title."
+  },
+  "removePhoto": "移除照片",
+  "@removePhoto": {
+    "description": "Takes the photo off an AI draft before it is sent."
   }
 }

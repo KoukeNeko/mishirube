@@ -4468,9 +4468,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get photoEstimate => '照片估算';
 
   @override
-  String get describeMealTitle => '用一句話記錄';
-
-  @override
   String get retry => '重試';
 
   @override
@@ -5623,6 +5620,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get splitAction => '拆開';
+
+  @override
+  String get aiDraftAction => 'AI 草稿';
+
+  @override
+  String get removePhoto => '移除照片';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -10088,9 +10091,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get photoEstimate => '照片估算';
 
   @override
-  String get describeMealTitle => '用一句话记录';
-
-  @override
   String get retry => '重试';
 
   @override
@@ -11243,6 +11243,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get splitAction => '拆开';
+
+  @override
+  String get aiDraftAction => 'AI 草稿';
+
+  @override
+  String get removePhoto => '移除照片';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

@@ -1275,7 +1275,6 @@
   "logItemsCount": "Log {count} items",
   "plateEmpty": "This meal has no items.",
   "photoEstimate": "Photo estimate",
-  "describeMealTitle": "Describe a meal",
   "retry": "Retry",
   "chooseAiFirst": "Choose an AI to draft.",
   "foodPhoto": "Food photo",
@@ -1601,5 +1600,7 @@
   "healthDataGeneric": "Health data",
   "strongWorkoutName": "Strong workout",
   "afterMerge": "After",
-  "splitAction": "Split"
+  "splitAction": "Split",
+  "aiDraftAction": "AI draft",
+  "removePhoto": "Remove photo"
 }

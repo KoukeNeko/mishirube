@@ -1275,7 +1275,6 @@
   "logItemsCount": "{count}개 기록",
   "plateEmpty": "이 식사에 항목이 없습니다.",
   "photoEstimate": "사진 추정",
-  "describeMealTitle": "한 줄로 기록",
   "retry": "다시 시도",
   "chooseAiFirst": "초안을 만들려면 AI를 선택하세요.",
   "foodPhoto": "음식 사진",
@@ -1601,5 +1600,7 @@
   "healthDataGeneric": "건강 데이터",
   "strongWorkoutName": "Strong 운동",
   "afterMerge": "병합 후",
-  "splitAction": "분리"
+  "splitAction": "분리",
+  "aiDraftAction": "AI 초안",
+  "removePhoto": "사진 제거"
 }

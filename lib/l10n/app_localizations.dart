@@ -7810,12 +7810,6 @@ abstract class AppLocalizations {
   /// **'照片估算'**
   String get photoEstimate;
 
-  /// Title.
-  ///
-  /// In zh, this message translates to:
-  /// **'用一句話記錄'**
-  String get describeMealTitle;
-
   /// Button.
   ///
   /// In zh, this message translates to:
@@ -9791,6 +9785,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'拆開'**
   String get splitAction;
+
+  /// Way in to drafting a meal from a photo, words or both, and that page's title.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 草稿'**
+  String get aiDraftAction;
+
+  /// Takes the photo off an AI draft before it is sent.
+  ///
+  /// In zh, this message translates to:
+  /// **'移除照片'**
+  String get removePhoto;
 }
 
 class _AppLocalizationsDelegate

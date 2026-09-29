@@ -664,6 +664,50 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a photo and words go as one request, and a label keeps '
+        'its decimals and brand', (tester) async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..photoAnswer =
+            '{"label":{"name":"鮮乳","brand":"統一","serving_amount":240,'
+            '"serving_unit":"ml","kcal":95.3,"protein_g":7.4,"fat_g":2.1,'
+            '"carb_g":11.5}}';
+      final store = storeWith(apple);
+      final before = store.todayMeals.length;
+      await pumpScreen(
+        tester,
+        DescribeMealScreen(takePhoto: (_) async => '/milk.jpg'),
+        store: store,
+      );
+
+      await tester.tap(find.text('拍照'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), '低脂');
+      await tester.pump();
+      await tester.tap(find.text('產生草稿'));
+      await tester.pumpAndSettle();
+
+      expect(apple.photos, hasLength(1));
+      expect(apple.notes, ['低脂'], reason: 'the words go with the photo');
+      expect(find.text('蛋白質 7.4 g · 碳水化合物 11.5 g · 脂肪 2.1 g'), findsOneWidget);
+
+      // The brand is the item's own, and correcting it keeps the tenths.
+      await tester.tap(find.text('鮮乳'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextField, '統一'), findsOneWidget);
+      await tester.tap(find.text('儲存'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('記錄 1 項'));
+      await tester.pumpAndSettle();
+
+      expect(store.todayMeals, hasLength(before + 1));
+      final logged = store.todayMeals.last;
+      expect(logged.name, '鮮乳');
+      expect(logged.brand, '統一');
+      expect(logged.fatGrams, 2.1);
+      expect(logged.kcal, 95.3);
+      await disposeTree(tester);
+    });
+
     testWidgets('saved as a food, its figures are marked as an estimate', (
       tester,
     ) async {

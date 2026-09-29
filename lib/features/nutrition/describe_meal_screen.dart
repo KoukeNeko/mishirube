@@ -10,14 +10,16 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_draft_parts.dart';
 import '../me/ai_settings_screen.dart';
+import 'camera_screen.dart';
 import 'food_edit_screen.dart';
 import 'nutrition_view_model.dart';
 import '../../l10n/l10n.dart';
 
-/// A meal in one sentence: the chosen AI drafts it, the user checks and
-/// corrects it, and only then is anything logged. Given a [draft] already
-/// made — a food photo's items — it opens on the check; given a
-/// [photoPath], it drafts from that photo as it opens.
+/// A meal from a photo, a few words, or both: the chosen AI drafts it,
+/// with the words taking precedence over what the photo seems to show,
+/// the user checks and corrects it, and only then is anything logged.
+/// Given a [draft] already made — a food photo's items — it opens on the
+/// check.
 ///
 /// Pops with the logged meals, so the page that opened it can close too
 /// and offer the undo, the way logging a plate does.
@@ -26,18 +28,20 @@ class DescribeMealScreen extends StatefulWidget {
     super.key,
     this.mealType,
     this.draft,
-    this.photoPath,
     this.at,
+    this.takePhoto,
   });
 
   final MealType? mealType;
   final MealDraft? draft;
-  final String? photoPath;
 
   /// When what is logged was eaten; now when null.
   final DateTime? at;
 
-  bool get _isPhoto => draft != null || photoPath != null;
+  /// Takes the photo, titled [title], and returns its path, or null when
+  /// cancelled: the app's camera, with the library beside the shutter,
+  /// unless a test hands one in.
+  final Future<String?> Function(String title)? takePhoto;
 
   @override
   State<DescribeMealScreen> createState() => _DescribeMealScreenState();
@@ -54,6 +58,13 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   AiFailure? _failure;
   MealDraft? _draft;
 
+  /// The photo sent with the words, when one was taken.
+  String? _photoPath;
+
+  /// Whether the chosen AI can read a food photo; the camera is offered
+  /// only then.
+  late final Future<bool> _readsPhotos;
+
   /// The draft's items as the user left them: removed ones gone, typed
   /// calories in place of the model's.
   List<DraftItem> _items = const [];
@@ -61,16 +72,23 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   @override
   void initState() {
     super.initState();
-    _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+    final store = AppStoreScope.read(context);
+    _nutrition = NutritionViewModel(store.backend);
+    _readsPhotos = store.aiProvider == null || widget.draft != null
+        ? Future.value(false)
+        : store.readsFoodPhotos();
     _text.addListener(() => setState(() {}));
     if (widget.draft case final draft?) {
       _draft = draft;
       _items = draft.items;
     }
-    if (widget.photoPath != null) {
-      _isDrafting = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _generate());
-    }
+  }
+
+  Future<void> _addPhoto() async {
+    final take = widget.takePhoto ?? (title) => takePhoto(context, title);
+    final path = await take(context.l10n.scanAction);
+    if (path == null || !mounted) return;
+    setState(() => _photoPath = path);
   }
 
   @override
@@ -87,14 +105,15 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
       _isDrafting = true;
       _failure = null;
     });
+    final words = _text.text.trim();
     try {
-      final draft = switch (widget.photoPath) {
+      final draft = switch (_photoPath) {
         // A label photographed here is one serving of it, logged as a meal.
-        final path? => switch (await store.draftPhoto(path)) {
+        final path? => switch (await store.draftPhoto(path, note: words)) {
           PhotoOfLabel(:final label) => label.asMealDraft(),
           PhotoOfFood(:final meal) => meal,
         },
-        null => await store.draftMeal(_text.text.trim()),
+        null => await store.draftMeal(words),
       };
       if (!mounted) return;
       setState(() {
@@ -179,21 +198,19 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final draft = _draft;
+    final isHandedOver = widget.draft != null;
     return DetailPage(
       appBar: PageAppBar(
-        title: widget._isPhoto
+        title: isHandedOver
             ? context.l10n.photoEstimate
-            : context.l10n.describeMealTitle,
+            : context.l10n.aiDraftAction,
         subtitle: currentAiLabel(context.l10n, store),
       ),
       footer: draft == null
           ? DraftButton(
               isDrafting: _isDrafting,
-              label: widget.photoPath != null
-                  ? context.l10n.retry
-                  : context.l10n.aiDraftGenerate,
               onPressed:
-                  (widget.photoPath == null && _text.text.trim().isEmpty) ||
+                  (_photoPath == null && _text.text.trim().isEmpty) ||
                       store.aiProvider == null
                   ? null
                   : _generate,
@@ -203,7 +220,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               onPressed: _items.isEmpty ? null : _log,
             ),
       children: [
-        if (store.aiProvider == null && !widget._isPhoto) ...[
+        if (store.aiProvider == null && !isHandedOver) ...[
           Gutter(
             child: InfoBanner(
               icon: Icons.auto_awesome_outlined,
@@ -217,7 +234,9 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
             ),
           ),
         ],
-        if (widget.photoPath case final path?)
+        // What is sent stays on the page with its draft, so the draft can
+        // be checked against the photo.
+        if (_photoPath case final path?) ...[
           Gutter(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.card),
@@ -230,7 +249,29 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               ),
             ),
           ),
-        if (!widget._isPhoto)
+          if (draft == null)
+            Gutter(
+              child: Center(
+                child: LinkText(
+                  label: context.l10n.removePhoto,
+                  onTap: () => setState(() => _photoPath = null),
+                ),
+              ),
+            ),
+        ] else if (draft == null)
+          FutureBuilder(
+            future: _readsPhotos,
+            builder: (context, readsPhotos) => readsPhotos.data ?? false
+                ? Gutter(
+                    child: SecondaryButton(
+                      icon: Icons.photo_camera_outlined,
+                      label: context.l10n.takePhotoAction,
+                      onPressed: _isDrafting ? null : _addPhoto,
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        if (!isHandedOver)
           Gutter(
             child: DescribeField(
               controller: _text,
@@ -273,7 +314,7 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               label: aiLabel(context.l10n, draft.provider, draft.model),
             ),
           ),
-          if (!widget._isPhoto)
+          if (!isHandedOver)
             Gutter(
               child: RewriteLink(onTap: () => setState(() => _draft = null)),
             ),

@@ -4475,9 +4475,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get photoEstimate => '写真で推定';
 
   @override
-  String get describeMealTitle => 'ひとことで記録';
-
-  @override
   String get retry => '再試行';
 
   @override
@@ -5630,4 +5627,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get splitAction => '分ける';
+
+  @override
+  String get aiDraftAction => 'AI 下書き';
+
+  @override
+  String get removePhoto => '写真を削除';
 }

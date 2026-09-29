@@ -1275,7 +1275,6 @@
   "logItemsCount": "{count}品を記録",
   "plateEmpty": "この食事に品目はありません。",
   "photoEstimate": "写真で推定",
-  "describeMealTitle": "ひとことで記録",
   "retry": "再試行",
   "chooseAiFirst": "下書きを作るにはAIを選んでください。",
   "foodPhoto": "食べ物の写真",
@@ -1601,5 +1600,7 @@
   "healthDataGeneric": "ヘルスケアデータ",
   "strongWorkoutName": "Strongのトレーニング",
   "afterMerge": "まとめた後",
-  "splitAction": "分ける"
+  "splitAction": "分ける",
+  "aiDraftAction": "AI 下書き",
+  "removePhoto": "写真を削除"
 }
