@@ -402,9 +402,10 @@ class _RangeBarPainter extends CustomPainter {
 
 /// A quantity over time from zero up, filled beneath its line: what has
 /// happened up to [nowIndex] drawn solid, what is still to come fainter,
-/// and a dot on now. A [reference] is a dashed level named by
-/// [referenceLabel], drawn only while it fits under the curve's peak so
-/// it never stretches the axis. [start] and [end] sit under the axis.
+/// and a dot on now with a line down to the axis. A [reference] is a
+/// dashed level named by [referenceLabel], drawn only while it fits under
+/// the curve's peak so it never stretches the axis. [start], [now] and
+/// [end] sit under the axis; an end too close to now gives way to it.
 class CurveChart extends StatelessWidget {
   const CurveChart({
     super.key,
@@ -412,6 +413,7 @@ class CurveChart extends StatelessWidget {
     required this.nowIndex,
     required this.color,
     required this.start,
+    required this.now,
     required this.end,
     this.reference,
     this.referenceLabel,
@@ -422,13 +424,19 @@ class CurveChart extends StatelessWidget {
   final int nowIndex;
   final Color color;
   final String start;
+  final String now;
   final String end;
   final double? reference;
   final String? referenceLabel;
   final double height;
 
+  /// How near an end of the axis now may come before that end's label
+  /// gives way to now's.
+  static const _endRoom = 0.18;
+
   @override
   Widget build(BuildContext context) {
+    final at = values.length < 2 ? 0.0 : nowIndex / (values.length - 1);
     return Column(
       children: [
         SizedBox(
@@ -446,11 +454,32 @@ class CurveChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        Row(
+        Stack(
           children: [
-            Text(start, style: AppTextStyles.caption),
-            const Spacer(),
-            Text(end, style: AppTextStyles.caption),
+            if (at >= _endRoom)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(start, style: AppTextStyles.caption),
+              ),
+            // Align puts the label's own point at [at] there; shifting it
+            // by the rest centres it under the line.
+            Align(
+              alignment: Alignment(at * 2 - 1, 0),
+              child: FractionalTranslation(
+                translation: Offset(at - 0.5, 0),
+                child: Text(
+                  now,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+            if (at <= 1 - _endRoom)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(end, style: AppTextStyles.caption),
+              ),
           ],
         ),
       ],
@@ -550,6 +579,13 @@ class _CurvePainter extends CustomPainter {
     }
 
     final point = Offset(xOf(now), yOf(values[now]));
+    canvas.drawLine(
+      Offset(point.dx, 0),
+      Offset(point.dx, bottom),
+      Paint()
+        ..color = AppColors.textSecondary.withValues(alpha: 0.5)
+        ..strokeWidth = 1,
+    );
     canvas.drawCircle(
       point,
       _nowRadius + 2,

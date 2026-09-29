@@ -1253,7 +1253,7 @@
   "workedOut": "Worked out",
   "caffeineRemaining": "Estimated caffeine left",
   "halfLifeBasis": "From a {hours}-hour half-life",
-  "caffeineReference": "{mg} mg reference",
+  "caffeineReference": "Bedtime reference {mg} mg",
   "workedOutValue": "{value} · worked out",
   "caffeineValue": "Caffeine {mg} mg",
   "oneServingIs": "1 serving = {serving}",

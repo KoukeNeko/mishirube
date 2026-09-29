@@ -4399,7 +4399,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String caffeineReference({required String mg}) {
-    return '$mg mg 참고';
+    return '취침 참고 $mg mg';
   }
 
   @override

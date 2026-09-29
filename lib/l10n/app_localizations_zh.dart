@@ -4391,7 +4391,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String caffeineReference({required String mg}) {
-    return '$mg mg 參考';
+    return '就寢參考 $mg mg';
   }
 
   @override
@@ -10042,7 +10042,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String caffeineReference({required String mg}) {
-    return '$mg mg 参考';
+    return '就寝参考 $mg mg';
   }
 
   @override

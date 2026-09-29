@@ -1253,7 +1253,7 @@
   "workedOut": "계산값",
   "caffeineRemaining": "추정 잔류 카페인",
   "halfLifeBasis": "반감기 {hours}시간 기준",
-  "caffeineReference": "{mg} mg 참고",
+  "caffeineReference": "취침 참고 {mg} mg",
   "workedOutValue": "{value} · 계산값",
   "caffeineValue": "카페인 {mg} mg",
   "oneServingIs": "1회분 = {serving}",

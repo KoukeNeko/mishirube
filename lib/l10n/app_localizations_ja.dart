@@ -4398,7 +4398,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String caffeineReference({required String mg}) {
-    return '$mg mg 目安';
+    return '就寝時の目安 $mg mg';
   }
 
   @override

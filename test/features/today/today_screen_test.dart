@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/domain/domain.dart';
@@ -95,7 +96,20 @@ void main() {
       findsOneWidget,
       reason: 'half of it after one half-life',
     );
-    expect(find.byType(CurveChart), findsOneWidget);
+    final chart = tester.widget<CurveChart>(find.byType(CurveChart));
+    final area = tester.getRect(
+      find.descendant(
+        of: find.byType(CurveChart),
+        matching: find.byType(CustomPaint),
+      ),
+    );
+    final nowX =
+        area.left + area.width * chart.nowIndex / (chart.values.length - 1);
+    expect(
+      tester.getCenter(find.text(formatTimeOfDay(store.now()))).dx,
+      closeTo(nowX, 1),
+      reason: 'the time of now sits under the line drawn at now',
+    );
     await disposeTree(tester);
   });
 

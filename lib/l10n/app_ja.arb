@@ -1253,7 +1253,7 @@
   "workedOut": "算出",
   "caffeineRemaining": "残存カフェイン推定",
   "halfLifeBasis": "半減期{hours}時間で算出",
-  "caffeineReference": "{mg} mg 目安",
+  "caffeineReference": "就寝時の目安 {mg} mg",
   "workedOutValue": "{value} · 算出",
   "caffeineValue": "カフェイン {mg} mg",
   "oneServingIs": "1食分 = {serving}",

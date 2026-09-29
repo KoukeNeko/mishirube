@@ -6686,7 +6686,7 @@
       }
     }
   },
-  "caffeineReference": "{mg} mg 參考",
+  "caffeineReference": "就寢參考 {mg} mg",
   "@caffeineReference": {
     "description": "Label on the dashed bedtime reference line of the caffeine curve; mg is formatted.",
     "placeholders": {

@@ -7681,7 +7681,7 @@ abstract class AppLocalizations {
   /// Label on the dashed bedtime reference line of the caffeine curve; mg is formatted.
   ///
   /// In zh, this message translates to:
-  /// **'{mg} mg 參考'**
+  /// **'就寢參考 {mg} mg'**
   String caffeineReference({required String mg});
 
   /// A figure worked out from others; value formatted.

@@ -1253,7 +1253,7 @@
   "workedOut": "推算",
   "caffeineRemaining": "估计残留咖啡因",
   "halfLifeBasis": "依半衰期 {hours} 小时推算",
-  "caffeineReference": "{mg} mg 参考",
+  "caffeineReference": "就寝参考 {mg} mg",
   "workedOutValue": "{value} · 推算",
   "caffeineValue": "咖啡因 {mg} mg",
   "oneServingIs": "一份 = {serving}",
