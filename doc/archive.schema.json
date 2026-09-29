@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mishirube.app/schema/archive-1.json",
+  "$id": "https://mishirube.app/schema/archive-2.json",
   "title": "MISHIRUBE archive",
   "type": "object",
   "required": [
@@ -854,31 +854,31 @@
               },
               "kcal": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "proteinG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "carbG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "fatG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },
               "fibreG": {
                 "type": [
-                  "integer",
+                  "number",
                   "null"
                 ]
               },

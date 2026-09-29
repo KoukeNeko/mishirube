@@ -287,9 +287,11 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
 /// model did not give; then, on a line of its own, whatever else a label
 /// gave: `糖 14.4 g · 鈉 79 mg · 鈣 667 mg`.
 String _macrosOf(AppLocalizations l10n, DraftItem item) {
-  String grams(int? value) => value == null ? '—' : '$value g';
+  String grams(double? value) =>
+      value == null ? '—' : '${formatAmount(value)} g';
   final more = [
-    if (item.fibreGrams case final fibre?) '${l10n.macroFibre} $fibre g',
+    if (item.fibreGrams case final fibre?)
+      '${l10n.macroFibre} ${formatAmount(fibre)} g',
     for (final MapEntry(key: nutrient, value: amount) in item.nutrients.entries)
       '${nutrient.labelIn(l10n)} ${nutrient.format(amount)}',
   ];

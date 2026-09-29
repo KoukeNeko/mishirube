@@ -1793,7 +1793,7 @@ void main() {
     await tester.tap(find.text('記錄 1 項'));
     await tester.pumpAndSettle();
     expect(store.todayKcal, before + 248, reason: '165 × 1.5, rounded once');
-    expect(store.todayMeals.last.proteinGrams, 47);
+    expect(store.todayMeals.last.proteinGrams, 46.5, reason: '31 × 1.5');
     expect(store.todayMeals.last.dishes.single.quantityLabel, '150 g');
     await disposeTree(tester);
   });
@@ -2411,7 +2411,7 @@ void main() {
     nutrition.deleteMeals([
       for (final meal in nutrition.mealsOn(today)) meal.id,
     ]);
-    for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)]) {
+    for (final (name, kcal) in [('蛋餅', 250.0), ('冰奶茶', 300.0)]) {
       nutrition.logMeal(
         MealEvent(
           id: name,
@@ -2696,7 +2696,7 @@ void main() {
       for (final meal in nutrition.mealsOn(today)) meal.id,
     ]);
     nutrition.groupMeals([
-      for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+      for (final (name, kcal) in [('蛋餅', 250.0), ('冰奶茶', 300.0)])
         nutrition.logMeal(
           MealEvent(
             id: name,
@@ -3146,8 +3146,8 @@ void main() {
     ]);
     // A Taiwanese label's sodium and a Japanese label's salt.
     for (final (id, carb, fibre, nutrients) in [
-      ('bento', 80, 5, {Nutrient.sodium: 1270.0}),
-      ('onigiri', 40, 1, {Nutrient.saltEquivalent: 1.27}),
+      ('bento', 80.0, 5.0, {Nutrient.sodium: 1270.0}),
+      ('onigiri', 40.0, 1.0, {Nutrient.saltEquivalent: 1.27}),
     ]) {
       nutrition.logMeal(
         MealEvent(

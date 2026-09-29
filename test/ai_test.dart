@@ -180,7 +180,7 @@ void main() {
       final item = draft.items.single;
       expect(item.name, '蛋餅');
       expect(item.amount, '', reason: 'no amount is one of it');
-      expect(item.kcal, 250);
+      expect(item.kcal, 250.4, reason: 'as the model gave it');
       expect(item.carbGrams, isNull, reason: 'unknown stays unknown');
     });
 

@@ -625,7 +625,7 @@ void main() {
       );
     });
 
-    test("a label's decimals are kept, and a meal rounds once", () {
+    test("a label's decimals are kept, and a meal rounds once, to a tenth", () {
       final backend = openFile();
       addTearDown(backend.close);
       final store = AppStore(
@@ -652,12 +652,13 @@ void main() {
       expect(stored.proteinGrams, 6.7);
       expect(stored.carbGrams, 48.4);
 
-      // 6.7 × 1.5 is 10.05: rounded from the exact figure, not from 7.
+      // 6.7 × 1.5 is 10.05: rounded to a tenth from the exact figure, not
+      // from 7.
       final logged = reopened.backend.nutrition.logPortion(
         FoodPortion(stored, 1.5),
       );
-      expect(logged.proteinGrams, 10);
-      expect(logged.kcal, 412, reason: '274.4 × 1.5 = 411.6');
+      expect(logged.proteinGrams, 10.1);
+      expect(logged.kcal, 411.6, reason: '274.4 × 1.5');
     });
 
     test('a quick record is logged like a food but keeps none', () {
@@ -670,7 +671,7 @@ void main() {
         mealType: MealType.snack,
       );
 
-      expect(logged.kcal, 321);
+      expect(logged.kcal, 320.5);
       expect(logged.mealType, MealType.snack);
       expect(logged.foodId, isNull, reason: 'nothing to offer again');
       expect(store.backend.nutrition.searchFoods(''), hasLength(saved));
@@ -941,7 +942,7 @@ void main() {
         unit: ServingUnit.pound,
       );
       expect(byPound.servings, closeTo(2.268, 0.001));
-      expect(byPound.kcal, 374);
+      expect(byPound.kcal, 374.2);
 
       // A Taiwanese catty is 600 g, so six servings exactly.
       final byCatty = FoodPortion.ofAmount(chicken, 1, unit: ServingUnit.catty);

@@ -8,7 +8,7 @@ const archiveFormat = 'mishirube-archive';
 
 /// Version of the archive layout. It moves independently of the database
 /// schema: internal tables can change while backups stay readable.
-const archiveFormatVersion = 1;
+const archiveFormatVersion = 2;
 
 /// Thrown when an archive cannot be restored; nothing has been changed.
 class ArchiveFormatException implements Exception {
@@ -205,11 +205,11 @@ const _tables = [
     _Column('name', _Kind.text),
     _Column('amount', _Kind.text),
     _Column('eaten_at', _Kind.time),
-    _Column('kcal', _Kind.integer, isNullable: true),
-    _Column('protein_g', _Kind.integer, isNullable: true),
-    _Column('carb_g', _Kind.integer, isNullable: true),
-    _Column('fat_g', _Kind.integer, isNullable: true),
-    _Column('fibre_g', _Kind.integer, isNullable: true),
+    _Column('kcal', _Kind.real, isNullable: true),
+    _Column('protein_g', _Kind.real, isNullable: true),
+    _Column('carb_g', _Kind.real, isNullable: true),
+    _Column('fat_g', _Kind.real, isNullable: true),
+    _Column('fibre_g', _Kind.real, isNullable: true),
     _Column('millilitres', _Kind.integer, isNullable: true),
     _Column('consumption_kind', _Kind.text),
     _Column('meal_type', _Kind.text, isNullable: true),

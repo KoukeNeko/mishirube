@@ -652,7 +652,6 @@ class NutritionService {
           (nutrient) => nutrient == Nutrient.caffeine,
         ) &&
         food.nutrients.isNotEmpty;
-    int? whole(double? value) => value?.round();
     return MealEvent(
       id: id,
       name:
@@ -667,11 +666,11 @@ class NutritionService {
           ? ConsumptionKind.beverage
           : ConsumptionKind.unknown,
       mealType: food.mealType,
-      kcal: whole(food.kcal),
-      proteinGrams: whole(food.proteinGrams),
-      carbGrams: whole(food.carbGrams),
-      fatGrams: whole(food.fatGrams),
-      fibreGrams: whole(food.fibreGrams),
+      kcal: food.kcal,
+      proteinGrams: food.proteinGrams,
+      carbGrams: food.carbGrams,
+      fatGrams: food.fatGrams,
+      fibreGrams: food.fibreGrams,
       nutrients: food.nutrients,
     );
   }

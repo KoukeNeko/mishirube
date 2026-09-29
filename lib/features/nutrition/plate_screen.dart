@@ -11,8 +11,9 @@ import '../../l10n/l10n.dart';
 /// The calories of everything on the plate that has a figure. Anything
 /// without one is left out and said so beside it ([plateMissingLabel]),
 /// not folded into the number.
-String plateKcalLabel(List<FoodPortion> plate) =>
-    formatKcal(plate.fold(0, (sum, portion) => sum + (portion.kcal ?? 0)));
+String plateKcalLabel(List<FoodPortion> plate) => formatKcal(
+  plate.fold<double>(0, (sum, portion) => sum + (portion.kcal ?? 0)).round(),
+);
 
 /// `1 項沒有熱量`, or null when every item has a figure.
 String? plateMissingLabel(AppLocalizations l10n, List<FoodPortion> plate) {

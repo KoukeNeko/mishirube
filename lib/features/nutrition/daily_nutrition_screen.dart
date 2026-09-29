@@ -664,7 +664,8 @@ String _macrosOf(
   MealEvent item,
   NutritionConvention convention,
 ) {
-  String grams(int? value) => value == null ? '—' : '$value g';
+  String grams(double? value) =>
+      value == null ? '—' : '${formatAmount(value)} g';
   return [
     '${convention.proteinName(l10n)} ${grams(item.proteinGrams)}',
     '${convention.carbName(l10n)} ${grams(item.carbGrams)}',

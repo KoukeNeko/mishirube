@@ -226,9 +226,7 @@ class _Macros extends StatelessWidget {
         convention.carbName(context.l10n),
         AppColors.macroCarb,
         // Where the carbohydrate leaves its fibre out, so does this.
-        convention.countsAvailableCarb
-            ? availableCarbOf(meal)?.round()
-            : meal.carbGrams,
+        convention.countsAvailableCarb ? availableCarbOf(meal) : meal.carbGrams,
         energy.carb,
       ),
       (
@@ -286,7 +284,7 @@ class _Macros extends StatelessWidget {
                 child: _MacroColumn(
                   label: label,
                   color: color,
-                  amount: grams == null ? '—' : '$grams g',
+                  amount: grams == null ? '—' : '${formatAmount(grams)} g',
                   kcal: kcal,
                 ),
               ),

@@ -160,11 +160,13 @@ class DraftItem {
 
   /// How much, in the words the model used: `一個`, `700 ml`.
   final String amount;
-  final int? kcal;
-  final int? proteinGrams;
-  final int? carbGrams;
-  final int? fatGrams;
-  final int? fibreGrams;
+
+  /// As the model gave them: a label's 2.1 g stays 2.1 g.
+  final double? kcal;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
+  final double? fibreGrams;
 
   /// Everything else a printed label gave: sugar, sodium, calcium, the
   /// amino acids. Absent is unknown, as on a food.
@@ -263,11 +265,11 @@ class FoodLabelDraft {
               ? ''
               : '${amount == amount.roundToDouble() ? amount.round() : amount} '
                     '${servingUnit == ServingUnit.millilitre ? 'mL' : 'g'}',
-          kcal: kcal?.round(),
-          proteinGrams: proteinGrams?.round(),
-          carbGrams: carbGrams?.round(),
-          fatGrams: fatGrams?.round(),
-          fibreGrams: fibreGrams?.round(),
+          kcal: kcal,
+          proteinGrams: proteinGrams,
+          carbGrams: carbGrams,
+          fatGrams: fatGrams,
+          fibreGrams: fibreGrams,
           nutrients: nutrients,
           isDrink: servingUnit == ServingUnit.millilitre,
         ),

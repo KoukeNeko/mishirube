@@ -11,7 +11,7 @@ final mealDraftInstructions =
     '''
 你把使用者描述的一餐拆成一項一項的食物或飲料。
 只回傳 JSON，不要任何說明文字，格式：
-{"name":"這一餐的名稱","items":[{"name":"品名","amount":"份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
+{"name":"這一餐的名稱","items":[{"name":"品名","amount":"份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}]}
 規則：
 - 最外層的 name 是整餐的簡短名稱，例如「雞腿便當」「蛋餅加奶茶」，繁體中文，不超過 12 個字。
 - items 裡的 name 用使用者的說法，繁體中文。
@@ -28,7 +28,7 @@ final _nutrientRules =
     '''
 - nutrients 放其他營養素，鍵只能用這些（單位在鍵名裡：g 公克、mg 毫克、ug 微克）：
   ${Nutrient.values.map(nutrientAnswerKey).join('、')}
-- 使用者給了營養標示、或照片裡看得到營養標示時，標示上的每一列都要填（例如糖、鈉、飽和脂肪、鈣、白胺酸），數字照標示的「每份」；沒有依據就不要填，不要猜。
+- 使用者給了營養標示、或照片裡看得到營養標示時，標示上的每一列都要填（例如糖、鈉、飽和脂肪、鈣、白胺酸），數字照標示的「每份」，保留小數點；沒有依據就不要填，不要猜。
 - 含酒精的飲料要填 alcohol_g：容量（毫升）× 酒精度 × 0.789，酒精度照使用者說的或這種酒常見的度數。''';
 
 /// Figures past these are not a meal but a misreading: a number the
@@ -80,7 +80,7 @@ $labelReadingRules
 
 【食物】
 辨識照片裡每一項食物或飲料，估計份量與營養，格式：
-{"items":[{"name":"品名","amount":"估計份量","kcal":整數,"protein_g":整數,"carb_g":整數,"fat_g":整數,"fibre_g":整數,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
+{"items":[{"name":"品名","amount":"估計份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
 規則：
 $_photoItemRules
 - kcal、protein_g、carb_g、fat_g、fibre_g 是你對這個份量的估計；不確定就填 null，不要填 0。
@@ -223,8 +223,8 @@ EnergyMismatch? _energyWarning(DraftItem item) {
   return EnergyMismatch(item.name);
 }
 
-int? _figure(Object? value, int max) => switch (value) {
-  final num number when number >= 0 && number <= max => number.round(),
+double? _figure(Object? value, int max) => switch (value) {
+  final num number when number >= 0 && number <= max => number.toDouble(),
   _ => null,
 };
 

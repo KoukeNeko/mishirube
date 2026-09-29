@@ -110,16 +110,16 @@ class MealEvent {
   /// What was eaten, where it is known. Null is not zero: a meal logged
   /// from a food whose label was never read has no calorie figure, and
   /// the day's total has to say so rather than quietly add nothing.
-  final int? kcal;
+  final double? kcal;
   final String qualityTag;
   final List<DishEntry> dishes;
-  final int? proteinGrams;
-  final int? carbGrams;
-  final int? fatGrams;
+  final double? proteinGrams;
+  final double? carbGrams;
+  final double? fatGrams;
 
   /// Fibre, which is part of the carbohydrate already counted above and
   /// is tracked separately because it is what people actually watch.
-  final int? fibreGrams;
+  final double? fibreGrams;
 
   /// Starred to log again without going looking for it.
   final bool isFavorite;
@@ -155,11 +155,11 @@ class MealEvent {
     String? timeLabel,
     List<DishEntry>? dishes,
     bool? isFavorite,
-    int? kcal,
-    int? proteinGrams,
-    int? carbGrams,
-    int? fatGrams,
-    int? fibreGrams,
+    double? kcal,
+    double? proteinGrams,
+    double? carbGrams,
+    double? fatGrams,
+    double? fibreGrams,
     bool? isEstimated,
     String? qualityTag,
     Nutrients? nutrients,

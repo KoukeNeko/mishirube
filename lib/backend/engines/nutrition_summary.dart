@@ -125,9 +125,9 @@ List<String> mealContentsOf(MealEvent meal) {
 
 /// A meal's energy: its items' sum, or null when any item has none, so
 /// the meal is not shown as less than it was.
-int? mealKcalOf(List<MealEvent> meal) {
+double? mealKcalOf(List<MealEvent> meal) {
   if (meal.any((item) => item.kcal == null)) return null;
-  return meal.fold<int>(0, (sum, item) => sum + item.kcal!);
+  return meal.fold<double>(0, (sum, item) => sum + item.kcal!);
 }
 
 /// [items] as the one meal they were eaten as. Energy and the three
@@ -138,9 +138,9 @@ int? mealKcalOf(List<MealEvent> meal) {
 /// where a total is only a floor: [summariseNutrients]). It is called
 /// [name], or by its items.
 MealEvent mealTotal(List<MealEvent> items, {String? name}) {
-  int? sum(int? Function(MealEvent) figure) {
+  double? sum(double? Function(MealEvent) figure) {
     if (items.any((item) => figure(item) == null)) return null;
-    return items.fold<int>(0, (total, item) => total + figure(item)!);
+    return items.fold<double>(0, (total, item) => total + figure(item)!);
   }
 
   final first = items.first;
@@ -201,15 +201,15 @@ energyParts(MealEvent meal) {
       null => null,
     },
     protein: switch (meal.proteinGrams) {
-      final grams? => grams * kcalPerGramProtein,
+      final grams? => (grams * kcalPerGramProtein).round(),
       null => null,
     },
     fat: switch (meal.fatGrams) {
-      final grams? => grams * kcalPerGramFat,
+      final grams? => (grams * kcalPerGramFat).round(),
       null => null,
     },
     fibre: switch (fibre) {
-      final grams? => grams * kcalPerGramFibre,
+      final grams? => (grams * kcalPerGramFibre).round(),
       null => null,
     },
     polyols: switch (polyols) {
@@ -234,9 +234,11 @@ DaySummary summariseDay(Iterable<MealEvent> meals, {bool isOver = true}) {
   final records = meals.toList();
   // A missing figure is counted, not skipped and not added as zero: the
   // day has to be able to say how much of itself it could not see.
-  int sumOf(int? Function(MealEvent) figure) =>
-      records.fold(0, (total, meal) => total + (figure(meal) ?? 0));
-  int missing(int? Function(MealEvent) figure) =>
+  // Records keep a label's decimals; the day's total is whole.
+  int sumOf(double? Function(MealEvent) figure) => records
+      .fold<double>(0, (total, meal) => total + (figure(meal) ?? 0))
+      .round();
+  int missing(double? Function(MealEvent) figure) =>
       records.where((meal) => figure(meal) == null).length;
 
   // A meal of several items is one meal, however many records it holds.

@@ -389,7 +389,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// undercounted. The name typed so far is kept.
   void _fillFromPhoto(MealDraft draft) {
     final items = draft.items;
-    double? total(int? Function(DraftItem) figure) {
+    double? total(double? Function(DraftItem) figure) {
       final figures = items.map(figure);
       if (figures.any((value) => value == null)) return null;
       return figures.fold<double>(0, (sum, value) => sum + value!);
@@ -525,7 +525,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       setState(() => _error = context.l10n.nutrientNegative);
       return;
     }
-    int? whole(TextEditingController field) => _perServing(field)?.round();
     if (_eatenAt case final eatenAt?
         when eatenAt != _nutrition.eatenAtOf(meal.id)) {
       _nutrition.retimeMeal(meal, eatenAt);
@@ -554,11 +553,11 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         amount: _amountInWords.text.trim(),
         valueType: meal.valueType,
         isFavorite: meal.isFavorite,
-        kcal: whole(_kcal),
-        proteinGrams: whole(_protein),
-        carbGrams: whole(_carb),
-        fatGrams: whole(_fat),
-        fibreGrams: whole(_fibre),
+        kcal: _perServing(_kcal),
+        proteinGrams: _perServing(_protein),
+        carbGrams: _perServing(_carb),
+        fatGrams: _perServing(_fat),
+        fibreGrams: _perServing(_fibre),
         // The user has just said what these are, so they are no longer
         // somebody's guess.
         isEstimated: false,
@@ -582,16 +581,15 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       setState(() => _error = context.l10n.nutrientNegative);
       return;
     }
-    int? whole(TextEditingController field) => _perServing(field)?.round();
     Navigator.of(context).pop(
       DraftItem(
         name: _name.text.trim(),
         amount: _amountInWords.text.trim(),
-        kcal: whole(_kcal),
-        proteinGrams: whole(_protein),
-        carbGrams: whole(_carb),
-        fatGrams: whole(_fat),
-        fibreGrams: whole(_fibre),
+        kcal: _perServing(_kcal),
+        proteinGrams: _perServing(_protein),
+        carbGrams: _perServing(_carb),
+        fatGrams: _perServing(_fat),
+        fibreGrams: _perServing(_fibre),
         nutrients: _typedNutrients(),
         isDrink: _kind == ConsumptionKind.beverage,
       ),

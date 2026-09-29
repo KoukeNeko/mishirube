@@ -68,7 +68,7 @@ class FoodRow extends StatelessWidget {
 }
 
 /// `330 kcal`, marked for what kind of figure it is, or a dash.
-String kcalOf(FoodItem food, int? kcal) => '${formatKcalOrDash(kcal)} kcal';
+String kcalOf(FoodItem food, num? kcal) => '${formatKcalOrDash(kcal)} kcal';
 
 /// What a food last eaten at [portion] opens at.
 String addsLastPortion(AppLocalizations l10n, FoodPortion portion) =>
@@ -87,6 +87,6 @@ String addsFirstPortion(
   if (sizeCount > 0) return l10n.foodCupSizes(count: sizeCount);
   return l10n.foodOneServing(
     serving: food.servingDescription(l10n),
-    kcal: kcalOf(food, food.kcal?.round()),
+    kcal: kcalOf(food, food.kcal),
   );
 }

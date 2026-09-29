@@ -37,7 +37,8 @@ String formatTimeOfDay(DateTime time) {
 /// A calorie figure, or a dash when nobody wrote one down. The dash is
 /// not a zero: it says the record has no number, not that the food had
 /// none in it.
-String formatKcalOrDash(int? kcal) => kcal == null ? '—' : formatKcal(kcal);
+String formatKcalOrDash(num? kcal) =>
+    kcal == null ? '—' : formatKcal(kcal.round());
 
 String formatKcal(int kcal) {
   final digits = kcal.toString();

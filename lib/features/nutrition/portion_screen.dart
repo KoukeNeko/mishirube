@@ -141,8 +141,7 @@ List<Widget> _label(
       value: label.countsAvailableCarb
           ? _grams(
               (portion.nutrients[Nutrient.netCarb] ??
-                      carbLessFibre(portion.carbGrams, portion.fibreGrams))
-                  ?.round(),
+                  carbLessFibre(portion.carbGrams, portion.fibreGrams)),
             )
           : _grams(portion.carbGrams),
     ),
@@ -486,7 +485,8 @@ String _checked(BuildContext context, DateTime? at) => at == null
     : '\n${context.l10n.updatedOn(date: context.dates.date(at))}';
 
 /// `31 g`, or a dash when the food has no figure for it.
-String _grams(int? amount) => amount == null ? '—' : '$amount g';
+String _grams(num? amount) =>
+    amount == null ? '—' : '${formatAmount(amount.toDouble())} g';
 
 class _PortionField extends StatelessWidget {
   const _PortionField({

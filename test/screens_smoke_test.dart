@@ -494,7 +494,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     (store) {
       final nutrition = store.backend.nutrition;
       final items = [
-        for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+        for (final (name, kcal) in [('蛋餅', 250.0), ('冰奶茶', 300.0)])
           nutrition.logMeal(
             MealEvent(
               id: name,
@@ -552,7 +552,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
 
 /// Two items, as a merge or a split would show them.
 final _previewItems = [
-  for (final (name, kcal) in [('蛋餅', 250), ('冰奶茶', 300)])
+  for (final (name, kcal) in [('蛋餅', 250.0), ('冰奶茶', 300.0)])
     MealEvent(
       id: name,
       name: name,

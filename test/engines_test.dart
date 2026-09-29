@@ -33,9 +33,9 @@ import 'support/harness.dart';
 
 MealEvent _meal(
   String name, {
-  int kcal = 600,
+  double kcal = 600,
   bool isEstimated = false,
-  int fibreGrams = 4,
+  double fibreGrams = 4,
 }) => MealEvent(
   id: name,
   name: name,
@@ -1910,6 +1910,21 @@ void main() {
     });
   });
 
+  test('a portion keeps a label\'s tenths, rounded once on the total', () {
+    const milk = FoodItem(
+      id: 'milk',
+      name: '鮮乳',
+      kcal: 95.3,
+      proteinGrams: 7.4,
+      fatGrams: 2.1,
+    );
+    const portion = FoodPortion(milk, 1.5);
+    expect(portion.fatGrams, 3.2, reason: '3.15, not 3');
+    expect(portion.proteinGrams, 11.1);
+    expect(portion.kcal, 143);
+    expect(const FoodPortion(milk, 1).fatGrams, 2.1);
+  });
+
   test('a plate total names what it left out instead of marking it', () {
     FoodPortion one(double? kcal, NutrientValueType type) => FoodPortion(
       FoodItem(id: '$kcal$type', name: 'x', kcal: kcal, valueType: type),
@@ -1973,18 +1988,22 @@ void main() {
   );
 
   test('a meal of several items is their sum, main figures all or none', () {
-    MealEvent item(String id, {int? kcal, int? protein, double? alcohol}) =>
-        MealEvent(
-          id: id,
-          name: id,
-          timeLabel: '20:00',
-          qualityTag: '手動',
-          dishes: const [],
-          kcal: kcal,
-          proteinGrams: protein,
-          nutrients: {Nutrient.alcohol: ?alcohol},
-          groupId: 'g',
-        );
+    MealEvent item(
+      String id, {
+      double? kcal,
+      double? protein,
+      double? alcohol,
+    }) => MealEvent(
+      id: id,
+      name: id,
+      timeLabel: '20:00',
+      qualityTag: '手動',
+      dishes: const [],
+      kcal: kcal,
+      proteinGrams: protein,
+      nutrients: {Nutrient.alcohol: ?alcohol},
+      groupId: 'g',
+    );
     final total = mealTotal([
       item('披薩', kcal: 800, protein: 30),
       item('啤酒', kcal: 142, alcohol: 13),

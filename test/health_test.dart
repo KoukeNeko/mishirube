@@ -635,9 +635,10 @@ void main() {
       expect(oats.mealType, MealType.breakfast);
       expect(
         [oats.kcal, oats.proteinGrams, oats.carbGrams, oats.fatGrams],
-        [310, 12, 52, 6],
+        [310.4, 11.6, 52.2, 6.1],
+        reason: 'as the other app wrote them',
       );
-      expect(oats.fibreGrams, 8);
+      expect(oats.fibreGrams, 7.8);
       expect(oats.nutrients, {Nutrient.sodium: 120, Nutrient.sugar: 9.5});
       final coffee = meals['healthkit-food-f2']!;
       expect(coffee.name, '咖啡因', reason: 'caffeine alone, named for it');

@@ -3,13 +3,14 @@ import '../../shared/format.dart';
 import '../../l10n/l10n.dart';
 
 /// Bumped whenever the arithmetic below changes.
-const foodPortionVersion = 2;
+const foodPortionVersion = 3;
 
 /// How much of a food was eaten, and what that comes to.
 ///
 /// The food holds its numbers per serving; this scales them to the
-/// portion actually eaten. Rounding happens once, on each total, so the
-/// figures stay the arithmetic the user could do themselves.
+/// portion actually eaten. Rounding happens once, on each total, to the
+/// tenth a label prints, so the figures stay the arithmetic the user could
+/// do themselves and a label's 2.1 g is not logged as 2 g.
 class FoodPortion {
   const FoodPortion(this.food, this.servings);
 
@@ -58,11 +59,11 @@ class FoodPortion {
 
   /// Null stays null: scaling a figure nobody wrote down cannot produce
   /// one.
-  int? get kcal => _scaled(food.kcal);
-  int? get proteinGrams => _scaled(food.proteinGrams);
-  int? get carbGrams => _scaled(food.carbGrams);
-  int? get fatGrams => _scaled(food.fatGrams);
-  int? get fibreGrams => _scaled(food.fibreGrams);
+  double? get kcal => _scaled(food.kcal);
+  double? get proteinGrams => _scaled(food.proteinGrams);
+  double? get carbGrams => _scaled(food.carbGrams);
+  double? get fatGrams => _scaled(food.fatGrams);
+  double? get fibreGrams => _scaled(food.fibreGrams);
 
   /// The rest of what is known, scaled the same way. Nutrients the food
   /// does not hold stay absent — scaling cannot invent one.
@@ -77,6 +78,6 @@ class FoodPortion {
       ? '${formatAmount(amount)} ${food.servingUnit.labelIn(l10n)}'
       : '${formatAmount(servings)} ${ServingUnit.serving.labelIn(l10n)}';
 
-  int? _scaled(double? perServing) =>
-      perServing == null ? null : (perServing * servings).round();
+  double? _scaled(double? perServing) =>
+      perServing == null ? null : (perServing * servings * 10).round() / 10;
 }
