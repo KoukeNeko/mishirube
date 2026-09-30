@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.2.3
   camera: ^0.12.1
   url_launcher: ^6.3.2
+  sensors_plus: ^7.1.0
 
 dev_dependencies:
   flutter_test:

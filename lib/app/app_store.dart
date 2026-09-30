@@ -5,6 +5,9 @@ import 'package:flutter/widgets.dart';
 
 import '../backend/application/training_service.dart' show routineNameFor;
 import '../backend/engines/workout_text.dart';
+import 'device_motion.dart';
+
+export 'device_motion.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
@@ -54,6 +57,7 @@ class AppStore extends ChangeNotifier {
     Backend? backend,
     AiService? ai,
     HealthSource? health,
+    this.motion = const NoDeviceMotion(),
   }) : _clock = clock ?? DateTime.now,
        _backend = backend ?? Backend.inMemory(clock: clock),
        _ownsBackend = backend == null {
@@ -120,6 +124,10 @@ class AppStore extends ChangeNotifier {
   final Backend _backend;
   late final AiService _ai;
   late final HealthService _health;
+
+  /// How the device is held and moved; none unless the app passes the
+  /// sensor in.
+  final DeviceMotion motion;
   final bool _ownsBackend;
 
   late bool _isOnboarded;

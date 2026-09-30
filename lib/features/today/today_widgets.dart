@@ -163,6 +163,7 @@ class QuickStatTile extends StatelessWidget {
     this.caption,
     this.visual,
     this.level,
+    this.motion,
     this.onTap,
   });
 
@@ -180,6 +181,9 @@ class QuickStatTile extends StatelessWidget {
   /// How full the tile is drawn, 0–1 from the bottom, in [color]; null
   /// for no level.
   final double? level;
+
+  /// How the device moves, for the level to answer as water would.
+  final Stream<Offset>? motion;
   final VoidCallback? onTap;
 
   @override
@@ -230,7 +234,7 @@ class QuickStatTile extends StatelessWidget {
         final level? => Stack(
           children: [
             Positioned.fill(
-              child: LevelFill(level: level, color: color),
+              child: LevelFill(level: level, color: color, motion: motion),
             ),
             content,
           ],

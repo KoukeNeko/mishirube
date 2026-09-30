@@ -296,6 +296,7 @@ class TodayScreen extends StatelessWidget {
               water.millilitres / reference,
             _ => null,
           },
+          motion: store.motion.acceleration,
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),

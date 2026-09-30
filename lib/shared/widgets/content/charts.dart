@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../../../app/theme.dart';
+import '../../motion.dart';
 
 /// Minimal bar chart; the last bar is highlighted as "current period"
 /// unless [highlightsLast] is off, or the [selected] one while a reading
@@ -603,46 +608,254 @@ class _CurvePainter extends CustomPainter {
       old.referenceLabel != referenceLabel;
 }
 
-/// A level rising from the bottom to [level] of the height, with a soft
-/// wave along its top: how full something is, drawn behind what sits on
-/// it. Past 1 it stays full, neither overflowing nor changing colour.
-class LevelFill extends StatelessWidget {
-  const LevelFill({super.key, required this.level, required this.color});
+/// A level rising from the bottom to [level] of the height, with a wave
+/// along its top: how full something is, drawn behind what sits on it.
+/// Past 1 it stays full, neither overflowing nor changing colour.
+///
+/// It moves when it appears and whenever [level] changes: the water rises
+/// from where it was, its surface sways and drifts, and then it settles.
+/// Given the device's [motion], it answers it as water would: tilting the
+/// device leaves the surface level with the ground, overshooting and
+/// rocking back, and a shake sets it sloshing until it dies away. It
+/// stops redrawing once still, so a tile left on screen costs nothing.
+/// With Reduce Motion it is drawn still and level with the screen.
+class LevelFill extends StatefulWidget {
+  const LevelFill({
+    super.key,
+    required this.level,
+    required this.color,
+    this.motion,
+  });
 
   final double level;
   final Color color;
 
+  /// Acceleration across the screen, gravity included, in m/s²: x to the
+  /// right, y towards the top edge.
+  final Stream<Offset>? motion;
+
+  @override
+  State<LevelFill> createState() => _LevelFillState();
+}
+
+class _LevelFillState extends State<LevelFill> with TickerProviderStateMixin {
+  static const _duration = Duration(milliseconds: 2800);
+
+  /// The rise takes the first part of the entrance, easing in to rest.
+  static const _riseShare = 0.45;
+
+  // The surface is a damped spring towards level with the ground: stiff
+  // enough to follow a tilt within a moment, loose enough to overshoot
+  // and rock back once, as water in a glass does.
+  static const _stiffness = 60.0;
+  static const _damping = 5.5;
+
+  /// The steepest the surface leans, in radians: past it the tile would
+  /// be all water on one side.
+  static const _maxTilt = 0.6;
+
+  /// How a shake across the screen, in m/s² beyond gravity, becomes
+  /// slosh, in pixels; below [_shakeFloor] it is the hand, not a shake.
+  static const _sloshPerShake = 1.4;
+  static const _shakeFloor = 1.2;
+  static const _maxSlosh = 14.0;
+
+  /// How fast slosh dies away, per second.
+  static const _sloshDecay = 1.6;
+
+  late final _entrance = AnimationController(vsync: this, duration: _duration);
+  late final Ticker _physics = createTicker(_step);
+  StreamSubscription<Offset>? _subscription;
+
+  double _from = 0;
+  late double _to = widget.level.clamp(0, 1);
+
+  /// Gravity across the screen, smoothed from the raw readings; null
+  /// until the first arrives.
+  Offset? _gravity;
+  double _tilt = 0;
+  double _tiltSpeed = 0;
+  double _slosh = 0;
+  double _sloshPhase = 0;
+  Duration _lastTick = Duration.zero;
+
+  bool get _isStill => prefersReducedMotion(context);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_entrance.status == AnimationStatus.dismissed) _playEntrance();
+    _listen();
+  }
+
+  @override
+  void didUpdateWidget(LevelFill old) {
+    super.didUpdateWidget(old);
+    final level = widget.level.clamp(0.0, 1.0);
+    if (level != _to) {
+      _from = _levelAt(_entrance.value);
+      _to = level;
+      _playEntrance();
+    }
+    if (old.motion != widget.motion) {
+      _subscription?.cancel();
+      _subscription = null;
+      _listen();
+    }
+  }
+
+  void _listen() {
+    if (_subscription != null || widget.motion == null || _isStill) return;
+    _subscription = widget.motion!.listen(_feel);
+  }
+
+  void _playEntrance() {
+    if (_isStill) {
+      _entrance.value = 1;
+    } else {
+      _entrance.forward(from: 0);
+    }
+  }
+
+  double _levelAt(double t) =>
+      _from +
+      (_to - _from) *
+          Curves.easeOutCubic.transform((t / _riseShare).clamp(0.0, 1.0));
+
+  /// Takes one reading: the slow part is gravity, which the surface
+  /// leans against; the quick rest is a shake, which sets it sloshing.
+  void _feel(Offset reading) {
+    final gravity = _gravity;
+    if (gravity == null) {
+      // The first reading is where the device already is, not a jolt.
+      _gravity = reading;
+      _tilt = _targetTilt(reading);
+      return;
+    }
+    _gravity = gravity + (reading - gravity) * 0.15;
+    final shake = (reading - _gravity!).dx.abs();
+    if (shake > _shakeFloor) {
+      _slosh = math.min(
+        _maxSlosh,
+        math.max(_slosh, (shake - _shakeFloor) * _sloshPerShake),
+      );
+    }
+    if (!_physics.isActive) {
+      _lastTick = Duration.zero;
+      _physics.start();
+    }
+  }
+
+  /// The lean that keeps the surface level with the ground: the device
+  /// turned clockwise lowers its right edge, so the water there rises.
+  double _targetTilt(Offset gravity) {
+    // Lying flat, gravity has no say across the screen.
+    if (gravity.distance < 3) return 0;
+    return math
+        .atan2(-gravity.dx, gravity.dy)
+        .clamp(-_maxTilt, _maxTilt)
+        .toDouble();
+  }
+
+  void _step(Duration elapsed) {
+    final dt = math.min(
+      (elapsed - _lastTick).inMicroseconds / Duration.microsecondsPerSecond,
+      1 / 30,
+    );
+    _lastTick = elapsed;
+    if (dt <= 0) return;
+    final target = _targetTilt(_gravity ?? const Offset(0, 9.8));
+    final acceleration = _stiffness * (target - _tilt) - _damping * _tiltSpeed;
+    _tiltSpeed += acceleration * dt;
+    _tilt += _tiltSpeed * dt;
+    _slosh *= math.exp(-_sloshDecay * dt);
+    _sloshPhase += 7 * dt;
+    final settled =
+        (target - _tilt).abs() < 0.003 &&
+        _tiltSpeed.abs() < 0.01 &&
+        _slosh < 0.2;
+    setState(() {
+      if (settled) {
+        _slosh = 0;
+        _physics.stop();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    _physics.dispose();
+    _entrance.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: CustomPaint(
-      painter: _LevelPainter(level: level.clamp(0, 1), color: color),
-      size: Size.infinite,
+    child: AnimatedBuilder(
+      animation: _entrance,
+      builder: (context, _) {
+        final t = _entrance.value;
+        return CustomPaint(
+          painter: _LevelPainter(
+            level: _levelAt(t),
+            // The entrance swell dies away to the resting ripple.
+            swell: 1 + 1.6 * (1 - Curves.easeOut.transform(t)),
+            phase: t * 3 * math.pi + _sloshPhase,
+            tilt: _tilt,
+            slosh: _slosh,
+            color: widget.color,
+          ),
+          size: Size.infinite,
+        );
+      },
     ),
   );
 }
 
 class _LevelPainter extends CustomPainter {
-  _LevelPainter({required this.level, required this.color});
+  _LevelPainter({
+    required this.level,
+    required this.swell,
+    required this.phase,
+    required this.tilt,
+    required this.slosh,
+    required this.color,
+  });
 
+  /// The resting ripple's height, doubled across a trough and a crest.
   static const _wave = 3.0;
 
   final double level;
+
+  /// How many times the resting ripple the surface stands.
+  final double swell;
+
+  /// How far along the surface has drifted, in radians.
+  final double phase;
+
+  /// How far the surface leans from the screen's horizontal, in radians.
+  final double tilt;
+
+  /// Extra wave height from a shake, in pixels.
+  final double slosh;
   final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (level <= 0) return;
-    final top = _wave + (size.height - _wave) * (1 - level);
-    // Two gentle swells across the width.
-    final crest = size.width / 4;
-    final surface = Path()..moveTo(0, top);
-    for (var i = 0; i < 4; i++) {
-      surface.quadraticBezierTo(
-        crest * i + crest / 2,
-        top + (i.isEven ? -_wave : _wave),
-        crest * (i + 1),
-        top,
-      );
+    final height = _wave * swell + slosh;
+    final top = height + (size.height - height) * (1 - level);
+    final lean = math.tan(tilt);
+    double surfaceAt(double x) =>
+        top -
+        (x - size.width / 2) * lean +
+        height * math.sin(phase + x / size.width * 4 * math.pi);
+    // Two swells across the width, sampled finely enough to read smooth.
+    final surface = Path()..moveTo(0, surfaceAt(0));
+    for (var x = 4.0; x <= size.width + 4; x += 4) {
+      final along = x.clamp(0, size.width).toDouble();
+      surface.lineTo(along, surfaceAt(along));
     }
     final water = Path.from(surface)
       ..lineTo(size.width, size.height)
@@ -660,5 +873,10 @@ class _LevelPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_LevelPainter old) =>
-      old.level != level || old.color != color;
+      old.level != level ||
+      old.swell != swell ||
+      old.phase != phase ||
+      old.tilt != tilt ||
+      old.slosh != slosh ||
+      old.color != color;
 }

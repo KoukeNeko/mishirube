@@ -132,11 +132,28 @@ void main() {
 
     expect(find.text('1,000 / 1,500 mL', findRichText: true), findsOneWidget);
     expect(tester.widget<LevelFill>(find.byType(LevelFill)).level, 1000 / 1500);
+    // Would time out if the water kept moving.
+    await tester.pumpAndSettle();
+    expect(
+      tester.hasRunningAnimations,
+      isFalse,
+      reason: 'it settles rather than redrawing forever',
+    );
+
+    store.backend.nutrition.logWater(250);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      tester.hasRunningAnimations,
+      isTrue,
+      reason: 'a glass logged sets the water moving',
+    );
+    await tester.pumpAndSettle();
     await disposeTree(tester);
 
     store.backend.nutrition.setWaterReferenceMl(null);
     await pumpScreen(tester, const TodayScreen(), store: store);
-    expect(find.text('1,000 mL', findRichText: true), findsOneWidget);
+    expect(find.text('1,250 mL', findRichText: true), findsOneWidget);
     expect(find.byType(LevelFill), findsNothing, reason: 'no reference');
     await disposeTree(tester);
   });

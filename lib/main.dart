@@ -28,6 +28,7 @@ Future<void> main() async {
     backend: backend,
     ai: AiService.onDevice(backend.db),
     health: PlatformHealthSource.forThisDevice(),
+    motion: SensorDeviceMotion(),
   );
   runApp(
     LiquidGlassWidgets.wrap(
