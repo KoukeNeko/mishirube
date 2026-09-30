@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -13,6 +15,13 @@ import 'backend/seed/seed.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Android hands touches over at the digitiser's own rate, not the
+  // display's, so a scroll's positions fall unevenly between frames and
+  // it stutters however many frames are drawn. Resampling reads them at
+  // the frame's time instead. iOS already delivers them per frame.
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    GestureBinding.instance.resamplingEnabled = true;
+  }
   await LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   final backend = await Backend.openOnDevice();
