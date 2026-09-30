@@ -14,10 +14,10 @@ import 'package:mishirube/l10n/l10n.dart';
 
 /// The calendar's pinned month reading [text], not a month's own label in
 /// the calendar.
-Finder _title(String text) => find.byWidgetPredicate(
-  (widget) =>
-      widget is Text && widget.data == text && widget.style == largeTitleStyle,
-);
+/// The month on the button at the top left, which is the calendar's
+/// title.
+Finder _title(String text) =>
+    find.descendant(of: find.byType(HeaderAction), matching: find.text(text));
 
 void main() {
   /// A note on the 2nd and the 18th of the demo's month (September 2026,
@@ -170,18 +170,17 @@ void main() {
     // Less than August's weeks: August reaches the top, July does not.
     await tester.drag(find.byType(MonthCalendar), const Offset(0, 200));
     await tester.pumpAndSettle();
-    expect(_title('8月'), findsOneWidget, reason: 'scrolled back');
-    expect(find.text('2026年'), findsOneWidget, reason: 'its year, top left');
+    expect(_title('2026年8月'), findsOneWidget, reason: 'scrolled back');
     expect(find.text('9月19日 週六'), findsOneWidget, reason: 'the day stays');
 
     await tester.tap(find.bySemanticsLabel('回到今天').hitTestable());
     await tester.pumpAndSettle();
-    expect(_title('9月'), findsOneWidget);
+    expect(_title('2026年9月'), findsOneWidget);
 
     // Still there once the page has scrolled on to the day's records.
     await tester.drag(find.byType(CategoryLabel).first, const Offset(0, -300));
     await tester.pumpAndSettle();
-    expect(_title('9月').hitTestable(), findsOneWidget, reason: 'pinned');
+    expect(_title('2026年9月').hitTestable(), findsOneWidget, reason: 'pinned');
     await disposeTree(tester);
   });
 
@@ -192,15 +191,20 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: MonthCalendar(
-            month: DateTime(2026, 9),
-            earliest: DateTime(2026, 9),
-            selected: DateTime(2026, 9, 19),
-            today: DateTime(2026, 9, 19),
-            firstWeekday: DateTime.sunday,
-            categoriesOf: (_) => const {},
-            onSelect: (_) {},
-            onMonth: (_) {},
+          body: Column(
+            children: [
+              const WeekdayHeader(firstWeekday: DateTime.sunday),
+              MonthCalendar(
+                month: DateTime(2026, 9),
+                earliest: DateTime(2026, 9),
+                selected: DateTime(2026, 9, 19),
+                today: DateTime(2026, 9, 19),
+                firstWeekday: DateTime.sunday,
+                categoriesOf: (_) => const {},
+                onSelect: (_) {},
+                onMonth: (_) {},
+              ),
+            ],
           ),
         ),
       ),
@@ -211,6 +215,11 @@ void main() {
       tester.getCenter(find.text('日')).dx,
       lessThan(tester.getCenter(find.text('一')).dx),
       reason: 'Sunday first',
+    );
+    expect(
+      tester.getCenter(find.text('二')).dx,
+      closeTo(tester.getCenter(find.text('1')).dx, 1),
+      reason: 'each weekday over its column',
     );
     expect(
       tester.getCenter(find.text('1')).dx,

@@ -339,29 +339,22 @@ class _LogScreenState extends State<LogScreen> {
       compactBar: isTimeline
           ? CompactBarBehavior.none
           : CompactBarBehavior.pinned,
+      // The calendar's grid starts right under its pinned weekdays.
+      hasTopGap: isTimeline,
       // On the timeline the month is picked here; the week strip under
       // the toolbar picks the day.
-      leading: isTimeline
-          ? Builder(
-              builder: (buttonContext) => HeaderAction(
-                icon: Icons.calendar_month_outlined,
-                label: context.dates.compactYearMonth(_month),
-                semanticLabel: context.l10n.pickMonthCurrent(
-                  month: context.dates.yearMonth(_month),
-                ),
-                onTap: () => _pickMonth(buttonContext),
-              ),
-            )
-          : Builder(
-              builder: (buttonContext) => HeaderAction(
-                icon: Icons.chevron_left,
-                label: context.dates.compactYear(_month.year),
-                semanticLabel: context.l10n.pickMonthCurrent(
-                  month: context.dates.compactYearMonth(_month),
-                ),
-                onTap: () => _pickMonth(buttonContext),
-              ),
-            ),
+      // The month is picked here in both views: on the calendar it is the
+      // page's title too, which leaves the grid the height.
+      leading: Builder(
+        builder: (buttonContext) => HeaderAction(
+          icon: Icons.calendar_month_outlined,
+          label: context.dates.compactYearMonth(_month),
+          semanticLabel: context.l10n.pickMonthCurrent(
+            month: context.dates.yearMonth(_month),
+          ),
+          onTap: () => _pickMonth(buttonContext),
+        ),
+      ),
       actions: [
         SearchableHeaderActions(
           hint: context.l10n.logSearch,
@@ -390,16 +383,8 @@ class _LogScreenState extends State<LogScreen> {
       // The timeline's month and its category chips stay at the top as
       // the list scrolls, as does the calendar's month.
       pinned: !isTimeline
-          ? Gutter(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  context.dates.compactMonth(_month),
-                  maxLines: 1,
-                  style: largeTitleStyle,
-                ),
-              ),
-            )
+          // Across the whole width, over the calendar's columns.
+          ? WeekdayHeader(firstWeekday: AppStoreScope.of(context).firstWeekday)
           : Column(
               key: _pinnedKey,
               children: [
@@ -428,14 +413,8 @@ class _LogScreenState extends State<LogScreen> {
           ? measurePinnedControlHeight(context) +
                 AppSpacing.xs +
                 WeekDayStrip.heightOf(context)
-          : measurePinnedControlHeight(context) -
-                pillHeight(context) +
-                measureTextHeight(
-                  context,
-                  context.dates.compactMonth(DateTime(2024, 12)),
-                  largeTitleStyle,
-                  maxWidth: double.infinity,
-                ),
+          // The weekdays sit on the grid, with no inset below them.
+          : WeekdayHeader.height + measurePinnedHeight(0) / 2,
       children: _view == _LogView.timeline
           ? _timeline(_log.month(_month))
           : _calendar(),
@@ -482,19 +461,19 @@ class _LogScreenState extends State<LogScreen> {
   List<Widget> _calendar() {
     final entries = _log.day(_selected);
     return [
-      Gutter(
-        child: MonthCalendar(
-          month: _month,
-          earliest: _log.earliestMonth,
-          selected: _selected,
-          today: _today,
-          firstWeekday: AppStoreScope.of(context).firstWeekday,
-          categoriesOf: _log.categoriesIn,
-          onSelect: (day) => setState(() => _selected = day),
-          // Scrolled by hand: the month shown follows, the day listed
-          // stays until another is tapped.
-          onMonth: (month) => setState(() => _month = month),
-        ),
+      // Edge to edge, as Apple Calendar's month is: the columns are the
+      // width of the screen, under the weekdays pinned above them.
+      MonthCalendar(
+        month: _month,
+        earliest: _log.earliestMonth,
+        selected: _selected,
+        today: _today,
+        firstWeekday: AppStoreScope.of(context).firstWeekday,
+        categoriesOf: _log.categoriesIn,
+        onSelect: (day) => setState(() => _selected = day),
+        // Scrolled by hand: the month shown follows, the day listed
+        // stays until another is tapped.
+        onMonth: (month) => setState(() => _month = month),
       ),
       Gutter(child: const _CalendarLegend()),
       Gutter(
@@ -503,10 +482,15 @@ class _LogScreenState extends State<LogScreen> {
       if (entries.isEmpty)
         Gutter(child: InfoBanner(message: context.l10n.noEntriesThisDay))
       else
-        for (final entry in entries)
-          Gutter(
-            child: _TimelineRow(entry: entry, onTap: () => _openEntry(entry)),
+        // One list, as a calendar's day lists its events, not a card each.
+        Gutter(
+          child: GroupedCard(
+            children: [
+              for (final entry in entries)
+                _DayEntryRow(entry: entry, onTap: () => _openEntry(entry)),
+            ],
           ),
+        ),
     ];
   }
 }
@@ -580,6 +564,64 @@ class _TimelineRow extends StatelessWidget {
       ],
     );
   }
+}
+
+/// One record in the calendar's day list: its kind's colour down the
+/// side, what it was, and its time at the end, as a calendar lists a
+/// day's events.
+class _DayEntryRow extends StatelessWidget {
+  const _DayEntryRow({required this.entry, required this.onTap});
+
+  final TimelineEntry entry;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AccentBar(color: entry.category.color),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    entry.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.itemTitle,
+                  ),
+                  if (entry.detail.isNotEmpty)
+                    Text(
+                      entry.detail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption,
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Text(
+              entry.timeLabel,
+              style: AppTextStyles.caption.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _TimelineContent extends StatelessWidget {

@@ -144,9 +144,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
     }
   }
 
+  /// Where the calendar stops for [month]: just past its name, which the
+  /// pinned title already shows, so its first week is at the top. The
+  /// name shows between months while scrolling.
   double _startOf(DateTime month) {
     final index = _months.indexWhere((each) => _isSameMonth(each, month));
-    return index < 0 ? _starts.last : _starts[index];
+    return (index < 0 ? _starts.last : _starts[index]) + _titleHeight;
   }
 
   Future<void> _jumpTo(DateTime month) async {
@@ -184,31 +187,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
   Widget build(BuildContext context) {
     // Room below the last month, so it too can be scrolled to the top.
     final tail =
-        (_viewportHeight - _heightOf(_months.last, widget.firstWeekday)).clamp(
-          0.0,
-          _viewportHeight,
-        );
+        (_viewportHeight -
+                _heightOf(_months.last, widget.firstWeekday) +
+                _titleHeight)
+            .clamp(0.0, _viewportHeight);
     return Column(
       children: [
-        SizedBox(
-          height: _weekdayHeight,
-          child: Row(
-            children: [
-              for (var i = 0; i < DateTime.daysPerWeek; i++)
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      context.dates.weekdayNumber(
-                        (widget.firstWeekday - 1 + i) % DateTime.daysPerWeek +
-                            1,
-                      ),
-                      style: AppTextStyles.caption,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
         SizedBox(
           height: _viewportHeight,
           // Inside the page, not at its edges: the page's insets are not
@@ -240,6 +224,37 @@ class _MonthCalendarState extends State<MonthCalendar> {
       ],
     );
   }
+}
+
+/// The days of the week over the calendar's columns, starting on
+/// [firstWeekday]: pinned with the month's title, as Apple Calendar has
+/// them, so they stay over the columns as the months scroll under.
+class WeekdayHeader extends StatelessWidget {
+  const WeekdayHeader({super.key, required this.firstWeekday});
+
+  final int firstWeekday;
+
+  static const height = _weekdayHeight;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: height,
+    child: Row(
+      children: [
+        for (var i = 0; i < DateTime.daysPerWeek; i++)
+          Expanded(
+            child: Center(
+              child: Text(
+                context.dates.weekdayNumber(
+                  (firstWeekday - 1 + i) % DateTime.daysPerWeek + 1,
+                ),
+                style: AppTextStyles.caption.copyWith(fontSize: 12),
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
 }
 
 /// One month of the column: its name over its first day's column, then

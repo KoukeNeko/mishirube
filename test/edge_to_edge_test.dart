@@ -239,9 +239,14 @@ void main() {
     await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump();
 
-    // The weekday row, then the month's name, then its first week: no
-    // inset of the page's pushes the scrolling weeks down.
+    // Its first week right at the top, under the weekdays pinned above:
+    // no inset of the page's, no gap and no month name pushes it down.
     final calendar = tester.getRect(find.byType(MonthCalendar));
+    expect(
+      calendar.width,
+      tester.getSize(find.byType(MaterialApp)).width,
+      reason: 'edge to edge',
+    );
     final firstDay = tester.getRect(
       find
           .ancestor(
@@ -250,7 +255,12 @@ void main() {
           )
           .first,
     );
-    expect(firstDay.top - calendar.top, 24 + 36);
+    expect(firstDay.top, calendar.top);
+    expect(
+      calendar.top,
+      closeTo(tester.getRect(find.byType(WeekdayHeader)).bottom, 0.5),
+      reason: 'straight under the weekdays',
+    );
     await disposeTree(tester);
   });
 }

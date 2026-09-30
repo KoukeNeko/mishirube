@@ -33,7 +33,13 @@ class CollapsingPage extends StatelessWidget {
     this.pinned,
     this.pinnedHeight,
     this.compactBar = CompactBarBehavior.pinned,
+    this.hasTopGap = true,
   });
+
+  /// Whether the content starts a gap below what is pinned, or right under
+  /// it, the pinned row then leaving no space under itself either
+  /// ([CollapsingScrollView.hasTopGap]).
+  final bool hasTopGap;
 
   /// Null for a page whose tab already names it: no large title, only
   /// the toolbar and what is pinned under it.
@@ -128,11 +134,13 @@ class CollapsingPage extends StatelessWidget {
               actions: actions,
               pinned: pinned,
               pinnedHeight: pinnedHeight,
+              pinnedMeetsContent: !hasTopGap,
               hideToolbarFraction: hideFraction,
               scrollsToolbarAway: compactBar == CompactBarBehavior.none,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),
             ),
+            hasTopGap: hasTopGap,
             children: children,
           ),
         );

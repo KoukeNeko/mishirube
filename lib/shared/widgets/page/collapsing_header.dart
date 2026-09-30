@@ -207,6 +207,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.actions = const [],
     this.pinned,
     this.pinnedHeight = 0,
+    this.pinnedMeetsContent = false,
     this.hideToolbarFraction = 0,
     this.scrollsToolbarAway = false,
     this.glassOpacity,
@@ -223,6 +224,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   final List<Widget> actions;
   final Widget? pinned;
   final double pinnedHeight;
+
+  /// Whether the pinned row sits straight on the content, with no space
+  /// under it: a calendar's weekdays over its grid.
+  final bool pinnedMeetsContent;
 
   /// 0 shows the compact toolbar; 1 tucks it away (auto-hide while reading).
   final double hideToolbarFraction;
@@ -392,8 +397,11 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                         ? EdgeInsets.only(
                             bottom: toolbar.height - toolbar.controlRowHeight,
                           )
-                        : const EdgeInsets.symmetric(
-                            vertical: _pinnedVerticalPadding,
+                        : EdgeInsets.only(
+                            top: _pinnedVerticalPadding,
+                            bottom: pinnedMeetsContent
+                                ? 0
+                                : _pinnedVerticalPadding,
                           ),
                     child: scrollsToolbarAway ? Center(child: pinned) : pinned,
                   ),
@@ -696,11 +704,16 @@ class CollapsingScrollView extends StatefulWidget {
     required this.header,
     required this.children,
     this.bottomPadding = AppSpacing.xxl,
+    this.hasTopGap = true,
   });
 
   final CollapsingHeaderDelegate header;
   final List<Widget> children;
   final double bottomPadding;
+
+  /// Whether the content starts a gap below the header, or right under
+  /// it, as a calendar's grid does under its pinned weekdays.
+  final bool hasTopGap;
 
   @override
   State<CollapsingScrollView> createState() => _CollapsingScrollViewState();
@@ -769,7 +782,7 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
               // brings its own horizontal spacing (see Gutter).
               SliverPadding(
                 padding: EdgeInsets.only(
-                  top: _contentTopGap,
+                  top: widget.hasTopGap ? _contentTopGap : 0,
                   bottom:
                       widget.bottomPadding +
                       MediaQuery.paddingOf(context).bottom,
