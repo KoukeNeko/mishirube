@@ -353,6 +353,18 @@
                   "string",
                   "null"
                 ]
+              },
+              "targetSeconds": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "targetMeters": {
+                "type": [
+                  "number",
+                  "null"
+                ]
               }
             }
           }
