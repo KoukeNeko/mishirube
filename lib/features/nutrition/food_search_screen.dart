@@ -554,7 +554,10 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       _ => null,
     };
     final foods = [
-      for (final food in _nutrition.searchFoods(query))
+      for (final food in _nutrition.searchFoods(
+        query,
+        includePackaged: _scope == _Scope.all,
+      ))
         if (switch (_scope) {
           _Scope.own => !food.isBuiltIn,
           _Scope.brands => food.isBuiltIn,

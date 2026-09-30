@@ -465,7 +465,7 @@ class _PortionScreenState extends State<PortionScreen> {
               style: AppTextStyles.caption,
             ),
           ),
-        if (!food.isBuiltIn)
+        if (!food.isBuiltIn && !_nutrition.isUnsavedPackagedFood(food.id))
           Gutter(
             child: LinkText(
               label: context.l10n.deleteThisFood,

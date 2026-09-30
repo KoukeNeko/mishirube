@@ -11,6 +11,7 @@ import 'backend/backend.dart';
 import 'backend/health/health_source.dart';
 import 'backend/seed/catalogue.dart';
 import 'backend/seed/exercise_catalogue.dart';
+import 'backend/seed/packaged_foods.dart';
 import 'backend/seed/seed.dart';
 
 Future<void> main() async {
@@ -29,6 +30,8 @@ Future<void> main() async {
   // update brings the corrections with it. It is safe to replace because
   // it is read-only, and meals logged from it kept their own numbers.
   await loadCatalogue(backend.storage.foods);
+  registerPackagedFoodLicences();
+  backend.nutrition.packagedFoods = await PackagedFoods.load();
   // The demo goes in first, so the library then takes over the exercises
   // the demo also names instead of the demo overwriting them.
   seedDemoData(backend, DateTime.now());

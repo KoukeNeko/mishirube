@@ -1,0 +1,409 @@
+#!/usr/bin/env python3
+"""Builds the packaged-food data that ships with the app.
+
+    python3 tool/build_packaged_foods.py tfda <188_*.json or its .zip>
+    python3 tool/build_packaged_foods.py off-fetch <directory for the pages>
+    python3 tool/build_packaged_foods.py off <directory of fetched pages>
+
+Writes `assets/packaged/tfda-tw.json` and `assets/packaged/openfoodfacts-tw.json`.
+Both are read by `lib/backend/seed/packaged_foods.dart`; see
+`research/76-taiwan-food-labels.md` for the sources, licences and what is
+dropped.
+
+  tfda       Taiwan FDA's 食品追溯追蹤系統消費者查詢資料集, dataset 33575 on
+             data.gov.tw (政府資料開放授權條款－第1版). Download the JSON from
+             https://data.fda.gov.tw/data/opendata/export/188/json
+  off-fetch  Products Open Food Facts lists as sold in Taiwan, through its
+             public search API, slowly (ODbL 1.0).
+  off        The same, turned into the app's format.
+
+Only a product whose label gives energy, protein, fat, carbohydrate and
+sodium survives, and only if those figures agree with each other.
+"""
+
+import collections
+import hashlib
+import json
+import pathlib
+import re
+import sys
+import time
+import urllib.parse
+import urllib.request
+import zipfile
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / 'assets' / 'packaged'
+
+RETRIEVED = time.strftime('%Y-%m-%d')
+COLUMNS = [
+    'id', 'brand', 'name', 'amount', 'unit', 'kcal', 'proteinG', 'fatG',
+    'carbG', 'saturatedFatG', 'transFatG', 'sugarG', 'sodiumMg', 'beverage',
+    'barcode',
+]
+
+
+class Dropped(collections.Counter):
+    """Why a product was left out, counted for the research note."""
+
+    def __call__(self, reason):
+        self[reason] += 1
+        return None
+
+
+def number(value, unit):
+    """`12.5公克` as 12.5; None for anything else, including `5＊`."""
+    match = re.fullmatch(r'\s*(\d+(?:\.\d+)?)\s*' + unit + r'\s*', value or '')
+    return float(match.group(1)) if match else None
+
+
+def tidy(value):
+    value = round(value, 2)
+    return int(value) if value == int(value) else value
+
+
+def check_figures(amount, kcal, protein, fat, carb, sodium_mg,
+                  saturated=None, trans=None, sugar=None):
+    """Why these figures cannot be one label's, or None when they can.
+
+    Energy is checked against 4/4/9 with room for fibre, sugar alcohols
+    and rounding; everything is per `amount` g or mL.
+    """
+    if not 1 <= amount <= 2000:
+        return 'serving outside 1-2000 g/mL'
+    figures = [kcal, protein, fat, carb, sodium_mg]
+    if any(figure < 0 for figure in figures):
+        return 'negative figure'
+    # A serving cannot hold more macronutrient than it weighs.
+    if protein + fat + carb > amount * 1.02 + 0.5:
+        return 'macronutrients outweigh the serving'
+    # Table salt is 39.3% sodium; nothing on a shelf has more.
+    if sodium_mg > amount * 400 * 1.02 + 5:
+        return 'sodium above pure salt'
+    # Soy sauce is 6-7 g per 100 g. Past 12 g it is nearly always a typed
+    # error (grams entered as milligrams, or the reverse), which also costs
+    # the few seasonings and bouillons that really are that salty.
+    if sodium_mg * 100 / amount > 12000:
+        return 'sodium above 12 g per 100 g'
+    if kcal > amount * 9.2 + 5:
+        return 'energy above pure fat'
+    calculated = 4 * protein + 4 * carb + 9 * fat
+    if not (0.75 * calculated - 10 <= kcal <= 1.3 * calculated + 10):
+        return 'energy disagrees with 4/4/9'
+    if sugar is not None and sugar > carb + 0.5:
+        return 'sugar above carbohydrate'
+    if saturated is not None and saturated > fat + 0.5:
+        return 'saturated fat above fat'
+    if saturated is not None and trans is not None and saturated + trans > fat + 0.5:
+        return 'saturated and trans fat above fat'
+    return None
+
+
+def write(name, header, rows):
+    OUT.mkdir(parents=True, exist_ok=True)
+    rows.sort(key=lambda row: row[0])
+    columns = [
+        column for index, column in enumerate(COLUMNS)
+        if any(row[index] is not None for row in rows)
+    ]
+    keep = [COLUMNS.index(column) for column in columns]
+    document = {**header, 'columns': columns,
+                'foods': [[row[i] for i in keep] for row in rows]}
+    text = json.dumps(document, ensure_ascii=False, separators=(',', ':'))
+    # One product per line, so a diff of a new release reads.
+    text = text.replace('"foods":[[', '"foods":[\n[').replace('],[', '],\n[')
+    (OUT / name).write_text(text + '\n', encoding='utf-8')
+    print(f'{name}: {len(rows)} products, {len(text) / 1e6:.2f} MB')
+
+
+# --- Taiwan FDA ---------------------------------------------------------
+
+# Food additives and detergents are not eaten as food.
+TFDA_SKIPPED_CATEGORIES = {'食品添加物', '食品用洗潔劑'}
+# Samples, tests and trade ingredients the dataset also carries.
+TFDA_SKIPPED_NAMES = re.compile(r'樣品|測試|試用|無販售|供食品用途|\btest\b', re.I)
+TFDA_DRINK_CATEGORIES = {'非酒精飲料製品', '製茶類製品', '乳類製品'}
+
+
+def tfda(path):
+    path = pathlib.Path(path)
+    if path.suffix == '.zip':
+        with zipfile.ZipFile(path) as archive:
+            name = next(n for n in archive.namelist() if n.endswith('.json'))
+            records = json.loads(archive.read(name).decode('utf-8-sig'))
+    else:
+        records = json.loads(path.read_text(encoding='utf-8-sig'))
+
+    dropped = Dropped()
+    rows, seen = [], set()
+    for record in records:
+        category = record['產品分類'] or ''
+        name = re.sub(r'\s+', ' ', (record['產品名稱'] or '').replace('\xa0', ' ')).strip()
+        brand = (record['公司名稱'] or '').strip()
+        if category in TFDA_SKIPPED_CATEGORIES:
+            dropped('category is not food')
+            continue
+        if not name or not brand or TFDA_SKIPPED_NAMES.search(name):
+            dropped('no name, no company, or a sample/test')
+            continue
+        serving = record['每一份量']
+        amount, unit = number(serving, '公克'), 'g'
+        if amount is None:
+            amount, unit = number(serving, '毫升'), 'ml'
+        figures = [
+            number(record['每份熱量'], '大卡'),
+            number(record['每份蛋白質'], '公克'),
+            number(record['每份脂肪'], '公克'),
+            number(record['每份碳水化合物'], '公克'),
+            number(record['每份鈉'], '毫克'),
+        ]
+        if amount is None or None in figures:
+            dropped('label incomplete or not per g/mL serving')
+            continue
+        kcal, protein, fat, carb, sodium = figures
+        saturated = number(record['每份飽和脂肪'], '公克')
+        trans = number(record['每份反式脂肪'], '公克')
+        sugar = number(record['每份糖'], '公克')
+        reason = check_figures(amount, kcal, protein, fat, carb, sodium,
+                               saturated, trans, sugar)
+        if reason:
+            dropped(reason)
+            continue
+        # The label also prints per 100 g; it has to agree with the serving.
+        per_100g = number(record['每100公克熱量'], '大卡')
+        if unit == 'g' and per_100g is not None:
+            if abs(kcal * 100 / amount - per_100g) > max(5, 0.1 * per_100g):
+                dropped('per-serving and per-100 g energy disagree')
+                continue
+        key = (brand, name, amount, unit, kcal, protein, fat, carb, sodium)
+        if key in seen:
+            dropped('duplicate of another package size')
+            continue
+        seen.add(key)
+        code = record['產品追溯系統串接碼']
+        rows.append([
+            'tfda-' + hashlib.sha1(code.encode()).hexdigest()[:10],
+            brand, name, tidy(amount), unit, tidy(kcal), tidy(protein),
+            tidy(fat), tidy(carb),
+            None if saturated is None else tidy(saturated),
+            None if trans is None else tidy(trans),
+            None if sugar is None else tidy(sugar),
+            tidy(sodium),
+            1 if unit == 'ml' and category in TFDA_DRINK_CATEGORIES else 0,
+            None,
+        ])
+    ids = [row[0] for row in rows]
+    assert len(ids) == len(set(ids)), 'id collision'
+    write('tfda-tw.json', {
+        'source': 'tfda',
+        'market': 'tw',
+        'checkedAt': RETRIEVED,
+        'sourceUrl': 'https://data.gov.tw/dataset/33575',
+        'licence': '政府資料開放授權條款－第1版',
+        'attribution': '衛生福利部食品藥物管理署「食品追溯追蹤系統消費者查詢資料集」',
+    }, rows)
+    report(len(records), rows, dropped)
+
+
+# --- Open Food Facts ----------------------------------------------------
+
+OFF_FIELDS = ','.join([
+    'code', 'product_name', 'product_name_zh', 'brands', 'quantity',
+    'serving_size', 'serving_quantity', 'nutriments', 'countries_tags',
+])
+OFF_AGENT = 'MISHIRUBE-catalogue-import/1.0 (open-source nutrition logger)'
+
+
+def off_get(url):
+    """A JSON reply, asked for again a few times: the service is shared and
+    answers 503 (and sometimes 401) while it is busy. None when it stays
+    unavailable."""
+    request = urllib.request.Request(url, headers={'User-Agent': OFF_AGENT})
+    for attempt in range(6):
+        try:
+            return json.load(urllib.request.urlopen(request, timeout=90))
+        except Exception as error:
+            print('retry', url[-60:], error, flush=True)
+            time.sleep(15 * (attempt + 1))
+    return None
+
+
+def off_fetch(directory):
+    """Everything the public API will give about Taiwan's products.
+
+    1. The search API's pages, 100 products each and 8 s apart (it allows 10
+       calls a minute), for as far as it answers; it refuses deep pages
+       now and then. A page already in the directory is kept, so a run
+       resumes.
+    2. The products that search-a-licious lists for Taiwan and the pages
+       did not bring, one product call each (limit 100 a minute).
+    The full set is the daily CSV export; this does not try to be it.
+    """
+    directory = pathlib.Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    page = 1
+    while True:
+        target = directory / f'p{page:03d}.json'
+        if not target.exists():
+            body = off_get(
+                'https://world.openfoodfacts.org/api/v2/search?'
+                + urllib.parse.urlencode({
+                    'countries_tags_en': 'taiwan', 'fields': OFF_FIELDS,
+                    'page_size': 100, 'page': page}))
+            if body is None:
+                print(f'page {page} would not load; going on without it')
+                break
+            target.write_text(json.dumps(body, ensure_ascii=False),
+                              encoding='utf-8')
+            time.sleep(8)
+        else:
+            body = json.loads(target.read_text(encoding='utf-8'))
+        print(page, len(body['products']), body['count'], flush=True)
+        if not body['products'] or page * 100 >= body['count']:
+            break
+        page += 1
+
+    have = {
+        product['code']
+        for file in directory.glob('*.json')
+        for product in json.loads(file.read_text(encoding='utf-8'))['products']
+    }
+    listed = []
+    for number in range(1, 100):
+        reply = off_get(
+            'https://search.openfoodfacts.org/search?'
+            + urllib.parse.urlencode({
+                'q': 'countries_tags:"en:taiwan"', 'fields': 'code',
+                'page_size': 100, 'page': number}))
+        if reply is None or not reply['hits']:
+            break
+        listed += [hit['code'] for hit in reply['hits']]
+        time.sleep(1)
+    extra = []
+    for code in listed:
+        if code in have:
+            continue
+        reply = off_get(
+            f'https://world.openfoodfacts.org/api/v2/product/{code}?'
+            + urllib.parse.urlencode({'fields': OFF_FIELDS}, safe=','))
+        if reply and reply.get('status') == 1:
+            extra.append(reply['product'])
+        time.sleep(1)
+    (directory / 'extra.json').write_text(
+        json.dumps({'products': extra}, ensure_ascii=False), encoding='utf-8')
+    print(f'{len(have)} from pages, {len(extra)} more by code')
+
+
+def ean_is_valid(code):
+    """GS1 check digit, for EAN-8, UPC-A, EAN-13 and GTIN-14."""
+    if not code.isdigit() or len(code) not in (8, 12, 13, 14):
+        return False
+    digits = [int(d) for d in code]
+    total = sum(d * (3 if i % 2 == 0 else 1)
+                for i, d in enumerate(reversed(digits[:-1])))
+    return (10 - total % 10) % 10 == digits[-1]
+
+
+def serving_of(product):
+    """The serving as amount and unit, or a hundred of what it is sold by."""
+    for text in (product.get('serving_size'), product.get('quantity')):
+        match = re.fullmatch(
+            r'\s*(\d+(?:[.,]\d+)?)\s*(g|gr|ml|mL|ML|cl|l|L)\b.*',
+            text or '', re.S)
+        if not match:
+            continue
+        amount = float(match.group(1).replace(',', '.'))
+        unit = match.group(2).lower()
+        amount *= {'cl': 10, 'l': 1000}.get(unit, 1)
+        unit = 'ml' if unit in ('ml', 'cl', 'l') else 'g'
+        # Only a serving is a portion; a package's weight is not.
+        if text is product.get('serving_size'):
+            return amount, unit
+        return 100, unit
+    return 100, 'g'
+
+
+def off(directory):
+    products = []
+    for page in sorted(pathlib.Path(directory).glob('*.json')):
+        products += json.loads(page.read_text(encoding='utf-8'))['products']
+    # Pages fetched in different runs can overlap.
+    products = list({p['code']: p for p in products}.values())
+
+    dropped = Dropped()
+    rows, seen = [], set()
+    for product in products:
+        code = product.get('code') or ''
+        if 'en:taiwan' not in product.get('countries_tags', []):
+            dropped('not sold in Taiwan')
+            continue
+        name = re.sub(
+            r'\s+', ' ',
+            product.get('product_name_zh') or product.get('product_name') or '',
+        ).strip()
+        brand = (product.get('brands') or '').split(',')[0].strip()
+        if not name:
+            dropped('no name')
+            continue
+        if not ean_is_valid(code):
+            dropped('barcode fails its check digit')
+            continue
+        if code.lstrip('0') in seen:
+            dropped('duplicate barcode')
+            continue
+        nutriments = product.get('nutriments') or {}
+
+        def per_100(key):
+            value = nutriments.get(key + '_100g')
+            return float(value) if isinstance(value, (int, float)) else None
+
+        kcal = per_100('energy-kcal')
+        protein, fat, carb = per_100('proteins'), per_100('fat'), per_100('carbohydrates')
+        sodium_g = per_100('sodium')
+        if sodium_g is None and per_100('salt') is not None:
+            sodium_g = per_100('salt') / 2.5
+        if None in (kcal, protein, fat, carb, sodium_g):
+            dropped('label incomplete')
+            continue
+        amount, unit = serving_of(product)
+        scale = amount / 100
+        figures = [kcal * scale, protein * scale, fat * scale, carb * scale,
+                   sodium_g * 1000 * scale]
+        saturated, trans, sugar = (
+            None if per_100(key) is None else per_100(key) * scale
+            for key in ('saturated-fat', 'trans-fat', 'sugars'))
+        reason = check_figures(amount, *figures, saturated, trans, sugar)
+        if reason:
+            dropped(reason)
+            continue
+        seen.add(code.lstrip('0'))
+        rows.append([
+            'off-' + code, brand, name, tidy(amount), unit,
+            *(tidy(f) for f in figures[:4]),
+            *(None if f is None else tidy(f) for f in (saturated, trans, sugar)),
+            tidy(figures[4]), 0, code,
+        ])
+    write('openfoodfacts-tw.json', {
+        'source': 'openfoodfacts',
+        'market': 'tw',
+        'checkedAt': RETRIEVED,
+        'sourceUrl': 'https://world.openfoodfacts.org/',
+        'productUrl': 'https://world.openfoodfacts.org/product/{barcode}',
+        'licence': 'Open Database License 1.0 (ODbL); contents under the '
+                   'Database Contents License 1.0',
+        'attribution': 'Open Food Facts contributors, openfoodfacts.org',
+    }, rows)
+    report(len(products), rows, dropped)
+
+
+def report(total, rows, dropped):
+    print(f'read {total}, kept {len(rows)}')
+    for reason, count in dropped.most_common():
+        print(f'  {count:6}  {reason}')
+
+
+if __name__ == '__main__':
+    commands = {'tfda': tfda, 'off': off, 'off-fetch': off_fetch}
+    if len(sys.argv) != 3 or sys.argv[1] not in commands:
+        sys.exit(__doc__)
+    commands[sys.argv[1]](sys.argv[2])

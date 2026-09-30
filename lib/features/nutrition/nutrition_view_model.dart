@@ -228,9 +228,10 @@ class NutritionViewModel extends ViewModel {
     );
   }
 
-  /// Saved foods matching [query]; an empty query is all of them.
-  List<FoodItem> searchFoods(String query) =>
-      backend.nutrition.searchFoods(query);
+  /// Saved foods matching [query]; an empty query is all of them. With
+  /// [includePackaged], the shipped packaged foods follow.
+  List<FoodItem> searchFoods(String query, {bool includePackaged = false}) =>
+      backend.nutrition.searchFoods(query, includePackaged: includePackaged);
 
   /// Brands whose menu [query] names on its own.
   List<String> brandsNamedBy(String query) =>
@@ -245,6 +246,9 @@ class NutritionViewModel extends ViewModel {
 
   bool isFavoriteFood(String foodId) =>
       favoriteFoods.any((food) => food.id == foodId);
+
+  bool isUnsavedPackagedFood(String foodId) =>
+      backend.nutrition.isUnsavedPackagedFood(foodId);
 
   void setFoodFavorite(String foodId, {required bool isFavorite}) =>
       backend.nutrition.setFoodFavorite(foodId, isFavorite: isFavorite);

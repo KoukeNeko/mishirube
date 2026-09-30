@@ -5,10 +5,12 @@ import '../../domain/domain.dart';
 // food is searched the same way an exercise is.
 import '../engines/exercise_search.dart' show normalizeTerm;
 import '../engines/food_portion.dart';
+import '../engines/food_search.dart';
 import '../../shared/format.dart';
 import '../engines/meal_type_suggestion.dart';
 import '../engines/nutrition_summary.dart';
 import '../engines/nutrition_targets.dart';
+import '../seed/packaged_foods.dart';
 import '../storage/database.dart';
 import '../storage/food_repository.dart';
 import '../storage/meal_repository.dart';
@@ -87,6 +89,10 @@ class NutritionService {
   final AppDatabase _db;
   final MealRepository _meals;
   final FoodRepository _foods;
+
+  /// The packaged foods that ship with the app, which [searchFoods] can
+  /// look through. Empty until the app has read them.
+  PackagedFoods packagedFoods = PackagedFoods.empty;
 
   /// Where the body the targets are worked out from is kept.
   final JournalService _journal;
@@ -523,7 +529,10 @@ class NutritionService {
   /// that starts with what was typed beats one that merely contains it,
   /// which beats a match on the brand alone; within each of those, what
   /// the user starred or ate recently comes first.
-  List<FoodItem> searchFoods(String query) {
+  ///
+  /// With [includePackaged], the shipped packaged foods the user has not
+  /// saved follow, best first and capped at [packagedResultLimit].
+  List<FoodItem> searchFoods(String query, {bool includePackaged = false}) {
     final words = [
       for (final word in query.split(RegExp(r'\s+')))
         if (normalizeTerm(word) case final term when term.isNotEmpty) term,
@@ -533,25 +542,27 @@ class NutritionService {
       ..._foods.favoriteIds(),
       for (final (foodId, _, _, _) in _meals.portionsLogged()) foodId,
     };
+    final saved = foods();
     final ranked = <(int, bool, FoodItem)>[];
-    for (final food in foods()) {
+    for (final food in saved) {
       final name = normalizeTerm(food.name);
       final elsewhere = normalizeTerm(
         '${food.brand}${food.sizeName}${food.searchTerms}',
       );
-      if (!words.every((w) => name.contains(w) || elsewhere.contains(w))) {
-        continue;
+      if (foodMatchTier(words, name, elsewhere) case final tier?) {
+        ranked.add((tier, personal.contains(food.id), food));
       }
-      final inName = words.where(name.contains).toList();
-      final tier = inName.isEmpty ? 2 : (inName.any(name.startsWith) ? 0 : 1);
-      ranked.add((tier, personal.contains(food.id), food));
     }
     ranked.sort((a, b) {
       if (a.$1 != b.$1) return a.$1.compareTo(b.$1);
       if (a.$2 != b.$2) return a.$2 ? -1 : 1;
       return a.$3.name.compareTo(b.$3.name);
     });
-    return [for (final (_, _, food) in ranked) food];
+    return [
+      for (final (_, _, food) in ranked) food,
+      if (includePackaged)
+        ...packagedFoods.search(words, except: {for (final f in saved) f.id}),
+    ];
   }
 
   /// Brands whose shipped menu [query] names on its own — 「星巴克」 or
@@ -578,8 +589,23 @@ class NutritionService {
     for (final id in _foods.favoriteIds()) ?_foods.byId(id),
   ];
 
-  void setFoodFavorite(String foodId, {required bool isFavorite}) =>
-      _foods.setFavorite(foodId, isFavorite: isFavorite);
+  void setFoodFavorite(String foodId, {required bool isFavorite}) {
+    if (isFavorite) _keepPackagedFood(foodId);
+    _foods.setFavorite(foodId, isFavorite: isFavorite);
+  }
+
+  /// Whether [foodId] is a shipped packaged food the user has not saved,
+  /// so there is nothing of theirs to delete yet.
+  bool isUnsavedPackagedFood(String foodId) =>
+      packagedFoods.contains(foodId) && _foods.byId(foodId) == null;
+
+  /// Saves the packaged food [foodId] as a food of the user's own, unless
+  /// it already is one: a meal or a star names a saved food, and the
+  /// shipped list is not stored.
+  void _keepPackagedFood(String foodId) {
+    if (_foods.byId(foodId) != null) return;
+    if (packagedFoods.byId(foodId) case final food?) _foods.save(food);
+  }
 
   /// Logs the items of a draft the user confirmed, as eaten now and all
   /// or none. Each is marked as an estimate from an AI draft, and the
@@ -788,6 +814,7 @@ class NutritionService {
   }) {
     final eatenAt = at ?? _db.now();
     final food = portion.food;
+    if (keepsFood) _keepPackagedFood(food.id);
     final tag = switch (draftedBy) {
       _? => aiDraftQualityTag,
       null => keepsFood ? customFoodQualityTag : quickLogQualityTag,

@@ -76,6 +76,7 @@ flutter:
 
   assets:
     - assets/catalogue/
+    - assets/packaged/
     - assets/exercises/
     - assets/exercises/frames/
 
