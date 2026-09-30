@@ -1691,5 +1691,22 @@
   "unitMinutes": "분",
   "unitSeconds": "초",
   "setTimerStart": "시작",
-  "setTimerStartLabel": "시간 측정 시작"
+  "setTimerStartLabel": "시간 측정 시작",
+  "goalReached": "달성",
+  "goalMetNights": "{count}박 달성",
+  "statsSection": "통계",
+  "distributionSection": "분포",
+  "statMedian": "중앙값",
+  "statHighest": "최고",
+  "statLowest": "최저",
+  "statLongest": "최장",
+  "statShortest": "최단",
+  "periodChange": "기간 변화",
+  "changePerWeek": "주당 변화",
+  "measurementsCount": "측정 횟수",
+  "sleepGoalMetLabel": "수면 목표 달성",
+  "weeklyGoalMetLabel": "주간 목표 달성",
+  "workoutsTotal": "운동 횟수",
+  "weeksCount": "{count}주",
+  "stepsUnit": "걸음"
 }

@@ -272,6 +272,13 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
 - An insight says the window and how many records it rests on; one the
   records cannot support yet says what it needs and how much there is
   so far.
+- Build on the shared charts rather than drawing another: `MiniBarChart`
+  (capsule bars, the current period marked, a `goal` line and a check on
+  each bar in `met`, which the caller decides), `GoalWeeksChart` (weeks
+  against a goal), `DistributionChart` (how days spread across ranges),
+  `Sparkline`, `RangeBarChart`, `CurveChart`, `SegmentBar`, with
+  `ChartKey` for a legend and `ChartScrubber` for reading a point; a
+  period's figures go in a `FigureGrid`.
 
 ## Accessibility
 

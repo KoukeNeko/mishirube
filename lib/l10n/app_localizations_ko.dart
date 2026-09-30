@@ -5939,4 +5939,59 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get setTimerStartLabel => '시간 측정 시작';
+
+  @override
+  String get goalReached => '달성';
+
+  @override
+  String goalMetNights({required int count}) {
+    return '$count박 달성';
+  }
+
+  @override
+  String get statsSection => '통계';
+
+  @override
+  String get distributionSection => '분포';
+
+  @override
+  String get statMedian => '중앙값';
+
+  @override
+  String get statHighest => '최고';
+
+  @override
+  String get statLowest => '최저';
+
+  @override
+  String get statLongest => '최장';
+
+  @override
+  String get statShortest => '최단';
+
+  @override
+  String get periodChange => '기간 변화';
+
+  @override
+  String get changePerWeek => '주당 변화';
+
+  @override
+  String get measurementsCount => '측정 횟수';
+
+  @override
+  String get sleepGoalMetLabel => '수면 목표 달성';
+
+  @override
+  String get weeklyGoalMetLabel => '주간 목표 달성';
+
+  @override
+  String get workoutsTotal => '운동 횟수';
+
+  @override
+  String weeksCount({required int count}) {
+    return '$count주';
+  }
+
+  @override
+  String get stepsUnit => '걸음';
 }

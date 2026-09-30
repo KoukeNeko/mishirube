@@ -7,6 +7,7 @@ import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
 import '../engines/trend_insights.dart';
 import '../engines/trend_engine.dart';
+import '../engines/period_stats.dart';
 import '../engines/trend_detail.dart';
 import '../engines/trend_findings.dart';
 import '../engines/workout_review.dart';
@@ -32,13 +33,39 @@ class AreaTrend {
   const AreaTrend({
     required this.domain,
     required this.detail,
+    this.days = const [],
     this.secondary,
     this.sleepTimes,
+    this.sleepSpread,
+    this.macros,
+    this.loggedDays,
+    this.topExercises = const [],
   });
 
   final TrendDomain domain;
   final TrendDetail detail;
+
+  /// Each day's own figure over the span, oldest first, for the page's
+  /// statistics: each weighing, each night asleep, each complete food
+  /// day's energy, each finished day's steps. Empty for training, which
+  /// is counted by the week.
+  final List<(DateTime, double)> days;
   final TrendDetail? secondary;
+
+  /// Protein, carbohydrate and fat eaten on an average complete day over
+  /// the span, in grams; null without one.
+  final ({double protein, double carb, double fat})? macros;
+
+  /// How far a night's bedtime and waking usually sit from their
+  /// averages over the span, in minutes: how regular the nights are.
+  /// Null below a week of nights.
+  final ({double bedtime, double wake})? sleepSpread;
+
+  /// Finished days over the span with any food logged, complete or not.
+  final int? loggedDays;
+
+  /// The exercises with the most working sets over the span, most first.
+  final List<(ExerciseDefinition, int)> topExercises;
 
   /// Average bedtime and waking over the latest four weeks, in minutes
   /// after midnight.
@@ -51,6 +78,9 @@ const _minimumBasalDays = 7;
 
 /// Sessions per week the training goal asks for, until goals are editable.
 const weeklyTrainingGoal = 3;
+
+/// How many exercises a training trend lists as its main ones.
+const _topExerciseCount = 5;
 
 /// How many insights the Today screen shows at once.
 const _todayInsightCount = 2;
@@ -231,11 +261,7 @@ class InsightsService {
         .subtract(const Duration(days: trendHistoryDays - 1));
     final foodFrom = _dayOf(day)
         .subtract(const Duration(days: energyWindowDays - 1));
-    final (:kcal, protein: _, daysTracked: _) = _completeFoodDays(
-      foodFrom,
-      until,
-      now,
-    );
+    final kcal = _completeFoodDays(foodFrom, until, now).kcal;
     final basal = dailyValues(
       _samples.between(
         ActivityMetric.basalEnergy,
@@ -279,7 +305,12 @@ class InsightsService {
     final steps = dailyValues(
       _samples.between(ActivityMetric.steps, from, _dayOf(now)),
     );
-    final (:kcal, :protein, :daysTracked) = _completeFoodDays(from, until, now);
+    final food = _completeFoodDays(from, until, now);
+    final (kcal, protein, daysTracked) = (
+      food.kcal,
+      food.protein,
+      food.daysTracked,
+    );
     final trend = [for (final (at, _, value) in trendOf(weights)) (at, value)];
     final energy = energyOn(now);
     final energyStart = _dayOf(now)
@@ -331,6 +362,8 @@ class InsightsService {
     final from = weeks == null
         ? DateTime(_earliestYear)
         : _dayOf(now).subtract(Duration(days: weeks * DateTime.daysPerWeek));
+    ({double protein, double carb, double fat})? macros;
+    int? loggedDays;
     final (daily, aggregate, secondary) = switch (domain) {
       TrendDomain.body => () {
         final weights = _journal.weightsBetween(from, until);
@@ -362,11 +395,22 @@ class InsightsService {
         null,
       ),
       TrendDomain.nutrition => () {
-        final (:kcal, :protein, daysTracked: _) = _completeFoodDays(
-          from,
-          until,
-          now,
+        final food = _completeFoodDays(from, until, now);
+        final (kcal, protein, carbAndFat) = (
+          food.kcal,
+          food.protein,
+          food.carbAndFat,
         );
+        loggedDays = food.daysLogged;
+        if (kcal.isNotEmpty) {
+          double mean(Iterable<double> grams) =>
+              grams.fold(0.0, (sum, value) => sum + value) / kcal.length;
+          macros = (
+            protein: mean([for (final (_, grams) in protein) grams]),
+            carb: mean([for (final (carb, _) in carbAndFat) carb]),
+            fat: mean([for (final (_, fat) in carbAndFat) fat]),
+          );
+        }
         return (kcal, WeekAggregate.mean, protein);
       }(),
       TrendDomain.activity => (
@@ -409,6 +453,25 @@ class InsightsService {
     return AreaTrend(
       domain: domain,
       detail: detailOf(daily, aggregate),
+      days: switch (domain) {
+        // Each weighing as it was, not the trend through them.
+        TrendDomain.body => secondary ?? const [],
+        TrendDomain.training => const [],
+        _ => daily,
+      },
+      macros: macros,
+      loggedDays: loggedDays,
+      sleepSpread: domain == TrendDomain.sleep
+          ? _sleepSpread(_nights(from, until))
+          : null,
+      topExercises: domain == TrendDomain.training
+          ? [
+              for (final (id, sets) in _exercises.setCountsByExercise(
+                from,
+              )..sort((a, b) => b.$2.compareTo(a.$2)))
+                if (_exercises.byId(id) case final exercise?) (exercise, sets),
+            ].take(_topExerciseCount).toList()
+          : const [],
       secondary: secondary == null
           ? null
           : detailOf(
@@ -439,6 +502,24 @@ class InsightsService {
           entry.startedAt ?? entry.sleptAt.subtract(entry.duration),
         ),
   ];
+
+  /// How widely bedtimes and wakings spread over [nights], as standard
+  /// deviations in minutes, each read around noon so 23:30 and 00:30 are
+  /// an hour apart rather than a day. Null below a week of nights.
+  static ({double bedtime, double wake})? _sleepSpread(
+    List<(DateTime, double, DateTime)> nights,
+  ) {
+    if (nights.length < DateTime.daysPerWeek) return null;
+    const day = Duration.minutesPerDay;
+    double spreadOf(Iterable<DateTime> times) => periodStats([
+      for (final time in times)
+        (time, (time.hour * 60 + time.minute + day / 2) % day),
+    ])!.spread;
+    return (
+      bedtime: spreadOf([for (final (_, _, began) in nights) began]),
+      wake: spreadOf([for (final (woke, _, _) in nights) woke]),
+    );
+  }
 
   /// The average bedtime and waking over [nights], in minutes after
   /// midnight; null without any. Averaged around noon, so 23:30 and
@@ -471,7 +552,9 @@ class InsightsService {
   ({
     List<(DateTime, double)> kcal,
     List<(DateTime, double)> protein,
+    List<(double, double)> carbAndFat,
     int daysTracked,
+    int daysLogged,
   })
   _completeFoodDays(DateTime from, DateTime until, DateTime now) {
     final byDay = <DateTime, List<MealEvent>>{};
@@ -484,17 +567,55 @@ class InsightsService {
     );
     final kcal = <(DateTime, double)>[];
     final protein = <(DateTime, double)>[];
+    final carbAndFat = <(double, double)>[];
     for (final day in byDay.keys.toList()..sort()) {
       if (!day.isBefore(today)) continue;
       final summary = summariseDay(byDay[day]!, isOver: true);
       if (!summary.isComplete) continue;
       kcal.add((day, summary.kcal.toDouble()));
       protein.add((day, summary.proteinGrams.toDouble()));
+      carbAndFat.add((summary.carbGrams, summary.fatGrams));
     }
     return (
       kcal: kcal,
       protein: protein,
+      carbAndFat: carbAndFat,
       daysTracked: byDay.keys.where((day) => !day.isBefore(recentStart)).length,
+      daysLogged: byDay.keys.where((day) => day.isBefore(today)).length,
+    );
+  }
+
+  /// What the training over [window] adds up to: workouts, working
+  /// sets, volume, time trained and the average workout's length (over
+  /// the workouts with an end), and how many exercises set a best in it.
+  ({
+    int workouts,
+    int sets,
+    double volume,
+    Duration time,
+    Duration? averageLength,
+    int records,
+  })
+  trainingTotals({Duration window = const Duration(days: 28)}) {
+    final from = _db.now().subtract(window);
+    final totals = _workouts.completedTotals(since: from);
+    final lengths = [
+      for (final workout in totals)
+        if (workout.length case final length? when length > Duration.zero)
+          length,
+    ];
+    final time = lengths.fold(Duration.zero, (sum, length) => sum + length);
+    return (
+      workouts: totals.length,
+      sets: totals.fold(0, (sum, workout) => sum + workout.sets),
+      volume: _workouts
+          .completedVolumes(since: from)
+          .fold(0.0, (sum, workout) => sum + workout.$3),
+      time: time,
+      averageLength: lengths.isEmpty ? null : time ~/ lengths.length,
+      records: personalRecords()
+          .where((bests) => !bests.latest.isBefore(from))
+          .length,
     );
   }
 

@@ -9029,5 +9029,83 @@
   "setTimerStartLabel": "開始計時",
   "@setTimerStartLabel": {
     "description": "Screen-reader label of the button that starts timing a set."
+  },
+  "goalReached": "達成",
+  "@goalReached": {
+    "description": "A day or night that met its goal, in a chart reading."
+  },
+  "goalMetNights": "達成 {count} 晚",
+  "@goalMetNights": {
+    "description": "How many nights in the range met the sleep goal.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsSection": "統計",
+  "@statsSection": {
+    "description": "Section of a trend page with the period's figures."
+  },
+  "distributionSection": "分布",
+  "@distributionSection": {
+    "description": "Section showing how days spread across ranges of a figure."
+  },
+  "statMedian": "中位數",
+  "@statMedian": {
+    "description": "The middle value of a period."
+  },
+  "statHighest": "最高",
+  "@statHighest": {
+    "description": "The highest day of a period."
+  },
+  "statLowest": "最低",
+  "@statLowest": {
+    "description": "The lowest day of a period."
+  },
+  "statLongest": "最長",
+  "@statLongest": {
+    "description": "The longest night of a period."
+  },
+  "statShortest": "最短",
+  "@statShortest": {
+    "description": "The shortest night of a period."
+  },
+  "periodChange": "期間變化",
+  "@periodChange": {
+    "description": "How far the trend moved over the period."
+  },
+  "changePerWeek": "每週變化",
+  "@changePerWeek": {
+    "description": "How far the trend moved per week."
+  },
+  "measurementsCount": "量測次數",
+  "@measurementsCount": {
+    "description": "How many weighings the period holds."
+  },
+  "sleepGoalMetLabel": "達成睡眠目標",
+  "@sleepGoalMetLabel": {
+    "description": "Nights of the period that met the sleep goal."
+  },
+  "weeklyGoalMetLabel": "達成每週目標",
+  "@weeklyGoalMetLabel": {
+    "description": "Finished weeks of the period that met the weekly goal."
+  },
+  "workoutsTotal": "訓練次數",
+  "@workoutsTotal": {
+    "description": "How many workouts the period holds."
+  },
+  "weeksCount": "{count} 週",
+  "@weeksCount": {
+    "description": "A number of weeks.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stepsUnit": "步",
+  "@stepsUnit": {
+    "description": "The unit steps are counted in, under a chart."
   }
 }

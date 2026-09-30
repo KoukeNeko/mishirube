@@ -10335,6 +10335,108 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'開始計時'**
   String get setTimerStartLabel;
+
+  /// A day or night that met its goal, in a chart reading.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成'**
+  String get goalReached;
+
+  /// How many nights in the range met the sleep goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成 {count} 晚'**
+  String goalMetNights({required int count});
+
+  /// Section of a trend page with the period's figures.
+  ///
+  /// In zh, this message translates to:
+  /// **'統計'**
+  String get statsSection;
+
+  /// Section showing how days spread across ranges of a figure.
+  ///
+  /// In zh, this message translates to:
+  /// **'分布'**
+  String get distributionSection;
+
+  /// The middle value of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'中位數'**
+  String get statMedian;
+
+  /// The highest day of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'最高'**
+  String get statHighest;
+
+  /// The lowest day of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'最低'**
+  String get statLowest;
+
+  /// The longest night of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'最長'**
+  String get statLongest;
+
+  /// The shortest night of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'最短'**
+  String get statShortest;
+
+  /// How far the trend moved over the period.
+  ///
+  /// In zh, this message translates to:
+  /// **'期間變化'**
+  String get periodChange;
+
+  /// How far the trend moved per week.
+  ///
+  /// In zh, this message translates to:
+  /// **'每週變化'**
+  String get changePerWeek;
+
+  /// How many weighings the period holds.
+  ///
+  /// In zh, this message translates to:
+  /// **'量測次數'**
+  String get measurementsCount;
+
+  /// Nights of the period that met the sleep goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成睡眠目標'**
+  String get sleepGoalMetLabel;
+
+  /// Finished weeks of the period that met the weekly goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成每週目標'**
+  String get weeklyGoalMetLabel;
+
+  /// How many workouts the period holds.
+  ///
+  /// In zh, this message translates to:
+  /// **'訓練次數'**
+  String get workoutsTotal;
+
+  /// A number of weeks.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 週'**
+  String weeksCount({required int count});
+
+  /// The unit steps are counted in, under a chart.
+  ///
+  /// In zh, this message translates to:
+  /// **'步'**
+  String get stepsUnit;
 }
 
 class _AppLocalizationsDelegate

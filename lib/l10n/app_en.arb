@@ -1691,5 +1691,22 @@
   "unitMinutes": "min",
   "unitSeconds": "s",
   "setTimerStart": "Start",
-  "setTimerStartLabel": "Start timing"
+  "setTimerStartLabel": "Start timing",
+  "goalReached": "Goal met",
+  "goalMetNights": "Goal met {count} nights",
+  "statsSection": "Statistics",
+  "distributionSection": "Distribution",
+  "statMedian": "Median",
+  "statHighest": "Highest",
+  "statLowest": "Lowest",
+  "statLongest": "Longest",
+  "statShortest": "Shortest",
+  "periodChange": "Change",
+  "changePerWeek": "Per week",
+  "measurementsCount": "Weigh-ins",
+  "sleepGoalMetLabel": "Sleep goal met",
+  "weeklyGoalMetLabel": "Weekly goal met",
+  "workoutsTotal": "Workouts",
+  "weeksCount": "{count} weeks",
+  "stepsUnit": "steps"
 }

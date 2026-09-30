@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../app/view_model.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 import 'trends_view_model.dart';
@@ -85,9 +88,25 @@ class _ExerciseCard extends StatelessWidget {
                 isEstimate: true,
               ),
             ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              [
+                '${context.l10n.statHighest} '
+                    '${formatWeight(_tenth(estimates.reduce(math.max)))} kg',
+                '${context.l10n.periodChange} '
+                    '${_signed(estimates.last - estimates.first)} kg',
+              ].join(' · '),
+              style: AppTextStyles.caption,
+            ),
           ],
         ],
       ),
     );
   }
 }
+
+double _tenth(double value) => (value * 10).round() / 10;
+
+/// `+2.5` or `−1`: a change with its sign, a true minus for a fall.
+String _signed(double change) =>
+    '${change < 0 ? '−' : '+'}${formatWeight(_tenth(change.abs()))}';

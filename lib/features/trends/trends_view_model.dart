@@ -1,6 +1,8 @@
 import '../../app/view_model.dart';
 import '../../backend/application/activity_service.dart';
+import '../../backend/application/goal_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/period_stats.dart';
 import '../../backend/engines/trend_findings.dart';
 import '../../backend/engines/trend_engine.dart';
 import '../../backend/engines/workout_review.dart';
@@ -33,6 +35,31 @@ class TrendsViewModel extends ViewModel {
   /// One area week by week over the last [weeks] weeks, or all of it.
   AreaTrend areaTrend(TrendDomain domain, {int? weeks}) =>
       backend.insights.areaTrend(domain, weeks: weeks);
+
+  /// What [trend]'s days come to; null without any.
+  PeriodStats? statsOf(AreaTrend trend) => periodStats(trend.days);
+
+  /// The night asleep the sleep figures are held against; null unset.
+  Duration? get sleepGoal => backend.sleep.goal;
+
+  /// The weekly goal and the weeks measured against it; null while it is
+  /// off or not set, since a week cannot meet a goal nobody set.
+  GoalOverview? get weeklyGoal => switch (backend.goal.overview()) {
+    final overview when overview.isEnabled && overview.hasGoal => overview,
+    _ => null,
+  };
+
+  /// What the training over [window] adds up to.
+  ({
+    int workouts,
+    int sets,
+    double volume,
+    Duration time,
+    Duration? averageLength,
+    int records,
+  })
+  trainingTotals(Duration window) =>
+      backend.insights.trainingTotals(window: window);
 
   /// Training figures over [window].
   TrendsOverview overview(Duration window) =>

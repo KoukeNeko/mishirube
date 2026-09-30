@@ -1691,5 +1691,22 @@
   "unitMinutes": "分",
   "unitSeconds": "秒",
   "setTimerStart": "开始",
-  "setTimerStartLabel": "开始计时"
+  "setTimerStartLabel": "开始计时",
+  "goalReached": "达成",
+  "goalMetNights": "达成 {count} 晚",
+  "statsSection": "统计",
+  "distributionSection": "分布",
+  "statMedian": "中位数",
+  "statHighest": "最高",
+  "statLowest": "最低",
+  "statLongest": "最长",
+  "statShortest": "最短",
+  "periodChange": "期间变化",
+  "changePerWeek": "每周变化",
+  "measurementsCount": "测量次数",
+  "sleepGoalMetLabel": "达成睡眠目标",
+  "weeklyGoalMetLabel": "达成每周目标",
+  "workoutsTotal": "训练次数",
+  "weeksCount": "{count} 周",
+  "stepsUnit": "步"
 }

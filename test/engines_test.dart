@@ -28,6 +28,7 @@ import 'package:mishirube/backend/engines/workout_text.dart';
 import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/seed/exercise_catalogue.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/backend/engines/period_stats.dart';
 import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/chat_workout.dart';
@@ -2883,6 +2884,41 @@ Wall sit 2 x 1.5 min
       expect(targets.kcal, 2200);
       expect(targets.missing, isEmpty);
       expect(targets.restingKcal, isNull);
+    });
+  });
+
+  group('period stats', () {
+    DateTime day(int n) => DateTime(2026, 9, n);
+
+    test('nothing recorded has no figures', () {
+      expect(periodStats(const []), isNull);
+    });
+
+    test('average, middle, highest, lowest and spread', () {
+      final stats = periodStats([
+        (day(1), 7),
+        (day(2), 5),
+        (day(3), 9),
+        (day(4), 7),
+      ])!;
+      expect(stats.count, 4);
+      expect(stats.mean, 7);
+      expect(stats.median, 7);
+      expect(stats.highest, (day(3), 9.0));
+      expect(stats.lowest, (day(2), 5.0));
+      expect(stats.spread, closeTo(1.414, 0.001));
+    });
+
+    test('a tie names the later day', () {
+      final stats = periodStats([(day(1), 8), (day(2), 8)])!;
+      expect(stats.highest.$1, day(2));
+      expect(stats.lowest.$1, day(2));
+      expect(stats.spread, 0);
+    });
+
+    test('values fall into the stretches the edges cut', () {
+      expect(bucketCounts([5, 6, 7.5, 8, 9.9, 10], [6, 8, 10]), [1, 2, 2, 1]);
+      expect(bucketCounts(const [], [6, 8]), [0, 0, 0]);
     });
   });
 }

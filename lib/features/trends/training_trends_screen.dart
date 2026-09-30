@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
 import '../../app/theme.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'insight_detail_screen.dart';
 import 'exercise_trends_screen.dart';
@@ -87,6 +88,11 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: _SummaryGrid(overview: overview, activity: activity),
         ),
+        if (_model.trainingTotals(_range.window) case final totals
+            when totals.workouts > 0) ...[
+          Gutter(child: SectionLabel(context.l10n.statsSection)),
+          Gutter(child: FigureGrid(figures: _totalFigures(context, totals))),
+        ],
         Gutter(child: SectionLabel(context.l10n.musclesTitle)),
         Gutter(
           child: MuscleLoadCard(
@@ -135,6 +141,58 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
       ],
     );
   }
+}
+
+/// What the range's training adds up to.
+List<Figure> _totalFigures(
+  BuildContext context,
+  ({
+    int workouts,
+    int sets,
+    double volume,
+    Duration time,
+    Duration? averageLength,
+    int records,
+  })
+  totals,
+) {
+  final l10n = context.l10n;
+  return [
+    (
+      label: l10n.workoutsTotal,
+      value: l10n.timesValue(count: '${totals.workouts}'),
+      unit: null,
+      color: null,
+    ),
+    (label: l10n.totalSets, value: '${totals.sets}', unit: null, color: null),
+    if (totals.volume > 0)
+      (
+        label: l10n.totalVolume,
+        value: formatKcal(totals.volume.round()),
+        unit: 'kg',
+        color: null,
+      ),
+    if (totals.time > Duration.zero)
+      (
+        label: l10n.totalTime,
+        value: formatHoursMinutes(totals.time),
+        unit: null,
+        color: null,
+      ),
+    if (totals.averageLength case final length?)
+      (
+        label: l10n.averageStage(stage: l10n.durationLabel),
+        value: formatHoursMinutes(length),
+        unit: null,
+        color: null,
+      ),
+    (
+      label: l10n.personalRecords,
+      value: '${totals.records}',
+      unit: null,
+      color: null,
+    ),
+  ];
 }
 
 class _SummaryGrid extends StatelessWidget {

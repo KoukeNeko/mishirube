@@ -5937,4 +5937,59 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get setTimerStartLabel => '計測を開始';
+
+  @override
+  String get goalReached => '達成';
+
+  @override
+  String goalMetNights({required int count}) {
+    return '$count 晩達成';
+  }
+
+  @override
+  String get statsSection => '統計';
+
+  @override
+  String get distributionSection => '分布';
+
+  @override
+  String get statMedian => '中央値';
+
+  @override
+  String get statHighest => '最高';
+
+  @override
+  String get statLowest => '最低';
+
+  @override
+  String get statLongest => '最長';
+
+  @override
+  String get statShortest => '最短';
+
+  @override
+  String get periodChange => '期間の変化';
+
+  @override
+  String get changePerWeek => '週あたり';
+
+  @override
+  String get measurementsCount => '測定回数';
+
+  @override
+  String get sleepGoalMetLabel => '睡眠目標達成';
+
+  @override
+  String get weeklyGoalMetLabel => '週間目標達成';
+
+  @override
+  String get workoutsTotal => 'トレーニング回数';
+
+  @override
+  String weeksCount({required int count}) {
+    return '$count週';
+  }
+
+  @override
+  String get stepsUnit => '歩';
 }

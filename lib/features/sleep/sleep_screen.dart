@@ -755,12 +755,16 @@ class _HistoryState extends State<_History> {
     final average =
         nights.fold(Duration.zero, (sum, night) => sum + night.duration) ~/
         nights.length;
+    final goal = widget.model.goal;
+    final metCount = bars.where((bar) => bar.isMet).length;
     return ChartScrubber(
       count: bars.length,
       indexAt: ChartScrubber.slots(bars.length),
-      idle:
-          '${context.l10n.statAverage(value: formatHoursMinutes(average))} · '
-          '${context.l10n.nightsCount(count: nights.length)}',
+      idle: [
+        context.l10n.statAverage(value: formatHoursMinutes(average)),
+        context.l10n.nightsCount(count: nights.length),
+        if (metCount > 0) context.l10n.goalMetNights(count: metCount),
+      ].join(' · '),
       readoutOf: (index) => bars[index].readout,
       builder: (context, selected) => MiniBarChart(
         bars: [for (final bar in bars) (bar.label, bar.minutes)],
@@ -769,6 +773,11 @@ class _HistoryState extends State<_History> {
         color: AppColors.wellness,
         dimColor: AppColors.wellness.withValues(alpha: 0.4),
         selected: selected,
+        goal: goal?.inMinutes,
+        met: {
+          for (final (index, bar) in bars.indexed)
+            if (bar.isMet) index,
+        },
       ),
     );
   }
@@ -894,14 +903,23 @@ class _HistoryState extends State<_History> {
   /// One bar a night for a week or a month, one a week for half a year,
   /// each with what its reading says; a night without a record is an
   /// empty bar, not a zero-hour night.
-  List<({String label, int? minutes, String readout})> _bars(
+  List<({String label, int? minutes, String readout, bool isMet})> _bars(
     List<SleepEntry> nights,
     DateTime start,
   ) {
+    DateTime dayOf(SleepEntry night) =>
+        DateTime(night.sleptAt.year, night.sleptAt.month, night.sleptAt.day);
     final byDay = {
+      for (final night in nights) dayOf(night): night.duration.inMinutes,
+    };
+    // Time in bed is not held against a goal for sleep.
+    final goal = widget.model.goal;
+    final metDays = {
       for (final night in nights)
-        DateTime(night.sleptAt.year, night.sleptAt.month, night.sleptAt.day):
-            night.duration.inMinutes,
+        if (goal != null &&
+            night.measure == SleepMeasure.asleep &&
+            night.duration >= goal)
+          dayOf(night),
     };
     final days = [
       for (var i = 0; i < _range.days; i++)
@@ -915,9 +933,15 @@ class _HistoryState extends State<_History> {
           (
             label: context.dates.weekday(day),
             minutes: byDay[day],
-            readout:
-                '${context.dates.dayWithWeekday(day)} · '
-                '${byDay[day] == null ? context.l10n.noEntriesShort : length(byDay[day]!)}',
+            readout: [
+              context.dates.dayWithWeekday(day),
+              if (byDay[day] case final minutes?)
+                length(minutes)
+              else
+                context.l10n.noEntriesShort,
+              if (metDays.contains(day)) context.l10n.goalReached,
+            ].join(' · '),
+            isMet: metDays.contains(day),
           ),
       ];
     }
@@ -935,6 +959,7 @@ class _HistoryState extends State<_History> {
           return (
             label: '',
             minutes: average,
+            isMet: false,
             readout:
                 '${context.l10n.weekOf(date: context.dates.monthDay(first))} · '
                 '${average == null ? context.l10n.noEntriesShort : '${context.l10n.statAverage(value: length(average))} · ${context.l10n.nightsCount(count: minutes.length)}'}',

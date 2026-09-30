@@ -7,6 +7,7 @@ export 'chrome/chrome_surface.dart';
 export 'chrome/chrome_visibility.dart';
 // Display: cards, rows, stats, charts, banners.
 export 'content/cards.dart';
+export 'content/chart_parts.dart';
 export 'content/chart_scrubber.dart';
 export 'content/charts.dart';
 export 'content/feedback.dart';

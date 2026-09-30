@@ -5929,6 +5929,61 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get setTimerStartLabel => '開始計時';
+
+  @override
+  String get goalReached => '達成';
+
+  @override
+  String goalMetNights({required int count}) {
+    return '達成 $count 晚';
+  }
+
+  @override
+  String get statsSection => '統計';
+
+  @override
+  String get distributionSection => '分布';
+
+  @override
+  String get statMedian => '中位數';
+
+  @override
+  String get statHighest => '最高';
+
+  @override
+  String get statLowest => '最低';
+
+  @override
+  String get statLongest => '最長';
+
+  @override
+  String get statShortest => '最短';
+
+  @override
+  String get periodChange => '期間變化';
+
+  @override
+  String get changePerWeek => '每週變化';
+
+  @override
+  String get measurementsCount => '量測次數';
+
+  @override
+  String get sleepGoalMetLabel => '達成睡眠目標';
+
+  @override
+  String get weeklyGoalMetLabel => '達成每週目標';
+
+  @override
+  String get workoutsTotal => '訓練次數';
+
+  @override
+  String weeksCount({required int count}) {
+    return '$count 週';
+  }
+
+  @override
+  String get stepsUnit => '步';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11855,6 +11910,61 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get setTimerStartLabel => '开始计时';
+
+  @override
+  String get goalReached => '达成';
+
+  @override
+  String goalMetNights({required int count}) {
+    return '达成 $count 晚';
+  }
+
+  @override
+  String get statsSection => '统计';
+
+  @override
+  String get distributionSection => '分布';
+
+  @override
+  String get statMedian => '中位数';
+
+  @override
+  String get statHighest => '最高';
+
+  @override
+  String get statLowest => '最低';
+
+  @override
+  String get statLongest => '最长';
+
+  @override
+  String get statShortest => '最短';
+
+  @override
+  String get periodChange => '期间变化';
+
+  @override
+  String get changePerWeek => '每周变化';
+
+  @override
+  String get measurementsCount => '测量次数';
+
+  @override
+  String get sleepGoalMetLabel => '达成睡眠目标';
+
+  @override
+  String get weeklyGoalMetLabel => '达成每周目标';
+
+  @override
+  String get workoutsTotal => '训练次数';
+
+  @override
+  String weeksCount({required int count}) {
+    return '$count 周';
+  }
+
+  @override
+  String get stepsUnit => '步';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

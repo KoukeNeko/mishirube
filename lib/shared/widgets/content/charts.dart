@@ -21,8 +21,11 @@ Path _dashed(Path path) {
 /// period", its label on a capsule, unless [highlightsLast] is off, or the
 /// [selected] one while a reading picks it. Many bars sit closer
 /// together, so a month or a day of hours still has bars rather than
-/// gaps. A null value is nothing recorded and
-/// leaves its slot empty; a true zero is a thin line on the axis.
+/// gaps. A null value is nothing recorded and leaves its slot empty; a
+/// true zero is a thin line on the axis. A [goal] is a thin line across,
+/// and each bar in [met] carries a check at its top: which bars met the
+/// goal is the caller's to say, since a goal may be a floor, a ceiling or
+/// a range, and a day still going may not count.
 class MiniBarChart extends StatelessWidget {
   const MiniBarChart({
     super.key,
@@ -33,16 +36,25 @@ class MiniBarChart extends StatelessWidget {
     this.dimColor = AppColors.trainingDim,
     this.selected,
     this.highlightsLast = true,
+    this.goal,
+    this.met = const {},
   });
 
   final List<(String, int?)> bars;
 
   /// How tall a zero is drawn, so it reads apart from nothing recorded.
   static const _zeroHeight = 2.0;
+
   final double height;
   final bool showLabels;
   final int? selected;
   final bool highlightsLast;
+
+  /// In the bars' own units.
+  final int? goal;
+
+  /// Indexes of the bars that met the [goal].
+  final Set<int> met;
 
   /// The last bar's colour, and the others'.
   final Color color;
@@ -50,9 +62,10 @@ class MiniBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final highest = bars
-        .map((bar) => bar.$2 ?? 0)
-        .fold(0, (a, b) => a > b ? a : b);
+    final highest = [
+      for (final bar in bars) bar.$2 ?? 0,
+      ?goal,
+    ].fold(0, (a, b) => a > b ? a : b);
     // All zero is a row of empty bars, not a division by zero.
     final maxValue = highest == 0 ? 1 : highest;
     // The period still going, marked under its bar as Health apps mark
@@ -60,57 +73,94 @@ class MiniBarChart extends StatelessWidget {
     final current = highlightsLast ? bars.length - 1 : null;
     final highlighted = selected ?? current;
     final gap = bars.length > 14 ? 2.0 : AppSpacing.xs;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    List<Widget> slots(Widget Function(int index) slot) => [
+      for (var i = 0; i < bars.length; i++) ...[
+        if (i > 0) SizedBox(width: gap),
+        Expanded(child: slot(i)),
+      ],
+    ];
+    final check = Color.lerp(color, AppColors.textPrimary, 0.6)!;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        for (var i = 0; i < bars.length; i++) ...[
-          if (i > 0) SizedBox(width: gap),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (bars[i].$2 case final value?)
-                  Container(
-                    height: value == 0
-                        ? _zeroHeight
-                        : height * value / maxValue,
-                    decoration: ShapeDecoration(
-                      color: highlighted == null || i == highlighted
-                          ? color
-                          : dimColor,
-                      shape: const StadiumBorder(),
-                    ),
-                  ),
-                if (showLabels) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  // Every label padded alike, so the bars stay level;
-                  // only the current period's is filled.
-                  DecoratedBox(
-                    decoration: ShapeDecoration(
-                      color: i == current
-                          ? AppColors.surfaceRaised
-                          : Colors.transparent,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xs,
-                        vertical: 2,
-                      ),
-                      child: Text(
-                        bars[i].$1,
-                        maxLines: 1,
-                        softWrap: false,
-                        style: i == current
-                            ? AppTextStyles.caption.copyWith(
-                                color: AppColors.textPrimary,
+        SizedBox(
+          height: height,
+          child: Stack(
+            children: [
+              if (goal case final goal?)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: height * goal / maxValue,
+                  child: Container(height: 1, color: color),
+                ),
+              Positioned.fill(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: slots(
+                    (i) => switch (bars[i].$2) {
+                      final value? => Container(
+                        height: value == 0
+                            ? _zeroHeight
+                            : height * value / maxValue,
+                        padding: const EdgeInsets.all(2),
+                        alignment: Alignment.topCenter,
+                        decoration: ShapeDecoration(
+                          color: highlighted == null || i == highlighted
+                              ? color
+                              : dimColor,
+                          shape: const StadiumBorder(),
+                        ),
+                        // Nearly as wide as the bar, at its top.
+                        child: met.contains(i)
+                            ? AspectRatio(
+                                aspectRatio: 1,
+                                child: FittedBox(
+                                  child: Icon(Icons.verified, color: check),
+                                ),
                               )
-                            : AppTextStyles.caption,
+                            : null,
                       ),
+                      null => const SizedBox.shrink(),
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (showLabels) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            children: slots(
+              // Every label padded alike; only the current period's is
+              // filled.
+              (i) => Center(
+                child: DecoratedBox(
+                  decoration: ShapeDecoration(
+                    color: i == current
+                        ? AppColors.surfaceRaised
+                        : Colors.transparent,
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      bars[i].$1,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: i == current
+                          ? AppTextStyles.caption.copyWith(
+                              color: AppColors.textPrimary,
+                            )
+                          : AppTextStyles.caption,
                     ),
                   ),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
         ],

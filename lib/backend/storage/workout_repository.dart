@@ -120,6 +120,35 @@ class WorkoutRepository {
       ),
   ];
 
+  /// Each finished workout from [since]: when it began, how long it ran
+  /// less its pauses, and its done working sets (warm-ups left out).
+  List<({DateTime start, Duration? length, int sets})> completedTotals({
+    DateTime? since,
+  }) => [
+    for (final row in _db.select(
+      'SELECT w.started_at, w.finished_at, w.paused_total_ms, '
+      "COUNT(CASE WHEN s.is_done = 1 AND s.set_type != 'warmup' "
+      'THEN 1 END) AS sets '
+      'FROM workouts w LEFT JOIN workout_sets s ON s.workout_id = w.id '
+      "WHERE w.status = 'completed' AND w.deleted_at IS NULL "
+      'AND w.started_at >= ? GROUP BY w.id ORDER BY w.started_at',
+      [since?.millisecondsSinceEpoch ?? 0],
+    ))
+      (
+        start: DateTime.fromMillisecondsSinceEpoch(row['started_at']),
+        length: switch (row['finished_at']) {
+          final int finished => Duration(
+            milliseconds:
+                finished -
+                (row['started_at'] as int) -
+                (row['paused_total_ms'] as int),
+          ),
+          _ => null,
+        },
+        sets: row['sets'] as int,
+      ),
+  ];
+
   /// Whether a live workout was already imported with [fingerprint].
   bool hasFingerprint(String fingerprint) => _db.select(
     'SELECT 1 FROM workouts WHERE fingerprint = ? AND deleted_at IS NULL',

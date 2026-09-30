@@ -6035,4 +6035,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setTimerStartLabel => 'Start timing';
+
+  @override
+  String get goalReached => 'Goal met';
+
+  @override
+  String goalMetNights({required int count}) {
+    return 'Goal met $count nights';
+  }
+
+  @override
+  String get statsSection => 'Statistics';
+
+  @override
+  String get distributionSection => 'Distribution';
+
+  @override
+  String get statMedian => 'Median';
+
+  @override
+  String get statHighest => 'Highest';
+
+  @override
+  String get statLowest => 'Lowest';
+
+  @override
+  String get statLongest => 'Longest';
+
+  @override
+  String get statShortest => 'Shortest';
+
+  @override
+  String get periodChange => 'Change';
+
+  @override
+  String get changePerWeek => 'Per week';
+
+  @override
+  String get measurementsCount => 'Weigh-ins';
+
+  @override
+  String get sleepGoalMetLabel => 'Sleep goal met';
+
+  @override
+  String get weeklyGoalMetLabel => 'Weekly goal met';
+
+  @override
+  String get workoutsTotal => 'Workouts';
+
+  @override
+  String weeksCount({required int count}) {
+    return '$count weeks';
+  }
+
+  @override
+  String get stepsUnit => 'steps';
 }

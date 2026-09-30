@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../app/view_model.dart';
+import '../../backend/application/goal_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/period_stats.dart';
+import '../../domain/domain.dart';
 import '../../backend/engines/trend_detail.dart';
 import '../../backend/engines/trend_findings.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/daily_activity_screen.dart';
+import '../exercise/exercise_detail_screen.dart';
 import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
@@ -101,6 +105,14 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
               ),
             ),
             Gutter(child: _Overview(trend: trend)),
+            if (domain == TrendDomain.training)
+              if (model.weeklyGoal case final goal?)
+                Gutter(
+                  child: _GoalWeeks(
+                    goal: goal,
+                    weeks: _range.weeks ?? goal.weeks.length,
+                  ),
+                ),
             if (trend.secondary case final secondary?)
               Gutter(
                 child: _SecondaryCard(domain: domain, detail: secondary),
@@ -116,6 +128,7 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                   showChevron: false,
                 ),
               ),
+            ..._statistics(context, model, trend),
             if (trend.detail.weekdays.any((value) => value != null)) ...[
               Gutter(child: SectionLabel(context.l10n.weekdaySection)),
               Gutter(child: _Weekdays(trend: trend)),
@@ -280,13 +293,13 @@ class _Overview extends StatelessWidget {
             runSpacing: AppSpacing.xxs,
             children: [
               if (detail.normal != null)
-                _Key(
+                ChartKey(
                   color: AppColors.textSecondary.withValues(alpha: 0.3),
                   label: l10n.usualRange,
                 ),
               if (baseline != null)
-                _Key(color: AppColors.textSecondary, label: baselineLabel),
-              if (recent != null) _Key(color: color, label: recentLabel),
+                ChartKey(color: AppColors.textSecondary, label: baselineLabel),
+              if (recent != null) ChartKey(color: color, label: recentLabel),
             ],
           ),
           if (domain != TrendDomain.training && recentDays.isNotEmpty) ...[
@@ -301,33 +314,6 @@ class _Overview extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-/// A swatch and what it stands for.
-class _Key extends StatelessWidget {
-  const _Key({required this.color, required this.label});
-
-  final Color color;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 12,
-          height: 4,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xxs),
-        Text(label, style: AppTextStyles.caption),
-      ],
     );
   }
 }
@@ -454,6 +440,441 @@ class _Weekdays extends StatelessWidget {
                   '${_valueOf(context.l10n, domain, lowest.$2)}',
             ),
             style: AppTextStyles.caption,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The figures the span comes to, then how its days spread (or, for
+/// food, how the energy splits between the macros).
+List<Widget> _statistics(
+  BuildContext context,
+  TrendsViewModel model,
+  AreaTrend trend,
+) {
+  final l10n = context.l10n;
+  final domain = trend.domain;
+  final color = trendColor(domain);
+  final stats = model.statsOf(trend);
+  final figures = switch (domain) {
+    TrendDomain.training => _trainingFigures(context, trend, model.weeklyGoal),
+    _ when stats == null => const <Figure>[],
+    TrendDomain.body => _bodyFigures(context, trend, stats),
+    TrendDomain.sleep => _sleepFigures(context, trend, stats, model.sleepGoal),
+    TrendDomain.nutrition => _nutritionFigures(context, trend, stats),
+    TrendDomain.activity => _activityFigures(context, stats),
+  };
+  final values = [for (final (_, value) in trend.days) value];
+  final spread = switch (domain) {
+    TrendDomain.sleep => (
+      edges: const [360.0, 420.0, 480.0, 540.0],
+      labels: const ['<6', '6–7', '7–8', '8–9', '9+'],
+      unit: l10n.hoursUnit,
+      countLabel: (int count) => l10n.nightsCount(count: count),
+    ),
+    TrendDomain.activity => (
+      edges: const [2500.0, 5000.0, 7500.0, 10000.0],
+      labels: const ['<2.5k', '2.5–5k', '5–7.5k', '7.5–10k', '10k+'],
+      unit: l10n.stepsUnit,
+      countLabel: (int count) => l10n.daysCount(count: count),
+    ),
+    _ => null,
+  };
+  return [
+    if (figures.isNotEmpty) ...[
+      Gutter(child: SectionLabel(l10n.statsSection)),
+      Gutter(child: FigureGrid(figures: figures)),
+    ],
+    // A week of days at least, or the spread is a handful of points.
+    if (spread != null && values.length >= DateTime.daysPerWeek) ...[
+      Gutter(child: SectionLabel(l10n.distributionSection)),
+      Gutter(
+        child: AppCard(
+          child: DistributionChart(
+            labels: spread.labels,
+            counts: bucketCounts(values, spread.edges),
+            unit: spread.unit,
+            color: color,
+            idle: spread.countLabel(values.length),
+            countLabel: spread.countLabel,
+          ),
+        ),
+      ),
+    ],
+    if (trend.macros case final macros?) ...[
+      Gutter(child: SectionLabel(l10n.macroSplit)),
+      Gutter(child: _MacroSplit(macros: macros)),
+    ],
+    if (trend.topExercises.isNotEmpty) ...[
+      Gutter(child: SectionLabel(l10n.exercisesLabel)),
+      Gutter(
+        child: GroupedCard(
+          children: [
+            for (final (exercise, sets) in trend.topExercises)
+              NavRow(
+                title: exercise.name,
+                trailing: Text(
+                  l10n.setsCount(count: sets),
+                  style: AppTextStyles.body,
+                ),
+                onTap: () =>
+                    pushPage(context, ExerciseDetailScreen(exercise: exercise)),
+              ),
+          ],
+        ),
+      ),
+    ],
+  ];
+}
+
+/// `最高 · 9/14`: a figure's name and the day it fell on.
+String _onDay(BuildContext context, String label, DateTime day) =>
+    '$label · ${context.dates.compactMonthDay(day)}';
+
+List<Figure> _bodyFigures(
+  BuildContext context,
+  AreaTrend trend,
+  PeriodStats stats,
+) {
+  final l10n = context.l10n;
+  String kg(double value) => formatWeight(_tenth(value));
+  final weeks = trend.detail.values;
+  final first = weeks.indexWhere((value) => value != null);
+  final last = weeks.lastIndexWhere((value) => value != null);
+  final change = first < 0 || last <= first
+      ? null
+      : weeks[last]! - weeks[first]!;
+  return [
+    if (change != null) ...[
+      (
+        label: l10n.periodChange,
+        value: _differenceOf(l10n, TrendDomain.body, change),
+        unit: null,
+        color: null,
+      ),
+      (
+        label: l10n.changePerWeek,
+        value: _differenceOf(l10n, TrendDomain.body, change / (last - first)),
+        unit: null,
+        color: null,
+      ),
+    ],
+    (
+      label: _onDay(context, l10n.statHighest, stats.highest.$1),
+      value: kg(stats.highest.$2),
+      unit: 'kg',
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statLowest, stats.lowest.$1),
+      value: kg(stats.lowest.$2),
+      unit: 'kg',
+      color: null,
+    ),
+    (
+      label: l10n.measurementsCount,
+      value: l10n.timesValue(count: '${stats.count}'),
+      unit: null,
+      color: null,
+    ),
+  ];
+}
+
+List<Figure> _sleepFigures(
+  BuildContext context,
+  AreaTrend trend,
+  PeriodStats stats,
+  Duration? goal,
+) {
+  final l10n = context.l10n;
+  String length(double minutes) =>
+      formatHoursMinutes(Duration(minutes: minutes.round()));
+  final met = goal == null
+      ? null
+      : trend.days.where((night) => night.$2 >= goal.inMinutes).length;
+  return [
+    (
+      label: l10n.averageTimeAsleep,
+      value: length(stats.mean),
+      unit: null,
+      color: null,
+    ),
+    (
+      label: l10n.statMedian,
+      value: length(stats.median),
+      unit: null,
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statLongest, stats.highest.$1),
+      value: length(stats.highest.$2),
+      unit: null,
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statShortest, stats.lowest.$1),
+      value: length(stats.lowest.$2),
+      unit: null,
+      color: null,
+    ),
+    (
+      label: l10n.nightsRecorded,
+      value: l10n.nightsCount(count: stats.count),
+      unit: null,
+      color: null,
+    ),
+    if (trend.sleepSpread case (:final bedtime, :final wake)) ...[
+      (
+        label: l10n.bedtimeSpread,
+        value: '±${l10n.durationMinutes(minutes: bedtime.round())}',
+        unit: null,
+        color: null,
+      ),
+      (
+        label: l10n.wakeSpread,
+        value: '±${l10n.durationMinutes(minutes: wake.round())}',
+        unit: null,
+        color: null,
+      ),
+    ],
+    if (met != null)
+      (
+        label: l10n.sleepGoalMetLabel,
+        value: '$met / ${l10n.nightsCount(count: stats.count)}',
+        unit: null,
+        color: null,
+      ),
+  ];
+}
+
+List<Figure> _nutritionFigures(
+  BuildContext context,
+  AreaTrend trend,
+  PeriodStats stats,
+) {
+  final l10n = context.l10n;
+  String kcal(double value) => formatKcal(value.round());
+  return [
+    (
+      label: l10n.dailyAverage,
+      value: kcal(stats.mean),
+      unit: 'kcal',
+      color: null,
+    ),
+    (
+      label: l10n.statMedian,
+      value: kcal(stats.median),
+      unit: 'kcal',
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statHighest, stats.highest.$1),
+      value: kcal(stats.highest.$2),
+      unit: 'kcal',
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statLowest, stats.lowest.$1),
+      value: kcal(stats.lowest.$2),
+      unit: 'kcal',
+      color: null,
+    ),
+    (
+      label: l10n.daysRecorded,
+      value: switch (trend.loggedDays) {
+        final logged? => l10n.completeDays(
+          complete: stats.count,
+          tracked: logged,
+        ),
+        null => l10n.daysCount(count: stats.count),
+      },
+      unit: null,
+      color: null,
+    ),
+    if (trend.macros case final macros?)
+      (
+        label: l10n.averageStage(stage: l10n.macroProtein),
+        value: '${macros.protein.round()}',
+        unit: 'g',
+        color: AppColors.macroProtein,
+      ),
+  ];
+}
+
+List<Figure> _activityFigures(BuildContext context, PeriodStats stats) {
+  final l10n = context.l10n;
+  String steps(double value) => formatKcal(value.round());
+  return [
+    (
+      label: l10n.dailyAverage,
+      value: steps(stats.mean),
+      unit: l10n.stepsUnit,
+      color: null,
+    ),
+    (
+      label: l10n.statMedian,
+      value: steps(stats.median),
+      unit: l10n.stepsUnit,
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statHighest, stats.highest.$1),
+      value: steps(stats.highest.$2),
+      unit: l10n.stepsUnit,
+      color: null,
+    ),
+    (
+      label: _onDay(context, l10n.statLowest, stats.lowest.$1),
+      value: steps(stats.lowest.$2),
+      unit: l10n.stepsUnit,
+      color: null,
+    ),
+    (
+      label: l10n.daysRecorded,
+      value: l10n.daysCount(count: stats.count),
+      unit: null,
+      color: null,
+    ),
+  ];
+}
+
+List<Figure> _trainingFigures(
+  BuildContext context,
+  AreaTrend trend,
+  GoalOverview? goal,
+) {
+  final l10n = context.l10n;
+  final weeks = trend.detail.values.nonNulls.toList();
+  if (weeks.isEmpty) return const [];
+  final workouts = weeks.fold(0.0, (sum, value) => sum + value).round();
+  final volume = trend.secondary?.values.nonNulls.fold(
+    0.0,
+    (sum, value) => sum + value,
+  );
+  final judged = goal == null
+      ? const <WeekProgress>[]
+      : [
+          for (final week in goal.weeks.reversed.take(weeks.length))
+            if (!week.isCurrent && !week.isPaused) week,
+        ];
+  return [
+    (
+      label: l10n.workoutsTotal,
+      value: l10n.timesValue(count: '$workouts'),
+      unit: null,
+      color: null,
+    ),
+    (
+      label: l10n.weeklyAverage,
+      value: l10n.timesValue(
+        count: (workouts / weeks.length).toStringAsFixed(1),
+      ),
+      unit: null,
+      color: null,
+    ),
+    if (volume != null && volume > 0)
+      (
+        label: l10n.totalVolume,
+        value: formatKcal(volume.round()),
+        unit: 'kg',
+        color: null,
+      ),
+    if (judged.isNotEmpty)
+      (
+        label: l10n.weeklyGoalMetLabel,
+        value:
+            '${judged.where((week) => week.isMet).length} / '
+            '${l10n.weeksCount(count: judged.length)}',
+        unit: null,
+        color: null,
+      ),
+  ];
+}
+
+/// Energy on an average complete day, split between protein,
+/// carbohydrate and fat by the energy each carries.
+class _MacroSplit extends StatelessWidget {
+  const _MacroSplit({required this.macros});
+
+  final ({double protein, double carb, double fat}) macros;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final parts = [
+      (l10n.macroProtein, macros.protein, 4.0, AppColors.macroProtein),
+      (l10n.macroCarb, macros.carb, 4.0, AppColors.macroCarb),
+      (l10n.macroFat, macros.fat, 9.0, AppColors.macroFat),
+    ];
+    final energy = parts.fold(0.0, (sum, part) => sum + part.$2 * part.$3);
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SegmentBar(
+            segments: [
+              for (final (_, grams, perGram, color) in parts)
+                (grams * perGram, color),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.xxs,
+            children: [
+              for (final (name, grams, perGram, color) in parts)
+                ChartKey(
+                  color: color,
+                  label:
+                      '$name ${grams.round()} g · '
+                      '${energy <= 0 ? 0 : (grams * perGram / energy * 100).round()} %',
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The weekly goal week by week: days active each week against the goal,
+/// with a check on each week that met it.
+class _GoalWeeks extends StatelessWidget {
+  const _GoalWeeks({required this.goal, required this.weeks});
+
+  final GoalOverview goal;
+  final int weeks;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final shown = goal.weeks.reversed.take(weeks).toList().reversed.toList();
+    final target = shown.last.targetDays;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CategoryLabel(label: l10n.weeklyGoal, color: AppColors.training),
+          const SizedBox(height: AppSpacing.sm),
+          GoalWeeksChart(
+            values: [for (final week in shown) week.activeDays],
+            goal: target,
+            met: {
+              for (final (index, week) in shown.indexed)
+                if (week.isMet) index,
+            },
+            color: AppColors.training,
+            idle: l10n.goalValue(goal: l10n.daysCount(count: target)),
+            readoutOf: (index) {
+              final week = shown[index];
+              return [
+                _weekOf(context, week.start),
+                '${week.activeDays} / ${l10n.daysCount(count: week.targetDays)}',
+                if (week.isMet) l10n.goalReached,
+              ].join(' · ');
+            },
           ),
         ],
       ),

@@ -1251,6 +1251,46 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a night that met the sleep goal carries a check', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final now = store.now();
+    for (final (back, hours) in [(0, 7), (1, 9)]) {
+      final woke = DateTime(now.year, now.month, now.day - back, 7);
+      store.backend.journal.recordSleep(
+        Duration(hours: hours),
+        at: woke,
+        startedAt: woke.subtract(Duration(hours: hours)),
+      );
+    }
+    store.backend.sleep.setGoal(const Duration(hours: 8));
+    await pumpScreen(tester, const SleepScreen(), store: store);
+
+    final chart = find.byType(MiniBarChart);
+    await tester.scrollUntilVisible(chart, 200, scrollable: _pageScroll);
+    await tester.pumpAndSettle();
+    expect(tester.widget<MiniBarChart>(chart).goal, 8 * 60);
+    expect(
+      find.descendant(of: chart, matching: find.byIcon(Icons.verified)),
+      findsOneWidget,
+      reason: 'the nine-hour night, not the seven-hour one',
+    );
+    final badge = find.ancestor(
+      of: find.byIcon(Icons.verified),
+      matching: find.byType(AspectRatio),
+    );
+    final bar = find.ancestor(of: badge, matching: find.byType(Container));
+    expect(
+      tester.getSize(badge).width,
+      tester.getSize(bar.first).width - 4,
+      reason: 'as wide as its bar, less a hairline of padding',
+    );
+    expect(find.textContaining('達成 1 晚'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a sleep goal is set on the sleep page', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

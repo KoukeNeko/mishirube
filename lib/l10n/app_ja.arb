@@ -1691,5 +1691,22 @@
   "unitMinutes": "分",
   "unitSeconds": "秒",
   "setTimerStart": "開始",
-  "setTimerStartLabel": "計測を開始"
+  "setTimerStartLabel": "計測を開始",
+  "goalReached": "達成",
+  "goalMetNights": "{count} 晩達成",
+  "statsSection": "統計",
+  "distributionSection": "分布",
+  "statMedian": "中央値",
+  "statHighest": "最高",
+  "statLowest": "最低",
+  "statLongest": "最長",
+  "statShortest": "最短",
+  "periodChange": "期間の変化",
+  "changePerWeek": "週あたり",
+  "measurementsCount": "測定回数",
+  "sleepGoalMetLabel": "睡眠目標達成",
+  "weeklyGoalMetLabel": "週間目標達成",
+  "workoutsTotal": "トレーニング回数",
+  "weeksCount": "{count}週",
+  "stepsUnit": "歩"
 }
