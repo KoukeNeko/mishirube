@@ -735,6 +735,16 @@ class _HistoryState extends State<_History> {
                     ),
                   ),
                 ],
+                if (sleepRegularityIndex(nights) case final index?)
+                  KeyValueRow(
+                    label: context.l10n.sleepRegularityIndexLabel,
+                    value: '$index',
+                  ),
+                if (socialJetlag(nights) case final jetlag?)
+                  KeyValueRow(
+                    label: context.l10n.socialJetlagLabel,
+                    value: formatHoursMinutes(jetlag),
+                  ),
                 KeyValueRow(
                   label: context.l10n.nightsRecorded,
                   value: context.l10n.nightsCount(count: nights.length),

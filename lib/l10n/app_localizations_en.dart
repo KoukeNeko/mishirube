@@ -6051,9 +6051,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get distributionSection => 'Distribution';
 
   @override
-  String get statMedian => 'Median';
-
-  @override
   String get statHighest => 'Highest';
 
   @override
@@ -6084,10 +6081,139 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workoutsTotal => 'Workouts';
 
   @override
-  String weeksCount({required int count}) {
-    return '$count weeks';
+  String get stepsUnit => 'steps';
+
+  @override
+  String get gistUsual => 'About usual';
+
+  @override
+  String get gistMore => 'More than usual';
+
+  @override
+  String get gistLess => 'Less than usual';
+
+  @override
+  String get gistSteady => 'Steady';
+
+  @override
+  String get gistRising => 'Rising';
+
+  @override
+  String get gistFalling => 'Falling';
+
+  @override
+  String get gistNotEnough => 'Too few records to compare';
+
+  @override
+  String coverageDays({required int count, required int total}) {
+    return 'Records on $count of $total days';
   }
 
   @override
-  String get stepsUnit => 'steps';
+  String perNightChange({required String change}) {
+    return '$change a night';
+  }
+
+  @override
+  String perDayChange({required String change}) {
+    return '$change a day';
+  }
+
+  @override
+  String perWeekChange({required String change}) {
+    return '$change a week';
+  }
+
+  @override
+  String get halfNightsOver => 'Half the nights over';
+
+  @override
+  String get halfDaysOver => 'Half the days over';
+
+  @override
+  String get usualBedtime => 'Usual bedtime';
+
+  @override
+  String get usualWake => 'Usual wake time';
+
+  @override
+  String nightsOutOf({required int count, required int total}) {
+    return '$count of $total nights';
+  }
+
+  @override
+  String weeksOutOf({required int count, required int total}) {
+    return '$count of $total weeks';
+  }
+
+  @override
+  String completeOutOf({required int count, required int total}) {
+    return '$count of $total days complete';
+  }
+
+  @override
+  String get refSectionSummaries => 'Trend summaries';
+
+  @override
+  String get refUseSummaryNarrative =>
+      'A one-line summary of the overall pattern tops each trend page';
+
+  @override
+  String get refUseSummaryVerbal =>
+      'Words such as \"more than usual\" always come with a figure and are set by the personal usual range';
+
+  @override
+  String get refUseSummaryAbsolute =>
+      'Differences are given as absolute amounts (+18 min a night), not only as percentages';
+
+  @override
+  String get refUseSummaryFrequencies =>
+      'Goals met are counted as \"5 of 7 nights\" rather than a percentage';
+
+  @override
+  String get refUseSummaryIntegers =>
+      'Summary figures are rounded, without needless decimals';
+
+  @override
+  String get refUseSummaryReference =>
+      'Comparisons keep one reference: the personal usual range and the 12 weeks before';
+
+  @override
+  String get sleepRegularityIndexLabel => 'Sleep Regularity Index';
+
+  @override
+  String get socialJetlagLabel => 'Social jetlag';
+
+  @override
+  String get refSectionSleepRegularity => 'Sleep regularity';
+
+  @override
+  String get refUseSleepRegularityIndex =>
+      'The Sleep Regularity Index: how often the same clock time is asleep or awake on consecutive days';
+
+  @override
+  String get refUseSocialJetlag =>
+      'Social jetlag: the gap between mid-sleep on free days and work days';
+
+  @override
+  String get stepGoal => 'Step goal';
+
+  @override
+  String get stepGoalMetLabel => 'Step goal met';
+
+  @override
+  String daysOutOf({required int count, required int total}) {
+    return '$count of $total days';
+  }
+
+  @override
+  String get refSectionSteps => 'Steps';
+
+  @override
+  String get refUseStepGoalChosen =>
+      'The step goal is chosen by the user; the app neither sets a default nor adjusts it';
+
+  @override
+  String get refUseStepGoalSet =>
+      'Setting a step goal is associated with more steps';
 }

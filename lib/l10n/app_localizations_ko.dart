@@ -5955,9 +5955,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get distributionSection => '분포';
 
   @override
-  String get statMedian => '중앙값';
-
-  @override
   String get statHighest => '최고';
 
   @override
@@ -5988,10 +5985,131 @@ class AppLocalizationsKo extends AppLocalizations {
   String get workoutsTotal => '운동 횟수';
 
   @override
-  String weeksCount({required int count}) {
-    return '$count주';
+  String get stepsUnit => '걸음';
+
+  @override
+  String get gistUsual => '평소와 비슷';
+
+  @override
+  String get gistMore => '평소보다 많음';
+
+  @override
+  String get gistLess => '평소보다 적음';
+
+  @override
+  String get gistSteady => '유지';
+
+  @override
+  String get gistRising => '상승';
+
+  @override
+  String get gistFalling => '하락';
+
+  @override
+  String get gistNotEnough => '기록이 부족해 비교하지 않음';
+
+  @override
+  String coverageDays({required int count, required int total}) {
+    return '$total일 중 $count일 기록';
   }
 
   @override
-  String get stepsUnit => '걸음';
+  String perNightChange({required String change}) {
+    return '하룻밤 $change';
+  }
+
+  @override
+  String perDayChange({required String change}) {
+    return '하루 $change';
+  }
+
+  @override
+  String perWeekChange({required String change}) {
+    return '주당 $change';
+  }
+
+  @override
+  String get halfNightsOver => '절반의 밤이 이상';
+
+  @override
+  String get halfDaysOver => '절반의 날이 이상';
+
+  @override
+  String get usualBedtime => '평소 취침';
+
+  @override
+  String get usualWake => '평소 기상';
+
+  @override
+  String nightsOutOf({required int count, required int total}) {
+    return '$total박 중 $count박';
+  }
+
+  @override
+  String weeksOutOf({required int count, required int total}) {
+    return '$total주 중 $count주';
+  }
+
+  @override
+  String completeOutOf({required int count, required int total}) {
+    return '$total일 중 $count일 완전';
+  }
+
+  @override
+  String get refSectionSummaries => '추세 요약';
+
+  @override
+  String get refUseSummaryNarrative => '추세 페이지 맨 위에 전체 흐름을 한 문장으로 요약';
+
+  @override
+  String get refUseSummaryVerbal =>
+      '\"평소보다 많음\" 같은 표현은 항상 수치와 함께, 개인 평소 범위로 판단';
+
+  @override
+  String get refUseSummaryAbsolute => '차이는 절대량(하룻밤 +18분)으로, 비율만 쓰지 않음';
+
+  @override
+  String get refUseSummaryFrequencies => '달성 횟수는 비율이 아닌 \"7박 중 5박\"으로';
+
+  @override
+  String get refUseSummaryIntegers => '요약 수치는 반올림, 불필요한 소수 없음';
+
+  @override
+  String get refUseSummaryReference => '비교 기준은 개인 평소 범위와 직전 12주로 고정';
+
+  @override
+  String get sleepRegularityIndexLabel => '수면 규칙성 지수';
+
+  @override
+  String get socialJetlagLabel => '사회적 시차';
+
+  @override
+  String get refSectionSleepRegularity => '수면 규칙성';
+
+  @override
+  String get refUseSleepRegularityIndex =>
+      '수면 규칙성 지수의 정의: 연속한 이틀 같은 시각의 수면·각성 일치 정도';
+
+  @override
+  String get refUseSocialJetlag => '사회적 시차: 주말과 평일 수면 중간 시각의 차이';
+
+  @override
+  String get stepGoal => '걸음 수 목표';
+
+  @override
+  String get stepGoalMetLabel => '걸음 수 목표 달성';
+
+  @override
+  String daysOutOf({required int count, required int total}) {
+    return '$total일 중 $count일';
+  }
+
+  @override
+  String get refSectionSteps => '걸음 수';
+
+  @override
+  String get refUseStepGoalChosen => '걸음 수 목표는 사용자가 정하며 기본값·자동 조정 없음';
+
+  @override
+  String get refUseStepGoalSet => '걸음 수 목표 설정은 걸음 수 증가와 관련';
 }

@@ -6,6 +6,7 @@ import '../../app/view_model.dart';
 import '../../backend/application/goal_service.dart';
 import '../../backend/application/insights_service.dart';
 import '../../backend/engines/period_stats.dart';
+import '../../backend/engines/trend_gist.dart';
 import '../../domain/domain.dart';
 import '../../backend/engines/trend_detail.dart';
 import '../../backend/engines/trend_findings.dart';
@@ -198,8 +199,55 @@ String _differenceOf(AppLocalizations l10n, TrendDomain domain, double delta) {
     TrendDomain.body => '${formatWeight(_tenth(size))} kg',
     TrendDomain.training => l10n.timesValue(count: size.toStringAsFixed(1)),
     TrendDomain.sleep => l10n.durationMinutes(minutes: size.round()),
-    TrendDomain.nutrition => '${formatKcal(size.round())} kcal',
-    TrendDomain.activity => l10n.stepsValue(steps: formatKcal(size.round())),
+    // A summary's figure is rounded to what a reader holds in mind.
+    TrendDomain.nutrition => '${formatKcal(_roundTo(size, 10))} kcal',
+    TrendDomain.activity => l10n.stepsValue(steps: formatKcal(_roundTo(size, 100))),
+  }}';
+}
+
+int _roundTo(double value, int step) => (value / step).round() * step;
+
+/// `23:10–00:40`: where most nights' times fall, one standard deviation
+/// either side of the average.
+String _windowOf(({double mean, double spread}) time) =>
+    '${_clockOf(time.mean - time.spread)}–${_clockOf(time.mean + time.spread)}';
+
+/// The latest stretch in a few words and one figure (see
+/// `research/78-plain-summaries.md`): against the usual range, by how
+/// much against the weeks before; null with nothing to say.
+String? gistTextOf(AppLocalizations l10n, AreaTrend trend) {
+  final domain = trend.domain;
+  if (domain == TrendDomain.body) {
+    final gist = trend.weightGist;
+    if (gist == null) return null;
+    return switch (gist.position) {
+      GistPosition.usual => l10n.gistSteady,
+      GistPosition.above =>
+        '${l10n.gistRising} · ${_differenceOf(l10n, domain, gist.change)}',
+      GistPosition.below =>
+        '${l10n.gistFalling} · ${_differenceOf(l10n, domain, gist.change)}',
+    };
+  }
+  final gist = trend.gist;
+  if (gist == null) return null;
+  if (!gist.isEnough) {
+    return '${l10n.gistNotEnough} · '
+        '${l10n.coverageDays(count: gist.covered, total: gist.span)}';
+  }
+  final word = switch (gist.position) {
+    GistPosition.usual => l10n.gistUsual,
+    GistPosition.above => l10n.gistMore,
+    GistPosition.below => l10n.gistLess,
+    null => null,
+  };
+  if (word == null) return null;
+  final difference = gist.difference;
+  if (gist.position == GistPosition.usual || difference == null) return word;
+  final change = _differenceOf(l10n, domain, difference);
+  return '$word · ${switch (domain) {
+    TrendDomain.sleep => l10n.perNightChange(change: change),
+    TrendDomain.training => l10n.perWeekChange(change: change),
+    _ => l10n.perDayChange(change: change),
   }}';
 }
 
@@ -234,6 +282,10 @@ class _Overview extends StatelessWidget {
             label: l10n.periodAverage(period: recentLabel),
             color: color,
           ),
+          if (gistTextOf(l10n, trend) case final gist?) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(gist, style: AppTextStyles.itemTitle),
+          ],
           const SizedBox(height: AppSpacing.xs),
           Text(
             recent == null ? '—' : _valueOf(l10n, domain, recent.value),
@@ -602,7 +654,7 @@ List<Figure> _sleepFigures(
       color: null,
     ),
     (
-      label: l10n.statMedian,
+      label: l10n.halfNightsOver,
       value: length(stats.median),
       unit: null,
       color: null,
@@ -627,22 +679,17 @@ List<Figure> _sleepFigures(
     ),
     if (trend.sleepSpread case (:final bedtime, :final wake)) ...[
       (
-        label: l10n.bedtimeSpread,
-        value: '±${l10n.durationMinutes(minutes: bedtime.round())}',
+        label: l10n.usualBedtime,
+        value: _windowOf(bedtime),
         unit: null,
         color: null,
       ),
-      (
-        label: l10n.wakeSpread,
-        value: '±${l10n.durationMinutes(minutes: wake.round())}',
-        unit: null,
-        color: null,
-      ),
+      (label: l10n.usualWake, value: _windowOf(wake), unit: null, color: null),
     ],
     if (met != null)
       (
         label: l10n.sleepGoalMetLabel,
-        value: '$met / ${l10n.nightsCount(count: stats.count)}',
+        value: l10n.nightsOutOf(count: met, total: stats.count),
         unit: null,
         color: null,
       ),
@@ -664,7 +711,7 @@ List<Figure> _nutritionFigures(
       color: null,
     ),
     (
-      label: l10n.statMedian,
+      label: l10n.halfDaysOver,
       value: kcal(stats.median),
       unit: 'kcal',
       color: null,
@@ -684,10 +731,7 @@ List<Figure> _nutritionFigures(
     (
       label: l10n.daysRecorded,
       value: switch (trend.loggedDays) {
-        final logged? => l10n.completeDays(
-          complete: stats.count,
-          tracked: logged,
-        ),
+        final logged? => l10n.completeOutOf(count: stats.count, total: logged),
         null => l10n.daysCount(count: stats.count),
       },
       unit: null,
@@ -714,7 +758,7 @@ List<Figure> _activityFigures(BuildContext context, PeriodStats stats) {
       color: null,
     ),
     (
-      label: l10n.statMedian,
+      label: l10n.halfDaysOver,
       value: steps(stats.median),
       unit: l10n.stepsUnit,
       color: null,
@@ -784,9 +828,10 @@ List<Figure> _trainingFigures(
     if (judged.isNotEmpty)
       (
         label: l10n.weeklyGoalMetLabel,
-        value:
-            '${judged.where((week) => week.isMet).length} / '
-            '${l10n.weeksCount(count: judged.length)}',
+        value: l10n.weeksOutOf(
+          count: judged.where((week) => week.isMet).length,
+          total: judged.length,
+        ),
         unit: null,
         color: null,
       ),

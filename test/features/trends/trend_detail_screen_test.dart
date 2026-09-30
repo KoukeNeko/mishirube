@@ -52,18 +52,25 @@ void main() {
       store: store,
     );
 
+    expect(
+      find.text('資料不足，暫不比較 · 7/28 天有紀錄'),
+      findsOneWidget,
+      reason: 'a week of nights is not four weeks to compare',
+    );
+
     await scrollTo(tester, find.byType(FigureGrid));
     final figures = tester.widget<FigureGrid>(find.byType(FigureGrid)).figures;
     String valueOf(String label) =>
         figures.firstWhere((figure) => figure.label.startsWith(label)).value;
     expect(valueOf('平均睡著時間'), '7:26');
-    expect(valueOf('中位數'), '7:00');
+    expect(valueOf('半數晚上超過'), '7:00');
     expect(valueOf('最長'), '9:00');
     expect(valueOf('最短'), '6:00');
-    expect(valueOf('達成睡眠目標'), '3 / 7 晚');
-    // Waking at seven every day, asleep from 22:00 to 01:00.
-    expect(valueOf('入睡時間變動'), '±54 分');
-    expect(valueOf('起床時間變動'), '±0 分');
+    expect(valueOf('達成睡眠目標'), '7 晚中 3 晚');
+    // Waking at seven every day, asleep from 22:00 to 01:00: an average
+    // of 23:34, most nights within 54 minutes of it.
+    expect(valueOf('平常入睡'), '22:40–00:28');
+    expect(valueOf('平常起床'), '07:00–07:00');
 
     await scrollTo(tester, find.byType(DistributionChart));
     expect(
@@ -185,13 +192,30 @@ void main() {
     final figures = tester.widget<FigureGrid>(find.byType(FigureGrid)).figures;
     expect(
       figures.firstWhere((figure) => figure.label == '紀錄天數').value,
-      '完整 3/4 天',
+      '4 天中 3 天完整',
     );
     expect(
       figures.firstWhere((figure) => figure.label == '每日平均').value,
       '2,100',
       reason: 'the complete days only',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('sixteen weeks of nights read against the usual range', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    // Seven hours a night for twelve weeks, then eight for four.
+    final store = sleeper([
+      for (var back = 0; back < 16 * 7; back++) back < 28 ? 8 : 7,
+    ]);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: store,
+    );
+    expect(find.text('比平常多 · 每晚 +60 分'), findsOneWidget);
     await disposeTree(tester);
   });
 }

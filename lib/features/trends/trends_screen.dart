@@ -39,6 +39,18 @@ class TrendsScreen extends StatelessWidget {
         report: model.report,
         figure: model.muscleFigure,
         muscleLoad: model.muscleLoad(const Duration(days: 28)),
+        // Each area's latest weeks in words, read over the span its own
+        // page opens on, so the two say the same.
+        gists: {
+          for (final domain in TrendDomain.values)
+            domain: gistTextOf(
+              context.l10n,
+              model.areaTrend(
+                domain,
+                weeks: domain == TrendDomain.activity ? 52 : 26,
+              ),
+            ),
+        },
       ),
     );
   }
@@ -49,6 +61,7 @@ class _TrendsPage extends StatelessWidget {
     required this.report,
     required this.figure,
     required this.muscleLoad,
+    required this.gists,
   });
 
   final TrendsReport report;
@@ -59,6 +72,9 @@ class _TrendsPage extends StatelessWidget {
   /// Working sets per muscle a week over the weeks the balance is judged
   /// on; empty with nothing trained.
   final List<(MuscleGroup, int)> muscleLoad;
+
+  /// Each area's latest weeks in a few words; null with nothing to say.
+  final Map<TrendDomain, String?> gists;
 
   /// Narrowest a column reads well at, gutters included.
   static const _minColumnWidth = 380.0;
@@ -193,6 +209,7 @@ class _TrendsPage extends StatelessWidget {
                       _LineRow(
                         domain: domain,
                         line: linesByDomain[domain],
+                        gist: gists[domain],
                         onTap: () => pushPage(
                           context,
                           TrendDetailScreen(domain: domain),
@@ -618,12 +635,20 @@ class _RelationCard extends StatelessWidget {
 /// An area where it stands, against the stretch before, and its weeks;
 /// 沒有紀錄 until it has any.
 class _LineRow extends StatelessWidget {
-  const _LineRow({required this.domain, this.line, required this.onTap});
+  const _LineRow({
+    required this.domain,
+    this.line,
+    this.gist,
+    required this.onTap,
+  });
 
   static const _chartWidth = 64.0;
 
   final TrendDomain domain;
   final TrendLine? line;
+
+  /// The latest weeks in words, over the line's own figure.
+  final String? gist;
   final VoidCallback onTap;
 
   @override
@@ -633,8 +658,11 @@ class _LineRow extends StatelessWidget {
     return NavRow(
       leading: AccentBar(color: color, height: 28),
       title: domain.labelIn(context.l10n),
-      subtitle: line?.value ?? context.l10n.noEntriesShort,
-      detail: line?.change,
+      subtitle: gist ?? line?.value ?? context.l10n.noEntriesShort,
+      detail: switch ([if (gist != null) ?line?.value, ?line?.change]) {
+        final parts when parts.isNotEmpty => parts.join(' · '),
+        _ => null,
+      },
       trailing: line == null || line.weekly.length < 2
           ? null
           : SizedBox(

@@ -29,6 +29,8 @@ import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/seed/exercise_catalogue.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/backend/engines/period_stats.dart';
+import 'package:mishirube/backend/engines/sleep_metrics.dart';
+import 'package:mishirube/backend/engines/trend_gist.dart';
 import 'package:mishirube/l10n/l10n.dart';
 
 import 'support/chat_workout.dart';
@@ -2919,6 +2921,154 @@ Wall sit 2 x 1.5 min
     test('values fall into the stretches the edges cut', () {
       expect(bucketCounts([5, 6, 7.5, 8, 9.9, 10], [6, 8, 10]), [1, 2, 2, 1]);
       expect(bucketCounts(const [], [6, 8]), [0, 0, 0]);
+    });
+  });
+
+  group('trend gist', () {
+    final today = DateTime(2026, 9, 30);
+
+    /// A value on each day of the last [weeks] weeks: [before] up to the
+    /// latest four weeks, [recent] in them.
+    List<(DateTime, double)> days(int weeks, double before, double recent) => [
+      for (var back = weeks * 7 - 1; back >= 0; back--)
+        (
+          DateTime(today.year, today.month, today.day - back),
+          back < 28 ? recent : before + (back % 3) * 5,
+        ),
+    ];
+
+    TrendDetail detailOf(List<(DateTime, double)> values) =>
+        trendDetail(values, today, weeks: 16, aggregate: WeekAggregate.mean);
+
+    test('within the usual range is usual, with the change still said', () {
+      final gist = trendGist(
+        detailOf(days(16, 420, 425)),
+        recentWeeks: 4,
+        minimumDays: 14,
+      );
+      expect(gist.isEnough, isTrue);
+      expect(gist.position, GistPosition.usual);
+      expect(gist.difference, closeTo(0, 5));
+    });
+
+    test('past the usual range is above, by the difference', () {
+      final gist = trendGist(
+        detailOf(days(16, 420, 480)),
+        recentWeeks: 4,
+        minimumDays: 14,
+      );
+      expect(gist.position, GistPosition.above);
+      expect(gist.difference, closeTo(55, 5));
+    });
+
+    test('too few days of records do not compare', () {
+      final sparse = [
+        for (final (index, day) in days(16, 420, 480).indexed)
+          if (index < 16 * 7 - 28 || index.isEven && index % 4 == 0) day,
+      ];
+      final gist = trendGist(detailOf(sparse), recentWeeks: 4, minimumDays: 14);
+      expect(gist.isEnough, isFalse);
+      expect(gist.covered, lessThan(14));
+      expect(gist.span, 28);
+      expect(gist.position, isNull);
+    });
+
+    test('without weeks enough for a usual range there is no position', () {
+      final gist = trendGist(
+        trendDetail(
+          days(5, 420, 480),
+          today,
+          weeks: 5,
+          aggregate: WeekAggregate.mean,
+        ),
+        recentWeeks: 4,
+        minimumDays: 14,
+      );
+      expect(gist.isEnough, isTrue);
+      expect(gist.position, isNull);
+    });
+
+    test('a weight moving under a tenth of a kilo a week is steady', () {
+      TrendDetail weights(double perWeek) => trendDetail(
+        [
+          for (var back = 27; back >= 0; back--)
+            (
+              DateTime(today.year, today.month, today.day - back),
+              70 - perWeek * back / 7,
+            ),
+        ],
+        today,
+        weeks: 8,
+        aggregate: WeekAggregate.mean,
+      );
+      expect(
+        weightGist(
+          weights(0.05),
+          recentWeeks: 4,
+          steadyKgPerWeek: 0.1,
+        )!.position,
+        GistPosition.usual,
+      );
+      final falling = weightGist(
+        weights(-0.3),
+        recentWeeks: 4,
+        steadyKgPerWeek: 0.1,
+      )!;
+      expect(falling.position, GistPosition.below);
+      expect(falling.change, closeTo(-0.9, 0.05));
+    });
+  });
+
+  group('sleep regularity index', () {
+    /// A watch's night ending on day [day] of September at [wake], after
+    /// [hours] asleep.
+    SleepEntry night(int day, {int wake = 7, int hours = 8, String? source}) {
+      final woke = DateTime(2026, 9, day, wake);
+      return SleepEntry(
+        id: '$day',
+        sleptAt: woke,
+        duration: Duration(hours: hours),
+        startedAt: woke.subtract(Duration(hours: hours)),
+        sourceName: source ?? 'Apple Watch',
+      );
+    }
+
+    test('the same night every night is fully regular', () {
+      expect(
+        sleepRegularityIndex([for (var day = 1; day <= 14; day++) night(day)]),
+        100,
+      );
+    });
+
+    test('sleep swapping day and night each day is the opposite', () {
+      final index = sleepRegularityIndex([
+        for (var day = 1; day <= 14; day++)
+          night(day, wake: day.isEven ? 7 : 19, hours: 8),
+      ]);
+      expect(index, lessThan(0));
+    });
+
+    test('nights typed by hand, or too few days, give no index', () {
+      expect(
+        sleepRegularityIndex([
+          for (var day = 1; day <= 14; day++) night(day, source: ''),
+        ]),
+        isNull,
+      );
+      expect(
+        sleepRegularityIndex([for (var day = 1; day <= 5; day++) night(day)]),
+        isNull,
+      );
+    });
+
+    test('social jetlag is the gap between free and work days mid-sleep', () {
+      // 2026-09-19 and 20 are a Saturday and a Sunday.
+      final nights = [
+        for (var day = 14; day <= 20; day++)
+          day >= 19 ? night(day, wake: 9) : night(day),
+      ];
+      expect(socialJetlag(nights), const Duration(hours: 2));
+      expect(socialJetlag(nights.take(5).toList()), isNull);
     });
   });
 }

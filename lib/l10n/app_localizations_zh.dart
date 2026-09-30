@@ -5945,9 +5945,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get distributionSection => '分布';
 
   @override
-  String get statMedian => '中位數';
-
-  @override
   String get statHighest => '最高';
 
   @override
@@ -5978,12 +5975,131 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workoutsTotal => '訓練次數';
 
   @override
-  String weeksCount({required int count}) {
-    return '$count 週';
+  String get stepsUnit => '步';
+
+  @override
+  String get gistUsual => '和平常差不多';
+
+  @override
+  String get gistMore => '比平常多';
+
+  @override
+  String get gistLess => '比平常少';
+
+  @override
+  String get gistSteady => '持平';
+
+  @override
+  String get gistRising => '上升';
+
+  @override
+  String get gistFalling => '下降';
+
+  @override
+  String get gistNotEnough => '資料不足，暫不比較';
+
+  @override
+  String coverageDays({required int count, required int total}) {
+    return '$count/$total 天有紀錄';
   }
 
   @override
-  String get stepsUnit => '步';
+  String perNightChange({required String change}) {
+    return '每晚 $change';
+  }
+
+  @override
+  String perDayChange({required String change}) {
+    return '每日 $change';
+  }
+
+  @override
+  String perWeekChange({required String change}) {
+    return '每週 $change';
+  }
+
+  @override
+  String get halfNightsOver => '半數晚上超過';
+
+  @override
+  String get halfDaysOver => '半數日子超過';
+
+  @override
+  String get usualBedtime => '平常入睡';
+
+  @override
+  String get usualWake => '平常起床';
+
+  @override
+  String nightsOutOf({required int count, required int total}) {
+    return '$total 晚中 $count 晚';
+  }
+
+  @override
+  String weeksOutOf({required int count, required int total}) {
+    return '$total 週中 $count 週';
+  }
+
+  @override
+  String completeOutOf({required int count, required int total}) {
+    return '$total 天中 $count 天完整';
+  }
+
+  @override
+  String get refSectionSummaries => '趨勢摘要';
+
+  @override
+  String get refUseSummaryNarrative => '趨勢頁頂端以一句摘要說明整體走向';
+
+  @override
+  String get refUseSummaryVerbal => '「比平常多」等字眼一律附數字，並由個人平常範圍判定';
+
+  @override
+  String get refUseSummaryAbsolute => '比較寫成絕對差（每晚 +18 分），不只寫百分比';
+
+  @override
+  String get refUseSummaryFrequencies => '達成次數寫成「7 晚中 5 晚」而非百分比';
+
+  @override
+  String get refUseSummaryIntegers => '摘要數字取整，不顯示多餘小數';
+
+  @override
+  String get refUseSummaryReference => '比較基準固定為個人平常範圍與前 12 週';
+
+  @override
+  String get sleepRegularityIndexLabel => '睡眠規律指數';
+
+  @override
+  String get socialJetlagLabel => '社交時差';
+
+  @override
+  String get refSectionSleepRegularity => '睡眠規律';
+
+  @override
+  String get refUseSleepRegularityIndex => '睡眠規律指數的定義：相鄰兩天同一時刻睡著或醒著的一致程度';
+
+  @override
+  String get refUseSocialJetlag => '社交時差：週末與平日的睡眠中點差';
+
+  @override
+  String get stepGoal => '步數目標';
+
+  @override
+  String get stepGoalMetLabel => '達成步數目標';
+
+  @override
+  String daysOutOf({required int count, required int total}) {
+    return '$total 天中 $count 天';
+  }
+
+  @override
+  String get refSectionSteps => '步數';
+
+  @override
+  String get refUseStepGoalChosen => '步數目標由使用者自選，不預設、不自動調整';
+
+  @override
+  String get refUseStepGoalSet => '設定步數目標與步數增加有關';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11926,9 +12042,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get distributionSection => '分布';
 
   @override
-  String get statMedian => '中位数';
-
-  @override
   String get statHighest => '最高';
 
   @override
@@ -11959,12 +12072,131 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get workoutsTotal => '训练次数';
 
   @override
-  String weeksCount({required int count}) {
-    return '$count 周';
+  String get stepsUnit => '步';
+
+  @override
+  String get gistUsual => '和平常差不多';
+
+  @override
+  String get gistMore => '比平常多';
+
+  @override
+  String get gistLess => '比平常少';
+
+  @override
+  String get gistSteady => '持平';
+
+  @override
+  String get gistRising => '上升';
+
+  @override
+  String get gistFalling => '下降';
+
+  @override
+  String get gistNotEnough => '数据不足，暂不比较';
+
+  @override
+  String coverageDays({required int count, required int total}) {
+    return '$count/$total 天有记录';
   }
 
   @override
-  String get stepsUnit => '步';
+  String perNightChange({required String change}) {
+    return '每晚 $change';
+  }
+
+  @override
+  String perDayChange({required String change}) {
+    return '每日 $change';
+  }
+
+  @override
+  String perWeekChange({required String change}) {
+    return '每周 $change';
+  }
+
+  @override
+  String get halfNightsOver => '半数晚上超过';
+
+  @override
+  String get halfDaysOver => '半数日子超过';
+
+  @override
+  String get usualBedtime => '平常入睡';
+
+  @override
+  String get usualWake => '平常起床';
+
+  @override
+  String nightsOutOf({required int count, required int total}) {
+    return '$total 晚中 $count 晚';
+  }
+
+  @override
+  String weeksOutOf({required int count, required int total}) {
+    return '$total 周中 $count 周';
+  }
+
+  @override
+  String completeOutOf({required int count, required int total}) {
+    return '$total 天中 $count 天完整';
+  }
+
+  @override
+  String get refSectionSummaries => '趋势摘要';
+
+  @override
+  String get refUseSummaryNarrative => '趋势页顶端以一句摘要说明整体走向';
+
+  @override
+  String get refUseSummaryVerbal => '「比平常多」等字眼一律附数字，并由个人平常范围判定';
+
+  @override
+  String get refUseSummaryAbsolute => '比较写成绝对差（每晚 +18 分），不只写百分比';
+
+  @override
+  String get refUseSummaryFrequencies => '达成次数写成「7 晚中 5 晚」而非百分比';
+
+  @override
+  String get refUseSummaryIntegers => '摘要数字取整，不显示多余小数';
+
+  @override
+  String get refUseSummaryReference => '比较基准固定为个人平常范围与前 12 周';
+
+  @override
+  String get sleepRegularityIndexLabel => '睡眠规律指数';
+
+  @override
+  String get socialJetlagLabel => '社交时差';
+
+  @override
+  String get refSectionSleepRegularity => '睡眠规律';
+
+  @override
+  String get refUseSleepRegularityIndex => '睡眠规律指数的定义：相邻两天同一时刻睡着或醒着的一致程度';
+
+  @override
+  String get refUseSocialJetlag => '社交时差：周末与平日的睡眠中点差';
+
+  @override
+  String get stepGoal => '步数目标';
+
+  @override
+  String get stepGoalMetLabel => '达成步数目标';
+
+  @override
+  String daysOutOf({required int count, required int total}) {
+    return '$total 天中 $count 天';
+  }
+
+  @override
+  String get refSectionSteps => '步数';
+
+  @override
+  String get refUseStepGoalChosen => '步数目标由用户自选，不预设、不自动调整';
+
+  @override
+  String get refUseStepGoalSet => '设定步数目标与步数增加有关';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

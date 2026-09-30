@@ -249,4 +249,42 @@ void main() {
     expect(tester.widget<Sparkline>(find.byType(Sparkline)).normal, isNotNull);
     await disposeTree(tester);
   });
+
+  testWidgets('days that reached the chosen step goal carry a check', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    // Six finished days and today, alternately under and over 8,000.
+    final store = storeWith(
+      (today) => [
+        for (var back = 6; back >= 0; back--)
+          ActivitySample(
+            metric: ActivityMetric.steps,
+            start: DateTime(today.year, today.month, today.day - back, 10),
+            end: DateTime(today.year, today.month, today.day - back, 11),
+            value: back.isEven ? 9000 : 4000,
+          ),
+      ],
+    );
+    store.backend.activity.setStepGoal(8000);
+    await pumpScreen(
+      tester,
+      ActivityMetricScreen(metric: ActivityMetric.steps, day: store.now()),
+      store: store,
+    );
+    await tester.tap(find.text('週'));
+    await tester.pump();
+
+    final chart = tester.widget<MiniBarChart>(find.byType(MiniBarChart));
+    expect(chart.goal, 80000, reason: "in the bars' tenths");
+    expect(chart.met, {0, 2, 4, 6});
+    expect(find.text('6 天中 3 天'), findsOneWidget, reason: 'finished days');
+    expect(find.text('8,000 步'), findsOneWidget);
+
+    store.backend.activity.setStepGoal(null);
+    await tester.pump();
+    expect(tester.widget<MiniBarChart>(find.byType(MiniBarChart)).goal, isNull);
+    expect(find.text('未設定'), findsOneWidget);
+    await disposeTree(tester);
+  });
 }

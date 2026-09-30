@@ -120,4 +120,36 @@ void main() {
       paints..circle(),
     );
   });
+
+  testWidgets('each area\'s row says its latest weeks in words', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    final now = store.now();
+    // Seven hours a night for twelve weeks, then eight for four.
+    for (var back = 0; back < 16 * 7; back++) {
+      final hours = back < 28 ? 8 : 7;
+      final woke = DateTime(now.year, now.month, now.day - back, 7);
+      store.backend.journal.recordSleep(
+        Duration(hours: hours),
+        at: woke,
+        startedAt: woke.subtract(Duration(hours: hours)),
+      );
+    }
+    await pumpScreen(tester, const TrendsScreen(), store: store);
+
+    final row = find.widgetWithText(NavRow, '睡眠');
+    await tester.dragUntilVisible(
+      row,
+      find.byType(CustomScrollView).hitTestable().first,
+      const Offset(0, -200),
+    );
+    expect(
+      find.descendant(of: row, matching: find.text('比平常多 · 每晚 +60 分')),
+      findsOneWidget,
+    );
+    await disposeTree(tester);
+  });
 }

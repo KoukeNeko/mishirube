@@ -55,6 +55,19 @@ class ActivityService {
   final ActivityRepository _activities;
   final ActivitySampleRepository _samples;
 
+  static const _stepGoalKey = 'activity.step_goal';
+
+  /// The steps a day the user aims for; null until they choose one. The
+  /// app never picks or raises it: a goal chosen by the person did at
+  /// least as well as one assigned (Patel et al., 2021).
+  int? get stepGoal => switch (int.tryParse(_db.setting(_stepGoalKey) ?? '')) {
+    final steps? when steps > 0 => steps,
+    _ => null,
+  };
+
+  void setStepGoal(int? steps) =>
+      _db.setSetting(_stepGoalKey, steps == null ? '' : '$steps');
+
   /// Records a session. [startedAt] is when it began; the caller works out
   /// the start from the end and the duration, since that is how people
   /// remember it.

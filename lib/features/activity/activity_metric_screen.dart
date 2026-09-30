@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/activity_metrics.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'daily_activity_screen.dart';
 import 'daily_activity_view_model.dart';
@@ -61,6 +62,17 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   /// Blood pressure is read as the pair it is taken as: opened from its
   /// systolic figure, the page shows the diastolic beside it.
   bool get _isBloodPressure => _metric == ActivityMetric.bloodPressureSystolic;
+
+  /// A daily step goal the user chose, drawn on the steps' days.
+  int? get _stepGoal =>
+      _metric == ActivityMetric.steps ? _model.stepGoal : null;
+
+  /// Days that reached the step goal: a floor, so a day still going
+  /// that is past it has reached it.
+  bool _meetsGoal(double? value) => switch ((_stepGoal, value)) {
+    (final goal?, final steps?) => steps >= goal,
+    _ => false,
+  };
 
   String _value(double value) =>
       '${_metric.format(value)} ${_metric.unitIn(context.l10n)}';
@@ -155,6 +167,21 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           )
         else ...[
           Gutter(child: AppCard(child: _chart(days, usual))),
+          if (_metric == ActivityMetric.steps)
+            Gutter(
+              child: GroupedCard(
+                children: [
+                  NavRow(
+                    title: context.l10n.stepGoal,
+                    trailing: Text(switch (_stepGoal) {
+                      final goal? => _steps(context, goal),
+                      null => context.l10n.notSet,
+                    }, style: AppTextStyles.caption),
+                    onTap: _editStepGoal,
+                  ),
+                ],
+              ),
+            ),
           Gutter(
             child: GroupedCard(
               children: [
@@ -187,6 +214,21 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
                     label: context.l10n.daysRecorded,
                     value: context.l10n.daysCount(count: days.length),
                   ),
+                // Finished days only: today can still get there.
+                if (_stepGoal != null &&
+                    (_range == _Range.week || _range == _Range.month))
+                  if ([
+                        for (final (day, steps) in days)
+                          if (day.isBefore(_model.today)) steps,
+                      ]
+                      case final finished when finished.isNotEmpty)
+                    KeyValueRow(
+                      label: context.l10n.stepGoalMetLabel,
+                      value: context.l10n.daysOutOf(
+                        count: finished.where(_meetsGoal).length,
+                        total: finished.length,
+                      ),
+                    ),
                 KeyValueRow(
                   label: context.l10n.journalSourceRow,
                   value: AppStoreScope.of(context).healthSourceName,
@@ -288,7 +330,11 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
       indexAt: ChartScrubber.slots(slots.length),
       idle: isAverage ? l10n.dailyAverage : l10n.perDay,
       readoutOf: (index) => switch (slots[index]) {
-        (final start, final value?) => '${when(start)} · ${figure(value)}',
+        (final start, final value?) => [
+          when(start),
+          figure(value),
+          if (!isAverage && _meetsGoal(value)) l10n.goalReached,
+        ].join(' · '),
         (final start, null) => '${when(start)} · ${l10n.noData}',
       },
       builder: (context, selected) => MiniBarChart(
@@ -304,8 +350,67 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
         color: AppColors.activity,
         dimColor: AppColors.activity.withValues(alpha: 0.4),
         selected: selected,
+        goal: _stepGoal == null ? null : _stepGoal! * 10,
+        met: {
+          if (!isAverage)
+            for (final (index, (_, value)) in slots.indexed)
+              if (_meetsGoal(value)) index,
+        },
       ),
     );
+  }
+
+  Future<void> _editStepGoal() async {
+    var steps = _stepGoal ?? 5000;
+    final result = await showAppDialog<int?>(
+      context,
+      StatefulBuilder(
+        builder: (context, setState) => AppDialog(
+          title: context.l10n.stepGoal,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _steps(context, steps),
+                style: AppTextStyles.hugeNumber.copyWith(
+                  color: AppColors.activity,
+                ),
+              ),
+              StepSlider(
+                value: steps.toDouble(),
+                min: 2000,
+                max: 20000,
+                step: 500,
+                color: AppColors.activity,
+                semanticLabel: context.l10n.stepGoal,
+                labelOf: (value) => _steps(context, value.round()),
+                onChanged: (value) => setState(() => steps = value.round()),
+              ),
+            ],
+          ),
+          actions: [
+            DialogAction(
+              label: context.l10n.commonSave,
+              tone: DialogTone.primary,
+              onTap: () => Navigator.of(context).pop(steps),
+            ),
+            if (_stepGoal != null)
+              DialogAction(
+                label: context.l10n.clearGoal,
+                tone: DialogTone.destructive,
+                onTap: () => Navigator.of(context).pop(0),
+              ),
+            DialogAction(
+              label: context.l10n.commonCancel,
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result == null) return;
+    _model.setStepGoal(result == 0 ? null : result);
   }
 
   List<(DateTime, double?)> _daySlots(List<(DateTime, double)> points) {
@@ -320,3 +425,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     ];
   }
 }
+
+/// `7,500 步`: a count of steps as the page writes it.
+String _steps(BuildContext context, int steps) =>
+    context.l10n.stepsValue(steps: formatKcal(steps));

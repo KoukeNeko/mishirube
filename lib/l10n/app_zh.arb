@@ -9051,10 +9051,6 @@
   "@distributionSection": {
     "description": "Section showing how days spread across ranges of a figure."
   },
-  "statMedian": "中位數",
-  "@statMedian": {
-    "description": "The middle value of a period."
-  },
   "statHighest": "最高",
   "@statHighest": {
     "description": "The highest day of a period."
@@ -9095,17 +9091,207 @@
   "@workoutsTotal": {
     "description": "How many workouts the period holds."
   },
-  "weeksCount": "{count} 週",
-  "@weeksCount": {
-    "description": "A number of weeks.",
+  "stepsUnit": "步",
+  "@stepsUnit": {
+    "description": "The unit steps are counted in, under a chart."
+  },
+  "gistUsual": "和平常差不多",
+  "@gistUsual": {
+    "description": "The latest stretch sits within the usual range."
+  },
+  "gistMore": "比平常多",
+  "@gistMore": {
+    "description": "The latest stretch sits above the usual range."
+  },
+  "gistLess": "比平常少",
+  "@gistLess": {
+    "description": "The latest stretch sits below the usual range."
+  },
+  "gistSteady": "持平",
+  "@gistSteady": {
+    "description": "Body weight moved under a tenth of a kilo a week."
+  },
+  "gistRising": "上升",
+  "@gistRising": {
+    "description": "Body weight rose over the latest weeks."
+  },
+  "gistFalling": "下降",
+  "@gistFalling": {
+    "description": "Body weight fell over the latest weeks."
+  },
+  "gistNotEnough": "資料不足，暫不比較",
+  "@gistNotEnough": {
+    "description": "The latest stretch has too few records to compare."
+  },
+  "coverageDays": "{count}/{total} 天有紀錄",
+  "@coverageDays": {
+    "description": "How many days of the latest stretch have records.",
     "placeholders": {
       "count": {
+        "type": "int"
+      },
+      "total": {
         "type": "int"
       }
     }
   },
-  "stepsUnit": "步",
-  "@stepsUnit": {
-    "description": "The unit steps are counted in, under a chart."
+  "perNightChange": "每晚 {change}",
+  "@perNightChange": {
+    "description": "A difference per night.",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "perDayChange": "每日 {change}",
+  "@perDayChange": {
+    "description": "A difference per day.",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "perWeekChange": "每週 {change}",
+  "@perWeekChange": {
+    "description": "A difference per week.",
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "halfNightsOver": "半數晚上超過",
+  "@halfNightsOver": {
+    "description": "The median night, said as half the nights being longer."
+  },
+  "halfDaysOver": "半數日子超過",
+  "@halfDaysOver": {
+    "description": "The median day, said as half the days being higher."
+  },
+  "usualBedtime": "平常入睡",
+  "@usualBedtime": {
+    "description": "The span most bedtimes fall in."
+  },
+  "usualWake": "平常起床",
+  "@usualWake": {
+    "description": "The span most wakings fall in."
+  },
+  "nightsOutOf": "{total} 晚中 {count} 晚",
+  "@nightsOutOf": {
+    "description": "Nights that met something, out of the nights recorded.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "weeksOutOf": "{total} 週中 {count} 週",
+  "@weeksOutOf": {
+    "description": "Weeks that met the goal, out of the weeks judged.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "completeOutOf": "{total} 天中 {count} 天完整",
+  "@completeOutOf": {
+    "description": "Complete food days out of the days with any food logged.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "refSectionSummaries": "趨勢摘要",
+  "@refSectionSummaries": {
+    "description": "References section for how trend pages put figures into words."
+  },
+  "refUseSummaryNarrative": "趨勢頁頂端以一句摘要說明整體走向",
+  "@refUseSummaryNarrative": {
+    "description": "What the reference is used for."
+  },
+  "refUseSummaryVerbal": "「比平常多」等字眼一律附數字，並由個人平常範圍判定",
+  "@refUseSummaryVerbal": {
+    "description": "What the reference is used for."
+  },
+  "refUseSummaryAbsolute": "比較寫成絕對差（每晚 +18 分），不只寫百分比",
+  "@refUseSummaryAbsolute": {
+    "description": "What the reference is used for."
+  },
+  "refUseSummaryFrequencies": "達成次數寫成「7 晚中 5 晚」而非百分比",
+  "@refUseSummaryFrequencies": {
+    "description": "What the reference is used for."
+  },
+  "refUseSummaryIntegers": "摘要數字取整，不顯示多餘小數",
+  "@refUseSummaryIntegers": {
+    "description": "What the reference is used for."
+  },
+  "refUseSummaryReference": "比較基準固定為個人平常範圍與前 12 週",
+  "@refUseSummaryReference": {
+    "description": "What the reference is used for."
+  },
+  "sleepRegularityIndexLabel": "睡眠規律指數",
+  "@sleepRegularityIndexLabel": {
+    "description": "The Sleep Regularity Index, −100 to 100."
+  },
+  "socialJetlagLabel": "社交時差",
+  "@socialJetlagLabel": {
+    "description": "How far mid-sleep on free days sits from work days."
+  },
+  "refSectionSleepRegularity": "睡眠規律",
+  "@refSectionSleepRegularity": {
+    "description": "References section for sleep regularity."
+  },
+  "refUseSleepRegularityIndex": "睡眠規律指數的定義：相鄰兩天同一時刻睡著或醒著的一致程度",
+  "@refUseSleepRegularityIndex": {
+    "description": "What the reference is used for."
+  },
+  "refUseSocialJetlag": "社交時差：週末與平日的睡眠中點差",
+  "@refUseSocialJetlag": {
+    "description": "What the reference is used for."
+  },
+  "stepGoal": "步數目標",
+  "@stepGoal": {
+    "description": "The daily steps the user chose to aim for."
+  },
+  "stepGoalMetLabel": "達成步數目標",
+  "@stepGoalMetLabel": {
+    "description": "Finished days of the range that reached the step goal."
+  },
+  "daysOutOf": "{total} 天中 {count} 天",
+  "@daysOutOf": {
+    "description": "Days that met something, out of the days with records.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "refSectionSteps": "步數",
+  "@refSectionSteps": {
+    "description": "References section for the step goal."
+  },
+  "refUseStepGoalChosen": "步數目標由使用者自選，不預設、不自動調整",
+  "@refUseStepGoalChosen": {
+    "description": "What the reference is used for."
+  },
+  "refUseStepGoalSet": "設定步數目標與步數增加有關",
+  "@refUseStepGoalSet": {
+    "description": "What the reference is used for."
   }
 }

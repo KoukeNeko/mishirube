@@ -10360,12 +10360,6 @@ abstract class AppLocalizations {
   /// **'分布'**
   String get distributionSection;
 
-  /// The middle value of a period.
-  ///
-  /// In zh, this message translates to:
-  /// **'中位數'**
-  String get statMedian;
-
   /// The highest day of a period.
   ///
   /// In zh, this message translates to:
@@ -10426,17 +10420,227 @@ abstract class AppLocalizations {
   /// **'訓練次數'**
   String get workoutsTotal;
 
-  /// A number of weeks.
-  ///
-  /// In zh, this message translates to:
-  /// **'{count} 週'**
-  String weeksCount({required int count});
-
   /// The unit steps are counted in, under a chart.
   ///
   /// In zh, this message translates to:
   /// **'步'**
   String get stepsUnit;
+
+  /// The latest stretch sits within the usual range.
+  ///
+  /// In zh, this message translates to:
+  /// **'和平常差不多'**
+  String get gistUsual;
+
+  /// The latest stretch sits above the usual range.
+  ///
+  /// In zh, this message translates to:
+  /// **'比平常多'**
+  String get gistMore;
+
+  /// The latest stretch sits below the usual range.
+  ///
+  /// In zh, this message translates to:
+  /// **'比平常少'**
+  String get gistLess;
+
+  /// Body weight moved under a tenth of a kilo a week.
+  ///
+  /// In zh, this message translates to:
+  /// **'持平'**
+  String get gistSteady;
+
+  /// Body weight rose over the latest weeks.
+  ///
+  /// In zh, this message translates to:
+  /// **'上升'**
+  String get gistRising;
+
+  /// Body weight fell over the latest weeks.
+  ///
+  /// In zh, this message translates to:
+  /// **'下降'**
+  String get gistFalling;
+
+  /// The latest stretch has too few records to compare.
+  ///
+  /// In zh, this message translates to:
+  /// **'資料不足，暫不比較'**
+  String get gistNotEnough;
+
+  /// How many days of the latest stretch have records.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count}/{total} 天有紀錄'**
+  String coverageDays({required int count, required int total});
+
+  /// A difference per night.
+  ///
+  /// In zh, this message translates to:
+  /// **'每晚 {change}'**
+  String perNightChange({required String change});
+
+  /// A difference per day.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日 {change}'**
+  String perDayChange({required String change});
+
+  /// A difference per week.
+  ///
+  /// In zh, this message translates to:
+  /// **'每週 {change}'**
+  String perWeekChange({required String change});
+
+  /// The median night, said as half the nights being longer.
+  ///
+  /// In zh, this message translates to:
+  /// **'半數晚上超過'**
+  String get halfNightsOver;
+
+  /// The median day, said as half the days being higher.
+  ///
+  /// In zh, this message translates to:
+  /// **'半數日子超過'**
+  String get halfDaysOver;
+
+  /// The span most bedtimes fall in.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常入睡'**
+  String get usualBedtime;
+
+  /// The span most wakings fall in.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常起床'**
+  String get usualWake;
+
+  /// Nights that met something, out of the nights recorded.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 晚中 {count} 晚'**
+  String nightsOutOf({required int count, required int total});
+
+  /// Weeks that met the goal, out of the weeks judged.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 週中 {count} 週'**
+  String weeksOutOf({required int count, required int total});
+
+  /// Complete food days out of the days with any food logged.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 天中 {count} 天完整'**
+  String completeOutOf({required int count, required int total});
+
+  /// References section for how trend pages put figures into words.
+  ///
+  /// In zh, this message translates to:
+  /// **'趨勢摘要'**
+  String get refSectionSummaries;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'趨勢頁頂端以一句摘要說明整體走向'**
+  String get refUseSummaryNarrative;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'「比平常多」等字眼一律附數字，並由個人平常範圍判定'**
+  String get refUseSummaryVerbal;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'比較寫成絕對差（每晚 +18 分），不只寫百分比'**
+  String get refUseSummaryAbsolute;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成次數寫成「7 晚中 5 晚」而非百分比'**
+  String get refUseSummaryFrequencies;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'摘要數字取整，不顯示多餘小數'**
+  String get refUseSummaryIntegers;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'比較基準固定為個人平常範圍與前 12 週'**
+  String get refUseSummaryReference;
+
+  /// The Sleep Regularity Index, −100 to 100.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠規律指數'**
+  String get sleepRegularityIndexLabel;
+
+  /// How far mid-sleep on free days sits from work days.
+  ///
+  /// In zh, this message translates to:
+  /// **'社交時差'**
+  String get socialJetlagLabel;
+
+  /// References section for sleep regularity.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠規律'**
+  String get refSectionSleepRegularity;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠規律指數的定義：相鄰兩天同一時刻睡著或醒著的一致程度'**
+  String get refUseSleepRegularityIndex;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'社交時差：週末與平日的睡眠中點差'**
+  String get refUseSocialJetlag;
+
+  /// The daily steps the user chose to aim for.
+  ///
+  /// In zh, this message translates to:
+  /// **'步數目標'**
+  String get stepGoal;
+
+  /// Finished days of the range that reached the step goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'達成步數目標'**
+  String get stepGoalMetLabel;
+
+  /// Days that met something, out of the days with records.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 天中 {count} 天'**
+  String daysOutOf({required int count, required int total});
+
+  /// References section for the step goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'步數'**
+  String get refSectionSteps;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'步數目標由使用者自選，不預設、不自動調整'**
+  String get refUseStepGoalChosen;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'設定步數目標與步數增加有關'**
+  String get refUseStepGoalSet;
 }
 
 class _AppLocalizationsDelegate

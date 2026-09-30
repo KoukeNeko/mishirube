@@ -49,6 +49,11 @@ class DailyActivityViewModel extends ViewModel {
   /// The metrics any source recorded; one nobody records is never shown.
   List<ActivityMetric> get metrics => backend.activity.recordedMetrics();
 
+  /// The steps a day the user chose to aim for; null unset.
+  int? get stepGoal => backend.activity.stepGoal;
+
+  void setStepGoal(int? steps) => backend.activity.setStepGoal(steps);
+
   /// Each metric's figure on the day shown, for the ones that have one.
   Map<ActivityMetric, double> get totals => backend.activity.dayTotals(_day);
 

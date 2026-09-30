@@ -7,7 +7,7 @@ import 'trend_engine.dart';
 const insightEngineVersion = 2;
 
 /// Weekly weight changes smaller than this are noise, not a trend.
-const _steadyWeightKgPerWeek = 0.1;
+const steadyWeightKgPerWeek = 0.1;
 
 /// A drop in weekly sets worth mentioning.
 const _meaningfulVolumeDrop = 0.2;
@@ -32,7 +32,7 @@ Insight? weightTrendInsight(
   final perWeek = trend.changePerWeek;
   if (perWeek == null) return null;
   final size = perWeek.abs();
-  final statement = size < _steadyWeightKgPerWeek
+  final statement = size < steadyWeightKgPerWeek
       ? l10n.weightSteady
       : (perWeek < 0 ? l10n.weightFalling : l10n.weightRising)(
           kg: size.toStringAsFixed(1),

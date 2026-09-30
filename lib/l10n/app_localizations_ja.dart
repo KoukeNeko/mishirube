@@ -5953,9 +5953,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get distributionSection => '分布';
 
   @override
-  String get statMedian => '中央値';
-
-  @override
   String get statHighest => '最高';
 
   @override
@@ -5986,10 +5983,129 @@ class AppLocalizationsJa extends AppLocalizations {
   String get workoutsTotal => 'トレーニング回数';
 
   @override
-  String weeksCount({required int count}) {
-    return '$count週';
+  String get stepsUnit => '歩';
+
+  @override
+  String get gistUsual => 'いつもと同じくらい';
+
+  @override
+  String get gistMore => 'いつもより多い';
+
+  @override
+  String get gistLess => 'いつもより少ない';
+
+  @override
+  String get gistSteady => '横ばい';
+
+  @override
+  String get gistRising => '上昇';
+
+  @override
+  String get gistFalling => '下降';
+
+  @override
+  String get gistNotEnough => '記録が少なく比較できません';
+
+  @override
+  String coverageDays({required int count, required int total}) {
+    return '$total日中$count日に記録';
   }
 
   @override
-  String get stepsUnit => '歩';
+  String perNightChange({required String change}) {
+    return '1晩あたり $change';
+  }
+
+  @override
+  String perDayChange({required String change}) {
+    return '1日あたり $change';
+  }
+
+  @override
+  String perWeekChange({required String change}) {
+    return '週あたり $change';
+  }
+
+  @override
+  String get halfNightsOver => '半数の夜がこれ以上';
+
+  @override
+  String get halfDaysOver => '半数の日がこれ以上';
+
+  @override
+  String get usualBedtime => 'いつもの就寝';
+
+  @override
+  String get usualWake => 'いつもの起床';
+
+  @override
+  String nightsOutOf({required int count, required int total}) {
+    return '$total晩中$count晩';
+  }
+
+  @override
+  String weeksOutOf({required int count, required int total}) {
+    return '$total週中$count週';
+  }
+
+  @override
+  String completeOutOf({required int count, required int total}) {
+    return '$total日中$count日が完全';
+  }
+
+  @override
+  String get refSectionSummaries => '傾向のまとめ';
+
+  @override
+  String get refUseSummaryNarrative => '各傾向ページの先頭で全体の動きを一文で要約';
+
+  @override
+  String get refUseSummaryVerbal => '「いつもより多い」などの言葉は必ず数値と併記し、個人の通常範囲で判定';
+
+  @override
+  String get refUseSummaryAbsolute => '差は絶対量（1晩あたり +18 分）で示し、割合だけにしない';
+
+  @override
+  String get refUseSummaryFrequencies => '達成回数は割合でなく「7晩中5晩」と数える';
+
+  @override
+  String get refUseSummaryIntegers => '要約の数値は丸め、不要な小数を出さない';
+
+  @override
+  String get refUseSummaryReference => '比較基準は個人の通常範囲と直前12週に固定';
+
+  @override
+  String get sleepRegularityIndexLabel => '睡眠規則性指数';
+
+  @override
+  String get socialJetlagLabel => 'ソーシャル・ジェットラグ';
+
+  @override
+  String get refSectionSleepRegularity => '睡眠の規則性';
+
+  @override
+  String get refUseSleepRegularityIndex => '睡眠規則性指数の定義：連続する2日の同じ時刻の睡眠・覚醒の一致度';
+
+  @override
+  String get refUseSocialJetlag => 'ソーシャル・ジェットラグ：休日と平日の睡眠中央時刻の差';
+
+  @override
+  String get stepGoal => '歩数目標';
+
+  @override
+  String get stepGoalMetLabel => '歩数目標達成';
+
+  @override
+  String daysOutOf({required int count, required int total}) {
+    return '$total日中$count日';
+  }
+
+  @override
+  String get refSectionSteps => '歩数';
+
+  @override
+  String get refUseStepGoalChosen => '歩数目標は利用者が選び、既定値も自動調整もしない';
+
+  @override
+  String get refUseStepGoalSet => '歩数目標の設定は歩数の増加と関連';
 }

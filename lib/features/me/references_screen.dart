@@ -365,4 +365,69 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
       ),
     ],
   ),
+  (
+    l10n.refSectionSteps,
+    [
+      (
+        citation: 'Patel, M. S., Bachireddy, C., Small, D. S., Harrison, J. D., Harrington, T. O., Oon, A. L., Rareshide, C. A. L., Snider, C. K., & Volpp, K. G. (2021). Effect of goal-setting approaches within a gamification intervention to increase physical activity among economically disadvantaged adults at elevated risk for major adverse cardiovascular events: The ENGAGE randomized clinical trial. JAMA Cardiology, 6(12), 1387–1396.',
+        use: l10n.refUseStepGoalChosen,
+        url: 'https://doi.org/10.1001/jamacardio.2021.3176',
+      ),
+      (
+        citation: 'Bravata, D. M., Smith-Spangler, C., Sundaram, V., Gienger, A. L., Lin, N., Lewis, R., Stave, C. D., Olkin, I., & Sirard, J. R. (2007). Using pedometers to increase physical activity and improve health: A systematic review. JAMA, 298(19), 2296–2304.',
+        use: l10n.refUseStepGoalSet,
+        url: 'https://doi.org/10.1001/jama.298.19.2296',
+      ),
+    ],
+  ),
+  (
+    l10n.refSectionSleepRegularity,
+    [
+      (
+        citation: 'Phillips, A. J. K., Clerx, W. M., O’Brien, C. S., Sano, A., Barger, L. K., Picard, R. W., Lockley, S. W., Klerman, E. B., & Czeisler, C. A. (2017). Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Scientific Reports, 7, Article 3216.',
+        use: l10n.refUseSleepRegularityIndex,
+        url: 'https://doi.org/10.1038/s41598-017-03171-4',
+      ),
+      (
+        citation: 'Roenneberg, T., Allebrandt, K. V., Merrow, M., & Vetter, C. (2012). Social jetlag and obesity. Current Biology, 22(10), 939–943.',
+        use: l10n.refUseSocialJetlag,
+        url: 'https://doi.org/10.1016/j.cub.2012.03.038',
+      ),
+    ],
+  ),
+  (
+    l10n.refSectionSummaries,
+    [
+      (
+        citation: 'Lundgard, A., & Satyanarayan, A. (2022). Accessible visualization via natural language descriptions: A four-level model of semantic content. IEEE Transactions on Visualization and Computer Graphics, 28(1), 1073–1083.',
+        use: l10n.refUseSummaryNarrative,
+        url: 'https://doi.org/10.1109/TVCG.2021.3114770',
+      ),
+      (
+        citation: 'Andreadis, K., Chan, E., Park, M., Benda, N. C., Sharma, M. M., Demetres, M., Delgado, D., Sigworth, E., Chen, Q., Liu, A., Grossman Liu, L., Sharko, M., Zikmund-Fisher, B. J., & Ancker, J. S. (2021). Imprecision and preferences in interpretation of verbal probabilities in health: A systematic review. Journal of General Internal Medicine, 36(12), 3820–3829.',
+        use: l10n.refUseSummaryVerbal,
+        url: 'https://doi.org/10.1007/s11606-021-07050-7',
+      ),
+      (
+        citation: 'Zipkin, D. A., Umscheid, C. A., Keating, N. L., Allen, E., Aung, K., Beyth, R., Kaatz, S., Mann, D. M., Sussman, J. B., Korenstein, D., Schardt, C., Nagi, A., Sloane, R., & Feldstein, D. A. (2014). Evidence-based risk communication: A systematic review. Annals of Internal Medicine, 161(4), 270–280.',
+        use: l10n.refUseSummaryAbsolute,
+        url: 'https://doi.org/10.7326/M14-0295',
+      ),
+      (
+        citation: 'Hoffrage, U., & Gigerenzer, G. (1998). Using natural frequencies to improve diagnostic inferences. Academic Medicine, 73(5), 538–540.',
+        use: l10n.refUseSummaryFrequencies,
+        url: 'https://doi.org/10.1097/00001888-199805000-00024',
+      ),
+      (
+        citation: 'Witteman, H. O., Zikmund-Fisher, B. J., Waters, E. A., Gavaruzzi, T., & Fagerlin, A. (2011). Risk estimates from an online risk calculator are more believable and recalled better when expressed as integers. Journal of Medical Internet Research, 13(3), Article e54.',
+        use: l10n.refUseSummaryIntegers,
+        url: 'https://doi.org/10.2196/jmir.1656',
+      ),
+      (
+        citation: 'Trevena, L. J., Zikmund-Fisher, B. J., Edwards, A., Gaissmaier, W., Galesic, M., Han, P. K. J., King, J., Lawson, M. L., Linder, S. K., Lipkus, I., Ozanne, E., Peters, E., Timmermans, D., & Woloshin, S. (2013). Presenting quantitative information about decision outcomes: A risk communication primer for patient decision aid developers. BMC Medical Informatics and Decision Making, 13(Suppl. 2), Article S7.',
+        use: l10n.refUseSummaryReference,
+        url: 'https://doi.org/10.1186/1472-6947-13-S2-S7',
+      ),
+    ],
+  ),
 ];

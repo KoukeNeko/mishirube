@@ -967,11 +967,19 @@ void main() {
     await tester.pumpAndSettle();
 
     final delta = find.textContaining(RegExp('[−+][0-9]'));
-    await tester.dragUntilVisible(
-      delta,
-      find.byType(CustomScrollView).hitTestable().first,
-      _scrollStep,
-    );
+    // The areas' summaries carry signed figures too, so several can come
+    // into view at once: scroll until any has.
+    for (
+      var step = 0;
+      step < 50 && delta.hitTestable().evaluate().isEmpty;
+      step++
+    ) {
+      await tester.drag(
+        find.byType(CustomScrollView).hitTestable().first,
+        _scrollStep,
+      );
+      await tester.pump();
+    }
     expect(delta, findsWidgets, reason: 'the demo weight is trending');
     for (final text in tester.widgetList<Text>(delta)) {
       expect(

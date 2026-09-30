@@ -155,6 +155,87 @@ SleepRegularity? regularityOf(List<SleepEntry> nights) {
   );
 }
 
+/// Day pairs the Sleep Regularity Index needs before it says anything.
+const minimumDayPairsForRegularityIndex = 7;
+
+/// Nights on work days and on free days each, before social jetlag is
+/// worked out.
+const minimumNightsForSocialJetlag = 2;
+
+/// The stretch of the day the index compares state by state.
+const _epoch = Duration(minutes: 5);
+
+/// The nights measured by a device, when they began and ended: a length
+/// typed by hand says when the night ended at best, and would make the
+/// days look more regular than they were.
+List<SleepEntry> _measuredNights(List<SleepEntry> sleeps) => [
+  for (final sleep in sleeps)
+    if (sleep.kind == SleepKind.night &&
+        sleep.measure == SleepMeasure.asleep &&
+        sleep.startedAt != null &&
+        sleep.sourceName.isNotEmpty)
+      sleep,
+];
+
+DateTime _dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
+
+/// The Sleep Regularity Index (Phillips et al., 2017): how often the
+/// same clock time is asleep (or awake) on one day and the next, from
+/// −100 (always opposite) through 0 (chance) to 100 (identical days),
+/// over 5-minute stretches. Only days whose whole 24 hours are known
+/// count: the night that ended that morning and the one that began that
+/// evening are both measured. Null below
+/// [minimumDayPairsForRegularityIndex] pairs of such days.
+int? sleepRegularityIndex(List<SleepEntry> sleeps) {
+  final nights = _measuredNights(sleeps);
+  final ends = {for (final night in nights) _dayOf(night.sleptAt)};
+  bool isKnown(DateTime day) =>
+      ends.contains(day) && ends.contains(day.add(const Duration(days: 1)));
+  final spans = [for (final night in nights) (night.startedAt!, night.sleptAt)];
+  bool isAsleep(DateTime at) =>
+      spans.any((span) => !at.isBefore(span.$1) && at.isBefore(span.$2));
+  final epochs = Duration.minutesPerDay ~/ _epoch.inMinutes;
+  var pairs = 0;
+  var same = 0;
+  for (final day in ends) {
+    final next = DateTime(day.year, day.month, day.day + 1);
+    if (!isKnown(day) || !isKnown(next)) continue;
+    pairs++;
+    for (var epoch = 0; epoch < epochs; epoch++) {
+      final minute = epoch * _epoch.inMinutes + _epoch.inMinutes ~/ 2;
+      final today = DateTime(day.year, day.month, day.day, 0, minute);
+      final tomorrow = DateTime(next.year, next.month, next.day, 0, minute);
+      if (isAsleep(today) == isAsleep(tomorrow)) same++;
+    }
+  }
+  if (pairs < minimumDayPairsForRegularityIndex) return null;
+  return (-100 + 200 * same / (pairs * epochs)).round();
+}
+
+/// Social jetlag (Roenneberg et al., 2012): how
+/// far the middle of sleep on free days (nights ending on Saturday or
+/// Sunday) sits from that on work days, without the correction for
+/// sleep caught up on free days. Null without
+/// [minimumNightsForSocialJetlag] of each.
+Duration? socialJetlag(List<SleepEntry> sleeps) {
+  final free = <int>[];
+  final work = <int>[];
+  for (final night in _measuredNights(sleeps)) {
+    final start = night.startedAt!;
+    final middle = start.add(night.sleptAt.difference(start) ~/ 2);
+    final weekday = night.sleptAt.weekday;
+    (weekday == DateTime.saturday || weekday == DateTime.sunday ? free : work)
+        .add(clockMinutes(middle, 12));
+  }
+  if (free.length < minimumNightsForSocialJetlag ||
+      work.length < minimumNightsForSocialJetlag) {
+    return null;
+  }
+  double mean(List<int> minutes) =>
+      minutes.reduce((a, b) => a + b) / minutes.length;
+  return Duration(minutes: (mean(free) - mean(work)).abs().round());
+}
+
 /// Minutes of [time] past [fromHour], so times either side of midnight
 /// sit in one unbroken stretch when counted from noon.
 int clockMinutes(DateTime time, int fromHour) =>
