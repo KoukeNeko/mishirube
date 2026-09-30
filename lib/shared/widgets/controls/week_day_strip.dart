@@ -271,15 +271,21 @@ class _Day extends StatelessWidget {
               alignment: Alignment.center,
               child: AnimatedDefaultTextStyle(
                 duration: chromeDuration(context, _moveDuration),
+                // As the log's month calendar writes its days.
                 style: AppTextStyles.body.copyWith(
-                  fontSize: 15,
+                  fontSize: 17,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected
                       ? AppColors.background
                       : canPick
                       ? AppColors.textPrimary
                       : AppColors.textTertiary,
                 ),
-                child: Text('${day.day}'),
+                // Shrinks rather than overflows at large text sizes.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('${day.day}'),
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.xxs),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -223,8 +224,14 @@ void main() {
     );
     expect(
       tester.getCenter(find.text('1')).dx,
-      closeTo(width / 7 * 2.5, 1),
-      reason: 'September 1st, a Tuesday, in the third column',
+      closeTo(
+        AppSpacing.screenGutter +
+            (width - AppSpacing.screenGutter * 2) / 7 * 2.5,
+        1,
+      ),
+      reason:
+          'September 1st, a Tuesday, in the third column of the page '
+          "column, as the timeline's week strip has it",
     );
     expect(find.text('9月'), findsOneWidget, reason: 'written as the system');
   });

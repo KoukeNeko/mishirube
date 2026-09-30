@@ -383,7 +383,7 @@ class _LogScreenState extends State<LogScreen> {
       // The timeline's month and its category chips stay at the top as
       // the list scrolls, as does the calendar's month.
       pinned: !isTimeline
-          // Across the whole width, over the calendar's columns.
+          // Over the calendar's columns, which are the week strip's.
           ? WeekdayHeader(firstWeekday: AppStoreScope.of(context).firstWeekday)
           : Column(
               key: _pinnedKey,
@@ -461,8 +461,8 @@ class _LogScreenState extends State<LogScreen> {
   List<Widget> _calendar() {
     final entries = _log.day(_selected);
     return [
-      // Edge to edge, as Apple Calendar's month is: the columns are the
-      // width of the screen, under the weekdays pinned above them.
+      // The page column's width, under the weekdays pinned above it,
+      // so the days sit where the timeline's week strip has them.
       MonthCalendar(
         month: _month,
         earliest: _log.earliestMonth,

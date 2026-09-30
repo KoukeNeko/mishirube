@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/motion.dart';
+import '../../shared/window_layout.dart';
 import '../../l10n/l10n.dart';
 
 const _weekdayHeight = 24.0;
@@ -237,8 +238,11 @@ class WeekdayHeader extends StatelessWidget {
   static const height = _weekdayHeight;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
+  Widget build(BuildContext context) => Container(
     height: height,
+    // The page column's, so the days stay put on switching to the
+    // timeline's week strip.
+    padding: PageColumn.gutterOf(context),
     child: Row(
       children: [
         for (var i = 0; i < DateTime.daysPerWeek; i++)
@@ -248,7 +252,7 @@ class WeekdayHeader extends StatelessWidget {
                 context.dates.weekdayNumber(
                   (firstWeekday - 1 + i) % DateTime.daysPerWeek + 1,
                 ),
-                style: AppTextStyles.caption.copyWith(fontSize: 12),
+                style: AppTextStyles.caption,
               ),
             ),
           ),
@@ -280,9 +284,13 @@ class _MonthBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final leading = _leadingOf(month, firstWeekday);
     final days = DateTime(month.year, month.month + 1, 0).day;
+    final weeks = _weeksIn(month, firstWeekday);
+    final lastWeekday = (leading + days - 1) % DateTime.daysPerWeek;
+    final gutter = PageColumn.gutterOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final column = constraints.maxWidth / DateTime.daysPerWeek;
+        final column =
+            (constraints.maxWidth - gutter.horizontal) / DateTime.daysPerWeek;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -290,7 +298,7 @@ class _MonthBlock extends StatelessWidget {
               height: _titleHeight,
               child: Padding(
                 padding: EdgeInsets.only(
-                  left: column * leading + AppSpacing.xs,
+                  left: gutter.left + column * leading + AppSpacing.xs,
                 ),
                 child: Align(
                   alignment: Alignment.bottomLeft,
@@ -302,26 +310,58 @@ class _MonthBlock extends StatelessWidget {
                 ),
               ),
             ),
-            for (var week = 0; week < _weeksIn(month, firstWeekday); week++)
+            for (var week = 0; week < weeks; week++)
               SizedBox(
                 height: _rowHeight,
-                child: Row(
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    for (var weekday = 0; weekday < 7; weekday++)
-                      Expanded(
-                        child: switch (week * 7 + weekday - leading + 1) {
-                          final day when day >= 1 && day <= days => _DayCell(
-                            date: DateTime(month.year, month.month, day),
-                            categories: categories[day] ?? const [],
-                            isSelected:
-                                _isSameMonth(selected, month) &&
-                                selected.day == day,
-                            today: today,
-                            onSelect: onSelect,
-                          ),
-                          _ => const SizedBox.shrink(),
-                        },
+                    // A line over each week's days, as the month's rows
+                    // are ruled; out to the screen's edge where a week
+                    // reaches the first or last column.
+                    Positioned(
+                      top: 0,
+                      height: 0.5,
+                      left: switch (week == 0 ? leading : 0) {
+                        0 => 0,
+                        final first => gutter.left + column * first,
+                      },
+                      right: switch (week == weeks - 1 ? lastWeekday : 6) {
+                        6 => 0,
+                        final last => gutter.right + column * (6 - last),
+                      },
+                      child: const ColoredBox(color: AppColors.outline),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: gutter.left,
+                        right: gutter.right,
                       ),
+                      child: Row(
+                        children: [
+                          for (var weekday = 0; weekday < 7; weekday++)
+                            Expanded(
+                              child: switch (week * 7 + weekday - leading + 1) {
+                                final day when day >= 1 && day <= days =>
+                                  _DayCell(
+                                    date: DateTime(
+                                      month.year,
+                                      month.month,
+                                      day,
+                                    ),
+                                    categories: categories[day] ?? const [],
+                                    isSelected:
+                                        _isSameMonth(selected, month) &&
+                                        selected.day == day,
+                                    today: today,
+                                    onSelect: onSelect,
+                                  ),
+                                _ => const SizedBox.shrink(),
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -366,62 +406,54 @@ class _DayCell extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: isFuture ? null : () => onSelect(date),
-        child: DecoratedBox(
-          // A line over each week, as the month's rows are ruled.
-          decoration: const BoxDecoration(
-            border: Border(
-              top: BorderSide(color: AppColors.outline, width: 0.5),
-            ),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: AppSpacing.xxs),
-              Container(
-                width: _dayCircle,
-                height: _dayCircle,
-                alignment: Alignment.center,
-                decoration: isSelected
-                    ? const BoxDecoration(
-                        color: AppColors.training,
-                        shape: BoxShape.circle,
-                      )
-                    : null,
-                // Shrinks rather than overflows at large text sizes.
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '${date.day}',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: isToday || isSelected
-                          ? FontWeight.w800
-                          : FontWeight.w600,
-                      fontSize: 17,
-                    ),
+        child: Column(
+          children: [
+            const SizedBox(height: AppSpacing.xxs),
+            Container(
+              width: _dayCircle,
+              height: _dayCircle,
+              alignment: Alignment.center,
+              decoration: isSelected
+                  ? const BoxDecoration(
+                      color: AppColors.training,
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              // Shrinks rather than overflows at large text sizes.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '${date.day}',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: isToday || isSelected
+                        ? FontWeight.w800
+                        : FontWeight.w600,
+                    fontSize: 17,
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.xxs),
-              SizedBox(
-                height: _dotSize,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    for (final category in categories)
-                      Container(
-                        width: _dotSize,
-                        height: _dotSize,
-                        margin: const EdgeInsets.symmetric(horizontal: 1),
-                        decoration: BoxDecoration(
-                          color: category.color,
-                          shape: BoxShape.circle,
-                        ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            SizedBox(
+              height: _dotSize,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (final category in categories)
+                    Container(
+                      width: _dotSize,
+                      height: _dotSize,
+                      margin: const EdgeInsets.symmetric(horizontal: 1),
+                      decoration: BoxDecoration(
+                        color: category.color,
+                        shape: BoxShape.circle,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
