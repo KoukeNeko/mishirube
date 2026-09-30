@@ -3462,16 +3462,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String proteinNeeds({required int window, required int days}) {
-    return '需要近 $window 天有 $days 天完整飲食與體重';
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  }) {
+    return '需要近 $window 天有 $days 天完整飲食與體重（目前 $current 天）';
   }
 
   @override
   String get muscleSetsTitle => '肌群組數';
 
   @override
-  String muscleSetsNeeds({required int count}) {
-    return '需要近 4 週至少 $count 次訓練';
+  String muscleSetsNeeds({required int count, required int current}) {
+    return '需要近 4 週至少 $count 次訓練（目前 $current 次）';
   }
 
   @override
@@ -9384,16 +9388,20 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String proteinNeeds({required int window, required int days}) {
-    return '需要近 $window 天有 $days 天完整饮食与体重';
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  }) {
+    return '需要近 $window 天有 $days 天完整饮食与体重（目前 $current 天）';
   }
 
   @override
   String get muscleSetsTitle => '肌群组数';
 
   @override
-  String muscleSetsNeeds({required int count}) {
-    return '需要近 4 周至少 $count 次训练';
+  String muscleSetsNeeds({required int count, required int current}) {
+    return '需要近 4 周至少 $count 次训练（目前 $current 次）';
   }
 
   @override

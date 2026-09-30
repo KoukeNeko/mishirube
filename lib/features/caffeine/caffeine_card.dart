@@ -57,6 +57,7 @@ class CaffeineCard extends StatelessWidget {
                 now: formatTimeOfDay(curve[nowIndex].$1),
                 end: formatTimeOfDay(curve.last.$1),
                 height: chartHeight,
+                isEstimate: true,
                 reference: caffeineBedtimeReferenceMg,
                 referenceLabel: context.l10n.caffeineReference(
                   mg: formatAmount(caffeineBedtimeReferenceMg),

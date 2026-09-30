@@ -3469,16 +3469,20 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String proteinNeeds({required int window, required int days}) {
-    return '최근 $window일 중 완전한 식단과 체중 $days일 필요';
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  }) {
+    return '최근 $window일 중 완전한 식단과 체중 $days일 필요(현재 $current일)';
   }
 
   @override
   String get muscleSetsTitle => '근육별 세트';
 
   @override
-  String muscleSetsNeeds({required int count}) {
-    return '최근 4주 동안 최소 $count회 운동 필요';
+  String muscleSetsNeeds({required int count, required int current}) {
+    return '최근 4주 동안 최소 $count회 운동 필요(현재 $current회)';
   }
 
   @override

@@ -380,7 +380,11 @@ class _HistoryCard extends StatelessWidget {
             Semantics(
               label: context.l10n.estimatedMaxTrend(count: estimates.length),
               excludeSemantics: true,
-              child: Sparkline(values: estimates, color: AppColors.training),
+              child: Sparkline(
+                values: estimates,
+                color: AppColors.training,
+                isEstimate: true,
+              ),
             ),
           ],
           const Divider(height: AppSpacing.xl),

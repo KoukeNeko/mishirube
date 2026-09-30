@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:flutter/material.dart';
+import 'package:mishirube/features/trends/muscle_load_card.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -60,6 +61,17 @@ void main() {
       lessThanOrEqualTo(card.width / 2),
       reason: 'a glance, not the whole card',
     );
+    final bars = find.byType(MuscleSetBars);
+    expect(bars, findsOneWidget, reason: 'how much, beside where');
+    expect(
+      tester
+          .widgetList(
+            find.descendant(of: bars, matching: find.byType(ClipRRect)),
+          )
+          .length,
+      inInclusiveRange(1, 3),
+      reason: 'only the most trained',
+    );
     await disposeTree(tester);
   });
 
@@ -87,7 +99,7 @@ void main() {
       const Offset(0, -200),
     );
     expect(map, findsOneWidget);
-    expect(find.textContaining('4'), findsWidgets);
+    expect(find.text('需要近 4 週至少 4 次訓練（目前 1 次）'), findsOneWidget);
     await disposeTree(tester);
   });
 

@@ -2,10 +2,26 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 
+const _dash = 5.0;
+const _dashGap = 4.0;
+
+/// [path] broken into dashes: the one way a chart draws a value that was
+/// worked out by a model rather than measured or counted.
+Path _dashed(Path path) {
+  final dashes = Path();
+  for (final metric in path.computeMetrics()) {
+    for (var at = 0.0; at < metric.length; at += _dash + _dashGap) {
+      dashes.addPath(metric.extractPath(at, at + _dash), Offset.zero);
+    }
+  }
+  return dashes;
+}
+
 /// Minimal bar chart; the last bar is highlighted as "current period"
 /// unless [highlightsLast] is off, or the [selected] one while a reading
 /// picks it. Many bars sit closer together, so a month or a day of hours
-/// still has bars rather than gaps.
+/// still has bars rather than gaps. A null value is nothing recorded and
+/// leaves its slot empty; a true zero is a thin line on the axis.
 class MiniBarChart extends StatelessWidget {
   const MiniBarChart({
     super.key,
@@ -18,7 +34,10 @@ class MiniBarChart extends StatelessWidget {
     this.highlightsLast = true,
   });
 
-  final List<(String, int)> bars;
+  final List<(String, int?)> bars;
+
+  /// How tall a zero is drawn, so it reads apart from nothing recorded.
+  static const _zeroHeight = 2.0;
   final double height;
   final bool showLabels;
   final int? selected;
@@ -30,7 +49,9 @@ class MiniBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final highest = bars.map((bar) => bar.$2).fold(0, (a, b) => a > b ? a : b);
+    final highest = bars
+        .map((bar) => bar.$2 ?? 0)
+        .fold(0, (a, b) => a > b ? a : b);
     // All zero is a row of empty bars, not a division by zero.
     final maxValue = highest == 0 ? 1 : highest;
     final highlighted = selected ?? (highlightsLast ? bars.length - 1 : null);
@@ -44,17 +65,20 @@ class MiniBarChart extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  height: height * bars[i].$2 / maxValue,
-                  decoration: BoxDecoration(
-                    color: highlighted == null || i == highlighted
-                        ? color
-                        : dimColor,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(3),
+                if (bars[i].$2 case final value?)
+                  Container(
+                    height: value == 0
+                        ? _zeroHeight
+                        : height * value / maxValue,
+                    decoration: BoxDecoration(
+                      color: highlighted == null || i == highlighted
+                          ? color
+                          : dimColor,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(3),
+                      ),
                     ),
                   ),
-                ),
                 if (showLabels) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(bars[i].$1, style: AppTextStyles.caption),
@@ -90,6 +114,8 @@ class ChartLevel {
 /// marking the [selected] one while a reading picks it. A null value is
 /// a gap the line breaks at rather than bridges. Behind the line it can
 /// show a [normal] band and [levels] across the stretches they average.
+/// A line of estimates ([isEstimate], such as an estimated max) is
+/// dashed.
 class Sparkline extends StatelessWidget {
   const Sparkline({
     super.key,
@@ -99,12 +125,14 @@ class Sparkline extends StatelessWidget {
     this.selected,
     this.normal,
     this.levels = const [],
+    this.isEstimate = false,
   });
 
   final List<double?> values;
   final Color color;
   final double height;
   final int? selected;
+  final bool isEstimate;
 
   /// The low and high edge of what is normal.
   final (double, double)? normal;
@@ -122,6 +150,7 @@ class Sparkline extends StatelessWidget {
           selected: selected,
           normal: normal,
           levels: levels,
+          isEstimate: isEstimate,
         ),
       ),
     );
@@ -135,6 +164,7 @@ class _SparklinePainter extends CustomPainter {
     required this.selected,
     required this.normal,
     required this.levels,
+    required this.isEstimate,
   });
 
   static const _endDotRadius = 4.0;
@@ -146,6 +176,7 @@ class _SparklinePainter extends CustomPainter {
   final int? selected;
   final (double, double)? normal;
   final List<ChartLevel> levels;
+  final bool isEstimate;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -205,7 +236,7 @@ class _SparklinePainter extends CustomPainter {
           Paint()..color = color,
         );
       } else if (path != null) {
-        canvas.drawPath(path!, line);
+        canvas.drawPath(isEstimate ? _dashed(path!) : path!, line);
       }
       path = null;
       run = 0;
@@ -253,7 +284,8 @@ class _SparklinePainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.selected != selected ||
       oldDelegate.normal != normal ||
-      oldDelegate.levels != levels;
+      oldDelegate.levels != levels ||
+      oldDelegate.isEstimate != isEstimate;
 }
 
 /// A span of time in equal stretches, each drawn as a bar from its lowest
@@ -401,11 +433,13 @@ class _RangeBarPainter extends CustomPainter {
 }
 
 /// A quantity over time from zero up, filled beneath its line: what has
-/// happened up to [nowIndex] drawn solid, what is still to come fainter,
+/// happened up to [nowIndex] drawn strong, what is still to come fainter,
 /// and a dot on now with a line down to the axis. A [reference] is a
-/// dashed level named by [referenceLabel], drawn only while it fits under
+/// level named by [referenceLabel], drawn only while it fits under
 /// the curve's peak so it never stretches the axis. [start], [now] and
 /// [end] sit under the axis; an end too close to now gives way to it.
+/// A modelled curve ([isEstimate], such as caffeine left in the body) is
+/// dashed; the [reference] is a thin solid level, as a target is.
 class CurveChart extends StatelessWidget {
   const CurveChart({
     super.key,
@@ -418,6 +452,7 @@ class CurveChart extends StatelessWidget {
     this.reference,
     this.referenceLabel,
     this.height = 120,
+    this.isEstimate = false,
   });
 
   final List<double> values;
@@ -429,6 +464,7 @@ class CurveChart extends StatelessWidget {
   final double? reference;
   final String? referenceLabel;
   final double height;
+  final bool isEstimate;
 
   /// How near an end of the axis now may come before that end's label
   /// gives way to now's.
@@ -450,6 +486,7 @@ class CurveChart extends StatelessWidget {
               reference: reference,
               referenceLabel: referenceLabel,
               labelStyle: AppTextStyles.caption,
+              isEstimate: isEstimate,
             ),
           ),
         ),
@@ -495,11 +532,10 @@ class _CurvePainter extends CustomPainter {
     required this.reference,
     required this.referenceLabel,
     required this.labelStyle,
+    required this.isEstimate,
   });
 
   static const _nowRadius = 4.5;
-  static const _dash = 5.0;
-  static const _gap = 4.0;
 
   final List<double> values;
   final int nowIndex;
@@ -507,6 +543,7 @@ class _CurvePainter extends CustomPainter {
   final double? reference;
   final String? referenceLabel;
   final TextStyle labelStyle;
+  final bool isEstimate;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -547,23 +584,21 @@ class _CurvePainter extends CustomPainter {
       ..strokeWidth = 2.5
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round;
-    if (now > 0) canvas.drawPath(lineThrough(0, now), stroke(1));
+    Path drawn(Path path) => isEstimate ? _dashed(path) : path;
+    if (now > 0) canvas.drawPath(drawn(lineThrough(0, now)), stroke(1));
     if (now < values.length - 1) {
-      canvas.drawPath(lineThrough(now, values.length - 1), stroke(0.45));
+      canvas.drawPath(drawn(lineThrough(now, values.length - 1)), stroke(0.45));
     }
 
     if (reference case final level? when level > 0 && level <= peak) {
       final y = yOf(level);
-      final dash = Paint()
-        ..color = AppColors.textSecondary
-        ..strokeWidth = 1;
-      for (var x = 0.0; x < size.width; x += _dash + _gap) {
-        canvas.drawLine(
-          Offset(x, y),
-          Offset((x + _dash).clamp(0, size.width), y),
-          dash,
-        );
-      }
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        Paint()
+          ..color = AppColors.textSecondary
+          ..strokeWidth = 1,
+      );
       if (referenceLabel case final label?) {
         final text = TextPainter(
           text: TextSpan(text: label, style: labelStyle),
@@ -600,5 +635,6 @@ class _CurvePainter extends CustomPainter {
       old.nowIndex != nowIndex ||
       old.color != color ||
       old.reference != reference ||
-      old.referenceLabel != referenceLabel;
+      old.referenceLabel != referenceLabel ||
+      old.isEstimate != isEstimate;
 }

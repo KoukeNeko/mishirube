@@ -82,6 +82,7 @@ class _ExerciseCard extends StatelessWidget {
                 values: estimates,
                 color: AppColors.training,
                 height: 40,
+                isEstimate: true,
               ),
             ),
           ],

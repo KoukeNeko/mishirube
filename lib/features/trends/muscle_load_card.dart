@@ -32,7 +32,6 @@ class MuscleLoadCard extends StatelessWidget {
     if (load.isEmpty) {
       return InfoBanner(message: context.l10n.noWorkingSets);
     }
-    final most = load.first.$2;
     return AppCard(
       child: Column(
         children: [
@@ -45,60 +44,79 @@ class MuscleLoadCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           const _Legend(),
           const Divider(height: AppSpacing.xl),
-          for (final (index, (muscle, sets)) in load.indexed) ...[
-            if (index > 0) const SizedBox(height: AppSpacing.sm),
-            Semantics(
-              label: context.l10n.muscleWeeklySets(
-                muscle: muscle.labelIn(context.l10n),
-                sets: sets,
-              ),
-              excludeSemantics: true,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: _labelWidth,
-                    child: Text(
-                      muscle.labelIn(context.l10n),
-                      style: AppTextStyles.caption,
-                    ),
-                  ),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(_barHeight / 2),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: _barHeight,
-                            color: AppColors.surfaceRaised,
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: sets / most,
-                            child: Container(
-                              height: _barHeight,
-                              color: index == 0
-                                  ? AppColors.training
-                                  : AppColors.trainingDim,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  SizedBox(
-                    width: 28,
-                    child: Text(
-                      '$sets',
-                      textAlign: TextAlign.end,
-                      style: AppTextStyles.itemTitle,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          MuscleSetBars(load: load),
         ],
       ),
+    );
+  }
+}
+
+/// Working sets per muscle as bars against the most trained, most first:
+/// the map says where the work went, these say how much.
+class MuscleSetBars extends StatelessWidget {
+  const MuscleSetBars({super.key, required this.load});
+
+  /// Most trained first; not empty.
+  final List<(MuscleGroup, int)> load;
+
+  @override
+  Widget build(BuildContext context) {
+    final most = load.first.$2;
+    return Column(
+      children: [
+        for (final (index, (muscle, sets)) in load.indexed) ...[
+          if (index > 0) const SizedBox(height: AppSpacing.sm),
+          Semantics(
+            label: context.l10n.muscleWeeklySets(
+              muscle: muscle.labelIn(context.l10n),
+              sets: sets,
+            ),
+            excludeSemantics: true,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: _labelWidth,
+                  child: Text(
+                    muscle.labelIn(context.l10n),
+                    style: AppTextStyles.caption,
+                  ),
+                ),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(_barHeight / 2),
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: _barHeight,
+                          color: AppColors.surfaceRaised,
+                        ),
+                        FractionallySizedBox(
+                          widthFactor: sets / most,
+                          child: Container(
+                            height: _barHeight,
+                            color: index == 0
+                                ? AppColors.training
+                                : AppColors.trainingDim,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '$sets',
+                    textAlign: TextAlign.end,
+                    style: AppTextStyles.itemTitle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

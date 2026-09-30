@@ -894,7 +894,7 @@ class _HistoryState extends State<_History> {
   /// One bar a night for a week or a month, one a week for half a year,
   /// each with what its reading says; a night without a record is an
   /// empty bar, not a zero-hour night.
-  List<({String label, int minutes, String readout})> _bars(
+  List<({String label, int? minutes, String readout})> _bars(
     List<SleepEntry> nights,
     DateTime start,
   ) {
@@ -914,7 +914,7 @@ class _HistoryState extends State<_History> {
         for (final day in days)
           (
             label: context.dates.weekday(day),
-            minutes: byDay[day] ?? 0,
+            minutes: byDay[day],
             readout:
                 '${context.dates.dayWithWeekday(day)} · '
                 '${byDay[day] == null ? context.l10n.noEntriesShort : length(byDay[day]!)}',
@@ -930,14 +930,14 @@ class _HistoryState extends State<_History> {
               ?byDay[day],
           ];
           final average = minutes.isEmpty
-              ? 0
+              ? null
               : minutes.reduce((a, b) => a + b) ~/ minutes.length;
           return (
             label: '',
             minutes: average,
             readout:
                 '${context.l10n.weekOf(date: context.dates.monthDay(first))} · '
-                '${minutes.isEmpty ? context.l10n.noEntriesShort : '${context.l10n.statAverage(value: length(average))} · ${context.l10n.nightsCount(count: minutes.length)}'}',
+                '${average == null ? context.l10n.noEntriesShort : '${context.l10n.statAverage(value: length(average))} · ${context.l10n.nightsCount(count: minutes.length)}'}',
           );
         }(),
     ];

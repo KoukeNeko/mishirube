@@ -246,6 +246,33 @@ In particular, do not create a parallel version of:
 - Use tokens from `lib/app/theme.dart` (`AppColors`, `AppSpacing`,
   `AppRadius`, `AppTextStyles`) rather than raw values.
 
+## Charts
+
+One meaning, one look, on every chart (see `research/71-data-presentation.md`):
+
+- A measured or logged value, and a figure counted from them (volume,
+  sets), is a solid line or a filled bar.
+- A value a model worked out (an estimated max, caffeine left in the
+  body) is a dashed line (`isEstimate` on `Sparkline` and `CurveChart`),
+  and nothing else is: grid lines are not data, and a target is not
+  dashed.
+- A target or reference level is a thin solid line; a range the user
+  counts as normal or usual is a neutral band (`Sparkline.normal`).
+- Nothing recorded is a gap, never a zero: pass null to `Sparkline` so
+  the line breaks, and leave the bar out. Only a count of events (workouts
+  in a week) has a true zero.
+- An average only takes days that are complete: food days by
+  `DaySummary.isComplete`, and never today while it is still going.
+- Choose the chart by the question. A bar or line against a target says
+  how far there is to go; a ring or the water level is only a glance
+  and keeps the figure beside it. A map of muscles says where, and keeps
+  its sets as bars (`MuscleSetBars`) for how much.
+- Do not join sparse measurements (waist, body composition) with a
+  smoothed curve, which draws readings that were never taken.
+- An insight says the window and how many records it rests on; one the
+  records cannot support yet says what it needs and how much there is
+  so far.
+
 ## Accessibility
 
 - Custom controls need semantics labels and must report selected state.

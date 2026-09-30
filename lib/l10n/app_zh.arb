@@ -5200,7 +5200,7 @@
       }
     }
   },
-  "proteinNeeds": "需要近 {window} 天有 {days} 天完整飲食與體重",
+  "proteinNeeds": "需要近 {window} 天有 {days} 天完整飲食與體重（目前 {current} 天）",
   "@proteinNeeds": {
     "description": "What the protein insight needs.",
     "placeholders": {
@@ -5209,6 +5209,9 @@
       },
       "days": {
         "type": "int"
+      },
+      "current": {
+        "type": "int"
       }
     }
   },
@@ -5216,11 +5219,14 @@
   "@muscleSetsTitle": {
     "description": "Insight title."
   },
-  "muscleSetsNeeds": "需要近 4 週至少 {count} 次訓練",
+  "muscleSetsNeeds": "需要近 4 週至少 {count} 次訓練（目前 {current} 次）",
   "@muscleSetsNeeds": {
     "description": "What the training insight needs.",
     "placeholders": {
       "count": {
+        "type": "int"
+      },
+      "current": {
         "type": "int"
       }
     }

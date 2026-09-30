@@ -4,7 +4,7 @@ import 'trend_engine.dart';
 
 /// Bumped whenever a rule below changes, so an insight can say which
 /// version produced it.
-const insightEngineVersion = 1;
+const insightEngineVersion = 2;
 
 /// Weekly weight changes smaller than this are noise, not a trend.
 const _steadyWeightKgPerWeek = 0.1;
@@ -73,7 +73,9 @@ Insight? weeklyTrainingInsight(
 }
 
 /// A drop in weekly working sets for one exercise, and whether the
-/// estimated max followed it down.
+/// estimated max followed it down: the first week against the last one
+/// that has finished, since the week in progress is not a week's worth
+/// yet.
 Insight? volumeTrendInsight(
   AppLocalizations l10n,
   String exerciseName,
@@ -81,9 +83,9 @@ Insight? volumeTrendInsight(
   required int sessionCount,
   required bool isMaxHolding,
 }) {
-  if (weeklySets.length < 2 || sessionCount == 0) return null;
+  if (weeklySets.length < 3 || sessionCount == 0) return null;
   final first = weeklySets.first.$2;
-  final last = weeklySets.last.$2;
+  final last = weeklySets[weeklySets.length - 2].$2;
   if (first == 0 || last >= first * (1 - _meaningfulVolumeDrop)) return null;
   return Insight(
     statement:

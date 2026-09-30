@@ -13,6 +13,7 @@ import '../../shared/widgets/widgets.dart';
 import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
+import 'muscle_load_card.dart';
 import 'muscle_map.dart';
 import 'muscle_trends_screen.dart';
 import 'trend_detail_screen.dart';
@@ -114,6 +115,7 @@ class _TrendsPage extends StatelessWidget {
                     needs: context.l10n.proteinNeeds(
                       window: patternWindowDays,
                       days: minimumProteinDays,
+                      current: report.proteinDays,
                     ),
                   ),
                 },
@@ -135,15 +137,13 @@ class _TrendsPage extends StatelessWidget {
                 // went can already be shown.
                 null when muscleLoad.isNotEmpty => _InsightCard(
                   domain: TrendDomain.training,
-                  picture: _MuscleGlance(
-                    setsByMuscle: {
-                      for (final (muscle, sets) in muscleLoad) muscle: sets,
-                    },
-                    figure: figure,
-                  ),
+                  picture: _MuscleGlance(load: muscleLoad, figure: figure),
                   headline: context.l10n.muscleSetsTitle,
                   lines: [
-                    context.l10n.muscleSetsNeeds(count: minimumBalanceWorkouts),
+                    context.l10n.muscleSetsNeeds(
+                      count: minimumBalanceWorkouts,
+                      current: report.recentWorkouts,
+                    ),
                   ],
                   onTap: () => pushPage(context, const MuscleTrendsScreen()),
                 ),
@@ -151,6 +151,7 @@ class _TrendsPage extends StatelessWidget {
                   title: context.l10n.muscleSetsTitle,
                   needs: context.l10n.muscleSetsNeeds(
                     count: minimumBalanceWorkouts,
+                    current: report.recentWorkouts,
                   ),
                 ),
               },
@@ -493,10 +494,8 @@ class _TrainingBalanceCard extends StatelessWidget {
     return _InsightCard(
       domain: TrendDomain.training,
       picture: _MuscleGlance(
-        setsByMuscle: {
-          for (final (muscle, sets) in [...balance.enough, ...short])
-            muscle: sets,
-        },
+        load: [...balance.enough, ...short]
+          ..sort((a, b) => b.$2.compareTo(a.$2)),
         figure: figure,
       ),
       headline: short.isEmpty
@@ -528,21 +527,36 @@ class _TrainingBalanceCard extends StatelessWidget {
 }
 
 /// Where the week's work went, at a glance, half as tall as the card is
-/// wide; the full map and the sets beside it are a tap away.
+/// wide, with the most trained muscles' sets under it; the full map and
+/// every muscle's sets are a tap away.
 class _MuscleGlance extends StatelessWidget {
-  const _MuscleGlance({required this.setsByMuscle, required this.figure});
+  const _MuscleGlance({required this.load, required this.figure});
 
-  final Map<MuscleGroup, int> setsByMuscle;
+  /// Most trained first.
+  final List<(MuscleGroup, int)> load;
   final MuscleFigure figure;
 
+  static const _shown = 3;
+
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) => SizedBox(
-      height: constraints.maxWidth / 2,
-      child: Center(
-        child: MuscleMap(setsByMuscle: setsByMuscle, figure: figure),
+  Widget build(BuildContext context) => Column(
+    children: [
+      LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: constraints.maxWidth / 2,
+          child: Center(
+            child: MuscleMap(
+              setsByMuscle: {for (final (muscle, sets) in load) muscle: sets},
+              figure: figure,
+            ),
+          ),
+        ),
       ),
-    ),
+      if (load.isNotEmpty) ...[
+        const SizedBox(height: AppSpacing.md),
+        MuscleSetBars(load: load.take(_shown).toList()),
+      ],
+    ],
   );
 }
 

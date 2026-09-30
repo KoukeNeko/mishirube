@@ -929,7 +929,11 @@ Wall sit 2 x 1.5 min
         sessionCount: sessions,
         isMaxHolding: true,
       )!;
-      expect(dropped.statement, contains('從 12 組掉到 8 組'));
+      expect(
+        dropped.statement,
+        contains('從 12 組掉到 9 組'),
+        reason: 'against the last finished week, not this one',
+      );
       expect(dropped.statement, contains('沒有跟著掉'));
       expect(dropped.evidence, contains('不含熱身組'));
 
@@ -937,11 +941,22 @@ Wall sit 2 x 1.5 min
         volumeTrendInsight(
           testL10n,
           '槓鈴深蹲',
-          const [('8/24', 10), ('本週', 10)],
+          const [('8/24', 10), ('8/31', 10), ('本週', 10)],
           sessionCount: sessions,
           isMaxHolding: true,
         ),
         isNull,
+      );
+      expect(
+        volumeTrendInsight(
+          testL10n,
+          '槓鈴深蹲',
+          const [('8/24', 10), ('8/31', 10), ('本週', 2)],
+          sessionCount: sessions,
+          isMaxHolding: true,
+        ),
+        isNull,
+        reason: 'a week just begun is not a drop',
       );
     });
 

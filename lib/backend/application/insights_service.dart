@@ -104,6 +104,8 @@ class TrendsReport {
     required this.lines,
     required this.foodDays,
     required this.weighings,
+    required this.proteinDays,
+    required this.recentWorkouts,
   });
 
   final EnergyBalance? energy;
@@ -118,6 +120,11 @@ class TrendsReport {
   /// how far short of an estimate the records are.
   final int foodDays;
   final int weighings;
+
+  /// Complete food days and workouts in the pattern window, for the same
+  /// about protein and the muscle balance.
+  final int proteinDays;
+  final int recentWorkouts;
 
   /// How much of the weekdays' deficit the weekends take back.
   double? get weekendShare => switch ((energy, weekendIntake)) {
@@ -233,7 +240,8 @@ class InsightsService {
       _samples.between(
         ActivityMetric.basalEnergy,
         foodFrom.subtract(const Duration(days: 1)),
-        until,
+        // A day's energy adds up until it ends: today is not a day yet.
+        until.isBefore(_dayOf(now)) ? until : _dayOf(now),
       ),
     );
     return energyBalance(
@@ -267,8 +275,9 @@ class InsightsService {
     ];
     final weights = _journal.weightsBetween(from, until);
     final starts = _workouts.completedStarts(since: from);
+    // Steps add up through the day, so today's are not a day's yet.
     final steps = dailyValues(
-      _samples.between(ActivityMetric.steps, from, until),
+      _samples.between(ActivityMetric.steps, from, _dayOf(now)),
     );
     final (:kcal, :protein, :daysTracked) = _completeFoodDays(from, until, now);
     final trend = [for (final (at, _, value) in trendOf(weights)) (at, value)];
@@ -276,6 +285,11 @@ class InsightsService {
     final energyStart = _dayOf(now)
         .subtract(const Duration(days: energyWindowDays - 1));
     final recentStart = now.subtract(const Duration(days: patternWindowDays));
+    final patternStart = _dayOf(now)
+        .subtract(const Duration(days: patternWindowDays - 1));
+    final recentWorkouts = starts
+        .where((start) => start.isAfter(recentStart))
+        .length;
     return TrendsReport(
       energy: energy,
       weekendIntake: weekendIntake(kcal, now),
@@ -287,13 +301,14 @@ class InsightsService {
               trainingDays: {for (final start in starts) _dayOf(start)},
               today: now,
             ),
-      training: trainingBalance(
-        muscleLoad(),
-        starts.where((start) => start.isAfter(recentStart)).length,
-      ),
+      training: trainingBalance(muscleLoad(), recentWorkouts),
       weekendWake: weekendWake([for (final (wokeAt, _) in nights) wokeAt], now),
       foodDays: kcal.where((day) => !day.$1.isBefore(energyStart)).length,
       weighings: trend.where((point) => !point.$1.isBefore(energyStart)).length,
+      proteinDays: trend.isEmpty
+          ? 0
+          : protein.where((day) => !day.$1.isBefore(patternStart)).length,
+      recentWorkouts: recentWorkouts,
       relation: sleepAndTrainingInsight(_l10n, {
         for (final (wokeAt, minutes) in nights) _dayOf(wokeAt): minutes,
       }, _workouts.completedVolumes(since: from)),
@@ -355,7 +370,7 @@ class InsightsService {
         return (kcal, WeekAggregate.mean, protein);
       }(),
       TrendDomain.activity => (
-        dailyValues(_samples.between(ActivityMetric.steps, from, until)),
+        dailyValues(_samples.between(ActivityMetric.steps, from, _dayOf(now))),
         WeekAggregate.mean,
         dailyValues(
           _samples.between(ActivityMetric.restingHeartRate, from, until),
@@ -470,7 +485,8 @@ class InsightsService {
     final kcal = <(DateTime, double)>[];
     final protein = <(DateTime, double)>[];
     for (final day in byDay.keys.toList()..sort()) {
-      final summary = summariseDay(byDay[day]!, isOver: day.isBefore(today));
+      if (!day.isBefore(today)) continue;
+      final summary = summariseDay(byDay[day]!, isOver: true);
       if (!summary.isComplete) continue;
       kcal.add((day, summary.kcal.toDouble()));
       protein.add((day, summary.proteinGrams.toDouble()));
@@ -549,13 +565,22 @@ class InsightsService {
 
   VolumeReport? _reportFor(ExerciseDefinition exercise, Duration window) {
     final now = _db.now();
-    final from = now.subtract(window);
+    final weeks = (window.inDays / DateTime.daysPerWeek).ceil();
+    // From the first of the weeks drawn, so that week is whole too.
+    final today = _dayOf(now);
+    final from = today.subtract(
+      Duration(
+        days:
+            today.weekday -
+            DateTime.monday +
+            (weeks - 1) * DateTime.daysPerWeek,
+      ),
+    );
     final sessions = _exercises
         .sessionSetCounts(exercise.id)
         .where((session) => !session.$1.isBefore(from))
         .toList();
     if (sessions.isEmpty) return null;
-    final weeks = (window.inDays / DateTime.daysPerWeek).ceil();
     final weeklySets = weeklySums(_l10n, sessions, now: now, weeks: weeks);
     final history = _exercises.history(exercise.id);
     return VolumeReport(
@@ -616,7 +641,7 @@ class InsightsService {
   }
 
   /// Days with a food record in the window, and how many of them look
-  /// complete.
+  /// complete; today never does.
   (int, int) _foodDays(DateTime from, DateTime to) {
     final byDay = <DateTime, List<MealEvent>>{};
     for (final (eatenAt, meal) in _meals.between(from, to)) {
@@ -626,8 +651,9 @@ class InsightsService {
     final today = DateTime(to.year, to.month, to.day);
     var complete = 0;
     for (final MapEntry(key: day, value: meals) in byDay.entries) {
-      final summary = summariseDay(meals, isOver: day.isBefore(today));
-      if (summary.isComplete) complete++;
+      // Today is not over, so not complete, however much it holds.
+      if (!day.isBefore(today)) continue;
+      if (summariseDay(meals, isOver: true).isComplete) complete++;
     }
     return (complete, byDay.length);
   }

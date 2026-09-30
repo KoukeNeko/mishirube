@@ -60,8 +60,9 @@ class TrendLine {
   /// Against the stretch before; null when that stretch has no records.
   final String? change;
 
-  /// One value per week with records, oldest first.
-  final List<double> weekly;
+  /// One value per week from the first with records, oldest first; a
+  /// week without records since then is null, a gap rather than a zero.
+  final List<double?> weekly;
 }
 
 DateTime _dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
@@ -284,9 +285,9 @@ Insight? sleepAndTrainingInsight(
 }
 
 /// Weekly averages of [days] (or what [reduce] makes of each week) over
-/// the last [trendLineWeeks] weeks up to [today], skipping weeks without
-/// records.
-List<double> _weekly(
+/// the last [trendLineWeeks] weeks up to [today], from the first week
+/// with records; a week without any after it is null.
+List<double?> _weekly(
   List<(DateTime, double)> days,
   DateTime today, {
   double Function(List<double> values) reduce = _mean,
@@ -301,8 +302,12 @@ List<double> _weekly(
     if (date.isBefore(start) || date.isAfter(end)) continue;
     weeks.putIfAbsent(date.difference(start).inDays ~/ 7, () => []).add(value);
   }
-  final keys = weeks.keys.toList()..sort();
-  return [for (final key in keys) reduce(weeks[key]!)];
+  if (weeks.isEmpty) return const [];
+  final first = weeks.keys.reduce((a, b) => a < b ? a : b);
+  return [
+    for (var week = first; week < trendLineWeeks; week++)
+      if (weeks[week] case final values?) reduce(values) else null,
+  ];
 }
 
 /// How many of [times] fell in each of the last [trendLineWeeks] weeks

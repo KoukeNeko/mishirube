@@ -3469,16 +3469,20 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String proteinNeeds({required int window, required int days}) {
-    return '過去$window日のうち完全な食事と体重の記録$days日が必要';
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  }) {
+    return '過去$window日のうち完全な食事と体重の記録$days日が必要（現在$current日）';
   }
 
   @override
   String get muscleSetsTitle => '筋群別セット数';
 
   @override
-  String muscleSetsNeeds({required int count}) {
-    return '過去4週で$count回以上のトレーニングが必要';
+  String muscleSetsNeeds({required int count, required int current}) {
+    return '過去4週で$count回以上のトレーニングが必要（現在$current回）';
   }
 
   @override

@@ -433,7 +433,7 @@ class _Weekdays extends StatelessWidget {
               for (final (index, value) in values.indexed)
                 (
                   context.dates.weekdayNumber(index + 1),
-                  (((value ?? floor) - floor) * 100).round(),
+                  value == null ? null : ((value - floor) * 100).round(),
                 ),
             ],
             height: 80,

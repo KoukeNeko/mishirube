@@ -3524,16 +3524,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String proteinNeeds({required int window, required int days}) {
-    return 'Needs $days complete food days with weight in the last $window days';
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  }) {
+    return 'Needs $days complete food days with weight in the last $window days (now $current)';
   }
 
   @override
   String get muscleSetsTitle => 'Sets per muscle';
 
   @override
-  String muscleSetsNeeds({required int count}) {
-    return 'Needs at least $count workouts in the last 4 weeks';
+  String muscleSetsNeeds({required int count, required int current}) {
+    return 'Needs at least $count workouts in the last 4 weeks (now $current)';
   }
 
   @override

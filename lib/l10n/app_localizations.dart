@@ -6192,8 +6192,12 @@ abstract class AppLocalizations {
   /// What the protein insight needs.
   ///
   /// In zh, this message translates to:
-  /// **'需要近 {window} 天有 {days} 天完整飲食與體重'**
-  String proteinNeeds({required int window, required int days});
+  /// **'需要近 {window} 天有 {days} 天完整飲食與體重（目前 {current} 天）'**
+  String proteinNeeds({
+    required int window,
+    required int days,
+    required int current,
+  });
 
   /// Insight title.
   ///
@@ -6204,8 +6208,8 @@ abstract class AppLocalizations {
   /// What the training insight needs.
   ///
   /// In zh, this message translates to:
-  /// **'需要近 4 週至少 {count} 次訓練'**
-  String muscleSetsNeeds({required int count});
+  /// **'需要近 4 週至少 {count} 次訓練（目前 {current} 次）'**
+  String muscleSetsNeeds({required int count, required int current});
 
   /// Trends section.
   ///

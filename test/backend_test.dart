@@ -2756,6 +2756,42 @@ void main() {
       );
     });
 
+    test('today, not over yet, does not pull the averages down', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final today = clock.now();
+      backend.journal
+        ..setSex(Sex.male)
+        ..setBirthYear(1996)
+        ..recordBodyReadings({BodyMetric.height: 175});
+      void eat(DateTime day, int hour, double kcal) =>
+          backend.nutrition.logMeal(
+            MealEvent(
+              id: '${day.day}-$hour',
+              name: '一餐',
+              timeLabel: '$hour:00',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: kcal,
+            ),
+            eatenAt: day.add(Duration(hours: hour)),
+          );
+      for (var back = 20; back >= 1; back--) {
+        final day = DateTime(today.year, today.month, today.day - back);
+        backend.journal.recordWeight(70, at: day.add(const Duration(hours: 7)));
+        for (final hour in [8, 13, 19]) {
+          eat(day, hour, 900);
+        }
+      }
+      // Only breakfast so far today.
+      eat(DateTime(today.year, today.month, today.day), 0, 300);
+
+      final energy = backend.insights.energyOn(today)!;
+      expect(energy.foodDays, 20);
+      expect(energy.intake, 2700);
+      expect(backend.insights.report().foodDays, 20);
+    });
+
     test('targets saved before the split followed the goal now follow it', () {
       final backend = openFile();
       addTearDown(backend.close);

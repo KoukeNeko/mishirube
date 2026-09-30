@@ -104,6 +104,14 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     double? mean(Iterable<double> values) => values.isEmpty
         ? null
         : values.fold(0.0, (sum, value) => sum + value) / values.length;
+    // A count that adds up through the day is not a day's yet today, so
+    // the average leaves today out while there are other days.
+    final averaged = _metric.isCumulative && days.length > 1
+        ? [
+            for (final entry in days)
+              if (entry.$1 != _model.today) entry,
+          ]
+        : days;
     return DetailPage(
       appBar: PageAppBar(
         title: _isBloodPressure
@@ -167,7 +175,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
                             mean([for (final (_, v) in days) v])!,
                             mean(diastolic.values),
                           )
-                        : _value(mean([for (final (_, v) in days) v])!),
+                        : _value(mean([for (final (_, v) in averaged) v])!),
                   ),
                 if (usual != null)
                   KeyValueRow(
@@ -283,7 +291,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           for (final (start, value) in slots)
             (
               _range == _Range.week ? dates.weekday(start) : '',
-              ((value ?? 0) * 10).round(),
+              value == null ? null : (value * 10).round(),
             ),
         ],
         height: 80,
