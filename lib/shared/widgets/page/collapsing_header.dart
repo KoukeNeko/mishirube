@@ -493,7 +493,7 @@ class ScrollEdgeGlass extends StatelessWidget {
     );
     if (isHighContrast) return surface;
     return ClipRect(
-      child: BackdropFilter(
+      child: BackdropFilter.grouped(
         filter: ImageFilter.blur(sigmaX: _blurSigma, sigmaY: _blurSigma),
         child: surface,
       ),

@@ -10,6 +10,7 @@ import '../shared/toast/toast_host.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'bedtime_reminder.dart';
+import 'home_widgets.dart';
 import 'rest_notice.dart';
 import 'watch_sync.dart';
 import 'theme.dart';
@@ -28,6 +29,11 @@ class MishirubeApp extends StatefulWidget {
 class _MishirubeAppState extends State<MishirubeApp> {
   late final AppStore _store = widget.store ?? AppStore();
   final _navigator = GlobalKey<NavigatorState>();
+
+  /// Every frosted surface in a frame (app bar, its pills, the dock,
+  /// toasts) blurs one snapshot of the backdrop instead of each taking
+  /// its own, which on Android's GPUs is a full-screen pass apiece.
+  final _backdrop = BackdropKey();
 
   @override
   void initState() {
@@ -74,10 +80,15 @@ class _MishirubeAppState extends State<MishirubeApp> {
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (_, child) => AnnotatedRegion<SystemUiOverlayStyle>(
           value: appSystemOverlayStyle,
-          child: WindowControlsScope(
-            child: RestNotice(
-              child: WatchSync(
-                child: ToastHost(child: child ?? const SizedBox.shrink()),
+          child: BackdropGroup(
+            backdropKey: _backdrop,
+            child: WindowControlsScope(
+              child: RestNotice(
+                child: WatchSync(
+                  child: HomeWidgets(
+                    child: ToastHost(child: child ?? const SizedBox.shrink()),
+                  ),
+                ),
               ),
             ),
           ),

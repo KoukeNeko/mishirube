@@ -40,6 +40,17 @@ LiquidGlassSettings _dockGlass(Color glassColor) => LiquidGlassSettings(
 /// Tint over liquid glass: light, so the refraction shows.
 const _liquidTintOpacity = 0.35;
 
+/// Where liquid glass is drawn at all: Apple GPUs on Metal. Each glass
+/// surface reads the backdrop on its own, twice, and on Android's tiled
+/// GPUs every such read is a full-screen pass; with the dock and app bar
+/// that is ten a frame, more than a 120 Hz frame has room for (measured on
+/// a Nothing Phone 3: 8–12 ms of GPU a frame). Android keeps the frost,
+/// which all shares one backdrop through [BackdropGroup].
+bool _drawsLiquidGlass(TargetPlatform platform) => switch (platform) {
+  TargetPlatform.iOS || TargetPlatform.macOS => true,
+  _ => false,
+};
+
 /// How much [AppColors.barControl] covers the top bar's buttons.
 const barControlTintOpacity = 0.14;
 
@@ -90,7 +101,9 @@ class ChromeSurface extends StatelessWidget {
         child: content,
       );
     }
-    if (refracts && ImageFilter.isShaderFilterSupported) {
+    if (refracts &&
+        _drawsLiquidGlass(Theme.of(context).platform) &&
+        ImageFilter.isShaderFilterSupported) {
       return LayoutBuilder(
         builder: (context, constraints) => GlassContainer(
           useOwnLayer: true,
@@ -111,7 +124,7 @@ class ChromeSurface extends StatelessWidget {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
+      child: BackdropFilter.grouped(
         filter: ImageFilter.blur(sigmaX: _blurSigma, sigmaY: _blurSigma),
         child: CustomPaint(
           foregroundPainter: _FrostedRim(
