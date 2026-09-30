@@ -147,9 +147,13 @@ class _ShakeShearState extends State<ShakeShear>
   }
 
   @override
-  Widget build(BuildContext context) => Transform(
-    alignment: Alignment.centerLeft,
-    transform: Matrix4.identity()..setEntry(1, 0, _deflection),
-    child: widget.child,
+  Widget build(BuildContext context) => RepaintBoundary(
+    // Its own layer: a tick redraws the strip, not the page around it,
+    // which would otherwise be drawn again every frame it bobs.
+    child: Transform(
+      alignment: Alignment.centerLeft,
+      transform: Matrix4.identity()..setEntry(1, 0, _deflection),
+      child: widget.child,
+    ),
   );
 }

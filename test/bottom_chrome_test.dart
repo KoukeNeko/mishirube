@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
@@ -13,6 +14,7 @@ import 'package:mishirube/features/record/record_options.dart';
 import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/session_accessory.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
+import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/l10n/l10n.dart';
 
@@ -46,6 +48,25 @@ void main() {
     await _settleFor(tester);
 
     expect(store.selectedTab, HomeTab.log);
+    await disposeTree(tester);
+  });
+
+  testWidgets('only the tab on screen keeps its tickers running', (
+    tester,
+  ) async {
+    await _pumpApp(tester, FakeClock());
+    bool ticks(Type tab) => TickerMode.valuesOf(
+      tester.element(find.byType(tab, skipOffstage: false)),
+    ).enabled;
+
+    expect(ticks(TodayScreen), isTrue);
+    expect(ticks(LogScreen), isFalse);
+
+    await tester.tap(find.bySemanticsLabel('紀錄'));
+    await _settleFor(tester);
+
+    expect(ticks(TodayScreen), isFalse);
+    expect(ticks(LogScreen), isTrue);
     await disposeTree(tester);
   });
 

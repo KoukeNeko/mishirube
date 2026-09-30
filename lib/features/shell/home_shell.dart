@@ -159,6 +159,41 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
+  List<Widget> _tabs(BuildContext context) => [
+    ListDetailLayout(
+      key: _layouts[HomeTab.today.index],
+      list: const TodayScreen(),
+      placeholder: DetailPanePlaceholder(
+        icon: Icons.my_location_outlined,
+        label: context.l10n.detailNothingSelected,
+      ),
+    ),
+    ListDetailLayout(
+      key: _layouts[HomeTab.log.index],
+      list: const LogScreen(),
+      placeholder: DetailPanePlaceholder(
+        icon: Icons.list_alt,
+        label: context.l10n.detailNoEntrySelected,
+      ),
+    ),
+    ListDetailLayout(
+      key: _layouts[HomeTab.trends.index],
+      list: const TrendsScreen(),
+      placeholder: DetailPanePlaceholder(
+        icon: Icons.insights_outlined,
+        label: context.l10n.detailNothingSelected,
+      ),
+    ),
+    ListDetailLayout(
+      key: _layouts[HomeTab.me.index],
+      list: const MeScreen(),
+      placeholder: DetailPanePlaceholder(
+        icon: Icons.person_outline,
+        label: context.l10n.detailNothingSelected,
+      ),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
@@ -179,38 +214,18 @@ class _HomeShellState extends State<HomeShell> {
                 // With two panes every tab is a main page and what is
                 // opened from it, so the dock stays put between tabs.
                 children: [
-                  ListDetailLayout(
-                    key: _layouts[HomeTab.today.index],
-                    list: const TodayScreen(),
-                    placeholder: DetailPanePlaceholder(
-                      icon: Icons.my_location_outlined,
-                      label: context.l10n.detailNothingSelected,
+                  for (final (i, tab) in _tabs(context).indexed)
+                    // The stack keeps the other tabs built, so what the
+                    // showing tab answers to is kept from them: their
+                    // tickers would go on simulating Today's water every
+                    // frame, and their headers would rebuild on every
+                    // change of scroll direction.
+                    TickerMode(
+                      enabled: i == store.selectedTab.index,
+                      child: i == store.selectedTab.index
+                          ? tab
+                          : ChromeVisibility(isMinimized: false, child: tab),
                     ),
-                  ),
-                  ListDetailLayout(
-                    key: _layouts[HomeTab.log.index],
-                    list: const LogScreen(),
-                    placeholder: DetailPanePlaceholder(
-                      icon: Icons.list_alt,
-                      label: context.l10n.detailNoEntrySelected,
-                    ),
-                  ),
-                  ListDetailLayout(
-                    key: _layouts[HomeTab.trends.index],
-                    list: const TrendsScreen(),
-                    placeholder: DetailPanePlaceholder(
-                      icon: Icons.insights_outlined,
-                      label: context.l10n.detailNothingSelected,
-                    ),
-                  ),
-                  ListDetailLayout(
-                    key: _layouts[HomeTab.me.index],
-                    list: const MeScreen(),
-                    placeholder: DetailPanePlaceholder(
-                      icon: Icons.person_outline,
-                      label: context.l10n.detailNothingSelected,
-                    ),
-                  ),
                 ],
               ),
             ),

@@ -433,30 +433,34 @@ class _LevelFillState extends State<LevelFill>
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: LayoutBuilder(
-      builder: (context, constraints) {
-        final size = constraints.biggest;
-        final water = _water;
-        if (water == null ||
-            water.width != size.width ||
-            water.height != size.height) {
-          // Laid at the lean the device already has, not flat.
-          _water = ShallowWater(
-            width: size.width,
-            height: size.height,
-            level: _level,
+    // Its own layer: a tick redraws the water, not the page around it,
+    // which would otherwise be drawn again every frame the water moves.
+    child: RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = constraints.biggest;
+          final water = _water;
+          if (water == null ||
+              water.width != size.width ||
+              water.height != size.height) {
+            // Laid at the lean the device already has, not flat.
+            _water = ShallowWater(
+              width: size.width,
+              height: size.height,
+              level: _level,
+            );
+            _layAt(_water!, _restingLean);
+          }
+          return CustomPaint(
+            painter: _WaterPainter(
+              depth: List.of(_water!.depth),
+              drops: [for (final drop in _water!.drops) Offset(drop.x, drop.y)],
+              color: widget.color,
+            ),
+            size: size,
           );
-          _layAt(_water!, _restingLean);
-        }
-        return CustomPaint(
-          painter: _WaterPainter(
-            depth: List.of(_water!.depth),
-            drops: [for (final drop in _water!.drops) Offset(drop.x, drop.y)],
-            color: widget.color,
-          ),
-          size: size,
-        );
-      },
+        },
+      ),
     ),
   );
 }
