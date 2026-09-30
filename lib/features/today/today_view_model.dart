@@ -98,20 +98,21 @@ class TodayViewModel extends ViewModel {
     );
   }
 
-  /// Today's vitals, each at the day's figure; the card shows only when
-  /// one of them was taken on purpose, a blood pressure or a body
-  /// temperature, and not for a watch's background readings alone.
+  /// Today's vitals, each at the day's figure.
   Map<ActivityMetric, double> get vitals {
     final totals = backend.activity.dayTotals(_today);
-    final vitals = {
+    return {
       for (final MapEntry(key: metric, value: value) in totals.entries)
         if (metric.group == ActivityMetricGroup.vitals) metric: value,
     };
-    final isTaken =
-        vitals.containsKey(ActivityMetric.bloodPressureSystolic) ||
-        vitals.containsKey(ActivityMetric.bodyTemperature);
-    return isTaken ? vitals : const {};
   }
+
+  /// Whether a vital was taken on purpose today, a blood pressure or a
+  /// body temperature: a watch's background readings alone would put the
+  /// card on Today every day.
+  static bool isTaken(Map<ActivityMetric, double> vitals) =>
+      vitals.containsKey(ActivityMetric.bloodPressureSystolic) ||
+      vitals.containsKey(ActivityMetric.bodyTemperature);
 
   /// The plain water the day's level fills towards; null draws none.
   int? get waterReferenceMl => backend.nutrition.waterReferenceMl;

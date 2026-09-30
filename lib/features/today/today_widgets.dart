@@ -628,15 +628,23 @@ class VitalsCard extends StatelessWidget {
 }
 
 /// A section of Today with nothing to show today, kept in its place
-/// when sections are shown whether or not they have figures.
+/// when sections are shown whether or not they have figures. It still
+/// opens the section's own page, where the day can be logged or read.
 class EmptySectionCard extends StatelessWidget {
-  const EmptySectionCard({super.key, required this.label, required this.color});
+  const EmptySectionCard({
+    super.key,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   final String label;
   final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => AppCard(
+    onTap: onTap,
     child: Row(
       children: [
         CategoryLabel(label: label, color: color),

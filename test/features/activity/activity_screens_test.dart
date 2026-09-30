@@ -7,6 +7,7 @@ import 'package:mishirube/features/activity/activity_metric_screen.dart';
 import 'package:mishirube/features/activity/daily_activity_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
 
 import '../../support/harness.dart';
@@ -138,6 +139,19 @@ void main() {
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
     expect(find.byType(VitalsCard), findsNothing);
+    await disposeTree(tester);
+
+    // Every section kept: what the watch read shows, not "none".
+    TodayViewModel(store.backend)
+      ..setShowsOnlyWithData(false)
+      ..dispose();
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.byType(VitalsCard),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('97 %'), findsOneWidget);
     await disposeTree(tester);
 
     store = storeWith(

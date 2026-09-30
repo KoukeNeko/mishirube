@@ -4,6 +4,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/caffeine/caffeine_card.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
+import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
@@ -178,6 +179,14 @@ void main() {
     expect(empty, findsWidgets, reason: 'nothing eaten, still in place');
     final intake = find.descendant(of: empty.first, matching: find.text('飲食'));
     expect(intake, findsOneWidget, reason: 'first, as ordered');
+
+    await tester.tap(intake);
+    await tester.pumpAndSettle();
+    expect(
+      find.byType(DailyNutritionScreen),
+      findsOneWidget,
+      reason: 'empty, it still opens the day',
+    );
     await disposeTree(tester);
   });
 

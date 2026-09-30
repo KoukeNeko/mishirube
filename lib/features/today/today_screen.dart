@@ -194,6 +194,15 @@ class TodayScreen extends StatelessWidget {
     final onlyWithData = today.showsOnlyWithData;
     // A section with nothing today is left out, or, when every section is
     // to keep its place, shown as empty.
+    // Still opening the section's own page, where the day is.
+    void openPageOf(TodaySection section) => switch (section) {
+      TodaySection.activity => pushPage(context, const DailyActivityScreen()),
+      TodaySection.intake => pushPage(context, const DailyNutritionScreen()),
+      TodaySection.caffeine => pushPage(context, const CaffeineScreen()),
+      TodaySection.vitals => pushPage(context, const BodyScreen()),
+      TodaySection.insights => pushPage(context, const InsightDetailScreen()),
+      _ => store.selectTab(HomeTab.log),
+    };
     List<Widget> orEmpty(
       TodaySection section,
       Color color,
@@ -205,6 +214,7 @@ class TodayScreen extends StatelessWidget {
               child: EmptySectionCard(
                 label: section.labelIn(context.l10n),
                 color: color,
+                onTap: () => openPageOf(section),
               ),
             ),
           ];
@@ -240,7 +250,11 @@ class TodayScreen extends StatelessWidget {
         section,
         AppColors.body,
         [
-          if (today.vitals case final vitals when vitals.isNotEmpty)
+          // Only a vital taken on purpose earns the card, unless every
+          // section is kept: then whatever was read shows, never "none".
+          if (today.vitals case final vitals
+              when vitals.isNotEmpty &&
+                  (!onlyWithData || TodayViewModel.isTaken(vitals)))
             Gutter(
               child: VitalsCard(
                 vitals: vitals,
