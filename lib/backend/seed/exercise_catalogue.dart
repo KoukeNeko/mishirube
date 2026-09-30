@@ -32,6 +32,18 @@ Future<void> loadExerciseCatalogue(
   db.transaction(() {
     for (final exercise in shipped) {
       final mine = exercises.byId(exercise.id);
+      // How sets are recorded is part of how the history reads, so an
+      // exercise already in a workout or a routine keeps the way it was
+      // recorded, as `CatalogService.update` refuses to change it. An
+      // update to the library only sets it for an exercise not used yet.
+      final isUsed =
+          mine != null &&
+          db.select(
+            'SELECT 1 FROM workout_exercises WHERE exercise_id = ? '
+            'UNION ALL SELECT 1 FROM routine_exercises WHERE exercise_id = ? '
+            'LIMIT 1',
+            [exercise.id, exercise.id],
+          ).isNotEmpty;
       exercises.save(
         mine == null
             ? exercise
@@ -43,7 +55,9 @@ Future<void> loadExerciseCatalogue(
                 primaryMuscles: exercise.primaryMuscles,
                 secondaryMuscles: exercise.secondaryMuscles,
                 pattern: exercise.pattern,
-                trackingType: exercise.trackingType,
+                trackingType: isUsed
+                    ? mine.trackingType
+                    : exercise.trackingType,
                 laterality: exercise.laterality,
                 family: exercise.family,
                 frames: exercise.frames,

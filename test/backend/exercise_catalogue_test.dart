@@ -88,4 +88,57 @@ void main() {
       ChangeSource.catalogue.name,
     );
   });
+
+  test('the library holds are recorded by time', () {
+    final byId = {for (final e in shipped) e.id: e};
+    for (final id in [
+      'plank',
+      'side-plank',
+      'wall-sit',
+      'hollow-body-hold',
+      'dead-hang',
+      'l-sit-hold',
+    ]) {
+      expect(byId[id]!.trackingType, TrackingType.duration, reason: id);
+    }
+  });
+
+  test('an update never changes how a used exercise is recorded', () async {
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    addTearDown(backend.close);
+    seedDemoData(backend, FakeClock().now());
+    final exercises = backend.storage.exercises;
+    // Someone who logged a plank as weight and reps, and one who has not
+    // used the wall sit.
+    ExerciseDefinition asWeightReps(String id) => ExerciseDefinition(
+      id: id,
+      name: id,
+      equipment: Equipment.bodyweight,
+      primaryMuscles: const [MuscleGroup.core],
+      pattern: MovementPattern.isolation,
+    );
+    exercises
+      ..save(asWeightReps('plank'))
+      ..save(asWeightReps('wall-sit'));
+    final workout = backend.training.startFree([exercises.byId('plank')!]);
+    backend.training
+      ..begin(workout)
+      ..toggleSet(workout, 0)
+      ..finish(workout);
+
+    await loadExerciseCatalogue(backend.db, exercises);
+
+    expect(
+      exercises.byId('plank')!.trackingType,
+      TrackingType.weightReps,
+      reason: 'its logged sets keep meaning weight and reps',
+    );
+    expect(
+      exercises.byId('plank')!.frames,
+      hasLength(3),
+      reason: 'the rest updates',
+    );
+    expect(exercises.history('plank').sessionCount, 1);
+    expect(exercises.byId('wall-sit')!.trackingType, TrackingType.duration);
+  });
 }
