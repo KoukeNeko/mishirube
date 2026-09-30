@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../../l10n/l10n.dart';
 import '../../haptics.dart';
 
 const _fieldHeight = 56.0;
@@ -104,15 +105,23 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: _fieldHeight,
-      child: TextField(
-        controller: controller,
-        onTapOutside: dismissKeyboardOnTapOutside,
-        textInputAction: TextInputAction.search,
-        textAlignVertical: TextAlignVertical.center,
-        style: AppTextStyles.body,
-        decoration: _decoration(
-          hint: hint,
-          prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+      // Rebuilt as the text changes, so the clear button comes and goes.
+      child: ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) => TextField(
+          controller: controller,
+          onTapOutside: dismissKeyboardOnTapOutside,
+          textInputAction: TextInputAction.search,
+          textAlignVertical: TextAlignVertical.center,
+          style: AppTextStyles.body,
+          decoration: _decoration(
+            hint: hint,
+            prefixIcon: const Icon(
+              Icons.search,
+              color: AppColors.textSecondary,
+            ),
+            suffixIcon: _ClearButton.orNull(controller),
+          ),
         ),
       ),
     );
@@ -146,30 +155,60 @@ class AppTextField extends StatelessWidget {
     return SizedBox(
       // A field that takes several lines grows with them.
       height: maxLines == 1 ? _fieldHeight : null,
-      child: TextField(
-        controller: controller,
-        autofocus: autofocus,
-        onTapOutside: dismissKeyboardOnTapOutside,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        style: AppTextStyles.body.copyWith(fontSize: 17),
-        textAlignVertical: TextAlignVertical.center,
-        decoration: _decoration(
-          hint: hint,
-          suffixIcon: isLoading
-              ? const Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.md),
-                  child: Center(
-                    widthFactor: 1,
-                    child: SizedBox.square(
-                      dimension: 20,
-                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+      child: ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) => TextField(
+          controller: controller,
+          autofocus: autofocus,
+          onTapOutside: dismissKeyboardOnTapOutside,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          style: AppTextStyles.body.copyWith(fontSize: 17),
+          textAlignVertical: TextAlignVertical.center,
+          decoration: _decoration(
+            hint: hint,
+            suffixIcon: isLoading
+                ? const Padding(
+                    padding: EdgeInsets.only(right: AppSpacing.md),
+                    child: Center(
+                      widthFactor: 1,
+                      child: SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 2,
+                        ),
+                      ),
                     ),
-                  ),
-                )
-              : null,
+                  )
+                : maxLines == 1
+                ? _ClearButton.orNull(controller)
+                : null,
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// Empties a one-line field, shown while it has text.
+class _ClearButton extends StatelessWidget {
+  const _ClearButton(this.controller);
+
+  final TextEditingController controller;
+
+  static Widget? orNull(TextEditingController controller) =>
+      controller.text.isEmpty ? null : _ClearButton(controller);
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: context.l10n.clearAction,
+      onPressed: () {
+        AppHaptics.tap();
+        controller.clear();
+      },
+      color: AppColors.textTertiary,
+      icon: const Icon(Icons.cancel, size: 20),
     );
   }
 }
