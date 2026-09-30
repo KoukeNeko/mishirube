@@ -1452,11 +1452,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String exerciseLastSet({required String weight, required int reps}) {
-    return 'Last $weight kg × $reps';
-  }
-
-  @override
   String optionalField({required String field}) {
     return '$field (optional)';
   }
@@ -3744,9 +3739,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalShort => 'Total';
 
   @override
-  String get notStarted => 'Not started';
-
-  @override
   String get totalVolume => 'Total volume';
 
   @override
@@ -3761,9 +3753,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restTitle => 'Rest';
-
-  @override
-  String get rest30More => 'Rest 30 s more';
 
   @override
   String get skipRest => 'Skip rest';
@@ -3814,13 +3803,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadPrevious => 'Load';
 
   @override
-  String get loadPreviousLabel => 'Fill in last time\'s weights and reps';
+  String get loadPreviousLabel => 'Past sessions';
 
   @override
   String get quickFill => 'Quick fill';
 
   @override
-  String get quickFillLabel => 'Copy the first set to the others';
+  String get quickFillLabel => 'Set schemes';
 
   @override
   String get setColumn => 'Set';
@@ -5862,4 +5851,181 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyWebSearchValue =>
       'Anthropic and Google AI Studio look up published nutrition figures from what is sent';
+
+  @override
+  String get workoutScheduled => 'Scheduled';
+
+  @override
+  String get cancelSchedule => 'Cancel';
+
+  @override
+  String get cancelWorkoutTitle => 'Cancel this workout?';
+
+  @override
+  String get cancelWorkoutAction => 'Cancel workout';
+
+  @override
+  String get keepWorkout => 'Keep';
+
+  @override
+  String get commonView => 'View';
+
+  @override
+  String get schemeStraight => 'Straight';
+
+  @override
+  String get schemeStraightHint => 'Same weight every set';
+
+  @override
+  String get schemeAscending => 'Ascending';
+
+  @override
+  String get schemeAscendingHint => 'Weight rises and reps fall each set';
+
+  @override
+  String get schemeReverse => 'Heavy first';
+
+  @override
+  String get schemeReverseHint => 'Heaviest first, then lighter for more reps';
+
+  @override
+  String get schemeFiveByFive => '5×5 strength';
+
+  @override
+  String get schemeFiveByFiveHint => '5 sets of 5 at one weight';
+
+  @override
+  String get schemeTopSet => 'Top set';
+
+  @override
+  String get schemeTopSetHint => 'One heavy set, the rest lighter';
+
+  @override
+  String get schemeDrop => 'Drop';
+
+  @override
+  String get schemeDropHint => 'Heaviest first, a little lighter each set';
+
+  @override
+  String get mainWeight => 'Main weight';
+
+  @override
+  String get mainWeightRecent => '90-day best';
+
+  @override
+  String get mainWeightEver => 'All-time best';
+
+  @override
+  String get setCountLabel => 'Sets';
+
+  @override
+  String get repCountLabel => 'Reps';
+
+  @override
+  String get oneSetLess => '1 set fewer';
+
+  @override
+  String get oneSetMore => '1 set more';
+
+  @override
+  String exerciseRecordsTitle({required String name}) {
+    return '$name history';
+  }
+
+  @override
+  String get earlierRecord => 'Earlier session';
+
+  @override
+  String get laterRecord => 'Later session';
+
+  @override
+  String get workoutTimeTitle => 'Workout time';
+
+  @override
+  String get restTimeTitle => 'Rest time';
+
+  @override
+  String get autoRestTitle => 'Start rest automatically after a set';
+
+  @override
+  String durationSeconds({required int seconds}) {
+    return '$seconds s';
+  }
+
+  @override
+  String sessionScheduledOpen({required String session}) {
+    return 'Workout scheduled, go back to it';
+  }
+
+  @override
+  String get trackingTypeWeightDuration => 'Weight + time';
+
+  @override
+  String repsValue({required int reps}) {
+    return '$reps reps';
+  }
+
+  @override
+  String get totalTime => 'Total time';
+
+  @override
+  String get totalReps => 'Total reps';
+
+  @override
+  String get totalDistance => 'Total distance';
+
+  @override
+  String exerciseLastFigures({required String set}) {
+    return 'Last $set';
+  }
+
+  @override
+  String mostRepsSet({required String set, required String date}) {
+    return 'Most $set · $date';
+  }
+
+  @override
+  String longestSet({required String set, required String date}) {
+    return 'Longest $set · $date';
+  }
+
+  @override
+  String furthestSet({required String set, required String date}) {
+    return 'Furthest $set · $date';
+  }
+
+  @override
+  String get timeColumn => 'Time';
+
+  @override
+  String setTime({required String set}) {
+    return '$set time';
+  }
+
+  @override
+  String setDistance({required String set}) {
+    return '$set distance';
+  }
+
+  @override
+  String setNumberTime({required int number}) {
+    return 'Set $number time';
+  }
+
+  @override
+  String setNumberDistance({required int number}) {
+    return 'Set $number distance';
+  }
+
+  @override
+  String get unitMinutes => 'min';
+
+  @override
+  String get unitSeconds => 's';
+
+  @override
+  String get setTimerStart => 'Start';
+
+  @override
+  String get setTimerStartLabel => 'Start timing';
 }

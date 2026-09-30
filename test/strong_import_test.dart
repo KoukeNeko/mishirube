@@ -252,6 +252,50 @@ void main() {
     expect(rpe.map((row) => row['rpe']), [null, 8.0, null]);
   });
 
+  test('a timed set keeps its seconds, and a weighted one its weight', () {
+    final held = [
+      _currentHeader,
+      _row([
+        9,
+        '2026-08-09 09:00:00',
+        'Core',
+        1200,
+        'Weighted Hang',
+        1,
+        10,
+        0,
+        '',
+        '',
+        45,
+        '',
+        '',
+      ]),
+    ].join('\n');
+
+    importer.commit(importer.dryRun(_currentExport, fileName: 'strong.csv'));
+    final plank = backend.storage.exercises.history('plank');
+    expect(plank.last!.seconds, 60, reason: 'the time of the plank');
+    expect(
+      backend.storage.exercises
+          .sessionsOf('plank')
+          .single
+          .sets
+          .single
+          .durationSeconds,
+      60,
+    );
+
+    final plan = importer.dryRun(held, fileName: 'hang.csv');
+    final hang = plan.exercises['Weighted Hang']!;
+    expect(hang.exercise.trackingType, TrackingType.weightDuration);
+    importer.commit(plan);
+    final sets = backend.storage.exercises
+        .sessionsOf(hang.exercise.id)
+        .single
+        .sets;
+    expect((sets.single.weightKg, sets.single.durationSeconds), (10.0, 45));
+  });
+
   test('importing the same file again is refused', () {
     importer.commit(importer.dryRun(_currentExport, fileName: 'strong.csv'));
 

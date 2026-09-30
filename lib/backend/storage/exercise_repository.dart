@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import 'database.dart';
 import '../engines/training_metrics.dart';
 import '../../l10n/l10n.dart';
@@ -24,21 +23,25 @@ class ExerciseRepository {
     final rows = _db.select(
       'SELECT * FROM exercises WHERE deleted_at IS NULL ORDER BY rowid',
     );
-    return [for (final row in rows) _fromRow(row, history(row['id']))];
+    return [
+      for (final row in rows)
+        _fromRow(row, history(row['id'], tracking: _trackingOf(row))),
+    ];
   }
 
   ExerciseDefinition? byId(String id) {
     final rows = _db.select('SELECT * FROM exercises WHERE id = ?', [id]);
     if (rows.isEmpty) return null;
-    return _fromRow(rows.first, history(id));
+    return _fromRow(rows.first, history(id, tracking: _trackingOf(rows.first)));
   }
 
-  /// Finished sessions of [exerciseId], newest first.
-  ExerciseHistory history(String exerciseId) {
+  /// Every set of every finished session of [exerciseId], done or not,
+  /// newest session first, each set in the order it was planned.
+  List<ExerciseSessionRecord> _finishedSessions(String exerciseId) {
     final rows = _db.select(
       '''
       SELECT w.id, w.started_at, s.weight_kg, s.reps, s.rir, s.set_type,
-             s.is_done
+             s.is_done, s.duration_s, s.distance_m
       FROM workouts w
       JOIN workout_exercises we ON we.workout_id = w.id
       JOIN workout_sets s
@@ -64,22 +67,63 @@ class ExerciseRepository {
           previousReps: reps,
           rir: row['rir'] as int?,
           type: SetType.values.byName(row['set_type']),
+          durationSeconds: row['duration_s'] as int?,
+          distanceMeters: (row['distance_m'] as num?)?.toDouble(),
           isDone: row['is_done'] == 1,
         ),
       );
     }
+    return [
+      for (final MapEntry(key: id, value: sets) in setsByWorkout.entries)
+        ExerciseSessionRecord(date: startedAt[id]!, sets: sets),
+    ];
+  }
+
+  /// The sets that were done in each finished session of [exerciseId],
+  /// newest first; a session with none done is left out.
+  List<ExerciseSessionRecord> sessionsOf(String exerciseId) => [
+    for (final session in _finishedSessions(exerciseId))
+      if (session.sets.any((set) => set.isDone))
+        ExerciseSessionRecord(
+          date: session.date,
+          sets: [
+            for (final set in session.sets)
+              if (set.isDone) set,
+          ],
+        ),
+  ];
+
+  static TrackingType _trackingOf(Row row) =>
+      TrackingType.values.byName(row['tracking_type']);
+
+  /// Finished sessions of [exerciseId], newest first, each summed up by
+  /// its best set for how the exercise is recorded ([tracking], read from
+  /// the exercise when not given).
+  ExerciseHistory history(String exerciseId, {TrackingType? tracking}) {
+    final type =
+        tracking ??
+        switch (_db.select('SELECT tracking_type FROM exercises WHERE id = ?', [
+          exerciseId,
+        ])) {
+          final rows when rows.isNotEmpty => _trackingOf(rows.first),
+          _ => TrackingType.weightReps,
+        };
     final windowStart = _db.now().subtract(oneRepMaxWindow);
     final entries = <ExerciseHistoryEntry>[];
     double? bestEstimate;
-    for (final MapEntry(key: id, value: sets) in setsByWorkout.entries) {
-      final best = heaviestSet(sets);
+    for (final ExerciseSessionRecord(:date, :sets) in _finishedSessions(
+      exerciseId,
+    )) {
+      final best = bestSet(type, sets);
       if (best == null) continue;
-      final date = startedAt[id]!;
       double? sessionEstimate;
-      for (final set in countedSets(sets)) {
-        final estimate = estimateOneRepMax(set.weightKg, set.reps);
-        if (estimate != null && estimate > (sessionEstimate ?? 0)) {
-          sessionEstimate = estimate;
+      // A max is only estimated from weight and reps.
+      if (type == TrackingType.weightReps) {
+        for (final set in countedSets(sets)) {
+          final estimate = estimateOneRepMax(set.weightKg, set.reps);
+          if (estimate != null && estimate > (sessionEstimate ?? 0)) {
+            sessionEstimate = estimate;
+          }
         }
       }
       entries.add(
@@ -89,6 +133,8 @@ class ExerciseRepository {
           reps: best.reps,
           rir: best.rir,
           oneRepMaxKg: sessionEstimate,
+          seconds: best.durationSeconds,
+          meters: best.distanceMeters,
         ),
       );
       if (date.isBefore(windowStart) || sessionEstimate == null) continue;
@@ -354,9 +400,8 @@ class ExerciseRepository {
       recordCount: history.sessionCount,
       lastPerformance: last == null
           ? null
-          : _l10n.exerciseLastSet(
-              weight: formatWeight(last.weightKg),
-              reps: last.reps,
+          : _l10n.exerciseLastFigures(
+              set: last.figuresIn(_l10n, _trackingOf(row)),
             ),
       lastUsedDaysAgo: last == null ? null : _daysBetween(last.date, _db.now()),
     );

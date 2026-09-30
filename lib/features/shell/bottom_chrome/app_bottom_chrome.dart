@@ -137,7 +137,11 @@ class _AppBottomChromeState extends State<AppBottomChrome>
                   selected: widget.selected,
                   onSelect: widget.onSelect,
                   morph: _morph,
-                  session: widget.session,
+                  // A scheduled workout has no time to show in the capsule.
+                  session: switch (widget.session) {
+                    ActiveSession(isReady: true) => null,
+                    final session => session,
+                  },
                   onQuickLog: widget.onQuickLog,
                   onOpenSession: widget.onOpenSession,
                   quickLogProgress: widget.quickLogProgress,

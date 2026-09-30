@@ -1448,11 +1448,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String exerciseLastSet({required String weight, required int reps}) {
-    return '지난번 $weight kg × $reps';
-  }
-
-  @override
   String optionalField({required String field}) {
     return '$field(선택)';
   }
@@ -3688,9 +3683,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get totalShort => '총';
 
   @override
-  String get notStarted => '시작 안 함';
-
-  @override
   String get totalVolume => '총 훈련량';
 
   @override
@@ -3705,9 +3697,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get restTitle => '휴식';
-
-  @override
-  String get rest30More => '30초 더 쉬기';
 
   @override
   String get skipRest => '휴식 건너뛰기';
@@ -3758,13 +3747,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadPrevious => '불러오기';
 
   @override
-  String get loadPreviousLabel => '지난번 중량과 횟수 입력';
+  String get loadPreviousLabel => '지난 기록';
 
   @override
   String get quickFill => '빠른 입력';
 
   @override
-  String get quickFillLabel => '첫 세트로 나머지 채우기';
+  String get quickFillLabel => '세트 방식';
 
   @override
   String get setColumn => '세트';
@@ -5766,4 +5755,181 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get privacyWebSearchValue =>
       'Anthropic, Google AI Studio는 보낸 내용으로 공개된 영양 정보를 검색';
+
+  @override
+  String get workoutScheduled => '예정됨';
+
+  @override
+  String get cancelSchedule => '예정 취소';
+
+  @override
+  String get cancelWorkoutTitle => '이번 트레이닝을 취소할까요?';
+
+  @override
+  String get cancelWorkoutAction => '트레이닝 취소';
+
+  @override
+  String get keepWorkout => '유지';
+
+  @override
+  String get commonView => '보기';
+
+  @override
+  String get schemeStraight => '스트레이트';
+
+  @override
+  String get schemeStraightHint => '모든 세트 같은 무게';
+
+  @override
+  String get schemeAscending => '점증';
+
+  @override
+  String get schemeAscendingHint => '세트마다 무게가 늘고 횟수가 줄어듦';
+
+  @override
+  String get schemeReverse => '고중량부터';
+
+  @override
+  String get schemeReverseHint => '첫 세트가 가장 무겁고 이후 무게를 줄이고 횟수를 늘림';
+
+  @override
+  String get schemeFiveByFive => '5×5 스트렝스';
+
+  @override
+  String get schemeFiveByFiveHint => '같은 무게로 5세트 5회';
+
+  @override
+  String get schemeTopSet => '탑 세트';
+
+  @override
+  String get schemeTopSetHint => '한 세트만 가장 무겁고 나머지는 가볍게';
+
+  @override
+  String get schemeDrop => '드롭';
+
+  @override
+  String get schemeDropHint => '첫 세트가 가장 무겁고 조금씩 줄임';
+
+  @override
+  String get mainWeight => '기준 무게';
+
+  @override
+  String get mainWeightRecent => '최근 90일 최고';
+
+  @override
+  String get mainWeightEver => '역대 최고';
+
+  @override
+  String get setCountLabel => '세트 수';
+
+  @override
+  String get repCountLabel => '횟수';
+
+  @override
+  String get oneSetLess => '1세트 줄이기';
+
+  @override
+  String get oneSetMore => '1세트 늘리기';
+
+  @override
+  String exerciseRecordsTitle({required String name}) {
+    return '$name 기록';
+  }
+
+  @override
+  String get earlierRecord => '이전 기록';
+
+  @override
+  String get laterRecord => '다음 기록';
+
+  @override
+  String get workoutTimeTitle => '운동 시간';
+
+  @override
+  String get restTimeTitle => '휴식 시간';
+
+  @override
+  String get autoRestTitle => '세트 완료 후 자동으로 휴식 시작';
+
+  @override
+  String durationSeconds({required int seconds}) {
+    return '$seconds초';
+  }
+
+  @override
+  String sessionScheduledOpen({required String session}) {
+    return '$session 예정됨, 돌아가기';
+  }
+
+  @override
+  String get trackingTypeWeightDuration => '무게 + 시간';
+
+  @override
+  String repsValue({required int reps}) {
+    return '$reps회';
+  }
+
+  @override
+  String get totalTime => '총 시간';
+
+  @override
+  String get totalReps => '총 횟수';
+
+  @override
+  String get totalDistance => '총 거리';
+
+  @override
+  String exerciseLastFigures({required String set}) {
+    return '지난번 $set';
+  }
+
+  @override
+  String mostRepsSet({required String set, required String date}) {
+    return '최다 $set · $date';
+  }
+
+  @override
+  String longestSet({required String set, required String date}) {
+    return '최장 $set · $date';
+  }
+
+  @override
+  String furthestSet({required String set, required String date}) {
+    return '최장 거리 $set · $date';
+  }
+
+  @override
+  String get timeColumn => '시간';
+
+  @override
+  String setTime({required String set}) {
+    return '$set 시간';
+  }
+
+  @override
+  String setDistance({required String set}) {
+    return '$set 거리';
+  }
+
+  @override
+  String setNumberTime({required int number}) {
+    return '$number세트 시간';
+  }
+
+  @override
+  String setNumberDistance({required int number}) {
+    return '$number세트 거리';
+  }
+
+  @override
+  String get unitMinutes => '분';
+
+  @override
+  String get unitSeconds => '초';
+
+  @override
+  String get setTimerStart => '시작';
+
+  @override
+  String get setTimerStartLabel => '시간 측정 시작';
 }

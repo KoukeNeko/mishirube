@@ -55,6 +55,10 @@ String routineNameFor(List<PlannedExercise> exercises, AppLocalizations l10n) {
 const _addedReps = 10;
 const _addedWeightKg = 20.0;
 
+/// What a set of an exercise recorded by time or distance starts at.
+const _addedSeconds = 30;
+const _addedMeters = 1000.0;
+
 /// Running a workout: the rules that decide what a set means and what is
 /// written when. Every change is committed as it happens, so a workout
 /// survives the app being killed.
@@ -74,6 +78,31 @@ class TrainingService {
 
   /// The language of the names made up here.
   final AppLocalizations _l10n;
+
+  static const _autoRestKey = 'training.auto_rest';
+  static String _restKey(ExerciseDefinition exercise) =>
+      'training.rest_seconds.${exercise.id}';
+
+  /// How long the rest after a set of [exercise] lasts: what was set for
+  /// it, or what its kind of movement usually needs.
+  Duration restFor(ExerciseDefinition exercise) =>
+      switch (int.tryParse(_db.setting(_restKey(exercise)) ?? '')) {
+        final seconds? when seconds >= 0 => Duration(seconds: seconds),
+        _ => restAfter(exercise),
+      };
+
+  /// Sets the rest after a set of [exercise], within [maxRest].
+  void setRest(ExerciseDefinition exercise, Duration rest) {
+    final kept = rest.isNegative
+        ? Duration.zero
+        : (rest > maxRest ? maxRest : rest);
+    _db.setSetting(_restKey(exercise), '${kept.inSeconds}');
+  }
+
+  /// Whether the rest starts by itself when a set is done.
+  bool get isAutoRest => _db.setting(_autoRestKey) != 'false';
+
+  void setAutoRest(bool isOn) => _db.setSetting(_autoRestKey, '$isOn');
 
   WorkoutSession? active() => _workouts.active(_exercise);
 
@@ -105,6 +134,10 @@ class TrainingService {
     _workouts.save(workout, action: 'start');
     return workout;
   }
+
+  /// The sets done in each finished session of [exercise], newest first.
+  List<ExerciseSessionRecord> sessionsOf(ExerciseDefinition exercise) =>
+      _exercises.sessionsOf(exercise.id);
 
   /// The last [limit] finished workouts, newest first, to start a new
   /// one from.
@@ -163,7 +196,9 @@ class TrainingService {
   /// set of the last finished session; with no history the plan itself is
   /// the reference, and a heavier target counts as a record attempt.
   ExerciseSession plan(PlannedExercise planned) {
-    final last = _exercises.history(planned.exercise.id).last;
+    final last = _exercises
+        .history(planned.exercise.id, tracking: planned.exercise.trackingType)
+        .last;
     final previousWeight = last?.weightKg ?? planned.targetWeightKg;
     final previousReps = last?.reps ?? planned.reps;
     return ExerciseSession(
@@ -178,6 +213,8 @@ class TrainingService {
             rir: planned.rir,
             previousWeightKg: previousWeight,
             previousReps: previousReps,
+            durationSeconds: load.seconds,
+            distanceMeters: load.meters,
           ),
       ],
     );
@@ -202,7 +239,10 @@ class TrainingService {
       earlier: {
         for (final session in workout.exercises)
           session.exercise.id: _exercises
-              .history(session.exercise.id)
+              .history(
+                session.exercise.id,
+                tracking: session.exercise.trackingType,
+              )
               .before(workout.startedAt),
       },
       previous: routineId == null
@@ -218,7 +258,10 @@ class TrainingService {
     WorkoutSet set,
   ) => isPersonalRecordSet(
     set,
-    _exercises.history(exercise.id).before(workout.startedAt),
+    _exercises
+        .history(exercise.id, tracking: exercise.trackingType)
+        .before(workout.startedAt),
+    type: exercise.trackingType,
   );
 
   /// Marks the next pending set of the current exercise as done and moves
@@ -267,6 +310,8 @@ class TrainingService {
       previousWeightKg: reference?.previousWeightKg ?? working,
       previousReps: reference?.previousReps ?? 0,
       type: type,
+      durationSeconds: reference?.durationSeconds,
+      distanceMeters: reference?.distanceMeters,
     );
     if (type == SetType.warmup) {
       exercise.sets.insert(exercise.nextSetIndex ?? exercise.sets.length, set);
@@ -285,7 +330,10 @@ class TrainingService {
     final working = exercise.sets
         .where((set) => set.type == SetType.working)
         .firstOrNull;
-    final ramp = working == null
+    // A ramp of weights and reps is for exercises recorded by them.
+    final ramp =
+        working == null ||
+            exercise.exercise.trackingType != TrackingType.weightReps
         ? const <(double, int)>[]
         : warmupRamp(working.weightKg, exercise.exercise.equipment);
     if (ramp.isEmpty ||
@@ -324,14 +372,17 @@ class TrainingService {
   }
 
   /// Rewrites what one set of the current exercise was: the weight, the
-  /// reps and how many were left in reserve. Its type, last time's
-  /// numbers and whether it is done stay as they are.
+  /// reps and how many were left in reserve, and its time or distance
+  /// when given (a time of 0 is none). Its type, last time's numbers and
+  /// whether it is done stay as they are.
   void editSet(
     WorkoutSession workout,
     int setIndex, {
     required double weightKg,
     required int reps,
     required int? rir,
+    int? seconds,
+    double? meters,
   }) {
     final sets = workout.currentExercise.sets;
     final set = sets[setIndex];
@@ -343,8 +394,12 @@ class TrainingService {
       type: set.type,
       previousWeightKg: set.previousWeightKg,
       previousReps: set.previousReps,
-      durationSeconds: set.durationSeconds,
-      distanceMeters: set.distanceMeters,
+      durationSeconds: seconds == null
+          ? set.durationSeconds
+          : (seconds > 0 ? seconds : null),
+      distanceMeters: meters == null
+          ? set.distanceMeters
+          : (meters > 0 ? meters : null),
       isDone: set.isDone,
     );
     _workouts.save(workout, action: 'edit_set');
@@ -357,43 +412,67 @@ class TrainingService {
     _workouts.save(workout, action: 'remove_set');
   }
 
-  /// [set] with a new weight and reps, the rest of it kept.
-  static WorkoutSet _withLoad(WorkoutSet set, double weightKg, int reps) =>
-      WorkoutSet(
-        weightKg: weightKg,
-        reps: reps,
-        rir: set.rir,
-        rpe: set.rpe,
-        type: set.type,
-        previousWeightKg: set.previousWeightKg,
-        previousReps: set.previousReps,
-        durationSeconds: set.durationSeconds,
-        distanceMeters: set.distanceMeters,
-        isDone: set.isDone,
-      );
+  /// [set] with the figures of [load], the rest of it kept.
+  static WorkoutSet _withLoad(WorkoutSet set, SetLoad load) => WorkoutSet(
+    weightKg: load.weightKg,
+    reps: load.reps,
+    rir: set.rir,
+    rpe: set.rpe,
+    type: set.type,
+    previousWeightKg: set.previousWeightKg,
+    previousReps: set.previousReps,
+    durationSeconds: load.seconds,
+    distanceMeters: load.meters,
+    isDone: set.isDone,
+  );
 
-  /// Sets each set of the exercise at [index] still to do to the weight
-  /// and reps it was done at last time, where there was a last time.
-  void loadPrevious(WorkoutSession workout, int index) {
+  /// Makes the working sets of the exercise at [index] follow [loads], the
+  /// working sets as a whole in the order they are done. Sets already done
+  /// stay as they were and count toward [loads]; the sets still to do take
+  /// the loads after them, with sets added or taken off at the end of the
+  /// working sets to match. Warm-ups, drop and failure sets are left alone.
+  void applySets(
+    WorkoutSession workout,
+    int index,
+    List<SetLoad> loads, {
+    required String action,
+  }) {
     final sets = workout.exercises[index].sets;
-    for (final (i, set) in sets.indexed) {
-      if (set.isDone || set.previousReps == 0) continue;
-      sets[i] = _withLoad(set, set.previousWeightKg, set.previousReps);
+    bool isPending(WorkoutSet set) =>
+        set.type == SetType.working && !set.isDone;
+    final pending = [
+      for (final (i, set) in sets.indexed)
+        if (isPending(set)) i,
+    ];
+    final workingCount = sets
+        .where((set) => set.type == SetType.working)
+        .length;
+    final toDo = loads.skip(workingCount - pending.length).toList();
+    for (final (n, setIndex) in pending.take(toDo.length).indexed) {
+      sets[setIndex] = _withLoad(sets[setIndex], toDo[n]);
     }
-    _workouts.save(workout, action: 'load_previous');
-  }
-
-  /// Sets every set still to do of the exercise at [index], of the same
-  /// kind as its first set, to that set's weight and reps.
-  void fillFromFirst(WorkoutSession workout, int index) {
-    final sets = workout.exercises[index].sets;
-    if (sets.isEmpty) return;
-    final first = sets.first;
-    for (final (i, set) in sets.indexed.skip(1)) {
-      if (set.isDone || set.type != first.type) continue;
-      sets[i] = _withLoad(set, first.weightKg, first.reps);
+    if (toDo.length < pending.length) {
+      for (final setIndex in pending.skip(toDo.length).toList().reversed) {
+        sets.removeAt(setIndex);
+      }
+    } else if (toDo.length > pending.length) {
+      // New sets follow the last working set, the one they repeat.
+      final at = sets.lastIndexWhere((set) => set.type == SetType.working);
+      final reference = at < 0 ? null : sets[at];
+      sets.insertAll(at < 0 ? sets.length : at + 1, [
+        for (final load in toDo.skip(pending.length))
+          WorkoutSet(
+            weightKg: load.weightKg,
+            reps: load.reps,
+            rir: reference?.rir,
+            previousWeightKg: reference?.previousWeightKg ?? load.weightKg,
+            previousReps: reference?.previousReps ?? load.reps,
+            durationSeconds: load.seconds,
+            distanceMeters: load.meters,
+          ),
+      ]);
     }
-    _workouts.save(workout, action: 'fill_sets');
+    _workouts.save(workout, action: action);
   }
 
   /// Takes the last set still to do off the exercise at [index], or its
@@ -453,6 +532,8 @@ class TrainingService {
             rir: set.rir,
             previousWeightKg: set.previousWeightKg,
             previousReps: set.previousReps,
+            durationSeconds: set.durationSeconds,
+            distanceMeters: set.distanceMeters,
           ),
       ],
     );
@@ -485,6 +566,20 @@ class TrainingService {
         ..pausedAt = null;
     }
     _workouts.save(workout, action: workout.isPaused ? 'pause' : 'resume');
+  }
+
+  /// Corrects the time counted for a workout under way by [by]: it was
+  /// started late or left running through a break. A workout's time is
+  /// its length less the pauses, so this counts the difference as a pause
+  /// (or, going the other way, as time that was not one). The time never
+  /// goes below nothing.
+  void adjustElapsed(WorkoutSession workout, Duration by) {
+    if (workout.isReady) return;
+    final elapsed = workout.elapsedAt(_db.now());
+    final applied = by < -elapsed ? -elapsed : by;
+    if (applied == Duration.zero) return;
+    workout.pausedTotal -= applied;
+    _workouts.save(workout, action: 'adjust_time');
   }
 
   /// Gives up on a workout: it is kept as an abandoned one, not counted
@@ -526,8 +621,8 @@ class TrainingService {
         type: before?.type ?? SetType.working,
         previousWeightKg: before?.previousWeightKg ?? 0,
         previousReps: before?.previousReps ?? 0,
-        durationSeconds: before?.durationSeconds,
-        distanceMeters: before?.distanceMeters,
+        durationSeconds: load.seconds ?? before?.durationSeconds,
+        distanceMeters: load.meters ?? before?.distanceMeters,
         isDone: true,
       );
     }
@@ -625,7 +720,13 @@ class TrainingService {
     ];
     if (done.isEmpty) return null;
     return PlannedExercise.ofLoads(planFor(session.exercise), [
-      for (final set in done) (weightKg: set.weightKg, reps: set.reps),
+      for (final set in done)
+        SetLoad(
+          weightKg: set.weightKg,
+          reps: set.reps,
+          seconds: set.durationSeconds,
+          meters: set.distanceMeters,
+        ),
     ]);
   }
 
@@ -665,6 +766,8 @@ class TrainingService {
   List<(PlannedExercise, ProgressionSuggestion)> suggestions(Routine routine) {
     final out = <(PlannedExercise, ProgressionSuggestion)>[];
     for (final planned in routine.exercises) {
+      // A progression is a heavier weight for reps.
+      if (planned.exercise.trackingType != TrackingType.weightReps) continue;
       final suggestion = suggestProgression(
         _l10n,
         planned: planned,
@@ -777,15 +880,24 @@ class TrainingService {
 
   void undeleteRoutine(String id) => _routines.restore(id);
 
-  /// A new exercise in a plan: the reps and weight it was last done at,
-  /// and the app's defaults for one never done.
+  /// A new exercise in a plan: the figures it was last done at, and the
+  /// app's defaults for one never done. Only the figures its
+  /// [TrackingType] uses are set.
   PlannedExercise planFor(ExerciseDefinition exercise) {
-    final last = _exercises.history(exercise.id).last;
+    final type = exercise.trackingType;
+    final last = _exercises.history(exercise.id, tracking: type).last;
     return PlannedExercise(
       exercise: exercise,
       sets: _addedSets,
-      reps: last?.reps ?? _addedReps,
-      targetWeightKg: last?.weightKg ?? _addedWeightKg,
+      reps: type.usesReps ? last?.reps ?? _addedReps : 0,
+      targetWeightKg: type.usesWeight ? last?.weightKg ?? _addedWeightKg : 0,
+      targetSeconds: switch (type) {
+        TrackingType.duration ||
+        TrackingType.weightDuration => last?.seconds ?? _addedSeconds,
+        TrackingType.distance => last?.seconds,
+        _ => null,
+      },
+      targetMeters: type.usesDistance ? last?.meters ?? _addedMeters : null,
       progressionLabel: _l10n.progressionHold,
     );
   }

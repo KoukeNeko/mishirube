@@ -38,7 +38,13 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
             was: session,
             loads: [
               for (final set in session.sets)
-                if (set.isDone) (weightKg: set.weightKg, reps: set.reps),
+                if (set.isDone)
+                  SetLoad(
+                    weightKg: set.weightKg,
+                    reps: set.reps,
+                    seconds: set.durationSeconds,
+                    meters: set.distanceMeters,
+                  ),
             ],
           ),
         ),
@@ -181,6 +187,7 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
             key: key,
             child: ExerciseLoadsCard(
               name: correction.exercise.name,
+              trackingType: correction.exercise.trackingType,
               loads: correction.loads,
               onLoads: (loads) => _setLoads(index, loads),
               onRemove: () => _remove(index),

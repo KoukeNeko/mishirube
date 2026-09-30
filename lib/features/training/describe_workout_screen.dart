@@ -221,22 +221,31 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
 
 /// `3 組 × 10 下 · 12 kg`; sets that differ are each written out:
 /// `3 組 · 9 kg × 10、10、7 下`, or `12 kg × 10、10 kg × 8`.
-String _figuresOf(AppLocalizations l10n, PlannedExercise plan) =>
-    switch (plan.setLoads) {
-      null => l10n.setsTimesReps(
-        sets: plan.sets,
-        reps: plan.reps,
-        weight: formatWeight(plan.targetWeightKg),
+String _figuresOf(AppLocalizations l10n, PlannedExercise plan) {
+  final type = plan.exercise.trackingType;
+  // Other than weight and reps: the sets and what the first one asks.
+  if (type != TrackingType.weightReps) {
+    return [
+      l10n.setsCount(count: plan.sets),
+      plan.loads.first.figuresIn(l10n, type),
+    ].join(' · ');
+  }
+  return switch (plan.setLoads) {
+    null => l10n.setsTimesReps(
+      sets: plan.sets,
+      reps: plan.reps,
+      weight: formatWeight(plan.targetWeightKg),
+    ),
+    final loads
+        when loads.every((load) => load.weightKg == loads.first.weightKg) =>
+      l10n.setsSameWeight(
+        sets: loads.length,
+        weight: formatWeight(loads.first.weightKg),
+        reps: joinList(l10n, loads.map((load) => '${load.reps}')),
       ),
-      final loads
-          when loads.every((load) => load.weightKg == loads.first.weightKg) =>
-        l10n.setsSameWeight(
-          sets: loads.length,
-          weight: formatWeight(loads.first.weightKg),
-          reps: joinList(l10n, loads.map((load) => '${load.reps}')),
-        ),
-      final loads => joinList(
-        l10n,
-        loads.map((load) => '${formatWeight(load.weightKg)} kg × ${load.reps}'),
-      ),
-    };
+    final loads => joinList(
+      l10n,
+      loads.map((load) => '${formatWeight(load.weightKg)} kg × ${load.reps}'),
+    ),
+  };
+}

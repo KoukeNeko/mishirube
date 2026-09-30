@@ -6,17 +6,20 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
 
-/// An exercise's sets as a table of weight and reps typed in place, with
-/// a set taken off or added at the end: how a 課表 plans them, and how a
-/// finished workout is corrected.
+/// An exercise's sets as a table of the figures it is recorded by (weight
+/// and reps, a time, a distance), typed in place, with a set taken off or
+/// added at the end: how a 課表 plans them, and how a finished workout is
+/// corrected.
 class SetLoadTable extends StatelessWidget {
   const SetLoadTable({
     super.key,
+    required this.trackingType,
     required this.loads,
     required this.onLoads,
     this.headerAction,
   });
 
+  final TrackingType trackingType;
   final List<SetLoad> loads;
 
   /// The sets as they are after a change.
@@ -27,12 +30,69 @@ class SetLoadTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void change(int set, {double? weightKg, int? reps}) => onLoads([
-      for (final (i, load) in loads.indexed)
-        i == set
-            ? (weightKg: weightKg ?? load.weightKg, reps: reps ?? load.reps)
-            : load,
+    final l10n = context.l10n;
+    final type = trackingType;
+    void change(int set, SetLoad Function(SetLoad load) edit) => onLoads([
+      for (final (i, load) in loads.indexed) i == set ? edit(load) : load,
     ]);
+    // The figures the exercise records, left to right, as columns.
+    final columns =
+        <({String heading, Widget Function(int i, SetLoad load) cell})>[
+          if (type.usesWeight)
+            (
+              heading: 'kg',
+              cell: (i, load) => InlineNumberField(
+                text: formatWeight(load.weightKg),
+                label: l10n.setNumberWeight(number: i + 1),
+                decimal: true,
+                onCommit: (text) {
+                  if (double.tryParse(text) case final kg? when kg >= 0) {
+                    change(i, (load) => load.copyWith(weightKg: kg));
+                  }
+                },
+              ),
+            ),
+          if (type.usesReps)
+            (
+              heading: l10n.repsColumn,
+              cell: (i, load) => InlineNumberField(
+                text: '${load.reps}',
+                label: l10n.setNumberReps(number: i + 1),
+                decimal: false,
+                onCommit: (text) {
+                  if (int.tryParse(text) case final reps? when reps > 0) {
+                    change(i, (load) => load.copyWith(reps: reps));
+                  }
+                },
+              ),
+            ),
+          if (type.usesDistance)
+            (
+              heading: 'km',
+              cell: (i, load) => InlineNumberField(
+                text: formatKilometers(load.meters ?? 0),
+                label: l10n.setNumberDistance(number: i + 1),
+                decimal: true,
+                onCommit: (text) {
+                  if (double.tryParse(text) case final km? when km > 0) {
+                    change(i, (load) => load.copyWith(meters: km * 1000));
+                  }
+                },
+              ),
+            ),
+          if (type.usesTime)
+            (
+              heading: l10n.timeColumn,
+              cell: (i, load) => DurationField(
+                seconds: load.seconds ?? 0,
+                label: l10n.setNumberTime(number: i + 1),
+                onChanged: (seconds) =>
+                    change(i, (load) => load.copyWith(seconds: seconds)),
+              ),
+            ),
+        ];
+    // One figure takes the width of two.
+    final flex = columns.length == 1 ? 2 : 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,23 +100,19 @@ class SetLoadTable extends StatelessWidget {
           children: [
             SizedBox(
               width: 40,
-              child: Text(context.l10n.setColumn, style: AppTextStyles.caption),
+              child: Text(l10n.setColumn, style: AppTextStyles.caption),
             ),
-            const Expanded(
-              child: Text(
-                'kg',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.caption,
+            for (final (i, column) in columns.indexed) ...[
+              if (i > 0) const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                flex: flex,
+                child: Text(
+                  column.heading,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption,
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Text(
-                context.l10n.repsColumn,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.caption,
-              ),
-            ),
+            ],
             if (headerAction case final action?) ...[
               const SizedBox(width: AppSpacing.xs),
               action,
@@ -72,31 +128,10 @@ class SetLoadTable extends StatelessWidget {
                   width: 40,
                   child: Text('${i + 1}', style: AppTextStyles.itemTitle),
                 ),
-                Expanded(
-                  child: InlineNumberField(
-                    text: formatWeight(load.weightKg),
-                    label: context.l10n.setNumberWeight(number: i + 1),
-                    decimal: true,
-                    onCommit: (text) {
-                      if (double.tryParse(text) case final kg? when kg >= 0) {
-                        change(i, weightKg: kg);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: InlineNumberField(
-                    text: '${load.reps}',
-                    label: context.l10n.setNumberReps(number: i + 1),
-                    decimal: false,
-                    onCommit: (text) {
-                      if (int.tryParse(text) case final reps? when reps > 0) {
-                        change(i, reps: reps);
-                      }
-                    },
-                  ),
-                ),
+                for (final (c, column) in columns.indexed) ...[
+                  if (c > 0) const SizedBox(width: AppSpacing.xs),
+                  Expanded(flex: flex, child: column.cell(i, load)),
+                ],
               ],
             ),
           ),
@@ -106,7 +141,7 @@ class SetLoadTable extends StatelessWidget {
           children: [
             Expanded(
               child: SecondaryButton(
-                label: context.l10n.removeSet,
+                label: l10n.removeSet,
                 icon: Icons.remove,
                 isCompact: true,
                 onPressed: loads.length <= 1
@@ -116,7 +151,7 @@ class SetLoadTable extends StatelessWidget {
             ),
             Expanded(
               child: SecondaryButton(
-                label: context.l10n.addSet,
+                label: l10n.addSet,
                 icon: Icons.add,
                 isCompact: true,
                 onPressed: () => onLoads([...loads, loads.last]),
@@ -135,12 +170,14 @@ class ExerciseLoadsCard extends StatelessWidget {
   const ExerciseLoadsCard({
     super.key,
     required this.name,
+    required this.trackingType,
     required this.loads,
     required this.onLoads,
     required this.onRemove,
   });
 
   final String name;
+  final TrackingType trackingType;
   final List<SetLoad> loads;
   final ValueChanged<List<SetLoad>> onLoads;
   final VoidCallback onRemove;
@@ -162,7 +199,11 @@ class ExerciseLoadsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          SetLoadTable(loads: loads, onLoads: onLoads),
+          SetLoadTable(
+            trackingType: trackingType,
+            loads: loads,
+            onLoads: onLoads,
+          ),
         ],
       ),
     );

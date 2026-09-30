@@ -11,9 +11,11 @@ import 'package:mishirube/backend/engines/meal_type_suggestion.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/nutrition_targets.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
+import 'package:mishirube/backend/engines/set_schemes.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/nutrition/plate_screen.dart';
+import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
@@ -624,11 +626,11 @@ void main() {
         ['啞鈴划船', '單臂啞鈴划船', '啞鈴二頭肌彎舉', '啞鈴槌式彎舉', '啞鈴腕彎舉', '反向啞鈴腕彎舉'],
       );
       expect(exercises[3].loads, [
-        (weightKg: 9.0, reps: 10),
-        (weightKg: 9.0, reps: 10),
-        (weightKg: 9.0, reps: 7),
+        SetLoad(weightKg: 9.0, reps: 10),
+        SetLoad(weightKg: 9.0, reps: 10),
+        SetLoad(weightKg: 9.0, reps: 7),
       ]);
-      expect(exercises[4].loads.first, (weightKg: 7.5, reps: 12));
+      expect(exercises[4].loads.first, SetLoad(weightKg: 7.5, reps: 12));
       expect(
         [
           for (final line in lines)
@@ -1279,6 +1281,402 @@ void main() {
     });
   });
 
+  group('exercises recorded by time, reps or distance', () {
+    WorkoutSet done({
+      double kg = 0,
+      int reps = 0,
+      int? seconds,
+      double? meters,
+    }) => WorkoutSet(
+      weightKg: kg,
+      reps: reps,
+      previousWeightKg: kg,
+      previousReps: reps,
+      durationSeconds: seconds,
+      distanceMeters: meters,
+      isDone: true,
+    );
+    ExerciseHistoryEntry entry(
+      int day, {
+      double kg = 0,
+      int reps = 0,
+      int? seconds,
+      double? meters,
+    }) => ExerciseHistoryEntry(
+      date: DateTime(2026, 9, day),
+      weightKg: kg,
+      reps: reps,
+      seconds: seconds,
+      meters: meters,
+    );
+
+    test('a session is summed up by its best set for how it is recorded', () {
+      final sets = [
+        done(kg: 10, reps: 12, seconds: 30, meters: 400),
+        done(kg: 20, reps: 5, seconds: 45, meters: 900),
+        done(kg: 15, reps: 20, seconds: 45, meters: 100),
+      ];
+      expect(bestSet(TrackingType.weightReps, sets)!.weightKg, 20);
+      expect(bestSet(TrackingType.reps, sets)!.reps, 20);
+      expect(
+        bestSet(TrackingType.duration, sets)!.weightKg,
+        20,
+        reason: 'the first of the longest',
+      );
+      expect(bestSet(TrackingType.weightDuration, sets)!.weightKg, 20);
+      expect(bestSet(TrackingType.distance, sets)!.distanceMeters, 900);
+      expect(
+        bestSet(TrackingType.duration, [done(reps: 10)]),
+        isNull,
+        reason: 'a set with no time has nothing to compare',
+      );
+    });
+
+    test('only weight and reps make a volume', () {
+      ExerciseSession session(TrackingType type, List<WorkoutSet> sets) =>
+          ExerciseSession(
+            exercise: ExerciseDefinition(
+              id: type.name,
+              name: type.name,
+              equipment: Equipment.bodyweight,
+              primaryMuscles: const [MuscleGroup.core],
+              pattern: MovementPattern.isolation,
+              trackingType: type,
+            ),
+            sets: sets,
+          );
+      final lifted = session(TrackingType.weightReps, [done(kg: 100, reps: 5)]);
+      final held = session(TrackingType.weightDuration, [
+        done(kg: 20, reps: 1, seconds: 45),
+        done(kg: 20, seconds: 30),
+      ]);
+      final plank = session(TrackingType.duration, [
+        done(seconds: 60),
+        done(seconds: 45),
+      ]);
+      final pushups = session(TrackingType.reps, [
+        done(reps: 12),
+        done(reps: 10),
+      ]);
+      final run = session(TrackingType.distance, [
+        done(meters: 5000, seconds: 1500),
+      ]);
+
+      expect(sessionVolumeKg(lifted), 500);
+      expect(sessionVolumeKg(held), 0);
+      expect(sessionVolumeKg(plank), 0);
+      expect(sessionVolumeKg(pushups), 0);
+      expect(sessionVolumeKg(run), 0);
+      expect(sessionSeconds(plank), 105);
+      expect(sessionSeconds(held), 75, reason: 'weight and time add time');
+      expect(sessionSeconds(run), 0, reason: 'a run adds distance');
+      expect(sessionReps(pushups), 22);
+      expect(sessionReps(lifted), 0);
+      expect(sessionMeters(run), 5000);
+    });
+
+    test('a record is a set nothing before beat, by its own measure', () {
+      bool isRecord(
+        TrackingType type,
+        WorkoutSet set,
+        List<ExerciseHistoryEntry> earlier,
+      ) => isPersonalRecordSet(set, earlier, type: type);
+
+      expect(
+        isRecord(TrackingType.reps, done(reps: 13), [
+          entry(1, reps: 12),
+          entry(2, reps: 10),
+        ]),
+        isTrue,
+      );
+      expect(
+        isRecord(TrackingType.reps, done(reps: 12), [entry(1, reps: 12)]),
+        isFalse,
+      );
+
+      final holds = [entry(1, seconds: 60), entry(2, seconds: 45)];
+      expect(isRecord(TrackingType.duration, done(seconds: 61), holds), isTrue);
+      expect(
+        isRecord(TrackingType.duration, done(seconds: 60), holds),
+        isFalse,
+      );
+      expect(isRecord(TrackingType.duration, done(reps: 5), holds), isFalse);
+      expect(
+        isRecord(TrackingType.duration, done(seconds: 90), const []),
+        isFalse,
+        reason: 'a first session has nothing to beat',
+      );
+
+      final weighted = [
+        entry(1, kg: 10, seconds: 60),
+        entry(2, kg: 20, seconds: 30),
+      ];
+      expect(
+        isRecord(
+          TrackingType.weightDuration,
+          done(kg: 25, seconds: 10),
+          weighted,
+        ),
+        isTrue,
+        reason: 'heavier than any',
+      );
+      expect(
+        isRecord(
+          TrackingType.weightDuration,
+          done(kg: 20, seconds: 40),
+          weighted,
+        ),
+        isTrue,
+        reason: 'longer at 20 kg',
+      );
+      expect(
+        isRecord(
+          TrackingType.weightDuration,
+          done(kg: 15, seconds: 50),
+          weighted,
+        ),
+        isTrue,
+        reason:
+            'no one held 15 kg: lighter than the 20 kg hold, longer than it',
+      );
+      expect(
+        isRecord(
+          TrackingType.weightDuration,
+          done(kg: 10, seconds: 50),
+          weighted,
+        ),
+        isFalse,
+        reason: 'not as long as 10 kg for 1:00',
+      );
+
+      final runs = [entry(1, meters: 5000), entry(2, meters: 8000)];
+      expect(isRecord(TrackingType.distance, done(meters: 8001), runs), isTrue);
+      expect(
+        isRecord(TrackingType.distance, done(meters: 5000), runs),
+        isFalse,
+      );
+    });
+
+    test('an exercise\'s best is its longest, its furthest, its most reps', () {
+      ExerciseDefinition of(TrackingType type) => ExerciseDefinition(
+        id: type.name,
+        name: type.name,
+        equipment: Equipment.bodyweight,
+        primaryMuscles: const [MuscleGroup.core],
+        pattern: MovementPattern.isolation,
+        trackingType: type,
+      );
+      ExerciseHistory history(List<ExerciseHistoryEntry> entries) =>
+          ExerciseHistory(recent: entries, sessionCount: entries.length);
+
+      final plank = bestsOf(
+        of(TrackingType.duration),
+        history([
+          entry(20, seconds: 90),
+          entry(16, seconds: 60),
+          entry(12, seconds: 90),
+        ]),
+      )!;
+      expect(plank.best.date.day, 12, reason: 'first held for 1:30');
+      expect(plank.bestEstimate, isNull);
+      expect(
+        bestsOf(
+          of(TrackingType.distance),
+          history([entry(1, meters: 3000), entry(2, meters: 5000)]),
+        )!.best.meters,
+        5000,
+      );
+    });
+
+    test('a set reads by how its exercise is recorded', () {
+      final l10n = testL10n;
+      String read(
+        TrackingType type, {
+        double kg = 0,
+        int reps = 0,
+        int? seconds,
+        double? meters,
+      }) => setFigures(
+        l10n,
+        type,
+        weightKg: kg,
+        reps: reps,
+        seconds: seconds,
+        meters: meters,
+      );
+
+      expect(read(TrackingType.weightReps, kg: 60, reps: 10), '60 kg × 10');
+      expect(read(TrackingType.reps, reps: 12), '12 次');
+      expect(read(TrackingType.duration, seconds: 60), '1:00');
+      expect(
+        read(TrackingType.weightDuration, kg: 10, seconds: 45),
+        '10 kg × 0:45',
+      );
+      expect(read(TrackingType.distance, meters: 2400), '2.4 km');
+      expect(
+        read(TrackingType.distance, meters: 5000, seconds: 1500),
+        '5 km · 25:00',
+      );
+      expect(formatKilometers(350), '0.35');
+      expect(formatKilometers(10000), '10');
+    });
+
+    test('a plan of timed sets keeps each set\'s time', () {
+      final exercise = ExerciseDefinition(
+        id: 'plank',
+        name: '棒式',
+        equipment: Equipment.bodyweight,
+        primaryMuscles: const [MuscleGroup.core],
+        pattern: MovementPattern.isolation,
+        trackingType: TrackingType.duration,
+      );
+      const base = SetLoad(seconds: 30);
+      final planned = PlannedExercise(
+        exercise: exercise,
+        sets: 3,
+        reps: 0,
+        targetWeightKg: 0,
+        targetSeconds: 30,
+        progressionLabel: '',
+      );
+      expect(planned.loads, [base, base, base]);
+      expect(
+        PlannedExercise.ofLoads(planned, const [base, base]).setLoads,
+        isNull,
+        reason: 'alike, so kept as the plan',
+      );
+      final varied = PlannedExercise.ofLoads(planned, const [
+        SetLoad(seconds: 30),
+        SetLoad(seconds: 45),
+      ]);
+      expect(varied.setLoads, hasLength(2));
+      expect(varied.copyWith(sets: 3).loads.last, const SetLoad(seconds: 45));
+      expect(varied.copyWith(targetSeconds: 60).loads, [
+        const SetLoad(seconds: 60),
+        const SetLoad(seconds: 60),
+      ]);
+    });
+  });
+
+  group('set schemes', () {
+    List<double> kgs(SetScheme scheme, {int sets = 4, int reps = 8}) => [
+      for (final load in schemeSets(
+        scheme,
+        mainKg: 100,
+        sets: sets,
+        reps: reps,
+      ))
+        load.weightKg,
+    ];
+    List<int> repsOf(SetScheme scheme, {int sets = 4, int reps = 8}) => [
+      for (final load in schemeSets(
+        scheme,
+        mainKg: 100,
+        sets: sets,
+        reps: reps,
+      ))
+        load.reps,
+    ];
+
+    test('straight repeats the main weight and reps', () {
+      expect(kgs(SetScheme.straight), [100, 100, 100, 100]);
+      expect(repsOf(SetScheme.straight), [8, 8, 8, 8]);
+    });
+
+    test('ascending climbs to the main weight while reps fall by two', () {
+      expect(kgs(SetScheme.ascending), [80, 85, 92.5, 100]);
+      expect(repsOf(SetScheme.ascending), [10, 10, 9, 8]);
+      expect(schemeSets(SetScheme.ascending, mainKg: 100, sets: 1, reps: 8), [
+        SetLoad(weightKg: 100.0, reps: 8),
+      ], reason: 'one set has nothing to climb');
+    });
+
+    test('reverse starts heaviest, lightens 10% and gains 2 reps a set', () {
+      expect(kgs(SetScheme.reverse), [100, 90, 80, 70]);
+      expect(repsOf(SetScheme.reverse), [8, 10, 12, 14]);
+    });
+
+    test('5×5 is five sets of five whatever sets and reps ask for', () {
+      final loads = schemeSets(
+        SetScheme.fiveByFive,
+        mainKg: 100,
+        sets: 2,
+        reps: 12,
+      );
+      expect(loads, hasLength(5));
+      expect(
+        loads.every((load) => load.weightKg == 100 && load.reps == 5),
+        isTrue,
+      );
+    });
+
+    test('a top set is followed by lighter sets for more reps', () {
+      expect(kgs(SetScheme.topSet), [100, 90, 90, 90]);
+      expect(repsOf(SetScheme.topSet), [8, 10, 10, 10]);
+    });
+
+    test('drop lightens 5% and gains a rep each set', () {
+      expect(kgs(SetScheme.drop), [100, 95, 90, 85]);
+      expect(repsOf(SetScheme.drop), [8, 9, 10, 11]);
+    });
+
+    test('weights are rounded down to the plates, never below 0', () {
+      final loads = schemeSets(
+        SetScheme.reverse,
+        mainKg: 62.5,
+        sets: 12,
+        reps: 5,
+      );
+      for (final load in loads) {
+        expect(load.weightKg % plateStepKg, 0);
+        expect(load.weightKg, greaterThanOrEqualTo(0));
+      }
+      expect(loads[1].weightKg, 55, reason: '56.25 rounds down');
+      expect(loads.last.weightKg, 0, reason: '62.5 × (1 − 1.1) is below 0');
+      expect(
+        schemeSets(
+          SetScheme.straight,
+          mainKg: 0,
+          sets: 3,
+          reps: 10,
+        ).map((load) => load.weightKg),
+        [0, 0, 0],
+        reason: 'a bodyweight exercise stays at 0',
+      );
+    });
+
+    test('no sets make none', () {
+      expect(
+        schemeSets(SetScheme.straight, mainKg: 50, sets: 0, reps: 5),
+        isEmpty,
+      );
+    });
+
+    test('the main weight is the heaviest of 90 days, else of ever', () {
+      ExerciseHistoryEntry entry(int daysAgo, double kg) =>
+          ExerciseHistoryEntry(
+            date: now.subtract(Duration(days: daysAgo)),
+            weightKg: kg,
+            reps: 5,
+          );
+      ExerciseHistory of(List<ExerciseHistoryEntry> entries) =>
+          ExerciseHistory(recent: entries, sessionCount: entries.length);
+
+      final recent = mainWeightFrom(
+        of([entry(10, 80), entry(40, 90), entry(200, 120)]),
+        now,
+      )!;
+      expect(recent.kg, 90);
+      expect(recent.isRecent, isTrue);
+
+      final ever = mainWeightFrom(of([entry(100, 80), entry(200, 120)]), now)!;
+      expect(ever.kg, 120);
+      expect(ever.isRecent, isFalse);
+
+      expect(mainWeightFrom(ExerciseHistory.empty, now), isNull);
+    });
+  });
+
   group('added sets', () {
     test('plate rounding never suggests a weight a bar cannot hold', () {
       expect(roundToPlate(61.3), 60);
@@ -1710,7 +2108,7 @@ void main() {
         ),
       )!;
 
-      expect(bests.heaviest.date.day, 12);
+      expect(bests.best.date.day, 12);
       expect(bests.bestEstimate!.date.day, 16, reason: '90 × 10 is 120');
       expect(bests.latest.day, 16);
       expect(

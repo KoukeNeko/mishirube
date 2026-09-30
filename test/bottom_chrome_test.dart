@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
 import 'package:mishirube/features/shell/bottom_chrome/press_feedback.dart';
@@ -308,6 +309,54 @@ void main() {
     clock.advance(const Duration(seconds: 10));
     await tester.pump(const Duration(seconds: 1));
     expectAccessory('訓練進行中', '1:15');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a scheduled workout is only a way back, with no pause or end', (
+    tester,
+  ) async {
+    final store = await _pumpApp(tester, FakeClock());
+    store.startWorkout();
+    await _settleFor(tester);
+
+    final bar = find.byType(SessionAccessory);
+    expect(
+      find.descendant(of: bar, matching: find.textContaining('已安排')),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('暫停訓練'), findsNothing);
+    expect(find.byTooltip('繼續訓練'), findsNothing);
+    expect(find.byTooltip('結束訓練'), findsNothing);
+    expect(
+      find.descendant(of: bar, matching: find.text('0:00')),
+      findsNothing,
+      reason: 'no time runs yet',
+    );
+
+    // Minimised, the centre stays the「+」: there is no timer to show.
+    store.selectTab(HomeTab.log);
+    await _settleFor(tester);
+    await tester.drag(_visibleScrollView, const Offset(0, -300));
+    await _settleFor(tester);
+    expect(find.byIcon(Icons.add), findsWidgets);
+    expect(find.text('0:00'), findsNothing);
+    await tester.drag(_visibleScrollView, const Offset(0, 200));
+    await _settleFor(tester);
+
+    await tester.tap(find.byKey(const ValueKey('session-accessory-open')));
+    await _settleFor(tester);
+    expect(find.byType(ActiveWorkoutScreen), findsOneWidget);
+    expect(
+      store.activeWorkout!.isReady,
+      isTrue,
+      reason: 'opening is not beginning',
+    );
+
+    Navigator.of(tester.element(find.byType(ActiveWorkoutScreen))).pop();
+    store.beginWorkout();
+    await _settleFor(tester);
+    expect(find.byTooltip('暫停訓練'), findsOneWidget);
+    expect(find.byTooltip('結束訓練'), findsOneWidget);
     await disposeTree(tester);
   });
 

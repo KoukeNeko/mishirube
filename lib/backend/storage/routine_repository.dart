@@ -44,6 +44,8 @@ class RoutineRepository {
             isUnilateral: row['is_unilateral'] == 1,
             joinsNext: row['joins_next'] == 1,
             setLoads: _loadsOf(row['set_loads'] as String?),
+            targetSeconds: row['target_seconds'] as int?,
+            targetMeters: (row['target_meters'] as num?)?.toDouble(),
           ),
       ],
     );
@@ -135,8 +137,9 @@ class RoutineRepository {
         _db.execute(
           'INSERT INTO routine_exercises (routine_id, position, exercise_id, '
           'sets, reps, rir, target_weight_kg, progression_label, '
-          'is_unilateral, joins_next, set_loads) '
-          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'is_unilateral, joins_next, set_loads, target_seconds, '
+          'target_meters) '
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             routine.id,
             position,
@@ -150,10 +153,22 @@ class RoutineRepository {
             planned.joinsNext ? 1 : null,
             switch (planned.setLoads) {
               final loads? => jsonEncode([
-                for (final load in loads) [load.weightKg, load.reps],
+                for (final load in loads)
+                  [
+                    load.weightKg,
+                    load.reps,
+                    // Time and distance only where a set has them, so a
+                    // plan of weight and reps reads as it always has.
+                    if (load.seconds != null || load.meters != null) ...[
+                      load.seconds,
+                      load.meters,
+                    ],
+                  ],
               ]),
               null => null,
             },
+            planned.targetSeconds,
+            planned.targetMeters,
           ],
         );
       }
@@ -171,13 +186,16 @@ class RoutineRepository {
   }
 }
 
-/// Stored set loads, `[[kg, reps], ...]`, back as the domain's.
+/// Stored set loads, `[[kg, reps], ...]` or `[[kg, reps, seconds, metres],
+/// ...]`, back as the domain's.
 List<SetLoad>? _loadsOf(String? stored) => switch (stored) {
   final text? => [
-    for (final pair in jsonDecode(text) as List)
-      (
-        weightKg: ((pair as List)[0] as num).toDouble(),
-        reps: (pair[1] as num).toInt(),
+    for (final entry in jsonDecode(text) as List)
+      SetLoad(
+        weightKg: ((entry as List)[0] as num).toDouble(),
+        reps: (entry[1] as num).toInt(),
+        seconds: entry.length > 2 ? (entry[2] as num?)?.toInt() : null,
+        meters: entry.length > 3 ? (entry[3] as num?)?.toDouble() : null,
       ),
   ],
   null => null,

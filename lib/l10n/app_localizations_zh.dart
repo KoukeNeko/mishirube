@@ -1443,11 +1443,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String exerciseLastSet({required String weight, required int reps}) {
-    return '上次 $weight kg × $reps';
-  }
-
-  @override
   String optionalField({required String field}) {
     return '$field（選填）';
   }
@@ -3680,9 +3675,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get totalShort => '總';
 
   @override
-  String get notStarted => '未開始';
-
-  @override
   String get totalVolume => '總訓練量';
 
   @override
@@ -3697,9 +3689,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restTitle => '休息';
-
-  @override
-  String get rest30More => '多休息 30 秒';
 
   @override
   String get skipRest => '跳過休息';
@@ -3750,13 +3739,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loadPrevious => '載入';
 
   @override
-  String get loadPreviousLabel => '填入上次的重量與次數';
+  String get loadPreviousLabel => '過往紀錄';
 
   @override
   String get quickFill => '快速填入';
 
   @override
-  String get quickFillLabel => '以第一組填入其他組';
+  String get quickFillLabel => '組數方案';
 
   @override
   String get setColumn => '組';
@@ -5756,6 +5745,183 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get privacyWebSearchValue => 'Anthropic、Google AI Studio 依內容搜尋公開的營養資料';
+
+  @override
+  String get workoutScheduled => '已安排';
+
+  @override
+  String get cancelSchedule => '取消安排';
+
+  @override
+  String get cancelWorkoutTitle => '取消這次訓練？';
+
+  @override
+  String get cancelWorkoutAction => '取消訓練';
+
+  @override
+  String get keepWorkout => '保留';
+
+  @override
+  String get commonView => '查看';
+
+  @override
+  String get schemeStraight => '基礎';
+
+  @override
+  String get schemeStraightHint => '每組同重量';
+
+  @override
+  String get schemeAscending => '逐漸加重';
+
+  @override
+  String get schemeAscendingHint => '重量逐組增加，次數逐組減少';
+
+  @override
+  String get schemeReverse => '大重量開始';
+
+  @override
+  String get schemeReverseHint => '第一組最重，之後逐組減重加次數';
+
+  @override
+  String get schemeFiveByFive => '5×5 力量';
+
+  @override
+  String get schemeFiveByFiveHint => '5 組 5 下同重量';
+
+  @override
+  String get schemeTopSet => '頂峰組';
+
+  @override
+  String get schemeTopSetHint => '一組最重，其餘減重';
+
+  @override
+  String get schemeDrop => '降重';
+
+  @override
+  String get schemeDropHint => '第一組最重，之後小幅減重';
+
+  @override
+  String get mainWeight => '主要重量';
+
+  @override
+  String get mainWeightRecent => '近 90 天最高';
+
+  @override
+  String get mainWeightEver => '歷史最高';
+
+  @override
+  String get setCountLabel => '組數';
+
+  @override
+  String get repCountLabel => '次數';
+
+  @override
+  String get oneSetLess => '少 1 組';
+
+  @override
+  String get oneSetMore => '多 1 組';
+
+  @override
+  String exerciseRecordsTitle({required String name}) {
+    return '$name 紀錄';
+  }
+
+  @override
+  String get earlierRecord => '較早的紀錄';
+
+  @override
+  String get laterRecord => '較新的紀錄';
+
+  @override
+  String get workoutTimeTitle => '運動時間';
+
+  @override
+  String get restTimeTitle => '休息時間';
+
+  @override
+  String get autoRestTitle => '完成一組後自動開始休息';
+
+  @override
+  String durationSeconds({required int seconds}) {
+    return '$seconds 秒';
+  }
+
+  @override
+  String sessionScheduledOpen({required String session}) {
+    return '$session已安排，回到$session';
+  }
+
+  @override
+  String get trackingTypeWeightDuration => '重量 + 時間';
+
+  @override
+  String repsValue({required int reps}) {
+    return '$reps 次';
+  }
+
+  @override
+  String get totalTime => '總時間';
+
+  @override
+  String get totalReps => '總次數';
+
+  @override
+  String get totalDistance => '總距離';
+
+  @override
+  String exerciseLastFigures({required String set}) {
+    return '上次 $set';
+  }
+
+  @override
+  String mostRepsSet({required String set, required String date}) {
+    return '最多 $set · $date';
+  }
+
+  @override
+  String longestSet({required String set, required String date}) {
+    return '最長 $set · $date';
+  }
+
+  @override
+  String furthestSet({required String set, required String date}) {
+    return '最遠 $set · $date';
+  }
+
+  @override
+  String get timeColumn => '時間';
+
+  @override
+  String setTime({required String set}) {
+    return '$set時間';
+  }
+
+  @override
+  String setDistance({required String set}) {
+    return '$set距離';
+  }
+
+  @override
+  String setNumberTime({required int number}) {
+    return '第 $number 組時間';
+  }
+
+  @override
+  String setNumberDistance({required int number}) {
+    return '第 $number 組距離';
+  }
+
+  @override
+  String get unitMinutes => '分';
+
+  @override
+  String get unitSeconds => '秒';
+
+  @override
+  String get setTimerStart => '開始';
+
+  @override
+  String get setTimerStartLabel => '開始計時';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -7193,11 +7359,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String routineLastDone({required String date}) {
     return '上次 $date 完成';
-  }
-
-  @override
-  String exerciseLastSet({required String weight, required int reps}) {
-    return '上次 $weight kg × $reps';
   }
 
   @override
@@ -9433,9 +9594,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get totalShort => '总';
 
   @override
-  String get notStarted => '未开始';
-
-  @override
   String get totalVolume => '总训练量';
 
   @override
@@ -9450,9 +9608,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get restTitle => '休息';
-
-  @override
-  String get rest30More => '多休息 30 秒';
 
   @override
   String get skipRest => '跳过休息';
@@ -9503,13 +9658,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get loadPrevious => '载入';
 
   @override
-  String get loadPreviousLabel => '填入上次的重量与次数';
+  String get loadPreviousLabel => '过往记录';
 
   @override
   String get quickFill => '快速填入';
 
   @override
-  String get quickFillLabel => '以第一组填入其他组';
+  String get quickFillLabel => '组数方案';
 
   @override
   String get setColumn => '组';
@@ -11509,6 +11664,183 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get privacyWebSearchValue => 'Anthropic、Google AI Studio 依内容搜索公开的营养资料';
+
+  @override
+  String get workoutScheduled => '已安排';
+
+  @override
+  String get cancelSchedule => '取消安排';
+
+  @override
+  String get cancelWorkoutTitle => '取消这次训练？';
+
+  @override
+  String get cancelWorkoutAction => '取消训练';
+
+  @override
+  String get keepWorkout => '保留';
+
+  @override
+  String get commonView => '查看';
+
+  @override
+  String get schemeStraight => '基础';
+
+  @override
+  String get schemeStraightHint => '每组同重量';
+
+  @override
+  String get schemeAscending => '逐渐加重';
+
+  @override
+  String get schemeAscendingHint => '重量逐组增加，次数逐组减少';
+
+  @override
+  String get schemeReverse => '大重量开始';
+
+  @override
+  String get schemeReverseHint => '第一组最重，之后逐组减重加次数';
+
+  @override
+  String get schemeFiveByFive => '5×5 力量';
+
+  @override
+  String get schemeFiveByFiveHint => '5 组 5 下同重量';
+
+  @override
+  String get schemeTopSet => '顶峰组';
+
+  @override
+  String get schemeTopSetHint => '一组最重，其余减重';
+
+  @override
+  String get schemeDrop => '降重';
+
+  @override
+  String get schemeDropHint => '第一组最重，之后小幅减重';
+
+  @override
+  String get mainWeight => '主要重量';
+
+  @override
+  String get mainWeightRecent => '近 90 天最高';
+
+  @override
+  String get mainWeightEver => '历史最高';
+
+  @override
+  String get setCountLabel => '组数';
+
+  @override
+  String get repCountLabel => '次数';
+
+  @override
+  String get oneSetLess => '少 1 组';
+
+  @override
+  String get oneSetMore => '多 1 组';
+
+  @override
+  String exerciseRecordsTitle({required String name}) {
+    return '$name 记录';
+  }
+
+  @override
+  String get earlierRecord => '较早的记录';
+
+  @override
+  String get laterRecord => '较新的记录';
+
+  @override
+  String get workoutTimeTitle => '运动时间';
+
+  @override
+  String get restTimeTitle => '休息时间';
+
+  @override
+  String get autoRestTitle => '完成一组后自动开始休息';
+
+  @override
+  String durationSeconds({required int seconds}) {
+    return '$seconds 秒';
+  }
+
+  @override
+  String sessionScheduledOpen({required String session}) {
+    return '$session已安排，回到$session';
+  }
+
+  @override
+  String get trackingTypeWeightDuration => '重量 + 时间';
+
+  @override
+  String repsValue({required int reps}) {
+    return '$reps 次';
+  }
+
+  @override
+  String get totalTime => '总时间';
+
+  @override
+  String get totalReps => '总次数';
+
+  @override
+  String get totalDistance => '总距离';
+
+  @override
+  String exerciseLastFigures({required String set}) {
+    return '上次 $set';
+  }
+
+  @override
+  String mostRepsSet({required String set, required String date}) {
+    return '最多 $set · $date';
+  }
+
+  @override
+  String longestSet({required String set, required String date}) {
+    return '最长 $set · $date';
+  }
+
+  @override
+  String furthestSet({required String set, required String date}) {
+    return '最远 $set · $date';
+  }
+
+  @override
+  String get timeColumn => '时间';
+
+  @override
+  String setTime({required String set}) {
+    return '$set时间';
+  }
+
+  @override
+  String setDistance({required String set}) {
+    return '$set距离';
+  }
+
+  @override
+  String setNumberTime({required int number}) {
+    return '第 $number 组时间';
+  }
+
+  @override
+  String setNumberDistance({required int number}) {
+    return '第 $number 组距离';
+  }
+
+  @override
+  String get unitMinutes => '分';
+
+  @override
+  String get unitSeconds => '秒';
+
+  @override
+  String get setTimerStart => '开始';
+
+  @override
+  String get setTimerStartLabel => '开始计时';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

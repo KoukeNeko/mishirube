@@ -126,11 +126,11 @@ class AppDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(
+                    padding: EdgeInsets.fromLTRB(
                       AppSpacing.lg,
                       AppSpacing.lg,
                       AppSpacing.lg,
-                      AppSpacing.lg,
+                      content == null ? AppSpacing.lg : 0,
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -141,23 +141,40 @@ class AppDialog extends StatelessWidget {
                           const SizedBox(height: AppSpacing.xxs + 2),
                           Text(message, style: _messageStyle),
                         ],
-                        if (content case final content?) ...[
-                          const SizedBox(height: AppSpacing.md),
-                          content,
-                        ],
                       ],
                     ),
                   ),
-                  // A long list of choices — every model a provider offers —
-                  // scrolls inside the dialog instead of growing past it.
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) =>
-                            _actionArea(context, constraints.maxWidth),
+                  // What the dialog asks for scrolls when it is taller than
+                  // the room, so the choices below it are never pushed out.
+                  if (content case final content?)
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          AppSpacing.md,
+                          AppSpacing.lg,
+                          AppSpacing.lg,
+                        ),
+                        child: content,
                       ),
                     ),
-                  ),
+                  // A long list of choices — every model a provider offers —
+                  // is the content itself and scrolls inside the dialog;
+                  // any other choices stay at the foot, in reach.
+                  if (isChoiceList)
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) =>
+                              _actionArea(context, constraints.maxWidth),
+                        ),
+                      ),
+                    )
+                  else
+                    LayoutBuilder(
+                      builder: (context, constraints) =>
+                          _actionArea(context, constraints.maxWidth),
+                    ),
                 ],
               ),
             ),
@@ -231,7 +248,7 @@ const _dialogRadius = 24.0;
 const _keyboardShift = Duration(milliseconds: 250);
 
 /// The most of the space inside the safe area a dialog takes.
-const _maxHeightShare = 0.7;
+const _maxHeightShare = 0.85;
 
 /// One device pixel, whichever device it is.
 const _hairline = 1.0;

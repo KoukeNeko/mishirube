@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/backend/engines/set_schemes.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -149,10 +150,11 @@ void main() {
           exercise: first.exercise,
           was: first,
           loads: [
-            for (final set in done) (weightKg: set.weightKg + 5, reps: 3),
+            for (final set in done)
+              SetLoad(weightKg: set.weightKg + 5, reps: 3),
           ],
         ),
-        (exercise: added, was: null, loads: [(weightKg: 20, reps: 12)]),
+        (exercise: added, was: null, loads: [SetLoad(weightKg: 20, reps: 12)]),
       ]);
 
       final saved = store.workoutById(finished.id)!;
@@ -192,7 +194,8 @@ void main() {
                 was: session,
                 loads: [
                   for (final set in session.sets)
-                    if (set.isDone) (weightKg: set.weightKg, reps: set.reps),
+                    if (set.isDone)
+                      SetLoad(weightKg: set.weightKg, reps: set.reps),
                 ],
               ),
         ],
@@ -302,6 +305,250 @@ void main() {
       store.addExercises([DemoExercises.hipThrust]);
 
       expect(store.routine.exercises, hasLength(before + 1));
+    });
+  });
+
+  group('sets from a scheme or an earlier session', () {
+    List<WorkoutSet> working() => [
+      for (final set in store.activeWorkout!.exercises.first.sets)
+        if (set.type == SetType.working) set,
+    ];
+
+    test('a scheme replaces the sets still to do, and only those', () {
+      store.startWorkout();
+      store.addWarmups();
+      // The warm-ups come first, then the first working set.
+      while (!working().first.isDone) {
+        store.completeNextSet();
+      }
+      final sets = store.activeWorkout!.exercises.first.sets;
+      final warmups = sets.where((set) => set.type == SetType.warmup).toList();
+      final done = sets.where((set) => set.isDone).toList();
+      final firstWorking = working().first;
+      expect(firstWorking.isDone, isTrue);
+
+      store.applyScheme(
+        0,
+        schemeSets(SetScheme.fiveByFive, mainKg: 100, sets: 5, reps: 5),
+      );
+
+      final after = store.activeWorkout!.exercises.first.sets;
+      expect(working(), hasLength(5), reason: '4 to do became 5 to make 5');
+      expect(
+        working().first,
+        same(firstWorking),
+        reason: 'done is not rewritten',
+      );
+      expect([
+        for (final set in working().skip(1)) (set.weightKg, set.reps),
+      ], everyElement((100.0, 5)));
+      expect(
+        after.where((set) => set.type == SetType.warmup),
+        warmups,
+        reason: 'warm-ups are left alone',
+      );
+      expect(after.where((set) => set.isDone), done);
+      expect(
+        store.backend.training.active()!.exercises.first.sets,
+        hasLength(after.length),
+        reason: 'written, not only held',
+      );
+      final actions = store.backend.db
+          .select(
+            'SELECT action FROM audit_events WHERE entity_id = ? ORDER BY id',
+            [store.activeWorkout!.id],
+          )
+          .map((row) => row['action']);
+      expect(actions.last, 'apply_scheme');
+    });
+
+    test('fewer loads than sets to do take the last ones off', () {
+      store.startWorkout();
+      store.applyScheme(0, [
+        SetLoad(weightKg: 80.0, reps: 10),
+        SetLoad(weightKg: 90.0, reps: 8),
+      ]);
+
+      expect(
+        [for (final set in working()) (set.weightKg, set.reps)],
+        [(80.0, 10), (90.0, 8)],
+      );
+    });
+
+    test('done sets count toward the scheme: the rest take what follows', () {
+      store.startWorkout();
+      store.completeNextSet();
+      store.applyScheme(0, [
+        SetLoad(weightKg: 60.0, reps: 10),
+        SetLoad(weightKg: 70.0, reps: 8),
+        SetLoad(weightKg: 80.0, reps: 6),
+      ]);
+
+      expect(
+        [for (final set in working()) (set.weightKg, set.reps)],
+        [
+          (working().first.weightKg, working().first.reps),
+          (70.0, 8),
+          (80.0, 6),
+        ],
+      );
+      expect(working().first.isDone, isTrue);
+      expect(working().first.weightKg, isNot(60), reason: 'left as it was');
+    });
+
+    test('an earlier session is read from what was done in it', () {
+      store.startWorkout();
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      final before = store.sessionsOf(squat);
+      expect(before, isNotEmpty, reason: 'the demo has earlier squats');
+      expect(
+        before.map((session) => session.date),
+        orderedEquals(
+          [...before.map((s) => s.date)]..sort((a, b) => b.compareTo(a)),
+        ),
+        reason: 'newest first',
+      );
+
+      store.applyScheme(0, [SetLoad(weightKg: 102.5, reps: 3)]);
+      store.completeNextSet();
+      clock.advance(const Duration(hours: 1));
+      store.finishWorkout();
+
+      final after = store.sessionsOf(squat);
+      expect(after, hasLength(before.length + 1));
+      expect(
+        [for (final set in after.first.sets) (set.weightKg, set.reps)],
+        [(102.5, 3)],
+        reason: 'only what was done',
+      );
+    });
+  });
+
+  group('a set being timed', () {
+    WorkoutSet plankSet() => store.activeWorkout!.exercises.first.sets.first;
+
+    setUp(() {
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      store.startFreeWorkout([plank]);
+    });
+
+    test('starts the workout, counts, holds and stops with whole seconds', () {
+      expect(store.activeWorkout!.isReady, isTrue);
+      store.startSetTimer(plankSet());
+      expect(store.activeWorkout!.isReady, isFalse, reason: 'timing begins it');
+
+      clock.advance(const Duration(seconds: 20));
+      store.toggleSetTimerPause();
+      clock.advance(const Duration(minutes: 5));
+      expect(
+        store.setTimer!.elapsedAt(clock.now()),
+        const Duration(seconds: 20),
+      );
+      store.toggleSetTimerPause();
+      clock.advance(const Duration(seconds: 25));
+
+      expect(store.stopSetTimer(), 45);
+      expect(store.setTimer, isNull);
+      expect(store.stopSetTimer(), isNull);
+    });
+
+    test('signals once at the planned time, and runs on', () {
+      store.startSetTimer(plankSet());
+      clock.advance(const Duration(seconds: 29));
+      expect(store.settleSetTimer(), isFalse);
+      clock.advance(const Duration(seconds: 1));
+      expect(store.settleSetTimer(), isTrue, reason: '30 s planned');
+      expect(store.settleSetTimer(), isFalse, reason: 'once');
+      clock.advance(const Duration(seconds: 15));
+      expect(store.setTimer!.elapsedAt(clock.now()).inSeconds, 45);
+    });
+
+    test('follows the set through an edit, and ends with it', () {
+      store.startSetTimer(plankSet());
+      store.editSet(0, weightKg: 0, reps: 0, rir: null, seconds: 40);
+      expect(store.setTimer!.set, same(plankSet()));
+
+      store.removeSet(0);
+      expect(store.setTimer, isNull, reason: 'its set is gone');
+    });
+  });
+
+  group('time and rest', () {
+    test('adjusting the time counted moves the clock, and never below 0', () {
+      store.startWorkout();
+      store.adjustElapsed(const Duration(minutes: 5));
+      expect(
+        store.activeWorkout!.elapsedAt(clock.now()),
+        Duration.zero,
+        reason: 'nothing runs while it is only scheduled',
+      );
+
+      store.beginWorkout();
+      clock.advance(const Duration(minutes: 30));
+      store.adjustElapsed(const Duration(minutes: 5));
+      expect(
+        store.activeWorkout!.elapsedAt(clock.now()),
+        const Duration(minutes: 35),
+      );
+
+      store.adjustElapsed(const Duration(minutes: -1));
+      expect(
+        store.activeWorkout!.elapsedAt(clock.now()),
+        const Duration(minutes: 34),
+      );
+
+      store.adjustElapsed(const Duration(minutes: -60));
+      expect(store.activeWorkout!.elapsedAt(clock.now()), Duration.zero);
+      final actions = store.backend.db
+          .select(
+            'SELECT action FROM audit_events WHERE entity_id = ? ORDER BY id',
+            [store.activeWorkout!.id],
+          )
+          .map((row) => row['action']);
+      expect(actions, containsAll(['begin', 'adjust_time']));
+    });
+
+    test('shortening a rest to nothing ends it, never below', () {
+      store.startWorkout();
+      store.logNextSet();
+      expect(store.restEndsAt, isNotNull);
+      final length = store.restLength;
+
+      store.extendRest(const Duration(seconds: -15));
+      expect(store.restLength, length - const Duration(seconds: 15));
+      expect(store.restEndsAt, isNotNull);
+
+      clock.advance(length - const Duration(seconds: 20));
+      store.extendRest(const Duration(seconds: -15));
+      expect(store.restEndsAt, isNull, reason: 'to 0 is over');
+      expect(store.restLength, greaterThanOrEqualTo(Duration.zero));
+    });
+
+    test('a rest set for an exercise is the one it starts with', () {
+      store.startWorkout();
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      expect(store.restFor(squat), restAfter(squat));
+
+      store.setRestFor(squat, const Duration(seconds: 45));
+      store.logNextSet();
+      expect(store.restLength, const Duration(seconds: 45));
+      expect(store.restFor(squat), const Duration(seconds: 45));
+
+      store.setRestFor(squat, const Duration(hours: 1));
+      expect(store.restFor(squat), maxRest, reason: 'within ten minutes');
+    });
+
+    test('with automatic rest off a set done starts no rest', () {
+      store.startWorkout();
+      expect(store.isAutoRest, isTrue);
+      store.setAutoRest(false);
+
+      expect(store.logNextSet()!.rests, isFalse);
+      expect(store.restEndsAt, isNull);
+
+      store.setAutoRest(true);
+      store.logNextSet();
+      expect(store.restEndsAt, isNotNull);
     });
   });
 

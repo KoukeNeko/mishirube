@@ -545,6 +545,13 @@ final List<String> _migrations = [
   CREATE INDEX body_readings_session ON body_readings(session_id)
     WHERE session_id IS NOT NULL;
   ''',
+  // What a planned exercise asks of each set besides weight and reps: the
+  // time of a plank, the distance of a run. Per-set plans keep theirs in
+  // set_loads.
+  '''
+  ALTER TABLE routine_exercises ADD COLUMN target_seconds INTEGER;
+  ALTER TABLE routine_exercises ADD COLUMN target_meters REAL;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

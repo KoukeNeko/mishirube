@@ -123,6 +123,8 @@ const _tables = [
     _Column('is_unilateral', _Kind.boolean),
     _Column('joins_next', _Kind.boolean, isNullable: true),
     _Column('set_loads', _Kind.text, isNullable: true),
+    _Column('target_seconds', _Kind.integer, isNullable: true),
+    _Column('target_meters', _Kind.real, isNullable: true),
   ], orderBy: 'routine_id, position'),
   _Table('workouts', 'workouts', [
     _Column('id', _Kind.text),

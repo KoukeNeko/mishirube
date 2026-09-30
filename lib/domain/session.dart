@@ -12,6 +12,10 @@ sealed class ActiveSession {
 
   bool get isPaused;
 
+  /// Arranged but not yet under way: there is no time to pause, and
+  /// nothing done to finish. Only a workout can be.
+  bool get isReady;
+
   /// Time spent actually doing it: a running pause freezes the clock and
   /// finished pauses are subtracted.
   Duration elapsedAt(DateTime now);
@@ -32,6 +36,9 @@ final class ActiveWorkout extends ActiveSession {
   bool get isPaused => workout.isPaused;
 
   @override
+  bool get isReady => workout.isReady;
+
+  @override
   Duration elapsedAt(DateTime now) => workout.elapsedAt(now);
 
   @override
@@ -50,6 +57,9 @@ final class ActiveActivity extends ActiveSession {
 
   @override
   bool get isPaused => activity.isPaused;
+
+  @override
+  bool get isReady => false;
 
   @override
   Duration elapsedAt(DateTime now) => activity.elapsedAt(now);

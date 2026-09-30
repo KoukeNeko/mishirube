@@ -201,6 +201,32 @@ void main() {
       expect(workout.currentExercise.sets.first.previousWeightKg, 95);
     });
 
+    test('the rest set for an exercise and automatic rest are kept', () {
+      final firstRun = openFile();
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: firstRun,
+      )..startWorkout();
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      store
+        ..setRestFor(squat, const Duration(seconds: 150))
+        ..setAutoRest(false);
+      firstRun.close();
+
+      final secondRun = openFile();
+      addTearDown(secondRun.close);
+      final reopened = AppStore(clock: clock.now, backend: secondRun);
+      expect(reopened.restFor(squat), const Duration(seconds: 150));
+      expect(reopened.isAutoRest, isFalse);
+      final other = reopened.routine.exercises.last.exercise;
+      expect(
+        reopened.restFor(other),
+        restAfter(other),
+        reason: 'only that one',
+      );
+    });
+
     test('every logged set is recorded in the audit trail', () {
       final store = AppStore(clock: clock.now, isOnboarded: true)
         ..startWorkout()
@@ -329,6 +355,105 @@ void main() {
   });
 
   group('routine persistence', () {
+    test('a timed exercise is planned by its time, kept and archived', () {
+      final source = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(source.dispose);
+      final training = source.backend.training;
+      final exercises = {for (final e in source.exercises) e.id: e};
+      final plank = exercises['plank']!;
+
+      final planned = training.planFor(plank);
+      expect(planned.targetSeconds, 30, reason: 'a plank asks for time');
+      expect(planned.targetWeightKg, 0);
+      expect(planned.reps, 0);
+      final routine = training.createRoutine('核心', exercises: [planned]);
+      final uneven = training.editLoads(routine, 0, [
+        const SetLoad(seconds: 45),
+        const SetLoad(seconds: 60),
+      ]);
+      final even = training.createRoutine(
+        '核心 B',
+        exercises: [
+          PlannedExercise.ofLoads(planned, const [
+            SetLoad(seconds: 40),
+            SetLoad(seconds: 40),
+          ]),
+        ],
+      );
+
+      Routine reopened(Routine of) => training.routine(of.id, exercises)!;
+      expect(reopened(uneven).exercises.single.loads, const [
+        SetLoad(seconds: 45),
+        SetLoad(seconds: 60),
+      ]);
+      expect(reopened(even).exercises.single.targetSeconds, 40);
+      expect(reopened(even).exercises.single.setLoads, isNull);
+
+      // A workout started from it carries the times into its sets.
+      source.startWorkout(routine: reopened(uneven));
+      expect(
+        [
+          for (final set in source.activeWorkout!.exercises.single.sets)
+            set.durationSeconds,
+        ],
+        [45, 60],
+      );
+
+      final archive = exportArchive(source.backend.db);
+      final target = Backend.inMemory(clock: clock.now);
+      addTearDown(target.close);
+      restoreArchive(target.db, jsonDecode(encodeArchive(archive)));
+      expect(exportArchive(target.db), archive);
+      expect([
+        for (final row in (archive['data'] as Map)['routineExercises'] as List)
+          row['targetSeconds'],
+      ], containsAll([40]));
+      expect(
+        target.training
+            .routine(even.id, exercises)!
+            .exercises
+            .single
+            .targetSeconds,
+        40,
+      );
+    });
+
+    test('a finished timed set keeps its time and gives the exercise one', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      store
+        ..startFreeWorkout([plank])
+        ..beginWorkout()
+        ..editSet(0, weightKg: 0, reps: 0, rir: null, seconds: 75)
+        ..toggleSet(0);
+      clock.advance(const Duration(minutes: 5));
+      store.finishWorkout();
+
+      final history = store.exerciseHistory(plank);
+      expect(history.last!.seconds, 75);
+      expect(history.last!.oneRepMaxKg, isNull, reason: 'no max from a time');
+      expect(
+        store.exercises.firstWhere((e) => e.id == 'plank').lastPerformance,
+        '上次 1:15',
+      );
+      expect(
+        store.backend.training
+            .sessionsOf(plank)
+            .single
+            .sets
+            .single
+            .durationSeconds,
+        75,
+      );
+      final rows = parseCsv(exportCsvViews(store.backend.db)['workouts.csv']!);
+      expect(
+        rows.where((row) => row[2] == '棒式').single[9],
+        '75',
+        reason: 'the CSV view carries the seconds',
+      );
+    });
+
     test('a new workout is named after what it trains', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
@@ -364,13 +489,13 @@ void main() {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);
       store.editLoads(0, [
-        (weightKg: 100, reps: 5),
-        (weightKg: 100, reps: 5),
-        (weightKg: 90, reps: 8),
+        SetLoad(weightKg: 100, reps: 5),
+        SetLoad(weightKg: 100, reps: 5),
+        SetLoad(weightKg: 90, reps: 8),
       ]);
       final planned = store.routine.exercises.first;
       expect((planned.sets, planned.reps, planned.targetWeightKg), (3, 5, 100));
-      expect(planned.loads.last, (weightKg: 90.0, reps: 8));
+      expect(planned.loads.last, SetLoad(weightKg: 90.0, reps: 8));
 
       store.startWorkout();
       final sets = store.activeWorkout!.exercises.first.sets;
@@ -2299,7 +2424,7 @@ void main() {
         (
           exercise: lift,
           was: source.exercises.first,
-          loads: [(weightKg: 84.0, reps: 10)],
+          loads: [SetLoad(weightKg: 84.0, reps: 10)],
         ),
       ]);
       expect(
@@ -3375,7 +3500,10 @@ void main() {
         // A superset, in the template and the workout started from it.
         ..setJoinsNext(0, joins: true)
         // Sets that differ from one another.
-        ..editLoads(1, [(weightKg: 60, reps: 8), (weightKg: 50, reps: 12)])
+        ..editLoads(1, [
+          SetLoad(weightKg: 60, reps: 8),
+          SetLoad(weightKg: 50, reps: 12),
+        ])
         ..startWorkout()
         ..completeNextSet()
         ..confirmLunch();

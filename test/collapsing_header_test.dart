@@ -281,7 +281,8 @@ void main() {
 
   testWidgets('workout hero collapses into a live bar', (tester) async {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true)
-      ..startWorkout();
+      ..startWorkout()
+      ..beginWorkout();
     await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
     final title = find.text(store.activeWorkout!.routineName);
     expect(title, findsOneWidget);

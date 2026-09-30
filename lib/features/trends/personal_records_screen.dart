@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/navigation.dart';
 import '../../app/view_model.dart';
 import '../../backend/engines/workout_review.dart';
-import '../../shared/format.dart';
+import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_detail_screen.dart';
 import 'trends_view_model.dart';
@@ -47,14 +47,22 @@ class _RecordRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heaviest = bests.heaviest;
+    final best = bests.best;
     final estimate = bests.bestEstimate;
+    final l10n = context.l10n;
+    final type = bests.exercise.trackingType;
+    final set = best.figuresIn(l10n, type);
+    final date = context.dates.monthDay(best.date);
     return NavCard(
       title: bests.exercise.name,
-      subtitle: context.l10n.heaviestSet(
-        set: '${formatWeight(heaviest.weightKg)} kg × ${heaviest.reps}',
-        date: context.dates.monthDay(heaviest.date),
-      ),
+      // What a record is depends on how the exercise is recorded.
+      subtitle: switch (type) {
+        TrackingType.weightReps ||
+        TrackingType.weightDuration => l10n.heaviestSet(set: set, date: date),
+        TrackingType.reps => l10n.mostRepsSet(set: set, date: date),
+        TrackingType.duration => l10n.longestSet(set: set, date: date),
+        TrackingType.distance => l10n.furthestSet(set: set, date: date),
+      },
       detail: estimate == null
           ? null
           : context.l10n.estimatedMaxOn(

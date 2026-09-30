@@ -131,7 +131,7 @@ SetLoad? _loadOf(String raw) {
       : line.replaceRange(weight.start, weight.end, ' ');
   final reps = (_reps.firstMatch(rest) ?? _bareReps.firstMatch(rest))?[1];
   if (reps == null) return null;
-  return (
+  return SetLoad(
     weightKg: weight == null ? 0 : double.parse(weight[1]!),
     reps: int.parse(reps),
   );

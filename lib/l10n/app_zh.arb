@@ -2036,18 +2036,6 @@
       }
     }
   },
-  "exerciseLastSet": "上次 {weight} kg × {reps}",
-  "@exerciseLastSet": {
-    "description": "An exercise's last set; weight is formatted.",
-    "placeholders": {
-      "weight": {
-        "type": "String"
-      },
-      "reps": {
-        "type": "int"
-      }
-    }
-  },
   "optionalField": "{field}（選填）",
   "@optionalField": {
     "description": "A form section that may be left empty; field is its name.",
@@ -5576,10 +5564,6 @@
   "@totalShort": {
     "description": "Measuring sample only."
   },
-  "notStarted": "未開始",
-  "@notStarted": {
-    "description": "State."
-  },
   "totalVolume": "總訓練量",
   "@totalVolume": {
     "description": "Label."
@@ -5608,10 +5592,6 @@
   "restTitle": "休息",
   "@restTitle": {
     "description": "Rest dialog title and clock label."
-  },
-  "rest30More": "多休息 30 秒",
-  "@rest30More": {
-    "description": "Choice."
   },
   "skipRest": "跳過休息",
   "@skipRest": {
@@ -5687,7 +5667,7 @@
   "@loadPrevious": {
     "description": "Chip."
   },
-  "loadPreviousLabel": "填入上次的重量與次數",
+  "loadPreviousLabel": "過往紀錄",
   "@loadPreviousLabel": {
     "description": "Screen-reader label."
   },
@@ -5695,7 +5675,7 @@
   "@quickFill": {
     "description": "Chip."
   },
-  "quickFillLabel": "以第一組填入其他組",
+  "quickFillLabel": "組數方案",
   "@quickFillLabel": {
     "description": "Screen-reader label."
   },
@@ -8766,5 +8746,278 @@
   "privacyWebSearchValue": "Anthropic、Google AI Studio 依內容搜尋公開的營養資料",
   "@privacyWebSearchValue": {
     "description": "Privacy fact: which providers search the web while drafting."
+  },
+  "workoutScheduled": "已安排",
+  "@workoutScheduled": {
+    "description": "State: a workout that is opened but not yet under way; the card's label on Today and the workout page's status."
+  },
+  "cancelSchedule": "取消安排",
+  "@cancelSchedule": {
+    "description": "Header action on a scheduled workout; opens the confirmation."
+  },
+  "cancelWorkoutTitle": "取消這次訓練？",
+  "@cancelWorkoutTitle": {
+    "description": "Dialog title confirming that a scheduled workout is dropped."
+  },
+  "cancelWorkoutAction": "取消訓練",
+  "@cancelWorkoutAction": {
+    "description": "Destructive choice that drops a scheduled workout."
+  },
+  "keepWorkout": "保留",
+  "@keepWorkout": {
+    "description": "Choice that leaves a scheduled workout as it is."
+  },
+  "commonView": "查看",
+  "@commonView": {
+    "description": "Inline link that opens something without changing it."
+  },
+  "schemeStraight": "基礎",
+  "@schemeStraight": {
+    "description": "Set scheme chip: every set the same."
+  },
+  "schemeStraightHint": "每組同重量",
+  "@schemeStraightHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "schemeAscending": "逐漸加重",
+  "@schemeAscending": {
+    "description": "Set scheme chip: weight rises across the sets."
+  },
+  "schemeAscendingHint": "重量逐組增加，次數逐組減少",
+  "@schemeAscendingHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "schemeReverse": "大重量開始",
+  "@schemeReverse": {
+    "description": "Set scheme chip: heaviest set first, then lighter."
+  },
+  "schemeReverseHint": "第一組最重，之後逐組減重加次數",
+  "@schemeReverseHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "schemeFiveByFive": "5×5 力量",
+  "@schemeFiveByFive": {
+    "description": "Set scheme chip: five sets of five at one weight."
+  },
+  "schemeFiveByFiveHint": "5 組 5 下同重量",
+  "@schemeFiveByFiveHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "schemeTopSet": "頂峰組",
+  "@schemeTopSet": {
+    "description": "Set scheme chip: one heavy set, the rest lighter."
+  },
+  "schemeTopSetHint": "一組最重，其餘減重",
+  "@schemeTopSetHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "schemeDrop": "降重",
+  "@schemeDrop": {
+    "description": "Set scheme chip: each set a little lighter."
+  },
+  "schemeDropHint": "第一組最重，之後小幅減重",
+  "@schemeDropHint": {
+    "description": "One line under the scheme chips for the chosen scheme."
+  },
+  "mainWeight": "主要重量",
+  "@mainWeight": {
+    "description": "Label of the weight a set scheme is built from."
+  },
+  "mainWeightRecent": "近 90 天最高",
+  "@mainWeightRecent": {
+    "description": "Tag: the main weight is the exercise's heaviest of the last 90 days."
+  },
+  "mainWeightEver": "歷史最高",
+  "@mainWeightEver": {
+    "description": "Tag: the main weight is the exercise's heaviest ever."
+  },
+  "setCountLabel": "組數",
+  "@setCountLabel": {
+    "description": "Label of a stepper for how many sets."
+  },
+  "repCountLabel": "次數",
+  "@repCountLabel": {
+    "description": "Label of a stepper for how many reps."
+  },
+  "oneSetLess": "少 1 組",
+  "@oneSetLess": {
+    "description": "Stepper label."
+  },
+  "oneSetMore": "多 1 組",
+  "@oneSetMore": {
+    "description": "Stepper label."
+  },
+  "exerciseRecordsTitle": "{name} 紀錄",
+  "@exerciseRecordsTitle": {
+    "description": "Sheet title over an exercise's earlier sessions; name is the exercise.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "earlierRecord": "較早的紀錄",
+  "@earlierRecord": {
+    "description": "Screen-reader label of the step to the session before."
+  },
+  "laterRecord": "較新的紀錄",
+  "@laterRecord": {
+    "description": "Screen-reader label of the step to the session after."
+  },
+  "workoutTimeTitle": "運動時間",
+  "@workoutTimeTitle": {
+    "description": "Dialog title over the running workout's clock, where its time is paused or corrected."
+  },
+  "restTimeTitle": "休息時間",
+  "@restTimeTitle": {
+    "description": "Dialog title where the rest after a set of an exercise is set."
+  },
+  "autoRestTitle": "完成一組後自動開始休息",
+  "@autoRestTitle": {
+    "description": "Switch: whether the rest starts by itself when a set is done."
+  },
+  "durationSeconds": "{seconds} 秒",
+  "@durationSeconds": {
+    "description": "A length of time in whole seconds.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionScheduledOpen": "{session}已安排，回到{session}",
+  "@sessionScheduledOpen": {
+    "description": "Screen reader label of the session bar while the workout is only scheduled.",
+    "placeholders": {
+      "session": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingTypeWeightDuration": "重量 + 時間",
+  "@trackingTypeWeightDuration": {
+    "description": "How an exercise's sets are recorded. (TrackingType.weightDuration)"
+  },
+  "repsValue": "{reps} 次",
+  "@repsValue": {
+    "description": "A number of reps.",
+    "placeholders": {
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "totalTime": "總時間",
+  "@totalTime": {
+    "description": "Label: the summed time of the exercises recorded by time."
+  },
+  "totalReps": "總次數",
+  "@totalReps": {
+    "description": "Label: the summed reps of the exercises recorded by reps alone."
+  },
+  "totalDistance": "總距離",
+  "@totalDistance": {
+    "description": "Label: the summed distance of the exercises recorded by distance."
+  },
+  "exerciseLastFigures": "上次 {set}",
+  "@exerciseLastFigures": {
+    "description": "An exercise's last set; set is formatted by how the exercise is recorded.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      }
+    }
+  },
+  "mostRepsSet": "最多 {set} · {date}",
+  "@mostRepsSet": {
+    "description": "Record: the set with the most reps; set and date are formatted.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "longestSet": "最長 {set} · {date}",
+  "@longestSet": {
+    "description": "Record: the longest set; set and date are formatted.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "furthestSet": "最遠 {set} · {date}",
+  "@furthestSet": {
+    "description": "Record: the set with the greatest distance; set and date are formatted.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "timeColumn": "時間",
+  "@timeColumn": {
+    "description": "Column heading over a set's time."
+  },
+  "setTime": "{set}時間",
+  "@setTime": {
+    "description": "Screen-reader label of a set's time field; set is its name.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      }
+    }
+  },
+  "setDistance": "{set}距離",
+  "@setDistance": {
+    "description": "Screen-reader label of a set's distance field; set is its name.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      }
+    }
+  },
+  "setNumberTime": "第 {number} 組時間",
+  "@setNumberTime": {
+    "description": "Screen-reader label of a planned set's time field.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "setNumberDistance": "第 {number} 組距離",
+  "@setNumberDistance": {
+    "description": "Screen-reader label of a planned set's distance field.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "unitMinutes": "分",
+  "@unitMinutes": {
+    "description": "Unit beside a number of minutes in the time dialog."
+  },
+  "unitSeconds": "秒",
+  "@unitSeconds": {
+    "description": "Unit beside a number of seconds in the time dialog."
+  },
+  "setTimerStart": "開始",
+  "@setTimerStart": {
+    "description": "Button that starts timing a set."
+  },
+  "setTimerStartLabel": "開始計時",
+  "@setTimerStartLabel": {
+    "description": "Screen-reader label of the button that starts timing a set."
   }
 }

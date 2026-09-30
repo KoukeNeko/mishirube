@@ -1447,11 +1447,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String exerciseLastSet({required String weight, required int reps}) {
-    return '前回 $weight kg × $reps';
-  }
-
-  @override
   String optionalField({required String field}) {
     return '$field（任意）';
   }
@@ -3687,9 +3682,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get totalShort => '合計';
 
   @override
-  String get notStarted => '未開始';
-
-  @override
   String get totalVolume => '総トレーニング量';
 
   @override
@@ -3704,9 +3696,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get restTitle => '休憩';
-
-  @override
-  String get rest30More => '30秒延長';
 
   @override
   String get skipRest => '休憩をスキップ';
@@ -3757,13 +3746,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loadPrevious => '読み込む';
 
   @override
-  String get loadPreviousLabel => '前回の重量と回数を入力';
+  String get loadPreviousLabel => '過去の記録';
 
   @override
   String get quickFill => 'クイック入力';
 
   @override
-  String get quickFillLabel => '1セット目をほかのセットに入力';
+  String get quickFillLabel => 'セット方式';
 
   @override
   String get setColumn => 'セット';
@@ -5764,4 +5753,181 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get privacyWebSearchValue =>
       'Anthropic と Google AI Studio は送った内容から公開されている栄養成分を検索';
+
+  @override
+  String get workoutScheduled => '予定済み';
+
+  @override
+  String get cancelSchedule => '予定を取消';
+
+  @override
+  String get cancelWorkoutTitle => 'このトレーニングを取り消しますか？';
+
+  @override
+  String get cancelWorkoutAction => 'トレーニングを取り消す';
+
+  @override
+  String get keepWorkout => '残す';
+
+  @override
+  String get commonView => '表示';
+
+  @override
+  String get schemeStraight => 'ストレート';
+
+  @override
+  String get schemeStraightHint => '全セット同じ重量';
+
+  @override
+  String get schemeAscending => '漸増';
+
+  @override
+  String get schemeAscendingHint => 'セットごとに重量が増え、回数が減る';
+
+  @override
+  String get schemeReverse => '高重量から';
+
+  @override
+  String get schemeReverseHint => '最初が最重量、以降は軽くして回数を増やす';
+
+  @override
+  String get schemeFiveByFive => '5×5 筋力';
+
+  @override
+  String get schemeFiveByFiveHint => '同じ重量で5セット×5回';
+
+  @override
+  String get schemeTopSet => 'トップセット';
+
+  @override
+  String get schemeTopSetHint => '1セットだけ最重量、残りは軽く';
+
+  @override
+  String get schemeDrop => 'ドロップ';
+
+  @override
+  String get schemeDropHint => '最初が最重量、以降は少しずつ軽く';
+
+  @override
+  String get mainWeight => 'メイン重量';
+
+  @override
+  String get mainWeightRecent => '直近90日の最高';
+
+  @override
+  String get mainWeightEver => '歴代最高';
+
+  @override
+  String get setCountLabel => 'セット数';
+
+  @override
+  String get repCountLabel => '回数';
+
+  @override
+  String get oneSetLess => '1セット減らす';
+
+  @override
+  String get oneSetMore => '1セット増やす';
+
+  @override
+  String exerciseRecordsTitle({required String name}) {
+    return '$nameの記録';
+  }
+
+  @override
+  String get earlierRecord => '前の記録';
+
+  @override
+  String get laterRecord => '次の記録';
+
+  @override
+  String get workoutTimeTitle => '運動時間';
+
+  @override
+  String get restTimeTitle => '休憩時間';
+
+  @override
+  String get autoRestTitle => 'セット完了後に自動で休憩を開始';
+
+  @override
+  String durationSeconds({required int seconds}) {
+    return '$seconds秒';
+  }
+
+  @override
+  String sessionScheduledOpen({required String session}) {
+    return '$sessionは予定済み、$sessionに戻る';
+  }
+
+  @override
+  String get trackingTypeWeightDuration => '重量 + 時間';
+
+  @override
+  String repsValue({required int reps}) {
+    return '$reps回';
+  }
+
+  @override
+  String get totalTime => '合計時間';
+
+  @override
+  String get totalReps => '合計回数';
+
+  @override
+  String get totalDistance => '合計距離';
+
+  @override
+  String exerciseLastFigures({required String set}) {
+    return '前回 $set';
+  }
+
+  @override
+  String mostRepsSet({required String set, required String date}) {
+    return '最多 $set · $date';
+  }
+
+  @override
+  String longestSet({required String set, required String date}) {
+    return '最長 $set · $date';
+  }
+
+  @override
+  String furthestSet({required String set, required String date}) {
+    return '最長距離 $set · $date';
+  }
+
+  @override
+  String get timeColumn => '時間';
+
+  @override
+  String setTime({required String set}) {
+    return '$setの時間';
+  }
+
+  @override
+  String setDistance({required String set}) {
+    return '$setの距離';
+  }
+
+  @override
+  String setNumberTime({required int number}) {
+    return '$numberセット目の時間';
+  }
+
+  @override
+  String setNumberDistance({required int number}) {
+    return '$numberセット目の距離';
+  }
+
+  @override
+  String get unitMinutes => '分';
+
+  @override
+  String get unitSeconds => '秒';
+
+  @override
+  String get setTimerStart => '開始';
+
+  @override
+  String get setTimerStartLabel => '計測を開始';
 }

@@ -2778,12 +2778,6 @@ abstract class AppLocalizations {
   /// **'上次 {date} 完成'**
   String routineLastDone({required String date});
 
-  /// An exercise's last set; weight is formatted.
-  ///
-  /// In zh, this message translates to:
-  /// **'上次 {weight} kg × {reps}'**
-  String exerciseLastSet({required String weight, required int reps});
-
   /// A form section that may be left empty; field is its name.
   ///
   /// In zh, this message translates to:
@@ -6484,12 +6478,6 @@ abstract class AppLocalizations {
   /// **'總'**
   String get totalShort;
 
-  /// State.
-  ///
-  /// In zh, this message translates to:
-  /// **'未開始'**
-  String get notStarted;
-
   /// Label.
   ///
   /// In zh, this message translates to:
@@ -6513,12 +6501,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'休息'**
   String get restTitle;
-
-  /// Choice.
-  ///
-  /// In zh, this message translates to:
-  /// **'多休息 30 秒'**
-  String get rest30More;
 
   /// Choice.
   ///
@@ -6607,7 +6589,7 @@ abstract class AppLocalizations {
   /// Screen-reader label.
   ///
   /// In zh, this message translates to:
-  /// **'填入上次的重量與次數'**
+  /// **'過往紀錄'**
   String get loadPreviousLabel;
 
   /// Chip.
@@ -6619,7 +6601,7 @@ abstract class AppLocalizations {
   /// Screen-reader label.
   ///
   /// In zh, this message translates to:
-  /// **'以第一組填入其他組'**
+  /// **'組數方案'**
   String get quickFillLabel;
 
   /// Column heading.
@@ -10037,6 +10019,312 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'Anthropic、Google AI Studio 依內容搜尋公開的營養資料'**
   String get privacyWebSearchValue;
+
+  /// State: a workout that is opened but not yet under way; the card's label on Today and the workout page's status.
+  ///
+  /// In zh, this message translates to:
+  /// **'已安排'**
+  String get workoutScheduled;
+
+  /// Header action on a scheduled workout; opens the confirmation.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消安排'**
+  String get cancelSchedule;
+
+  /// Dialog title confirming that a scheduled workout is dropped.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消這次訓練？'**
+  String get cancelWorkoutTitle;
+
+  /// Destructive choice that drops a scheduled workout.
+  ///
+  /// In zh, this message translates to:
+  /// **'取消訓練'**
+  String get cancelWorkoutAction;
+
+  /// Choice that leaves a scheduled workout as it is.
+  ///
+  /// In zh, this message translates to:
+  /// **'保留'**
+  String get keepWorkout;
+
+  /// Inline link that opens something without changing it.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看'**
+  String get commonView;
+
+  /// Set scheme chip: every set the same.
+  ///
+  /// In zh, this message translates to:
+  /// **'基礎'**
+  String get schemeStraight;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'每組同重量'**
+  String get schemeStraightHint;
+
+  /// Set scheme chip: weight rises across the sets.
+  ///
+  /// In zh, this message translates to:
+  /// **'逐漸加重'**
+  String get schemeAscending;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'重量逐組增加，次數逐組減少'**
+  String get schemeAscendingHint;
+
+  /// Set scheme chip: heaviest set first, then lighter.
+  ///
+  /// In zh, this message translates to:
+  /// **'大重量開始'**
+  String get schemeReverse;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'第一組最重，之後逐組減重加次數'**
+  String get schemeReverseHint;
+
+  /// Set scheme chip: five sets of five at one weight.
+  ///
+  /// In zh, this message translates to:
+  /// **'5×5 力量'**
+  String get schemeFiveByFive;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'5 組 5 下同重量'**
+  String get schemeFiveByFiveHint;
+
+  /// Set scheme chip: one heavy set, the rest lighter.
+  ///
+  /// In zh, this message translates to:
+  /// **'頂峰組'**
+  String get schemeTopSet;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'一組最重，其餘減重'**
+  String get schemeTopSetHint;
+
+  /// Set scheme chip: each set a little lighter.
+  ///
+  /// In zh, this message translates to:
+  /// **'降重'**
+  String get schemeDrop;
+
+  /// One line under the scheme chips for the chosen scheme.
+  ///
+  /// In zh, this message translates to:
+  /// **'第一組最重，之後小幅減重'**
+  String get schemeDropHint;
+
+  /// Label of the weight a set scheme is built from.
+  ///
+  /// In zh, this message translates to:
+  /// **'主要重量'**
+  String get mainWeight;
+
+  /// Tag: the main weight is the exercise's heaviest of the last 90 days.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 90 天最高'**
+  String get mainWeightRecent;
+
+  /// Tag: the main weight is the exercise's heaviest ever.
+  ///
+  /// In zh, this message translates to:
+  /// **'歷史最高'**
+  String get mainWeightEver;
+
+  /// Label of a stepper for how many sets.
+  ///
+  /// In zh, this message translates to:
+  /// **'組數'**
+  String get setCountLabel;
+
+  /// Label of a stepper for how many reps.
+  ///
+  /// In zh, this message translates to:
+  /// **'次數'**
+  String get repCountLabel;
+
+  /// Stepper label.
+  ///
+  /// In zh, this message translates to:
+  /// **'少 1 組'**
+  String get oneSetLess;
+
+  /// Stepper label.
+  ///
+  /// In zh, this message translates to:
+  /// **'多 1 組'**
+  String get oneSetMore;
+
+  /// Sheet title over an exercise's earlier sessions; name is the exercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'{name} 紀錄'**
+  String exerciseRecordsTitle({required String name});
+
+  /// Screen-reader label of the step to the session before.
+  ///
+  /// In zh, this message translates to:
+  /// **'較早的紀錄'**
+  String get earlierRecord;
+
+  /// Screen-reader label of the step to the session after.
+  ///
+  /// In zh, this message translates to:
+  /// **'較新的紀錄'**
+  String get laterRecord;
+
+  /// Dialog title over the running workout's clock, where its time is paused or corrected.
+  ///
+  /// In zh, this message translates to:
+  /// **'運動時間'**
+  String get workoutTimeTitle;
+
+  /// Dialog title where the rest after a set of an exercise is set.
+  ///
+  /// In zh, this message translates to:
+  /// **'休息時間'**
+  String get restTimeTitle;
+
+  /// Switch: whether the rest starts by itself when a set is done.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成一組後自動開始休息'**
+  String get autoRestTitle;
+
+  /// A length of time in whole seconds.
+  ///
+  /// In zh, this message translates to:
+  /// **'{seconds} 秒'**
+  String durationSeconds({required int seconds});
+
+  /// Screen reader label of the session bar while the workout is only scheduled.
+  ///
+  /// In zh, this message translates to:
+  /// **'{session}已安排，回到{session}'**
+  String sessionScheduledOpen({required String session});
+
+  /// How an exercise's sets are recorded. (TrackingType.weightDuration)
+  ///
+  /// In zh, this message translates to:
+  /// **'重量 + 時間'**
+  String get trackingTypeWeightDuration;
+
+  /// A number of reps.
+  ///
+  /// In zh, this message translates to:
+  /// **'{reps} 次'**
+  String repsValue({required int reps});
+
+  /// Label: the summed time of the exercises recorded by time.
+  ///
+  /// In zh, this message translates to:
+  /// **'總時間'**
+  String get totalTime;
+
+  /// Label: the summed reps of the exercises recorded by reps alone.
+  ///
+  /// In zh, this message translates to:
+  /// **'總次數'**
+  String get totalReps;
+
+  /// Label: the summed distance of the exercises recorded by distance.
+  ///
+  /// In zh, this message translates to:
+  /// **'總距離'**
+  String get totalDistance;
+
+  /// An exercise's last set; set is formatted by how the exercise is recorded.
+  ///
+  /// In zh, this message translates to:
+  /// **'上次 {set}'**
+  String exerciseLastFigures({required String set});
+
+  /// Record: the set with the most reps; set and date are formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'最多 {set} · {date}'**
+  String mostRepsSet({required String set, required String date});
+
+  /// Record: the longest set; set and date are formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'最長 {set} · {date}'**
+  String longestSet({required String set, required String date});
+
+  /// Record: the set with the greatest distance; set and date are formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'最遠 {set} · {date}'**
+  String furthestSet({required String set, required String date});
+
+  /// Column heading over a set's time.
+  ///
+  /// In zh, this message translates to:
+  /// **'時間'**
+  String get timeColumn;
+
+  /// Screen-reader label of a set's time field; set is its name.
+  ///
+  /// In zh, this message translates to:
+  /// **'{set}時間'**
+  String setTime({required String set});
+
+  /// Screen-reader label of a set's distance field; set is its name.
+  ///
+  /// In zh, this message translates to:
+  /// **'{set}距離'**
+  String setDistance({required String set});
+
+  /// Screen-reader label of a planned set's time field.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {number} 組時間'**
+  String setNumberTime({required int number});
+
+  /// Screen-reader label of a planned set's distance field.
+  ///
+  /// In zh, this message translates to:
+  /// **'第 {number} 組距離'**
+  String setNumberDistance({required int number});
+
+  /// Unit beside a number of minutes in the time dialog.
+  ///
+  /// In zh, this message translates to:
+  /// **'分'**
+  String get unitMinutes;
+
+  /// Unit beside a number of seconds in the time dialog.
+  ///
+  /// In zh, this message translates to:
+  /// **'秒'**
+  String get unitSeconds;
+
+  /// Button that starts timing a set.
+  ///
+  /// In zh, this message translates to:
+  /// **'開始'**
+  String get setTimerStart;
+
+  /// Screen-reader label of the button that starts timing a set.
+  ///
+  /// In zh, this message translates to:
+  /// **'開始計時'**
+  String get setTimerStartLabel;
 }
 
 class _AppLocalizationsDelegate

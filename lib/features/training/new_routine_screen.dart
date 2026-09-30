@@ -96,6 +96,7 @@ class _NewRoutineScreenState extends State<NewRoutineScreen> {
             key: key,
             child: ExerciseLoadsCard(
               name: planned.exercise.name,
+              trackingType: planned.exercise.trackingType,
               loads: planned.loads,
               onLoads: (loads) => _setLoads(index, loads),
               onRemove: () => _remove(index),

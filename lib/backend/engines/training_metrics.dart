@@ -85,6 +85,10 @@ List<double>? platesPerSide(double totalKg) {
 const compoundRest = Duration(minutes: 2);
 const isolationRest = Duration(seconds: 90);
 
+/// The step a rest is changed by, and the longest one that can be set.
+const restStep = Duration(seconds: 15);
+const maxRest = Duration(minutes: 10);
+
 Duration restAfter(ExerciseDefinition exercise) =>
     exercise.pattern == MovementPattern.isolation
     ? isolationRest
@@ -173,18 +177,97 @@ Iterable<WorkoutSet> countedSets(Iterable<WorkoutSet> sets) =>
 double volumeKg(Iterable<WorkoutSet> sets) =>
     countedSets(sets).fold(0, (sum, set) => sum + set.weightKg * set.reps);
 
-/// The heaviest counted set; ties go to more reps.
-WorkoutSet? heaviestSet(Iterable<WorkoutSet> sets) {
+/// What an exercise's session lifted, in kg: only weight and reps make a
+/// volume, so an exercise recorded any other way adds none.
+double sessionVolumeKg(ExerciseSession session) =>
+    session.exercise.trackingType == TrackingType.weightReps
+    ? volumeKg(session.sets)
+    : 0;
+
+/// The time of the counted sets of a session of an exercise recorded by
+/// time: what a plank adds up to.
+int sessionSeconds(ExerciseSession session) =>
+    session.exercise.trackingType.usesTime &&
+        !session.exercise.trackingType.usesDistance
+    ? countedSets(session.sets)
+          .fold(0, (sum, set) => sum + (set.durationSeconds ?? 0))
+    : 0;
+
+/// The reps of the counted sets of a session of an exercise recorded by
+/// reps alone.
+int sessionReps(ExerciseSession session) =>
+    session.exercise.trackingType == TrackingType.reps
+    ? countedSets(session.sets).fold(0, (sum, set) => sum + set.reps)
+    : 0;
+
+/// The distance of the counted sets of a session of an exercise recorded
+/// by distance, in metres.
+double sessionMeters(ExerciseSession session) =>
+    session.exercise.trackingType.usesDistance
+    ? countedSets(session.sets)
+          .fold(0.0, (sum, set) => sum + (set.distanceMeters ?? 0))
+    : 0;
+
+/// The figures a set or a session's best set is compared by; the ones an
+/// exercise's [TrackingType] does not use stay at 0.
+typedef SetFigures = ({double weightKg, int reps, int seconds, double meters});
+
+SetFigures figuresOfSet(WorkoutSet set) => (
+  weightKg: set.weightKg,
+  reps: set.reps,
+  seconds: set.durationSeconds ?? 0,
+  meters: set.distanceMeters ?? 0,
+);
+
+SetFigures figuresOfEntry(ExerciseHistoryEntry entry) => (
+  weightKg: entry.weightKg,
+  reps: entry.reps,
+  seconds: entry.seconds ?? 0,
+  meters: entry.meters ?? 0,
+);
+
+/// Whether [a] is a better set than [b] of an exercise recorded as
+/// [type]: the heavier, then the one with more reps, for weight and
+/// reps; the one with more reps for reps alone; the longer for a time;
+/// the heavier, then the longer, for weight and time; the further for a
+/// distance.
+bool isBetterSet(TrackingType type, SetFigures a, SetFigures b) =>
+    switch (type) {
+      TrackingType.weightReps =>
+        a.weightKg > b.weightKg ||
+            (a.weightKg == b.weightKg && a.reps > b.reps),
+      TrackingType.reps => a.reps > b.reps,
+      TrackingType.duration => a.seconds > b.seconds,
+      TrackingType.weightDuration =>
+        a.weightKg > b.weightKg ||
+            (a.weightKg == b.weightKg && a.seconds > b.seconds),
+      TrackingType.distance => a.meters > b.meters,
+    };
+
+/// The best counted set of an exercise recorded as [type], by
+/// [isBetterSet]; ties go to the first. A timed or distance set with no
+/// time or distance has nothing to compare and is left out.
+WorkoutSet? bestSet(TrackingType type, Iterable<WorkoutSet> sets) {
   WorkoutSet? best;
   for (final set in countedSets(sets)) {
+    final hasFigure = switch (type) {
+      TrackingType.duration ||
+      TrackingType.weightDuration => (set.durationSeconds ?? 0) > 0,
+      TrackingType.distance => (set.distanceMeters ?? 0) > 0,
+      _ => true,
+    };
+    if (!hasFigure) continue;
     if (best == null ||
-        set.weightKg > best.weightKg ||
-        (set.weightKg == best.weightKg && set.reps > best.reps)) {
+        isBetterSet(type, figuresOfSet(set), figuresOfSet(best))) {
       best = set;
     }
   }
   return best;
 }
+
+/// The heaviest counted set; ties go to more reps.
+WorkoutSet? heaviestSet(Iterable<WorkoutSet> sets) =>
+    bestSet(TrackingType.weightReps, sets);
 
 /// Working sets per muscle group, most trained first. A set counts for
 /// the exercise's primary muscles only: the secondary work is real, but

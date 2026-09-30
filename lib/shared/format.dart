@@ -21,6 +21,13 @@ String formatAmount(double value) {
 /// A weight in kilograms, written the way [formatAmount] writes numbers.
 String formatWeight(double kilograms) => formatAmount(kilograms);
 
+/// A distance in metres as kilometres, to two decimals with the trailing
+/// zeros dropped: `2.4`, `5`, `0.35`.
+String formatKilometers(double meters) {
+  final text = (meters / 1000).toStringAsFixed(2);
+  return text.replaceFirst(RegExp(r'\.?0+$'), '');
+}
+
 /// A length of sleep or rest as `h:mm`, where seconds would be noise.
 String formatHoursMinutes(Duration duration) {
   final minutes = duration.inMinutes % _minutesPerHour;

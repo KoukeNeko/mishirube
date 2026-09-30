@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../domain/domain.dart';
-import '../shared/format.dart';
 import 'app_store.dart';
 import '../l10n/l10n.dart';
 
@@ -64,7 +63,7 @@ class _WatchSyncState extends State<WatchSync> {
       'set': set == null
           ? l10n.commonDone
           : '${set.type == SetType.working ? '' : '${set.type.labelIn(l10n)} · '}'
-                '${formatWeight(set.weightKg)} kg × ${set.reps}',
+                '${set.figuresIn(l10n, exercise.exercise.trackingType)}',
       'progress': l10n.setsProgress(
         done: workout.completedSets,
         total: workout.totalSets,

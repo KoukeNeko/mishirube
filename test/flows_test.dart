@@ -190,7 +190,7 @@ void main() {
       reason: 'the rest shows its choices',
     );
     final endsAt = store.restEndsAt!;
-    await _tapText(tester, '多休息 30 秒');
+    await _tapText(tester, '+30 秒');
     expect(store.restEndsAt, endsAt.add(const Duration(seconds: 30)));
     await _tapText(tester, '跳過休息');
     semantics.dispose();
@@ -259,6 +259,7 @@ void main() {
     await _startFromRoutine(tester);
     final id = store.activeWorkout!.id;
 
+    await _tapText(tester, '開始運動');
     await _tapText(tester, '結束');
     await _tapText(tester, '放棄這次訓練');
     expect(store.activeWorkout, isNull);

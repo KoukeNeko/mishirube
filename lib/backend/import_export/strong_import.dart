@@ -320,6 +320,7 @@ class StrongImporter {
       )) {
         (_, _, _, final d?) when d > 0 => TrackingType.distance,
         (0, 0, final s?, _) when s > 0 => TrackingType.duration,
+        (_, 0, final s?, _) when s > 0 => TrackingType.weightDuration,
         (0, _, _, _) => TrackingType.reps,
         _ => TrackingType.weightReps,
       });

@@ -33,6 +33,7 @@ class SessionAccessory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPaused = session.isPaused;
+    final isReady = session.isReady;
     final l10n = context.l10n;
     final name = session.name(l10n);
     return SizedBox(
@@ -48,22 +49,29 @@ class SessionAccessory extends StatelessWidget {
         },
         child: Row(
           children: [
-            _Yielding(
-              morph: morph,
-              child: _AccessoryIcon(
-                icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                tooltip: isPaused
-                    ? l10n.sessionResume(session: name)
-                    : l10n.sessionPause(session: name),
-                onTap: onTogglePause,
+            // Scheduled, there is nothing to pause or to end yet: the bar
+            // only leads back to the workout, where it is begun.
+            if (!isReady)
+              _Yielding(
+                morph: morph,
+                child: _AccessoryIcon(
+                  icon: isPaused
+                      ? Icons.play_arrow_rounded
+                      : Icons.pause_rounded,
+                  tooltip: isPaused
+                      ? l10n.sessionResume(session: name)
+                      : l10n.sessionPause(session: name),
+                  onTap: onTogglePause,
+                ),
               ),
-            ),
             Expanded(
               child: Semantics(
                 button: true,
-                label: isPaused
-                    ? l10n.sessionPausedOpen(session: name)
-                    : l10n.sessionRunningOpen(session: name),
+                label: switch ((isReady, isPaused)) {
+                  (true, _) => l10n.sessionScheduledOpen(session: name),
+                  (_, true) => l10n.sessionPausedOpen(session: name),
+                  _ => l10n.sessionRunningOpen(session: name),
+                },
                 // Excluding the child's semantics drops its tap too.
                 onTap: onOpen,
                 excludeSemantics: true,
@@ -80,15 +88,16 @@ class SessionAccessory extends StatelessWidget {
                 ),
               ),
             ),
-            _Yielding(
-              morph: morph,
-              isTrailing: true,
-              child: _AccessoryIcon(
-                icon: Icons.stop_rounded,
-                tooltip: l10n.sessionEnd(session: name),
-                onTap: onFinish,
+            if (!isReady)
+              _Yielding(
+                morph: morph,
+                isTrailing: true,
+                child: _AccessoryIcon(
+                  icon: Icons.stop_rounded,
+                  tooltip: l10n.sessionEnd(session: name),
+                  onTap: onFinish,
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -140,7 +149,9 @@ class _Status extends StatelessWidget {
                   child: Opacity(
                     opacity: 1 - gone,
                     child: Text(
-                      '${session.isPaused ? context.l10n.sessionPausedStatus : context.l10n.sessionRunningStatus(session: session.name(context.l10n))} · ',
+                      session.isReady
+                          ? context.l10n.workoutScheduled
+                          : '${session.isPaused ? context.l10n.sessionPausedStatus : context.l10n.sessionRunningStatus(session: session.name(context.l10n))} · ',
                       maxLines: 1,
                       softWrap: false,
                       style: style,
@@ -151,10 +162,12 @@ class _Status extends StatelessWidget {
             },
           ),
         ),
-        ElapsedClock(
-          session: session,
-          builder: (_, elapsed) => Text(elapsed, style: style),
-        ),
+        // No time runs while it is only scheduled.
+        if (!session.isReady)
+          ElapsedClock(
+            session: session,
+            builder: (_, elapsed) => Text(elapsed, style: style),
+          ),
       ],
     );
   }

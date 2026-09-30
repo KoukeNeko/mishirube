@@ -152,7 +152,9 @@ class SquareIconButton extends StatelessWidget {
   });
 
   final IconData icon;
-  final VoidCallback onPressed;
+
+  /// Null draws it disabled.
+  final VoidCallback? onPressed;
   final String? tooltip;
   final double size;
   final Color color;

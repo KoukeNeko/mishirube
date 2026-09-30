@@ -307,6 +307,55 @@ class _InlineNumberFieldState extends State<InlineNumberField> {
   }
 }
 
+/// A figure shown as an [InlineNumberField] is but changed some other way
+/// than typing: a tap hands over to [onTap]. Its [child] is the figure, in
+/// [inlineFigureStyle].
+class InlineValueButton extends StatelessWidget {
+  const InlineValueButton({
+    super.key,
+    required this.child,
+    required this.label,
+    required this.onTap,
+  });
+
+  final Widget child;
+
+  /// What a screen reader calls it: `第 1 組時間`.
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _fieldHeight,
+      child: Semantics(
+        button: true,
+        label: label,
+        // Excluding the child's semantics drops its tap too.
+        onTap: onTap,
+        excludeSemantics: true,
+        child: Material(
+          color: AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(_fieldRadius),
+            onTap: onTap,
+            child: Center(
+              child: DefaultTextStyle(style: inlineFigureStyle, child: child),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The figure of an [InlineNumberField] or [InlineValueButton].
+final inlineFigureStyle = AppTextStyles.body.copyWith(
+  fontSize: 17,
+  fontFeatures: const [FontFeature.tabularFigures()],
+);
+
 /// A day then a time of it, from a year before [latest] to [latest]; null
 /// when either is dismissed. To the minute: seconds are not something
 /// anyone remembers.

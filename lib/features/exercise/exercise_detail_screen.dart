@@ -157,7 +157,9 @@ class ExerciseDetailScreen extends StatelessWidget {
         ],
         Gutter(child: SectionLabel(context.l10n.recordTitle)),
         if (history.last != null)
-          Gutter(child: _HistoryCard(history: history))
+          Gutter(
+            child: _HistoryCard(exercise: exercise, history: history),
+          )
         else
           Gutter(child: InfoBanner(message: context.l10n.noEntriesSentence)),
         Gutter(child: SectionLabel(context.l10n.manageSection)),
@@ -322,10 +324,11 @@ class _CueList extends StatelessWidget {
 }
 
 class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.history});
+  const _HistoryCard({required this.exercise, required this.history});
 
   static const _recentCount = 3;
 
+  final ExerciseDefinition exercise;
   final ExerciseHistory history;
 
   /// Each session's estimated max, oldest first, for the trend line.
@@ -336,23 +339,35 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final estimate = history.estimatedOneRepMaxKg;
+    // A max is only estimated from weight and reps.
+    final estimatesMax = exercise.trackingType == TrackingType.weightReps;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           StatRow(
             stats: [
-              StatBlock(
-                value: formatWeight(history.last!.weightKg),
-                unit: 'kg',
-                label: context.l10n.lastWorkingSet,
-              ),
-              StatBlock(
-                value: estimate == null ? '—' : estimate.round().toString(),
-                unit: estimate == null ? null : 'kg',
-                label: context.l10n.estimatedMax,
-                valueColor: AppColors.training,
-              ),
+              if (estimatesMax)
+                StatBlock(
+                  value: formatWeight(history.last!.weightKg),
+                  unit: 'kg',
+                  label: context.l10n.lastWorkingSet,
+                )
+              else
+                StatBlock(
+                  value: history.last!.figuresIn(
+                    context.l10n,
+                    exercise.trackingType,
+                  ),
+                  label: context.l10n.lastWorkingSet,
+                ),
+              if (estimatesMax)
+                StatBlock(
+                  value: estimate == null ? '—' : estimate.round().toString(),
+                  unit: estimate == null ? null : 'kg',
+                  label: context.l10n.estimatedMax,
+                  valueColor: AppColors.training,
+                ),
               StatBlock(
                 value: '${history.sessionCount}',
                 unit: context.l10n.sessionsUnit,
@@ -381,7 +396,7 @@ class _HistoryCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      '${formatWeight(entry.weightKg)} kg × ${entry.reps}'
+                      '${entry.figuresIn(context.l10n, exercise.trackingType)}'
                       '${entry.rir == null ? '' : ' · RIR ${entry.rir}'}',
                       textAlign: TextAlign.end,
                       style: AppTextStyles.caption.copyWith(fontSize: 14),
@@ -392,7 +407,10 @@ class _HistoryCard extends StatelessWidget {
             ),
           const SizedBox(height: AppSpacing.sm),
           TagWrap(
-            labels: [context.l10n.epleyEstimate, context.l10n.last90Days],
+            labels: [
+              if (estimatesMax) context.l10n.epleyEstimate,
+              context.l10n.last90Days,
+            ],
           ),
         ],
       ),

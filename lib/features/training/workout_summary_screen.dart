@@ -92,12 +92,38 @@ class WorkoutSummaryScreen extends StatelessWidget {
                 unit: null,
                 color: null,
               ),
-              (
-                label: context.l10n.totalAmount,
-                value: formatKcal(review.volumeKg.round()),
-                unit: 'kg',
-                color: null,
-              ),
+              // A volume is weight and reps: a workout of only planks has
+              // none, and shows what it did instead.
+              if (review.exercises.any(
+                (item) => item.exercise.trackingType == TrackingType.weightReps,
+              ))
+                (
+                  label: context.l10n.totalAmount,
+                  value: formatKcal(review.volumeKg.round()),
+                  unit: 'kg',
+                  color: null,
+                ),
+              if (review.seconds > 0)
+                (
+                  label: context.l10n.totalTime,
+                  value: formatClock(Duration(seconds: review.seconds)),
+                  unit: null,
+                  color: null,
+                ),
+              if (review.reps > 0)
+                (
+                  label: context.l10n.totalReps,
+                  value: '${review.reps}',
+                  unit: null,
+                  color: null,
+                ),
+              if (review.meters > 0)
+                (
+                  label: context.l10n.totalDistance,
+                  value: formatKilometers(review.meters),
+                  unit: 'km',
+                  color: null,
+                ),
               (
                 label: context.l10n.personalRecords,
                 value: '${review.records}',
@@ -250,7 +276,7 @@ class _RecordRow extends StatelessWidget {
       ),
       title: item.exercise.name,
       trailing: Text(
-        '${formatWeight(record.weightKg)} kg × ${record.reps}',
+        record.figuresIn(context.l10n, item.exercise.trackingType),
         style: AppTextStyles.bigNumber.copyWith(fontSize: 20),
       ),
     );
@@ -265,12 +291,8 @@ class _ExerciseResult extends StatelessWidget {
   final ExerciseReview item;
   final ExerciseHistoryEntry? reference;
 
-  static String _figuresOf(WorkoutSet set) => switch (set) {
-    WorkoutSet(durationSeconds: final seconds?) => formatClock(
-      Duration(seconds: seconds),
-    ),
-    _ => '${formatWeight(set.weightKg)} kg × ${set.reps}',
-  };
+  String _figuresOf(BuildContext context, WorkoutSet set) =>
+      set.figuresIn(context.l10n, item.exercise.trackingType);
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +351,7 @@ class _ExerciseResult extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _figuresOf(set),
+                          _figuresOf(context, set),
                           style: AppTextStyles.body.merge(figures),
                         ),
                         if (relativeLoadPercent(set.weightKg, reference)

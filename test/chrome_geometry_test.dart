@@ -400,7 +400,7 @@ void main() {
     );
     expect(
       tester.getSemantics(chip),
-      matchesSemantics(label: '填入上次的重量與次數', isButton: true, hasTapAction: true),
+      matchesSemantics(label: '過往紀錄', isButton: true, hasTapAction: true),
     );
     handle.dispose();
     await disposeTree(tester);
@@ -582,6 +582,48 @@ void _dialogActionLayoutTests() {
       const Offset(0, -200),
     );
     expect(find.text('模型 39'), findsOneWidget);
+  });
+
+  testWidgets('tall content scrolls while its choices stay in reach', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      AppDialog(
+        title: '訓練名稱',
+        content: const Column(children: [Text('內容'), SizedBox(height: 2000)]),
+        actions: [
+          DialogAction(label: '儲存', tone: DialogTone.primary, onTap: () {}),
+          DialogAction(label: '刪除', tone: DialogTone.destructive, onTap: () {}),
+          DialogAction(label: '取消', onTap: () {}),
+        ],
+      ),
+      store: store,
+    );
+
+    final screen =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final dialog = tester.getRect(find.byType(ChromeSurface).first);
+    expect(dialog.height, lessThanOrEqualTo(screen * 0.85));
+    for (final label in ['儲存', '刪除', '取消']) {
+      expect(find.text(label).hitTestable(), findsOneWidget, reason: label);
+      expect(
+        tester.getRect(find.text(label)).bottom,
+        lessThanOrEqualTo(screen),
+        reason: '$label is on the screen',
+      );
+    }
+    expect(find.text('訓練名稱').hitTestable(), findsOneWidget);
+
+    // The content is what moves.
+    final before = tester.getTopLeft(find.text('內容')).dy;
+    await tester.drag(find.text('內容'), const Offset(0, -100));
+    await tester.pump();
+    expect(tester.getTopLeft(find.text('內容')).dy, lessThan(before));
+    expect(find.text('取消').hitTestable(), findsOneWidget);
+    await disposeTree(tester);
   });
 
   testWidgets('two short choices sit side by side, cancel leading', (

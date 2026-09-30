@@ -83,7 +83,7 @@ void main() {
     );
     expect(tester.getRect(find.byType(ScrollEdgeGlass).first).top, 0);
     expect(
-      tester.getRect(find.text('結束')).top,
+      tester.getRect(find.text('取消安排')).top,
       greaterThanOrEqualTo(phoneTopInset),
     );
     _expectFooterReachesBottomEdge(tester, '開始運動');

@@ -2,6 +2,7 @@ export '../toast/toast_controller.dart';
 export '../toast/toast_host.dart';
 // Floating glass chrome: dock, toasts, footers.
 export 'chrome/app_dialog.dart';
+export 'chrome/app_sheet.dart';
 export 'chrome/chrome_surface.dart';
 export 'chrome/chrome_visibility.dart';
 // Display: cards, rows, stats, charts, banners.
@@ -18,12 +19,14 @@ export 'content/stats.dart';
 // Interactive controls.
 export 'controls/buttons.dart';
 export 'controls/chips.dart';
+export 'controls/duration_field.dart';
 export 'controls/inputs.dart';
 export 'controls/month_picker_sheet.dart';
 export 'controls/month_popover.dart';
 export 'controls/pill.dart';
 export 'controls/step_slider.dart';
 export 'controls/swipe_action.dart';
+export 'controls/value_stepper.dart';
 export 'controls/week_day_strip.dart';
 // Page frame: app bar, collapsing header, edge-to-edge layout, footers.
 export 'page/collapsing_header.dart';

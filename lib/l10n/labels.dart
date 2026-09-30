@@ -93,11 +93,68 @@ extension ActiveSessionText on ActiveSession {
   };
 }
 
+/// A set's figures as they read, by how its exercise is recorded:
+/// `60 kg × 10`, `12 次`, `1:00`, `10 kg × 0:45`, `2.4 km`.
+String setFigures(
+  AppLocalizations l10n,
+  TrackingType type, {
+  double weightKg = 0,
+  int reps = 0,
+  int? seconds,
+  double? meters,
+}) {
+  final time = formatClock(Duration(seconds: seconds ?? 0));
+  return switch (type) {
+    TrackingType.weightReps => '${formatWeight(weightKg)} kg × $reps',
+    TrackingType.reps => l10n.repsValue(reps: reps),
+    TrackingType.duration => time,
+    TrackingType.weightDuration => '${formatWeight(weightKg)} kg × $time',
+    TrackingType.distance => [
+      '${formatKilometers(meters ?? 0)} km',
+      if ((seconds ?? 0) > 0) time,
+    ].join(' · '),
+  };
+}
+
+extension WorkoutSetFigures on WorkoutSet {
+  String figuresIn(AppLocalizations l10n, TrackingType type) => setFigures(
+    l10n,
+    type,
+    weightKg: weightKg,
+    reps: reps,
+    seconds: durationSeconds,
+    meters: distanceMeters,
+  );
+}
+
+extension SetLoadFigures on SetLoad {
+  String figuresIn(AppLocalizations l10n, TrackingType type) => setFigures(
+    l10n,
+    type,
+    weightKg: weightKg,
+    reps: reps,
+    seconds: seconds,
+    meters: meters,
+  );
+}
+
+extension ExerciseHistoryEntryFigures on ExerciseHistoryEntry {
+  String figuresIn(AppLocalizations l10n, TrackingType type) => setFigures(
+    l10n,
+    type,
+    weightKg: weightKg,
+    reps: reps,
+    seconds: seconds,
+    meters: meters,
+  );
+}
+
 extension TrackingTypeText on TrackingType {
   String labelIn(AppLocalizations l10n) => switch (this) {
     TrackingType.weightReps => l10n.trackingTypeWeightReps,
     TrackingType.reps => l10n.trackingTypeReps,
     TrackingType.duration => l10n.trackingTypeDuration,
+    TrackingType.weightDuration => l10n.trackingTypeWeightDuration,
     TrackingType.distance => l10n.trackingTypeDistance,
   };
 }

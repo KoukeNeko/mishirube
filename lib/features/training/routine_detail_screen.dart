@@ -149,7 +149,12 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               onJoinNext: (joins) => store.setJoinsNext(index, joins: joins),
               onLoads: (loads) => store.editLoads(index, loads),
               last: switch (store.exerciseHistory(planned.exercise).last) {
-                final last? => (weightKg: last.weightKg, reps: last.reps),
+                final last? => SetLoad(
+                  weightKg: last.weightKg,
+                  reps: last.reps,
+                  seconds: last.seconds,
+                  meters: last.meters,
+                ),
                 null => null,
               },
             ),
@@ -374,6 +379,7 @@ class _PlannedExerciseCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           SetLoadTable(
+            trackingType: planned.exercise.trackingType,
             loads: loads,
             onLoads: onLoads,
             headerAction: last == null

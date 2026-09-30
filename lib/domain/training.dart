@@ -1,4 +1,32 @@
-enum TrackingType { weightReps, reps, duration, distance }
+/// How the sets of an exercise are recorded, and so which figures each
+/// one has.
+enum TrackingType {
+  /// Weight and reps.
+  weightReps,
+
+  /// Reps alone, as a push-up.
+  reps,
+
+  /// Time alone, as a plank.
+  duration,
+
+  /// Weight and time, as a weighted plank.
+  weightDuration,
+
+  /// Distance, and optionally the time it took.
+  distance;
+
+  bool get usesWeight => this == weightReps || this == weightDuration;
+
+  bool get usesReps => this == weightReps || this == reps;
+
+  /// Whether a set has a time: required for the timed kinds, optional for
+  /// distance.
+  bool get usesTime =>
+      this == duration || this == weightDuration || this == distance;
+
+  bool get usesDistance => this == distance;
+}
 
 enum ExerciseSource { builtIn, custom, imported }
 
@@ -164,8 +192,43 @@ class ExerciseDefinition {
 }
 
 /// The plan side of training: editing it never rewrites finished workouts.
-/// One planned set: its weight and reps.
-typedef SetLoad = ({double weightKg, int reps});
+/// One planned set: the figures its exercise's [TrackingType] uses; the
+/// others stay at 0 (weight, reps) or null (time, distance).
+class SetLoad {
+  const SetLoad({this.weightKg = 0, this.reps = 0, this.seconds, this.meters});
+
+  final double weightKg;
+  final int reps;
+  final int? seconds;
+  final double? meters;
+
+  SetLoad copyWith({
+    double? weightKg,
+    int? reps,
+    int? seconds,
+    double? meters,
+  }) => SetLoad(
+    weightKg: weightKg ?? this.weightKg,
+    reps: reps ?? this.reps,
+    seconds: seconds ?? this.seconds,
+    meters: meters ?? this.meters,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is SetLoad &&
+      other.weightKg == weightKg &&
+      other.reps == reps &&
+      other.seconds == seconds &&
+      other.meters == meters;
+
+  @override
+  int get hashCode => Object.hash(weightKg, reps, seconds, meters);
+
+  @override
+  String toString() =>
+      'SetLoad($weightKg kg, $reps reps, $seconds s, $meters m)';
+}
 
 /// One exercise of a finished workout as corrected: the sets it was done
 /// at, and the exercise as it was recorded, which [was] is null for one
@@ -187,11 +250,13 @@ class PlannedExercise {
     this.isUnilateral = false,
     this.joinsNext = false,
     this.setLoads,
+    this.targetSeconds,
+    this.targetMeters,
   });
 
-  /// A plan of [loads], set by set: its sets, reps and weight read from
-  /// them (the heaviest set's), and the loads kept only when the sets
-  /// differ.
+  /// A plan of [loads], set by set: its sets, reps, weight, time and
+  /// distance read from them (the heaviest set's), and the loads kept only
+  /// when the sets differ.
   factory PlannedExercise.ofLoads(
     PlannedExercise planned,
     List<SetLoad> loads,
@@ -203,6 +268,8 @@ class PlannedExercise {
       sets: loads.length,
       reps: heaviest.reps,
       targetWeightKg: heaviest.weightKg,
+      targetSeconds: heaviest.seconds,
+      targetMeters: heaviest.meters,
       progressionLabel: planned.progressionLabel,
       rir: planned.rir,
       isUnilateral: planned.isUnilateral,
@@ -215,6 +282,11 @@ class PlannedExercise {
   final int sets;
   final int reps;
   final double targetWeightKg;
+
+  /// The time each set is meant to last and the distance it covers, for
+  /// the exercises recorded that way; null for the others.
+  final int? targetSeconds;
+  final double? targetMeters;
   final String progressionLabel;
   final int? rir;
   final bool isUnilateral;
@@ -223,21 +295,34 @@ class PlannedExercise {
   /// rest: a superset. A run of these is one superset.
   final bool joinsNext;
 
-  /// Each set's weight and reps when they differ from set to set; null
-  /// when every set is [reps] at [targetWeightKg].
+  /// Each set's figures when they differ from set to set; null when every
+  /// set is [reps] at [targetWeightKg], for [targetSeconds] and
+  /// [targetMeters].
   final List<SetLoad>? setLoads;
 
-  /// Every set's weight and reps, set by set.
+  /// Every set's figures, set by set.
   List<SetLoad> get loads =>
-      setLoads ?? List.filled(sets, (weightKg: targetWeightKg, reps: reps));
+      setLoads ??
+      List.filled(
+        sets,
+        SetLoad(
+          weightKg: targetWeightKg,
+          reps: reps,
+          seconds: targetSeconds,
+          meters: targetMeters,
+        ),
+      );
 
-  /// A new reps or weight makes every set alike again; a new number of
-  /// sets keeps the sets' own loads, dropping the last or repeating it.
+  /// A new reps, weight, time or distance makes every set alike again; a
+  /// new number of sets keeps the sets' own loads, dropping the last or
+  /// repeating it.
   PlannedExercise copyWith({
     int? sets,
     int? reps,
     ExerciseDefinition? exercise,
     double? targetWeightKg,
+    int? targetSeconds,
+    double? targetMeters,
     bool? joinsNext,
   }) {
     final own = setLoads;
@@ -247,11 +332,18 @@ class PlannedExercise {
       sets: count,
       reps: reps ?? this.reps,
       targetWeightKg: targetWeightKg ?? this.targetWeightKg,
+      targetSeconds: targetSeconds ?? this.targetSeconds,
+      targetMeters: targetMeters ?? this.targetMeters,
       progressionLabel: progressionLabel,
       rir: rir,
       isUnilateral: isUnilateral,
       joinsNext: joinsNext ?? this.joinsNext,
-      setLoads: own == null || reps != null || targetWeightKg != null
+      setLoads:
+          own == null ||
+              reps != null ||
+              targetWeightKg != null ||
+              targetSeconds != null ||
+              targetMeters != null
           ? null
           : [
               for (var i = 0; i < count; i++)
