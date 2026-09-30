@@ -1,6 +1,8 @@
 package com.example.mishirube
 
 import android.content.Intent
+import android.os.Build
+import android.os.Bundle
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,6 +13,36 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterFragmentActivity() {
     private var health: HealthConnectBridge? = null
     private var wear: WearBridge? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        preferFastestDisplayMode()
+    }
+
+    // Flutter draws at whatever rate the display is running and never asks
+    // for a faster one, so on a phone whose display picks a rate per app
+    // (most 90 Hz and 120 Hz panels) it is handed 60 or 90 Hz. Ask for the
+    // fastest mode at the display's current resolution, even when the
+    // display happens to be in it at launch: the choice is made later, for
+    // this window, and only a stated preference survives it.
+    private fun preferFastestDisplayMode() {
+        val screen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display
+        } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay
+        }
+        val current = screen?.mode ?: return
+        val fastest = screen.supportedModes
+            .filter {
+                it.physicalWidth == current.physicalWidth &&
+                    it.physicalHeight == current.physicalHeight
+            }
+            .maxByOrNull { it.refreshRate } ?: return
+        window.attributes = window.attributes.apply {
+            preferredDisplayModeId = fastest.modeId
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
