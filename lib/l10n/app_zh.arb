@@ -8160,6 +8160,10 @@
   "@revokeConsent": {
     "description": "Destructive button and row."
   },
+  "autoNameMergedMeals": "自動命名合併的餐點",
+  "@autoNameMergedMeals": {
+    "description": "AI settings: switch. When on, a merged meal with no name is named by AI from its items."
+  },
   "serviceSection": "服務",
   "@serviceSection": {
     "description": "Section."

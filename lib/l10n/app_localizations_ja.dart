@@ -5401,6 +5401,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get revokeConsent => '同意を撤回';
 
   @override
+  String get autoNameMergedMeals => 'まとめた食事を自動で命名';
+
+  @override
   String get serviceSection => 'サービス';
 
   @override

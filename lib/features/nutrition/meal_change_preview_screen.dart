@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
@@ -60,6 +61,30 @@ class _MealChangePreviewScreenState extends State<MealChangePreviewScreen> {
     ..addListener(() => setState(() {}));
   late MealType? _mealType = widget.mealType;
   late DateTime? _eatenAt = widget.eatenAt;
+  bool _isNaming = false;
+  bool _hasAskedName = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasAskedName || !widget.isMerge || widget.name.isNotEmpty) return;
+    _hasAskedName = true;
+    _suggestName();
+  }
+
+  /// Fills the name in when the AI's answer arrives, unless something was
+  /// typed meanwhile; no answer leaves the field as it is.
+  Future<void> _suggestName() async {
+    final store = AppStoreScope.read(context);
+    final language = context.l10n.appLanguage;
+    _isNaming = true;
+    final name = await store.nameMeal([
+      for (final item in widget.items) item.name,
+    ], language: language);
+    if (!mounted) return;
+    if (name != null && _name.text.isEmpty) _name.text = name;
+    setState(() => _isNaming = false);
+  }
 
   Future<void> _pickTime() async {
     final picked = await pickDateTime(
@@ -103,7 +128,11 @@ class _MealChangePreviewScreenState extends State<MealChangePreviewScreen> {
     return [
       Gutter(child: SectionLabel(l10n.nameSection)),
       Gutter(
-        child: AppTextField(controller: _name, hint: mealNameOf(items)),
+        child: AppTextField(
+          controller: _name,
+          hint: mealNameOf(items),
+          isLoading: _isNaming,
+        ),
       ),
       Gutter(
         child: SectionLabel(l10n.optionalField(field: l10n.mealTypeOptional)),

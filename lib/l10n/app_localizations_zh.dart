@@ -5395,6 +5395,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get revokeConsent => '撤回同意';
 
   @override
+  String get autoNameMergedMeals => '自動命名合併的餐點';
+
+  @override
   String get serviceSection => '服務';
 
   @override
@@ -11312,6 +11315,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get revokeConsent => '撤回同意';
+
+  @override
+  String get autoNameMergedMeals => '自动命名合并的餐点';
 
   @override
   String get serviceSection => '服务';

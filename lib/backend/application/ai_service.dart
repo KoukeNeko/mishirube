@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../ai/apple_meal_drafter.dart';
 import '../ai/label_reader.dart';
 import '../ai/meal_drafter.dart';
+import '../ai/meal_name.dart';
 import '../ai/cloud_drafter.dart';
 import '../ai/food_photo.dart';
 import '../ai/copilot_drafter.dart';
@@ -109,6 +110,7 @@ class AiService {
   static const _consentKey = 'ai.cloud_consent';
   static const _photoConsentKey = 'ai.photo_consent';
   static const _endpointKey = 'ai.endpoint';
+  static const _namesMergesKey = 'ai.names_merges';
 
   final AppDatabase _db;
   final SecretStore secrets;
@@ -200,6 +202,12 @@ class AiService {
   void setPhotoConsent(bool agreed) =>
       _db.setSetting(_photoConsentKey, '$agreed');
 
+  /// Whether a merged meal is named by AI when it has no name yet; on
+  /// until switched off.
+  bool get namesMerges => _db.setting(_namesMergesKey) != 'false';
+
+  void setNamesMerges(bool isOn) => _db.setSetting(_namesMergesKey, '$isOn');
+
   Future<bool> hasKey(AiProviderKind kind) async =>
       (await secrets.read(keyName(kind)))?.isNotEmpty == true;
 
@@ -226,6 +234,40 @@ class AiService {
   /// the phone: only the text is ever sent, never the photo.
   Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
       _drafter().draftFoodLabel(labelText);
+
+  /// A short name for a meal made of [itemNames], in [language] (its
+  /// own name); null when naming is off, no provider may be asked, or
+  /// the answer has no name in it. It is an extra: it never asks for
+  /// consent and never fails. Apple Intelligence is used first when it
+  /// is on, since nothing leaves the device; the chosen provider is
+  /// used only once its cloud consent is given.
+  Future<String?> nameMeal(
+    List<String> itemNames, {
+    required String language,
+  }) async {
+    if (!namesMerges || itemNames.isEmpty) return null;
+    final drafter = await _namingDrafter();
+    if (drafter == null) return null;
+    try {
+      final name = cleanMealName(
+        await drafter.nameMeal(itemNames, language: language),
+      );
+      return name.isEmpty ? null : name;
+    } on AiException {
+      return null;
+    }
+  }
+
+  Future<MealDrafter?> _namingDrafter() async {
+    final apple = drafters[AiProviderKind.appleOnDevice];
+    if (apple != null &&
+        await apple.availability() == AiAvailability.available) {
+      return apple;
+    }
+    final kind = provider;
+    if (kind == null || (kind.leavesDevice && !hasCloudConsent)) return null;
+    return drafters[kind];
+  }
 
   /// The models the chosen provider offers, for the settings page to
   /// list; empty when it does not offer a choice.

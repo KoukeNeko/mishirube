@@ -9490,6 +9490,12 @@ abstract class AppLocalizations {
   /// **'撤回同意'**
   String get revokeConsent;
 
+  /// AI settings: switch. When on, a merged meal with no name is named by AI from its items.
+  ///
+  /// In zh, this message translates to:
+  /// **'自動命名合併的餐點'**
+  String get autoNameMergedMeals;
+
   /// Section.
   ///
   /// In zh, this message translates to:

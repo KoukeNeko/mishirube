@@ -5491,6 +5491,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get revokeConsent => 'Withdraw consent';
 
   @override
+  String get autoNameMergedMeals => 'Name merged meals automatically';
+
+  @override
   String get serviceSection => 'Service';
 
   @override

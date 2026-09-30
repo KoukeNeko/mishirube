@@ -10,6 +10,7 @@ import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
+import 'meal_name.dart';
 import 'workout_draft_json.dart';
 
 /// A model reached over the network with the user's own key.
@@ -60,6 +61,10 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
   @override
   Future<List<WorkoutLine>> draftWorkout(String text) async =>
       parseWorkoutDraft(await chat(workoutDraftInstructions, text));
+
+  @override
+  Future<String> nameMeal(List<String> itemNames, {required String language}) =>
+      chat(mealNameInstructions(language), itemNames.join('、'));
 
   @override
   Future<bool> readsPhotos() async => true;

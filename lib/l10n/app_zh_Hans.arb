@@ -1555,6 +1555,7 @@
   "revokeConsentTitle": "撤回同意？",
   "revokeConsentMessage": "下次使用云端 AI 前会再次询问。",
   "revokeConsent": "撤回同意",
+  "autoNameMergedMeals": "自动命名合并的餐点",
   "serviceSection": "服务",
   "signedIn": "已登录",
   "signIn": "登录",

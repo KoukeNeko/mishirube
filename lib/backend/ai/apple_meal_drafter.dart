@@ -8,6 +8,7 @@ import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
 import 'meal_drafter.dart';
+import 'meal_name.dart';
 import 'workout_draft_json.dart';
 
 /// Apple Intelligence's on-device model, reached through a small channel
@@ -65,6 +66,10 @@ class AppleMealDrafter implements MealDrafter {
       parseWorkoutDraft(
         await _ask('draftWorkout', workoutDraftInstructions, text),
       );
+
+  @override
+  Future<String> nameMeal(List<String> itemNames, {required String language}) =>
+      _ask('nameMeal', mealNameInstructions(language), itemNames.join('、'));
 
   /// From iOS 27, where a model has vision.
   @override

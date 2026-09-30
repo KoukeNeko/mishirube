@@ -342,6 +342,17 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
             );
           },
         ),
+        Gutter(
+          child: GroupedCard(
+            children: [
+              SwitchRow(
+                title: context.l10n.autoNameMergedMeals,
+                value: store.namesMerges,
+                onChanged: store.setNamesMerges,
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

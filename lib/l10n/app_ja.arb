@@ -1555,6 +1555,7 @@
   "revokeConsentTitle": "同意を撤回しますか？",
   "revokeConsentMessage": "次にクラウドAIを使う前に再度確認します。",
   "revokeConsent": "同意を撤回",
+  "autoNameMergedMeals": "まとめた食事を自動で命名",
   "serviceSection": "サービス",
   "signedIn": "サインイン済み",
   "signIn": "サインイン",

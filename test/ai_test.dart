@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -11,6 +12,7 @@ import 'package:mishirube/backend/ai/food_photo.dart';
 import 'package:mishirube/backend/ai/label_reader.dart';
 import 'package:mishirube/backend/ai/meal_draft_json.dart';
 import 'package:mishirube/backend/ai/meal_drafter.dart';
+import 'package:mishirube/backend/ai/meal_name.dart';
 import 'package:mishirube/backend/ai/cloud_drafter.dart';
 import 'package:mishirube/backend/ai/copilot_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
@@ -26,6 +28,7 @@ import 'package:mishirube/features/me/ai_draft_parts.dart';
 import 'package:mishirube/features/me/ai_settings_screen.dart';
 import 'package:mishirube/features/nutrition/describe_meal_screen.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
+import 'package:mishirube/features/nutrition/meal_change_preview_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/training/describe_workout_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -71,6 +74,25 @@ class _FakeDrafter implements MealDrafter {
   Future<FoodLabelDraft> draftFoodLabel(String labelText) async {
     labels.add(labelText);
     return parseFoodLabel(labelAnswer, provider: kind, model: 'fake-1');
+  }
+
+  /// The names it was asked to name a meal from, and the language; its
+  /// answer, or a failure.
+  final named = <(List<String>, String)>[];
+  String nameAnswer = '牛丼套餐';
+  AiFailure? nameFailure;
+
+  /// Holds the answer back until it completes.
+  Completer<String>? nameGate;
+
+  @override
+  Future<String> nameMeal(
+    List<String> itemNames, {
+    required String language,
+  }) async {
+    named.add((itemNames, language));
+    if (nameFailure case final failure?) throw AiException(failure);
+    return nameGate?.future ?? nameAnswer;
   }
 
   /// Whether it can look at a photo, and the photos and notes it was
@@ -162,6 +184,118 @@ void main() {
         ..setProvider(AiProviderKind.ollamaCloud);
       await ai.refreshOnDevice();
       expect(ai.provider, AiProviderKind.ollamaCloud);
+    });
+  });
+
+  group('naming a merged meal', () {
+    const items = ['牛丼迷你碗', '青菜', '味噌湯'];
+
+    AiService serviceWith(_FakeDrafter apple, [_FakeDrafter? cloud]) =>
+        AiService(
+          Backend.inMemory().db,
+          secrets: MemorySecretStore(),
+          drafters: {apple.kind: apple, ?cloud?.kind: ?cloud},
+        );
+
+    test('is off when the setting is', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final ai = serviceWith(apple);
+      expect(ai.namesMerges, isTrue, reason: 'on until switched off');
+      ai.setNamesMerges(false);
+
+      expect(await ai.nameMeal(items, language: '繁體中文'), isNull);
+      expect(apple.named, isEmpty);
+    });
+
+    test(
+      'goes to Apple Intelligence first, even beside a cloud choice',
+      () async {
+        final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+        final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+        final ai = serviceWith(apple, cloud)
+          ..setProvider(AiProviderKind.ollamaCloud)
+          ..setCloudConsent(true);
+
+        expect(await ai.nameMeal(items, language: 'English'), '牛丼套餐');
+        expect(apple.named, [(items, 'English')]);
+        expect(cloud.named, isEmpty);
+      },
+    );
+
+    test('asks the cloud only once it may', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..status = AiAvailability.notEnabled;
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+      final ai = serviceWith(apple, cloud)
+        ..setProvider(AiProviderKind.ollamaCloud);
+
+      expect(await ai.nameMeal(items, language: '繁體中文'), isNull);
+      expect(cloud.named, isEmpty, reason: 'no consent, no request');
+
+      ai.setCloudConsent(true);
+      expect(await ai.nameMeal(items, language: '繁體中文'), '牛丼套餐');
+      expect(cloud.named, hasLength(1));
+      expect(apple.named, isEmpty);
+    });
+
+    test('has nothing to ask when no provider is there', () async {
+      expect(
+        await AiService.none(Backend.inMemory().db)
+            .nameMeal(items, language: '繁體中文'),
+        isNull,
+      );
+    });
+
+    test('a failure or an empty answer is no name', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..nameFailure = AiFailure.rateLimited;
+      final ai = serviceWith(apple);
+      expect(await ai.nameMeal(items, language: '繁體中文'), isNull);
+
+      apple
+        ..nameFailure = null
+        ..nameAnswer = ' 「」 ';
+      expect(await ai.nameMeal(items, language: '繁體中文'), isNull);
+    });
+
+    test('the answer is cut down to a name', () async {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..nameAnswer = '"すき家牛丼套餐"\n這是一個很好的名字';
+      final ai = serviceWith(apple);
+      expect(await ai.nameMeal(items, language: '日本語'), 'すき家牛丼套餐');
+
+      apple.nameAnswer = '『${'一二三四五六七八九十' * 3}』';
+      final long = await ai.nameMeal(items, language: '日本語');
+      expect(long, hasLength(mealNameMaxLength));
+    });
+
+    test('a JSON-wrapped answer gives its text', () {
+      expect(cleanMealName('{"name": "牛丼套餐"}'), '牛丼套餐');
+      expect(cleanMealName('{"count": 3}'), isEmpty);
+      expect(cleanMealName('{牛丼套餐}'), '{牛丼套餐}');
+    });
+
+    test('a cloud drafter asks with the shared prompt', () async {
+      late Map<String, dynamic> sent;
+      final ollama = OllamaDrafter(
+        client: MockClient((request) async {
+          sent = jsonDecode(request.body) as Map<String, dynamic>;
+          return http.Response(
+            jsonEncode({
+              'message': {'content': '牛丼套餐'},
+            }),
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          );
+        }),
+        readKey: () async => 'k-123',
+        readModel: () => 'm',
+      );
+
+      expect(await ollama.nameMeal(items, language: 'English'), '牛丼套餐');
+      final messages = sent['messages'] as List;
+      expect(messages.first['content'], mealNameInstructions('English'));
+      expect(messages.last['content'], '牛丼迷你碗、青菜、味噌湯');
     });
   });
 
@@ -1910,5 +2044,167 @@ void main() {
       );
       await disposeTree(tester);
     });
+  });
+
+  group('the merge page names the meal', () {
+    const items = [
+      MealEvent(
+        id: 'a',
+        name: '牛丼迷你碗',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 400,
+      ),
+      MealEvent(
+        id: 'b',
+        name: '味噌湯',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 50,
+      ),
+    ];
+
+    Future<_FakeDrafter> open(
+      WidgetTester tester, {
+      String name = '',
+      bool isOn = true,
+    }) async {
+      usePhoneViewport(tester);
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final store = AppStore(
+        clock: FakeClock().now,
+        isOnboarded: true,
+        backend: backend,
+        ai: AiService(
+          backend.db,
+          secrets: MemorySecretStore(),
+          drafters: {apple.kind: apple},
+        )..setNamesMerges(isOn),
+      );
+      await pumpScreen(
+        tester,
+        MealChangePreviewScreen.merge(
+          items: items,
+          convention: NutritionConvention.taiwan,
+          name: name,
+          eatenAt: DateTime(2026, 9, 18, 12),
+          latest: DateTime(2026, 9, 18, 13),
+        ),
+        store: store,
+      );
+      return apple;
+    }
+
+    String fieldText(WidgetTester tester) =>
+        tester.widget<TextField>(find.byType(TextField)).controller!.text;
+
+    testWidgets('fills an empty name in', (tester) async {
+      final apple = await open(tester);
+
+      expect(apple.named.single.$1, ['牛丼迷你碗', '味噌湯']);
+      expect(apple.named.single.$2, '繁體中文', reason: 'the app\'s language');
+      expect(fieldText(tester), '牛丼套餐');
+      await disposeTree(tester);
+    });
+
+    testWidgets('waits with a spinner and leaves what was typed', (
+      tester,
+    ) async {
+      final gate = Completer<String>();
+      usePhoneViewport(tester);
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..nameGate = gate;
+      await pumpScreen(
+        tester,
+        MealChangePreviewScreen.merge(
+          items: items,
+          convention: NutritionConvention.taiwan,
+          eatenAt: DateTime(2026, 9, 18, 12),
+          latest: DateTime(2026, 9, 18, 13),
+        ),
+        store: AppStore(
+          clock: FakeClock().now,
+          isOnboarded: true,
+          backend: backend,
+          ai: AiService(
+            backend.db,
+            secrets: MemorySecretStore(),
+            drafters: {apple.kind: apple},
+          ),
+        ),
+      );
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), '午餐');
+      gate.complete('牛丼套餐');
+      await tester.pump();
+
+      expect(fieldText(tester), '午餐');
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('asks for nothing when the meal has a name', (tester) async {
+      final apple = await open(tester, name: '早餐');
+
+      expect(apple.named, isEmpty);
+      expect(fieldText(tester), '早餐');
+      await disposeTree(tester);
+    });
+
+    testWidgets('asks for nothing when the setting is off', (tester) async {
+      final apple = await open(tester, isOn: false);
+
+      expect(apple.named, isEmpty);
+      expect(fieldText(tester), isEmpty);
+      await disposeTree(tester);
+    });
+
+    testWidgets('leaves the field as it is when naming fails', (tester) async {
+      usePhoneViewport(tester);
+      final backend = Backend.inMemory(clock: FakeClock().now);
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const [])
+        ..nameFailure = AiFailure.network;
+      await pumpScreen(
+        tester,
+        MealChangePreviewScreen.merge(
+          items: items,
+          convention: NutritionConvention.taiwan,
+          eatenAt: DateTime(2026, 9, 18, 12),
+          latest: DateTime(2026, 9, 18, 13),
+        ),
+        store: AppStore(
+          clock: FakeClock().now,
+          isOnboarded: true,
+          backend: backend,
+          ai: AiService(
+            backend.db,
+            secrets: MemorySecretStore(),
+            drafters: {apple.kind: apple},
+          ),
+        ),
+      );
+
+      expect(apple.named, hasLength(1));
+      expect(fieldText(tester), isEmpty);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      await disposeTree(tester);
+    });
+  });
+
+  testWidgets('the AI settings switch merged-meal naming', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const AiSettingsScreen(), store: store);
+
+    await tester.tap(find.text('自動命名合併的餐點'));
+    await tester.pump();
+
+    expect(store.namesMerges, isFalse);
+    await disposeTree(tester);
   });
 }

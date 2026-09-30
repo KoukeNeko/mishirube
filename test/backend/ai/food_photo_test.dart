@@ -84,6 +84,10 @@ class _FakeDrafter implements MealDrafter {
       throw UnimplementedError();
 
   @override
+  Future<String> nameMeal(List<String> itemNames, {required String language}) =>
+      throw UnimplementedError();
+
+  @override
   Future<bool> readsPhotos() async => canReadPhotos;
 
   @override

@@ -26,6 +26,12 @@ abstract interface class MealDrafter {
   /// the figures it gives. Throws [AiException].
   Future<List<WorkoutLine>> draftWorkout(String text);
 
+  /// A short name for one meal made of the items called [itemNames], as
+  /// the model wrote it: the caller cleans it up ([cleanMealName]).
+  /// [language] is that language's own name (「English」). Throws
+  /// [AiException].
+  Future<String> nameMeal(List<String> itemNames, {required String language});
+
   /// Whether this provider, with the model chosen, can look at a photo.
   Future<bool> readsPhotos();
 

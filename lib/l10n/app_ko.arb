@@ -1555,6 +1555,7 @@
   "revokeConsentTitle": "동의를 철회할까요?",
   "revokeConsentMessage": "다음에 클라우드 AI를 사용하기 전에 다시 묻습니다.",
   "revokeConsent": "동의 철회",
+  "autoNameMergedMeals": "병합한 식사 이름 자동 지정",
   "serviceSection": "서비스",
   "signedIn": "로그인됨",
   "signIn": "로그인",

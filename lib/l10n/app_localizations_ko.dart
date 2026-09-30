@@ -5403,6 +5403,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get revokeConsent => '동의 철회';
 
   @override
+  String get autoNameMergedMeals => '병합한 식사 이름 자동 지정';
+
+  @override
   String get serviceSection => '서비스';
 
   @override

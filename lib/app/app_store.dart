@@ -1187,6 +1187,21 @@ class AppStore extends ChangeNotifier {
   /// [AiException].
   Future<MealDraft> draftMeal(String description) => _ai.draftMeal(description);
 
+  /// Whether a merged meal is named by AI.
+  bool get namesMerges => _ai.namesMerges;
+
+  void setNamesMerges(bool isOn) {
+    _ai.setNamesMerges(isOn);
+    notifyListeners();
+  }
+
+  /// A name for a meal made of [itemNames], or null when none should be
+  /// asked for or none came.
+  Future<String?> nameMeal(
+    List<String> itemNames, {
+    required String language,
+  }) => _ai.nameMeal(itemNames, language: language);
+
   /// The text in a photo, read on the device. Throws [AiException] when
   /// the device cannot read it.
   Future<String> readPhotoText(String imagePath) =>

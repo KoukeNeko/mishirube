@@ -19,7 +19,7 @@ import ImageIO
 /// it FoundationModels stops the app rather than throwing.
 ///
 /// Whether the model can run, and drafts: a meal from a sentence or a
-/// photo, a food from its label's text, a workout from its text. Each
+/// photo, a name for a merged meal, a food from its label's text, a workout from its text. Each
 /// draft's shape is enforced here by guided generation and handed back
 /// as the same JSON every provider returns, so Dart reads one format.
 enum AppleIntelligence {
@@ -57,6 +57,15 @@ enum AppleIntelligence {
           return
         }
         draftWorkout(text: text, instructions: instructions, result: result)
+      case "nameMeal":
+        guard let arguments = call.arguments as? [String: Any],
+          let text = arguments["text"] as? String,
+          let instructions = arguments["instructions"] as? String
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        nameMeal(text: text, instructions: instructions, result: result)
       case "readsPhotos":
         result(readsPhotos())
       case "draftPhoto":
@@ -202,6 +211,27 @@ enum AppleIntelligence {
               to: text, generating: WorkoutDraftOutput.self,
               options: GenerationOptions(sampling: .greedy))
             result(try response.content.json())
+          } catch {
+            report(error, to: result)
+          }
+        }
+        return
+      }
+    #endif
+    result(FlutterError(code: "unavailable", message: nil, details: nil))
+  }
+
+  /// A short name for a meal from its items' names, as plain text.
+  static func nameMeal(
+    text: String, instructions: String, result: @escaping FlutterResult
+  ) {
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        Task { @MainActor in
+          do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(to: text)
+            result(response.content)
           } catch {
             report(error, to: result)
           }

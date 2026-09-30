@@ -22,6 +22,7 @@ const _fieldRadius = AppRadius.small + 4;
 InputDecoration _decoration({
   required String hint,
   Widget? prefixIcon,
+  Widget? suffixIcon,
   Color fill = AppColors.surface,
   double horizontalPadding = AppSpacing.md,
 }) {
@@ -33,6 +34,7 @@ InputDecoration _decoration({
     hintText: hint,
     hintStyle: const TextStyle(color: AppColors.textTertiary),
     prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
     filled: true,
     fillColor: fill,
     // Without vertical padding the fill is drawn at the text row's own
@@ -125,11 +127,15 @@ class AppTextField extends StatelessWidget {
     this.autofocus = false,
     this.maxLines = 1,
     this.keyboardType,
+    this.isLoading = false,
   });
 
   final TextEditingController controller;
   final String hint;
   final bool autofocus;
+
+  /// Shows a small spinner in the field while its text is being filled in.
+  final bool isLoading;
   final int maxLines;
 
   /// The keyboard to raise; a field that takes a number asks for one.
@@ -148,7 +154,21 @@ class AppTextField extends StatelessWidget {
         keyboardType: keyboardType,
         style: AppTextStyles.body.copyWith(fontSize: 17),
         textAlignVertical: TextAlignVertical.center,
-        decoration: _decoration(hint: hint),
+        decoration: _decoration(
+          hint: hint,
+          suffixIcon: isLoading
+              ? const Padding(
+                  padding: EdgeInsets.only(right: AppSpacing.md),
+                  child: Center(
+                    widthFactor: 1,
+                    child: SizedBox.square(
+                      dimension: 20,
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              : null,
+        ),
       ),
     );
   }

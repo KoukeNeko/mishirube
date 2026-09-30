@@ -1555,6 +1555,7 @@
   "revokeConsentTitle": "Withdraw consent?",
   "revokeConsentMessage": "You'll be asked again before cloud AI is next used.",
   "revokeConsent": "Withdraw consent",
+  "autoNameMergedMeals": "Name merged meals automatically",
   "serviceSection": "Service",
   "signedIn": "Signed in",
   "signIn": "Sign in",
