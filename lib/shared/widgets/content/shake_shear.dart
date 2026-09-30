@@ -24,18 +24,18 @@ class ShakeShear extends StatefulWidget {
 
 class _ShakeShearState extends State<ShakeShear>
     with SingleTickerProviderStateMixin {
-  /// About five swings a second, each about half the one before: a
-  /// short wobble, not a jelly.
+  /// About five swings a second, each about two thirds of the one
+  /// before: a few clear wobbles, not a jelly.
   static const _stiffness = 1000.0;
-  static const _damping = 7.5;
+  static const _damping = 5.0;
 
   /// How fast the slope gathers, per second², for each m/s² the device
   /// is jolted by.
-  static const _gain = 4.0;
+  static const _gain = 10.0;
 
-  /// The steepest slope: about 6 logical pixels at the free end of a
+  /// The steepest slope: about 15 logical pixels at the free end of a
   /// Today tile's chart.
-  static const _reach = 0.04;
+  static const _reach = 0.1;
 
   /// How long, in seconds, gravity takes to follow the device's lean:
   /// the reading beyond it is the jolt.
