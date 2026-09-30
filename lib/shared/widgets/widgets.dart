@@ -10,6 +10,7 @@ export 'content/chart_scrubber.dart';
 export 'content/charts.dart';
 export 'content/feedback.dart';
 export 'content/insight_card.dart';
+export 'content/level_fill.dart';
 export 'content/month_grid.dart';
 export 'content/progress_ring.dart';
 export 'content/rows.dart';
