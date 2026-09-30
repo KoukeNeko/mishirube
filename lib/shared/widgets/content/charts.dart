@@ -17,10 +17,11 @@ Path _dashed(Path path) {
   return dashes;
 }
 
-/// Minimal bar chart; the last bar is highlighted as "current period"
-/// unless [highlightsLast] is off, or the [selected] one while a reading
-/// picks it. Many bars sit closer together, so a month or a day of hours
-/// still has bars rather than gaps. A null value is nothing recorded and
+/// Minimal chart of capsule bars; the last bar is highlighted as "current
+/// period", its label on a capsule, unless [highlightsLast] is off, or the
+/// [selected] one while a reading picks it. Many bars sit closer
+/// together, so a month or a day of hours still has bars rather than
+/// gaps. A null value is nothing recorded and
 /// leaves its slot empty; a true zero is a thin line on the axis.
 class MiniBarChart extends StatelessWidget {
   const MiniBarChart({
@@ -54,7 +55,10 @@ class MiniBarChart extends StatelessWidget {
         .fold(0, (a, b) => a > b ? a : b);
     // All zero is a row of empty bars, not a division by zero.
     final maxValue = highest == 0 ? 1 : highest;
-    final highlighted = selected ?? (highlightsLast ? bars.length - 1 : null);
+    // The period still going, marked under its bar as Health apps mark
+    // today; it stays marked while a reading picks another bar.
+    final current = highlightsLast ? bars.length - 1 : null;
+    final highlighted = selected ?? current;
     final gap = bars.length > 14 ? 2.0 : AppSpacing.xs;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -70,18 +74,41 @@ class MiniBarChart extends StatelessWidget {
                     height: value == 0
                         ? _zeroHeight
                         : height * value / maxValue,
-                    decoration: BoxDecoration(
+                    decoration: ShapeDecoration(
                       color: highlighted == null || i == highlighted
                           ? color
                           : dimColor,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(3),
-                      ),
+                      shape: const StadiumBorder(),
                     ),
                   ),
                 if (showLabels) ...[
                   const SizedBox(height: AppSpacing.xs),
-                  Text(bars[i].$1, style: AppTextStyles.caption),
+                  // Every label padded alike, so the bars stay level;
+                  // only the current period's is filled.
+                  DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: i == current
+                          ? AppColors.surfaceRaised
+                          : Colors.transparent,
+                      shape: const StadiumBorder(),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xs,
+                        vertical: 2,
+                      ),
+                      child: Text(
+                        bars[i].$1,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: i == current
+                            ? AppTextStyles.caption.copyWith(
+                                color: AppColors.textPrimary,
+                              )
+                            : AppTextStyles.caption,
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),

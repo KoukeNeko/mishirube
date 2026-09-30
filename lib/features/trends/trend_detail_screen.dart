@@ -440,6 +440,8 @@ class _Weekdays extends StatelessWidget {
             color: color,
             dimColor: color.withValues(alpha: 0.4),
             selected: highest.$1,
+            // Weekdays, not periods: none of them is still going.
+            highlightsLast: false,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
