@@ -97,59 +97,81 @@ class _AppBottomChromeState extends State<AppBottomChrome>
     final minimizedOffset = metrics.bottomOffset(context, isMinimized: true);
     // No SafeArea: like the native Liquid Glass tab bar, the dock dips into
     // the home-indicator area instead of stacking on top of it.
-    return ToastObstruction(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final column = contentColumnInsets(
-            context,
-            constraints.maxWidth,
-            maxWidth: ChromeMetrics.dockMaxWidth,
-          );
-          return AnimatedBuilder(
-            animation: _morph,
-            builder: (context, child) {
-              final t = _morph.value.clamp(0.0, 1.0);
-              final inset = lerpDouble(expandedInset, minimizedInset, t)!;
-              return Padding(
-                padding: EdgeInsets.fromLTRB(
-                  column.left + inset,
-                  0,
-                  column.right + inset,
-                  lerpDouble(expandedOffset, minimizedOffset, t)!,
-                ),
-                child: child,
-              );
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (running != null)
-                  _CollapsingAccessory(
-                    morph: _morph,
-                    session: running,
-                    onTogglePause: widget.onTogglePause,
-                    onOpen: widget.onOpenSession,
-                    onFinish: widget.onFinish,
-                  )
-                else
-                  const SizedBox(width: double.infinity),
-                SplitDock(
-                  selected: widget.selected,
-                  onSelect: widget.onSelect,
-                  morph: _morph,
-                  // A scheduled workout has no time to show in the capsule.
-                  session: switch (widget.session) {
-                    ActiveSession(isReady: true) => null,
-                    final session => session,
+    //
+    // The chrome takes its expanded height whatever the morph is at, and
+    // draws along the bottom of it. The scaffold hands the pages this
+    // height as their bottom inset, and every page reads its insets:
+    // were it to follow the morph, every frame of it would rebuild every
+    // page, the tabs behind the showing one included.
+    final expandedHeight =
+        (running == null
+            ? 0
+            : ChromeMetrics.accessoryHeight + ChromeMetrics.gap) +
+        metrics.height +
+        expandedOffset;
+    return SizedBox(
+      height: expandedHeight,
+      width: double.infinity,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: SizedBox(
+          width: double.infinity,
+          child: ToastObstruction(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final column = contentColumnInsets(
+                  context,
+                  constraints.maxWidth,
+                  maxWidth: ChromeMetrics.dockMaxWidth,
+                );
+                return AnimatedBuilder(
+                  animation: _morph,
+                  builder: (context, child) {
+                    final t = _morph.value.clamp(0.0, 1.0);
+                    final inset = lerpDouble(expandedInset, minimizedInset, t)!;
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        column.left + inset,
+                        0,
+                        column.right + inset,
+                        lerpDouble(expandedOffset, minimizedOffset, t)!,
+                      ),
+                      child: child,
+                    );
                   },
-                  onQuickLog: widget.onQuickLog,
-                  onOpenSession: widget.onOpenSession,
-                  quickLogProgress: widget.quickLogProgress,
-                ),
-              ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (running != null)
+                        _CollapsingAccessory(
+                          morph: _morph,
+                          session: running,
+                          onTogglePause: widget.onTogglePause,
+                          onOpen: widget.onOpenSession,
+                          onFinish: widget.onFinish,
+                        )
+                      else
+                        const SizedBox(width: double.infinity),
+                      SplitDock(
+                        selected: widget.selected,
+                        onSelect: widget.onSelect,
+                        morph: _morph,
+                        // A scheduled workout has no time to show in the capsule.
+                        session: switch (widget.session) {
+                          ActiveSession(isReady: true) => null,
+                          final session => session,
+                        },
+                        onQuickLog: widget.onQuickLog,
+                        onOpenSession: widget.onOpenSession,
+                        quickLogProgress: widget.quickLogProgress,
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

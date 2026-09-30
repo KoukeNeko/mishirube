@@ -9,7 +9,9 @@ import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
+import 'package:mishirube/features/shell/bottom_chrome/app_bottom_chrome.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
+import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -114,6 +116,35 @@ void main() {
     TargetPlatform.iOS,
     TargetPlatform.android,
   });
+
+  testWidgets(
+    'minimising leaves the chrome its layout height and the page its inset',
+    variant: bothPlatforms,
+    (tester) async {
+      await _pumpShell(tester);
+      final chrome = find.byType(AppBottomChrome);
+      final page = find.byType(MeScreen);
+      final height = tester.getSize(chrome).height;
+      final inset = MediaQuery.paddingOf(tester.element(page)).bottom;
+      expect(inset, height, reason: 'the page scrolls under the whole chrome');
+
+      // Mid-morph and at rest: the dock shrinks inside the same box.
+      final gesture = await tester.startGesture(
+        tester.getCenter(_visibleScrollView),
+      );
+      await gesture.moveBy(const Offset(0, -_slop - 200));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 80));
+      expect(tester.getSize(chrome).height, height);
+      expect(MediaQuery.paddingOf(tester.element(page)).bottom, inset);
+      await gesture.up();
+      await tester.pump(_settle);
+      expect(tester.getRect(find.byType(SplitDock)).height, lessThan(60));
+      expect(tester.getSize(chrome).height, height);
+      expect(MediaQuery.paddingOf(tester.element(page)).bottom, inset);
+      await disposeTree(tester);
+    },
+  );
   ToolbarMetrics toolbarMetrics() => defaultTargetPlatform == TargetPlatform.iOS
       ? ToolbarMetrics.ios
       : ToolbarMetrics.android;
