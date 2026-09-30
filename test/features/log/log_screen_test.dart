@@ -55,6 +55,26 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the weekdays stay put on switching to the calendar', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(MishirubeApp(store: storeWithNotes()));
+    await tester.pumpAndSettle();
+    final width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    // The strip's week, not the weeks either side showing in the margins.
+    Offset weekday(String text) => find
+        .text(text)
+        .evaluate()
+        .map((element) => tester.getTopLeft(find.byWidget(element.widget)))
+        .firstWhere((at) => at.dx > 0 && at.dx < width);
+    final onTimeline = [weekday('一'), weekday('日')];
+
+    await openCalendar(tester);
+    expect([weekday('一'), weekday('日')], onTimeline);
+    await disposeTree(tester);
+  });
+
   testWidgets('a day picked on the week strip scrolls the timeline to it', (
     tester,
   ) async {

@@ -225,8 +225,9 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget? pinned;
   final double pinnedHeight;
 
-  /// Whether the pinned row sits straight on the content, with no space
-  /// under it: a calendar's weekdays over its grid.
+  /// Whether the pinned row sits tight between the bar and the content,
+  /// with no space round it: a calendar's weekdays, right under the bar
+  /// where a week strip has its own, and straight on the grid.
   final bool pinnedMeetsContent;
 
   /// 0 shows the compact toolbar; 1 tucks it away (auto-hide while reading).
@@ -397,11 +398,10 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
                         ? EdgeInsets.only(
                             bottom: toolbar.height - toolbar.controlRowHeight,
                           )
-                        : EdgeInsets.only(
-                            top: _pinnedVerticalPadding,
-                            bottom: pinnedMeetsContent
-                                ? 0
-                                : _pinnedVerticalPadding,
+                        : pinnedMeetsContent
+                        ? EdgeInsets.zero
+                        : const EdgeInsets.symmetric(
+                            vertical: _pinnedVerticalPadding,
                           ),
                     child: scrollsToolbarAway ? Center(child: pinned) : pinned,
                   ),

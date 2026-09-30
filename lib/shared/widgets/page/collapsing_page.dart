@@ -37,7 +37,7 @@ class CollapsingPage extends StatelessWidget {
   });
 
   /// Whether the content starts a gap below what is pinned, or right under
-  /// it, the pinned row then leaving no space under itself either
+  /// it, the pinned row then leaving no space round itself either
   /// ([CollapsingScrollView.hasTopGap]).
   final bool hasTopGap;
 

@@ -413,8 +413,8 @@ class _LogScreenState extends State<LogScreen> {
           ? measurePinnedControlHeight(context) +
                 AppSpacing.xs +
                 WeekDayStrip.heightOf(context)
-          // The weekdays sit on the grid, with no inset below them.
-          : WeekdayHeader.height + measurePinnedHeight(0) / 2,
+          // The weekdays sit on the grid, with no inset round them.
+          : WeekdayHeader.height,
       children: _view == _LogView.timeline
           ? _timeline(_log.month(_month))
           : _calendar(),

@@ -247,7 +247,9 @@ class WeekdayHeader extends StatelessWidget {
       children: [
         for (var i = 0; i < DateTime.daysPerWeek; i++)
           Expanded(
-            child: Center(
+            // At the top, as the week strip has its weekdays.
+            child: Align(
+              alignment: Alignment.topCenter,
               child: Text(
                 context.dates.weekdayNumber(
                   (firstWeekday - 1 + i) % DateTime.daysPerWeek + 1,
