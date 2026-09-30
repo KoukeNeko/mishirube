@@ -589,6 +589,67 @@ void main() {
       expect(lines[3].sets, isNull, reason: 'no figures given');
     });
 
+    test('times and distances are read, in each way they are written', () {
+      final lines = parseWorkoutText('''
+棒式 3 組 45 秒
+棒式 3x1分
+plank 3x45s
+跑步 5 km
+划船機 800 公尺
+負重棒式 10kg 3x30秒
+Wall sit 2 x 1.5 min
+''');
+      expect(
+        [for (final line in lines) line.name],
+        ['棒式', '棒式', 'plank', '跑步', '划船機', '負重棒式', 'Wall sit'],
+      );
+      expect((lines[0].sets, lines[0].seconds, lines[0].reps), (3, 45, null));
+      expect((lines[1].sets, lines[1].seconds), (3, 60));
+      expect((lines[2].sets, lines[2].seconds), (3, 45));
+      expect((lines[3].meters, lines[3].sets), (5000.0, null));
+      expect(lines[4].meters, 800.0);
+      expect(
+        (lines[5].weightKg, lines[5].sets, lines[5].seconds),
+        (10.0, 3, 30),
+      );
+      expect((lines[6].sets, lines[6].seconds), (2, 90));
+      expect(lines[3].seconds, isNull);
+    });
+
+    test('a set line under a name can be a time', () {
+      final lines = parseWorkoutText('棒式\n1組: 45秒\n2組: 50秒');
+      expect([for (final load in lines.single.loads) load.seconds], [45, 50]);
+    });
+
+    test('a rest is still a line with a time only', () {
+      final line = parseWorkoutText('休息 90 秒').single;
+      expect((line.sets, line.reps, line.seconds), (null, null, 90));
+    });
+
+    test('a line is planned by the figures its exercise is recorded by', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+
+      final held = store.planLine(
+        parseWorkoutText('plank 3x45s').single,
+        plank,
+      );
+      expect(
+        (held.sets, held.targetSeconds, held.targetWeightKg),
+        (3, 45, 0.0),
+      );
+      expect(held.loads.first, const SetLoad(seconds: 45));
+
+      final lifted = store.planLine(
+        parseWorkoutText('深蹲 4x8 60kg 45秒').single,
+        squat,
+      );
+      expect((lifted.sets, lifted.reps, lifted.targetWeightKg), (4, 8, 60.0));
+      expect(lifted.targetSeconds, isNull, reason: 'a squat has no time');
+    });
+
     test('a table from a chat reads row by row, the talk around it not', () {
       final lines = parseWorkoutText(chatWorkout);
       expect(

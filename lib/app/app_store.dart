@@ -449,8 +449,12 @@ class AppStore extends ChangeNotifier {
           case final exercise?)
         (line, planLine(line, exercise))
       // A line with no exercise and no figures is a column heading or
-      // a remark around the list, not an exercise to pick.
-      else if (line.sets != null || line.reps != null || line.weightKg != null)
+      // a remark around the list (a rest of 90 s too), not an exercise to
+      // pick.
+      else if (line.sets != null ||
+          line.reps != null ||
+          line.weightKg != null ||
+          line.meters != null)
         (line, null),
   ];
 
@@ -460,10 +464,17 @@ class AppStore extends ChangeNotifier {
     final usual = _backend.training.planFor(exercise);
     return line.loads.isNotEmpty
         ? PlannedExercise.ofLoads(usual, line.loads)
+        // Only the figures the exercise is recorded by are taken.
         : usual.copyWith(
             sets: line.sets,
-            reps: line.reps,
-            targetWeightKg: line.weightKg,
+            reps: exercise.trackingType.usesReps ? line.reps : null,
+            targetWeightKg: exercise.trackingType.usesWeight
+                ? line.weightKg
+                : null,
+            targetSeconds: exercise.trackingType.usesTime ? line.seconds : null,
+            targetMeters: exercise.trackingType.usesDistance
+                ? line.meters
+                : null,
           );
   }
 

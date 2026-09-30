@@ -18,6 +18,8 @@ class WorkoutLine {
     this.sets,
     this.reps,
     this.weightKg,
+    this.seconds,
+    this.meters,
     this.loads = const [],
   });
 
@@ -33,6 +35,11 @@ class WorkoutLine {
   final int? sets;
   final int? reps;
   final double? weightKg;
+
+  /// The time each set is held for, and the distance it covers, when the
+  /// line gave them.
+  final int? seconds;
+  final double? meters;
 
   /// Each set as the lines under the name gave it, when they did.
   final List<SetLoad> loads;
@@ -67,9 +74,12 @@ final _weight = RegExp(
   caseSensitive: false,
 );
 
+/// A time and its unit: `45 秒`, `1 分`, `2 分鐘`, `45s`, `1 min`.
+const _holdUnit = r'(秒鐘|秒|分鐘|分|sec\b|min\b|s\b)';
+
 /// `2 × 60 秒`: sets held for a time, which has no reps to plan.
 final _setsTimesHold = RegExp(
-  r'(\d+)' + _times + r'\d+' + _upTo + r'\s*(?:秒|分鐘|sec\b|min\b|s\b)',
+  r'(\d+)' + _times + r'(\d+(?:\.\d+)?)' + _upTo + r'\s*' + _holdUnit,
   caseSensitive: false,
 );
 final _setsTimesReps = RegExp(r'(\d+)' + _times + r'(\d+)' + _upTo);
@@ -79,7 +89,13 @@ final _reps = RegExp(
   caseSensitive: false,
 );
 final _hold = RegExp(
-  r'\d+' + _upTo + r'\s*(?:秒|分鐘|sec\b|min\b)',
+  r'(\d+(?:\.\d+)?)' + _upTo + r'\s*' + _holdUnit,
+  caseSensitive: false,
+);
+
+/// `5 km`, `800 公尺`, `400m`.
+final _distance = RegExp(
+  r'(\d+(?:\.\d+)?)' + _upTo + r'\s*(km|公里|公尺|米|m\b)',
   caseSensitive: false,
 );
 
@@ -102,6 +118,20 @@ final _setLine = RegExp(
 final _bareReps = RegExp(r'[x×X＊*]\s*(\d+)');
 // l10n-ignore-end
 
+// l10n-ignore-start: units as people write them, matched, not shown.
+
+/// [amount] of [unit] as whole seconds.
+int _secondsOf(String amount, String unit) {
+  final isMinutes = unit.startsWith('分') || unit.toLowerCase() == 'min';
+  return (double.parse(amount) * (isMinutes ? 60 : 1)).round();
+}
+
+/// [amount] of [unit] as metres.
+double _metersOf(String amount, String unit) =>
+    double.parse(amount) *
+    (unit.toLowerCase() == 'km' || unit == '公里' ? 1000 : 1);
+// l10n-ignore-end
+
 /// Each line of [text] that names something, in order, with the sets
 /// on the lines under it. Headings, sentences around the list, and lines
 /// with no name once their figures are read are skipped.
@@ -121,8 +151,8 @@ List<WorkoutLine> parseWorkoutText(String text) {
   return lines;
 }
 
-/// The weight and reps a set line gives; null without reps, such as a
-/// set held for a time. No weight is bodyweight.
+/// The weight and reps, or the time held, a set line gives; null without
+/// either. No weight is bodyweight.
 SetLoad? _loadOf(String raw) {
   final line = raw.replaceFirst(_setLine, '');
   final weight = _weight.firstMatch(line);
@@ -130,10 +160,14 @@ SetLoad? _loadOf(String raw) {
       ? line
       : line.replaceRange(weight.start, weight.end, ' ');
   final reps = (_reps.firstMatch(rest) ?? _bareReps.firstMatch(rest))?[1];
-  if (reps == null) return null;
+  final hold = _hold.firstMatch(rest);
+  if (reps == null && hold == null) return null;
   return SetLoad(
     weightKg: weight == null ? 0 : double.parse(weight[1]!),
-    reps: int.parse(reps),
+    reps: reps == null ? 0 : int.parse(reps),
+    seconds: reps == null && hold != null
+        ? _secondsOf(hold[1]!, hold[2]!)
+        : null,
   );
 }
 
@@ -149,6 +183,8 @@ WorkoutLine? _lineOf(String raw) {
   int? sets;
   int? reps;
   double? weightKg;
+  int? seconds;
+  double? meters;
   void take(RegExp pattern, void Function(Match) read) {
     final match = pattern.firstMatch(line);
     if (match == null) return;
@@ -157,8 +193,12 @@ WorkoutLine? _lineOf(String raw) {
   }
 
   take(_weight, (match) => weightKg = double.parse(match[1]!));
+  take(_distance, (match) => meters = _metersOf(match[1]!, match[2]!));
   if (_setsTimesHold.hasMatch(line)) {
-    take(_setsTimesHold, (match) => sets = int.parse(match[1]!));
+    take(_setsTimesHold, (match) {
+      sets = int.parse(match[1]!);
+      seconds = _secondsOf(match[2]!, match[3]!);
+    });
   } else if (_setsTimesReps.hasMatch(line)) {
     take(_setsTimesReps, (match) {
       sets = int.parse(match[1]!);
@@ -168,7 +208,8 @@ WorkoutLine? _lineOf(String raw) {
     take(_sets, (match) => sets = int.parse(match[1]!));
     take(_reps, (match) => reps = int.parse(match[1]!));
   }
-  line = line.replaceAll(_hold, ' ').replaceAll(_perSide, ' ');
+  take(_hold, (match) => seconds ??= _secondsOf(match[1]!, match[2]!));
+  line = line.replaceAll(_perSide, ' ');
   // In a table the name is the first column with words in it: the row
   // number before it has none, and a note after it is not the name.
   final name = line
@@ -187,5 +228,7 @@ WorkoutLine? _lineOf(String raw) {
     sets: sets,
     reps: reps,
     weightKg: weightKg,
+    seconds: seconds,
+    meters: meters,
   );
 }
