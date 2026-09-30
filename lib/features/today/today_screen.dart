@@ -354,16 +354,6 @@ class TodayScreen extends StatelessWidget {
             _ => null,
           },
           motion: store.motion.acceleration,
-          // The level is the glance; the bar is what can be read off.
-          visual: switch (waterReference) {
-            final reference? when reference > 0 && water.times > 0 =>
-              ProgressLine(
-                progress: water.millilitres / reference,
-                color: AppColors.water,
-                height: 4,
-              ),
-            _ => null,
-          },
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),
