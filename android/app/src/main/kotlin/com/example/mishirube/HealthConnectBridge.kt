@@ -973,8 +973,20 @@ class HealthConnectBridge(
                 row("mindfulTime", bucket, next, value)
             }
         }
+        // A vital taken now and then: each local day's last reading.
+        fun latest(metric: String, readings: List<Pair<Instant, Double>>) {
+            readings.groupBy { it.first.atZone(zone).toLocalDate() }
+                .forEach { (date: LocalDate, values) ->
+                    row(
+                        metric,
+                        date.atStartOfDay(zone).toInstant(),
+                        date.plusDays(1).atStartOfDay(zone).toInstant(),
+                        values.maxBy { it.first }.second,
+                    )
+                }
+        }
         if (allowed(BodyTemperatureRecord::class)) {
-            daily(
+            latest(
                 "bodyTemperature",
                 readAll(BodyTemperatureRecord::class, from, to)
                     .map { it.time to it.temperature.inCelsius },
@@ -982,11 +994,11 @@ class HealthConnectBridge(
         }
         if (allowed(BloodPressureRecord::class)) {
             val readings = readAll(BloodPressureRecord::class, from, to)
-            daily(
+            latest(
                 "bloodPressureSystolic",
                 readings.map { it.time to it.systolic.inMillimetersOfMercury },
             )
-            daily(
+            latest(
                 "bloodPressureDiastolic",
                 readings.map { it.time to it.diastolic.inMillimetersOfMercury },
             )
@@ -999,7 +1011,7 @@ class HealthConnectBridge(
         }
         // A percentage there, a fraction here.
         if (allowed(OxygenSaturationRecord::class)) {
-            daily(
+            latest(
                 "oxygenSaturation",
                 readAll(OxygenSaturationRecord::class, from, to)
                     .map { it.time to it.percentage.value / 100 },

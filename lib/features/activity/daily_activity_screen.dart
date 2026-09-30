@@ -97,42 +97,44 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
               hours: _model.hourly(lead) ?? List.filled(24, 0),
             ),
           ),
+        // Vitals describe the body, not what it did: they are on its page.
         for (final group in ActivityMetricGroup.values)
-          if (metrics.where((metric) => metric.group == group).toList()
-              case final inGroup when inGroup.isNotEmpty)
-            PageSection(
-              label: group.labelIn(context.l10n),
-              children: [
-                Gutter(
-                  child: GroupedCard(
-                    children: [
-                      for (final metric in inGroup)
-                        NavRow(
-                          title: metric.labelIn(context.l10n),
-                          subtitle: switch (_model.usualRange(metric)) {
-                            final range? => context.l10n.usualRangeValue(
-                              range:
-                                  '${metric.format(range.low)}–'
-                                  '${metric.format(range.high)} '
-                                  '${metric.unitIn(context.l10n)}',
+          if (group != ActivityMetricGroup.vitals)
+            if (metrics.where((metric) => metric.group == group).toList()
+                case final inGroup when inGroup.isNotEmpty)
+              PageSection(
+                label: group.labelIn(context.l10n),
+                children: [
+                  Gutter(
+                    child: GroupedCard(
+                      children: [
+                        for (final metric in inGroup)
+                          NavRow(
+                            title: metric.labelIn(context.l10n),
+                            subtitle: switch (_model.usualRange(metric)) {
+                              final range? => context.l10n.usualRangeValue(
+                                range:
+                                    '${metric.format(range.low)}–'
+                                    '${metric.format(range.high)} '
+                                    '${metric.unitIn(context.l10n)}',
+                              ),
+                              null => null,
+                            },
+                            trailing: Text(switch (totals[metric]) {
+                              final value? =>
+                                '${metric.format(value)} ${metric.unitIn(context.l10n)}',
+                              null => context.l10n.noData,
+                            }, style: AppTextStyles.caption),
+                            onTap: () => pushPage(
+                              context,
+                              ActivityMetricScreen(metric: metric, day: day),
                             ),
-                            null => null,
-                          },
-                          trailing: Text(switch (totals[metric]) {
-                            final value? =>
-                              '${metric.format(value)} ${metric.unitIn(context.l10n)}',
-                            null => context.l10n.noData,
-                          }, style: AppTextStyles.caption),
-                          onTap: () => pushPage(
-                            context,
-                            ActivityMetricScreen(metric: metric, day: day),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
         if (sessions.isNotEmpty)
           PageSection(
             label: context.l10n.moduleActivity,

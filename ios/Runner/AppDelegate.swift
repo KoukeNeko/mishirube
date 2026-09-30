@@ -549,10 +549,12 @@ enum HealthKitBridge {
     var failure: Error?
     for activity in activityTypes {
       group.enter()
+      let isLatest = latestMetrics.contains(activity.metric)
       let query = HKStatisticsCollectionQuery(
         quantityType: activity.type,
         quantitySamplePredicate: HKQuery.predicateForSamples(withStart: anchor, end: to),
-        options: activity.isCumulative ? .cumulativeSum : .discreteAverage,
+        options: activity.isCumulative
+          ? .cumulativeSum : isLatest ? .mostRecent : .discreteAverage,
         anchorDate: anchor,
         // Counted ones by the hour, or by the day for years long past.
         intervalComponents: activity.isCumulative && !daily
@@ -562,7 +564,9 @@ enum HealthKitBridge {
         if let error { failure = error }
         collection?.enumerateStatistics(from: anchor, to: to) { statistics, _ in
           let quantity =
-            activity.isCumulative ? statistics.sumQuantity() : statistics.averageQuantity()
+            activity.isCumulative
+            ? statistics.sumQuantity()
+            : isLatest ? statistics.mostRecentQuantity() : statistics.averageQuantity()
           guard let quantity else { return }
           rows.append([
             "metric": activity.metric,
@@ -647,6 +651,12 @@ enum HealthKitBridge {
     }
     store.execute(query)
   }
+
+  /// Vitals whose day is its last reading, not an average of them
+  /// (`ActivityMetric.isLatest`).
+  static let latestMetrics: Set<String> = [
+    "bodyTemperature", "bloodPressureSystolic", "bloodPressureDiastolic", "oxygenSaturation",
+  ]
 
   static let distanceTypes: [HKQuantityType] = [
     HKQuantityType(.distanceWalkingRunning),

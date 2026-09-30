@@ -5,6 +5,7 @@ import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/activity/activity_metric_screen.dart';
 import 'package:mishirube/features/activity/daily_activity_screen.dart';
+import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
 
@@ -91,34 +92,68 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('vitals read from the platform have a group of their own', (
+  ActivitySample daily(ActivityMetric metric, DateTime today, double value) =>
+      ActivitySample(
+        metric: metric,
+        start: DateTime(today.year, today.month, today.day),
+        end: DateTime(today.year, today.month, today.day + 1),
+        value: value,
+      );
+
+  testWidgets('vitals are on the body page, blood pressure as a pair', (
     tester,
   ) async {
     usePhoneViewport(tester);
-    ActivitySample day(ActivityMetric metric, DateTime today, double value) =>
-        ActivitySample(
-          metric: metric,
-          start: DateTime(today.year, today.month, today.day),
-          end: DateTime(today.year, today.month, today.day + 1),
-          value: value,
-        );
     final store = storeWith(
       (today) => [
         at(ActivityMetric.steps, today, 9, 5000),
-        day(ActivityMetric.bloodPressureSystolic, today, 118),
-        day(ActivityMetric.oxygenSaturation, today, 0.97),
+        daily(ActivityMetric.bloodPressureSystolic, today, 118),
+        daily(ActivityMetric.bloodPressureDiastolic, today, 76),
+        daily(ActivityMetric.oxygenSaturation, today, 0.97),
       ],
     );
     await pumpScreen(tester, const DailyActivityScreen(), store: store);
+    expect(find.text('生命徵象'), findsNothing, reason: 'not what it did');
+    await disposeTree(tester);
 
+    await pumpScreen(tester, const BodyScreen(), store: store);
     await tester.scrollUntilVisible(
-      find.text('收縮壓'),
+      find.text('118/76 mmHg'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('生命徵象'), findsOneWidget);
-    expect(find.text('血氧'), findsOneWidget);
-    expect(find.textContaining('97'), findsWidgets, reason: 'a fraction as %');
+    expect(find.text('收縮壓'), findsNothing, reason: 'one reading, one row');
+    expect(find.text('97 %'), findsOneWidget, reason: 'a fraction as %');
+    expect(find.textContaining('裝置估計'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a vital taken today shows on Today, a watch\'s alone not', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    var store = storeWith(
+      (today) => [daily(ActivityMetric.oxygenSaturation, today, 0.97)],
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    expect(find.byType(VitalsCard), findsNothing);
+    await disposeTree(tester);
+
+    store = storeWith(
+      (today) => [
+        daily(ActivityMetric.bloodPressureSystolic, today, 118),
+        daily(ActivityMetric.bloodPressureDiastolic, today, 76),
+        daily(ActivityMetric.oxygenSaturation, today, 0.97),
+      ],
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.byType(VitalsCard),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('118/76 mmHg'), findsOneWidget);
     await disposeTree(tester);
   });
 

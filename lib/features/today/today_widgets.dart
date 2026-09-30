@@ -558,3 +558,91 @@ class TodayActivityCard extends StatelessWidget {
     );
   }
 }
+
+/// Today's vitals as recorded: blood pressure as its pair, the others
+/// each at the day's figure, at most three and a count of the rest.
+/// Nothing is called normal, high or low, and no colour says so.
+class VitalsCard extends StatelessWidget {
+  const VitalsCard({super.key, required this.vitals, required this.onTap});
+
+  final Map<ActivityMetric, double> vitals;
+  final VoidCallback onTap;
+
+  static const _shown = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    String figure(ActivityMetric metric) =>
+        '${metric.format(vitals[metric]!)} ${metric.unitIn(l10n)}';
+    final day = DateTime(0);
+    final rows = <(String, String)>[
+      if (bloodPressureOf({
+            for (final MapEntry(key: metric, value: value) in vitals.entries)
+              metric: (day, value),
+          })
+          case final pressure?)
+        (l10n.vitalBloodPressure, pressure),
+      for (final metric in [
+        ActivityMetric.bodyTemperature,
+        ActivityMetric.oxygenSaturation,
+        ActivityMetric.respiratoryRate,
+      ])
+        if (vitals.containsKey(metric))
+          (
+            metric.labelIn(l10n),
+            metric == ActivityMetric.oxygenSaturation
+                ? '${figure(metric)} · ${l10n.deviceEstimate}'
+                : figure(metric),
+          ),
+    ];
+    return AppCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CategoryLabel(
+            label: ActivityMetricGroup.vitals.labelIn(l10n),
+            color: AppColors.body,
+          ),
+          for (final (label, value) in rows.take(_shown)) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                Expanded(child: Text(label, style: AppTextStyles.body)),
+                Text(value, style: AppTextStyles.itemTitle),
+              ],
+            ),
+          ],
+          if (rows.length > _shown) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l10n.moreItemsCount(count: rows.length - _shown),
+              style: AppTextStyles.caption,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A section of Today with nothing to show today, kept in its place
+/// when sections are shown whether or not they have figures.
+class EmptySectionCard extends StatelessWidget {
+  const EmptySectionCard({super.key, required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    child: Row(
+      children: [
+        CategoryLabel(label: label, color: color),
+        const Spacer(),
+        Text(context.l10n.noEntriesShort, style: AppTextStyles.caption),
+      ],
+    ),
+  );
+}

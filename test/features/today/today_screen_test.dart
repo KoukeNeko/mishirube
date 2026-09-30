@@ -158,6 +158,29 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('sections follow the order set, and can show empty', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    final layout = TodayViewModel(store.backend);
+    addTearDown(layout.dispose);
+    expect(layout.showsOnlyWithData, isTrue, reason: 'by default');
+
+    // 飲食 to the top.
+    layout.move(layout.order.indexOf(TodaySection.intake), 0);
+    expect(layout.order.first, TodaySection.intake);
+    expect(layout.order, containsAll(TodaySection.values), reason: 'all kept');
+
+    layout.setShowsOnlyWithData(false);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    final empty = find.byType(EmptySectionCard);
+    expect(empty, findsWidgets, reason: 'nothing eaten, still in place');
+    final intake = find.descendant(of: empty.first, matching: find.text('飲食'));
+    expect(intake, findsOneWidget, reason: 'first, as ordered');
+    await disposeTree(tester);
+  });
+
   testWidgets('after training the workout done shows', (tester) async {
     usePhoneViewport(tester);
     final store = emptyDay()

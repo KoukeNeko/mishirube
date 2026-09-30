@@ -902,6 +902,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityMetricBloodPressureDiastolic => '이완기 혈압';
 
   @override
+  String get vitalBloodPressure => '혈압';
+
+  @override
   String get activityMetricRespiratoryRate => '호흡수';
 
   @override
@@ -2801,6 +2804,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get showAll => '모두 표시';
+
+  @override
+  String get todayOnlyWithData => '값이 있을 때만 표시';
+
+  @override
+  String reorderSection({required String section}) {
+    return '$section 순서 변경';
+  }
+
+  @override
+  String moreItemsCount({required int count}) {
+    return '외 $count개';
+  }
 
   @override
   String get nextStep => '다음 단계';

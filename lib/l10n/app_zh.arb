@@ -1263,6 +1263,10 @@
   "@activityMetricBloodPressureDiastolic": {
     "description": "Activity metric from a health platform."
   },
+  "vitalBloodPressure": "血壓",
+  "@vitalBloodPressure": {
+    "description": "Blood pressure, its systolic and diastolic figures shown as one."
+  },
   "activityMetricRespiratoryRate": "呼吸速率",
   "@activityMetricRespiratoryRate": {
     "description": "Activity metric from a health platform."
@@ -4134,6 +4138,28 @@
   "showAll": "全部顯示",
   "@showAll": {
     "description": "Link that shows every hidden section."
+  },
+  "todayOnlyWithData": "僅在有數值時顯示",
+  "@todayOnlyWithData": {
+    "description": "Customise Today: leave out sections with nothing today."
+  },
+  "reorderSection": "調整{section}的順序",
+  "@reorderSection": {
+    "description": "Screen reader label of a drag handle that moves a Today section.",
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "moreItemsCount": "另 {count} 項",
+  "@moreItemsCount": {
+    "description": "Under a shortened list: how many more there are.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "nextStep": "下一步",
   "@nextStep": {

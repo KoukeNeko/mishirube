@@ -191,55 +191,96 @@ class TodayScreen extends StatelessWidget {
   ) {
     final hidden = today.hidden;
     final modules = store.enabledModules;
-    return [
-      if (!hidden.contains(TodaySection.glance))
-        ..._glance(context, store, today, modules),
-      if (!hidden.contains(TodaySection.activity) &&
-          modules.contains(AppModule.activity))
-        ?_activity(context, today),
-      if (!hidden.contains(TodaySection.intake) &&
-          modules.contains(AppModule.nutrition) &&
-          store.todaySummary.recordCount > 0)
-        Gutter(
-          child: IntakeCard(
-            store: store,
-            onTap: () => pushPage(context, const DailyNutritionScreen()),
-          ),
-        ),
-      if (!hidden.contains(TodaySection.caffeine) &&
-          modules.contains(AppModule.nutrition))
-        if (today.caffeine case (:final curve, :final nowIndex))
-          Gutter(
-            child: CaffeineCard(
-              curve: curve,
-              nowIndex: nowIndex,
-              onTap: () => pushPage(context, const CaffeineScreen()),
-            ),
-          ),
-      if (!hidden.contains(TodaySection.week) &&
-          (modules.contains(AppModule.training) ||
-              modules.contains(AppModule.activity)))
-        ..._week(context, store, today),
-      if (!hidden.contains(TodaySection.records)) ..._records(context, today),
-      if (!hidden.contains(TodaySection.insights) &&
-          store.todayInsights.isNotEmpty)
-        PageSection(
-          label: TodaySection.insights.labelIn(context.l10n),
-          children: [
-            for (final insight in store.todayInsights)
-              Gutter(
-                child: InsightCard(
-                  insight: insight,
-                  onTap: () => pushPage(context, const InsightDetailScreen()),
-                ),
+    final onlyWithData = today.showsOnlyWithData;
+    // A section with nothing today is left out, or, when every section is
+    // to keep its place, shown as empty.
+    List<Widget> orEmpty(
+      TodaySection section,
+      Color color,
+      List<Widget> content,
+    ) => content.isNotEmpty || onlyWithData
+        ? content
+        : [
+            Gutter(
+              child: EmptySectionCard(
+                label: section.labelIn(context.l10n),
+                color: color,
               ),
-          ],
-        ),
+            ),
+          ];
+    List<Widget> sectionOf(TodaySection section) => switch (section) {
+      TodaySection.glance => _glance(context, store, today, modules),
+      TodaySection.activity when modules.contains(AppModule.activity) =>
+        orEmpty(section, AppColors.activity, [?_activity(context, today)]),
+      TodaySection.intake when modules.contains(AppModule.nutrition) => orEmpty(
+        section,
+        AppColors.nutrition,
+        [
+          if (store.todaySummary.recordCount > 0)
+            Gutter(
+              child: IntakeCard(
+                store: store,
+                onTap: () => pushPage(context, const DailyNutritionScreen()),
+              ),
+            ),
+        ],
+      ),
+      TodaySection.caffeine when modules.contains(AppModule.nutrition) =>
+        orEmpty(section, AppColors.caffeine, [
+          if (today.caffeine case (:final curve, :final nowIndex))
+            Gutter(
+              child: CaffeineCard(
+                curve: curve,
+                nowIndex: nowIndex,
+                onTap: () => pushPage(context, const CaffeineScreen()),
+              ),
+            ),
+        ]),
+      TodaySection.vitals when modules.contains(AppModule.weight) => orEmpty(
+        section,
+        AppColors.body,
+        [
+          if (today.vitals case final vitals when vitals.isNotEmpty)
+            Gutter(
+              child: VitalsCard(
+                vitals: vitals,
+                onTap: () => pushPage(context, const BodyScreen()),
+              ),
+            ),
+        ],
+      ),
+      TodaySection.week
+          when modules.contains(AppModule.training) ||
+              modules.contains(AppModule.activity) =>
+        _week(context, store, today),
+      TodaySection.records => orEmpty(
+        section,
+        AppColors.textSecondary,
+        _records(context, today),
+      ),
+      TodaySection.insights => orEmpty(section, AppColors.wellness, [
+        if (store.todayInsights.isNotEmpty)
+          PageSection(
+            label: TodaySection.insights.labelIn(context.l10n),
+            children: [
+              for (final insight in store.todayInsights)
+                Gutter(
+                  child: InsightCard(
+                    insight: insight,
+                    onTap: () => pushPage(context, const InsightDetailScreen()),
+                  ),
+                ),
+            ],
+          ),
+      ]),
+      _ => const [],
+    };
+    return [
+      for (final section in today.order)
+        if (!hidden.contains(section)) ...sectionOf(section),
     ];
   }
 
-  /// A tile for each figure an enabled module keeps, side by side at one
-  /// height.
   List<Widget> _glance(
     BuildContext context,
     AppStore store,

@@ -901,6 +901,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get activityMetricBloodPressureDiastolic => '拡張期血圧';
 
   @override
+  String get vitalBloodPressure => '血圧';
+
+  @override
   String get activityMetricRespiratoryRate => '呼吸数';
 
   @override
@@ -2801,6 +2804,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get showAll => 'すべて表示';
+
+  @override
+  String get todayOnlyWithData => '数値があるときだけ表示';
+
+  @override
+  String reorderSection({required String section}) {
+    return '$sectionの順序を変更';
+  }
+
+  @override
+  String moreItemsCount({required int count}) {
+    return 'ほか $count 項目';
+  }
 
   @override
   String get nextStep => '次のステップ';

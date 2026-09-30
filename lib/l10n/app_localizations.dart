@@ -1766,6 +1766,12 @@ abstract class AppLocalizations {
   /// **'舒張壓'**
   String get activityMetricBloodPressureDiastolic;
 
+  /// Blood pressure, its systolic and diastolic figures shown as one.
+  ///
+  /// In zh, this message translates to:
+  /// **'血壓'**
+  String get vitalBloodPressure;
+
   /// Activity metric from a health platform.
   ///
   /// In zh, this message translates to:
@@ -5096,6 +5102,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'全部顯示'**
   String get showAll;
+
+  /// Customise Today: leave out sections with nothing today.
+  ///
+  /// In zh, this message translates to:
+  /// **'僅在有數值時顯示'**
+  String get todayOnlyWithData;
+
+  /// Screen reader label of a drag handle that moves a Today section.
+  ///
+  /// In zh, this message translates to:
+  /// **'調整{section}的順序'**
+  String reorderSection({required String section});
+
+  /// Under a shortened list: how many more there are.
+  ///
+  /// In zh, this message translates to:
+  /// **'另 {count} 項'**
+  String moreItemsCount({required int count});
 
   /// Eyebrow of the next-meal card.
   ///

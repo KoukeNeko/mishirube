@@ -897,6 +897,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityMetricBloodPressureDiastolic => '舒張壓';
 
   @override
+  String get vitalBloodPressure => '血壓';
+
+  @override
   String get activityMetricRespiratoryRate => '呼吸速率';
 
   @override
@@ -2795,6 +2798,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get showAll => '全部顯示';
+
+  @override
+  String get todayOnlyWithData => '僅在有數值時顯示';
+
+  @override
+  String reorderSection({required String section}) {
+    return '調整$section的順序';
+  }
+
+  @override
+  String moreItemsCount({required int count}) {
+    return '另 $count 項';
+  }
 
   @override
   String get nextStep => '下一步';
@@ -6634,6 +6650,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get activityMetricBloodPressureDiastolic => '舒张压';
 
   @override
+  String get vitalBloodPressure => '血压';
+
+  @override
   String get activityMetricRespiratoryRate => '呼吸频率';
 
   @override
@@ -8532,6 +8551,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get showAll => '全部显示';
+
+  @override
+  String get todayOnlyWithData => '仅在有数值时显示';
+
+  @override
+  String reorderSection({required String section}) {
+    return '调整$section的顺序';
+  }
+
+  @override
+  String moreItemsCount({required int count}) {
+    return '另 $count 项';
+  }
 
   @override
   String get nextStep => '下一步';

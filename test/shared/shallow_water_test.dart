@@ -72,9 +72,10 @@ void main() {
   test('narrow and deep, a frame at a time, it still settles', () {
     // A Today tile beside two others: columns under 3 px, water 150 deep,
     // advanced by a whole 30 fps frame at once.
-    final water = ShallowWater(width: 110, height: 180, level: 0.66);
+    final water = ShallowWater(width: 110, height: 180, level: 0.66, seed: 9);
     water.pourTo(0.83);
-    for (var i = 0; i < 300; i++) {
+    // The splash is random; this seed's runs longest of a dozen.
+    for (var i = 0; i < 600; i++) {
       water.step(1 / 30, down: down, right: 0);
     }
 

@@ -58,8 +58,31 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
 
   ActivityMetric get _metric => widget.metric;
 
+  /// Blood pressure is read as the pair it is taken as: opened from its
+  /// systolic figure, the page shows the diastolic beside it.
+  bool get _isBloodPressure => _metric == ActivityMetric.bloodPressureSystolic;
+
+  /// A vital is shown as recorded, with no usual range drawn around it:
+  /// the app does not say what is normal for a body.
+  bool get _isVital => _metric.group == ActivityMetricGroup.vitals;
+
   String _value(double value) =>
       '${_metric.format(value)} ${_metric.unitIn(context.l10n)}';
+
+  /// The diastolic figure of each day [days] has, for blood pressure.
+  Map<DateTime, double> _diastolic(int days) => {
+    for (final (day, value) in _model.daily(
+      ActivityMetric.bloodPressureDiastolic,
+      days,
+    ))
+      day: value,
+  };
+
+  /// [systolic] with its day's diastolic, `120/80 mmHg`; the systolic
+  /// alone when the pair is not there.
+  String _pair(double systolic, double? diastolic) => diastolic == null
+      ? _value(systolic)
+      : '${systolic.round()}/${diastolic.round()} mmHg';
 
   @override
   void dispose() {
@@ -74,10 +97,18 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   Widget _page() {
     final day = _model.day;
     final days = _model.daily(_metric, _range.days);
-    final usual = _model.usualRange(_metric);
+    final usual = _isVital ? null : _model.usualRange(_metric);
+    final diastolic = _isBloodPressure
+        ? _diastolic(_range.days)
+        : const <DateTime, double>{};
+    double? mean(Iterable<double> values) => values.isEmpty
+        ? null
+        : values.fold(0.0, (sum, value) => sum + value) / values.length;
     return DetailPage(
       appBar: PageAppBar(
-        title: _metric.labelIn(context.l10n),
+        title: _isBloodPressure
+            ? context.l10n.vitalBloodPressure
+            : _metric.labelIn(context.l10n),
         subtitle: context.dates.dayWithWeekday(day),
         actions: [
           HeaderAction(
@@ -124,14 +155,19 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
                 if (_range == _Range.day)
                   KeyValueRow(
                     label: context.l10n.thisDay,
-                    value: _value(days.single.$2),
+                    value: _isBloodPressure
+                        ? _pair(days.single.$2, diastolic[days.single.$1])
+                        : _value(days.single.$2),
                   )
                 else
                   KeyValueRow(
                     label: context.l10n.dailyAverage,
-                    value: _value(
-                      days.fold(0.0, (sum, day) => sum + day.$2) / days.length,
-                    ),
+                    value: _isBloodPressure
+                        ? _pair(
+                            mean([for (final (_, v) in days) v])!,
+                            mean(diastolic.values),
+                          )
+                        : _value(mean([for (final (_, v) in days) v])!),
                   ),
                 if (usual != null)
                   KeyValueRow(
@@ -152,6 +188,8 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
               ],
             ),
           ),
+          if (_metric == ActivityMetric.oxygenSaturation)
+            Gutter(child: TagWrap(labels: [context.l10n.deviceEstimate])),
         ],
       ],
     );
@@ -179,9 +217,27 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     final isAverage = _range == _Range.halfYear || _range == _Range.year;
     String figure(double value) =>
         isAverage ? l10n.statAverage(value: _value(value)) : _value(value);
+    final diastolic = _isBloodPressure
+        ? _diastolic(_range.days)
+        : const <DateTime, double>{};
+    // Blood pressure's two lines share one axis of days; averaged ranges
+    // pair each stretch's averages the same way.
+    final lower = !_isBloodPressure
+        ? const <(DateTime, double)>[]
+        : switch (_range) {
+            _Range.halfYear => averagedBy([
+              for (final e in diastolic.entries) (e.key, e.value),
+            ], months: false),
+            _Range.year => averagedBy([
+              for (final e in diastolic.entries) (e.key, e.value),
+            ], months: true),
+            _ => [for (final e in diastolic.entries) (e.key, e.value)],
+          };
+    final lowerAt = {for (final (start, value) in lower) start: value};
     String readout(int index) {
       final (start, value) = points[index];
-      return '${when(start)} · ${figure(value)}';
+      return '${when(start)} · '
+          '${_isBloodPressure ? _pair(value, lowerAt[start]) : figure(value)}';
     }
 
     if (!_metric.isCumulative) {
@@ -190,11 +246,24 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
         indexAt: ChartScrubber.points(points.length),
         idle: l10n.readingsCount(count: points.length),
         readoutOf: readout,
-        builder: (context, selected) => Sparkline(
-          values: [for (final (_, value) in points) value],
-          color: AppColors.activity,
-          height: 80,
-          selected: selected,
+        builder: (context, selected) => Column(
+          children: [
+            Sparkline(
+              values: [for (final (_, value) in points) value],
+              color: AppColors.activity,
+              height: 80,
+              selected: selected,
+            ),
+            if (_isBloodPressure) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Sparkline(
+                values: [for (final (start, _) in points) lowerAt[start]],
+                color: AppColors.activity.withValues(alpha: 0.5),
+                height: 48,
+                selected: selected,
+              ),
+            ],
+          ],
         ),
       );
     }

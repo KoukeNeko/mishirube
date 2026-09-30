@@ -11,6 +11,7 @@ enum TodaySection {
   activity,
   intake,
   caffeine,
+  vitals,
   week,
   records,
   insights;
@@ -20,6 +21,7 @@ enum TodaySection {
     activity => l10n.todaySectionActivity,
     intake => l10n.moduleNutrition,
     caffeine => l10n.nutrientCaffeine,
+    vitals => l10n.activityMetricGroupVitals,
     week => l10n.todaySectionWeek,
     records => l10n.todaySectionRecords,
     insights => l10n.todaySectionInsights,
@@ -33,6 +35,8 @@ class TodayViewModel extends ViewModel {
   TodayViewModel(super.backend);
 
   static const _hiddenKey = 'today.hidden';
+  static const _orderKey = 'today.order';
+  static const _onlyWithDataKey = 'today.onlyWithData';
 
   DateTime get _today {
     final time = now();
@@ -94,6 +98,21 @@ class TodayViewModel extends ViewModel {
     );
   }
 
+  /// Today's vitals, each at the day's figure; the card shows only when
+  /// one of them was taken on purpose, a blood pressure or a body
+  /// temperature, and not for a watch's background readings alone.
+  Map<ActivityMetric, double> get vitals {
+    final totals = backend.activity.dayTotals(_today);
+    final vitals = {
+      for (final MapEntry(key: metric, value: value) in totals.entries)
+        if (metric.group == ActivityMetricGroup.vitals) metric: value,
+    };
+    final isTaken =
+        vitals.containsKey(ActivityMetric.bloodPressureSystolic) ||
+        vitals.containsKey(ActivityMetric.bodyTemperature);
+    return isTaken ? vitals : const {};
+  }
+
   /// The plain water the day's level fills towards; null draws none.
   int? get waterReferenceMl => backend.nutrition.waterReferenceMl;
 
@@ -131,4 +150,42 @@ class TodayViewModel extends ViewModel {
   }
 
   void showAll() => backend.db.setSetting(_hiddenKey, '');
+
+  /// The sections in the order the user put them; one added since takes
+  /// the place it has among the others by default.
+  List<TodaySection> get order {
+    final stored = [
+      for (final name in (backend.db.setting(_orderKey) ?? '').split(','))
+        ?TodaySection.values.asNameMap()[name],
+    ];
+    final order = [...stored];
+    for (final section in TodaySection.values) {
+      if (order.contains(section)) continue;
+      // After whichever section comes before it by default.
+      final before = TodaySection.values
+          .take(section.index)
+          .lastWhere(order.contains, orElse: () => section);
+      order.insert(before == section ? 0 : order.indexOf(before) + 1, section);
+    }
+    return order;
+  }
+
+  void setOrder(List<TodaySection> order) => backend.db.setSetting(
+    _orderKey,
+    [for (final section in order) section.name].join(','),
+  );
+
+  /// Moves the section at [from] to [to], its place once it is out.
+  void move(int from, int to) {
+    final order = [...this.order];
+    order.insert(to, order.removeAt(from));
+    setOrder(order);
+  }
+
+  /// Whether a section with nothing to show today is left out, rather
+  /// than shown empty.
+  bool get showsOnlyWithData => backend.db.setting(_onlyWithDataKey) != 'false';
+
+  void setShowsOnlyWithData(bool value) =>
+      backend.db.setSetting(_onlyWithDataKey, '$value');
 }

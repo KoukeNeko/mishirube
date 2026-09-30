@@ -296,20 +296,26 @@ enum ActivityMetric {
   /// Apple Watch's estimate of effort, in METs.
   physicalEffort(ActivityMetricGroup.heart, decimals: 1),
 
-  /// Degrees Celsius, as taken with a thermometer or a watch.
-  bodyTemperature(ActivityMetricGroup.vitals, decimals: 1),
+  /// Degrees Celsius, as taken with a thermometer: not the wrist
+  /// temperature a watch reads overnight, which is on the sleep page.
+  bodyTemperature(ActivityMetricGroup.vitals, decimals: 1, isLatest: true),
 
-  /// mmHg, each reading's two figures kept as two metrics, as both
-  /// platforms store them.
-  bloodPressureSystolic(ActivityMetricGroup.vitals),
-  bloodPressureDiastolic(ActivityMetricGroup.vitals),
+  /// mmHg. One reading is a pair, shown together as systolic over
+  /// diastolic; both platforms keep them as two figures of it.
+  bloodPressureSystolic(ActivityMetricGroup.vitals, isLatest: true),
+  bloodPressureDiastolic(ActivityMetricGroup.vitals, isLatest: true),
 
-  /// Breaths a minute through the day; the night's own is on the sleep
-  /// page.
+  /// Breaths a minute, the day's average; the night's own is on the
+  /// sleep page.
   respiratoryRate(ActivityMetricGroup.vitals, decimals: 1),
 
-  /// Fractions, shown as percentages.
-  oxygenSaturation(ActivityMetricGroup.vitals, displayScale: 100),
+  /// Fractions, shown as percentages. A watch estimates it, mostly while
+  /// the wearer is still, so a day's readings are not a day's average.
+  oxygenSaturation(
+    ActivityMetricGroup.vitals,
+    displayScale: 100,
+    isLatest: true,
+  ),
 
   /// Minutes of mindfulness sessions, overlapping ones counted once.
   mindfulTime(ActivityMetricGroup.mindfulness, isCumulative: true),
@@ -359,9 +365,15 @@ enum ActivityMetric {
   const ActivityMetric(
     this.group, {
     this.isCumulative = false,
+    this.isLatest = false,
     this.displayScale = 1,
     this.decimals = 0,
   });
+
+  /// A measured metric whose day is its last reading rather than the
+  /// average of them: a vital taken now and then, where averaging a
+  /// morning's and an evening's reading makes one nobody took.
+  final bool isLatest;
 
   /// What a day's movement leads with, in order: the figures a device
   /// on its own can count come first.
@@ -403,6 +415,18 @@ enum ActivityMetric {
     if (decimals > 0) return value.toStringAsFixed(decimals);
     return formatKcal(value.round());
   }
+}
+
+/// A blood pressure reading as it is taken, systolic over diastolic,
+/// `120/80 mmHg`, from each figure's day; null unless both are there
+/// for the same day.
+String? bloodPressureOf(Map<ActivityMetric, (DateTime, double)> readings) {
+  final systolic = readings[ActivityMetric.bloodPressureSystolic];
+  final diastolic = readings[ActivityMetric.bloodPressureDiastolic];
+  if (systolic == null || diastolic == null || systolic.$1 != diastolic.$1) {
+    return null;
+  }
+  return '${systolic.$2.round()}/${diastolic.$2.round()} mmHg';
 }
 
 /// What a platform counted or measured over one stretch: an hour for a
