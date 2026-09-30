@@ -188,8 +188,6 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
               ],
             ),
           ),
-          if (_metric == ActivityMetric.oxygenSaturation)
-            Gutter(child: TagWrap(labels: [context.l10n.deviceEstimate])),
         ],
       ],
     );

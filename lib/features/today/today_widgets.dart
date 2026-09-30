@@ -588,13 +588,7 @@ class VitalsCard extends StatelessWidget {
         ActivityMetric.oxygenSaturation,
         ActivityMetric.respiratoryRate,
       ])
-        if (vitals.containsKey(metric))
-          (
-            metric.labelIn(l10n),
-            metric == ActivityMetric.oxygenSaturation
-                ? '${figure(metric)} · ${l10n.deviceEstimate}'
-                : figure(metric),
-          ),
+        if (vitals.containsKey(metric)) (metric.labelIn(l10n), figure(metric)),
     ];
     return AppCard(
       onTap: onTap,

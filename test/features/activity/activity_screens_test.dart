@@ -126,7 +126,6 @@ void main() {
     expect(find.text('生命徵象'), findsOneWidget);
     expect(find.text('收縮壓'), findsNothing, reason: 'one reading, one row');
     expect(find.text('97 %'), findsOneWidget, reason: 'a fraction as %');
-    expect(find.textContaining('裝置估計'), findsOneWidget);
     await disposeTree(tester);
   });
 

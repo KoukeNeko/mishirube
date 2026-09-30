@@ -319,16 +319,11 @@ class _BodyScreenState extends State<BodyScreen> {
     final latest = model.latestVitals;
     if (latest.isEmpty) return const [];
     final l10n = context.l10n;
-    NavRow row(
-      ActivityMetric metric,
-      String title,
-      String value, {
-      String? tag,
-    }) {
+    NavRow row(ActivityMetric metric, String title, String value) {
       final (day, _) = latest[metric]!;
       return NavRow(
         title: title,
-        subtitle: [context.dates.monthDay(day), ?tag].join(' · '),
+        subtitle: context.dates.monthDay(day),
         trailing: Text(value, style: AppTextStyles.itemTitle),
         onTap: () => pushModalPage<void>(
           context,
@@ -356,14 +351,7 @@ class _BodyScreenState extends State<BodyScreen> {
               ActivityMetric.oxygenSaturation,
             ])
               if (latest.containsKey(metric))
-                row(
-                  metric,
-                  metric.labelIn(l10n),
-                  figure(metric),
-                  tag: metric == ActivityMetric.oxygenSaturation
-                      ? l10n.deviceEstimate
-                      : null,
-                ),
+                row(metric, metric.labelIn(l10n), figure(metric)),
           ],
         ),
       ),
