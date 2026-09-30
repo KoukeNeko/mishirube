@@ -9,6 +9,7 @@ import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
 
@@ -215,6 +216,37 @@ void main() {
 
     expect(find.text('日'), findsNothing);
     expect(find.text('半年'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a vital is set against the user\'s own usual range', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWith(
+      (today) => [
+        for (var back = 0; back < 20; back++)
+          ActivitySample(
+            metric: ActivityMetric.respiratoryRate,
+            start: DateTime(today.year, today.month, today.day - back),
+            end: DateTime(today.year, today.month, today.day - back, 1),
+            value: 14 + back % 3,
+          ),
+      ],
+    );
+    await pumpScreen(
+      tester,
+      ActivityMetricScreen(
+        metric: ActivityMetric.respiratoryRate,
+        day: store.now(),
+      ),
+      store: store,
+    );
+    await tester.tap(find.text('月'));
+    await tester.pump();
+
+    expect(find.text('平常範圍'), findsOneWidget);
+    expect(tester.widget<Sparkline>(find.byType(Sparkline)).normal, isNotNull);
     await disposeTree(tester);
   });
 }

@@ -114,6 +114,10 @@ class TodayViewModel extends ViewModel {
       vitals.containsKey(ActivityMetric.bloodPressureSystolic) ||
       vitals.containsKey(ActivityMetric.bodyTemperature);
 
+  /// Today's energy target; null while the body it is worked out from is
+  /// not set.
+  double? get kcalTarget => backend.nutrition.targetsOn(_today).kcal;
+
   /// The plain water the day's level fills towards; null draws none.
   int? get waterReferenceMl => backend.nutrition.waterReferenceMl;
 

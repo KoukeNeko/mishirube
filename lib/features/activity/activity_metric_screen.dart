@@ -62,10 +62,6 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   /// systolic figure, the page shows the diastolic beside it.
   bool get _isBloodPressure => _metric == ActivityMetric.bloodPressureSystolic;
 
-  /// A vital is shown as recorded, with no usual range drawn around it:
-  /// the app does not say what is normal for a body.
-  bool get _isVital => _metric.group == ActivityMetricGroup.vitals;
-
   String _value(double value) =>
       '${_metric.format(value)} ${_metric.unitIn(context.l10n)}';
 
@@ -97,7 +93,9 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   Widget _page() {
     final day = _model.day;
     final days = _model.daily(_metric, _range.days);
-    final usual = _isVital ? null : _model.usualRange(_metric);
+    // The user's own middle half of the last month, never a population
+    // norm; blood pressure is a pair one band cannot stand for.
+    final usual = _isBloodPressure ? null : _model.usualRange(_metric);
     final diastolic = _isBloodPressure
         ? _diastolic(_range.days)
         : const <DateTime, double>{};
@@ -156,7 +154,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
             ),
           )
         else ...[
-          Gutter(child: AppCard(child: _chart(days))),
+          Gutter(child: AppCard(child: _chart(days, usual))),
           Gutter(
             child: GroupedCard(
               children: [
@@ -201,7 +199,10 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     );
   }
 
-  Widget _chart(List<(DateTime, double)> days) {
+  Widget _chart(
+    List<(DateTime, double)> days,
+    ({double low, double high})? usual,
+  ) {
     if (_range == _Range.day) {
       return HourlyActivityChart(
         metric: _metric,
@@ -259,6 +260,10 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
               color: AppColors.activity,
               height: 80,
               selected: selected,
+              normal: switch (usual) {
+                (:final low, :final high) => (low, high),
+                null => null,
+              },
             ),
             if (_isBloodPressure) ...[
               const SizedBox(height: AppSpacing.xs),

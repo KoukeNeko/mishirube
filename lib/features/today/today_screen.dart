@@ -11,6 +11,7 @@ import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
+import '../body/weight_trend_chart.dart';
 import '../goal/goal_entry_button.dart';
 import '../goal/goal_screen.dart';
 import '../log/timeline_destination.dart';
@@ -230,6 +231,7 @@ class TodayScreen extends StatelessWidget {
             Gutter(
               child: IntakeCard(
                 store: store,
+                kcalTarget: today.kcalTarget,
                 onTap: () => pushPage(context, const DailyNutritionScreen()),
               ),
             ),
@@ -352,6 +354,16 @@ class TodayScreen extends StatelessWidget {
             _ => null,
           },
           motion: store.motion.acceleration,
+          // The level is the glance; the bar is what can be read off.
+          visual: switch (waterReference) {
+            final reference? when reference > 0 && water.times > 0 =>
+              ProgressLine(
+                progress: water.millilitres / reference,
+                color: AppColors.water,
+                height: 4,
+              ),
+            _ => null,
+          },
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),
@@ -473,21 +485,17 @@ class _WeightTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final (:latest, :weekTrend, :weekChange) = store.weightSummary;
+    final (:latest, :week, :weekChange) = store.weightSummary;
     return QuickStatTile(
       category: context.l10n.moduleWeight,
       color: AppColors.body,
       value: latest == null ? null : formatWeight(latest.weightKg),
       unit: 'kg',
-      visual: weekTrend.length < 2
+      visual: week.length < 2
           ? null
           : ShakeShear(
               motion: store.motion.acceleration,
-              child: Sparkline(
-                values: weekTrend,
-                color: AppColors.body,
-                height: 20,
-              ),
+              child: WeightTrendChart(points: week, height: 28),
             ),
       caption: switch ((latest, weekChange)) {
         (null, _) => null,

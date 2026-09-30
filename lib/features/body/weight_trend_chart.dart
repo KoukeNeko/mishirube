@@ -6,18 +6,24 @@ import '../../app/theme.dart';
 /// the line is the one to read, since a single day's figure moves with
 /// water and food.
 class WeightTrendChart extends StatelessWidget {
-  const WeightTrendChart({super.key, required this.points, this.selected});
+  const WeightTrendChart({
+    super.key,
+    required this.points,
+    this.selected,
+    this.height = 120,
+  });
 
   /// Weighings with their trend, oldest first.
   final List<(DateTime, double weight, double trend)> points;
 
   /// The weighing being read, marked on the line.
   final int? selected;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 120,
+      height: height,
       width: double.infinity,
       child: CustomPaint(
         painter: _TrendPainter(points: points, selected: selected),

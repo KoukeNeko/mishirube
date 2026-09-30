@@ -275,9 +275,17 @@ class NextMealCard extends StatelessWidget {
 }
 
 class IntakeCard extends StatelessWidget {
-  const IntakeCard({super.key, required this.store, required this.onTap});
+  const IntakeCard({
+    super.key,
+    required this.store,
+    required this.kcalTarget,
+    required this.onTap,
+  });
 
   final AppStore store;
+
+  /// What the day's energy is set against; null draws no bar.
+  final double? kcalTarget;
   final VoidCallback onTap;
 
   @override
@@ -313,12 +321,21 @@ class IntakeCard extends StatelessWidget {
                 ),
                 TextSpan(
                   text:
+                      '${kcalTarget == null ? '' : ' / ${formatKcal(kcalTarget!)}'}'
                       ' kcal · ${context.l10n.mealsCount(count: summary.mealCount)}',
                   style: AppTextStyles.caption.copyWith(fontSize: 15),
                 ),
               ],
             ),
           ),
+          if (kcalTarget case final target? when target > 0) ...[
+            const SizedBox(height: AppSpacing.xs),
+            ProgressLine(
+              progress: store.todayKcal / target,
+              color: AppColors.nutrition,
+              height: 6,
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           // Four across when the names fit, else two by two: they are
           // written in full, and 碳水化合物 needs the room.

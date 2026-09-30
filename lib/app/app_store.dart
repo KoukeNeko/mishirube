@@ -228,9 +228,13 @@ class AppStore extends ChangeNotifier {
   List<WorkoutSession> get recentRoutineWorkouts =>
       _backend.training.recentOf(_shown);
 
-  /// The latest weighing, the trend over the last week and how far it
-  /// moved; null for what there are no weighings for.
-  ({BodyWeight? latest, List<double> weekTrend, double? weekChange})
+  /// The latest weighing, the last week's weighings with their trend and
+  /// how far the trend moved; null for what there are no weighings for.
+  ({
+    BodyWeight? latest,
+    List<(DateTime, double, double)> week,
+    double? weekChange,
+  })
   get weightSummary {
     final weights = _backend.journal.recentWeights(const Duration(days: 14));
     final from = now().subtract(const Duration(days: 7));
@@ -240,7 +244,7 @@ class AppStore extends ChangeNotifier {
     ];
     return (
       latest: weights.lastOrNull,
-      weekTrend: [for (final (_, _, trend) in week) trend],
+      week: week,
       weekChange: trendChange(week),
     );
   }

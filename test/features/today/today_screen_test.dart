@@ -159,6 +159,40 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('energy eaten reads against its target on a bar', (tester) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.journal
+      ..setSex(Sex.male)
+      ..setBirthYear(1996)
+      ..recordBodyReadings({BodyMetric.height: 175})
+      ..recordWeight(70, at: store.now().subtract(const Duration(hours: 5)));
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'lunch',
+        name: '午餐',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 600,
+      ),
+      eatenAt: store.now(),
+    );
+    final target = store.backend.nutrition.targetsOn(store.now()).kcal!;
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final card = find.byType(IntakeCard);
+    expect(
+      find.textContaining('/ ${formatKcal(target)}', findRichText: true),
+      findsOneWidget,
+    );
+    final bar = tester.widget<ProgressLine>(
+      find.descendant(of: card, matching: find.byType(ProgressLine)),
+    );
+    expect(bar.progress, 600 / target);
+    await disposeTree(tester);
+  });
+
   testWidgets('sections follow the order set, and can show empty', (
     tester,
   ) async {
