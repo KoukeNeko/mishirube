@@ -326,11 +326,20 @@ class _LogScreenState extends State<LogScreen> {
     final isTimeline = _view == _LogView.timeline;
     return NotificationListener<ScrollEndNotification>(
       onNotification: _followScroll,
-      child: _pageBody(isTimeline),
+      child: LayoutBuilder(
+        builder: (context, constraints) => _pageBody(
+          isTimeline,
+          // Held while the list keeps at least as much of the page, which
+          // a device on its side does not.
+          calendarStays:
+              WeekdayHeader.height + MonthCalendar.height <=
+              constraints.maxHeight / 2,
+        ),
+      ),
     );
   }
 
-  Widget _pageBody(bool isTimeline) {
+  Widget _pageBody(bool isTimeline, {required bool calendarStays}) {
     return CollapsingPage(
       // The tab names the page. The calendar reads as Apple Calendar's
       // month view: its month pinned as a title, and the year to reach
@@ -383,8 +392,17 @@ class _LogScreenState extends State<LogScreen> {
       // The timeline's month and its category chips stay at the top as
       // the list scrolls, as does the calendar's month.
       pinned: !isTimeline
-          // Over the calendar's columns, which are the week strip's.
-          ? WeekdayHeader(firstWeekday: AppStoreScope.of(context).firstWeekday)
+          ? Column(
+              children: [
+                // Over the calendar's columns, which are the week strip's.
+                WeekdayHeader(
+                  firstWeekday: AppStoreScope.of(context).firstWeekday,
+                ),
+                // Held, as Apple Calendar's month is over its day's list,
+                // which scrolls on its own under it.
+                if (calendarStays) _monthCalendar(),
+              ],
+            )
           : Column(
               key: _pinnedKey,
               children: [
@@ -414,10 +432,10 @@ class _LogScreenState extends State<LogScreen> {
                 AppSpacing.xs +
                 WeekDayStrip.heightOf(context)
           // The weekdays sit on the grid, with no inset round them.
-          : WeekdayHeader.height,
+          : WeekdayHeader.height + (calendarStays ? MonthCalendar.height : 0),
       children: _view == _LogView.timeline
           ? _timeline(_log.month(_month))
-          : _calendar(),
+          : _calendar(calendarStays: calendarStays),
     );
   }
 
@@ -458,24 +476,34 @@ class _LogScreenState extends State<LogScreen> {
     ];
   }
 
-  List<Widget> _calendar() {
+  Widget _monthCalendar() => MonthCalendar(
+    month: _month,
+    earliest: _log.earliestMonth,
+    selected: _selected,
+    today: _today,
+    firstWeekday: AppStoreScope.of(context).firstWeekday,
+    categoriesOf: _log.categoriesIn,
+    onSelect: (day) => setState(() => _selected = day),
+    // Scrolled by hand: the month shown follows, the day listed stays
+    // until another is tapped.
+    onMonth: (month) => setState(() => _month = month),
+  );
+
+  List<Widget> _calendar({required bool calendarStays}) {
     final entries = _log.day(_selected);
     return [
-      // The page column's width, under the weekdays pinned above it,
-      // so the days sit where the timeline's week strip has them.
-      MonthCalendar(
-        month: _month,
-        earliest: _log.earliestMonth,
-        selected: _selected,
-        today: _today,
-        firstWeekday: AppStoreScope.of(context).firstWeekday,
-        categoriesOf: _log.categoriesIn,
-        onSelect: (day) => setState(() => _selected = day),
-        // Scrolled by hand: the month shown follows, the day listed
-        // stays until another is tapped.
-        onMonth: (month) => setState(() => _month = month),
-      ),
-      Gutter(child: const _CalendarLegend()),
+      if (calendarStays)
+        // The gap a page's content keeps under its header: with the
+        // weekdays tight on the grid, none is kept for the list.
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.md),
+          child: Gutter(child: const _CalendarLegend()),
+        )
+      else ...[
+        // Right under the pinned weekdays, scrolling with the list.
+        _monthCalendar(),
+        Gutter(child: const _CalendarLegend()),
+      ],
       Gutter(
         child: SectionLabel(context.dates.compactDayWithWeekday(_selected)),
       ),

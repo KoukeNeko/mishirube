@@ -56,6 +56,9 @@ class MonthCalendar extends StatefulWidget {
   final ValueChanged<DateTime> onSelect;
   final ValueChanged<DateTime> onMonth;
 
+  /// How tall the calendar is, whatever the month.
+  static const height = _viewportHeight;
+
   @override
   State<MonthCalendar> createState() => _MonthCalendarState();
 }

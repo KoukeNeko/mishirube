@@ -256,6 +256,63 @@ void main() {
     expect(find.text('9月'), findsOneWidget, reason: 'written as the system');
   });
 
+  testWidgets("the day's list scrolls under the calendar, which stays", (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWithNotes();
+    for (var hour = 0; hour < 12; hour++) {
+      store.backend.journal.recordNote(
+        '第 $hour 則',
+        at: DateTime(2026, 9, 18, hour),
+      );
+    }
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+    await openCalendar(tester);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(MonthCalendar),
+        matching: find.text('18').hitTestable(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final calendar = tester.getTopLeft(find.byType(MonthCalendar));
+    final heading = tester.getTopLeft(find.text('9月18日 週五'));
+
+    await tester.drag(find.text('9月18日 週五'), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(find.text('9月18日 週五')).dy,
+      lessThan(heading.dy),
+      reason: 'the list scrolled',
+    );
+    expect(tester.getTopLeft(find.byType(MonthCalendar)), calendar);
+    expect(find.text('18').hitTestable(), findsWidgets, reason: 'in sight');
+    await disposeTree(tester);
+  });
+
+  testWidgets('on its side, the calendar scrolls away with the list', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    await tester.pumpWidget(MishirubeApp(store: storeWithNotes()));
+    await tester.pumpAndSettle();
+    await openCalendar(tester);
+    useWindow(tester, phoneLandscape);
+    await tester.pumpAndSettle();
+    // Held, it would leave the list no room.
+    expect(
+      find.ancestor(
+        of: find.byType(MonthCalendar),
+        matching: find.byType(SliverPersistentHeader),
+      ),
+      findsNothing,
+    );
+    expect(find.byType(WeekdayHeader), findsOneWidget, reason: 'still held');
+    await disposeTree(tester);
+  });
+
   testWidgets('a day on the calendar lists its records, each opening', (
     tester,
   ) async {
@@ -273,8 +330,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     // Dragged by the day's heading: the calendar scrolls months itself.
+    // Out from under the dock, too.
     await tester.dragUntilVisible(
-      find.text('十八號的筆記'),
+      find.text('十八號的筆記').hitTestable(),
       find.text('9月18日 週五'),
       const Offset(0, -200),
     );
