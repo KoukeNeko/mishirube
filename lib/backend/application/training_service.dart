@@ -225,7 +225,7 @@ class TrainingService {
   /// read, so it follows every edit to the plan.
   Duration expectedLength(Routine routine) =>
       _workouts.averageLengthOf(routine.id, _recentForLength) ??
-      plannedDuration(routine.exercises);
+      plannedDuration(routine.exercises, restOf: restFor);
 
   /// The template's last [limit] finished workouts, newest first.
   List<WorkoutSession> recentOf(Routine routine, {int limit = 3}) =>

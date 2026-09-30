@@ -34,11 +34,23 @@ bool worksSoreMuscle(PlannedExercise planned, Set<MuscleGroup> sore) =>
 const setWorkTime = Duration(seconds: 40);
 
 /// How long [exercises] take as planned: each set and the rest after it.
-Duration plannedDuration(List<PlannedExercise> exercises) => exercises.fold(
-  Duration.zero,
-  (sum, planned) =>
-      sum + (setWorkTime + restAfter(planned.exercise)) * planned.sets,
-);
+/// A set held for a time, or covering a distance in a time, lasts as long
+/// as it is planned to; any other takes [setWorkTime]. The rest is
+/// [restOf] each exercise, [restAfter] unless said otherwise.
+Duration plannedDuration(
+  List<PlannedExercise> exercises, {
+  Duration Function(ExerciseDefinition exercise) restOf = restAfter,
+}) => exercises.fold(Duration.zero, (sum, planned) {
+  final rest = restOf(planned.exercise);
+  final isTimed = planned.exercise.trackingType.usesTime;
+  return sum +
+      planned.loads.fold(Duration.zero, (setsSum, load) {
+        final seconds = isTimed ? load.seconds : null;
+        return setsSum +
+            (seconds == null ? setWorkTime : Duration(seconds: seconds)) +
+            rest;
+      });
+});
 
 /// A warm-up ramp: shares of the working weight, each with fewer reps
 /// than the last, so the working set is reached without tiring for it.

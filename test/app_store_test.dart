@@ -235,6 +235,42 @@ void main() {
       expect(store.lastNight?.entry.duration, const Duration(hours: 7));
     });
 
+    test('a plan is timed by each exercise\'s rest and its planned times', () {
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      PlannedExercise held(List<SetLoad> loads) =>
+          PlannedExercise.ofLoads(store.backend.training.planFor(plank), loads);
+      final plan = [
+        held(const [SetLoad(seconds: 60), SetLoad(seconds: 30)]),
+      ];
+
+      expect(
+        plannedDuration(plan),
+        const Duration(seconds: 90) + restAfter(plank) * 2,
+        reason: 'the time of each set, not a fixed 40 s',
+      );
+      store.setRestFor(plank, const Duration(seconds: 20));
+      expect(
+        plannedDuration(plan, restOf: store.restFor),
+        const Duration(seconds: 130),
+        reason: 'its own rest, 20 s',
+      );
+
+      final lifted = store.backend.training.planFor(squat).copyWith(sets: 2);
+      expect(
+        plannedDuration([lifted], restOf: store.restFor),
+        (setWorkTime + store.restFor(squat)) * 2,
+      );
+      store.setRestFor(squat, Duration.zero);
+      store.createRoutine('核心');
+      store.addExercises([plank]);
+      expect(
+        store.backend.training.expectedLength(store.routine),
+        plannedDuration(store.routine.exercises, restOf: store.restFor),
+        reason: 'the estimate reads the stored rest',
+      );
+    });
+
     test('a template takes as long as its recent workouts did', () {
       store
         ..createRoutine('上肢')
