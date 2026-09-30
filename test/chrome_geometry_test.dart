@@ -7,6 +7,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
+import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -345,42 +346,21 @@ void main() {
     },
   );
 
-  testWidgets('a day without records keeps the header collapsed', (
+  testWidgets('a day without records keeps the calendar where it is', (
     tester,
   ) async {
     await _pumpShell(tester, tab: HomeTab.log);
     await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pump(_settle);
-    // Past halfway, so it snaps fully collapsed. Dragged below the
-    // calendar, which scrolls through months itself.
-    await _dragAndSettle(tester, 150, from: find.text('9月19日 週六'));
-    final scrollable = tester.state<ScrollableState>(
-      find
-          .descendant(of: _visibleScrollView, matching: find.byType(Scrollable))
-          .first,
-    );
-    final range =
-        (tester
-                    .widget<SliverPersistentHeader>(
-                      find
-                          .descendant(
-                            of: _visibleScrollView,
-                            matching: find.byType(SliverPersistentHeader),
-                          )
-                          .first,
-                    )
-                    .delegate
-                as CollapsingHeaderDelegate)
-            .collapseRange;
-    expect(scrollable.position.pixels, greaterThanOrEqualTo(range));
+    final calendar = tester.getRect(find.byType(MonthCalendar));
 
     await tester.tap(find.text('7').hitTestable());
     await tester.pump(_settle);
     expect(find.text('這天沒有紀錄。'), findsOneWidget);
     expect(
-      scrollable.position.pixels,
-      greaterThanOrEqualTo(range),
-      reason: 'the header is still fully collapsed',
+      tester.getRect(find.byType(MonthCalendar)),
+      calendar,
+      reason: 'a shorter list does not move what is held above it',
     );
     await disposeTree(tester);
   });

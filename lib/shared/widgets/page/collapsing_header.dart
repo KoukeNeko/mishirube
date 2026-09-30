@@ -778,21 +778,11 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
             controller: _controller,
             slivers: [
               SliverPersistentHeader(pinned: true, delegate: widget.header),
-              // Only vertical clearance for the floating chrome; each element
-              // brings its own horizontal spacing (see Gutter).
-              SliverPadding(
-                padding: EdgeInsets.only(
-                  top: widget.hasTopGap ? _contentTopGap : 0,
-                  bottom:
-                      widget.bottomPadding +
-                      MediaQuery.paddingOf(context).bottom,
-                ),
-                sliver: SliverList.separated(
-                  itemCount: widget.children.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: pageItemSpacing),
-                  itemBuilder: (_, index) => widget.children[index],
-                ),
+              _pageItems(
+                context,
+                widget.children,
+                hasTopGap: widget.hasTopGap,
+                bottomPadding: widget.bottomPadding,
               ),
               // Minimum page height: always enough to collapse the header fully,
               // so content that shrinks (a day without records, a narrow filter)
@@ -811,6 +801,94 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A page's items with the page's rhythm between them. Only vertical
+/// clearance for the floating chrome; each element brings its own
+/// horizontal spacing (see Gutter).
+Widget _pageItems(
+  BuildContext context,
+  List<Widget> children, {
+  required bool hasTopGap,
+  required double bottomPadding,
+}) => SliverPadding(
+  padding: EdgeInsets.only(
+    top: hasTopGap ? _contentTopGap : 0,
+    bottom: bottomPadding + MediaQuery.paddingOf(context).bottom,
+  ),
+  sliver: SliverList.separated(
+    itemCount: children.length,
+    separatorBuilder: (_, _) => const SizedBox(height: pageItemSpacing),
+    itemBuilder: (_, index) => children[index],
+  ),
+);
+
+/// A [CollapsingHeaderDelegate] with no large title over a block held at
+/// the top of the page, whose own scrolling runs up behind the header, as
+/// a calendar's months do; the children scroll in their own list below
+/// the block, never under the header.
+class HeldBlockView extends StatelessWidget {
+  const HeldBlockView({
+    super.key,
+    required this.header,
+    required this.held,
+    required this.heldHeight,
+    required this.children,
+    this.bottomPadding = AppSpacing.xxl,
+    this.hasTopGap = true,
+  });
+
+  final CollapsingHeaderDelegate header;
+
+  /// The block, given the header's height to start its content under.
+  final Widget Function(double headerHeight) held;
+
+  /// How much of the page the block holds below the header.
+  final double heldHeight;
+  final List<Widget> children;
+  final double bottomPadding;
+  final bool hasTopGap;
+
+  @override
+  Widget build(BuildContext context) {
+    final headerHeight = header.maxExtent;
+    return LayoutBuilder(
+      builder: (context, constraints) => PageColumn(
+        insets: contentColumnInsets(context, constraints.maxWidth),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                SizedBox(
+                  height: headerHeight + heldHeight,
+                  child: held(headerHeight),
+                ),
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      _pageItems(
+                        context,
+                        children,
+                        hasTopGap: hasTopGap,
+                        bottomPadding: bottomPadding,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: headerHeight,
+              child: header.build(context, 0, false),
+            ),
+          ],
         ),
       ),
     );

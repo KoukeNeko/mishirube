@@ -37,7 +37,12 @@ class MonthCalendar extends StatefulWidget {
     required this.categoriesOf,
     required this.onSelect,
     required this.onMonth,
+    this.topInset = 0,
   });
+
+  /// Room above the first week at rest, which the months scroll up
+  /// into: a bar the calendar runs behind.
+  final double topInset;
 
   /// First day of the month scrolled to.
   final DateTime month;
@@ -56,7 +61,7 @@ class MonthCalendar extends StatefulWidget {
   final ValueChanged<DateTime> onSelect;
   final ValueChanged<DateTime> onMonth;
 
-  /// How tall the calendar is, whatever the month.
+  /// How tall the calendar is below [topInset], whatever the month.
   static const height = _viewportHeight;
 
   @override
@@ -195,10 +200,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 _heightOf(_months.last, widget.firstWeekday) +
                 _titleHeight)
             .clamp(0.0, _viewportHeight);
+    // The inset pads the list's start, so the offsets the months are
+    // reached at stay the same with it.
     return Column(
       children: [
         SizedBox(
-          height: _viewportHeight,
+          height: widget.topInset + _viewportHeight,
           // Inside the page, not at its edges: the page's insets are not
           // this list's padding.
           child: MediaQuery.removePadding(
@@ -209,7 +216,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
             removeRight: true,
             child: ListView.builder(
               controller: _scroll,
-              padding: EdgeInsets.only(bottom: tail),
+              padding: EdgeInsets.only(top: widget.topInset, bottom: tail),
               itemCount: _months.length,
               itemExtentBuilder: (index, _) => index < _months.length
                   ? _heightOf(_months[index], widget.firstWeekday)

@@ -34,7 +34,19 @@ class CollapsingPage extends StatelessWidget {
     this.pinnedHeight,
     this.compactBar = CompactBarBehavior.pinned,
     this.hasTopGap = true,
+    this.held,
+    this.heldHeight = 0,
   });
+
+  /// A block held at the top, under the toolbar and what is pinned, whose
+  /// own scrolling runs up behind them, as a calendar's months do; given
+  /// the header's height to start its content under. [children] then
+  /// scroll in their own list below it, never under the header, and
+  /// what is pinned sits tight on it. Only for a page with no [title].
+  final Widget Function(double headerHeight)? held;
+
+  /// How much of the page [held] takes below the header.
+  final double heldHeight;
 
   /// Whether the content starts a gap below what is pinned, or right under
   /// it, the pinned row then leaving no space round itself either
@@ -62,6 +74,7 @@ class CollapsingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    assert(held == null || title == null, 'A held block has no large title.');
     final media = MediaQuery.of(context);
     final shouldHide =
         compactBar == CompactBarBehavior.autoHide &&
@@ -110,8 +123,8 @@ class CollapsingPage extends StatelessWidget {
           tween: Tween(end: shouldHide ? 1 : 0),
           duration: chromeDuration(context, _autoHideDuration),
           curve: Curves.easeOut,
-          builder: (context, hideFraction, _) => CollapsingScrollView(
-            header: CollapsingHeaderDelegate(
+          builder: (context, hideFraction, _) {
+            final header = CollapsingHeaderDelegate(
               toolbar: toolbar,
               topInset: media.padding.top,
               largeHeight: largeHeight,
@@ -134,15 +147,28 @@ class CollapsingPage extends StatelessWidget {
               actions: actions,
               pinned: pinned,
               pinnedHeight: pinnedHeight,
-              pinnedMeetsContent: !hasTopGap,
+              pinnedMeetsContent: !hasTopGap || this.held != null,
               hideToolbarFraction: hideFraction,
               scrollsToolbarAway: compactBar == CompactBarBehavior.none,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),
-            ),
-            hasTopGap: hasTopGap,
-            children: children,
-          ),
+            );
+            final held = this.held;
+            if (held != null) {
+              return HeldBlockView(
+                header: header,
+                held: held,
+                heldHeight: heldHeight,
+                hasTopGap: hasTopGap,
+                children: children,
+              );
+            }
+            return CollapsingScrollView(
+              header: header,
+              hasTopGap: hasTopGap,
+              children: children,
+            );
+          },
         );
       },
     );

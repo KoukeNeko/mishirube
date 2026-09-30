@@ -256,7 +256,7 @@ void main() {
     expect(find.text('9月'), findsOneWidget, reason: 'written as the system');
   });
 
-  testWidgets("the day's list scrolls under the calendar, which stays", (
+  testWidgets("the day's list scrolls below the calendar, which stays", (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -277,17 +277,32 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final calendar = tester.getTopLeft(find.byType(MonthCalendar));
-    final heading = tester.getTopLeft(find.text('9月18日 週五'));
-
+    final calendar = tester.getRect(find.byType(MonthCalendar));
+    expect(calendar.top, 0, reason: 'its months run up behind the bar');
+    final list = tester.getRect(
+      find.ancestor(
+        of: find.text('9月18日 週五'),
+        matching: find.byType(CustomScrollView),
+      ),
+    );
+    expect(list.top, calendar.bottom, reason: 'the list is not under it');
+    Finder cardOf(String text) => find.ancestor(
+      of: find.text(text, skipOffstage: false),
+      matching: find.byType(AppCard),
+    );
+    expect(
+      tester.widget(cardOf('十八號的筆記')),
+      isNot(same(tester.widget(cardOf('第 11 則')))),
+      reason: 'a card each, as on the timeline',
+    );
     await tester.drag(find.text('9月18日 週五'), const Offset(0, -300));
     await tester.pumpAndSettle();
     expect(
-      tester.getTopLeft(find.text('9月18日 週五')).dy,
-      lessThan(heading.dy),
-      reason: 'the list scrolled',
+      find.text('9月18日 週五'),
+      findsNothing,
+      reason: 'scrolled out of the list, not under the calendar',
     );
-    expect(tester.getTopLeft(find.byType(MonthCalendar)), calendar);
+    expect(tester.getRect(find.byType(MonthCalendar)), calendar);
     expect(find.text('18').hitTestable(), findsWidgets, reason: 'in sight');
     await disposeTree(tester);
   });
@@ -305,9 +320,9 @@ void main() {
     expect(
       find.ancestor(
         of: find.byType(MonthCalendar),
-        matching: find.byType(SliverPersistentHeader),
+        matching: find.byType(CustomScrollView),
       ),
-      findsNothing,
+      findsOneWidget,
     );
     expect(find.byType(WeekdayHeader), findsOneWidget, reason: 'still held');
     await disposeTree(tester);

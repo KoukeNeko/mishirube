@@ -348,8 +348,15 @@ class _LogScreenState extends State<LogScreen> {
       compactBar: isTimeline
           ? CompactBarBehavior.none
           : CompactBarBehavior.pinned,
-      // The calendar's grid starts right under its pinned weekdays.
-      hasTopGap: isTimeline,
+      // The calendar's grid starts right under its pinned weekdays; held,
+      // the grid is not in the list, which keeps the gap under it.
+      hasTopGap: isTimeline || calendarStays,
+      // Held as Apple Calendar's month is, its months scrolling up behind
+      // the bar and the day's list scrolling on its own below it.
+      held: !isTimeline && calendarStays
+          ? (headerHeight) => _monthCalendar(topInset: headerHeight)
+          : null,
+      heldHeight: MonthCalendar.height,
       // On the timeline the month is picked here; the week strip under
       // the toolbar picks the day.
       // The month is picked here in both views: on the calendar it is the
@@ -392,17 +399,8 @@ class _LogScreenState extends State<LogScreen> {
       // The timeline's month and its category chips stay at the top as
       // the list scrolls, as does the calendar's month.
       pinned: !isTimeline
-          ? Column(
-              children: [
-                // Over the calendar's columns, which are the week strip's.
-                WeekdayHeader(
-                  firstWeekday: AppStoreScope.of(context).firstWeekday,
-                ),
-                // Held, as Apple Calendar's month is over its day's list,
-                // which scrolls on its own under it.
-                if (calendarStays) _monthCalendar(),
-              ],
-            )
+          // Over the calendar's columns, which are the week strip's.
+          ? WeekdayHeader(firstWeekday: AppStoreScope.of(context).firstWeekday)
           : Column(
               key: _pinnedKey,
               children: [
@@ -432,7 +430,7 @@ class _LogScreenState extends State<LogScreen> {
                 AppSpacing.xs +
                 WeekDayStrip.heightOf(context)
           // The weekdays sit on the grid, with no inset round them.
-          : WeekdayHeader.height + (calendarStays ? MonthCalendar.height : 0),
+          : WeekdayHeader.height,
       children: _view == _LogView.timeline
           ? _timeline(_log.month(_month))
           : _calendar(calendarStays: calendarStays),
@@ -476,7 +474,8 @@ class _LogScreenState extends State<LogScreen> {
     ];
   }
 
-  Widget _monthCalendar() => MonthCalendar(
+  Widget _monthCalendar({double topInset = 0}) => MonthCalendar(
+    topInset: topInset,
     month: _month,
     earliest: _log.earliestMonth,
     selected: _selected,
@@ -492,33 +491,20 @@ class _LogScreenState extends State<LogScreen> {
   List<Widget> _calendar({required bool calendarStays}) {
     final entries = _log.day(_selected);
     return [
-      if (calendarStays)
-        // The gap a page's content keeps under its header: with the
-        // weekdays tight on the grid, none is kept for the list.
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.md),
-          child: Gutter(child: const _CalendarLegend()),
-        )
-      else ...[
-        // Right under the pinned weekdays, scrolling with the list.
-        _monthCalendar(),
-        Gutter(child: const _CalendarLegend()),
-      ],
+      // Right under the pinned weekdays, scrolling with the list.
+      if (!calendarStays) _monthCalendar(),
+      Gutter(child: const _CalendarLegend()),
       Gutter(
         child: SectionLabel(context.dates.compactDayWithWeekday(_selected)),
       ),
       if (entries.isEmpty)
         Gutter(child: InfoBanner(message: context.l10n.noEntriesThisDay))
       else
-        // One list, as a calendar's day lists its events, not a card each.
-        Gutter(
-          child: GroupedCard(
-            children: [
-              for (final entry in entries)
-                _DayEntryRow(entry: entry, onTap: () => _openEntry(entry)),
-            ],
+        // A card each, as the timeline has them, at a row's height.
+        for (final entry in entries)
+          Gutter(
+            child: _DayEntryRow(entry: entry, onTap: () => _openEntry(entry)),
           ),
-        ),
     ];
   }
 }
@@ -604,49 +590,48 @@ class _DayEntryRow extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => InkWell(
+  Widget build(BuildContext context) => AppCard(
     onTap: onTap,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AccentBar(color: entry.category.color),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+    // A row's height, not an ordinary card's.
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.md,
+      vertical: AppSpacing.sm,
+    ),
+    child: IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AccentBar(color: entry.category.color),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  entry.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.itemTitle,
+                ),
+                if (entry.detail.isNotEmpty)
                   Text(
-                    entry.title,
-                    maxLines: 2,
+                    entry.detail,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.itemTitle,
+                    style: AppTextStyles.caption,
                   ),
-                  if (entry.detail.isNotEmpty)
-                    Text(
-                      entry.detail,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption,
-                    ),
-                ],
-              ),
+              ],
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              entry.timeLabel,
-              style: AppTextStyles.caption.copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            entry.timeLabel,
+            style: AppTextStyles.caption.copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   );
