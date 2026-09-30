@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../app/app_store.dart';
@@ -65,9 +66,18 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   void _setMinimized(bool value) {
-    if (_isChromeMinimized != value) {
-      setState(() => _isChromeMinimized = value);
+    if (_isChromeMinimized == value) return;
+    // A page whose content stops being scrollable mid-drag reports the
+    // drag's end while it is being laid out, when no rebuild may be
+    // asked for: the chrome then follows in the next frame instead.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _setMinimized(value);
+      });
+      return;
     }
+    setState(() => _isChromeMinimized = value);
   }
 
   /// Scrolling down tucks the chrome away; scrolling up or reaching the top
