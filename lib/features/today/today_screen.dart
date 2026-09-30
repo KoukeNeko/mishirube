@@ -481,7 +481,14 @@ class _WeightTile extends StatelessWidget {
       unit: 'kg',
       visual: weekTrend.length < 2
           ? null
-          : Sparkline(values: weekTrend, color: AppColors.body, height: 20),
+          : ShakeShear(
+              motion: store.motion.acceleration,
+              child: Sparkline(
+                values: weekTrend,
+                color: AppColors.body,
+                height: 20,
+              ),
+            ),
       caption: switch ((latest, weekChange)) {
         (null, _) => null,
         (_, final change?) => context.l10n.weightChange7Days(
