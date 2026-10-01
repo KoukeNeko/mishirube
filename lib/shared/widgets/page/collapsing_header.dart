@@ -501,7 +501,7 @@ class ScrollEdgeGlass extends StatelessWidget {
   }
 }
 
-class _Toolbar extends StatelessWidget {
+class _Toolbar extends StatefulWidget {
   const _Toolbar({
     required this.title,
     required this.leading,
@@ -513,7 +513,22 @@ class _Toolbar extends StatelessWidget {
   final List<Widget> actions;
 
   @override
+  State<_Toolbar> createState() => _ToolbarState();
+}
+
+class _ToolbarState extends State<_Toolbar> {
+  final _search = ValueNotifier<double>(0);
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final leading = widget.leading;
+    final actions = widget.actions;
     // Like page content, the bar adds no inset of its own: each slot keeps
     // its distance from the screen edge, the same 20pt gutter as the page.
     //
@@ -523,44 +538,79 @@ class _Toolbar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) => ToolbarWidth(
         width: constraints.maxWidth,
-        child: NavigationToolbar(
-          centerMiddle: true,
-          middleSpacing: AppSpacing.sm,
-          leading: leading == null
-              ? null
-              : Padding(
-                  // The control is a glass pill like the actions opposite it,
-                  // so its edge keeps the same gutter as theirs, past any
-                  // window controls in the corner.
-                  padding: EdgeInsetsDirectional.only(
-                    start:
-                        AppSpacing.screenGutter +
-                        WindowControls.leadingInsetOf(context),
-                  ),
-                  child: leading,
-                ),
-          middle: title,
-          trailing: actions.isEmpty
-              ? null
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < actions.length; i++)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(
-                          start: AppSpacing.xs,
-                          end: i == actions.length - 1
-                              ? AppSpacing.screenGutter
-                              : 0,
+        child: ToolbarSearch(
+          notifier: _search,
+          child: NavigationToolbar(
+            centerMiddle: true,
+            middleSpacing: AppSpacing.sm,
+            leading: leading == null
+                ? null
+                : Padding(
+                    // The control is a glass pill like the actions opposite it,
+                    // so its edge keeps the same gutter as theirs, past any
+                    // window controls in the corner.
+                    padding: EdgeInsetsDirectional.only(
+                      start:
+                          AppSpacing.screenGutter +
+                          WindowControls.leadingInsetOf(context),
+                    ),
+                    // A search opening across the bar pushes it off the
+                    // leading edge, as it does the actions beside it.
+                    child: ValueListenableBuilder(
+                      valueListenable: _search,
+                      builder: (context, opened, child) => IgnorePointer(
+                        ignoring: opened > 0,
+                        child: ExcludeSemantics(
+                          excluding: opened > 0,
+                          child: Opacity(
+                            opacity: 1 - opened,
+                            child: FractionalTranslation(
+                              translation: Offset(-1.5 * opened, 0),
+                              child: child,
+                            ),
+                          ),
                         ),
-                        child: actions[i],
                       ),
-                  ],
-                ),
+                      child: leading,
+                    ),
+                  ),
+            middle: widget.title,
+            trailing: actions.isEmpty
+                ? null
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < actions.length; i++)
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(
+                            start: AppSpacing.xs,
+                            end: i == actions.length - 1
+                                ? AppSpacing.screenGutter
+                                : 0,
+                          ),
+                          child: actions[i],
+                        ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
   }
+}
+
+/// How far a search field in the toolbar has opened, from 0 to 1, for
+/// the slot across from it to make way.
+class ToolbarSearch extends InheritedNotifier<ValueNotifier<double>> {
+  const ToolbarSearch({
+    super.key,
+    required ValueNotifier<double> super.notifier,
+    required super.child,
+  });
+
+  /// The bar's, without rebuilding with it; null outside a toolbar.
+  static ValueNotifier<double>? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<ToolbarSearch>()?.notifier;
 }
 
 /// How wide the toolbar is, for an action that grows across it (a search

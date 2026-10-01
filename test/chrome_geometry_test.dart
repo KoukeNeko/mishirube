@@ -294,6 +294,58 @@ void main() {
   );
 
   testWidgets(
+    'opening search pushes the leading control off the bar, as the actions',
+    variant: bothPlatforms,
+    (tester) async {
+      await pumpScreen(
+        tester,
+        CollapsingPage(
+          title: '標題',
+          compactBar: CompactBarBehavior.none,
+          leading: HeaderAction(
+            icon: Icons.calendar_month_outlined,
+            label: '2026年10月',
+            semanticLabel: '月份',
+            onTap: () {},
+          ),
+          actions: [
+            SearchableHeaderActions(
+              hint: '搜尋',
+              searchLabel: '搜尋紀錄',
+              onChanged: (_) {},
+              actions: [
+                HeaderAction(
+                  icon: Icons.today_outlined,
+                  semanticLabel: '今天',
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ],
+          children: const [SizedBox(height: 2000)],
+        ),
+        store: AppStore(clock: FakeClock().now, isOnboarded: true),
+      );
+      final month = find.text('2026年10月');
+      expect(tester.getRect(month).left, greaterThan(0));
+
+      await tester.tap(find.bySemanticsLabel('搜尋紀錄'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(month).right,
+        lessThanOrEqualTo(0),
+        reason: 'pushed off the leading edge, not left under the field',
+      );
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      expect(tester.getRect(month).left, greaterThan(0), reason: 'back');
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
     'pinned control keeps the content gap below the large title',
     variant: bothPlatforms,
     (tester) async {

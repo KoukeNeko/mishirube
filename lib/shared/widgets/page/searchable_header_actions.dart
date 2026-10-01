@@ -16,7 +16,8 @@ const _closeFadeDuration = Duration(milliseconds: 150);
 
 /// A page's header actions ending in search. Tapping search stretches it
 /// across the whole toolbar row into a text field, pushing the other
-/// [actions] off to the left; closing shrinks it back.
+/// [actions], and the toolbar's leading control, off to the left; closing
+/// shrinks it back.
 ///
 /// It spans the toolbar row, so use it on pages whose toolbar shows no
 /// title (`CompactBarBehavior.none`).
@@ -50,11 +51,24 @@ class _SearchableHeaderActionsState extends State<SearchableHeaderActions>
   final _query = TextEditingController();
   final _focus = FocusNode();
 
+  /// The toolbar's, so what sits across from the field makes way too.
+  ValueNotifier<double>? _toolbarSearch;
+
   @override
   void initState() {
     super.initState();
     _focus.addListener(_onFocusChange);
+    _expansion.addListener(_onExpansion);
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _toolbarSearch = ToolbarSearch.maybeOf(context);
+  }
+
+  void _onExpansion() =>
+      _toolbarSearch?.value = Curves.easeOutCubic.transform(_expansion.value);
 
   /// Leaving an empty field closes search; with a query it stays open so
   /// the results can be browsed with the keyboard down.
@@ -69,6 +83,7 @@ class _SearchableHeaderActionsState extends State<SearchableHeaderActions>
   @override
   void dispose() {
     _focus.removeListener(_onFocusChange);
+    _expansion.removeListener(_onExpansion);
     _expansion.dispose();
     _query.dispose();
     _focus.dispose();
