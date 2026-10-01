@@ -4,6 +4,7 @@
     python3 tool/build_packaged_foods.py tfda <188_*.json or its .zip>
     python3 tool/build_packaged_foods.py off-fetch <directory for the pages>
     python3 tool/build_packaged_foods.py off <directory of fetched pages>
+    python3 tool/build_packaged_foods.py off-csv <products.csv.gz> [directory for the fetched products]
 
 Writes `assets/packaged/tfda-tw.json` and `assets/packaged/openfoodfacts-tw.json`.
 Both are read by `lib/backend/seed/packaged_foods.dart`; see
@@ -16,12 +17,17 @@ dropped.
   off-fetch  Products Open Food Facts lists as sold in Taiwan, through its
              public search API, slowly (ODbL 1.0).
   off        The same, turned into the app's format.
+  off-csv    The whole set, from Open Food Facts' daily CSV export
+             (https://world.openfoodfacts.org/data), streamed; the way to
+             get every Taiwan product. Writes the same file as `off`.
 
 Only a product whose label gives energy, protein, fat, carbohydrate and
 sodium survives, and only if those figures agree with each other.
 """
 
 import collections
+import csv
+import gzip
 import hashlib
 import json
 import pathlib
@@ -237,7 +243,9 @@ def off_fetch(directory):
        resumes.
     2. The products that search-a-licious lists for Taiwan and the pages
        did not bring, one product call each (limit 100 a minute).
-    The full set is the daily CSV export; this does not try to be it.
+    The daily CSV export is the full list of products, but it leaves out
+    the figures of those entered under Open Food Facts' newer nutrition
+    format; `off-csv` takes those from here.
     """
     directory = pathlib.Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
@@ -279,19 +287,49 @@ def off_fetch(directory):
             break
         listed += [hit['code'] for hit in reply['hits']]
         time.sleep(1)
-    extra = []
-    for code in listed:
+    fetch_by_code(directory, listed)
+
+
+def fetch_by_code(directory, codes):
+    """One product call for each code the directory does not have yet,
+    kept in `extra.json` (limit 100 a minute, so one a second). A run
+    resumes; it gives up when the service keeps refusing."""
+    directory = pathlib.Path(directory)
+    target = directory / 'extra.json'
+    extra = (json.loads(target.read_text(encoding='utf-8'))['products']
+             if target.exists() else [])
+    have = {
+        product['code']
+        for file in directory.glob('*.json')
+        for product in json.loads(file.read_text(encoding='utf-8'))['products']
+    }
+
+    def save():
+        target.write_text(json.dumps({'products': extra}, ensure_ascii=False),
+                          encoding='utf-8')
+
+    failures = 0
+    for code in codes:
         if code in have:
             continue
         reply = off_get(
             f'https://world.openfoodfacts.org/api/v2/product/{code}?'
             + urllib.parse.urlencode({'fields': OFF_FIELDS}, safe=','))
-        if reply and reply.get('status') == 1:
-            extra.append(reply['product'])
+        if reply is None:
+            failures += 1
+            if failures >= 5:
+                print('the service keeps refusing; stopping')
+                break
+        else:
+            failures = 0
+            if reply.get('status') == 1:
+                extra.append(reply['product'])
+            have.add(code)
+        if len(extra) % 50 == 0:
+            save()
         time.sleep(1)
-    (directory / 'extra.json').write_text(
-        json.dumps({'products': extra}, ensure_ascii=False), encoding='utf-8')
-    print(f'{len(have)} from pages, {len(extra)} more by code')
+    save()
+    print(f'{len(extra)} products fetched by code', flush=True)
 
 
 def ean_is_valid(code):
@@ -327,6 +365,66 @@ def off(directory):
     products = []
     for page in sorted(pathlib.Path(directory).glob('*.json')):
         products += json.loads(page.read_text(encoding='utf-8'))['products']
+    build_off(products)
+
+
+# The export's columns that carry what OFF_FIELDS asks the API for.
+OFF_CSV_TEXT_COLUMNS = ['code', 'product_name', 'brands', 'quantity',
+                        'serving_size', 'countries_tags', 'states_tags']
+OFF_CSV_NUTRIMENTS = ['energy-kcal', 'proteins', 'fat', 'carbohydrates',
+                      'sodium', 'salt', 'saturated-fat', 'trans-fat', 'sugars']
+
+
+def off_csv(path, directory=None):
+    """The export's Taiwan rows, in the shape the API gives them.
+
+    The file is 1.3 GB gzipped and about 4 million rows, so it is read one
+    row at a time. The export is tab-separated with no quoting.
+
+    It has no figures for the products entered under Open Food Facts' newer
+    nutrition format. With a directory, those whose nutrition facts are
+    marked completed are fetched by code into it (as `off-fetch` does) and
+    the API's product replaces the export's.
+    """
+    csv.field_size_limit(2 ** 24)
+    opener = gzip.open if str(path).endswith('.gz') else open
+    products = []
+    with opener(path, 'rt', encoding='utf-8', newline='') as stream:
+        rows = csv.reader(stream, delimiter='\t', quoting=csv.QUOTE_NONE)
+        header = {name: index for index, name in enumerate(next(rows))}
+        tags = header['countries_tags']
+        text = {name: header[name] for name in OFF_CSV_TEXT_COLUMNS}
+        figures = {key: header[key + '_100g'] for key in OFF_CSV_NUTRIMENTS}
+        for row in rows:
+            if len(row) <= tags or 'en:taiwan' not in row[tags].split(','):
+                continue
+            product = {name: row[index] for name, index in text.items()
+                       if index < len(row)}
+            product['countries_tags'] = row[tags].split(',')
+            product['states_tags'] = product.get('states_tags', '').split(',')
+            product['nutriments'] = {}
+            for key, index in figures.items():
+                try:
+                    product['nutriments'][key + '_100g'] = float(row[index])
+                except (IndexError, ValueError):
+                    pass
+            products.append(product)
+    print(f'{len(products)} Taiwan products in the export', flush=True)
+    if directory:
+        fetch_by_code(directory, [
+            p['code'] for p in products
+            if 'energy-kcal_100g' not in p['nutriments']
+            and 'en:nutrition-facts-completed' in p['states_tags']
+            and ean_is_valid(p['code'])])
+        fetched = {}
+        for file in sorted(pathlib.Path(directory).glob('*.json')):
+            for product in json.loads(file.read_text(encoding='utf-8'))['products']:
+                fetched[product['code']] = product
+        products = [fetched.get(p['code'], p) for p in products]
+    build_off(products)
+
+
+def build_off(products):
     # Pages fetched in different runs can overlap.
     products = list({p['code']: p for p in products}.values())
 
@@ -403,7 +501,8 @@ def report(total, rows, dropped):
 
 
 if __name__ == '__main__':
-    commands = {'tfda': tfda, 'off': off, 'off-fetch': off_fetch}
-    if len(sys.argv) != 3 or sys.argv[1] not in commands:
+    commands = {'tfda': tfda, 'off': off, 'off-fetch': off_fetch,
+                'off-csv': off_csv}
+    if not 3 <= len(sys.argv) <= 4 or sys.argv[1] not in commands:
         sys.exit(__doc__)
-    commands[sys.argv[1]](sys.argv[2])
+    commands[sys.argv[1]](*sys.argv[2:])
