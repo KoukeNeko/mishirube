@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show ProgressiveBlur;
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
@@ -501,6 +503,43 @@ class ScrollEdgeGlass extends StatelessWidget {
   }
 }
 
+/// A frost behind [child] that is strongest at its top edge and fades
+/// to nothing at its bottom, for a header a list scrolls under: what
+/// passes beneath melts away rather than ending on a hard line.
+/// "Increase Contrast" makes it opaque.
+class _FadingEdgeGlass extends StatelessWidget {
+  const _FadingEdgeGlass({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.highContrastOf(context)) {
+      return ColoredBox(color: AppColors.background, child: child);
+    }
+    return Stack(
+      children: [
+        const Positioned.fill(child: ProgressiveBlur(maxSigma: _blurSigma)),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.background.withValues(alpha: _glassOpacity),
+                  AppColors.background.withValues(alpha: 0),
+                ],
+              ),
+            ),
+          ),
+        ),
+        child,
+      ],
+    );
+  }
+}
+
 class _Toolbar extends StatefulWidget {
   const _Toolbar({
     required this.title,
@@ -887,6 +926,7 @@ class HeldBlockView extends StatelessWidget {
     required this.header,
     required this.held,
     required this.children,
+    this.listHeader,
     this.bottomPadding = AppSpacing.xxl,
     this.hasTopGap = true,
   });
@@ -896,6 +936,9 @@ class HeldBlockView extends StatelessWidget {
   /// The block, given the header's height to start its content under;
   /// as tall as it lays out, the list taking the rest.
   final Widget Function(double headerHeight) held;
+
+  /// Kept at the top of the list, which scrolls under it.
+  final Widget? listHeader;
   final List<Widget> children;
   final double bottomPadding;
   final bool hasTopGap;
@@ -914,6 +957,10 @@ class HeldBlockView extends StatelessWidget {
                 Expanded(
                   child: CustomScrollView(
                     slivers: [
+                      if (listHeader case final listHeader?)
+                        PinnedHeaderSliver(
+                          child: _FadingEdgeGlass(child: listHeader),
+                        ),
                       _pageItems(
                         context,
                         children,

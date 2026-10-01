@@ -35,6 +35,7 @@ class CollapsingPage extends StatelessWidget {
     this.compactBar = CompactBarBehavior.pinned,
     this.hasTopGap = true,
     this.held,
+    this.listHeader,
   });
 
   /// A block held at the top, under the toolbar and what is pinned, whose
@@ -44,6 +45,10 @@ class CollapsingPage extends StatelessWidget {
   /// under the header, and what is pinned sits tight on it. Only for a
   /// page with no [title].
   final Widget Function(double headerHeight)? held;
+
+  /// With [held], kept at the top of the list below it, the list
+  /// scrolling under it behind a frost that fades downward.
+  final Widget? listHeader;
 
   /// Whether the content starts a gap below what is pinned, or right under
   /// it, the pinned row then leaving no space round itself either
@@ -155,6 +160,7 @@ class CollapsingPage extends StatelessWidget {
               return HeldBlockView(
                 header: header,
                 held: held,
+                listHeader: listHeader,
                 hasTopGap: hasTopGap,
                 children: children,
               );
