@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import 'chart_entrance.dart';
 
 const _startAngle = -math.pi / 2;
 
@@ -39,25 +40,29 @@ class ProgressRing extends StatelessWidget {
     excludeSemantics: true,
     child: SizedBox.square(
       dimension: size,
-      child: CustomPaint(
-        painter: _RingPainter(
-          progress: progress.clamp(0.0, 1.0),
-          strokeWidth: strokeWidth,
-          color: color,
-          title: title,
-          titleStyle: AppTextStyles.caption,
-          footer: footer,
-          footerStyle: AppTextStyles.caption.copyWith(
+      // The ring sweeps round to its share.
+      child: ChartEntrance(
+        shows: [progress],
+        builder: (context, entrance) => CustomPaint(
+          painter: _RingPainter(
+            progress: progress.clamp(0.0, 1.0) * easedProgress(entrance),
+            strokeWidth: strokeWidth,
             color: color,
-            fontWeight: FontWeight.w700,
+            title: title,
+            titleStyle: AppTextStyles.caption,
+            footer: footer,
+            footerStyle: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+            textScaler: MediaQuery.textScalerOf(context),
           ),
-          textScaler: MediaQuery.textScalerOf(context),
-        ),
-        // The middle shrinks to stay inside the ring, at any text size.
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(strokeWidth + AppSpacing.xs),
-            child: FittedBox(fit: BoxFit.scaleDown, child: child),
+          // The middle shrinks to stay inside the ring, at any text size.
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.all(strokeWidth + AppSpacing.xs),
+              child: FittedBox(fit: BoxFit.scaleDown, child: child),
+            ),
           ),
         ),
       ),

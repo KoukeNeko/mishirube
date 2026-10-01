@@ -21,12 +21,68 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     final bars = tester
         .widgetList<Container>(find.byType(Container))
         .map((bar) => bar.constraints?.maxHeight)
         .toList();
     expect(bars, [80, greaterThan(0)], reason: 'no bar for the empty day');
+  });
+
+  Widget chart({required bool reduceMotion, List<(String, int?)>? bars}) =>
+      MediaQuery(
+        data: MediaQueryData(disableAnimations: reduceMotion),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: SizedBox(
+              width: 300,
+              child: MiniBarChart(
+                bars: bars ?? const [('一', 10), ('二', 10)],
+                showLabels: false,
+              ),
+            ),
+          ),
+        ),
+      );
+
+  List<double?> heights(WidgetTester tester) => [
+    for (final bar in tester.widgetList<Container>(find.byType(Container)))
+      bar.constraints?.maxHeight,
+  ];
+
+  testWidgets('bars rise into place, the first ahead of the next', (
+    tester,
+  ) async {
+    await tester.pumpWidget(chart(reduceMotion: false));
+    expect(heights(tester), everyElement(0), reason: 'drawn in from nothing');
+
+    await tester.pump(chartEntranceDuration * 0.3);
+    final [first, second] = heights(tester);
+    expect(first!, greaterThan(second!), reason: 'one after another');
+
+    await tester.pumpAndSettle();
+    expect(heights(tester), [80, 80]);
+
+    // A reading picking a bar is no change to what the chart shows.
+    await tester.pumpWidget(chart(reduceMotion: false));
+    await tester.pump();
+    expect(heights(tester), [80, 80], reason: 'the same bars do not replay');
+
+    await tester.pumpWidget(
+      chart(reduceMotion: false, bars: const [('一', 5), ('二', 10)]),
+    );
+    await tester.pump();
+    expect(heights(tester), everyElement(lessThan(80)), reason: 'new bars do');
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('with Reduce Motion the bars are drawn whole at once', (
+    tester,
+  ) async {
+    await tester.pumpWidget(chart(reduceMotion: true));
+    expect(heights(tester), [80, 80]);
   });
 
   testWidgets('the period still going has its label on a capsule', (

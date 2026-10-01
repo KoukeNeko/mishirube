@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/sleep_metrics.dart';
 import '../../domain/domain.dart';
+import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
 
 /// The axis runs from 18:00 to 14:00 the next day, so a night is one
@@ -40,16 +41,21 @@ class SleepScheduleChart extends StatelessWidget {
     return Semantics(
       label: context.l10n.scheduleChartLabel(count: timed.length),
       excludeSemantics: true,
-      child: CustomPaint(
-        size: Size(
-          double.infinity,
-          timed.length * (rowHeight + _rowGap) + _axisHeight,
-        ),
-        painter: _SchedulePainter(
-          nights: timed,
-          selected: selected,
-          rowHeight: rowHeight,
-          labelStyle: AppTextStyles.caption,
+      // Each night runs out from bedtime to waking, one after another.
+      child: ChartEntrance(
+        shows: [for (final night in timed) (night.startedAt, night.sleptAt)],
+        builder: (context, progress) => CustomPaint(
+          size: Size(
+            double.infinity,
+            timed.length * (rowHeight + _rowGap) + _axisHeight,
+          ),
+          painter: _SchedulePainter(
+            nights: timed,
+            selected: selected,
+            rowHeight: rowHeight,
+            labelStyle: AppTextStyles.caption,
+            progress: progress,
+          ),
         ),
       ),
     );
@@ -62,12 +68,16 @@ class _SchedulePainter extends CustomPainter {
     required this.selected,
     required this.rowHeight,
     required this.labelStyle,
+    required this.progress,
   });
 
   final List<SleepEntry> nights;
   final int? selected;
   final double rowHeight;
   final TextStyle labelStyle;
+
+  /// How far each night has run out from its bedtime.
+  final double progress;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -98,10 +108,13 @@ class _SchedulePainter extends CustomPainter {
     for (final (index, night) in nights.indexed) {
       final top = index * (rowHeight + _rowGap);
       final start = x(night.startedAt!);
-      final end = x(night.sleptAt);
+      final end =
+          start +
+          ((x(night.sleptAt) < start ? start : x(night.sleptAt)) - start) *
+              staggeredProgress(progress, index, nights.length);
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTRB(start, top, end < start ? start : end, top + rowHeight),
+          Rect.fromLTRB(start, top, end, top + rowHeight),
           Radius.circular(rowHeight / 2),
         ),
         selected == null || selected == index ? bar : dim,
@@ -113,5 +126,6 @@ class _SchedulePainter extends CustomPainter {
   bool shouldRepaint(_SchedulePainter old) =>
       old.nights != nights ||
       old.rowHeight != rowHeight ||
-      old.selected != selected;
+      old.selected != selected ||
+      old.progress != progress;
 }

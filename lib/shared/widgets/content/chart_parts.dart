@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import 'chart_entrance.dart';
 import 'chart_scrubber.dart';
 import 'charts.dart';
 
@@ -179,14 +180,29 @@ class ShareBar extends StatelessWidget {
               if (share > 0)
                 Positioned(
                   left: 0,
+                  right: 0,
                   top: _overhang,
                   height: _height,
-                  // At least round, so a sliver still reads as a capsule.
-                  width: (width * share.clamp(0.0, 1.0)).clamp(_height, width),
-                  child: DecoratedBox(
-                    decoration: ShapeDecoration(
-                      color: color,
-                      shape: const StadiumBorder(),
+                  // The fill runs in from the left.
+                  child: ChartEntrance(
+                    shows: [share],
+                    builder: (context, progress) => Align(
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        // At least round, so a sliver still reads as a
+                        // capsule.
+                        width:
+                            (width *
+                                    share.clamp(0.0, 1.0) *
+                                    easedProgress(progress))
+                                .clamp(_height, width),
+                        child: DecoratedBox(
+                          decoration: ShapeDecoration(
+                            color: color,
+                            shape: const StadiumBorder(),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

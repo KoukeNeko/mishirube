@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../format.dart';
 import 'cards.dart';
+import 'chart_entrance.dart';
 
 /// A big number with an optional unit and a caption underneath.
 class StatBlock extends StatelessWidget {
@@ -201,16 +202,33 @@ class SegmentBar extends StatelessWidget {
         height: height,
         child: total <= 0
             ? const ColoredBox(color: AppColors.surfaceRaised)
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 2,
-                children: [
-                  for (final (value, color) in shown)
-                    Expanded(
-                      flex: (value / total * 1000).round().clamp(1, 1000),
-                      child: ColoredBox(color: color),
+            // The parts are uncovered from the left at their full
+            // widths, so they never squeeze while it runs in.
+            : ChartEntrance(
+                shows: shown,
+                builder: (context, progress) => Align(
+                  alignment: Alignment.centerLeft,
+                  child: ClipRect(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: easedProgress(progress),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 2,
+                        children: [
+                          for (final (value, color) in shown)
+                            Expanded(
+                              flex: (value / total * 1000).round().clamp(
+                                1,
+                                1000,
+                              ),
+                              child: ColoredBox(color: color),
+                            ),
+                        ],
+                      ),
                     ),
-                ],
+                  ),
+                ),
               ),
       ),
     );
