@@ -1851,6 +1851,31 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a run reads its pace in minutes and seconds a kilometre', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    await pumpScreen(tester, const RecordActivityScreen(), store: store);
+
+    await tester.tap(find.text('運動類型'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('跑步').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('activity-distance')),
+      '4',
+    );
+    await tester.pump();
+    expect(
+      find.text('配速 7:30 /km'),
+      findsOneWidget,
+      reason: 'half an hour over 4 km, not 0:07',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a logged session can be corrected and taken back', (
     tester,
   ) async {

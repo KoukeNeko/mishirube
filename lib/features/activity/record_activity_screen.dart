@@ -330,7 +330,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
           if (pace != null)
             Gutter(
               child: Text(
-                context.l10n.activityPaceValue(pace: formatHoursMinutes(pace)),
+                context.l10n.activityPaceValue(pace: formatClock(pace)),
                 style: AppTextStyles.caption,
               ),
             ),
