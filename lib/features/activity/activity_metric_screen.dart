@@ -16,6 +16,18 @@ import 'daily_activity_view_model.dart';
 import 'step_goal_row.dart';
 import '../../l10n/l10n.dart';
 
+/// The colour [metric] is drawn in: the heart and the vitals in their
+/// own colours, as Apple Health draws them; what the body did, in the
+/// activity colour.
+Color metricColor(ActivityMetric metric) => switch (metric) {
+  ActivityMetric.respiratoryRate ||
+  ActivityMetric.oxygenSaturation => AppColors.breathing,
+  _ => switch (metric.group) {
+    ActivityMetricGroup.heart || ActivityMetricGroup.vitals => AppColors.heart,
+    _ => AppColors.activity,
+  },
+};
+
 enum _Range {
   day(1),
   week(7),
@@ -86,17 +98,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
 
   ActivityMetric get _metric => widget.metric;
 
-  /// The heart and the vitals are drawn in their own colours, as Apple
-  /// Health draws them; what the body did, in the activity colour.
-  Color get _color => switch (_metric) {
-    ActivityMetric.respiratoryRate ||
-    ActivityMetric.oxygenSaturation => AppColors.breathing,
-    _ => switch (_metric.group) {
-      ActivityMetricGroup.heart ||
-      ActivityMetricGroup.vitals => AppColors.heart,
-      _ => AppColors.activity,
-    },
-  };
+  Color get _color => metricColor(_metric);
 
   /// Blood pressure is read as the pair it is taken as: opened from its
   /// systolic figure, the page shows the diastolic beside it.

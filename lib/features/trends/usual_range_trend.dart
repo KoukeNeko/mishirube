@@ -30,60 +30,19 @@ UsualRangeTrend? usualRangeTrend(
   String? semanticLabel,
 }) {
   final l10n = context.l10n;
+  final series = usualRangeSeries(
+    points: points,
+    from: from,
+    to: to,
+    weekly: weekly,
+  );
+  if (series == null) return null;
+  final (:slots, :values, :ranges, :bySlot) = series;
   DateTime dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
   final first = dayOf(from);
   final last = dayOf(to);
-  // Counted in calendar days, so a clock change does not shift a week.
-  DateTime slotOf(DateTime day) {
-    if (!weekly) return day;
-    final offset = DateTime.utc(
-      day.year,
-      day.month,
-      day.day,
-    ).difference(DateTime.utc(first.year, first.month, first.day)).inDays;
-    final week = (offset / DateTime.daysPerWeek).floor();
-    return DateTime(
-      first.year,
-      first.month,
-      first.day + week * DateTime.daysPerWeek,
-    );
-  }
-
   double mean(Iterable<double> values) =>
       values.fold(0.0, (sum, value) => sum + value) / values.length;
-  final grouped = <DateTime, List<double>>{};
-  for (final (at, value) in points) {
-    (grouped[slotOf(dayOf(at))] ??= []).add(value);
-  }
-  final bySlot = {
-    for (final MapEntry(key: slot, value: values) in grouped.entries)
-      slot: mean(values),
-  };
-  final step = weekly ? DateTime.daysPerWeek : 1;
-  final slots = [
-    for (
-      var slot = first;
-      !slot.isAfter(last);
-      slot = DateTime(slot.year, slot.month, slot.day + step)
-    )
-      slot,
-  ];
-  final values = [for (final slot in slots) bySlot[slot]];
-  if (values.every((value) => value == null)) return null;
-  final history = [
-    for (final MapEntry(:key, :value) in bySlot.entries) (key, value),
-  ];
-  final ranges = [
-    for (final slot in slots)
-      weekly
-          ? usualRangeBefore(
-              history,
-              slot,
-              window: weeklyUsualRangeWindow,
-              minimum: weeklyUsualRangeMinimumWeeks,
-            )
-          : usualRangeBefore(history, slot),
-  ];
   final shown = [
     for (final (at, value) in points)
       if (!dayOf(at).isBefore(first) && !dayOf(at).isAfter(last)) value,
@@ -144,4 +103,156 @@ UsualRangeTrend? usualRangeTrend(
     summary: summarises && !weekly ? summary() : average(),
     semanticLabel: semanticLabel,
   );
+}
+
+/// [points] (each day with a figure, oldest first) slot by slot from
+/// [from] through [to], a day each or, with [weekly], a week each as the
+/// average of its days, with each slot's usual range from the slots
+/// before it; null without a figure to show.
+({
+  List<DateTime> slots,
+  List<double?> values,
+  List<UsualRange?> ranges,
+  Map<DateTime, double> bySlot,
+})?
+usualRangeSeries({
+  required List<(DateTime, double)> points,
+  required DateTime from,
+  required DateTime to,
+  bool weekly = false,
+}) {
+  DateTime dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
+  final first = dayOf(from);
+  final last = dayOf(to);
+  // Counted in calendar days, so a clock change does not shift a week.
+  DateTime slotOf(DateTime day) {
+    if (!weekly) return day;
+    final offset = DateTime.utc(
+      day.year,
+      day.month,
+      day.day,
+    ).difference(DateTime.utc(first.year, first.month, first.day)).inDays;
+    final week = (offset / DateTime.daysPerWeek).floor();
+    return DateTime(
+      first.year,
+      first.month,
+      first.day + week * DateTime.daysPerWeek,
+    );
+  }
+
+  double mean(Iterable<double> values) =>
+      values.fold(0.0, (sum, value) => sum + value) / values.length;
+  final grouped = <DateTime, List<double>>{};
+  for (final (at, value) in points) {
+    (grouped[slotOf(dayOf(at))] ??= []).add(value);
+  }
+  final bySlot = {
+    for (final MapEntry(key: slot, value: values) in grouped.entries)
+      slot: mean(values),
+  };
+  final step = weekly ? DateTime.daysPerWeek : 1;
+  final slots = [
+    for (
+      var slot = first;
+      !slot.isAfter(last);
+      slot = DateTime(slot.year, slot.month, slot.day + step)
+    )
+      slot,
+  ];
+  final values = [for (final slot in slots) bySlot[slot]];
+  if (values.every((value) => value == null)) return null;
+  final history = [
+    for (final MapEntry(:key, :value) in bySlot.entries) (key, value),
+  ];
+  return (
+    slots: slots,
+    values: values,
+    ranges: [
+      for (final slot in slots)
+        weekly
+            ? usualRangeBefore(
+                history,
+                slot,
+                window: weeklyUsualRangeWindow,
+                minimum: weeklyUsualRangeMinimumWeeks,
+              )
+            : usualRangeBefore(history, slot),
+    ],
+    bySlot: bySlot,
+  );
+}
+
+/// A reading's last week, ending with [day], as a word-sized line beside
+/// its figure: each day against its own usual range, the band behind,
+/// a day outside it ringed and a day without a figure a gap, as on the
+/// reading's page, which has the rest (see
+/// `research/87-vitals-presentation.md`). No arrow or difference: the
+/// line is the trend. [points] reach four weeks before the week.
+class UsualRangeSpark extends StatelessWidget {
+  const UsualRangeSpark({
+    super.key,
+    required this.points,
+    required this.day,
+    required this.color,
+    required this.formatRange,
+    this.width = 96,
+    this.height = 28,
+  });
+
+  /// The days the line covers.
+  static const days = DateTime.daysPerWeek;
+
+  /// How far back [points] need to reach before [day] for the first
+  /// day's range.
+  static final reach = usualRangeWindow + const Duration(days: days - 1);
+
+  final List<(DateTime, double)> points;
+  final DateTime day;
+  final Color color;
+
+  /// A range as the page writes it, with its unit, for a screen reader.
+  final String Function(double low, double high) formatRange;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final series = usualRangeSeries(
+      points: points,
+      from: DateTime(day.year, day.month, day.day - (days - 1)),
+      to: day,
+    );
+    if (series == null) return SizedBox(width: width, height: height);
+    final (:values, :ranges, slots: _, bySlot: _) = series;
+    final outside = {
+      for (final (index, value) in values.indexed)
+        if (value != null)
+          if (positionIn(value, ranges[index])
+              case UsualPosition.below || UsualPosition.above)
+            index,
+    };
+    final latest = values.lastIndexWhere((value) => value != null);
+    return Semantics(
+      label: [
+        if (ranges[latest] case (:final low, :final high))
+          l10n.usualRangeValue(range: formatRange(low, high)),
+        if (outside.contains(latest)) l10n.outsideUsual,
+      ].join(' · '),
+      excludeSemantics: true,
+      child: SizedBox(
+        width: width,
+        child: Sparkline(
+          values: values,
+          color: color,
+          height: height,
+          bands: [
+            for (final range in ranges)
+              if (range case (:final low, :final high)) (low, high) else null,
+          ],
+          outside: outside,
+        ),
+      ),
+    );
+  }
 }

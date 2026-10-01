@@ -10,6 +10,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/activity_metric_screen.dart';
 import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
 import '../body/weight_trend_chart.dart';
@@ -24,6 +25,7 @@ import '../caffeine/caffeine_screen.dart';
 import '../training/workout_summary_screen.dart';
 import '../water/water_screen.dart';
 import '../trends/insight_detail_screen.dart';
+import '../trends/usual_range_trend.dart';
 import '../vitals/vitals_screen.dart';
 import 'active_workout_today.dart';
 import 'today_layout_screen.dart';
@@ -270,6 +272,17 @@ class TodayScreen extends StatelessWidget {
             Gutter(
               child: VitalsCard(
                 vitals: vitals,
+                weekOf: (metric) => UsualRangeSpark(
+                  points: today.recent(metric, UsualRangeSpark.reach),
+                  day: store.now(),
+                  color: metricColor(metric),
+                  formatRange: (low, high) => withUnit(
+                    '${metric.format(low)}–${metric.format(high)}',
+                    metric.unitIn(context.l10n),
+                  ),
+                  width: 72,
+                  height: 24,
+                ),
                 onTap: () => pushPage(context, const VitalsScreen()),
               ),
             ),

@@ -109,6 +109,11 @@ class TodayViewModel extends ViewModel {
     };
   }
 
+  /// [metric] on each day from [back] before today through today, oldest
+  /// first.
+  List<(DateTime, double)> recent(ActivityMetric metric, Duration back) =>
+      backend.activity.daily(metric, _today.subtract(back), _today);
+
   /// Whether today's card earns its place: a vital taken on purpose, a
   /// blood pressure or a body temperature, or the day's resting heart
   /// rate, one figure a day as the steps are. A watch's background

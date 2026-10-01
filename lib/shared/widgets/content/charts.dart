@@ -424,11 +424,19 @@ class _SparklinePainter extends CustomPainter {
         ? selected!
         : last;
     if (marked >= 0) {
-      canvas.drawCircle(
-        Offset(xOf(marked), yOf(values[marked]!)),
-        _endDotRadius,
-        Paint()..color = color,
-      );
+      final point = Offset(xOf(marked), yOf(values[marked]!));
+      // Outside its range, the marked point stays a ring as the others
+      // are, only larger.
+      if (outside.contains(marked)) {
+        canvas.drawCircle(
+          point,
+          _endDotRadius,
+          Paint()..color = AppColors.surface,
+        );
+        canvas.drawCircle(point, _endDotRadius, ring);
+      } else {
+        canvas.drawCircle(point, _endDotRadius, Paint()..color = color);
+      }
     }
     canvas.restore();
     if (selected case final index?) {

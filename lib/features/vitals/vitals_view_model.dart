@@ -19,6 +19,13 @@ class VitalsViewModel extends ViewModel {
     };
   }
 
+  /// [metric] on each day from [from] to [to], oldest first.
+  List<(DateTime, double)> daily(
+    ActivityMetric metric,
+    DateTime from,
+    DateTime to,
+  ) => backend.activity.daily(metric, from, to);
+
   /// How far back the page looks for a reading.
   static const readingsWindow = Duration(days: 90);
 }

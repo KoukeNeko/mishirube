@@ -577,13 +577,23 @@ class TodayActivityCard extends StatelessWidget {
 }
 
 /// Today's resting heart rate and vitals as recorded: blood pressure as
-/// its pair, the others each at the day's figure, at most three and a
-/// count of the rest. Nothing is called normal, high or low, and no
-/// colour says so.
+/// its pair, the others each at the day's figure beside their week, at
+/// most three in a fixed order and a count of the rest. Nothing is
+/// called normal, high or low, and no colour says so; the order never
+/// follows how far a figure is from usual, which would be a judgement.
 class VitalsCard extends StatelessWidget {
-  const VitalsCard({super.key, required this.vitals, required this.onTap});
+  const VitalsCard({
+    super.key,
+    required this.vitals,
+    required this.weekOf,
+    required this.onTap,
+  });
 
   final Map<ActivityMetric, double> vitals;
+
+  /// A reading's week, drawn small beside its figure; blood pressure, a
+  /// pair one line cannot stand for, has none.
+  final Widget Function(ActivityMetric metric) weekOf;
   final VoidCallback onTap;
 
   static const _shown = 3;
@@ -594,24 +604,26 @@ class VitalsCard extends StatelessWidget {
     String figure(ActivityMetric metric) =>
         withUnit(metric.format(vitals[metric]!), metric.unitIn(l10n));
     final day = DateTime(0);
-    final rows = <(String, String)>[
+    final rows = <(String, String, ActivityMetric?)>[
       if (vitals.containsKey(ActivityMetric.restingHeartRate))
         (
           ActivityMetric.restingHeartRate.labelIn(l10n),
           figure(ActivityMetric.restingHeartRate),
+          ActivityMetric.restingHeartRate,
         ),
       if (bloodPressureOf({
             for (final MapEntry(key: metric, value: value) in vitals.entries)
               metric: (day, value),
           })
           case final pressure?)
-        (l10n.vitalBloodPressure, pressure),
+        (l10n.vitalBloodPressure, pressure, null),
       for (final metric in [
         ActivityMetric.bodyTemperature,
         ActivityMetric.oxygenSaturation,
         ActivityMetric.respiratoryRate,
       ])
-        if (vitals.containsKey(metric)) (metric.labelIn(l10n), figure(metric)),
+        if (vitals.containsKey(metric))
+          (metric.labelIn(l10n), figure(metric), metric),
     ];
     return AppCard(
       onTap: onTap,
@@ -619,11 +631,15 @@ class VitalsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CategoryLabel(label: l10n.vitalsTitle, color: AppColors.heart),
-          for (final (label, value) in rows.take(_shown)) ...[
+          for (final (label, value, metric) in rows.take(_shown)) ...[
             const SizedBox(height: AppSpacing.xs),
             Row(
               children: [
                 Expanded(child: Text(label, style: AppTextStyles.body)),
+                if (metric != null) ...[
+                  weekOf(metric),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
                 Text(value, style: AppTextStyles.itemTitle),
               ],
             ),
