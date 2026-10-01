@@ -241,6 +241,48 @@ Duration? socialJetlag(List<SleepEntry> sleeps) {
   return Duration(minutes: (mean(free) - mean(work)).round());
 }
 
+/// Each week's usual night as one stretch of the clock, for the weeks
+/// starting on [weekStarts]: the average time its nights began, in
+/// minutes after noon, and that plus their average time from falling
+/// asleep to waking, so a night across midnight stays one stretch and
+/// waking may pass the next noon. A night belongs to the week of the
+/// morning it ended, as in `trendDetail`. Null for a week without a
+/// night that says when it began.
+List<(double, double)?> weeklySchedule(
+  List<SleepEntry> sleeps,
+  List<DateTime> weekStarts,
+) {
+  final byWeek = List.generate(weekStarts.length, (_) => <SleepEntry>[]);
+  for (final night in _timedNights(sleeps)) {
+    final day = _dayOf(night.sleptAt);
+    for (final (week, start) in weekStarts.indexed) {
+      if (!day.isBefore(start) &&
+          day.isBefore(DateTime(start.year, start.month, start.day + 7))) {
+        byWeek[week].add(night);
+        break;
+      }
+    }
+  }
+  return [
+    for (final nights in byWeek)
+      if (nights.isEmpty)
+        null
+      else
+        () {
+          double mean(Iterable<int> minutes) =>
+              minutes.reduce((a, b) => a + b) / nights.length;
+          final bedtime = mean([
+            for (final night in nights) clockMinutes(night.startedAt!, 12),
+          ]);
+          final length = mean([
+            for (final night in nights)
+              night.sleptAt.difference(night.startedAt!).inMinutes,
+          ]);
+          return (bedtime, bedtime + length);
+        }(),
+  ];
+}
+
 /// Minutes of [time] past [fromHour], so times either side of midnight
 /// sit in one unbroken stretch when counted from noon.
 int clockMinutes(DateTime time, int fromHour) =>

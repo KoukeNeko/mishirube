@@ -3072,6 +3072,34 @@ Wall sit 2 x 1.5 min
       );
     });
 
+    test('a week\'s usual night runs from bedtime through midnight', () {
+      // Weeks from Monday 14 and Monday 21 September, and one without
+      // nights after them.
+      final weeks = [
+        DateTime(2026, 9, 14),
+        DateTime(2026, 9, 21),
+        DateTime(2026, 9, 28),
+      ];
+      final schedule = weeklySchedule([
+        night(14, wake: 7, hours: 8), // 23:00–07:00
+        night(15, wake: 8, hours: 7), // 01:00–08:00
+        night(21, wake: 13, hours: 8), // 05:00–13:00, past noon
+        SleepEntry(
+          id: 'typed',
+          sleptAt: DateTime(2026, 9, 22, 7),
+          duration: const Duration(hours: 8),
+        ),
+      ], weeks);
+      // From noon: bedtimes 11:00 and 13:00 after it, nights of 8 and 7
+      // hours, so the week runs from 00:00 to 07:30.
+      expect(schedule[0], (12 * 60.0, 19.5 * 60));
+      expect(schedule[1], (
+        17 * 60.0,
+        25 * 60.0,
+      ), reason: 'one stretch past the next noon; a length alone says nothing');
+      expect(schedule[2], isNull);
+    });
+
     test('social jetlag is the gap between free and work days mid-sleep', () {
       // 2026-09-19 and 20 are a Saturday and a Sunday.
       final nights = [

@@ -7,7 +7,7 @@ import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
 import '../engines/trend_insights.dart';
 import '../engines/trend_engine.dart';
-import '../engines/period_stats.dart';
+import '../engines/sleep_metrics.dart';
 import '../engines/trend_detail.dart';
 import '../engines/trend_gist.dart';
 import '../engines/trend_findings.dart';
@@ -36,8 +36,7 @@ class AreaTrend {
     required this.detail,
     this.days = const [],
     this.secondary,
-    this.sleepTimes,
-    this.sleepSpread,
+    this.schedule,
     this.macros,
     this.loggedDays,
     this.topExercises = const [],
@@ -55,19 +54,13 @@ class AreaTrend {
   final List<(DateTime, double)> days;
   final TrendDetail? secondary;
 
+  /// For sleep, each week's average bedtime and waking, aligned with
+  /// [detail]'s weeks (see `weeklySchedule`); null for other areas.
+  final List<(double, double)?>? schedule;
+
   /// Protein, carbohydrate and fat eaten on an average complete day over
   /// the span, in grams; null without one.
   final ({double protein, double carb, double fat})? macros;
-
-  /// Bedtime and waking over the span: each one's average, in minutes
-  /// after midnight, and how far a night usually sits from it (the
-  /// standard deviation, in minutes): how regular the nights are. Null
-  /// below a week of nights.
-  final ({
-    ({double mean, double spread}) bedtime,
-    ({double mean, double spread}) wake,
-  })?
-  sleepSpread;
 
   /// Finished days over the span with any food logged, complete or not.
   final int? loggedDays;
@@ -78,10 +71,6 @@ class AreaTrend {
   /// The latest stretch in a few words; for body weight, [weightGist].
   final TrendGist? gist;
   final ({GistPosition position, double change})? weightGist;
-
-  /// Average bedtime and waking over the latest four weeks, in minutes
-  /// after midnight.
-  final ({double bedtime, double wake})? sleepTimes;
 }
 
 /// Days of measured resting energy before it is trusted to catch food
@@ -491,6 +480,12 @@ class InsightsService {
         TrendDomain.training => const [],
         _ => daily,
       },
+      schedule: domain == TrendDomain.sleep
+          ? weeklySchedule(
+              _journal.sleepBetween(from, until),
+              detail.weekStarts,
+            )
+          : null,
       macros: macros,
       loggedDays: loggedDays,
       gist: domain == TrendDomain.body ? null : gistOf(detail),
@@ -500,9 +495,6 @@ class InsightsService {
               recentWeeks: trendWindowDays ~/ DateTime.daysPerWeek,
               steadyKgPerWeek: steadyWeightKgPerWeek,
             )
-          : null,
-      sleepSpread: domain == TrendDomain.sleep
-          ? _sleepSpread(_nights(from, until))
           : null,
       topExercises: domain == TrendDomain.training
           ? [
@@ -520,14 +512,6 @@ class InsightsService {
                   ? WeekAggregate.sum
                   : WeekAggregate.mean,
             ),
-      sleepTimes: domain == TrendDomain.sleep
-          ? _sleepTimes(
-              _nights(
-                now.subtract(const Duration(days: trendWindowDays)),
-                until,
-              ),
-            )
-          : null,
     );
   }
 
@@ -542,53 +526,6 @@ class InsightsService {
           entry.startedAt ?? entry.sleptAt.subtract(entry.duration),
         ),
   ];
-
-  /// Bedtime and waking over [nights]: the average of each and its
-  /// standard deviation in minutes, each read around noon so 23:30 and
-  /// 00:30 are an hour apart rather than a day. Null below a week of
-  /// nights.
-  static ({
-    ({double mean, double spread}) bedtime,
-    ({double mean, double spread}) wake,
-  })?
-  _sleepSpread(List<(DateTime, double, DateTime)> nights) {
-    if (nights.length < DateTime.daysPerWeek) return null;
-    const day = Duration.minutesPerDay;
-    ({double mean, double spread}) of(Iterable<DateTime> times) {
-      final stats = periodStats([
-        for (final time in times)
-          (time, (time.hour * 60 + time.minute + day / 2) % day),
-      ])!;
-      return (mean: (stats.mean - day / 2) % day, spread: stats.spread);
-    }
-
-    return (
-      bedtime: of([for (final (_, _, began) in nights) began]),
-      wake: of([for (final (woke, _, _) in nights) woke]),
-    );
-  }
-
-  /// The average bedtime and waking over [nights], in minutes after
-  /// midnight; null without any. Averaged around noon, so 23:30 and
-  /// 00:30 average to midnight rather than to noon.
-  static ({double bedtime, double wake})? _sleepTimes(
-    List<(DateTime, double, DateTime)> nights,
-  ) {
-    if (nights.isEmpty) return null;
-    const day = Duration.minutesPerDay;
-    double average(Iterable<DateTime> times) {
-      final shifted = [
-        for (final time in times)
-          (time.hour * 60 + time.minute + day / 2) % day,
-      ];
-      return (shifted.reduce((a, b) => a + b) / shifted.length - day / 2) % day;
-    }
-
-    return (
-      bedtime: average([for (final (_, _, began) in nights) began]),
-      wake: average([for (final (woke, _, _) in nights) woke]),
-    );
-  }
 
   static DateTime _dayOf(DateTime time) =>
       DateTime(time.year, time.month, time.day);

@@ -38,6 +38,7 @@ class MiniBarChart extends StatelessWidget {
     this.highlightsLast = true,
     this.goal,
     this.met = const {},
+    this.top,
   });
 
   final List<(String, int?)> bars;
@@ -56,6 +57,11 @@ class MiniBarChart extends StatelessWidget {
   /// Indexes of the bars that met the [goal].
   final Set<int> met;
 
+  /// What the full height stands for when the scale has a natural top,
+  /// such as the seven nights of a week; otherwise the highest bar or
+  /// goal.
+  final int? top;
+
   /// The last bar's colour, and the others'.
   final Color color;
   final Color dimColor;
@@ -65,6 +71,7 @@ class MiniBarChart extends StatelessWidget {
     final highest = [
       for (final bar in bars) bar.$2 ?? 0,
       ?goal,
+      ?top,
     ].fold(0, (a, b) => a > b ? a : b);
     // All zero is a row of empty bars, not a division by zero.
     final maxValue = highest == 0 ? 1 : highest;
@@ -369,7 +376,9 @@ class _SparklinePainter extends CustomPainter {
 /// to its highest value, with the lowest and highest of all marked and
 /// labelled: how a night's heart rate or breathing moved. A stretch
 /// without a value is left empty. [labelOf] writes a value for the
-/// marks; [start] and [end] sit under the ends of the axis.
+/// marks; [start] and [end] sit under the ends of the axis. Values grow
+/// upward, or [downward] for times of day, which read down the way a
+/// night goes from bedtime to waking.
 class RangeBarChart extends StatelessWidget {
   const RangeBarChart({
     super.key,
@@ -380,6 +389,7 @@ class RangeBarChart extends StatelessWidget {
     required this.end,
     this.height = 180,
     this.selected,
+    this.downward = false,
   });
 
   final List<(double, double)?> ranges;
@@ -391,6 +401,7 @@ class RangeBarChart extends StatelessWidget {
 
   /// The stretch a reading picks; the others dim while one is picked.
   final int? selected;
+  final bool downward;
 
   @override
   Widget build(BuildContext context) {
@@ -404,6 +415,7 @@ class RangeBarChart extends StatelessWidget {
               ranges: ranges,
               color: color,
               selected: selected,
+              downward: downward,
               labelOf: labelOf,
               labelStyle: AppTextStyles.caption.copyWith(color: color),
             ),
@@ -429,6 +441,7 @@ class _RangeBarPainter extends CustomPainter {
     required this.labelOf,
     required this.labelStyle,
     required this.selected,
+    required this.downward,
   });
 
   /// Room kept above and below the bars for the labels of the extremes.
@@ -441,6 +454,7 @@ class _RangeBarPainter extends CustomPainter {
   final String Function(double value) labelOf;
   final TextStyle labelStyle;
   final int? selected;
+  final bool downward;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -463,7 +477,8 @@ class _RangeBarPainter extends CustomPainter {
     final top = _labelRoom;
     final bottom = size.height - _labelRoom;
     double xOf(int index) => slot * (index + 0.5);
-    double yOf(double value) => top + (high - value) / span * (bottom - top);
+    double yOf(double value) =>
+        top + (downward ? value - low : high - value) / span * (bottom - top);
 
     final paint = Paint()
       ..color = color
@@ -500,13 +515,16 @@ class _RangeBarPainter extends CustomPainter {
       );
     }
 
-    mark(highAt, high, above: true);
-    mark(lowAt, low, above: false);
+    mark(highAt, high, above: !downward);
+    mark(lowAt, low, above: downward);
   }
 
   @override
   bool shouldRepaint(_RangeBarPainter old) =>
-      old.ranges != ranges || old.color != color || old.selected != selected;
+      old.ranges != ranges ||
+      old.color != color ||
+      old.selected != selected ||
+      old.downward != downward;
 }
 
 /// A quantity over time from zero up, filled beneath its line: what has

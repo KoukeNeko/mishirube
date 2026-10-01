@@ -36,8 +36,8 @@ class TrendsViewModel extends ViewModel {
   AreaTrend areaTrend(TrendDomain domain, {int? weeks}) =>
       backend.insights.areaTrend(domain, weeks: weeks);
 
-  /// What [trend]'s days come to; null without any.
-  PeriodStats? statsOf(AreaTrend trend) => periodStats(trend.days);
+  /// What [days] come to; null without any.
+  PeriodStats? statsOf(List<(DateTime, double)> days) => periodStats(days);
 
   /// The night asleep the sleep figures are held against; null unset.
   Duration? get sleepGoal => backend.sleep.goal;

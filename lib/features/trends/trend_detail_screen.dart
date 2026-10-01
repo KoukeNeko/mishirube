@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../app/view_model.dart';
@@ -16,7 +17,11 @@ import '../activity/daily_activity_screen.dart';
 import '../exercise/exercise_detail_screen.dart';
 import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
+import '../sleep/sleep_history.dart';
+import '../sleep/sleep_regularity_card.dart';
 import '../sleep/sleep_screen.dart';
+import '../sleep/sleep_shortfall_screen.dart';
+import '../sleep/sleep_view_model.dart';
 import 'training_trends_screen.dart';
 import 'trends_view_model.dart';
 import '../../l10n/l10n.dart';
@@ -24,18 +29,26 @@ import '../../l10n/l10n.dart';
 /// Tall enough to read a week's rise or fall at a glance.
 const _mainChartHeight = 180.0;
 
-/// How far back the page reads.
+/// How far back the page reads. A week and a month read sleep night by
+/// night; the others read any area week by week.
 enum _Range {
+  week(1, nights: 7),
+  month(4, nights: 30),
   quarter(13),
   half(26),
   year(52),
   all(null);
 
-  const _Range(this.weeks);
+  const _Range(this.weeks, {this.nights});
 
   final int? weeks;
 
+  /// The nights a night-by-night range reads; null for a weekly one.
+  final int? nights;
+
   String labelIn(AppLocalizations l10n) => switch (this) {
+    week => l10n.chartRangeWeek,
+    month => l10n.chartRangeMonth,
     quarter => l10n.monthsCount(count: 3),
     half => l10n.monthsCount(count: 6),
     year => l10n.yearsCount(count: 1),
@@ -64,7 +77,11 @@ Widget areaPageFor(TrendDomain domain) => switch (domain) {
 /// the latest stretch sits against the baseline and against what is
 /// normal for this person, week by week; what it is paired with; how
 /// the days of the week differ; and what the other areas did over the
-/// same weeks. The day-by-day records are one tap further.
+/// same weeks. Sleep also reads a week or a month night by night, and
+/// keeps its regularity, overnight readings and what goes with shorter
+/// nights here, so the sleep page holds only its day; the sleep owed
+/// shows on both. The day-by-day
+/// records are one tap further.
 class TrendDetailScreen extends StatefulWidget {
   const TrendDetailScreen({super.key, required this.domain});
 
@@ -80,17 +97,32 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
       ? _Range.year
       : _Range.half;
 
+  /// The nights up to today, for sleep's own sections; made only for
+  /// sleep.
+  SleepViewModel? _sleep;
+
+  SleepViewModel get _sleepModel =>
+      _sleep ??= SleepViewModel(AppStoreScope.read(context).backend);
+
+  @override
+  void dispose() {
+    _sleep?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       create: TrendsViewModel.new,
       builder: (context, model) {
         final domain = widget.domain;
+        final isSleep = domain == TrendDomain.sleep;
         final trend = model.areaTrend(domain, weeks: _range.weeks);
         final others = [
           for (final line in model.report.lines)
             if (line.domain != domain) line,
         ];
+        final nightly = isSleep ? _range.nights : null;
         return DetailPage(
           appBar: PageAppBar(
             title: context.l10n.areaTrend(area: domain.labelIn(context.l10n)),
@@ -98,41 +130,96 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
           children: [
             Gutter(
               child: SegmentedChoice<_Range>(
-                options: _Range.values,
+                options: [
+                  for (final range in _Range.values)
+                    if (isSleep || range.nights == null) range,
+                ],
                 selected: _range,
                 labelOf: (range) => range.labelIn(context.l10n),
                 selectedColor: trendColor(domain),
                 onChanged: (range) => setState(() => _range = range),
               ),
             ),
-            Gutter(child: _Overview(trend: trend)),
-            if (domain == TrendDomain.training)
-              if (model.weeklyGoal case final goal?)
+            if (nightly != null) ...[
+              ...sleepNightItems(context, _sleepModel, nightly),
+              ..._statistics(
+                context,
+                model,
+                trend,
+                days: [
+                  for (final night in _sleepModel.nightsAsleep(nightly))
+                    (night.sleptAt, night.duration.inMinutes.toDouble()),
+                ],
+              ),
+            ] else ...[
+              Gutter(child: _Overview(trend: trend)),
+              if (domain == TrendDomain.training)
+                if (model.weeklyGoal case final goal?)
+                  Gutter(
+                    child: _GoalWeeks(
+                      goal: goal,
+                      weeks: _range.weeks ?? goal.weeks.length,
+                    ),
+                  ),
+              if (trend.secondary case final secondary?)
                 Gutter(
-                  child: _GoalWeeks(
-                    goal: goal,
-                    weeks: _range.weeks ?? goal.weeks.length,
+                  child: _SecondaryCard(domain: domain, detail: secondary),
+                ),
+              if (trend.schedule case final schedule?
+                  when schedule.any((week) => week != null))
+                Gutter(
+                  child: _SleepSchedule(
+                    weekStarts: trend.detail.weekStarts,
+                    schedule: schedule,
                   ),
                 ),
-            if (trend.secondary case final secondary?)
-              Gutter(
-                child: _SecondaryCard(domain: domain, detail: secondary),
-              ),
-            if (trend.sleepTimes case final times?)
-              Gutter(
-                child: NavCard(
-                  title: context.l10n.sleepTimesAverage(
-                    bedtime: _clockOf(times.bedtime),
-                    wake: _clockOf(times.wake),
+              if (isSleep && trend.days.isNotEmpty)
+                if (model.sleepGoal case final goal?)
+                  Gutter(
+                    child: _SleepGoalWeeks(trend: trend, goal: goal),
                   ),
-                  subtitle: context.l10n.last4WeeksAverage,
-                  showChevron: false,
+              ..._statistics(context, model, trend),
+              if (trend.detail.weekdays.any((value) => value != null)) ...[
+                Gutter(child: SectionLabel(context.l10n.weekdaySection)),
+                Gutter(child: _Weekdays(trend: trend)),
+              ],
+            ],
+            if (isSleep) ...[
+              // A fixed fortnight, whatever the range, as on the sleep
+              // page.
+              if (_sleepModel.shortfall(shortfallDays).recorded > 0) ...[
+                Gutter(child: SectionLabel(context.l10n.sleepDebtSection)),
+                Gutter(
+                  child: SleepShortfallCard(
+                    model: _sleepModel,
+                    onTap: () => pushPage(
+                      context,
+                      SleepShortfallScreen(day: _sleepModel.day),
+                    ),
+                  ),
                 ),
+              ],
+              // A fixed four weeks, whatever the range.
+              if (_sleepModel.nightsAsleep(2 * regularityWindowDays)
+                  case final nights
+                  when nights.any((night) => night.startedAt != null)) ...[
+                Gutter(
+                  child: SectionLabel(context.l10n.sleepRegularitySection),
+                ),
+                Gutter(
+                  child: SleepRegularityCard(
+                    nights: nights,
+                    day: _sleepModel.day,
+                  ),
+                ),
+              ],
+              ...sleepVitalItems(
+                context,
+                _sleepModel,
+                nightly ??
+                    trend.detail.weekStarts.length * DateTime.daysPerWeek,
               ),
-            ..._statistics(context, model, trend),
-            if (trend.detail.weekdays.any((value) => value != null)) ...[
-              Gutter(child: SectionLabel(context.l10n.weekdaySection)),
-              Gutter(child: _Weekdays(trend: trend)),
+              ...sleepFactorItems(context, _sleepModel),
             ],
             if (others.isNotEmpty) ...[
               Gutter(child: SectionLabel(context.l10n.otherAreasSection)),
@@ -170,13 +257,6 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
   }
 }
 
-/// `23:40`: minutes after midnight as a clock time.
-String _clockOf(double minutes) {
-  final total = minutes.round() % Duration.minutesPerDay;
-  return '${(total ~/ 60).toString().padLeft(2, '0')}:'
-      '${(total % 60).toString().padLeft(2, '0')}';
-}
-
 double _tenth(double value) => (value * 10).round() / 10;
 
 /// An area's weekly value as the page writes it.
@@ -206,11 +286,6 @@ String _differenceOf(AppLocalizations l10n, TrendDomain domain, double delta) {
 }
 
 int _roundTo(double value, int step) => (value / step).round() * step;
-
-/// `23:10–00:40`: where most nights' times fall, one standard deviation
-/// either side of the average.
-String _windowOf(({double mean, double spread}) time) =>
-    '${_clockOf(time.mean - time.spread)}–${_clockOf(time.mean + time.spread)}';
 
 /// The latest stretch in a few words and one figure (see
 /// `research/78-plain-summaries.md`): against the usual range, by how
@@ -504,21 +579,24 @@ class _Weekdays extends StatelessWidget {
 List<Widget> _statistics(
   BuildContext context,
   TrendsViewModel model,
-  AreaTrend trend,
-) {
+  AreaTrend trend, {
+  List<(DateTime, double)>? days,
+}) {
   final l10n = context.l10n;
   final domain = trend.domain;
   final color = trendColor(domain);
-  final stats = model.statsOf(trend);
+  // A night-by-night range reads its own nights, not the weeks'.
+  final daily = days ?? trend.days;
+  final stats = model.statsOf(daily);
   final figures = switch (domain) {
     TrendDomain.training => _trainingFigures(context, trend, model.weeklyGoal),
     _ when stats == null => const <Figure>[],
     TrendDomain.body => _bodyFigures(context, trend, stats),
-    TrendDomain.sleep => _sleepFigures(context, trend, stats, model.sleepGoal),
+    TrendDomain.sleep => _sleepFigures(context, daily, stats, model.sleepGoal),
     TrendDomain.nutrition => _nutritionFigures(context, trend, stats),
     TrendDomain.activity => _activityFigures(context, stats),
   };
-  final values = [for (final (_, value) in trend.days) value];
+  final values = [for (final (_, value) in daily) value];
   final spread = switch (domain) {
     TrendDomain.sleep => (
       edges: const [360.0, 420.0, 480.0, 540.0],
@@ -636,7 +714,7 @@ List<Figure> _bodyFigures(
 
 List<Figure> _sleepFigures(
   BuildContext context,
-  AreaTrend trend,
+  List<(DateTime, double)> nights,
   PeriodStats stats,
   Duration? goal,
 ) {
@@ -645,7 +723,7 @@ List<Figure> _sleepFigures(
       formatHoursMinutes(Duration(minutes: minutes.round()));
   final met = goal == null
       ? null
-      : trend.days.where((night) => night.$2 >= goal.inMinutes).length;
+      : nights.where((night) => night.$2 >= goal.inMinutes).length;
   return [
     (
       label: l10n.averageTimeAsleep,
@@ -677,15 +755,6 @@ List<Figure> _sleepFigures(
       unit: null,
       color: null,
     ),
-    if (trend.sleepSpread case (:final bedtime, :final wake)) ...[
-      (
-        label: l10n.usualBedtime,
-        value: _windowOf(bedtime),
-        unit: null,
-        color: null,
-      ),
-      (label: l10n.usualWake, value: _windowOf(wake), unit: null, color: null),
-    ],
     if (met != null)
       (
         label: l10n.sleepGoalMetLabel,
@@ -920,6 +989,119 @@ class _GoalWeeks extends StatelessWidget {
                 if (week.isMet) l10n.goalReached,
               ].join(' · ');
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// `23:42`: minutes after noon as a time of day.
+String _clockFromNoon(double minutes) {
+  final clock = (minutes.round() + 12 * 60) % Duration.minutesPerDay;
+  return '${(clock ~/ 60).toString().padLeft(2, '0')}:'
+      '${(clock % 60).toString().padLeft(2, '0')}';
+}
+
+/// Each week's average night from bedtime down to waking: whether nights
+/// begin later, end later, or drift, which an average length hides.
+class _SleepSchedule extends StatelessWidget {
+  const _SleepSchedule({required this.weekStarts, required this.schedule});
+
+  final List<DateTime> weekStarts;
+  final List<(double, double)?> schedule;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CategoryLabel(label: l10n.bedAndWake, color: AppColors.wellness),
+          const SizedBox(height: AppSpacing.md),
+          ChartScrubber(
+            count: schedule.length,
+            indexAt: ChartScrubber.slots(schedule.length),
+            idle: l10n.weeklyAverage,
+            readoutOf: (index) => [
+              _weekOf(context, weekStarts[index]),
+              switch (schedule[index]) {
+                (final bedtime, final wake) =>
+                  '${_clockFromNoon(bedtime)}–${_clockFromNoon(wake)}',
+                null => l10n.noEntriesShort,
+              },
+            ].join(' · '),
+            builder: (context, selected) => RangeBarChart(
+              ranges: schedule,
+              color: AppColors.wellness,
+              labelOf: _clockFromNoon,
+              start: context.dates.compactMonthDay(weekStarts.first),
+              end: context.dates.compactMonthDay(weekStarts.last),
+              selected: selected,
+              downward: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// How many nights each week met the sleep goal, out of the week's
+/// seven: the goal as it is set now, held against every week.
+class _SleepGoalWeeks extends StatelessWidget {
+  const _SleepGoalWeeks({required this.trend, required this.goal});
+
+  final AreaTrend trend;
+  final Duration goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final weekStarts = trend.detail.weekStarts;
+    final nights = List.filled(weekStarts.length, 0);
+    final met = List.filled(weekStarts.length, 0);
+    for (final (at, minutes) in trend.days) {
+      final day = DateTime(at.year, at.month, at.day);
+      final week =
+          day.difference(weekStarts.first).inDays ~/ DateTime.daysPerWeek;
+      if (week < 0 || week >= weekStarts.length) continue;
+      nights[week]++;
+      if (minutes >= goal.inMinutes) met[week]++;
+    }
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CategoryLabel(
+            label: l10n.sleepGoalMetLabel,
+            color: AppColors.wellness,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          ChartScrubber(
+            count: weekStarts.length,
+            indexAt: ChartScrubber.slots(weekStarts.length),
+            idle: l10n.goalValue(goal: formatHoursMinutes(goal)),
+            readoutOf: (index) => [
+              _weekOf(context, weekStarts[index]),
+              if (nights[index] == 0)
+                l10n.noEntriesShort
+              else
+                l10n.nightsOutOf(count: met[index], total: nights[index]),
+            ].join(' · '),
+            builder: (context, selected) => MiniBarChart(
+              bars: [
+                for (final (index, count) in met.indexed)
+                  ('', nights[index] == 0 ? null : count),
+              ],
+              height: 80,
+              showLabels: false,
+              color: AppColors.wellness,
+              dimColor: AppColors.wellness.withValues(alpha: 0.45),
+              selected: selected,
+              top: DateTime.daysPerWeek,
+            ),
           ),
         ],
       ),

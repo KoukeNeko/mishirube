@@ -3435,7 +3435,7 @@ abstract class AppLocalizations {
   /// What the app reads from a health platform. (HealthDataKind.overnight)
   ///
   /// In zh, this message translates to:
-  /// **'夜間數據'**
+  /// **'夜間資料'**
   String get healthDataOvernight;
 
   /// What the app reads from a health platform. (HealthDataKind.activity)
@@ -4230,12 +4230,6 @@ abstract class AppLocalizations {
   /// **'含小睡共 {time}'**
   String withNapsTotal({required String time});
 
-  /// Chart range: six months.
-  ///
-  /// In zh, this message translates to:
-  /// **'6 個月'**
-  String get chartRangeSixMonths;
-
   /// Nothing recorded for this.
   ///
   /// In zh, this message translates to:
@@ -4283,12 +4277,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'平均{stage}'**
   String averageStage({required String stage});
-
-  /// How many nights had stages.
-  ///
-  /// In zh, this message translates to:
-  /// **'{count} 晚有睡眠階段'**
-  String nightsWithStages({required int count});
 
   /// Screen reader label of a nightly chart.
   ///
@@ -6032,18 +6020,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{area}趨勢'**
   String areaTrend({required String area});
-
-  /// Average bed and wake times.
-  ///
-  /// In zh, this message translates to:
-  /// **'{bedtime} 入睡 · {wake} 起床'**
-  String sleepTimesAverage({required String bedtime, required String wake});
-
-  /// Subtitle.
-  ///
-  /// In zh, this message translates to:
-  /// **'近 4 週平均'**
-  String get last4WeeksAverage;
 
   /// Section comparing weekdays.
   ///
@@ -9899,6 +9875,12 @@ abstract class AppLocalizations {
   /// **'近 {count} 週'**
   String lastWeeksCount({required int count});
 
+  /// Legend for a marker showing the average over a window of days.
+  ///
+  /// In zh, this message translates to:
+  /// **'近 {count} 天平均'**
+  String lastDaysAverage({required int count});
+
   /// Window.
   ///
   /// In zh, this message translates to:
@@ -10491,18 +10473,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'半數日子超過'**
   String get halfDaysOver;
-
-  /// The span most bedtimes fall in.
-  ///
-  /// In zh, this message translates to:
-  /// **'平常入睡'**
-  String get usualBedtime;
-
-  /// The span most wakings fall in.
-  ///
-  /// In zh, this message translates to:
-  /// **'平常起床'**
-  String get usualWake;
 
   /// Nights that met something, out of the nights recorded.
   ///

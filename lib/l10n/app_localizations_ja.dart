@@ -2259,9 +2259,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get chartRangeSixMonths => '6か月';
-
-  @override
   String get noEntriesShort => '記録なし';
 
   @override
@@ -2287,11 +2284,6 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String averageStage({required String stage}) {
     return '平均$stage';
-  }
-
-  @override
-  String nightsWithStages({required int count}) {
-    return '$count晩にステージあり';
   }
 
   @override
@@ -3370,14 +3362,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String areaTrend({required String area}) {
     return '$areaの推移';
   }
-
-  @override
-  String sleepTimesAverage({required String bedtime, required String wake}) {
-    return '就寝 $bedtime · 起床 $wake';
-  }
-
-  @override
-  String get last4WeeksAverage => '過去4週の平均';
 
   @override
   String get weekdaySection => '曜日';
@@ -5677,6 +5661,11 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String lastDaysAverage({required int count}) {
+    return '過去$count日の平均';
+  }
+
+  @override
   String lastDaysCount({required int count}) {
     return '過去$count日';
   }
@@ -6025,12 +6014,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get halfDaysOver => '半数の日がこれ以上';
-
-  @override
-  String get usualBedtime => 'いつもの就寝';
-
-  @override
-  String get usualWake => 'いつもの起床';
 
   @override
   String nightsOutOf({required int count, required int total}) {

@@ -1798,7 +1798,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get healthDataWater => '喝水';
 
   @override
-  String get healthDataOvernight => '夜間數據';
+  String get healthDataOvernight => '夜間資料';
 
   @override
   String get healthDataActivity => '活動與心肺';
@@ -2253,9 +2253,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get chartRangeSixMonths => '6 個月';
-
-  @override
   String get noEntriesShort => '沒有紀錄';
 
   @override
@@ -2281,11 +2278,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String averageStage({required String stage}) {
     return '平均$stage';
-  }
-
-  @override
-  String nightsWithStages({required int count}) {
-    return '$count 晚有睡眠階段';
   }
 
   @override
@@ -3363,14 +3355,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String areaTrend({required String area}) {
     return '$area趨勢';
   }
-
-  @override
-  String sleepTimesAverage({required String bedtime, required String wake}) {
-    return '$bedtime 入睡 · $wake 起床';
-  }
-
-  @override
-  String get last4WeeksAverage => '近 4 週平均';
 
   @override
   String get weekdaySection => '星期';
@@ -5670,6 +5654,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String lastDaysAverage({required int count}) {
+    return '近 $count 天平均';
+  }
+
+  @override
   String lastDaysCount({required int count}) {
     return '近 $count 天';
   }
@@ -6017,12 +6006,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get halfDaysOver => '半數日子超過';
-
-  @override
-  String get usualBedtime => '平常入睡';
-
-  @override
-  String get usualWake => '平常起床';
 
   @override
   String nightsOutOf({required int count, required int total}) {
@@ -8367,9 +8350,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get chartRangeSixMonths => '6 个月';
-
-  @override
   String get noEntriesShort => '没有记录';
 
   @override
@@ -8395,11 +8375,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String averageStage({required String stage}) {
     return '平均$stage';
-  }
-
-  @override
-  String nightsWithStages({required int count}) {
-    return '$count 晚有睡眠阶段';
   }
 
   @override
@@ -9477,14 +9452,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String areaTrend({required String area}) {
     return '$area趋势';
   }
-
-  @override
-  String sleepTimesAverage({required String bedtime, required String wake}) {
-    return '$bedtime 入睡 · $wake 起床';
-  }
-
-  @override
-  String get last4WeeksAverage => '近 4 周平均';
 
   @override
   String get weekdaySection => '星期';
@@ -11784,6 +11751,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
+  String lastDaysAverage({required int count}) {
+    return '近 $count 天平均';
+  }
+
+  @override
   String lastDaysCount({required int count}) {
     return '近 $count 天';
   }
@@ -12131,12 +12103,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get halfDaysOver => '半数日子超过';
-
-  @override
-  String get usualBedtime => '平常入睡';
-
-  @override
-  String get usualWake => '平常起床';
 
   @override
   String nightsOutOf({required int count, required int total}) {

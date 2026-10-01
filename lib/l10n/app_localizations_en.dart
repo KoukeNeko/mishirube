@@ -2267,9 +2267,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get chartRangeSixMonths => '6M';
-
-  @override
   String get noEntriesShort => 'No entries';
 
   @override
@@ -2295,11 +2292,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String averageStage({required String stage}) {
     return 'Avg $stage';
-  }
-
-  @override
-  String nightsWithStages({required int count}) {
-    return '$count nights with stages';
   }
 
   @override
@@ -3425,14 +3417,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String areaTrend({required String area}) {
     return '$area trend';
   }
-
-  @override
-  String sleepTimesAverage({required String bedtime, required String wake}) {
-    return 'Bed $bedtime · wake $wake';
-  }
-
-  @override
-  String get last4WeeksAverage => 'Last 4 weeks\' average';
 
   @override
   String get weekdaySection => 'Day of week';
@@ -5774,6 +5758,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String lastDaysAverage({required int count}) {
+    return '$count-day average';
+  }
+
+  @override
   String lastDaysCount({required int count}) {
     return 'Last $count days';
   }
@@ -6123,12 +6112,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get halfDaysOver => 'Half the days over';
-
-  @override
-  String get usualBedtime => 'Usual bedtime';
-
-  @override
-  String get usualWake => 'Usual wake time';
 
   @override
   String nightsOutOf({required int count, required int total}) {

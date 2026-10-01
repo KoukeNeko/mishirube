@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/sleep/sleep_regularity_card.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -67,10 +68,34 @@ void main() {
     expect(valueOf('最長'), '9:00');
     expect(valueOf('最短'), '6:00');
     expect(valueOf('達成睡眠目標'), '7 晚中 3 晚');
-    // Waking at seven every day, asleep from 22:00 to 01:00: an average
-    // of 23:34, most nights within 54 minutes of it.
-    expect(valueOf('平常入睡'), '22:40–00:28');
-    expect(valueOf('平常起床'), '07:00–07:00');
+    expect(
+      figures.any((figure) => figure.label == '平常入睡'),
+      isFalse,
+      reason: 'bedtimes are the schedule chart\'s, not the grid\'s',
+    );
+    expect(
+      find.byType(SleepRegularityCard),
+      findsNothing,
+      reason: 'the last four weeks\' regularity is the sleep page\'s',
+    );
+
+    // Waking at seven every day, asleep from 22:00 to 01:00: the week's
+    // nights begin at 23:34 on average and last 7:26, so end at 07:00.
+    await scrollTo(tester, find.byType(RangeBarChart));
+    final (bedtime, wake) = tester
+        .widget<RangeBarChart>(find.byType(RangeBarChart))
+        .ranges
+        .last!;
+    expect(bedtime, closeTo(11 * 60 + 34, 1));
+    expect(wake, closeTo(19 * 60, 1));
+
+    final goalWeeks = tester.widget<MiniBarChart>(
+      find.byWidgetPredicate(
+        (widget) => widget is MiniBarChart && widget.top == 7,
+      ),
+    );
+    expect(goalWeeks.bars.last.$2, 3, reason: '8, 9 and 8 hours meet 8');
+    expect(goalWeeks.bars.first.$2, isNull, reason: 'no nights that week');
 
     await scrollTo(tester, find.byType(DistributionChart));
     expect(
@@ -78,6 +103,27 @@ void main() {
       [0, 1, 3, 2, 1],
       reason: '6, then 7 7 7, 8 8, 9 hours',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('six ranges fit a phone, each label on one line', (tester) async {
+    usePhoneViewport(tester);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: sleeper([7]),
+    );
+
+    Rect chip(String label) => tester.getRect(
+      find
+          .ancestor(of: find.text(label), matching: find.byType(Material))
+          .first,
+    );
+    final week = chip('週');
+    for (final label in ['月', '3 個月', '6 個月', '1 年', '全部']) {
+      expect(chip(label).height, week.height, reason: '$label on one line');
+    }
+    expect(chip('全部').right, lessThanOrEqualTo(tester.view.physicalSize.width));
     await disposeTree(tester);
   });
 

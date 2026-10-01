@@ -45,6 +45,8 @@ import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/water/water_card.dart';
 import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
+import 'package:mishirube/features/trends/trend_detail_screen.dart';
+import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
@@ -1238,13 +1240,13 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a night on the trend chart reads out when touched', (
+  testWidgets('a night on the sleep trend\'s week reads out when touched', (
     tester,
   ) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     store.backend.journal.recordSleep(const Duration(hours: 7));
-    await pumpScreen(tester, const SleepScreen(), store: store);
+    await _openSleepWeek(tester, store);
 
     final chart = find.byType(MiniBarChart);
     await tester.scrollUntilVisible(chart, 200, scrollable: _pageScroll);
@@ -1274,7 +1276,7 @@ void main() {
       );
     }
     store.backend.sleep.setGoal(const Duration(hours: 8));
-    await pumpScreen(tester, const SleepScreen(), store: store);
+    await _openSleepWeek(tester, store);
 
     final chart = find.byType(MiniBarChart);
     await tester.scrollUntilVisible(chart, 200, scrollable: _pageScroll);
@@ -3911,4 +3913,15 @@ class _Lines implements LabelReader {
     for (final (index, row) in rows.indexed)
       TextLine(text: row, left: 0, top: index * 40.0, width: 200, height: 30),
   ];
+}
+
+/// The sleep trend read night by night over the last week.
+Future<void> _openSleepWeek(WidgetTester tester, AppStore store) async {
+  await pumpScreen(
+    tester,
+    const TrendDetailScreen(domain: TrendDomain.sleep),
+    store: store,
+  );
+  await tester.tap(find.text('週'));
+  await tester.pumpAndSettle();
 }

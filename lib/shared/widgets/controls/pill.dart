@@ -25,6 +25,30 @@ double pillHeight(BuildContext context) {
   );
 }
 
+/// How wide a [Pill] with the one-line [label] is at its own size, with
+/// [horizontalPadding] either side; never narrower than a toolbar action.
+double pillWidthFor(
+  BuildContext context,
+  String label, {
+  double horizontalPadding = AppSpacing.md,
+}) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: label,
+      style: DefaultTextStyle.of(context).style.merge(_pillLabelStyle),
+    ),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  final width = painter.width.ceilToDouble();
+  painter.dispose();
+  return math.max(
+    ToolbarMetrics.of(context).actionVisualSize,
+    width + horizontalPadding * 2,
+  );
+}
+
 /// The shared pill surface behind header actions, chips and segmented
 /// controls, so they share one height, shape, fill and label style. Callers
 /// add their own semantics and touch target.

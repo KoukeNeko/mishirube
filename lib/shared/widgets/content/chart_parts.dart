@@ -134,3 +134,77 @@ class GoalWeeksChart extends StatelessWidget {
     );
   }
 }
+
+/// One part's [share] of a whole, from 0 to 1, as a capsule filled from
+/// the left, with a [reference] share (an average, say) as a thin line
+/// across it: how a night's stage stands against the usual one.
+class ShareBar extends StatelessWidget {
+  const ShareBar({
+    super.key,
+    required this.share,
+    required this.color,
+    this.reference,
+  });
+
+  static const _height = 16.0;
+
+  /// How far the reference line reaches past the bar, above and below.
+  static const _overhang = 4.0;
+
+  final double share;
+  final Color color;
+  final double? reference;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        return SizedBox(
+          height: _height + 2 * _overhang,
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                top: _overhang,
+                height: _height,
+                child: const DecoratedBox(
+                  decoration: ShapeDecoration(
+                    color: AppColors.surfaceRaised,
+                    shape: StadiumBorder(),
+                  ),
+                ),
+              ),
+              if (share > 0)
+                Positioned(
+                  left: 0,
+                  top: _overhang,
+                  height: _height,
+                  // At least round, so a sliver still reads as a capsule.
+                  width: (width * share.clamp(0.0, 1.0)).clamp(_height, width),
+                  child: DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: color,
+                      shape: const StadiumBorder(),
+                    ),
+                  ),
+                ),
+              if (reference case final reference?)
+                Positioned(
+                  left: (width * reference.clamp(0.0, 1.0) - 1).clamp(
+                    0.0,
+                    width - 2,
+                  ),
+                  top: 0,
+                  bottom: 0,
+                  width: 2,
+                  child: const ColoredBox(color: AppColors.textPrimary),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}

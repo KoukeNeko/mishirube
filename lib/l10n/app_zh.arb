@@ -2551,7 +2551,7 @@
   "@healthDataWater": {
     "description": "What the app reads from a health platform. (HealthDataKind.water)"
   },
-  "healthDataOvernight": "夜間數據",
+  "healthDataOvernight": "夜間資料",
   "@healthDataOvernight": {
     "description": "What the app reads from a health platform. (HealthDataKind.overnight)"
   },
@@ -3235,10 +3235,6 @@
       }
     }
   },
-  "chartRangeSixMonths": "6 個月",
-  "@chartRangeSixMonths": {
-    "description": "Chart range: six months."
-  },
   "noEntriesShort": "沒有紀錄",
   "@noEntriesShort": {
     "description": "Nothing recorded for this."
@@ -3278,15 +3274,6 @@
     "placeholders": {
       "stage": {
         "type": "String"
-      }
-    }
-  },
-  "nightsWithStages": "{count} 晚有睡眠階段",
-  "@nightsWithStages": {
-    "description": "How many nights had stages.",
-    "placeholders": {
-      "count": {
-        "type": "int"
       }
     }
   },
@@ -5044,22 +5031,6 @@
         "type": "String"
       }
     }
-  },
-  "sleepTimesAverage": "{bedtime} 入睡 · {wake} 起床",
-  "@sleepTimesAverage": {
-    "description": "Average bed and wake times.",
-    "placeholders": {
-      "bedtime": {
-        "type": "String"
-      },
-      "wake": {
-        "type": "String"
-      }
-    }
-  },
-  "last4WeeksAverage": "近 4 週平均",
-  "@last4WeeksAverage": {
-    "description": "Subtitle."
   },
   "weekdaySection": "星期",
   "@weekdaySection": {
@@ -8615,6 +8586,15 @@
       }
     }
   },
+  "lastDaysAverage": "近 {count} 天平均",
+  "@lastDaysAverage": {
+    "description": "Legend for a marker showing the average over a window of days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "lastDaysCount": "近 {count} 天",
   "@lastDaysCount": {
     "description": "Window.",
@@ -9161,14 +9141,6 @@
   "halfDaysOver": "半數日子超過",
   "@halfDaysOver": {
     "description": "The median day, said as half the days being higher."
-  },
-  "usualBedtime": "平常入睡",
-  "@usualBedtime": {
-    "description": "The span most bedtimes fall in."
-  },
-  "usualWake": "平常起床",
-  "@usualWake": {
-    "description": "The span most wakings fall in."
   },
   "nightsOutOf": "{total} 晚中 {count} 晚",
   "@nightsOutOf": {

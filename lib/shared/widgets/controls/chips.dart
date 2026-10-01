@@ -76,6 +76,7 @@ class SelectChip extends StatelessWidget {
     this.icon,
     this.iconColor,
     this.showsSelectionAsOutline = false,
+    this.isCompact = false,
   });
 
   final String label;
@@ -94,19 +95,32 @@ class SelectChip extends StatelessWidget {
   /// coloured icons stay readable on every chip.
   final bool showsSelectionAsOutline;
 
+  /// Tighter at the sides, and the label kept to one line, smaller if it
+  /// must: for a row of segments short of room.
+  final bool isCompact;
+
+  /// Side padding of a compact chip.
+  static const compactPadding = AppSpacing.xs;
+
   @override
   Widget build(BuildContext context) {
     final isFilled = isSelected && !showsSelectionAsOutline;
     final chip = Pill(
       onTap: onTap,
       isSelection: true,
+      horizontalPadding: isCompact ? compactPadding : AppSpacing.md,
       color: isFilled ? selectedColor : AppColors.surfaceRaised,
       foregroundColor: isFilled ? AppColors.onTraining : AppColors.textPrimary,
       outlineColor: isSelected && showsSelectionAsOutline
           ? selectedColor
           : null,
       child: icon == null
-          ? Text(label)
+          ? isCompact
+                ? FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(label, maxLines: 1, softWrap: false),
+                  )
+                : Text(label)
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -176,20 +190,53 @@ class SegmentedChoice<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < options.length; i++) ...[
-          if (i > 0) const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: SelectChip(
-              label: labelOf(options[i]),
-              isSelected: options[i] == selected,
-              selectedColor: selectedColor,
-              onTap: () => onChanged(options[i]),
-            ),
-          ),
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final labels = [for (final option in options) labelOf(option)];
+        final room =
+            constraints.maxWidth - AppSpacing.xs * (options.length - 1);
+        // Equal segments while every label fits its share on one line;
+        // otherwise each takes its label's width and they share what is
+        // left, and only when even that is short do labels shrink.
+        final fits = labels.every(
+          (label) => pillWidthFor(context, label) <= room / options.length,
+        );
+        final widths = fits
+            ? null
+            : [
+                for (final label in labels)
+                  pillWidthFor(
+                    context,
+                    label,
+                    horizontalPadding: SelectChip.compactPadding,
+                  ),
+              ];
+        final spare = widths == null
+            ? 0.0
+            : room - widths.fold(0.0, (sum, width) => sum + width);
+        return Row(
+          children: [
+            for (var i = 0; i < options.length; i++) ...[
+              if (i > 0) const SizedBox(width: AppSpacing.xs),
+              () {
+                final chip = SelectChip(
+                  label: labels[i],
+                  isSelected: options[i] == selected,
+                  selectedColor: selectedColor,
+                  isCompact: widths != null,
+                  onTap: () => onChanged(options[i]),
+                );
+                return widths != null && spare >= 0
+                    ? SizedBox(
+                        width: widths[i] + spare / options.length,
+                        child: chip,
+                      )
+                    : Expanded(child: chip);
+              }(),
+            ],
+          ],
+        );
+      },
     );
   }
 }

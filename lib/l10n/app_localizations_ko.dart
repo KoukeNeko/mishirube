@@ -2259,9 +2259,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get chartRangeSixMonths => '6개월';
-
-  @override
   String get noEntriesShort => '기록 없음';
 
   @override
@@ -2287,11 +2284,6 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String averageStage({required String stage}) {
     return '평균 $stage';
-  }
-
-  @override
-  String nightsWithStages({required int count}) {
-    return '단계가 있는 밤 $count박';
   }
 
   @override
@@ -3370,14 +3362,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String areaTrend({required String area}) {
     return '$area 추이';
   }
-
-  @override
-  String sleepTimesAverage({required String bedtime, required String wake}) {
-    return '취침 $bedtime · 기상 $wake';
-  }
-
-  @override
-  String get last4WeeksAverage => '최근 4주 평균';
 
   @override
   String get weekdaySection => '요일';
@@ -5679,6 +5663,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String lastDaysAverage({required int count}) {
+    return '최근 $count일 평균';
+  }
+
+  @override
   String lastDaysCount({required int count}) {
     return '최근 $count일';
   }
@@ -6027,12 +6016,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get halfDaysOver => '절반의 날이 이상';
-
-  @override
-  String get usualBedtime => '평소 취침';
-
-  @override
-  String get usualWake => '평소 기상';
 
   @override
   String nightsOutOf({required int count, required int total}) {
