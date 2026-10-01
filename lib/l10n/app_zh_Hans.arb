@@ -702,6 +702,8 @@
   "bedtimeReminder": "就寝提醒",
   "remindsAt": "{time} 提醒",
   "clearGoal": "清除目标",
+  "rollingSum": "{count} 天累计",
+  "nightlyShortfall": "每晚少睡",
   "trendSection": "走势",
   "eachDaySection": "每天",
   "notEnoughEntries": "记录不足",

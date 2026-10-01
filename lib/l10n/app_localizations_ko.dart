@@ -2318,6 +2318,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String get clearGoal => '목표 지우기';
 
   @override
+  String rollingSum({required int count}) {
+    return '$count일 누적';
+  }
+
+  @override
+  String get nightlyShortfall => '매일 밤 부족';
+
+  @override
   String get trendSection => '추이';
 
   @override

@@ -2312,6 +2312,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clearGoal => '清除目標';
 
   @override
+  String rollingSum({required int count}) {
+    return '$count 天累計';
+  }
+
+  @override
+  String get nightlyShortfall => '每晚少睡';
+
+  @override
   String get trendSection => '走勢';
 
   @override
@@ -8399,6 +8407,14 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get clearGoal => '清除目标';
+
+  @override
+  String rollingSum({required int count}) {
+    return '$count 天累计';
+  }
+
+  @override
+  String get nightlyShortfall => '每晚少睡';
 
   @override
   String get trendSection => '走势';

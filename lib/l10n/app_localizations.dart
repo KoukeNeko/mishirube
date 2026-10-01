@@ -4320,6 +4320,18 @@ abstract class AppLocalizations {
   /// **'清除目標'**
   String get clearGoal;
 
+  /// Chart title: each point sums the days ending with it.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 天累計'**
+  String rollingSum({required int count});
+
+  /// Chart title: how far each night fell short of the sleep goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'每晚少睡'**
+  String get nightlyShortfall;
+
   /// Section with a figure's chart over time.
   ///
   /// In zh, this message translates to:

@@ -3339,6 +3339,19 @@
   "@clearGoal": {
     "description": "Removes a goal."
   },
+  "rollingSum": "{count} 天累計",
+  "@rollingSum": {
+    "description": "Chart title: each point sums the days ending with it.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nightlyShortfall": "每晚少睡",
+  "@nightlyShortfall": {
+    "description": "Chart title: how far each night fell short of the sleep goal."
+  },
   "trendSection": "走勢",
   "@trendSection": {
     "description": "Section with a figure's chart over time."

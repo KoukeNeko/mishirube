@@ -2326,6 +2326,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearGoal => 'Clear goal';
 
   @override
+  String rollingSum({required int count}) {
+    return '$count-day total';
+  }
+
+  @override
+  String get nightlyShortfall => 'Short each night';
+
+  @override
   String get trendSection => 'Trend';
 
   @override

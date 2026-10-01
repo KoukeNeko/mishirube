@@ -702,6 +702,8 @@
   "bedtimeReminder": "就寝リマインダー",
   "remindsAt": "{time}に通知",
   "clearGoal": "目標を消去",
+  "rollingSum": "{count}日間の累計",
+  "nightlyShortfall": "毎晩の不足",
   "trendSection": "推移",
   "eachDaySection": "日ごと",
   "notEnoughEntries": "記録不足",

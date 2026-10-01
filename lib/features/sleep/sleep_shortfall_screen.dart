@@ -23,8 +23,26 @@ const minimumShortfallDays = 5;
 /// working days and days off both.
 const settledShortfallDays = 7;
 
+/// How far back the trend reads.
+enum _Range {
+  month(30),
+  quarter(91),
+  half(182);
+
+  const _Range(this.days);
+
+  final int days;
+
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    month => l10n.chartRangeMonth,
+    quarter => l10n.monthsCount(count: 3),
+    half => l10n.monthsCount(count: 6),
+  };
+}
+
 /// 睡眠債: the last 14 days against the sleep goal, how far short they
-/// fell, how that sum moved day by day, and each day's sleep. Called a
+/// fell, how that sum moved day by day over a month or more, how short
+/// each night fell, and each of the 14 days' sleep. Called a
 /// debt as other apps call it; it is the sum of the goal's shortfall,
 /// not a quantity the body keeps.
 class SleepShortfallScreen extends StatefulWidget {
@@ -38,6 +56,8 @@ class SleepShortfallScreen extends StatefulWidget {
 }
 
 class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
+  _Range _range = _Range.month;
+
   late final _model = SleepViewModel(
     AppStoreScope.read(context).backend,
     day: widget.day,
@@ -54,13 +74,14 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
     listenable: _model,
     builder: (context, _) {
       final day = _model.day;
-      // Each point of the chart sums the 14 days ending with it.
-      final days = _model.shortfallDays(shortfallDays * 2 - 1);
+      // Each point of the trend sums the 14 days ending with it.
+      final days = _model.shortfallDays(_range.days + shortfallDays - 1);
       final shown = days.sublist(shortfallDays - 1);
       final sums = [
         for (var end = shortfallDays; end <= days.length; end++)
           shortfallOf(days.sublist(end - shortfallDays, end), _model.need),
       ];
+      final summed = shown.sublist(shown.length - shortfallDays);
       return DetailPage(
         appBar: PageAppBar(
           title: context.l10n.sleepDebtSection,
@@ -72,10 +93,20 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
             label: context.l10n.trendSection,
             children: [
               Gutter(
+                child: SegmentedChoice<_Range>(
+                  options: _Range.values,
+                  selected: _range,
+                  labelOf: (range) => range.labelIn(context.l10n),
+                  selectedColor: AppColors.wellness,
+                  onChanged: (range) => setState(() => _range = range),
+                ),
+              ),
+              Gutter(
                 child: AppCard(
                   child: _chart([for (final day in shown) day.day], sums),
                 ),
               ),
+              Gutter(child: AppCard(child: _nights(shown))),
             ],
           ),
           PageSection(
@@ -84,7 +115,7 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
               Gutter(
                 child: GroupedCard(
                   children: [
-                    for (final day in shown.reversed)
+                    for (final day in summed.reversed)
                       KeyValueRow(
                         label: context.dates.dayWithWeekday(day.day),
                         value: _dayValue(context.l10n, day.slept, _model.need),
@@ -118,28 +149,96 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
       for (final sum in sums)
         if (isShown(sum)) sum.short,
     ];
-    return ChartScrubber(
-      count: sums.length,
-      indexAt: ChartScrubber.points(sums.length),
-      idle: known.isEmpty
-          ? context.l10n.notEnoughEntries
-          : context.l10n.highestLowest(
-              high: _hours(context.l10n, known.reduce((a, b) => a > b ? a : b)),
-              low: _hours(context.l10n, known.reduce((a, b) => a < b ? a : b)),
-            ),
-      readoutOf: (index) => [
-        context.dates.dayWithWeekday(days[index]),
-        if (isShown(sums[index]))
-          _hours(context.l10n, sums[index].short)
-        else
-          context.l10n.notEnoughEntries,
-      ].join(' · '),
-      builder: (context, selected) => Sparkline(
-        values: values,
-        color: AppColors.wellness,
-        height: 64,
-        selected: selected,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CategoryLabel(
+          label: context.l10n.rollingSum(count: shortfallDays),
+          color: AppColors.wellness,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ChartScrubber(
+          count: sums.length,
+          indexAt: ChartScrubber.points(sums.length),
+          idle: known.isEmpty
+              ? context.l10n.notEnoughEntries
+              : context.l10n.highestLowest(
+                  high: _hours(
+                    context.l10n,
+                    known.reduce((a, b) => a > b ? a : b),
+                  ),
+                  low: _hours(
+                    context.l10n,
+                    known.reduce((a, b) => a < b ? a : b),
+                  ),
+                ),
+          readoutOf: (index) => [
+            context.dates.dayWithWeekday(days[index]),
+            if (isShown(sums[index]))
+              _hours(context.l10n, sums[index].short)
+            else
+              context.l10n.notEnoughEntries,
+          ].join(' · '),
+          builder: (context, selected) => Sparkline(
+            values: values,
+            color: AppColors.wellness,
+            height: 160,
+            selected: selected,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// How far each night fell short of the night it is read against: a
+  /// night that was not short is a line on the axis, one without a
+  /// record an empty slot, not a full night.
+  Widget _nights(List<SleepDay> days) {
+    final need = _model.need;
+    int? shortOf(SleepDay day) => switch (day.slept) {
+      final slept? => slept >= need ? 0 : (need - slept).inMinutes,
+      null => null,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CategoryLabel(
+          label: context.l10n.nightlyShortfall,
+          color: AppColors.wellness,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ChartScrubber(
+          count: days.length,
+          indexAt: ChartScrubber.slots(days.length),
+          idle: context.l10n.goalValue(
+            goal: formatDuration(context.l10n, need),
+          ),
+          readoutOf: (index) {
+            final day = days[index];
+            return [
+              context.dates.dayWithWeekday(day.day),
+              switch (shortOf(day)) {
+                null => context.l10n.noEntriesShort,
+                0 => context.l10n.goalReached,
+                final minutes => context.l10n.shortBy(
+                  time: formatDuration(
+                    context.l10n,
+                    Duration(minutes: minutes),
+                  ),
+                ),
+              },
+            ].join(' · ');
+          },
+          builder: (context, selected) => MiniBarChart(
+            bars: [for (final day in days) ('', shortOf(day))],
+            height: 80,
+            showLabels: false,
+            color: AppColors.wellness,
+            dimColor: AppColors.wellness.withValues(alpha: 0.45),
+            selected: selected,
+          ),
+        ),
+      ],
     );
   }
 }

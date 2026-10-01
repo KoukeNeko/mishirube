@@ -702,6 +702,8 @@
   "bedtimeReminder": "취침 알림",
   "remindsAt": "{time} 알림",
   "clearGoal": "목표 지우기",
+  "rollingSum": "{count}일 누적",
+  "nightlyShortfall": "매일 밤 부족",
   "trendSection": "추이",
   "eachDaySection": "날마다",
   "notEnoughEntries": "기록 부족",

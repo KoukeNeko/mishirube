@@ -2318,6 +2318,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get clearGoal => '目標を消去';
 
   @override
+  String rollingSum({required int count}) {
+    return '$count日間の累計';
+  }
+
+  @override
+  String get nightlyShortfall => '毎晩の不足';
+
+  @override
   String get trendSection => '推移';
 
   @override

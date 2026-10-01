@@ -702,6 +702,8 @@
   "bedtimeReminder": "Bedtime reminder",
   "remindsAt": "Reminds at {time}",
   "clearGoal": "Clear goal",
+  "rollingSum": "{count}-day total",
+  "nightlyShortfall": "Short each night",
   "trendSection": "Trend",
   "eachDaySection": "Each day",
   "notEnoughEntries": "Not enough entries",

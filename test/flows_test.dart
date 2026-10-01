@@ -1363,9 +1363,15 @@ void main() {
 
     await tester.tap(line);
     await tester.pumpAndSettle();
+    // Each of the 14 days, under the trend.
+    await tester.scrollUntilVisible(
+      find.text('9 小時 · 多 1 小時'),
+      200,
+      scrollable: _pageScroll,
+    );
     expect(find.text('7 小時 · 少 1 小時'), findsOneWidget);
     expect(find.text('9 小時 · 多 1 小時'), findsOneWidget);
-    expect(find.text('沒有紀錄'), findsNWidgets(9));
+    expect(find.text('沒有紀錄', skipOffstage: false), findsNWidgets(9));
     await disposeTree(tester);
   });
 
