@@ -450,7 +450,7 @@ typedef _Share = ({String label, Color color, int? percent});
 /// page's [SegmentBar]: a part for each figure, filled to the meal's
 /// share of it in the colour of that figure's bar above, which names it,
 /// with the percent at the part's end, clear of the fill until the
-/// share is large.
+/// share is large. The fills rise one after another as the bar opens.
 class _MealShares extends StatelessWidget {
   const _MealShares({required this.shares});
 
@@ -465,48 +465,53 @@ class _MealShares extends StatelessWidget {
       borderRadius: BorderRadius.circular(_height),
       child: SizedBox(
         height: _height,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 2,
-          children: [
-            for (final share in shares)
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    const ColoredBox(color: AppColors.surfaceRaised),
-                    if (share.percent case final percent?) ...[
-                      FractionallySizedBox(
-                        alignment: AlignmentDirectional.centerStart,
-                        widthFactor: (percent / 100).clamp(0.0, 1.0),
-                        child: ColoredBox(color: share.color),
-                      ),
-                      Semantics(
-                        label: '${share.label} $percent%',
-                        excludeSemantics: true,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.xs,
-                          ),
-                          // Six parts share a card's width; a large text
-                          // size shrinks to fit rather than overflowing.
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: AlignmentDirectional.centerEnd,
-                            child: Text(
-                              '$percent%',
-                              style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textPrimary,
+        child: ChartEntrance(
+          shows: [for (final share in shares) share.percent],
+          builder: (context, drawn) => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 2,
+            children: [
+              for (final (index, share) in shares.indexed)
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const ColoredBox(color: AppColors.surfaceRaised),
+                      if (share.percent case final percent?) ...[
+                        FractionallySizedBox(
+                          alignment: AlignmentDirectional.centerStart,
+                          widthFactor:
+                              (percent / 100).clamp(0.0, 1.0) *
+                              staggeredProgress(drawn, index, shares.length),
+                          child: ColoredBox(color: share.color),
+                        ),
+                        Semantics(
+                          label: '${share.label} $percent%',
+                          excludeSemantics: true,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.xs,
+                            ),
+                            // Six parts share a card's width; a large text
+                            // size shrinks to fit rather than overflowing.
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: Text(
+                                '$percent%',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     ),
@@ -990,7 +995,12 @@ class _MacroLine extends StatelessWidget {
         ),
         if (target case final target? when target > 0) ...[
           const SizedBox(height: AppSpacing.xxs),
-          ProgressLine(progress: grams / target, color: color, height: 6),
+          ProgressLine(
+            progress: grams / target,
+            color: color,
+            height: 6,
+            drawsIn: true,
+          ),
         ],
       ],
     );
@@ -1125,7 +1135,12 @@ class _MeterRow extends StatelessWidget {
       if (note case final note?) Text(note, style: AppTextStyles.caption),
       if (progress case final progress?) ...[
         const SizedBox(height: AppSpacing.xxs),
-        ProgressLine(progress: progress, color: color, height: 4),
+        ProgressLine(
+          progress: progress,
+          color: color,
+          height: 4,
+          drawsIn: true,
+        ),
       ],
     ],
   );

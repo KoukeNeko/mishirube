@@ -157,6 +157,7 @@ class ProgressLine extends StatelessWidget {
     required this.progress,
     this.color = AppColors.training,
     this.height = 8,
+    this.drawsIn = false,
   });
 
   /// 0–1; null for work whose end nobody can tell, which moves instead of
@@ -165,16 +166,28 @@ class ProgressLine extends StatelessWidget {
   final Color color;
   final double height;
 
+  /// Whether it fills in as a chart does ([ChartEntrance]): for a figure
+  /// against its target, not for a timer or work under way, whose bar
+  /// moves on its own.
+  final bool drawsIn;
+
+  Widget _bar(double? value) => ClipRRect(
+    borderRadius: BorderRadius.circular(height),
+    child: LinearProgressIndicator(
+      value: value,
+      minHeight: height,
+      color: color,
+      backgroundColor: AppColors.surfaceRaised,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(height),
-      child: LinearProgressIndicator(
-        value: progress?.clamp(0, 1),
-        minHeight: height,
-        color: color,
-        backgroundColor: AppColors.surfaceRaised,
-      ),
+    final value = progress?.clamp(0.0, 1.0);
+    if (!drawsIn || value == null) return _bar(value);
+    return ChartEntrance(
+      shows: [value],
+      builder: (context, drawn) => _bar(value * easedProgress(drawn)),
     );
   }
 }
