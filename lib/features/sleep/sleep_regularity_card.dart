@@ -122,10 +122,10 @@ class SleepRegularityCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   Text(switch (gap.inMinutes) {
                     > 0 => l10n.weekendMidsleepLater(
-                      time: formatHoursMinutes(gap),
+                      time: formatDuration(context.l10n, gap),
                     ),
                     < 0 => l10n.weekendMidsleepEarlier(
-                      time: formatHoursMinutes(-gap),
+                      time: formatDuration(context.l10n, -gap),
                     ),
                     _ => l10n.weekendMidsleepSame,
                   }, style: AppTextStyles.body),
@@ -137,13 +137,13 @@ class SleepRegularityCard extends StatelessWidget {
             KeyValueRow(
               label: l10n.averageBedtime,
               value:
-                  '${_clock(regularity.bedtime)} · '
+                  '${formatMinutesOfDay(regularity.bedtime.inMinutes)} · '
                   '${l10n.plusMinusMinutes(minutes: regularity.bedtimeSpread.inMinutes)}',
             ),
             KeyValueRow(
               label: l10n.averageWake,
               value:
-                  '${_clock(regularity.wake)} · '
+                  '${formatMinutesOfDay(regularity.wake.inMinutes)} · '
                   '${l10n.plusMinusMinutes(minutes: regularity.wakeSpread.inMinutes)}',
             ),
           ],
@@ -152,8 +152,3 @@ class SleepRegularityCard extends StatelessWidget {
     );
   }
 }
-
-/// `23:42`: a time after midnight as a clock.
-String _clock(Duration sinceMidnight) =>
-    '${sinceMidnight.inHours.toString().padLeft(2, '0')}:'
-    '${(sinceMidnight.inMinutes % 60).toString().padLeft(2, '0')}';

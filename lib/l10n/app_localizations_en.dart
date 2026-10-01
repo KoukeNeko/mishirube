@@ -1202,6 +1202,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityTypeOther => 'Other activity';
 
   @override
+  String hoursMinutes({required int hours, required int minutes}) {
+    return '$hours h $minutes min';
+  }
+
+  @override
   String durationMinutes({required int minutes}) {
     return '$minutes min';
   }
@@ -1566,12 +1571,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartRangeMonth => 'M';
 
   @override
-  String get chartRangeHalfYear => '6M';
-
-  @override
-  String get chartRangeYear => 'Y';
-
-  @override
   String get previousDay => 'Previous day';
 
   @override
@@ -1579,9 +1578,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entriesRow => 'Entries';
-
-  @override
-  String get noData => 'No data';
 
   @override
   String get thisDay => 'This day';
@@ -2157,11 +2153,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fallAsleepTime => 'Time to fall asleep';
 
   @override
-  String aboutMinutes({required int minutes}) {
-    return 'About $minutes min';
-  }
-
-  @override
   String get sleepEfficiency => 'Sleep efficiency';
 
   @override
@@ -2298,12 +2289,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String trendOverNights({required String measure, required int count}) {
     return '$measure trend, $count nights';
   }
-
-  @override
-  String get heartRateAsleep => 'Heart rate asleep';
-
-  @override
-  String get respiratoryAsleep => 'Respiratory rate asleep';
 
   @override
   String everyMinutes({required int minutes}) {
@@ -3526,7 +3511,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String actualExpenditure({required String kcal}) {
-    return 'Actual expenditure about $kcal kcal/day';
+    return 'Actual expenditure $kcal kcal/day';
   }
 
   @override
@@ -3553,7 +3538,7 @@ class AppLocalizationsEn extends AppLocalizations {
     required int weeks,
     required String forecast,
   }) {
-    return 'Trend weight $change kg a week, about $forecast kg in $weeks weeks';
+    return 'Trend weight $change kg a week, $forecast kg in $weeks weeks';
   }
 
   @override
@@ -3591,7 +3576,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String offsetsDeficitShare({required int percent}) {
-    return 'Cancels about $percent% of the weekday deficit';
+    return 'Cancels $percent% of the weekday deficit';
   }
 
   @override
@@ -3610,7 +3595,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String proteinShort({required int grams}) {
-    return 'Protein about $grams g short a day';
+    return 'Protein $grams g short a day';
   }
 
   @override
@@ -3847,11 +3832,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String deletedNamed({required String name}) {
     return 'Deleted \"$name\"';
-  }
-
-  @override
-  String aboutMinutesShort({required int minutes}) {
-    return 'About $minutes min';
   }
 
   @override
@@ -5683,12 +5663,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String weightFalling({required String kg}) {
-    return 'Weight is falling by about $kg kg a week.';
+    return 'Weight is falling by $kg kg a week.';
   }
 
   @override
   String weightRising({required String kg}) {
-    return 'Weight is rising by about $kg kg a week.';
+    return 'Weight is rising by $kg kg a week.';
   }
 
   @override

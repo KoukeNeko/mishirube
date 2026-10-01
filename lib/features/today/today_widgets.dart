@@ -540,7 +540,7 @@ class TodayActivityCard extends StatelessWidget {
       for (final metric in ActivityMetric.headline)
         if (metric != lead)
           if (totals[metric] case final value?)
-            '${metric.format(value)} ${metric.unitIn(context.l10n)}',
+            withUnit(metric.format(value), metric.unitIn(context.l10n)),
     ];
     return AppCard(
       onTap: onTap,
@@ -591,7 +591,7 @@ class VitalsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     String figure(ActivityMetric metric) =>
-        '${metric.format(vitals[metric]!)} ${metric.unitIn(l10n)}';
+        withUnit(metric.format(vitals[metric]!), metric.unitIn(l10n));
     final day = DateTime(0);
     final rows = <(String, String)>[
       if (bloodPressureOf({

@@ -213,8 +213,8 @@ String _change(
   amount: amount,
 );
 
-String _duration(double minutes) =>
-    formatHoursMinutes(Duration(minutes: minutes.round()));
+String _duration(AppLocalizations l10n, double minutes) =>
+    formatDuration(l10n, Duration(minutes: minutes.round()));
 
 double _round(double kilograms) => (kilograms * 10).round() / 10;
 
@@ -277,7 +277,7 @@ Insight? sleepAndTrainingInsight(
     ),
     evidence: [
       l10n.workoutsCount(count: pairs.length),
-      l10n.sleepSplitAt(time: _duration(median)),
+      l10n.sleepSplitAt(time: _duration(l10n, median)),
       l10n.againstSameWorkout,
       l10n.correlationCaveat,
     ],
@@ -405,7 +405,7 @@ TrendLine? sleepLine(
       : _mean(compared.recent) - _mean(compared.prior);
   return TrendLine(
     domain: TrendDomain.sleep,
-    value: l10n.statAverage(value: _duration(_mean(recent))),
+    value: l10n.statAverage(value: _duration(l10n, _mean(recent))),
     change: delta == null
         ? null
         : _change(

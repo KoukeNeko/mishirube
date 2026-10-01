@@ -1198,6 +1198,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get activityTypeOther => 'その他の運動';
 
   @override
+  String hoursMinutes({required int hours, required int minutes}) {
+    return '$hours時間$minutes分';
+  }
+
+  @override
   String durationMinutes({required int minutes}) {
     return '$minutes分';
   }
@@ -1559,12 +1564,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chartRangeMonth => '月';
 
   @override
-  String get chartRangeHalfYear => '6か月';
-
-  @override
-  String get chartRangeYear => '年';
-
-  @override
   String get previousDay => '前の日';
 
   @override
@@ -1572,9 +1571,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get entriesRow => '記録';
-
-  @override
-  String get noData => 'データなし';
 
   @override
   String get thisDay => 'この日';
@@ -2149,11 +2145,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get fallAsleepTime => '入眠までの時間';
 
   @override
-  String aboutMinutes({required int minutes}) {
-    return '約$minutes分';
-  }
-
-  @override
   String get sleepEfficiency => '睡眠効率';
 
   @override
@@ -2290,12 +2281,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String trendOverNights({required String measure, required int count}) {
     return '$measureの推移、$count晩';
   }
-
-  @override
-  String get heartRateAsleep => '睡眠中の心拍数';
-
-  @override
-  String get respiratoryAsleep => '睡眠中の呼吸数';
 
   @override
   String everyMinutes({required int minutes}) {
@@ -3471,7 +3456,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String actualExpenditure({required String kcal}) {
-    return '実際の消費は約$kcal kcal/日';
+    return '実際の消費は$kcal kcal/日';
   }
 
   @override
@@ -3498,7 +3483,7 @@ class AppLocalizationsJa extends AppLocalizations {
     required int weeks,
     required String forecast,
   }) {
-    return 'トレンド体重は週$change kg、$weeks週後は約$forecast kg';
+    return 'トレンド体重は週$change kg、$weeks週後は$forecast kg';
   }
 
   @override
@@ -3535,7 +3520,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String offsetsDeficitShare({required int percent}) {
-    return '平日の不足の約$percent%を相殺';
+    return '平日の不足の$percent%を相殺';
   }
 
   @override
@@ -3554,7 +3539,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String proteinShort({required int grams}) {
-    return 'タンパク質が1日約$grams g不足';
+    return 'タンパク質が1日$grams g不足';
   }
 
   @override
@@ -3790,11 +3775,6 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String deletedNamed({required String name}) {
     return '「$name」を削除しました';
-  }
-
-  @override
-  String aboutMinutesShort({required int minutes}) {
-    return '約$minutes分';
   }
 
   @override
@@ -5586,12 +5566,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String weightFalling({required String kg}) {
-    return '体重は週に約$kg kgのペースで減少しています。';
+    return '体重は週に$kg kgのペースで減少しています。';
   }
 
   @override
   String weightRising({required String kg}) {
-    return '体重は週に約$kg kgのペースで増加しています。';
+    return '体重は週に$kg kgのペースで増加しています。';
   }
 
   @override

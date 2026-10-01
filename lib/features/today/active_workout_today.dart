@@ -78,7 +78,7 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
         child: AccentRow(
           color: AppColors.wellness,
           title: context.l10n.moduleSleep,
-          trailing: formatHoursMinutes(night.entry.duration),
+          trailing: formatDuration(context.l10n, night.entry.duration),
         ),
       ),
   ];

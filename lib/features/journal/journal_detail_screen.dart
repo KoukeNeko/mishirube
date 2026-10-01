@@ -156,9 +156,10 @@ extension on JournalDetailScreen {
               for (final reading in session.readings)
                 KeyValueRow(
                   label: reading.metric.labelIn(context.l10n),
-                  value:
-                      '${formatAmount(reading.value)} '
-                      '${reading.metric.unitIn(context.l10n)}',
+                  value: withUnit(
+                    formatAmount(reading.value),
+                    reading.metric.unitIn(context.l10n),
+                  ),
                 ),
             ],
           ),
@@ -263,7 +264,7 @@ _View _viewOf(BuildContext context, Object entry, JournalViewModel journal) =>
       ),
       SleepEntry night => _View(
         title: context.l10n.moduleSleep,
-        value: formatHoursMinutes(night.duration),
+        value: formatDuration(context.l10n, night.duration),
         color: AppColors.wellness,
         note: night.note,
         context: switch (night.score) {

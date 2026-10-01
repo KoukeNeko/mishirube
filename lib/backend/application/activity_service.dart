@@ -177,6 +177,9 @@ class ActivityService {
   Duration startingDuration(ActivityType type) =>
       _activities.lastDurationOf(type) ?? defaultActivityDuration;
 
+  /// When the first exercise outside the gym started; null without any.
+  DateTime? get firstSessionAt => _activities.earliest();
+
   /// Exercise over the window ending now.
   ActivitySummary summary({Duration window = const Duration(days: 28)}) {
     final now = _db.now();

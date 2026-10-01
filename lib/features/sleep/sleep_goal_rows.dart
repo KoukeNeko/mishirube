@@ -15,7 +15,7 @@ List<Widget> sleepGoalRows(BuildContext context, SleepViewModel model) => [
   NavRow(
     title: context.l10n.sleepGoal,
     trailing: Text(switch (model.goal) {
-      final goal? => formatHoursMinutes(goal),
+      final goal? => formatDuration(context.l10n, goal),
       null => context.l10n.notSet,
     }, style: AppTextStyles.caption),
     onTap: () => _editGoal(context, model),
@@ -51,7 +51,7 @@ Future<void> _editGoal(BuildContext context, SleepViewModel model) async {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              formatHoursMinutes(Duration(minutes: minutes)),
+              formatDuration(context.l10n, Duration(minutes: minutes)),
               style: AppTextStyles.hugeNumber.copyWith(
                 color: AppColors.wellness,
               ),
@@ -63,8 +63,10 @@ Future<void> _editGoal(BuildContext context, SleepViewModel model) async {
               step: 15,
               color: AppColors.wellness,
               semanticLabel: context.l10n.sleepGoal,
-              labelOf: (value) =>
-                  formatHoursMinutes(Duration(minutes: value.round())),
+              labelOf: (value) => formatDuration(
+                context.l10n,
+                Duration(minutes: value.round()),
+              ),
               onChanged: (value) => setState(() => minutes = value.round()),
             ),
           ],

@@ -844,7 +844,7 @@ class _SeriesCard extends StatelessWidget {
     ActivitySeries.speed => '${(value * 3.6).toStringAsFixed(1)} km/h',
     ActivitySeries.strideLength => '${value.toStringAsFixed(2)} m',
     ActivitySeries.verticalOscillation => '${value.toStringAsFixed(1)} cm',
-    _ => '${value.round()} ${series.unitIn(l10n)}',
+    _ => withUnit('${value.round()}', series.unitIn(l10n)),
   };
 
   @override
@@ -880,7 +880,7 @@ class _SeriesCard extends StatelessWidget {
             count: shown.length,
             indexAt: ChartScrubber.points(shown.length),
             idle:
-                '${formatTimeOfDay(start)} – '
+                '${formatTimeOfDay(start)}–'
                 '${formatTimeOfDay(start.add(points.last.at))}',
             readoutOf: (index) =>
                 '${formatTimeOfDay(start.add(shown[index].at))} · '

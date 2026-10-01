@@ -569,6 +569,9 @@ class InsightsService {
     );
   }
 
+  /// When the first finished workout started; null without any.
+  DateTime? get firstWorkoutAt => _workouts.completedStarts().firstOrNull;
+
   /// What the training over [window] adds up to: workouts, working
   /// sets, volume, time trained and the average workout's length (over
   /// the workouts with an end), and how many exercises set a best in it.

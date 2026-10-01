@@ -88,12 +88,12 @@ void main() {
     await tester.pump();
 
     await tester.dragUntilVisible(
-      find.text('睡眠時心率'),
+      find.text('心率'),
       find.byType(CustomScrollView).hitTestable().first,
       const Offset(0, -200),
     );
     expect(find.text('50–61 次/分'), findsOneWidget);
-    expect(find.text('睡眠時呼吸速率'), findsNothing, reason: 'no samples');
+    expect(find.text('呼吸速率'), findsNothing, reason: 'no samples');
 
     // Touching a bar reads out its half hour.
     final chart = find.byType(RangeBarChart);

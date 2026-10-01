@@ -241,7 +241,7 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
                 ? context.l10n.loggedValue
                 : context.l10n.updatedValue)(
               item: metric.labelIn(context.l10n),
-              value: '${formatAmount(value)} ${metric.unitIn(context.l10n)}',
+              value: withUnit(formatAmount(value), metric.unitIn(context.l10n)),
             )
           : context.l10n.loggedItemsCount(count: entered.length),
       kind: ToastKind.success,
@@ -295,8 +295,10 @@ class _BodyReadingEntryScreenState extends State<BodyReadingEntryScreen> {
               caption: switch (_previous[metric]) {
                 final last? when widget.session == null =>
                   context.l10n.lastReadingOn(
-                    value:
-                        '${formatAmount(last.value)} ${metric.unitIn(context.l10n)}',
+                    value: withUnit(
+                      formatAmount(last.value),
+                      metric.unitIn(context.l10n),
+                    ),
                     date: context.dates.compactMonthDay(last.measuredAt),
                   ),
                 _ => null,

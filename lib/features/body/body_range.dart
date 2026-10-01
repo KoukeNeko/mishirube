@@ -11,8 +11,8 @@ enum BodyRange {
   final Duration window;
 
   String labelIn(AppLocalizations l10n) => switch (this) {
-    month => l10n.daysCount(count: 30),
-    quarter => l10n.daysCount(count: 90),
+    month => l10n.chartRangeMonth,
+    quarter => l10n.monthsCount(count: 3),
     year => l10n.yearsCount(count: 1),
   };
 }

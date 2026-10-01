@@ -1212,7 +1212,7 @@ void main() {
       store: store,
     );
     expect(find.text('72.4 kg'), findsOneWidget);
-    expect(find.text('17.8 %'), findsOneWidget, reason: 'read together');
+    expect(find.text('17.8%'), findsOneWidget, reason: 'read together');
     await _tapText(tester, '刪除這次量測');
     expect(store.backend.journal.bodySession(session.id), isNull);
     expect(
@@ -1253,11 +1253,11 @@ void main() {
     // Mid-screen: found at the bottom edge, most of it is still below.
     await Scrollable.ensureVisible(tester.element(chart), alignment: 0.5);
     await tester.pumpAndSettle();
-    expect(find.text('平均 7:00 · 1 晚'), findsOneWidget);
+    expect(find.text('平均 7 小時 · 1 晚'), findsOneWidget);
     await tester.tapAt(tester.getRect(chart).centerRight - const Offset(4, 0));
     await tester.pump();
-    expect(find.textContaining('· 7:00'), findsOneWidget);
-    expect(find.text('平均 7:00 · 1 晚'), findsNothing);
+    expect(find.textContaining('· 7 小時'), findsOneWidget);
+    expect(find.text('平均 7 小時 · 1 晚'), findsNothing);
     await disposeTree(tester);
   });
 
@@ -1318,11 +1318,11 @@ void main() {
     expect(store.backend.sleep.goal, const Duration(hours: 8));
     // The summary is at the top, above the goal row.
     await tester.scrollUntilVisible(
-      find.text('目標 8:00 · 少 1:00'),
+      find.text('目標 8 小時 · 少 1 小時'),
       -200,
       scrollable: _pageScroll,
     );
-    expect(find.text('目標 8:00 · 少 1:00'), findsOneWidget);
+    expect(find.text('目標 8 小時 · 少 1 小時'), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -1358,13 +1358,13 @@ void main() {
     expect(find.text('4.0 小時'), findsOneWidget, reason: '1 + 3, not net of 1');
     expect(find.text('近 7 天 4.0 小時 · 多睡 1.0 小時'), findsOneWidget);
     expect(find.text('初步'), findsOneWidget, reason: 'under a week');
-    expect(find.text('以 8:00 計'), findsOneWidget);
+    expect(find.text('以 8 小時計'), findsOneWidget);
     expect(find.text('9 天沒有紀錄'), findsOneWidget);
 
     await tester.tap(line);
     await tester.pumpAndSettle();
-    expect(find.text('7:00 · 少 1:00'), findsOneWidget);
-    expect(find.text('9:00 · 多 1:00'), findsOneWidget);
+    expect(find.text('7 小時 · 少 1 小時'), findsOneWidget);
+    expect(find.text('9 小時 · 多 1 小時'), findsOneWidget);
     expect(find.text('沒有紀錄'), findsNWidgets(9));
     await disposeTree(tester);
   });
@@ -2352,7 +2352,7 @@ void main() {
     store.backend.journal.recordSleep(const Duration(hours: 7), score: 4);
     await pumpScreen(tester, const LogScreen(), store: store);
 
-    await _tapText(tester, '睡眠 7:00');
+    await _tapText(tester, '睡眠 7 小時');
     await tester.pumpAndSettle();
 
     expect(find.byType(SleepScreen), findsOneWidget);

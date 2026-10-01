@@ -36,14 +36,14 @@ void main() {
     await pump(tester);
     final chart = tester.getRect(find.byType(CustomPaint).last);
     expect(find.textContaining('深層 ·'), findsNothing);
-    expect(find.text('整晚 · 02:00–06:00 · 4:00'), findsOneWidget);
+    expect(find.text('整晚 · 02:00–06:00 · 4 小時'), findsOneWidget);
 
     // Three eighths of the night: inside the deep stretch.
     await tester.tapAt(
       Offset(chart.left + chart.width * 3 / 8, chart.center.dy),
     );
     await tester.pump();
-    expect(find.text('深層 · 03:00–04:00 · 1:00'), findsOneWidget);
+    expect(find.text('深層 · 03:00–04:00 · 1 小時'), findsOneWidget);
 
     await tester.dragFrom(
       Offset(chart.left + chart.width * 3 / 8, chart.center.dy),

@@ -68,7 +68,7 @@ Widget _lengthChart(
     count: bars.length,
     indexAt: ChartScrubber.slots(bars.length),
     idle: [
-      l10n.statAverage(value: formatHoursMinutes(average)),
+      l10n.statAverage(value: formatDuration(context.l10n, average)),
       l10n.nightsCount(count: nights.length),
       if (metCount > 0) l10n.goalMetNights(count: metCount),
     ].join(' · '),
@@ -115,7 +115,7 @@ Widget _scheduleChart(BuildContext context, List<SleepEntry> timed) {
       return '${context.dates.dayWithWeekday(night.sleptAt)} · '
           '${formatTimeOfDay(night.startedAt!)}–'
           '${formatTimeOfDay(night.sleptAt)} · '
-          '${formatHoursMinutes(night.duration)}';
+          '${formatDuration(context.l10n, night.duration)}';
     },
     builder: (context, selected) =>
         SleepScheduleChart(nights: timed, selected: selected),
@@ -155,7 +155,7 @@ List<({String label, int? minutes, String readout, bool isMet})> _bars(
           readout: [
             context.dates.dayWithWeekday(day),
             if (byDay[day] case final minutes?)
-              formatHoursMinutes(Duration(minutes: minutes))
+              formatDuration(context.l10n, Duration(minutes: minutes))
             else
               context.l10n.noEntriesShort,
             if (metDays.contains(day)) context.l10n.goalReached,
@@ -175,10 +175,9 @@ String _averageClock(List<DateTime> times, {required int fromHour}) {
   final shifted = [
     for (final time in times) (time.hour * 60 + time.minute - from) % day,
   ];
-  final average =
-      (shifted.reduce((a, b) => a + b) ~/ shifted.length + from) % day;
-  return '${(average ~/ 60).toString().padLeft(2, '0')}:'
-      '${(average % 60).toString().padLeft(2, '0')}';
+  return formatMinutesOfDay(
+    shifted.reduce((a, b) => a + b) ~/ shifted.length + from,
+  );
 }
 
 /// Each overnight reading's nightly average across the [days] up to the
@@ -198,9 +197,8 @@ List<Widget> sleepVitalItems(
           (measure, values),
   ];
   if (rows.isEmpty) return const [];
-  String withUnit(OvernightMeasure measure, double value) =>
-      '${overnightNumber(measure, value)}'
-      '${measure.unitIn(l10n).isEmpty ? '' : ' ${measure.unitIn(l10n)}'}';
+  String reading(OvernightMeasure measure, double value) =>
+      withUnit(overnightNumber(measure, value), measure.unitIn(l10n));
   return [
     Gutter(child: SectionLabel(l10n.healthDataOvernight)),
     for (final (measure, readings) in rows)
@@ -209,7 +207,10 @@ List<Widget> sleepVitalItems(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(measure.labelIn(l10n), style: AppTextStyles.itemTitle),
+              CategoryLabel(
+                label: measure.labelIn(l10n),
+                color: AppColors.wellness,
+              ),
               const SizedBox(height: AppSpacing.xxs),
               Semantics(
                 label: l10n.trendOverNights(
@@ -220,11 +221,11 @@ List<Widget> sleepVitalItems(
                   count: readings.length,
                   indexAt: ChartScrubber.points(readings.length),
                   idle:
-                      '${l10n.statAverage(value: withUnit(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length))}'
+                      '${l10n.statAverage(value: reading(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length))}'
                       ' · ${l10n.nightsCount(count: readings.length)}',
                   readoutOf: (index) =>
                       '${context.dates.dayWithWeekday(readings[index].$1)} · '
-                      '${withUnit(measure, readings[index].$2)}',
+                      '${reading(measure, readings[index].$2)}',
                   builder: (context, selected) => Sparkline(
                     values: [for (final (_, value) in readings) value],
                     color: AppColors.wellness,
@@ -258,8 +259,8 @@ List<Widget> sleepFactorItems(BuildContext context, SleepViewModel model) {
   final l10n = context.l10n;
   final factors = model.factors;
   String signed(Duration difference) => difference.isNegative
-      ? l10n.sleptLess(time: formatHoursMinutes(-difference))
-      : l10n.sleptMore(time: formatHoursMinutes(difference));
+      ? l10n.sleptLess(time: formatDuration(context.l10n, -difference))
+      : l10n.sleptMore(time: formatDuration(context.l10n, difference));
   final rows = [
     for (final (label, comparison) in [
       (l10n.afterTraining, factors.training),

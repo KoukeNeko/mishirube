@@ -55,7 +55,7 @@ void main() {
           },
         ),
     ]);
-    expect(find.text('週末睡眠中點晚 2:00'), findsOneWidget);
+    expect(find.text('週末睡眠中點晚 2 小時'), findsOneWidget);
   });
 
   testWidgets('too few nights say what the index needs', (tester) async {

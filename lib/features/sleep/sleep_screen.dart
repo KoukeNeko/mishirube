@@ -188,7 +188,7 @@ class _SleepScreenState extends State<SleepScreen> {
                         nap.entry.kind.labelIn(context.l10n),
                     subtitle: nap.shownSource?.sourceName,
                     trailing: Text(
-                      formatHoursMinutes(nap.entry.duration),
+                      formatDuration(context.l10n, nap.entry.duration),
                       style: AppTextStyles.itemTitle,
                     ),
                   ),
@@ -284,7 +284,7 @@ class _SleepScreenState extends State<SleepScreen> {
       if (latency != null)
         KeyValueRow(
           label: context.l10n.fallAsleepTime,
-          value: context.l10n.aboutMinutes(minutes: latency.inMinutes),
+          value: formatDuration(context.l10n, latency),
         ),
       if (efficiency != null)
         KeyValueRow(
@@ -295,7 +295,7 @@ class _SleepScreenState extends State<SleepScreen> {
         KeyValueRow(
           label: context.l10n.awakeAtNight,
           value: [
-            formatHoursMinutes(awake),
+            formatDuration(context.l10n, awake),
             if (continuity.awakenings case final times? when times > 0)
               context.l10n.wokeTimes(count: times),
           ].join(' · '),
@@ -349,20 +349,33 @@ class _SleepScreenState extends State<SleepScreen> {
           Gutter(
             child: GroupedCard(
               children: [
+                // As the activity page lists a day's figures: the night's
+                // value against the trailing edge, the usual range under
+                // the name, and its nights over time one tap further.
                 for (final reading in record.readings)
-                  KeyValueRow(
-                    label: reading.measure.labelIn(context.l10n),
-                    value: [
-                      overnightValue(context.l10n, reading),
-                      if (_model.baseline(reading.measure) case final usual?
+                  NavRow(
+                    title: reading.measure.labelIn(context.l10n),
+                    subtitle: switch (_model.baseline(reading.measure)) {
+                      final usual?
                           when reading.measure !=
-                              OvernightMeasure.breathingDisturbances)
+                              OvernightMeasure.breathingDisturbances =>
                         context.l10n.usualRangeValue(
-                          range:
-                              '${overnightNumber(reading.measure, usual.low)}–'
-                              '${overnightNumber(reading.measure, usual.high)}',
+                          range: withUnit(
+                            '${overnightNumber(reading.measure, usual.low)}–'
+                            '${overnightNumber(reading.measure, usual.high)}',
+                            reading.measure.unitIn(context.l10n),
+                          ),
                         ),
-                    ].join(' · '),
+                      _ => null,
+                    },
+                    trailing: Text(
+                      overnightValue(context.l10n, reading),
+                      style: AppTextStyles.itemTitle,
+                    ),
+                    onTap: () => pushPage(
+                      context,
+                      const TrendDetailScreen(domain: TrendDomain.sleep),
+                    ),
                   ),
               ],
             ),
@@ -411,7 +424,7 @@ class _SleepScreenState extends State<SleepScreen> {
                           ? store.healthSourceName
                           : source.sourceName,
                       subtitle: [
-                        '${formatTimeOfDay(source.start)} – '
+                        '${formatTimeOfDay(source.start)}–'
                             '${formatTimeOfDay(source.end)}',
                         source.isManual
                             ? context.l10n.sourceManual
@@ -440,10 +453,9 @@ class _SleepScreenState extends State<SleepScreen> {
   }
 }
 
-/// `23:41 – 07:34`, or null for a length typed in without times.
+/// `23:41–07:34`, or null for a length typed in without times.
 String? _span(SleepEntry entry) => switch (entry.startedAt) {
-  final start? =>
-    '${formatTimeOfDay(start)} – ${formatTimeOfDay(entry.sleptAt)}',
+  final start? => '${formatTimeOfDay(start)}–${formatTimeOfDay(entry.sleptAt)}',
   null => null,
 };
 
@@ -477,8 +489,7 @@ String overnightValue(AppLocalizations l10n, OvernightReading reading) {
     };
   }
   final range = _range(measure, reading.minimum, reading.maximum);
-  final unit = measure.unitIn(l10n);
-  return unit.isEmpty ? range : '$range $unit';
+  return withUnit(range, measure.unitIn(l10n));
 }
 
 /// The span a night's stages are set against.
@@ -527,7 +538,7 @@ class _StageShares extends StatelessWidget {
               };
               final label = [
                 stage.labelIn(l10n),
-                formatHoursMinutes(time),
+                formatDuration(context.l10n, time),
                 if (stage.isAsleep && share != null)
                   '${(share * 100).round()}%',
               ].join(' · ');
@@ -597,7 +608,7 @@ class _Summary extends StatelessWidget {
     final gap = entry.duration - usual;
     if (gap.inMinutes.abs() < 1) return l10n.sameAsUsual;
     return l10n.versusUsual(
-      change: '${gap.isNegative ? '−' : '+'}${formatHoursMinutes(gap.abs())}',
+      change: '${gap.isNegative ? '−' : '+'}${formatDuration(l10n, gap.abs())}',
     );
   }
 
@@ -608,11 +619,11 @@ class _Summary extends StatelessWidget {
     if (goal == null || entry.measure != SleepMeasure.asleep) return null;
     final gap = entry.duration - goal;
     if (gap >= Duration.zero) {
-      return l10n.goalMet(goal: formatHoursMinutes(goal));
+      return l10n.goalMet(goal: formatDuration(l10n, goal));
     }
     return l10n.goalShort(
-      goal: formatHoursMinutes(goal),
-      gap: formatHoursMinutes(-gap),
+      goal: formatDuration(l10n, goal),
+      gap: formatDuration(l10n, -gap),
     );
   }
 
@@ -639,8 +650,9 @@ class _Summary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            formatHoursMinutes(entry.duration),
+          ValueWithUnit(
+            value: formatDuration(context.l10n, entry.duration),
+            unit: null,
             style: AppTextStyles.hugeNumber.copyWith(color: AppColors.wellness),
           ),
           Text(
@@ -654,7 +666,8 @@ class _Summary extends StatelessWidget {
           if (naps.isNotEmpty)
             Text(
               context.l10n.withNapsTotal(
-                time: formatHoursMinutes(
+                time: formatDuration(
+                  context.l10n,
                   naps.fold(
                     entry.duration,
                     (sum, nap) => sum + nap.entry.duration,
@@ -696,17 +709,9 @@ class _NightCharts extends StatelessWidget {
   /// so the page below does not move once they arrive.
   final bool isRead;
 
-  static final _shown = [
-    (
-      OvernightMeasure.heartRate,
-      (AppLocalizations l10n) => l10n.heartRateAsleep,
-      AppColors.heart,
-    ),
-    (
-      OvernightMeasure.respiratoryRate,
-      (AppLocalizations l10n) => l10n.respiratoryAsleep,
-      AppColors.activity,
-    ),
+  static const _shown = [
+    (OvernightMeasure.heartRate, AppColors.heart),
+    (OvernightMeasure.respiratoryRate, AppColors.activity),
   ];
 
   @override
@@ -723,7 +728,7 @@ class _NightCharts extends StatelessWidget {
         return Column(
           spacing: pageItemSpacing,
           children: [
-            for (final (measure, title, color) in _shown)
+            for (final (measure, color) in _shown)
               if (byMeasure[measure] ??
                       (isWaiting && isRead
                           ? const <(DateTime, double)>[]
@@ -731,7 +736,7 @@ class _NightCharts extends StatelessWidget {
                   case final points? when points.isNotEmpty || isWaiting)
                 Gutter(
                   child: _NightChartCard(
-                    title: title(context.l10n),
+                    title: measure.labelIn(context.l10n),
                     measure: measure,
                     color: color,
                     points: points,
@@ -783,8 +788,14 @@ class _NightChartCard extends StatelessWidget {
           Text(
             values.isEmpty
                 ? '—'
-                : '${_range(measure, values.reduce(math.min), values.reduce(math.max))} '
-                      '${measure.unitIn(context.l10n)}',
+                : withUnit(
+                    _range(
+                      measure,
+                      values.reduce(math.min),
+                      values.reduce(math.max),
+                    ),
+                    measure.unitIn(context.l10n),
+                  ),
             style: AppTextStyles.itemTitle,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -800,8 +811,10 @@ class _NightChartCard extends StatelessWidget {
                 '${formatTimeOfDay(start)}–'
                     '${formatTimeOfDay(start.add(stretch))}',
                 switch (ranges[index]) {
-                  (final low, final high) =>
-                    '${_range(measure, low, high)} ${measure.unitIn(context.l10n)}',
+                  (final low, final high) => withUnit(
+                    _range(measure, low, high),
+                    measure.unitIn(context.l10n),
+                  ),
                   null => context.l10n.noEntriesShort,
                 },
               ].join(' · ');

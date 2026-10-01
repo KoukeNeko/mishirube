@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../format.dart';
 import 'cards.dart';
 
 /// A big number with an optional unit and a caption underneath.
@@ -52,18 +53,35 @@ class ValueWithUnit extends StatelessWidget {
   final String? unit;
   final TextStyle style;
 
+  /// The words of a value that carries its own units, `7 小時 45 分`.
+  static final _words = RegExp(r'\s*\p{L}+\s*', unicode: true);
+
   @override
   Widget build(BuildContext context) {
+    final unitStyle = AppTextStyles.caption.copyWith(
+      fontSize: (style.fontSize ?? 16) * 0.42,
+    );
+    // A value's own words are set as a unit is, so its numbers carry it.
+    final parts = <TextSpan>[];
+    var at = 0;
+    for (final words in _words.allMatches(value)) {
+      if (words.start > at) {
+        parts.add(TextSpan(text: value.substring(at, words.start)));
+      }
+      parts.add(TextSpan(text: words[0], style: unitStyle));
+      at = words.end;
+    }
+    if (at < value.length) parts.add(TextSpan(text: value.substring(at)));
     return Text.rich(
       TextSpan(
+        style: style,
         children: [
-          TextSpan(text: value, style: style),
-          if (unit != null)
+          ...parts,
+          if (unit case final unit?)
             TextSpan(
-              text: ' $unit',
-              style: AppTextStyles.caption.copyWith(
-                fontSize: (style.fontSize ?? 16) * 0.42,
-              ),
+              // The gap, or none before `%`, as `withUnit` writes it.
+              text: withUnit('', unit),
+              style: unitStyle,
             ),
         ],
       ),

@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/training_metrics.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
@@ -107,8 +108,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: routine.name,
-        subtitle: context.l10n.aboutMinutesShort(
-          minutes: store.expectedMinutes(routine),
+        subtitle: formatDuration(
+          context.l10n,
+          Duration(minutes: store.expectedMinutes(routine)),
         ),
       ),
       footer: PrimaryButton(

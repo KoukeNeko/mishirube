@@ -2360,6 +2360,12 @@ abstract class AppLocalizations {
   /// **'其他運動'**
   String get activityTypeOther;
 
+  /// A length of time of an hour or more, never written like a time of day.
+  ///
+  /// In zh, this message translates to:
+  /// **'{hours} 小時 {minutes} 分'**
+  String hoursMinutes({required int hours, required int minutes});
+
   /// A length of time in whole minutes.
   ///
   /// In zh, this message translates to:
@@ -2970,18 +2976,6 @@ abstract class AppLocalizations {
   /// **'月'**
   String get chartRangeMonth;
 
-  /// Chart range: six months.
-  ///
-  /// In zh, this message translates to:
-  /// **'半年'**
-  String get chartRangeHalfYear;
-
-  /// Chart range: one year.
-  ///
-  /// In zh, this message translates to:
-  /// **'年'**
-  String get chartRangeYear;
-
   /// Steps back a day.
   ///
   /// In zh, this message translates to:
@@ -2999,12 +2993,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'紀錄'**
   String get entriesRow;
-
-  /// Nothing recorded for this.
-  ///
-  /// In zh, this message translates to:
-  /// **'沒有資料'**
-  String get noData;
 
   /// The figure for the day shown.
   ///
@@ -4050,12 +4038,6 @@ abstract class AppLocalizations {
   /// **'入睡所需'**
   String get fallAsleepTime;
 
-  /// An estimated number of minutes.
-  ///
-  /// In zh, this message translates to:
-  /// **'約 {minutes} 分'**
-  String aboutMinutes({required int minutes});
-
   /// Time asleep as a share of time in bed.
   ///
   /// In zh, this message translates to:
@@ -4284,18 +4266,6 @@ abstract class AppLocalizations {
   /// **'{measure}走勢，{count} 晚'**
   String trendOverNights({required String measure, required int count});
 
-  /// Chart of heart rate through the night.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠時心率'**
-  String get heartRateAsleep;
-
-  /// Chart of breathing through the night.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠時呼吸速率'**
-  String get respiratoryAsleep;
-
   /// How long each bar of a chart covers.
   ///
   /// In zh, this message translates to:
@@ -4383,7 +4353,7 @@ abstract class AppLocalizations {
   /// The need a debt is counted against when no goal is set; hours is formatted.
   ///
   /// In zh, this message translates to:
-  /// **'以 {hours} 計'**
+  /// **'以 {hours}計'**
   String countedAt({required String hours});
 
   /// A goal's value; goal is formatted.
@@ -6190,7 +6160,7 @@ abstract class AppLocalizations {
   /// Energy insight headline; kcal is formatted.
   ///
   /// In zh, this message translates to:
-  /// **'實際消耗約 {kcal} kcal/天'**
+  /// **'實際消耗 {kcal} kcal/天'**
   String actualExpenditure({required String kcal});
 
   /// Energy line; figures formatted.
@@ -6216,7 +6186,7 @@ abstract class AppLocalizations {
   /// Energy line; figures formatted.
   ///
   /// In zh, this message translates to:
-  /// **'趨勢體重每週 {change} kg，{weeks} 週後約 {forecast} kg'**
+  /// **'趨勢體重每週 {change} kg，{weeks} 週後 {forecast} kg'**
   String weightForecast({
     required String change,
     required int weeks,
@@ -6268,7 +6238,7 @@ abstract class AppLocalizations {
   /// Line.
   ///
   /// In zh, this message translates to:
-  /// **'抵掉平日赤字約 {percent}%'**
+  /// **'抵掉平日赤字 {percent}%'**
   String offsetsDeficitShare({required int percent});
 
   /// Basis.
@@ -6290,7 +6260,7 @@ abstract class AppLocalizations {
   /// Headline.
   ///
   /// In zh, this message translates to:
-  /// **'蛋白質每天約差 {grams} g'**
+  /// **'蛋白質每天差 {grams} g'**
   String proteinShort({required int grams});
 
   /// Line; figures formatted.
@@ -6377,7 +6347,7 @@ abstract class AppLocalizations {
   /// Line; times formatted.
   ///
   /// In zh, this message translates to:
-  /// **'平日約 {weekday} · 週末約 {weekend} 起床'**
+  /// **'平日 {weekday} · 週末 {weekend} 起床'**
   String weekdayWeekendWake({required String weekday, required String weekend});
 
   /// Tag on a relation between areas.
@@ -6655,12 +6625,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已刪除「{name}」'**
   String deletedNamed({required String name});
-
-  /// A routine's expected length.
-  ///
-  /// In zh, this message translates to:
-  /// **'約 {minutes} 分'**
-  String aboutMinutesShort({required int minutes});
 
   /// Button.
   ///
@@ -9782,13 +9746,13 @@ abstract class AppLocalizations {
   /// Insight; kg formatted.
   ///
   /// In zh, this message translates to:
-  /// **'體重以每週約 {kg} kg 的速度下降。'**
+  /// **'體重以每週 {kg} kg 的速度下降。'**
   String weightFalling({required String kg});
 
   /// Insight; kg formatted.
   ///
   /// In zh, this message translates to:
-  /// **'體重以每週約 {kg} kg 的速度上升。'**
+  /// **'體重以每週 {kg} kg 的速度上升。'**
   String weightRising({required String kg});
 
   /// Evidence.

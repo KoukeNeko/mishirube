@@ -267,10 +267,6 @@ String _signedKg(double kilograms) =>
 
 double _tenth(double value) => (value * 10).round() / 10;
 
-/// `1:40`: minutes as hours and minutes.
-String _clock(double minutes) =>
-    formatHoursMinutes(Duration(minutes: minutes.round()));
-
 /// One insight: its area, the conclusion as a headline, the figure it
 /// rests on, the lines that support it, and a tag for what kind of
 /// figure it is. Opens the area it is about.
@@ -590,12 +586,15 @@ class _WeekendWakeCard extends StatelessWidget {
     return _InsightCard(
       domain: TrendDomain.sleep,
       headline: (later ? l10n.weekendWakeLater : l10n.weekendWakeEarlier)(
-        time: _clock(gap.difference.abs()),
+        time: formatDuration(
+          l10n,
+          Duration(minutes: gap.difference.abs().round()),
+        ),
       ),
       lines: [
         l10n.weekdayWeekendWake(
-          weekday: _clock(gap.weekday),
-          weekend: _clock(gap.weekend),
+          weekday: formatMinutesOfDay(gap.weekday.round()),
+          weekend: formatMinutesOfDay(gap.weekend.round()),
         ),
         l10n.weekdaysWeekends(
           window: patternWindowDays,

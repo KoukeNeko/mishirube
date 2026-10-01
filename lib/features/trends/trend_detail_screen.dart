@@ -260,16 +260,17 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
 double _tenth(double value) => (value * 10).round() / 10;
 
 /// An area's weekly value as the page writes it.
-String _valueOf(AppLocalizations l10n, TrendDomain domain, double value) =>
-    switch (domain) {
-      TrendDomain.body => '${formatWeight(_tenth(value))} kg',
-      TrendDomain.training => l10n.perWeekTimes(
-        count: value.toStringAsFixed(1),
-      ),
-      TrendDomain.sleep => formatHoursMinutes(Duration(minutes: value.round())),
-      TrendDomain.nutrition => '${formatKcal(value.round())} kcal',
-      TrendDomain.activity => l10n.stepsValue(steps: formatKcal(value.round())),
-    };
+String _valueOf(
+  AppLocalizations l10n,
+  TrendDomain domain,
+  double value,
+) => switch (domain) {
+  TrendDomain.body => '${formatWeight(_tenth(value))} kg',
+  TrendDomain.training => l10n.perWeekTimes(count: value.toStringAsFixed(1)),
+  TrendDomain.sleep => formatDuration(l10n, Duration(minutes: value.round())),
+  TrendDomain.nutrition => '${formatKcal(value.round())} kcal',
+  TrendDomain.activity => l10n.stepsValue(steps: formatKcal(value.round())),
+};
 
 /// `+22 分`, `−0.4 kg`: how far one level sits from another.
 String _differenceOf(AppLocalizations l10n, TrendDomain domain, double delta) {
@@ -720,7 +721,7 @@ List<Figure> _sleepFigures(
 ) {
   final l10n = context.l10n;
   String length(double minutes) =>
-      formatHoursMinutes(Duration(minutes: minutes.round()));
+      formatDuration(context.l10n, Duration(minutes: minutes.round()));
   final met = goal == null
       ? null
       : nights.where((night) => night.$2 >= goal.inMinutes).length;
@@ -943,7 +944,7 @@ class _MacroSplit extends StatelessWidget {
                   color: color,
                   label:
                       '$name ${grams.round()} g · '
-                      '${energy <= 0 ? 0 : (grams * perGram / energy * 100).round()} %',
+                      '${energy <= 0 ? 0 : (grams * perGram / energy * 100).round()}%',
                 ),
             ],
           ),
@@ -997,11 +998,8 @@ class _GoalWeeks extends StatelessWidget {
 }
 
 /// `23:42`: minutes after noon as a time of day.
-String _clockFromNoon(double minutes) {
-  final clock = (minutes.round() + 12 * 60) % Duration.minutesPerDay;
-  return '${(clock ~/ 60).toString().padLeft(2, '0')}:'
-      '${(clock % 60).toString().padLeft(2, '0')}';
-}
+String _clockFromNoon(double minutes) =>
+    formatMinutesOfDay(minutes.round() + 12 * 60);
 
 /// Each week's average night from bedtime down to waking: whether nights
 /// begin later, end later, or drift, which an average length hides.
@@ -1082,7 +1080,7 @@ class _SleepGoalWeeks extends StatelessWidget {
           ChartScrubber(
             count: weekStarts.length,
             indexAt: ChartScrubber.slots(weekStarts.length),
-            idle: l10n.goalValue(goal: formatHoursMinutes(goal)),
+            idle: l10n.goalValue(goal: formatDuration(context.l10n, goal)),
             readoutOf: (index) => [
               _weekOf(context, weekStarts[index]),
               if (nights[index] == 0)

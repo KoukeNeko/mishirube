@@ -919,7 +919,7 @@ Wall sit 2 x 1.5 min
       );
 
       final insight = weightTrendInsight(testL10n, trend, dayCount: 28)!;
-      expect(insight.statement, contains('每週約 0.4 kg 的速度下降'));
+      expect(insight.statement, contains('每週 0.4 kg 的速度下降'));
       expect(insight.evidence, contains('資料不完整，只有 4 / 28 天有紀錄'));
     });
 
@@ -1107,9 +1107,9 @@ Wall sit 2 x 1.5 min
         const Duration(hours: 7),
       );
       final today = store.backend.timeline.month(DateTime(2026, 9)).days.first;
-      expect(today.entries.map((entry) => entry.title), contains('睡眠 7:30'));
+      expect(today.entries.map((entry) => entry.title), contains('睡眠 7 小時 30 分'));
       expect(
-        today.entries.firstWhere((entry) => entry.title == '睡眠 7:30').detail,
+        today.entries.firstWhere((entry) => entry.title == '睡眠 7 小時 30 分').detail,
         '品質 4 / 5',
       );
     });

@@ -63,10 +63,10 @@ void main() {
     final figures = tester.widget<FigureGrid>(find.byType(FigureGrid)).figures;
     String valueOf(String label) =>
         figures.firstWhere((figure) => figure.label.startsWith(label)).value;
-    expect(valueOf('平均睡著時間'), '7:26');
-    expect(valueOf('半數晚上超過'), '7:00');
-    expect(valueOf('最長'), '9:00');
-    expect(valueOf('最短'), '6:00');
+    expect(valueOf('平均睡著時間'), '7 小時 26 分');
+    expect(valueOf('半數晚上超過'), '7 小時');
+    expect(valueOf('最長'), '9 小時');
+    expect(valueOf('最短'), '6 小時');
     expect(valueOf('達成睡眠目標'), '7 晚中 3 晚');
     expect(
       figures.any((figure) => figure.label == '平常入睡'),

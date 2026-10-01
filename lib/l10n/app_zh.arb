@@ -1659,6 +1659,18 @@
   "@activityTypeOther": {
     "description": "An activity type for anything not listed."
   },
+  "hoursMinutes": "{hours} 小時 {minutes} 分",
+  "@hoursMinutes": {
+    "description": "A length of time of an hour or more, never written like a time of day.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "durationMinutes": "{minutes} 分",
   "@durationMinutes": {
     "description": "A length of time in whole minutes.",
@@ -2210,14 +2222,6 @@
   "@chartRangeMonth": {
     "description": "Chart range: one month."
   },
-  "chartRangeHalfYear": "半年",
-  "@chartRangeHalfYear": {
-    "description": "Chart range: six months."
-  },
-  "chartRangeYear": "年",
-  "@chartRangeYear": {
-    "description": "Chart range: one year."
-  },
   "previousDay": "前一天",
   "@previousDay": {
     "description": "Steps back a day."
@@ -2229,10 +2233,6 @@
   "entriesRow": "紀錄",
   "@entriesRow": {
     "description": "Row naming what was recorded."
-  },
-  "noData": "沒有資料",
-  "@noData": {
-    "description": "Nothing recorded for this."
   },
   "thisDay": "這一天",
   "@thisDay": {
@@ -3059,15 +3059,6 @@
   "@fallAsleepTime": {
     "description": "How long falling asleep took."
   },
-  "aboutMinutes": "約 {minutes} 分",
-  "@aboutMinutes": {
-    "description": "An estimated number of minutes.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
   "sleepEfficiency": "睡眠效率",
   "@sleepEfficiency": {
     "description": "Time asleep as a share of time in bed."
@@ -3289,14 +3280,6 @@
       }
     }
   },
-  "heartRateAsleep": "睡眠時心率",
-  "@heartRateAsleep": {
-    "description": "Chart of heart rate through the night."
-  },
-  "respiratoryAsleep": "睡眠時呼吸速率",
-  "@respiratoryAsleep": {
-    "description": "Chart of breathing through the night."
-  },
   "everyMinutes": "每 {minutes} 分",
   "@everyMinutes": {
     "description": "How long each bar of a chart covers.",
@@ -3384,7 +3367,7 @@
   "@preliminary": {
     "description": "A figure from fewer days than it settles on."
   },
-  "countedAt": "以 {hours} 計",
+  "countedAt": "以 {hours}計",
   "@countedAt": {
     "description": "The need a debt is counted against when no goal is set; hours is formatted.",
     "placeholders": {
@@ -5202,7 +5185,7 @@
   "@longRunSection": {
     "description": "Trends section."
   },
-  "actualExpenditure": "實際消耗約 {kcal} kcal/天",
+  "actualExpenditure": "實際消耗 {kcal} kcal/天",
   "@actualExpenditure": {
     "description": "Energy insight headline; kcal is formatted.",
     "placeholders": {
@@ -5241,7 +5224,7 @@
       }
     }
   },
-  "weightForecast": "趨勢體重每週 {change} kg，{weeks} 週後約 {forecast} kg",
+  "weightForecast": "趨勢體重每週 {change} kg，{weeks} 週後 {forecast} kg",
   "@weightForecast": {
     "description": "Energy line; figures formatted.",
     "placeholders": {
@@ -5310,7 +5293,7 @@
   "@offsetsAllDeficit": {
     "description": "Line."
   },
-  "offsetsDeficitShare": "抵掉平日赤字約 {percent}%",
+  "offsetsDeficitShare": "抵掉平日赤字 {percent}%",
   "@offsetsDeficitShare": {
     "description": "Line.",
     "placeholders": {
@@ -5343,7 +5326,7 @@
       }
     }
   },
-  "proteinShort": "蛋白質每天約差 {grams} g",
+  "proteinShort": "蛋白質每天差 {grams} g",
   "@proteinShort": {
     "description": "Headline.",
     "placeholders": {
@@ -5472,7 +5455,7 @@
       }
     }
   },
-  "weekdayWeekendWake": "平日約 {weekday} · 週末約 {weekend} 起床",
+  "weekdayWeekendWake": "平日 {weekday} · 週末 {weekend} 起床",
   "@weekdayWeekendWake": {
     "description": "Line; times formatted.",
     "placeholders": {
@@ -5736,15 +5719,6 @@
     "placeholders": {
       "name": {
         "type": "String"
-      }
-    }
-  },
-  "aboutMinutesShort": "約 {minutes} 分",
-  "@aboutMinutesShort": {
-    "description": "A routine's expected length.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
       }
     }
   },
@@ -8451,7 +8425,7 @@
   "@weightSteady": {
     "description": "Insight."
   },
-  "weightFalling": "體重以每週約 {kg} kg 的速度下降。",
+  "weightFalling": "體重以每週 {kg} kg 的速度下降。",
   "@weightFalling": {
     "description": "Insight; kg formatted.",
     "placeholders": {
@@ -8460,7 +8434,7 @@
       }
     }
   },
-  "weightRising": "體重以每週約 {kg} kg 的速度上升。",
+  "weightRising": "體重以每週 {kg} kg 的速度上升。",
   "@weightRising": {
     "description": "Insight; kg formatted.",
     "placeholders": {

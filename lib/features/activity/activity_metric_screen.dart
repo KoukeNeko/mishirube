@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/activity_metrics.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'daily_activity_screen.dart';
 import 'daily_activity_view_model.dart';
@@ -25,8 +26,8 @@ enum _Range {
     day => l10n.chartRangeDay,
     week => l10n.chartRangeWeek,
     month => l10n.chartRangeMonth,
-    halfYear => l10n.chartRangeHalfYear,
-    year => l10n.chartRangeYear,
+    halfYear => l10n.monthsCount(count: 6),
+    year => l10n.yearsCount(count: 1),
   };
 }
 
@@ -75,7 +76,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   };
 
   String _value(double value) =>
-      '${_metric.format(value)} ${_metric.unitIn(context.l10n)}';
+      withUnit(_metric.format(value), _metric.unitIn(context.l10n));
 
   /// The diastolic figure of each day [days] has, for blood pressure.
   Map<DateTime, double> _diastolic(int days) => {
@@ -160,7 +161,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
               children: [
                 KeyValueRow(
                   label: context.l10n.entriesRow,
-                  value: context.l10n.noData,
+                  value: context.l10n.noEntriesShort,
                 ),
               ],
             ),
@@ -194,9 +195,11 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
                 if (usual != null)
                   KeyValueRow(
                     label: context.l10n.usualRange,
-                    value:
-                        '${_metric.format(usual.low)}–'
-                        '${_metric.format(usual.high)} ${_metric.unitIn(context.l10n)}',
+                    value: withUnit(
+                      '${_metric.format(usual.low)}–'
+                      '${_metric.format(usual.high)}',
+                      _metric.unitIn(context.l10n),
+                    ),
                   ),
                 if (_range != _Range.day)
                   KeyValueRow(
@@ -324,7 +327,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           figure(value),
           if (!isAverage && _meetsGoal(value)) l10n.goalReached,
         ].join(' · '),
-        (final start, null) => '${when(start)} · ${l10n.noData}',
+        (final start, null) => '${when(start)} · ${l10n.noEntriesShort}',
       },
       builder: (context, selected) => MiniBarChart(
         bars: [

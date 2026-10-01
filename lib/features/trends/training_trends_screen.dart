@@ -16,16 +16,18 @@ import 'trends_view_model.dart';
 import '../../l10n/l10n.dart';
 
 enum _TrendRange {
-  fourWeeks(Duration(days: 28)),
+  // Whole weeks, so a week's figures are not thinned by a part week.
+  month(Duration(days: 28)),
   threeMonths(Duration(days: 91)),
-  all(Duration(days: 365));
+  all(null);
 
   const _TrendRange(this.window);
 
-  final Duration window;
+  /// Null for everything since the first record.
+  final Duration? window;
 
   String labelIn(AppLocalizations l10n) => switch (this) {
-    fourWeeks => l10n.last4Weeks,
+    month => l10n.chartRangeMonth,
     threeMonths => l10n.monthsCount(count: 3),
     all => l10n.logFilterAll,
   };
@@ -42,7 +44,7 @@ class TrainingTrendsScreen extends StatefulWidget {
 }
 
 class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
-  _TrendRange _range = _TrendRange.fourWeeks;
+  _TrendRange _range = _TrendRange.month;
   late final _model = TrendsViewModel(AppStoreScope.read(context).backend);
 
   @override
@@ -56,9 +58,10 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
       ListenableBuilder(listenable: _model, builder: (context, _) => _page());
 
   Widget _page() {
-    final overview = _model.overview(_range.window);
-    final volume = _model.volumeReport(window: _range.window);
-    final activity = _model.activity(_range.window);
+    final window = _range.window ?? _model.trainingSpan;
+    final overview = _model.overview(window);
+    final volume = _model.volumeReport(window: window);
+    final activity = _model.activity(window);
     return DetailPage(
       appBar: PageAppBar(
         title: context.l10n.moduleTraining,
@@ -88,7 +91,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(
           child: _SummaryGrid(overview: overview, activity: activity),
         ),
-        if (_model.trainingTotals(_range.window) case final totals
+        if (_model.trainingTotals(window) case final totals
             when totals.workouts > 0) ...[
           Gutter(child: SectionLabel(context.l10n.statsSection)),
           Gutter(child: FigureGrid(figures: _totalFigures(context, totals))),
@@ -96,7 +99,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
         Gutter(child: SectionLabel(context.l10n.musclesTitle)),
         Gutter(
           child: MuscleLoadCard(
-            load: _model.muscleLoad(_range.window),
+            load: _model.muscleLoad(window),
             figure: _model.muscleFigure,
             onFigure: _model.setMuscleFigure,
           ),
@@ -175,14 +178,14 @@ List<Figure> _totalFigures(
     if (totals.time > Duration.zero)
       (
         label: l10n.totalTime,
-        value: formatHoursMinutes(totals.time),
+        value: formatDuration(context.l10n, totals.time),
         unit: null,
         color: null,
       ),
     if (totals.averageLength case final length?)
       (
         label: l10n.averageStage(stage: l10n.durationLabel),
-        value: formatHoursMinutes(length),
+        value: formatDuration(context.l10n, length),
         unit: null,
         color: null,
       ),

@@ -286,7 +286,10 @@ class _BodyScreenState extends State<BodyScreen> {
                 title: metric.labelIn(context.l10n),
                 subtitle: context.dates.monthDay(latest[metric]!.measuredAt),
                 trailing: Text(
-                  '${formatAmount(latest[metric]!.value)} ${metric.unitIn(context.l10n)}',
+                  withUnit(
+                    formatAmount(latest[metric]!.value),
+                    metric.unitIn(context.l10n),
+                  ),
                   style: AppTextStyles.itemTitle,
                 ),
                 onTap: () => _openMetric(metric),
@@ -333,7 +336,7 @@ class _BodyScreenState extends State<BodyScreen> {
     }
 
     String figure(ActivityMetric metric) =>
-        '${metric.format(latest[metric]!.$2)} ${metric.unitIn(l10n)}';
+        withUnit(metric.format(latest[metric]!.$2), metric.unitIn(l10n));
     return [
       Gutter(child: SectionLabel(ActivityMetricGroup.vitals.labelIn(l10n))),
       Gutter(

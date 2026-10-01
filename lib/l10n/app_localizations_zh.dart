@@ -1194,6 +1194,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityTypeOther => '其他運動';
 
   @override
+  String hoursMinutes({required int hours, required int minutes}) {
+    return '$hours 小時 $minutes 分';
+  }
+
+  @override
   String durationMinutes({required int minutes}) {
     return '$minutes 分';
   }
@@ -1555,12 +1560,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chartRangeMonth => '月';
 
   @override
-  String get chartRangeHalfYear => '半年';
-
-  @override
-  String get chartRangeYear => '年';
-
-  @override
   String get previousDay => '前一天';
 
   @override
@@ -1568,9 +1567,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get entriesRow => '紀錄';
-
-  @override
-  String get noData => '沒有資料';
 
   @override
   String get thisDay => '這一天';
@@ -2143,11 +2139,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fallAsleepTime => '入睡所需';
 
   @override
-  String aboutMinutes({required int minutes}) {
-    return '約 $minutes 分';
-  }
-
-  @override
   String get sleepEfficiency => '睡眠效率';
 
   @override
@@ -2286,12 +2277,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get heartRateAsleep => '睡眠時心率';
-
-  @override
-  String get respiratoryAsleep => '睡眠時呼吸速率';
-
-  @override
   String everyMinutes({required int minutes}) {
     return '每 $minutes 分';
   }
@@ -2345,7 +2330,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String countedAt({required String hours}) {
-    return '以 $hours 計';
+    return '以 $hours計';
   }
 
   @override
@@ -3464,7 +3449,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String actualExpenditure({required String kcal}) {
-    return '實際消耗約 $kcal kcal/天';
+    return '實際消耗 $kcal kcal/天';
   }
 
   @override
@@ -3491,7 +3476,7 @@ class AppLocalizationsZh extends AppLocalizations {
     required int weeks,
     required String forecast,
   }) {
-    return '趨勢體重每週 $change kg，$weeks 週後約 $forecast kg';
+    return '趨勢體重每週 $change kg，$weeks 週後 $forecast kg';
   }
 
   @override
@@ -3528,7 +3513,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String offsetsDeficitShare({required int percent}) {
-    return '抵掉平日赤字約 $percent%';
+    return '抵掉平日赤字 $percent%';
   }
 
   @override
@@ -3547,7 +3532,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String proteinShort({required int grams}) {
-    return '蛋白質每天約差 $grams g';
+    return '蛋白質每天差 $grams g';
   }
 
   @override
@@ -3618,7 +3603,7 @@ class AppLocalizationsZh extends AppLocalizations {
     required String weekday,
     required String weekend,
   }) {
-    return '平日約 $weekday · 週末約 $weekend 起床';
+    return '平日 $weekday · 週末 $weekend 起床';
   }
 
   @override
@@ -3783,11 +3768,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String deletedNamed({required String name}) {
     return '已刪除「$name」';
-  }
-
-  @override
-  String aboutMinutesShort({required int minutes}) {
-    return '約 $minutes 分';
   }
 
   @override
@@ -5579,12 +5559,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String weightFalling({required String kg}) {
-    return '體重以每週約 $kg kg 的速度下降。';
+    return '體重以每週 $kg kg 的速度下降。';
   }
 
   @override
   String weightRising({required String kg}) {
-    return '體重以每週約 $kg kg 的速度上升。';
+    return '體重以每週 $kg kg 的速度上升。';
   }
 
   @override
@@ -7291,6 +7271,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get activityTypeOther => '其他运动';
 
   @override
+  String hoursMinutes({required int hours, required int minutes}) {
+    return '$hours 小时 $minutes 分';
+  }
+
+  @override
   String durationMinutes({required int minutes}) {
     return '$minutes 分';
   }
@@ -7652,12 +7637,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get chartRangeMonth => '月';
 
   @override
-  String get chartRangeHalfYear => '半年';
-
-  @override
-  String get chartRangeYear => '年';
-
-  @override
   String get previousDay => '前一天';
 
   @override
@@ -7665,9 +7644,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get entriesRow => '记录';
-
-  @override
-  String get noData => '没有数据';
 
   @override
   String get thisDay => '这一天';
@@ -8240,11 +8216,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get fallAsleepTime => '入睡所需';
 
   @override
-  String aboutMinutes({required int minutes}) {
-    return '约 $minutes 分';
-  }
-
-  @override
   String get sleepEfficiency => '睡眠效率';
 
   @override
@@ -8383,12 +8354,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get heartRateAsleep => '睡眠时心率';
-
-  @override
-  String get respiratoryAsleep => '睡眠时呼吸速率';
-
-  @override
   String everyMinutes({required int minutes}) {
     return '每 $minutes 分';
   }
@@ -8442,7 +8407,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String countedAt({required String hours}) {
-    return '按 $hours 计';
+    return '按 $hours计';
   }
 
   @override
@@ -9561,7 +9526,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String actualExpenditure({required String kcal}) {
-    return '实际消耗约 $kcal kcal/天';
+    return '实际消耗 $kcal kcal/天';
   }
 
   @override
@@ -9588,7 +9553,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
     required int weeks,
     required String forecast,
   }) {
-    return '趋势体重每周 $change kg，$weeks 周后约 $forecast kg';
+    return '趋势体重每周 $change kg，$weeks 周后 $forecast kg';
   }
 
   @override
@@ -9625,7 +9590,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String offsetsDeficitShare({required int percent}) {
-    return '抵掉平日赤字约 $percent%';
+    return '抵掉平日赤字 $percent%';
   }
 
   @override
@@ -9644,7 +9609,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String proteinShort({required int grams}) {
-    return '蛋白质每天约差 $grams g';
+    return '蛋白质每天差 $grams g';
   }
 
   @override
@@ -9715,7 +9680,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
     required String weekday,
     required String weekend,
   }) {
-    return '平日约 $weekday · 周末约 $weekend 起床';
+    return '平日 $weekday · 周末 $weekend 起床';
   }
 
   @override
@@ -9880,11 +9845,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String deletedNamed({required String name}) {
     return '已删除「$name」';
-  }
-
-  @override
-  String aboutMinutesShort({required int minutes}) {
-    return '约 $minutes 分';
   }
 
   @override
@@ -11676,12 +11636,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String weightFalling({required String kg}) {
-    return '体重以每周约 $kg kg 的速度下降。';
+    return '体重以每周 $kg kg 的速度下降。';
   }
 
   @override
   String weightRising({required String kg}) {
-    return '体重以每周约 $kg kg 的速度上升。';
+    return '体重以每周 $kg kg 的速度上升。';
   }
 
   @override

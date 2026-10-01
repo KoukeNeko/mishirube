@@ -113,18 +113,21 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
                             title: metric.labelIn(context.l10n),
                             subtitle: switch (_model.usualRange(metric)) {
                               final range? => context.l10n.usualRangeValue(
-                                range:
-                                    '${metric.format(range.low)}–'
-                                    '${metric.format(range.high)} '
-                                    '${metric.unitIn(context.l10n)}',
+                                range: withUnit(
+                                  '${metric.format(range.low)}–'
+                                  '${metric.format(range.high)}',
+                                  metric.unitIn(context.l10n),
+                                ),
                               ),
                               null => null,
                             },
                             trailing: Text(switch (totals[metric]) {
-                              final value? =>
-                                '${metric.format(value)} ${metric.unitIn(context.l10n)}',
-                              null => context.l10n.noData,
-                            }, style: AppTextStyles.caption),
+                              final value? => withUnit(
+                                metric.format(value),
+                                metric.unitIn(context.l10n),
+                              ),
+                              null => context.l10n.noEntriesShort,
+                            }, style: AppTextStyles.itemTitle),
                             onTap: () => pushPage(
                               context,
                               ActivityMetricScreen(metric: metric, day: day),
@@ -186,7 +189,7 @@ class _LeadCard extends StatelessWidget {
       for (final other in ActivityMetric.headline)
         if (other != metric)
           if (totals[other] case final value?)
-            '${other.format(value)} ${other.unitIn(context.l10n)}',
+            withUnit(other.format(value), other.unitIn(context.l10n)),
     ];
     return AppCard(
       child: Column(
@@ -231,7 +234,7 @@ class HourlyActivityChart extends StatelessWidget {
       idle: context.l10n.perHour,
       readoutOf: (hour) =>
           '${context.l10n.hourSpan(start: hour, end: hour + 1)} · '
-          '${metric.format(hours[hour])} ${metric.unitIn(context.l10n)}',
+          '${withUnit(metric.format(hours[hour]), metric.unitIn(context.l10n))}',
       builder: (context, selected) => Column(
         children: [
           MiniBarChart(

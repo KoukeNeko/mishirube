@@ -61,6 +61,22 @@ class TrendsViewModel extends ViewModel {
   trainingTotals(Duration window) =>
       backend.insights.trainingTotals(window: window);
 
+  /// From the day of the first workout or other exercise through today,
+  /// for a range that reads all of it; four weeks before there is any.
+  Duration get trainingSpan {
+    final firsts = [
+      ?backend.insights.firstWorkoutAt,
+      ?backend.activity.firstSessionAt,
+    ];
+    const fourWeeks = Duration(days: 28);
+    if (firsts.isEmpty) return fourWeeks;
+    final first = firsts.reduce((a, b) => a.isBefore(b) ? a : b);
+    final span = backend.db.now().difference(
+      DateTime(first.year, first.month, first.day),
+    );
+    return span < fourWeeks ? fourWeeks : span;
+  }
+
   /// Training figures over [window].
   TrendsOverview overview(Duration window) =>
       backend.insights.trends(window: window);

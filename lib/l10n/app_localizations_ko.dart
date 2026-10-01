@@ -1199,6 +1199,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityTypeOther => '기타 운동';
 
   @override
+  String hoursMinutes({required int hours, required int minutes}) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
   String durationMinutes({required int minutes}) {
     return '$minutes분';
   }
@@ -1560,12 +1565,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartRangeMonth => '월';
 
   @override
-  String get chartRangeHalfYear => '6개월';
-
-  @override
-  String get chartRangeYear => '년';
-
-  @override
   String get previousDay => '이전 날';
 
   @override
@@ -1573,9 +1572,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get entriesRow => '기록';
-
-  @override
-  String get noData => '데이터 없음';
 
   @override
   String get thisDay => '이 날';
@@ -2149,11 +2145,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fallAsleepTime => '잠들기까지';
 
   @override
-  String aboutMinutes({required int minutes}) {
-    return '약 $minutes분';
-  }
-
-  @override
   String get sleepEfficiency => '수면 효율';
 
   @override
@@ -2290,12 +2281,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String trendOverNights({required String measure, required int count}) {
     return '$measure 추이, $count박';
   }
-
-  @override
-  String get heartRateAsleep => '수면 중 심박수';
-
-  @override
-  String get respiratoryAsleep => '수면 중 호흡수';
 
   @override
   String everyMinutes({required int minutes}) {
@@ -3471,7 +3456,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String actualExpenditure({required String kcal}) {
-    return '실제 소비 약 $kcal kcal/일';
+    return '실제 소비 $kcal kcal/일';
   }
 
   @override
@@ -3498,7 +3483,7 @@ class AppLocalizationsKo extends AppLocalizations {
     required int weeks,
     required String forecast,
   }) {
-    return '추세 체중 주 $change kg, $weeks주 후 약 $forecast kg';
+    return '추세 체중 주 $change kg, $weeks주 후 $forecast kg';
   }
 
   @override
@@ -3536,7 +3521,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String offsetsDeficitShare({required int percent}) {
-    return '평일 적자의 약 $percent% 상쇄';
+    return '평일 적자의 $percent% 상쇄';
   }
 
   @override
@@ -3555,7 +3540,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String proteinShort({required int grams}) {
-    return '단백질 하루 약 $grams g 부족';
+    return '단백질 하루 $grams g 부족';
   }
 
   @override
@@ -3791,11 +3776,6 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String deletedNamed({required String name}) {
     return '\'$name\' 삭제됨';
-  }
-
-  @override
-  String aboutMinutesShort({required int minutes}) {
-    return '약 $minutes분';
   }
 
   @override
@@ -5588,12 +5568,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String weightFalling({required String kg}) {
-    return '체중이 주당 약 $kg kg씩 감소하고 있습니다.';
+    return '체중이 주당 $kg kg씩 감소하고 있습니다.';
   }
 
   @override
   String weightRising({required String kg}) {
-    return '체중이 주당 약 $kg kg씩 증가하고 있습니다.';
+    return '체중이 주당 $kg kg씩 증가하고 있습니다.';
   }
 
   @override

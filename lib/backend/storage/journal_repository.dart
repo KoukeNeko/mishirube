@@ -815,8 +815,8 @@ class BodyWeightTimelineSource extends TimelineSource {
   }
 
   String _reading(BodyReading reading) =>
-      '${reading.metric.labelIn(l10n)} ${formatAmount(reading.value)} '
-      '${reading.metric.unitIn(l10n)}';
+      '${reading.metric.labelIn(l10n)} '
+      '${withUnit(formatAmount(reading.value), reading.metric.unitIn(l10n))}';
 
   List<(DateTime, TimelineEntry)> _alone(
     List<(int, DateTime, BodyWeight)> weights,
@@ -958,7 +958,7 @@ class SleepTimelineSource extends TimelineSource {
       );
 
   String _label(SleepEntry sleep) =>
-      '${sleep.kind.labelIn(l10n)} ${formatHoursMinutes(sleep.duration)}';
+      '${sleep.kind.labelIn(l10n)} ${formatDuration(l10n, sleep.duration)}';
 }
 
 /// Energy, mood and symptom check-ins as log rows.

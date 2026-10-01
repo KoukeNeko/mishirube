@@ -73,7 +73,7 @@ class WorkoutSummaryScreen extends StatelessWidget {
         title: workout.routineName,
         subtitle:
             '${context.dates.monthDay(workout.startedAt)} · '
-            '${formatTimeOfDay(workout.startedAt)} – '
+            '${formatTimeOfDay(workout.startedAt)}–'
             '${formatTimeOfDay(finishedAt)}',
       ),
       children: [

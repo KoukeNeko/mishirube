@@ -168,7 +168,7 @@ class _NightReadout extends StatelessWidget {
     return Text(
       '${context.l10n.wholeNight} · '
       '${formatTimeOfDay(start)}–${formatTimeOfDay(end)}'
-      ' · ${formatHoursMinutes(end.difference(start))}',
+      ' · ${formatDuration(context.l10n, end.difference(start))}',
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: AppTextStyles.itemTitle.copyWith(
@@ -207,7 +207,7 @@ class _Readout extends StatelessWidget {
           child: Text(
             '${stretch.stage.labelIn(context.l10n)} · '
             '${formatTimeOfDay(stretch.start)}–${formatTimeOfDay(stretch.end)}'
-            ' · ${formatHoursMinutes(stretch.end.difference(stretch.start))}',
+            ' · ${formatDuration(context.l10n, stretch.end.difference(stretch.start))}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.itemTitle.copyWith(

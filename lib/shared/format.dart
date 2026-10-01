@@ -1,3 +1,5 @@
+import '../l10n/app_localizations.dart';
+
 const _secondsPerMinute = 60;
 const _minutesPerHour = 60;
 
@@ -28,10 +30,36 @@ String formatKilometers(double meters) {
   return text.replaceFirst(RegExp(r'\.?0+$'), '');
 }
 
-/// A length of sleep or rest as `h:mm`, where seconds would be noise.
+/// A length of time in words: `7 小時 45 分`, `45 分`, `8 小時`, so it
+/// never reads as a time of day the way `7:45` does.
+String formatDuration(AppLocalizations l10n, Duration duration) {
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes % _minutesPerHour;
+  if (hours == 0) return l10n.durationMinutes(minutes: minutes);
+  if (minutes == 0) return l10n.hoursValue(hours: '$hours');
+  return l10n.hoursMinutes(hours: hours, minutes: minutes);
+}
+
+/// [value] with its [unit] as the app writes them: `72.4 kg`, the value
+/// alone without a unit, and `96%`, the percent sign against its number.
+String withUnit(String value, String unit) => switch (unit) {
+  '' => value,
+  '%' => '$value%',
+  _ => '$value $unit',
+};
+
+/// A length as `h:mm`, where there is no room for words.
 String formatHoursMinutes(Duration duration) {
   final minutes = duration.inMinutes % _minutesPerHour;
   return '${duration.inHours}:${minutes.toString().padLeft(2, '0')}';
+}
+
+/// `07:10`: [minutes] after midnight as a time of day, past midnight
+/// wrapping round to the next day's.
+String formatMinutesOfDay(int minutes) {
+  final clock = minutes % Duration.minutesPerDay;
+  return '${(clock ~/ _minutesPerHour).toString().padLeft(2, '0')}:'
+      '${(clock % _minutesPerHour).toString().padLeft(2, '0')}';
 }
 
 String formatTimeOfDay(DateTime time) {

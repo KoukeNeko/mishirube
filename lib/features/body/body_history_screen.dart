@@ -44,7 +44,7 @@ class BodyHistoryScreen extends StatefulWidget {
 class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
   BodyRange _range = BodyRange.quarter;
 
-  String _value(double value) => '${formatAmount(value)} ${widget.unit}';
+  String _value(double value) => withUnit(formatAmount(value), widget.unit);
 
   @override
   Widget build(BuildContext context) => ViewModelBuilder(
@@ -170,6 +170,9 @@ class _BodyHistoryScreenState extends State<BodyHistoryScreen> {
 
   String _change(List<BodyPoint> points) {
     final change = points.last.value - points.first.value;
-    return '${change < 0 ? '−' : '+'}${formatAmount(change.abs())} ${widget.unit}';
+    return withUnit(
+      '${change < 0 ? '−' : '+'}${formatAmount(change.abs())}',
+      widget.unit,
+    );
   }
 }

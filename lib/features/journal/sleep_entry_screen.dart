@@ -138,7 +138,7 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
       context,
       (editing == null ? context.l10n.loggedValue : context.l10n.updatedValue)(
         item: _kind.labelIn(context.l10n),
-        value: formatHoursMinutes(_length),
+        value: formatDuration(context.l10n, _length),
       ),
       kind: ToastKind.success,
     );
@@ -177,7 +177,9 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    length > Duration.zero ? formatHoursMinutes(length) : '—',
+                    length > Duration.zero
+                        ? formatDuration(context.l10n, length)
+                        : '—',
                     style: AppTextStyles.hugeNumber.copyWith(
                       color: AppColors.wellness,
                     ),

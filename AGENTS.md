@@ -329,6 +329,17 @@ Also:
 - Units are symbols (`kg`, `cm`, `km`, `mL`, `m`) in values and
   sentences alike; minutes are `分`. Dates read `9 月 19 日（週六）`,
   parts are joined with ` · `.
+- A value meets its unit through `withUnit`: a space before the unit
+  (`72.4 kg`), none before `%` (`96%`).
+- A length of time is words, `7 小時 45 分` (`formatDuration`), never
+  `7:45`, which reads as a time of day; only a running timer or a pace
+  is `m:ss`. A time of day is `07:10`.
+- A range has no spaces round its dash, `23:41–07:34`, `48–55`; only
+  dates that contain spaces keep them, `9 月 3 日 – 10 月 1 日`.
+- A period choice says 日、週、月、3 個月、6 個月、1 年、全部, and 全部
+  reads from the first record.
+- A list row without a value says `沒有紀錄`; a chart's empty figure
+  is `—`.
 - Say "device", not "phone" (`這台裝置`, `iOS`): the app runs on iPad
   too.
 - A button or destructive action names its object (`刪除這份模板`,

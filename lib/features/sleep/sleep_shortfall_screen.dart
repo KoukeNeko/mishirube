@@ -164,9 +164,9 @@ class SleepShortfallCard extends StatelessWidget {
       if (isShown && fortnight.recorded < settledShortfallDays)
         context.l10n.preliminary,
       if (model.goal == null)
-        context.l10n.countedAt(hours: formatHoursMinutes(model.need))
+        context.l10n.countedAt(hours: formatDuration(context.l10n, model.need))
       else
-        context.l10n.goalValue(goal: formatHoursMinutes(model.need)),
+        context.l10n.goalValue(goal: formatDuration(context.l10n, model.need)),
       if (isShown && fortnight.missing > 0)
         context.l10n.daysWithoutEntries(count: fortnight.missing),
     ];
@@ -221,7 +221,7 @@ String _hours(AppLocalizations l10n, Duration hours) =>
 String _dayValue(AppLocalizations l10n, Duration? slept, Duration need) {
   if (slept == null) return l10n.noEntriesShort;
   final gap = slept - need;
-  if (gap.inMinutes == 0) return formatHoursMinutes(slept);
-  return '${formatHoursMinutes(slept)} · '
-      '${gap.isNegative ? l10n.shortBy(time: formatHoursMinutes(-gap)) : l10n.overBy(time: formatHoursMinutes(gap))}';
+  if (gap.inMinutes == 0) return formatDuration(l10n, slept);
+  return '${formatDuration(l10n, slept)} · '
+      '${gap.isNegative ? l10n.shortBy(time: formatDuration(l10n, -gap)) : l10n.overBy(time: formatDuration(l10n, gap))}';
 }

@@ -60,17 +60,17 @@ void main() {
     );
     // 465 minutes asleep: deep 186 is 40%; the usual deep night is 90
     // minutes seven times and 186 once, 102 of 465.
-    expect(find.text('深層 · 3:06 · 40%'), findsOneWidget);
+    expect(find.text('深層 · 3 小時 6 分 · 40%'), findsOneWidget);
     final deep = tester
         .widgetList<ShareBar>(find.byType(ShareBar))
         .firstWhere((bar) => bar.share > 0.39 && bar.share < 0.41);
     expect(deep.reference, closeTo(102 / 465, 0.001));
     expect(
-      find.textContaining('清醒 · 0:15'),
+      find.textContaining('清醒 · 15 分'),
       findsOneWidget,
       reason: 'time awake has its minutes but no share of time asleep',
     );
-    expect(find.textContaining('清醒 · 0:15 ·'), findsNothing);
+    expect(find.textContaining('清醒 · 15 分 ·'), findsNothing);
     await disposeTree(tester);
   });
 
@@ -114,7 +114,7 @@ void main() {
     await tester.tap(find.text('週'));
     await tester.pumpAndSettle();
     expect(
-      find.text('平均 7:45 · 3 晚'),
+      find.text('平均 7 小時 45 分 · 3 晚'),
       findsOneWidget,
       reason: 'a week reads night by night',
     );

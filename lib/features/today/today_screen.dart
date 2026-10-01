@@ -314,7 +314,7 @@ class TodayScreen extends StatelessWidget {
           color: AppColors.wellness,
           value: night == null
               ? null
-              : formatHoursMinutes(night.entry.duration),
+              : formatDuration(context.l10n, night.entry.duration),
           visual: night != null && sleepGoal != null
               ? ProgressLine(
                   progress:
@@ -326,7 +326,7 @@ class TodayScreen extends StatelessWidget {
           caption: switch (night) {
             null => null,
             _ when sleepGoal != null => context.l10n.goalValue(
-              goal: formatHoursMinutes(sleepGoal),
+              goal: formatDuration(context.l10n, sleepGoal),
             ),
             final night when night.isTypedIn => context.l10n.sourceManual,
             final night =>

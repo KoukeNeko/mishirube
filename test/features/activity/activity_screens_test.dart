@@ -87,7 +87,7 @@ void main() {
     expect(find.text('最大攝氧量'), findsOneWidget);
     expect(find.text('爬樓'), findsNothing, reason: 'no source records it');
     expect(
-      find.text('沒有資料'),
+      find.text('沒有紀錄'),
       findsOneWidget,
       reason: 'VO₂ max has no reading today, and says so instead of 0',
     );
@@ -126,7 +126,7 @@ void main() {
     );
     expect(find.text('生命徵象'), findsOneWidget);
     expect(find.text('收縮壓'), findsNothing, reason: 'one reading, one row');
-    expect(find.text('97 %'), findsOneWidget, reason: 'a fraction as %');
+    expect(find.text('97%'), findsOneWidget, reason: 'a fraction as %');
     await disposeTree(tester);
   });
 
@@ -151,7 +151,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.textContaining('97 %'), findsOneWidget);
+    expect(find.textContaining('97%'), findsOneWidget);
     await disposeTree(tester);
 
     store = storeWith(
@@ -215,7 +215,7 @@ void main() {
     );
 
     expect(find.text('日'), findsNothing);
-    expect(find.text('半年'), findsOneWidget);
+    expect(find.text('6 個月'), findsOneWidget);
     await disposeTree(tester);
   });
 
