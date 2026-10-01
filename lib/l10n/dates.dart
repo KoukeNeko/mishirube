@@ -114,6 +114,24 @@ class AppDates {
       (_isChinese ? DateFormat('M月d日', _locale) : DateFormat.MMMd(_locale))
           .format(day);
 
+  /// `2025年8月15日`, `Aug 15, 2025`.
+  String compactFullDate(DateTime day) =>
+      (_isChinese ? DateFormat('y年M月d日', _locale) : DateFormat.yMMMd(_locale))
+          .format(day);
+
+  /// `9 月 3 日 – 10 月 1 日`; a span across a new year gives both ends
+  /// their year, `2025 年 8 月 15 日 – 2026 年 9 月 19 日`.
+  String span(DateTime from, DateTime to) => from.year == to.year
+      ? '${monthDay(from)} – ${monthDay(to)}'
+      : '${fullDate(from)} – ${fullDate(to)}';
+
+  /// A chart's two ends, `9月3日` and `10月1日`, each with its year once
+  /// the span crosses one.
+  (String, String) compactSpanEnds(DateTime from, DateTime to) =>
+      from.year == to.year
+      ? (compactMonthDay(from), compactMonthDay(to))
+      : (compactFullDate(from), compactFullDate(to));
+
   /// `9月27日 週六`, `Sat, Sep 27`.
   String compactDayWithWeekday(DateTime day) =>
       (_isChinese ? DateFormat('M月d日 EEE', _locale) : DateFormat.MMMEd(_locale))

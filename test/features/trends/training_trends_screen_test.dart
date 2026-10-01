@@ -6,7 +6,7 @@ import 'package:mishirube/features/trends/training_trends_screen.dart';
 import '../../support/harness.dart';
 
 void main() {
-  testWidgets('all reads back to the first workout, past a year', (
+  testWidgets('all reads back to the first workout, past a year, with years', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -28,12 +28,22 @@ void main() {
     }
     await pumpScreen(tester, const TrainingTrendsScreen(), store: store);
 
+    expect(
+      find.textContaining('年'),
+      findsNothing,
+      reason: 'a month within one year needs no year',
+    );
     await tester.tap(find.text('全部'));
     await tester.pumpAndSettle();
     expect(
-      find.textContaining('${first.month} 月 ${first.day} 日 –'),
+      find.text(
+        '${first.year} 年 ${first.month} 月 ${first.day} 日 – '
+        '${now.year} 年 ${now.month} 月 ${now.day} 日',
+      ),
       findsOneWidget,
-      reason: 'the range starts on the first workout\'s day, not a year back',
+      reason:
+          'from the first workout\'s day, not a year back, and a span '
+          'across a new year says both years',
     );
     await disposeTree(tester);
   });

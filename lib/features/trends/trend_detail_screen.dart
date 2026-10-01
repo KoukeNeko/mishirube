@@ -1012,6 +1012,10 @@ class _SleepSchedule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final ends = context.dates.compactSpanEnds(
+      weekStarts.first,
+      weekStarts.last,
+    );
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1034,8 +1038,8 @@ class _SleepSchedule extends StatelessWidget {
               ranges: schedule,
               color: AppColors.wellness,
               labelOf: _clockFromNoon,
-              start: context.dates.compactMonthDay(weekStarts.first),
-              end: context.dates.compactMonthDay(weekStarts.last),
+              start: ends.$1,
+              end: ends.$2,
               selected: selected,
               downward: true,
             ),

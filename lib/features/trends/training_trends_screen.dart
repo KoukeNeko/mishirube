@@ -65,9 +65,7 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
     return DetailPage(
       appBar: PageAppBar(
         title: context.l10n.moduleTraining,
-        subtitle:
-            '${context.dates.monthDay(overview.from)} – '
-            '${context.dates.monthDay(overview.to)}',
+        subtitle: context.dates.span(overview.from, overview.to),
       ),
       children: [
         Gutter(

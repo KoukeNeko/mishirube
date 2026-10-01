@@ -127,6 +127,43 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('bedtimes across a new year give the chart\'s ends their year', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = sleeper([7, 8, 7]);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: store,
+    );
+
+    RangeBarChart chart() =>
+        tester.widget<RangeBarChart>(find.byType(RangeBarChart));
+    await tester.scrollUntilVisible(
+      find.byType(RangeBarChart),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(chart().start, isNot(contains('年')), reason: 'six months in 2026');
+
+    await tester.scrollUntilVisible(
+      find.text('1 年'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('1 年'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byType(RangeBarChart),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(chart().start, startsWith('2025年'));
+    expect(chart().end, startsWith('2026年'));
+    await disposeTree(tester);
+  });
+
   testWidgets('a few nights are figures, not yet a spread', (tester) async {
     usePhoneViewport(tester);
     final store = sleeper([7, 8]);
