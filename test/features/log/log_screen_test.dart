@@ -256,9 +256,8 @@ void main() {
     expect(find.text('9月'), findsOneWidget, reason: 'written as the system');
   });
 
-  testWidgets("the day's list scrolls below the calendar, which stays", (
-    tester,
-  ) async {
+  testWidgets("the day's list scrolls below the calendar and its legend, "
+      'which stay', (tester) async {
     usePhoneViewport(tester);
     final store = storeWithNotes();
     for (var hour = 0; hour < 12; hour++) {
@@ -285,7 +284,9 @@ void main() {
         matching: find.byType(CustomScrollView),
       ),
     );
-    expect(list.top, calendar.bottom, reason: 'the list is not under it');
+    final legend = tester.getRect(find.byType(CategoryLabel).first);
+    expect(legend.top, greaterThan(calendar.bottom), reason: 'under the grid');
+    expect(list.top, legend.bottom, reason: 'the list is under neither');
     Finder cardOf(String text) => find.ancestor(
       of: find.text(text, skipOffstage: false),
       matching: find.byType(AppCard),
@@ -303,6 +304,7 @@ void main() {
       reason: 'scrolled out of the list, not under the calendar',
     );
     expect(tester.getRect(find.byType(MonthCalendar)), calendar);
+    expect(tester.getRect(find.byType(CategoryLabel).first), legend);
     expect(find.text('18').hitTestable(), findsWidgets, reason: 'in sight');
     await disposeTree(tester);
   });

@@ -886,7 +886,6 @@ class HeldBlockView extends StatelessWidget {
     super.key,
     required this.header,
     required this.held,
-    required this.heldHeight,
     required this.children,
     this.bottomPadding = AppSpacing.xxl,
     this.hasTopGap = true,
@@ -894,11 +893,9 @@ class HeldBlockView extends StatelessWidget {
 
   final CollapsingHeaderDelegate header;
 
-  /// The block, given the header's height to start its content under.
+  /// The block, given the header's height to start its content under;
+  /// as tall as it lays out, the list taking the rest.
   final Widget Function(double headerHeight) held;
-
-  /// How much of the page the block holds below the header.
-  final double heldHeight;
   final List<Widget> children;
   final double bottomPadding;
   final bool hasTopGap;
@@ -913,10 +910,7 @@ class HeldBlockView extends StatelessWidget {
           children: [
             Column(
               children: [
-                SizedBox(
-                  height: headerHeight + heldHeight,
-                  child: held(headerHeight),
-                ),
+                held(headerHeight),
                 Expanded(
                   child: CustomScrollView(
                     slivers: [

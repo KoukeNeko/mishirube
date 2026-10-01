@@ -271,8 +271,10 @@ class _Day extends StatelessWidget {
               alignment: Alignment.center,
               child: AnimatedDefaultTextStyle(
                 duration: chromeDuration(context, _moveDuration),
-                // As the log's month calendar writes its days.
-                style: AppTextStyles.body.copyWith(
+                // As the log's month calendar writes its days, in the
+                // font's own line height: a taller one adds its room
+                // above the digits and sets them low in the circle.
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   color: isSelected

@@ -353,10 +353,15 @@ class _LogScreenState extends State<LogScreen> {
       hasTopGap: isTimeline || calendarStays,
       // Held as Apple Calendar's month is, its months scrolling up behind
       // the bar and the day's list scrolling on its own below it.
+      // The legend held with it, under the grid it explains.
       held: !isTimeline && calendarStays
-          ? (headerHeight) => _monthCalendar(topInset: headerHeight)
+          ? (headerHeight) => Column(
+              children: [
+                _monthCalendar(topInset: headerHeight),
+                _calendarLegend(),
+              ],
+            )
           : null,
-      heldHeight: MonthCalendar.height,
       // On the timeline the month is picked here; the week strip under
       // the toolbar picks the day.
       // The month is picked here in both views: on the calendar it is the
@@ -488,12 +493,20 @@ class _LogScreenState extends State<LogScreen> {
     onMonth: (month) => setState(() => _month = month),
   );
 
+  /// The legend under the held calendar, apart from its closing line.
+  Widget _calendarLegend() => Padding(
+    padding: const EdgeInsets.only(top: AppSpacing.sm),
+    child: Gutter(child: const _CalendarLegend()),
+  );
+
   List<Widget> _calendar({required bool calendarStays}) {
     final entries = _log.day(_selected);
     return [
       // Right under the pinned weekdays, scrolling with the list.
-      if (!calendarStays) _monthCalendar(),
-      Gutter(child: const _CalendarLegend()),
+      if (!calendarStays) ...[
+        _monthCalendar(),
+        Gutter(child: const _CalendarLegend()),
+      ],
       Gutter(
         child: SectionLabel(context.dates.compactDayWithWeekday(_selected)),
       ),

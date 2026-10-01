@@ -12,6 +12,9 @@ const _rowHeight = 52.0;
 const _dayCircle = 32.0;
 const _dotSize = 5.0;
 
+/// The lines the weeks are ruled with.
+const _rule = 0.5;
+
 /// About half a phone screen of weeks at once, as Apple Calendar's month
 /// view shows them above the day's list.
 const _visibleWeeks = 5.5;
@@ -62,7 +65,7 @@ class MonthCalendar extends StatefulWidget {
   final ValueChanged<DateTime> onMonth;
 
   /// How tall the calendar is below [topInset], whatever the month.
-  static const height = _viewportHeight;
+  static const height = _viewportHeight + _rule;
 
   @override
   State<MonthCalendar> createState() => _MonthCalendarState();
@@ -232,6 +235,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
             ),
           ),
         ),
+        // Closes the last week shown, as each week is ruled above.
+        const SizedBox(
+          height: _rule,
+          width: double.infinity,
+          child: ColoredBox(color: AppColors.outline),
+        ),
       ],
     );
   }
@@ -333,7 +342,7 @@ class _MonthBlock extends StatelessWidget {
                     // reaches the first or last column.
                     Positioned(
                       top: 0,
-                      height: 0.5,
+                      height: _rule,
                       left: switch (week == 0 ? leading : 0) {
                         0 => 0,
                         final first => gutter.left + column * first,
