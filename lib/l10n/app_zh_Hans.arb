@@ -692,8 +692,6 @@
   "averageTimeAsleep": "平均睡着时间",
   "averageBedtime": "平均入睡",
   "averageWake": "平均起床",
-  "bedtimeSpread": "入睡时间变动",
-  "wakeSpread": "起床时间变动",
   "plusMinusMinutes": "±{minutes} 分",
   "nightsRecorded": "记录晚数",
   "bedAndWake": "入睡与起床",
@@ -1733,7 +1731,6 @@
   "refUseSummaryIntegers": "摘要数字取整，不显示多余小数",
   "refUseSummaryReference": "比较基准固定为个人平常范围与前 12 周",
   "sleepRegularityIndexLabel": "睡眠规律指数",
-  "socialJetlagLabel": "社交时差",
   "refSectionSleepRegularity": "睡眠规律",
   "refUseSleepRegularityIndex": "睡眠规律指数的定义：相邻两天同一时刻睡着或醒着的一致程度",
   "refUseSocialJetlag": "社交时差：周末与平日的睡眠中点差",
@@ -1742,5 +1739,11 @@
   "daysOutOf": "{total} 天中 {count} 天",
   "refSectionSteps": "步数",
   "refUseStepGoalChosen": "步数目标由用户自选，不预设、不自动调整",
-  "refUseStepGoalSet": "设定步数目标与步数增加有关"
+  "refUseStepGoalSet": "设定步数目标与步数增加有关",
+  "sleepRegularitySection": "作息规律",
+  "priorDays": "前 {count} 天",
+  "weekendMidsleepLater": "周末睡眠中点晚 {time}",
+  "weekendMidsleepEarlier": "周末睡眠中点早 {time}",
+  "weekendMidsleepSame": "周末与平日睡眠中点相同",
+  "regularityNeeds": "需要近 28 天有 14 晚记下入睡与起床时间（目前 {count} 晚）"
 }

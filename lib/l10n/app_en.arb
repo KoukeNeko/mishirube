@@ -692,8 +692,6 @@
   "averageTimeAsleep": "Avg time asleep",
   "averageBedtime": "Avg bedtime",
   "averageWake": "Avg wake time",
-  "bedtimeSpread": "Bedtime variation",
-  "wakeSpread": "Wake time variation",
   "plusMinusMinutes": "±{minutes} min",
   "nightsRecorded": "Nights recorded",
   "bedAndWake": "Bedtime & wake",
@@ -1733,7 +1731,6 @@
   "refUseSummaryIntegers": "Summary figures are rounded, without needless decimals",
   "refUseSummaryReference": "Comparisons keep one reference: the personal usual range and the 12 weeks before",
   "sleepRegularityIndexLabel": "Sleep Regularity Index",
-  "socialJetlagLabel": "Social jetlag",
   "refSectionSleepRegularity": "Sleep regularity",
   "refUseSleepRegularityIndex": "The Sleep Regularity Index: how often the same clock time is asleep or awake on consecutive days",
   "refUseSocialJetlag": "Social jetlag: the gap between mid-sleep on free days and work days",
@@ -1742,5 +1739,11 @@
   "daysOutOf": "{count} of {total} days",
   "refSectionSteps": "Steps",
   "refUseStepGoalChosen": "The step goal is chosen by the user; the app neither sets a default nor adjusts it",
-  "refUseStepGoalSet": "Setting a step goal is associated with more steps"
+  "refUseStepGoalSet": "Setting a step goal is associated with more steps",
+  "sleepRegularitySection": "Sleep regularity",
+  "priorDays": "Prior {count} days",
+  "weekendMidsleepLater": "Mid-sleep {time} later on weekends",
+  "weekendMidsleepEarlier": "Mid-sleep {time} earlier on weekends",
+  "weekendMidsleepSame": "Mid-sleep the same on weekends",
+  "regularityNeeds": "Needs 14 nights with bed and wake times in the last 28 days (now {count})"
 }

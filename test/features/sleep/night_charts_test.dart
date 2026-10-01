@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -25,6 +27,19 @@ class _Health extends NoHealthSource {
         (from.add(Duration(minutes: 10 * i)), 50.0 + i % 12),
     ],
   };
+}
+
+/// A platform whose readings arrive when [answer] completes.
+class _SlowHealth extends NoHealthSource {
+  _SlowHealth(this.answer);
+
+  final Completer<Map<OvernightMeasure, List<(DateTime, double)>>> answer;
+
+  @override
+  Future<Map<OvernightMeasure, List<(DateTime, double)>>> overnightSeries(
+    DateTime from,
+    DateTime to,
+  ) => answer.future;
 }
 
 void main() {
@@ -94,6 +109,61 @@ void main() {
     await tester.pump();
     expect(find.textContaining('· 50–52 次/分'), findsOneWidget);
     expect(find.text('每 30 分'), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('readings arriving late do not move the page below them', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final backend = Backend.inMemory(clock: clock.now);
+    backend.db.setSetting('health.connected', 'true');
+    final answer = Completer<Map<OvernightMeasure, List<(DateTime, double)>>>();
+    final store = AppStore(
+      clock: clock.now,
+      isOnboarded: true,
+      backend: backend,
+      health: _SlowHealth(answer),
+    );
+    final woke = clock.now().subtract(const Duration(hours: 1));
+    backend.storage.journal.addSleep(
+      SleepEntry(
+        id: 'night',
+        sleptAt: woke,
+        duration: const Duration(hours: 8),
+        startedAt: woke.subtract(const Duration(hours: 8)),
+      ),
+      source: ChangeSource.healthKit,
+    );
+    await pumpScreen(tester, const SleepScreen(), store: store);
+
+    // Scrolled on past where the readings go, before they arrive.
+    final below = find.text('睡眠債');
+    await tester.dragUntilVisible(
+      below,
+      find.byType(CustomScrollView).hitTestable().first,
+      const Offset(0, -200),
+    );
+    await tester.pumpAndSettle();
+    final before = tester.getTopLeft(below).dy;
+
+    answer.complete({
+      OvernightMeasure.heartRate: [
+        for (var i = 0; i < 48; i++)
+          (woke.subtract(Duration(minutes: 10 * i)), 50.0 + i % 12),
+      ],
+      OvernightMeasure.respiratoryRate: [
+        for (var i = 0; i < 48; i++)
+          (woke.subtract(Duration(minutes: 10 * i)), 14.0 + i % 3),
+      ],
+    });
+    await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(below).dy,
+      before,
+      reason: 'the cards held their place while the platform answered',
+    );
     await disposeTree(tester);
   });
 }

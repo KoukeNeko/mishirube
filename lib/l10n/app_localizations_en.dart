@@ -2282,12 +2282,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get averageWake => 'Avg wake time';
 
   @override
-  String get bedtimeSpread => 'Bedtime variation';
-
-  @override
-  String get wakeSpread => 'Wake time variation';
-
-  @override
   String plusMinusMinutes({required int minutes}) {
     return '±$minutes min';
   }
@@ -6182,9 +6176,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sleepRegularityIndexLabel => 'Sleep Regularity Index';
 
   @override
-  String get socialJetlagLabel => 'Social jetlag';
-
-  @override
   String get refSectionSleepRegularity => 'Sleep regularity';
 
   @override
@@ -6216,4 +6207,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get refUseStepGoalSet =>
       'Setting a step goal is associated with more steps';
+
+  @override
+  String get sleepRegularitySection => 'Sleep regularity';
+
+  @override
+  String priorDays({required int count}) {
+    return 'Prior $count days';
+  }
+
+  @override
+  String weekendMidsleepLater({required String time}) {
+    return 'Mid-sleep $time later on weekends';
+  }
+
+  @override
+  String weekendMidsleepEarlier({required String time}) {
+    return 'Mid-sleep $time earlier on weekends';
+  }
+
+  @override
+  String get weekendMidsleepSame => 'Mid-sleep the same on weekends';
+
+  @override
+  String regularityNeeds({required int count}) {
+    return 'Needs 14 nights with bed and wake times in the last 28 days (now $count)';
+  }
 }

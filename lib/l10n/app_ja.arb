@@ -692,8 +692,6 @@
   "averageTimeAsleep": "平均睡眠時間",
   "averageBedtime": "平均就寝時刻",
   "averageWake": "平均起床時刻",
-  "bedtimeSpread": "就寝時刻のばらつき",
-  "wakeSpread": "起床時刻のばらつき",
   "plusMinusMinutes": "±{minutes}分",
   "nightsRecorded": "記録した夜の数",
   "bedAndWake": "就寝と起床",
@@ -1733,7 +1731,6 @@
   "refUseSummaryIntegers": "要約の数値は丸め、不要な小数を出さない",
   "refUseSummaryReference": "比較基準は個人の通常範囲と直前12週に固定",
   "sleepRegularityIndexLabel": "睡眠規則性指数",
-  "socialJetlagLabel": "ソーシャル・ジェットラグ",
   "refSectionSleepRegularity": "睡眠の規則性",
   "refUseSleepRegularityIndex": "睡眠規則性指数の定義：連続する2日の同じ時刻の睡眠・覚醒の一致度",
   "refUseSocialJetlag": "ソーシャル・ジェットラグ：休日と平日の睡眠中央時刻の差",
@@ -1742,5 +1739,11 @@
   "daysOutOf": "{total}日中{count}日",
   "refSectionSteps": "歩数",
   "refUseStepGoalChosen": "歩数目標は利用者が選び、既定値も自動調整もしない",
-  "refUseStepGoalSet": "歩数目標の設定は歩数の増加と関連"
+  "refUseStepGoalSet": "歩数目標の設定は歩数の増加と関連",
+  "sleepRegularitySection": "睡眠の規則性",
+  "priorDays": "前の{count}日",
+  "weekendMidsleepLater": "週末の睡眠中央時刻が {time} 遅い",
+  "weekendMidsleepEarlier": "週末の睡眠中央時刻が {time} 早い",
+  "weekendMidsleepSame": "週末と平日の睡眠中央時刻が同じ",
+  "regularityNeeds": "過去28日のうち就寝と起床の時刻がある夜が14晩必要（現在{count}晩）"
 }

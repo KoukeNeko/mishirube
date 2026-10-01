@@ -2274,12 +2274,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get averageWake => '平均起床時刻';
 
   @override
-  String get bedtimeSpread => '就寝時刻のばらつき';
-
-  @override
-  String get wakeSpread => '起床時刻のばらつき';
-
-  @override
   String plusMinusMinutes({required int minutes}) {
     return '±$minutes分';
   }
@@ -6078,9 +6072,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sleepRegularityIndexLabel => '睡眠規則性指数';
 
   @override
-  String get socialJetlagLabel => 'ソーシャル・ジェットラグ';
-
-  @override
   String get refSectionSleepRegularity => '睡眠の規則性';
 
   @override
@@ -6108,4 +6099,30 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refUseStepGoalSet => '歩数目標の設定は歩数の増加と関連';
+
+  @override
+  String get sleepRegularitySection => '睡眠の規則性';
+
+  @override
+  String priorDays({required int count}) {
+    return '前の$count日';
+  }
+
+  @override
+  String weekendMidsleepLater({required String time}) {
+    return '週末の睡眠中央時刻が $time 遅い';
+  }
+
+  @override
+  String weekendMidsleepEarlier({required String time}) {
+    return '週末の睡眠中央時刻が $time 早い';
+  }
+
+  @override
+  String get weekendMidsleepSame => '週末と平日の睡眠中央時刻が同じ';
+
+  @override
+  String regularityNeeds({required int count}) {
+    return '過去28日のうち就寝と起床の時刻がある夜が14晩必要（現在$count晩）';
+  }
 }

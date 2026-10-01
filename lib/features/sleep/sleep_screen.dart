@@ -7,13 +7,13 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
 import '../../backend/engines/overnight_series.dart';
-import '../../backend/engines/sleep_metrics.dart';
 import '../../backend/engines/sleep_nights.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
+import 'sleep_regularity_card.dart';
 import 'sleep_schedule_chart.dart';
 import 'sleep_shortfall_screen.dart';
 import 'sleep_stage_chart.dart';
@@ -145,6 +145,7 @@ class _SleepScreenState extends State<SleepScreen> {
             series: _seriesOf(night),
             from: _seriesFor!.$1,
             to: _seriesFor!.$2,
+            isRead: !night.isTypedIn,
           ),
         ],
         if (_model.shortfall(shortfallDays).recorded > 0)
@@ -157,6 +158,16 @@ class _SleepScreenState extends State<SleepScreen> {
                   onTap: () =>
                       pushPage(context, SleepShortfallScreen(day: day)),
                 ),
+              ),
+            ],
+          ),
+        if (_model.nightsAsleep(2 * regularityWindowDays) case final nights
+            when nights.any((night) => night.startedAt != null))
+          PageSection(
+            label: context.l10n.sleepRegularitySection,
+            children: [
+              Gutter(
+                child: SleepRegularityCard(nights: nights, day: day),
               ),
             ],
           ),
@@ -721,30 +732,6 @@ class _HistoryState extends State<_History> {
                     ], fromHour: 0)
                     case final wake?)
                   KeyValueRow(label: context.l10n.averageWake, value: wake),
-                if (regularityOf(nights) case final regularity?) ...[
-                  KeyValueRow(
-                    label: context.l10n.bedtimeSpread,
-                    value: context.l10n.plusMinusMinutes(
-                      minutes: regularity.bedtimeSpread.inMinutes,
-                    ),
-                  ),
-                  KeyValueRow(
-                    label: context.l10n.wakeSpread,
-                    value: context.l10n.plusMinusMinutes(
-                      minutes: regularity.wakeSpread.inMinutes,
-                    ),
-                  ),
-                ],
-                if (sleepRegularityIndex(nights) case final index?)
-                  KeyValueRow(
-                    label: context.l10n.sleepRegularityIndexLabel,
-                    value: '$index',
-                  ),
-                if (socialJetlag(nights) case final jetlag?)
-                  KeyValueRow(
-                    label: context.l10n.socialJetlagLabel,
-                    value: formatHoursMinutes(jetlag),
-                  ),
                 KeyValueRow(
                   label: context.l10n.nightsRecorded,
                   value: context.l10n.nightsCount(count: nights.length),
@@ -1004,11 +991,17 @@ class _NightCharts extends StatelessWidget {
     required this.series,
     required this.from,
     required this.to,
+    required this.isRead,
   });
 
   final Future<Map<OvernightMeasure, List<(DateTime, double)>>> series;
   final DateTime from;
   final DateTime to;
+
+  /// Whether the night came from the health platform, which then likely
+  /// has readings for it: their cards hold their place while it answers,
+  /// so the page below does not move once they arrive.
+  final bool isRead;
 
   static final _shown = [
     (
@@ -1028,12 +1021,21 @@ class _NightCharts extends StatelessWidget {
     return FutureBuilder(
       future: series,
       builder: (context, snapshot) {
-        final byMeasure = snapshot.data ?? const {};
+        // While the platform answers, an earlier night's readings are not
+        // this night's: the cards stand empty at their full height.
+        final isWaiting = snapshot.connectionState == ConnectionState.waiting;
+        final byMeasure = isWaiting
+            ? const <OvernightMeasure, List<(DateTime, double)>>{}
+            : snapshot.data ?? const {};
         return Column(
           spacing: pageItemSpacing,
           children: [
             for (final (measure, title, color) in _shown)
-              if (byMeasure[measure] case final points? when points.isNotEmpty)
+              if (byMeasure[measure] ??
+                      (isWaiting && isRead
+                          ? const <(DateTime, double)>[]
+                          : null)
+                  case final points? when points.isNotEmpty || isWaiting)
                 Gutter(
                   child: _NightChartCard(
                     title: title(context.l10n),
@@ -1050,6 +1052,9 @@ class _NightCharts extends StatelessWidget {
     );
   }
 }
+
+/// Bars an empty card is drawn with while its readings are on the way.
+const _emptyBins = 24;
 
 class _NightChartCard extends StatelessWidget {
   const _NightChartCard({
@@ -1071,7 +1076,9 @@ class _NightChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final values = [for (final (_, value) in points) value];
-    final ranges = rangeBins(points, from, to);
+    final ranges = points.isEmpty
+        ? List<(double, double)?>.filled(_emptyBins, null)
+        : rangeBins(points, from, to);
     // Each bar is an equal share of the night.
     final stretch = to.difference(from) ~/ ranges.length;
     return AppCard(
@@ -1081,8 +1088,10 @@ class _NightChartCard extends StatelessWidget {
           CategoryLabel(label: title, color: color),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '${_range(measure, values.reduce(math.min), values.reduce(math.max))} '
-            '${measure.unitIn(context.l10n)}',
+            values.isEmpty
+                ? '—'
+                : '${_range(measure, values.reduce(math.min), values.reduce(math.max))} '
+                      '${measure.unitIn(context.l10n)}',
             style: AppTextStyles.itemTitle,
           ),
           const SizedBox(height: AppSpacing.md),

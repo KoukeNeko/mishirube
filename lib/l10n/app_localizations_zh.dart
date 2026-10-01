@@ -2268,12 +2268,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get averageWake => '平均起床';
 
   @override
-  String get bedtimeSpread => '入睡時間變動';
-
-  @override
-  String get wakeSpread => '起床時間變動';
-
-  @override
   String plusMinusMinutes({required int minutes}) {
     return '±$minutes 分';
   }
@@ -6070,9 +6064,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sleepRegularityIndexLabel => '睡眠規律指數';
 
   @override
-  String get socialJetlagLabel => '社交時差';
-
-  @override
   String get refSectionSleepRegularity => '睡眠規律';
 
   @override
@@ -6100,6 +6091,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get refUseStepGoalSet => '設定步數目標與步數增加有關';
+
+  @override
+  String get sleepRegularitySection => '作息規律';
+
+  @override
+  String priorDays({required int count}) {
+    return '前 $count 天';
+  }
+
+  @override
+  String weekendMidsleepLater({required String time}) {
+    return '週末睡眠中點晚 $time';
+  }
+
+  @override
+  String weekendMidsleepEarlier({required String time}) {
+    return '週末睡眠中點早 $time';
+  }
+
+  @override
+  String get weekendMidsleepSame => '週末與平日睡眠中點相同';
+
+  @override
+  String regularityNeeds({required int count}) {
+    return '需要近 28 天有 14 晚記下入睡與起床時間（目前 $count 晚）';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -8363,12 +8380,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get averageWake => '平均起床';
-
-  @override
-  String get bedtimeSpread => '入睡时间变动';
-
-  @override
-  String get wakeSpread => '起床时间变动';
 
   @override
   String plusMinusMinutes({required int minutes}) {
@@ -12167,9 +12178,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get sleepRegularityIndexLabel => '睡眠规律指数';
 
   @override
-  String get socialJetlagLabel => '社交时差';
-
-  @override
   String get refSectionSleepRegularity => '睡眠规律';
 
   @override
@@ -12197,6 +12205,32 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get refUseStepGoalSet => '设定步数目标与步数增加有关';
+
+  @override
+  String get sleepRegularitySection => '作息规律';
+
+  @override
+  String priorDays({required int count}) {
+    return '前 $count 天';
+  }
+
+  @override
+  String weekendMidsleepLater({required String time}) {
+    return '周末睡眠中点晚 $time';
+  }
+
+  @override
+  String weekendMidsleepEarlier({required String time}) {
+    return '周末睡眠中点早 $time';
+  }
+
+  @override
+  String get weekendMidsleepSame => '周末与平日睡眠中点相同';
+
+  @override
+  String regularityNeeds({required int count}) {
+    return '需要近 28 天有 14 晚记下入睡与起床时间（目前 $count 晚）';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

@@ -4260,18 +4260,6 @@ abstract class AppLocalizations {
   /// **'平均起床'**
   String get averageWake;
 
-  /// How much bedtimes vary.
-  ///
-  /// In zh, this message translates to:
-  /// **'入睡時間變動'**
-  String get bedtimeSpread;
-
-  /// How much wake times vary.
-  ///
-  /// In zh, this message translates to:
-  /// **'起床時間變動'**
-  String get wakeSpread;
-
   /// A spread in minutes.
   ///
   /// In zh, this message translates to:
@@ -10582,12 +10570,6 @@ abstract class AppLocalizations {
   /// **'睡眠規律指數'**
   String get sleepRegularityIndexLabel;
 
-  /// How far mid-sleep on free days sits from work days.
-  ///
-  /// In zh, this message translates to:
-  /// **'社交時差'**
-  String get socialJetlagLabel;
-
   /// References section for sleep regularity.
   ///
   /// In zh, this message translates to:
@@ -10641,6 +10623,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'設定步數目標與步數增加有關'**
   String get refUseStepGoalSet;
+
+  /// Section for how regular the nights are.
+  ///
+  /// In zh, this message translates to:
+  /// **'作息規律'**
+  String get sleepRegularitySection;
+
+  /// The stretch of days before the latest one.
+  ///
+  /// In zh, this message translates to:
+  /// **'前 {count} 天'**
+  String priorDays({required int count});
+
+  /// How much later the middle of sleep is on weekends than weekdays.
+  ///
+  /// In zh, this message translates to:
+  /// **'週末睡眠中點晚 {time}'**
+  String weekendMidsleepLater({required String time});
+
+  /// How much earlier the middle of sleep is on weekends than weekdays.
+  ///
+  /// In zh, this message translates to:
+  /// **'週末睡眠中點早 {time}'**
+  String weekendMidsleepEarlier({required String time});
+
+  /// The middle of sleep is the same on weekends and weekdays.
+  ///
+  /// In zh, this message translates to:
+  /// **'週末與平日睡眠中點相同'**
+  String get weekendMidsleepSame;
+
+  /// What the regularity index needs before it is shown.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要近 28 天有 14 晚記下入睡與起床時間（目前 {count} 晚）'**
+  String regularityNeeds({required int count});
 }
 
 class _AppLocalizationsDelegate

@@ -2274,12 +2274,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get averageWake => '평균 기상';
 
   @override
-  String get bedtimeSpread => '취침 시간 편차';
-
-  @override
-  String get wakeSpread => '기상 시간 편차';
-
-  @override
   String plusMinusMinutes({required int minutes}) {
     return '±$minutes분';
   }
@@ -6081,9 +6075,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sleepRegularityIndexLabel => '수면 규칙성 지수';
 
   @override
-  String get socialJetlagLabel => '사회적 시차';
-
-  @override
   String get refSectionSleepRegularity => '수면 규칙성';
 
   @override
@@ -6112,4 +6103,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get refUseStepGoalSet => '걸음 수 목표 설정은 걸음 수 증가와 관련';
+
+  @override
+  String get sleepRegularitySection => '수면 규칙성';
+
+  @override
+  String priorDays({required int count}) {
+    return '이전 $count일';
+  }
+
+  @override
+  String weekendMidsleepLater({required String time}) {
+    return '주말 수면 중간 시각이 $time 늦음';
+  }
+
+  @override
+  String weekendMidsleepEarlier({required String time}) {
+    return '주말 수면 중간 시각이 $time 이름';
+  }
+
+  @override
+  String get weekendMidsleepSame => '주말과 평일 수면 중간 시각 같음';
+
+  @override
+  String regularityNeeds({required int count}) {
+    return '최근 28일 중 취침·기상 시각이 있는 밤 14박 필요(현재 $count박)';
+  }
 }

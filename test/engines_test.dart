@@ -3048,10 +3048,21 @@ Wall sit 2 x 1.5 min
       expect(index, lessThan(0));
     });
 
-    test('nights typed by hand, or too few days, give no index', () {
+    test('nights typed with both times count; a length alone does not', () {
       expect(
         sleepRegularityIndex([
           for (var day = 1; day <= 14; day++) night(day, source: ''),
+        ]),
+        100,
+      );
+      expect(
+        sleepRegularityIndex([
+          for (var day = 1; day <= 14; day++)
+            SleepEntry(
+              id: '$day',
+              sleptAt: DateTime(2026, 9, day, 7),
+              duration: const Duration(hours: 8),
+            ),
         ]),
         isNull,
       );
@@ -3067,7 +3078,19 @@ Wall sit 2 x 1.5 min
         for (var day = 14; day <= 20; day++)
           day >= 19 ? night(day, wake: 9) : night(day),
       ];
-      expect(socialJetlag(nights), const Duration(hours: 2));
+      expect(
+        socialJetlag(nights),
+        const Duration(hours: 2),
+        reason: 'later on weekends',
+      );
+      expect(
+        socialJetlag([
+          for (var day = 14; day <= 20; day++)
+            day >= 19 ? night(day, wake: 6) : night(day),
+        ]),
+        const Duration(hours: -1),
+        reason: 'earlier on weekends',
+      );
       expect(socialJetlag(nights.take(5).toList()), isNull);
     });
   });

@@ -125,17 +125,21 @@ Duration _covered(List<SleepSample> sorted) {
   return total;
 }
 
-/// How much bedtimes and wake times move from night to night: the
-/// standard deviation of each, in minutes of clock time. Not the Sleep
-/// Regularity Index, which needs every hour of the day recorded.
+/// Where bedtimes and wake times sit and how much they move from night
+/// to night: the average of each as a time after midnight, and its
+/// standard deviation in minutes of clock time.
 class SleepRegularity {
   const SleepRegularity({
     required this.nights,
+    required this.bedtime,
+    required this.wake,
     required this.bedtimeSpread,
     required this.wakeSpread,
   });
 
   final int nights;
+  final Duration bedtime;
+  final Duration wake;
   final Duration bedtimeSpread;
   final Duration wakeSpread;
 }
@@ -150,6 +154,8 @@ SleepRegularity? regularityOf(List<SleepEntry> nights) {
   if (timed.length < minimumNightsForRegularity) return null;
   return SleepRegularity(
     nights: timed.length,
+    bedtime: _clockMean([for (final (bed, _) in timed) bed], 12),
+    wake: _clockMean([for (final (_, wake) in timed) wake], 0),
     bedtimeSpread: _clockSpread([for (final (bed, _) in timed) bed], 12),
     wakeSpread: _clockSpread([for (final (_, wake) in timed) wake], 0),
   );
@@ -165,15 +171,13 @@ const minimumNightsForSocialJetlag = 2;
 /// The stretch of the day the index compares state by state.
 const _epoch = Duration(minutes: 5);
 
-/// The nights measured by a device, when they began and ended: a length
-/// typed by hand says when the night ended at best, and would make the
-/// days look more regular than they were.
-List<SleepEntry> _measuredNights(List<SleepEntry> sleeps) => [
+/// The nights that say when they began and ended, measured by a device
+/// or typed in with both times; a length typed alone says neither.
+List<SleepEntry> _timedNights(List<SleepEntry> sleeps) => [
   for (final sleep in sleeps)
     if (sleep.kind == SleepKind.night &&
         sleep.measure == SleepMeasure.asleep &&
-        sleep.startedAt != null &&
-        sleep.sourceName.isNotEmpty)
+        sleep.startedAt != null)
       sleep,
 ];
 
@@ -184,10 +188,10 @@ DateTime _dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
 /// −100 (always opposite) through 0 (chance) to 100 (identical days),
 /// over 5-minute stretches. Only days whose whole 24 hours are known
 /// count: the night that ended that morning and the one that began that
-/// evening are both measured. Null below
+/// evening both say when they began and ended. Null below
 /// [minimumDayPairsForRegularityIndex] pairs of such days.
 int? sleepRegularityIndex(List<SleepEntry> sleeps) {
-  final nights = _measuredNights(sleeps);
+  final nights = _timedNights(sleeps);
   final ends = {for (final night in nights) _dayOf(night.sleptAt)};
   bool isKnown(DateTime day) =>
       ends.contains(day) && ends.contains(day.add(const Duration(days: 1)));
@@ -212,15 +216,16 @@ int? sleepRegularityIndex(List<SleepEntry> sleeps) {
   return (-100 + 200 * same / (pairs * epochs)).round();
 }
 
-/// Social jetlag (Roenneberg et al., 2012): how
-/// far the middle of sleep on free days (nights ending on Saturday or
-/// Sunday) sits from that on work days, without the correction for
-/// sleep caught up on free days. Null without
-/// [minimumNightsForSocialJetlag] of each.
+/// Social jetlag (Roenneberg et al., 2012): how far the middle of sleep
+/// on free days (nights ending on Saturday or Sunday) sits from that on
+/// work days, later on free days when positive, without the correction
+/// for sleep caught up on free days. Days are told apart by the weekday
+/// alone, so someone working weekends is read the wrong way round. Null
+/// without [minimumNightsForSocialJetlag] of each.
 Duration? socialJetlag(List<SleepEntry> sleeps) {
   final free = <int>[];
   final work = <int>[];
-  for (final night in _measuredNights(sleeps)) {
+  for (final night in _timedNights(sleeps)) {
     final start = night.startedAt!;
     final middle = start.add(night.sleptAt.difference(start) ~/ 2);
     final weekday = night.sleptAt.weekday;
@@ -233,13 +238,23 @@ Duration? socialJetlag(List<SleepEntry> sleeps) {
   }
   double mean(List<int> minutes) =>
       minutes.reduce((a, b) => a + b) / minutes.length;
-  return Duration(minutes: (mean(free) - mean(work)).abs().round());
+  return Duration(minutes: (mean(free) - mean(work)).round());
 }
 
 /// Minutes of [time] past [fromHour], so times either side of midnight
 /// sit in one unbroken stretch when counted from noon.
 int clockMinutes(DateTime time, int fromHour) =>
     (time.hour * 60 + time.minute - fromHour * 60) % Duration.minutesPerDay;
+
+/// The average of [times] as a time after midnight, counted from
+/// [fromHour] so times either side of midnight average to it.
+Duration _clockMean(List<DateTime> times, int fromHour) {
+  final minutes = [for (final time in times) clockMinutes(time, fromHour)];
+  final mean = minutes.reduce((a, b) => a + b) / minutes.length;
+  return Duration(
+    minutes: (mean.round() + fromHour * 60) % Duration.minutesPerDay,
+  );
+}
 
 Duration _clockSpread(List<DateTime> times, int fromHour) {
   final minutes = [for (final time in times) clockMinutes(time, fromHour)];

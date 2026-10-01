@@ -692,8 +692,6 @@
   "averageTimeAsleep": "평균 수면 시간",
   "averageBedtime": "평균 취침",
   "averageWake": "평균 기상",
-  "bedtimeSpread": "취침 시간 편차",
-  "wakeSpread": "기상 시간 편차",
   "plusMinusMinutes": "±{minutes}분",
   "nightsRecorded": "기록한 밤 수",
   "bedAndWake": "취침과 기상",
@@ -1733,7 +1731,6 @@
   "refUseSummaryIntegers": "요약 수치는 반올림, 불필요한 소수 없음",
   "refUseSummaryReference": "비교 기준은 개인 평소 범위와 직전 12주로 고정",
   "sleepRegularityIndexLabel": "수면 규칙성 지수",
-  "socialJetlagLabel": "사회적 시차",
   "refSectionSleepRegularity": "수면 규칙성",
   "refUseSleepRegularityIndex": "수면 규칙성 지수의 정의: 연속한 이틀 같은 시각의 수면·각성 일치 정도",
   "refUseSocialJetlag": "사회적 시차: 주말과 평일 수면 중간 시각의 차이",
@@ -1742,5 +1739,11 @@
   "daysOutOf": "{total}일 중 {count}일",
   "refSectionSteps": "걸음 수",
   "refUseStepGoalChosen": "걸음 수 목표는 사용자가 정하며 기본값·자동 조정 없음",
-  "refUseStepGoalSet": "걸음 수 목표 설정은 걸음 수 증가와 관련"
+  "refUseStepGoalSet": "걸음 수 목표 설정은 걸음 수 증가와 관련",
+  "sleepRegularitySection": "수면 규칙성",
+  "priorDays": "이전 {count}일",
+  "weekendMidsleepLater": "주말 수면 중간 시각이 {time} 늦음",
+  "weekendMidsleepEarlier": "주말 수면 중간 시각이 {time} 이름",
+  "weekendMidsleepSame": "주말과 평일 수면 중간 시각 같음",
+  "regularityNeeds": "최근 28일 중 취침·기상 시각이 있는 밤 14박 필요(현재 {count}박)"
 }

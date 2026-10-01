@@ -3255,14 +3255,6 @@
   "@averageWake": {
     "description": "Average time of waking."
   },
-  "bedtimeSpread": "入睡時間變動",
-  "@bedtimeSpread": {
-    "description": "How much bedtimes vary."
-  },
-  "wakeSpread": "起床時間變動",
-  "@wakeSpread": {
-    "description": "How much wake times vary."
-  },
   "plusMinusMinutes": "±{minutes} 分",
   "@plusMinusMinutes": {
     "description": "A spread in minutes.",
@@ -9246,10 +9238,6 @@
   "@sleepRegularityIndexLabel": {
     "description": "The Sleep Regularity Index, −100 to 100."
   },
-  "socialJetlagLabel": "社交時差",
-  "@socialJetlagLabel": {
-    "description": "How far mid-sleep on free days sits from work days."
-  },
   "refSectionSleepRegularity": "睡眠規律",
   "@refSectionSleepRegularity": {
     "description": "References section for sleep regularity."
@@ -9293,5 +9281,49 @@
   "refUseStepGoalSet": "設定步數目標與步數增加有關",
   "@refUseStepGoalSet": {
     "description": "What the reference is used for."
+  },
+  "sleepRegularitySection": "作息規律",
+  "@sleepRegularitySection": {
+    "description": "Section for how regular the nights are."
+  },
+  "priorDays": "前 {count} 天",
+  "@priorDays": {
+    "description": "The stretch of days before the latest one.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weekendMidsleepLater": "週末睡眠中點晚 {time}",
+  "@weekendMidsleepLater": {
+    "description": "How much later the middle of sleep is on weekends than weekdays.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weekendMidsleepEarlier": "週末睡眠中點早 {time}",
+  "@weekendMidsleepEarlier": {
+    "description": "How much earlier the middle of sleep is on weekends than weekdays.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weekendMidsleepSame": "週末與平日睡眠中點相同",
+  "@weekendMidsleepSame": {
+    "description": "The middle of sleep is the same on weekends and weekdays."
+  },
+  "regularityNeeds": "需要近 28 天有 14 晚記下入睡與起床時間（目前 {count} 晚）",
+  "@regularityNeeds": {
+    "description": "What the regularity index needs before it is shown.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }
