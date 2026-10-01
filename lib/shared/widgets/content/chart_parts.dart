@@ -373,3 +373,94 @@ class UsualRangeTrend extends StatelessWidget {
     );
   }
 }
+
+/// A word-sized row of [ranges], one capsule a slot from its low to its
+/// high end, beside a figure in a list: a day's lowest to highest heart
+/// rate, or a blood pressure's diastolic to systolic. A slot without one
+/// is left empty. No axis or labels; the page the row opens has them.
+class RangeSpark extends StatelessWidget {
+  const RangeSpark({
+    super.key,
+    required this.ranges,
+    required this.color,
+    this.width = 96,
+    this.height = 28,
+  });
+
+  final List<(double, double)?> ranges;
+  final Color color;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: width,
+    height: height,
+    // Each capsule opens out from its middle, one after another, as the
+    // full range chart's bars do.
+    child: ChartEntrance(
+      shows: ranges,
+      builder: (context, progress) => CustomPaint(
+        painter: _RangeSparkPainter(
+          ranges: ranges,
+          color: color,
+          progress: progress,
+        ),
+      ),
+    ),
+  );
+}
+
+class _RangeSparkPainter extends CustomPainter {
+  _RangeSparkPainter({
+    required this.ranges,
+    required this.color,
+    required this.progress,
+  });
+
+  static const _barWidth = 4.0;
+
+  final List<(double, double)?> ranges;
+  final Color color;
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final known = ranges.nonNulls.toList();
+    if (known.isEmpty) return;
+    var low = known.first.$1;
+    var high = known.first.$2;
+    for (final (bottom, top) in known) {
+      if (bottom < low) low = bottom;
+      if (top > high) high = top;
+    }
+    final span = (high - low).abs() < 0.001 ? 1.0 : high - low;
+    final slot = size.width / ranges.length;
+    const inset = _barWidth / 2;
+    double yOf(double value) => (high - low).abs() < 0.001
+        ? size.height / 2
+        : inset + (high - value) / span * (size.height - _barWidth);
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = _barWidth
+      ..strokeCap = StrokeCap.round;
+    for (final (index, range) in ranges.indexed) {
+      if (range == null) continue;
+      final (bottom, top) = range;
+      final shown = staggeredProgress(progress, index, ranges.length);
+      if (shown <= 0) continue;
+      final middle = (yOf(bottom) + yOf(top)) / 2;
+      final half = (yOf(bottom) - yOf(top)) / 2 * shown;
+      final x = slot * (index + 0.5);
+      canvas.drawLine(
+        Offset(x, middle - half),
+        Offset(x, middle + half),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RangeSparkPainter old) =>
+      old.ranges != ranges || old.color != color || old.progress != progress;
+}

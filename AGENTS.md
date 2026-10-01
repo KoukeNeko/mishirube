@@ -290,7 +290,8 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
   `Sparkline`, `UsualRangeTrend` (a figure day by day against its own
   moving usual range, week by week past a month; `UsualRangeSpark` is
   its week drawn small beside a figure in a list, with no arrow or
-  difference), `RangeBarChart`,
+  difference, and `RangeSpark` a week of lows to highs there),
+  `RangeBarChart`,
   `CurveChart`, `SegmentBar`, with `ChartKey` for a legend and
   `ChartScrubber` for reading a point; a period's figures go in a
   `FigureGrid`.

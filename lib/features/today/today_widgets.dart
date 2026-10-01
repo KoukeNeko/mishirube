@@ -591,8 +591,8 @@ class VitalsCard extends StatelessWidget {
 
   final Map<ActivityMetric, double> vitals;
 
-  /// A reading's week, drawn small beside its figure; blood pressure, a
-  /// pair one line cannot stand for, has none.
+  /// A reading's week, drawn small beside its figure; blood pressure's
+  /// is asked for by its systolic figure.
   final Widget Function(ActivityMetric metric) weekOf;
   final VoidCallback onTap;
 
@@ -604,7 +604,7 @@ class VitalsCard extends StatelessWidget {
     String figure(ActivityMetric metric) =>
         withUnit(metric.format(vitals[metric]!), metric.unitIn(l10n));
     final day = DateTime(0);
-    final rows = <(String, String, ActivityMetric?)>[
+    final rows = <(String, String, ActivityMetric)>[
       if (vitals.containsKey(ActivityMetric.restingHeartRate))
         (
           ActivityMetric.restingHeartRate.labelIn(l10n),
@@ -616,7 +616,11 @@ class VitalsCard extends StatelessWidget {
               metric: (day, value),
           })
           case final pressure?)
-        (l10n.vitalBloodPressure, pressure, null),
+        (
+          l10n.vitalBloodPressure,
+          pressure,
+          ActivityMetric.bloodPressureSystolic,
+        ),
       for (final metric in [
         ActivityMetric.bodyTemperature,
         ActivityMetric.oxygenSaturation,
@@ -636,10 +640,8 @@ class VitalsCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: Text(label, style: AppTextStyles.body)),
-                if (metric != null) ...[
-                  weekOf(metric),
-                  const SizedBox(width: AppSpacing.sm),
-                ],
+                weekOf(metric),
+                const SizedBox(width: AppSpacing.sm),
                 Text(value, style: AppTextStyles.itemTitle),
               ],
             ),

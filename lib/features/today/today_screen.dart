@@ -10,7 +10,6 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
-import '../activity/activity_metric_screen.dart';
 import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
 import '../body/weight_trend_chart.dart';
@@ -272,14 +271,11 @@ class TodayScreen extends StatelessWidget {
             Gutter(
               child: VitalsCard(
                 vitals: vitals,
-                weekOf: (metric) => UsualRangeSpark(
-                  points: today.recent(metric, UsualRangeSpark.reach),
+                weekOf: (metric) => ReadingWeek(
+                  metric: metric,
                   day: store.now(),
-                  color: metricColor(metric),
-                  formatRange: (low, high) => withUnit(
-                    '${metric.format(low)}–${metric.format(high)}',
-                    metric.unitIn(context.l10n),
-                  ),
+                  recent: (metric) =>
+                      today.recent(metric, UsualRangeSpark.reach),
                   width: 72,
                   height: 24,
                 ),
