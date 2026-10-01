@@ -245,10 +245,11 @@ In particular, do not create a parallel version of:
   add one there for a new way in.
 - Use tokens from `lib/app/theme.dart` (`AppColors`, `AppSpacing`,
   `AppRadius`, `AppTextStyles`) rather than raw values.
-- Each area keeps its colour. A health platform's reading takes its
-  group's: the heart and the vitals `AppColors.heart`, as Apple Health
-  draws both (on the sleep page too), the rest `AppColors.activity`
-  (research 86).
+- Each area keeps its colour. A health platform's reading takes the
+  colour Apple Health gives it: breathing and blood oxygen
+  `AppColors.breathing`, the rest of the heart and the vitals
+  `AppColors.heart` (on the sleep page too), the rest
+  `AppColors.activity` (research 86).
 
 ## Charts
 

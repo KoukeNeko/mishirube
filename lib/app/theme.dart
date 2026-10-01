@@ -50,6 +50,10 @@ abstract final class AppColors {
   /// chart never reads as a warning (see `research/86-color-allocation.md`).
   static const heart = Color(0xFFFF5F83);
 
+  /// Breathing and blood oxygen: Apple Health's respiratory cyan, apart
+  /// from activity's cyan and the water blue (CIEDE2000 at least 11).
+  static const breathing = Color(0xFF3DD3FE);
+
   /// Losing data for good. Amber is a caution; this is the one that says
   /// something will not come back.
   static const destructive = Color(0xFFFF453A);

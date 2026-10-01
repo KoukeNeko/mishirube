@@ -299,8 +299,8 @@ void main() {
     expect(find.text('平常範圍'), findsWidgets);
     expect(
       tester.widget<Sparkline>(find.byType(Sparkline)).color,
-      AppColors.heart,
-      reason: 'a vital is drawn in the colour Apple Health gives vitals',
+      AppColors.breathing,
+      reason: 'breathing is drawn in the colour Apple Health gives it',
     );
     final bands = tester.widget<Sparkline>(find.byType(Sparkline)).bands!;
     expect(
