@@ -207,9 +207,11 @@ class ChartLevel {
 /// Line chart without axes, ending in a dot on the latest value, or
 /// marking the [selected] one while a reading picks it. A null value is
 /// a gap the line breaks at rather than bridges. Behind the line it can
-/// show a [normal] band and [levels] across the stretches they average.
-/// A line of estimates ([isEstimate], such as an estimated max) is
-/// dashed.
+/// show a [normal] band, or a usual range of its own for each point
+/// ([bands], which moves as the days do), and [levels] across the
+/// stretches they average. Points in [outside] are ringed, not coloured:
+/// apart from the usual range is not worse. A line of estimates
+/// ([isEstimate], such as an estimated max) is dashed.
 class Sparkline extends StatelessWidget {
   const Sparkline({
     super.key,
@@ -218,6 +220,8 @@ class Sparkline extends StatelessWidget {
     this.height = 48,
     this.selected,
     this.normal,
+    this.bands,
+    this.outside = const {},
     this.levels = const [],
     this.isEstimate = false,
   });
@@ -230,6 +234,13 @@ class Sparkline extends StatelessWidget {
 
   /// The low and high edge of what is normal.
   final (double, double)? normal;
+
+  /// Each point's own usual range, aligned with [values]; null where
+  /// there is none yet.
+  final List<(double, double)?>? bands;
+
+  /// Indexes of points outside their usual range.
+  final Set<int> outside;
   final List<ChartLevel> levels;
 
   @override
@@ -246,6 +257,8 @@ class Sparkline extends StatelessWidget {
             color: color,
             selected: selected,
             normal: normal,
+            bands: bands,
+            outside: outside,
             levels: levels,
             isEstimate: isEstimate,
             progress: easedProgress(progress),
@@ -262,12 +275,15 @@ class _SparklinePainter extends CustomPainter {
     required this.color,
     required this.selected,
     required this.normal,
+    required this.bands,
+    required this.outside,
     required this.levels,
     required this.isEstimate,
     required this.progress,
   });
 
   static const _endDotRadius = 4.0;
+  static const _ringRadius = 3.5;
   static const _loneDotRadius = 2.0;
   static const _bandAlpha = 0.14;
 
@@ -275,6 +291,8 @@ class _SparklinePainter extends CustomPainter {
   final Color color;
   final int? selected;
   final (double, double)? normal;
+  final List<(double, double)?>? bands;
+  final Set<int> outside;
   final List<ChartLevel> levels;
   final bool isEstimate;
 
@@ -289,6 +307,8 @@ class _SparklinePainter extends CustomPainter {
     final all = [
       ...known,
       if (normal case (final low, final high)) ...[low, high],
+      for (final band in bands ?? const <(double, double)?>[])
+        if (band case (final low, final high)) ...[low, high],
       for (final level in levels) level.value,
     ];
     final minValue = all.reduce((a, b) => a < b ? a : b);
@@ -311,6 +331,26 @@ class _SparklinePainter extends CustomPainter {
         Rect.fromLTRB(0, yOf(high), size.width, yOf(low)),
         Paint()..color = AppColors.textSecondary.withValues(alpha: _bandAlpha),
       );
+    }
+    // Each point's range covers its own stretch of the line, from halfway
+    // to the point before to halfway to the next.
+    if (bands case final bands?) {
+      final band = Paint()
+        ..color = AppColors.textSecondary.withValues(alpha: _bandAlpha);
+      for (final (index, range) in bands.indexed) {
+        if (range case (final low, final high)) {
+          final half = stepX / 2;
+          canvas.drawRect(
+            Rect.fromLTRB(
+              index == 0 ? 0 : xOf(index) - half,
+              yOf(high),
+              index == bands.length - 1 ? size.width : xOf(index) + half,
+              yOf(low),
+            ),
+            band,
+          );
+        }
+      }
     }
     canvas.save();
     canvas.clipRect(
@@ -368,6 +408,17 @@ class _SparklinePainter extends CustomPainter {
     }
     endRun(values.length - 1);
 
+    final ring = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    for (final index in outside) {
+      if (index >= values.length || values[index] == null) continue;
+      final point = Offset(xOf(index), yOf(values[index]!));
+      canvas.drawCircle(point, _ringRadius, Paint()..color = AppColors.surface);
+      canvas.drawCircle(point, _ringRadius, ring);
+    }
+
     final last = values.lastIndexWhere((value) => value != null);
     final marked = selected != null && values[selected!] != null
         ? selected!
@@ -397,6 +448,8 @@ class _SparklinePainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.selected != selected ||
       oldDelegate.normal != normal ||
+      oldDelegate.bands != bands ||
+      oldDelegate.outside != outside ||
       oldDelegate.levels != levels ||
       oldDelegate.isEstimate != isEstimate ||
       oldDelegate.progress != progress;
@@ -408,7 +461,8 @@ class _SparklinePainter extends CustomPainter {
 /// without a value is left empty. [labelOf] writes a value for the
 /// marks; [start] and [end] sit under the ends of the axis. Values grow
 /// upward, or [downward] for times of day, which read down the way a
-/// night goes from bedtime to waking.
+/// night goes from bedtime to waking. [levels] are targets, each a thin
+/// solid line across; the axis stretches to hold them.
 class RangeBarChart extends StatelessWidget {
   const RangeBarChart({
     super.key,
@@ -420,6 +474,7 @@ class RangeBarChart extends StatelessWidget {
     this.height = 180,
     this.selected,
     this.downward = false,
+    this.levels = const [],
   });
 
   final List<(double, double)?> ranges;
@@ -432,6 +487,7 @@ class RangeBarChart extends StatelessWidget {
   /// The stretch a reading picks; the others dim while one is picked.
   final int? selected;
   final bool downward;
+  final List<double> levels;
 
   @override
   Widget build(BuildContext context) {
@@ -451,6 +507,7 @@ class RangeBarChart extends StatelessWidget {
                 downward: downward,
                 labelOf: labelOf,
                 labelStyle: AppTextStyles.caption.copyWith(color: color),
+                levels: levels,
                 progress: progress,
               ),
             ),
@@ -477,6 +534,7 @@ class _RangeBarPainter extends CustomPainter {
     required this.labelStyle,
     required this.selected,
     required this.downward,
+    required this.levels,
     required this.progress,
   });
 
@@ -491,6 +549,7 @@ class _RangeBarPainter extends CustomPainter {
   final TextStyle labelStyle;
   final int? selected;
   final bool downward;
+  final List<double> levels;
 
   /// How far the bars have opened out, the first leading.
   final double progress;
@@ -510,14 +569,32 @@ class _RangeBarPainter extends CustomPainter {
       if (bottom < low) (low, lowAt) = (bottom, index);
       if (top > high) (high, highAt) = (top, index);
     }
-    final span = (high - low).abs() < 0.001 ? 1.0 : high - low;
+    // The axis holds the targets too; the marks name the readings.
+    var axisLow = low;
+    var axisHigh = high;
+    for (final level in levels) {
+      if (level < axisLow) axisLow = level;
+      if (level > axisHigh) axisHigh = level;
+    }
+    final span = (axisHigh - axisLow).abs() < 0.001 ? 1.0 : axisHigh - axisLow;
     final slot = size.width / ranges.length;
     final barWidth = slot * _barShare;
     final top = _labelRoom;
     final bottom = size.height - _labelRoom;
     double xOf(int index) => slot * (index + 0.5);
     double yOf(double value) =>
-        top + (downward ? value - low : high - value) / span * (bottom - top);
+        top +
+        (downward ? value - axisLow : axisHigh - value) / span * (bottom - top);
+    final target = Paint()
+      ..color = AppColors.textPrimary.withValues(alpha: 0.7)
+      ..strokeWidth = 1;
+    for (final level in levels) {
+      canvas.drawLine(
+        Offset(0, yOf(level)),
+        Offset(size.width, yOf(level)),
+        target,
+      );
+    }
 
     final paint = Paint()
       ..color = color
@@ -571,6 +648,7 @@ class _RangeBarPainter extends CustomPainter {
       old.color != color ||
       old.selected != selected ||
       old.downward != downward ||
+      old.levels != levels ||
       old.progress != progress;
 }
 

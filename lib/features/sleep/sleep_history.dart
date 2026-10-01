@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../backend/engines/usual_range.dart';
+import '../trends/usual_range_trend.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'sleep_schedule_chart.dart';
+import 'sleep_stage_chart.dart';
 import 'sleep_screen.dart';
 import 'sleep_view_model.dart';
 import '../../l10n/l10n.dart';
@@ -45,7 +48,9 @@ List<Widget> sleepNightItems(
       child: AppCard(child: _lengthChart(context, model, nights, start, days)),
     ),
     if (timed.length > 1)
-      Gutter(child: AppCard(child: _scheduleChart(context, timed))),
+      Gutter(
+        child: AppCard(child: _scheduleChart(context, timed, targetsOf(model))),
+      ),
   ];
 }
 
@@ -91,7 +96,11 @@ Widget _lengthChart(
 
 /// Each night from falling asleep to waking, with their average;
 /// reading a row says its times.
-Widget _scheduleChart(BuildContext context, List<SleepEntry> timed) {
+Widget _scheduleChart(
+  BuildContext context,
+  List<SleepEntry> timed,
+  List<int> targets,
+) {
   final l10n = context.l10n;
   // Bedtimes straddle midnight, so they are averaged from noon; waking
   // straddles nothing, so from midnight.
@@ -101,7 +110,7 @@ Widget _scheduleChart(BuildContext context, List<SleepEntry> timed) {
   final wake = _averageClock([
     for (final night in timed) night.sleptAt,
   ], fromHour: 0);
-  return ChartScrubber(
+  final chart = ChartScrubber(
     count: timed.length,
     indexAt: ChartScrubber.rows(
       timed.length,
@@ -118,9 +127,31 @@ Widget _scheduleChart(BuildContext context, List<SleepEntry> timed) {
           '${formatDuration(context.l10n, night.duration)}';
     },
     builder: (context, selected) =>
-        SleepScheduleChart(nights: timed, selected: selected),
+        SleepScheduleChart(nights: timed, selected: selected, targets: targets),
+  );
+  if (targets.isEmpty) return chart;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      chart,
+      const SizedBox(height: AppSpacing.xs),
+      targetKey(context),
+    ],
   );
 }
+
+/// The schedule the user aims for, as minutes after midnight; empty
+/// until set.
+List<int> targetsOf(SleepViewModel model) => [
+  ?model.targetBedtime,
+  ?model.targetWake,
+];
+
+/// The legend for a target schedule's lines.
+Widget targetKey(BuildContext context) => ChartKey(
+  color: AppColors.textPrimary.withValues(alpha: 0.7),
+  label: context.l10n.targetSchedule,
+);
 
 /// One bar a night, each with what its reading says; a night without a
 /// record is an empty bar, not a zero-hour night.
@@ -189,66 +220,44 @@ List<Widget> sleepVitalItems(
   int days,
 ) {
   final l10n = context.l10n;
-  final rows = [
+  final first = model.day.subtract(Duration(days: days - 1));
+  final shownFrom = DateTime(first.year, first.month, first.day);
+  final trends = [
     for (final measure in OvernightMeasure.values)
       if (measure != OvernightMeasure.breathingDisturbances)
-        if (model.nightlyAverages(measure, days) case final values
-            when values.length > 1)
-          (measure, values),
+        // The band for the first nights shown needs the weeks before.
+        if (usualRangeTrend(
+              context,
+              label: measure.labelIn(l10n),
+              color: AppColors.wellness,
+              points: model.nightlyAverages(
+                measure,
+                days + usualRangeWindow.inDays,
+              ),
+              from: shownFrom,
+              to: model.day,
+              isNightly: true,
+              semanticLabel: l10n.trendOverNights(
+                measure: measure.labelIn(l10n),
+                count: days,
+              ),
+              format: (value) => withUnit(
+                overnightNumber(measure, value),
+                measure.unitIn(l10n),
+              ),
+              formatRange: (low, high) => withUnit(
+                '${overnightNumber(measure, low)}–'
+                '${overnightNumber(measure, high)}',
+                measure.unitIn(l10n),
+              ),
+            )
+            case final trend? when trend.values.nonNulls.length > 1)
+          trend,
   ];
-  if (rows.isEmpty) return const [];
-  String reading(OvernightMeasure measure, double value) =>
-      withUnit(overnightNumber(measure, value), measure.unitIn(l10n));
+  if (trends.isEmpty) return const [];
   return [
     Gutter(child: SectionLabel(l10n.healthDataOvernight)),
-    for (final (measure, readings) in rows)
-      Gutter(
-        child: AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CategoryLabel(
-                label: measure.labelIn(l10n),
-                color: AppColors.wellness,
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Semantics(
-                label: l10n.trendOverNights(
-                  measure: measure.labelIn(l10n),
-                  count: readings.length,
-                ),
-                child: ChartScrubber(
-                  count: readings.length,
-                  indexAt: ChartScrubber.points(readings.length),
-                  idle:
-                      '${l10n.statAverage(value: reading(measure, readings.map((r) => r.$2).reduce((a, b) => a + b) / readings.length))}'
-                      ' · ${l10n.nightsCount(count: readings.length)}',
-                  readoutOf: (index) =>
-                      '${context.dates.dayWithWeekday(readings[index].$1)} · '
-                      '${reading(measure, readings[index].$2)}',
-                  builder: (context, selected) => Sparkline(
-                    values: [for (final (_, value) in readings) value],
-                    color: AppColors.wellness,
-                    height: 96,
-                    selected: selected,
-                    normal: switch (model.baseline(measure)) {
-                      final usual? => (usual.low, usual.high),
-                      null => null,
-                    },
-                  ),
-                ),
-              ),
-              if (model.baseline(measure) != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                ChartKey(
-                  color: AppColors.textSecondary.withValues(alpha: 0.3),
-                  label: l10n.usualRange,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    for (final trend in trends) Gutter(child: AppCard(child: trend)),
   ];
 }
 
@@ -282,5 +291,86 @@ List<Widget> sleepFactorItems(BuildContext context, SleepViewModel model) {
     Gutter(
       child: TagWrap(labels: [l10n.factorsBasis, l10n.correlationNotCause]),
     ),
+  ];
+}
+
+/// Each staged night's time in deep sleep, REM and light or core sleep,
+/// and its efficiency, over the [days] up to the day [model] shows, each
+/// against what was usual for this person in the four weeks before that
+/// night: a band that moves with the nights, and nights apart from it
+/// ringed. Stages are a device's estimate, so they are read against the
+/// person's own nights, never a population's (see
+/// `research/85-normal-ranges-and-google-health-gaps.md`).
+List<Widget> sleepStageItems(
+  BuildContext context,
+  SleepViewModel model,
+  int days,
+) {
+  final l10n = context.l10n;
+  // The band for the first nights shown needs the weeks before them.
+  final nights = model.nightlyStages(days + usualRangeWindow.inDays);
+  final firstShown = model.day.subtract(Duration(days: days - 1));
+  final shownFrom = DateTime(firstShown.year, firstShown.month, firstShown.day);
+  if (!nights.any((night) => !night.morning.isBefore(shownFrom))) {
+    return const [];
+  }
+  String length(double minutes) =>
+      formatDuration(l10n, Duration(minutes: minutes.round()));
+  String percent(double value) => '${value.round()}%';
+  final series = [
+    for (final stage in [SleepStage.deep, SleepStage.rem, SleepStage.core])
+      (
+        stage.labelIn(l10n),
+        sleepStageColor(stage),
+        [
+          for (final night in nights)
+            (
+              night.morning,
+              night.stages[stage]?.inMinutes.toDouble() ??
+                  (stage == SleepStage.core
+                      ? night.stages[SleepStage.asleep]?.inMinutes.toDouble()
+                      : null),
+            ),
+        ],
+        length,
+      ),
+    (
+      l10n.sleepEfficiency,
+      AppColors.wellness,
+      [
+        for (final night in nights)
+          (
+            night.morning,
+            switch (night.efficiency) {
+              final value? => value * 100,
+              null => null,
+            },
+          ),
+      ],
+      percent,
+    ),
+  ];
+  return [
+    Gutter(child: SectionLabel(l10n.sleepStagesSection)),
+    for (final (label, color, points, format) in series)
+      // A device's estimate: drawn against its usual range, with no
+      // sentence saying how many nights fit it.
+      if (usualRangeTrend(
+            context,
+            label: label,
+            color: color,
+            points: [
+              for (final (morning, value) in points)
+                if (value != null) (morning, value),
+            ],
+            from: shownFrom,
+            to: model.day,
+            format: format,
+            formatRange: (low, high) => '${format(low)}–${format(high)}',
+            isNightly: true,
+            summarises: false,
+          )
+          case final trend?)
+        Gutter(child: AppCard(child: trend)),
   ];
 }

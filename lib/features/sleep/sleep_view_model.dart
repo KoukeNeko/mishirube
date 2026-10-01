@@ -1,6 +1,7 @@
 import '../../app/view_model.dart';
 import '../../backend/application/sleep_service.dart';
 import '../../backend/engines/sleep_metrics.dart';
+import '../../backend/engines/usual_range.dart';
 import '../../domain/domain.dart';
 
 /// The sleep page: the day being shown, its sleeps, the nights before it,
@@ -88,6 +89,15 @@ class SleepViewModel extends ViewModel {
 
   void setGoal(Duration? goal) => backend.sleep.setGoal(goal);
 
+  /// The times the user aims to fall asleep and wake, minutes after
+  /// midnight; null unset.
+  int? get targetBedtime => backend.sleep.targetBedtime;
+  int? get targetWake => backend.sleep.targetWake;
+
+  void setTargetBedtime(int? minutes) =>
+      backend.sleep.setTargetBedtime(minutes);
+  void setTargetWake(int? minutes) => backend.sleep.setTargetWake(minutes);
+
   /// The night each day is read against: the goal, or a default.
   Duration get need => backend.sleep.need;
 
@@ -127,6 +137,16 @@ class SleepViewModel extends ViewModel {
     return backend.sleep.averageStages(end.subtract(Duration(days: days)), end);
   }
 
+  /// Each staged night over the [days] ending with the day shown, oldest
+  /// first, with its stages and efficiency.
+  List<
+    ({DateTime morning, Map<SleepStage, Duration> stages, double? efficiency})
+  >
+  nightlyStages(int days) {
+    final end = _day.add(const Duration(days: 1));
+    return backend.sleep.nightlyStages(end.subtract(Duration(days: days)), end);
+  }
+
   /// Each night's average of [measure] over the [days] ending with the
   /// day shown, with its morning, oldest first.
   List<(DateTime, double)> nightlyAverages(OvernightMeasure measure, int days) {
@@ -139,15 +159,14 @@ class SleepViewModel extends ViewModel {
   }
 
   /// The usual range of [measure] over the four weeks before the day.
-  ({double low, double high})? baseline(OvernightMeasure measure) =>
-      baselineOf([
-        for (final (_, value) in backend.sleep.nightlyAverages(
-          measure,
-          _day.subtract(const Duration(days: 28)),
-          _day,
-        ))
-          value,
-      ]);
+  UsualRange? baseline(OvernightMeasure measure) => usualRangeOf([
+    for (final (_, value) in backend.sleep.nightlyAverages(
+      measure,
+      _day.subtract(usualRangeWindow),
+      _day,
+    ))
+      value,
+  ]);
 
   /// Nights after training, late caffeine or a late meal against nights
   /// without.

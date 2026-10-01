@@ -5,6 +5,7 @@ import '../../backend/engines/sleep_metrics.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'sleep_history.dart';
 import 'sleep_schedule_chart.dart';
 import '../../l10n/l10n.dart';
 
@@ -30,6 +31,7 @@ class SleepRegularityCard extends StatelessWidget {
     super.key,
     required this.nights,
     required this.day,
+    this.targets = const [],
   });
 
   /// Nights asleep over the last two windows, any order.
@@ -37,6 +39,10 @@ class SleepRegularityCard extends StatelessWidget {
 
   /// The day the window ends on.
   final DateTime day;
+
+  /// The schedule the user aims for, minutes after midnight, drawn as
+  /// lines on the nights.
+  final List<int> targets;
 
   @override
   Widget build(BuildContext context) {
@@ -114,9 +120,16 @@ class SleepRegularityCard extends StatelessWidget {
                           '${formatTimeOfDay(night.startedAt!)}–'
                           '${formatTimeOfDay(night.sleptAt)}';
                     },
-                    builder: (context, selected) =>
-                        SleepScheduleChart(nights: shown, selected: selected),
+                    builder: (context, selected) => SleepScheduleChart(
+                      nights: shown,
+                      selected: selected,
+                      targets: targets,
+                    ),
                   ),
+                  if (targets.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    targetKey(context),
+                  ],
                 ],
                 if (socialJetlag(recent) case final gap?) ...[
                   const SizedBox(height: AppSpacing.sm),

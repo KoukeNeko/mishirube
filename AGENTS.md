@@ -258,6 +258,12 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
   dashed.
 - A target or reference level is a thin solid line; a range the user
   counts as normal or usual is a neutral band (`Sparkline.normal`).
+- A usual range has one rule (`engines/usual_range.dart`, research 85):
+  the lowest to the highest of the 28 days before, the day itself left
+  out, with at least 14 days (26 weeks and 13 for a weekly figure). Only
+  readings of the body get one, never a count with a goal; a day outside
+  it is ringed, never coloured, and only daily readings say how many
+  days sat within it. No population range, and no count across metrics.
 - Nothing recorded is a gap, never a zero: pass null to `Sparkline` so
   the line breaks, and leave the bar out. Only a count of events (workouts
   in a week) has a true zero.
@@ -276,7 +282,8 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
   (capsule bars, the current period marked, a `goal` line and a check on
   each bar in `met`, which the caller decides), `GoalWeeksChart` (weeks
   against a goal), `DistributionChart` (how days spread across ranges),
-  `Sparkline`, `RangeBarChart`, `CurveChart`, `SegmentBar`, with
+  `Sparkline`, `UsualRangeTrend` (a figure day by day against its own
+  moving usual range), `RangeBarChart`, `CurveChart`, `SegmentBar`, with
   `ChartKey` for a legend and `ChartScrubber` for reading a point; a
   period's figures go in a `FigureGrid`.
 

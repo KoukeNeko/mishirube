@@ -37,6 +37,48 @@ List<Widget> sleepGoalRows(BuildContext context, SleepViewModel model) => [
         syncBedtimeReminder(AppStoreScope.read(context).backend, context.l10n);
       },
     ),
+  // A schedule the user picks, drawn on the nights' charts as lines; off
+  // until set, and nothing is scored against it (research/85).
+  for (final (title, minutes, set, start) in [
+    (
+      context.l10n.targetBedtime,
+      model.targetBedtime,
+      model.setTargetBedtime,
+      const TimeOfDay(hour: 23, minute: 0),
+    ),
+    (
+      context.l10n.targetWake,
+      model.targetWake,
+      model.setTargetWake,
+      const TimeOfDay(hour: 7, minute: 0),
+    ),
+  ])
+    NavRow(
+      title: title,
+      trailing: Text(
+        minutes == null ? context.l10n.notSet : formatMinutesOfDay(minutes),
+        style: AppTextStyles.caption,
+      ),
+      onTap: () async {
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: minutes == null
+              ? start
+              : TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+        );
+        if (picked != null) set(picked.hour * 60 + picked.minute);
+      },
+    ),
+  if (model.targetBedtime != null || model.targetWake != null)
+    NavRow(
+      title: context.l10n.clearTargetSchedule,
+      isDestructive: true,
+      showChevron: false,
+      onTap: () {
+        model.setTargetBedtime(null);
+        model.setTargetWake(null);
+      },
+    ),
 ];
 
 Future<void> _editGoal(BuildContext context, SleepViewModel model) async {

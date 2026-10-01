@@ -12,6 +12,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
+import '../me/me_screen.dart';
 import 'activity_view_model.dart';
 import 'record_activity_screen.dart';
 import 'route_map.dart';
@@ -194,7 +195,27 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   start: activity.startedAt,
                 ),
               ),
-              if (zones != null) Gutter(child: _ZoneCard(zones: zones)),
+              if (zones != null)
+                Gutter(child: _ZoneCard(zones: zones))
+              // Zones read the maximum from an age, which is not set: say
+              // so rather than assume one.
+              else if (heartRate.length > 1 &&
+                  detail?.age == null &&
+                  model.ageOn(activity.startedAt) == null)
+                Gutter(
+                  child: GroupedCard(
+                    children: [
+                      NavRow(
+                        title: context.l10n.heartZonesTitle,
+                        trailing: Text(
+                          context.l10n.needsBirthYear,
+                          style: AppTextStyles.caption,
+                        ),
+                        onTap: () => editBirthYear(context),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         if (detail != null && detail.recovery.length > 1)

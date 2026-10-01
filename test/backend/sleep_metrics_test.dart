@@ -168,13 +168,6 @@ void main() {
     expect(lateNight.wake, DateTime(2026, 9, 25, 7), reason: 'still tonight');
   });
 
-  test('a baseline needs a week of nights', () {
-    expect(baselineOf([50, 50, 50, 50, 50, 50]), isNull);
-    final baseline = baselineOf([40, 60, 40, 60, 40, 60, 50, 50])!;
-    expect(baseline.low, closeTo(50 - 8.66, 0.01));
-    expect(baseline.high, closeTo(50 + 8.66, 0.01));
-  });
-
   test('a comparison needs enough nights on both sides', () {
     final nights = [
       for (var day = 1; day <= 10; day++)

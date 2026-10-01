@@ -1,6 +1,7 @@
 import '../../domain/domain.dart';
 import '../engines/activity_metrics.dart';
 import '../engines/trend_engine.dart';
+import '../engines/usual_range.dart';
 import '../storage/activity_repository.dart';
 import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
@@ -253,16 +254,8 @@ class ActivityService {
     return samples.isEmpty ? null : hourlyValues(samples);
   }
 
-  /// What an ordinary day of [metric] looks like, from the
-  /// [usualRangeDays] before [day]; null with too few days.
-  ({double low, double high})? usualRange(
-    ActivityMetric metric,
-    DateTime day,
-  ) => usualRangeOf(
-    daily(
-      metric,
-      day.subtract(const Duration(days: usualRangeDays)),
-      day.subtract(const Duration(days: 1)),
-    ),
-  );
+  /// What an ordinary day of [metric] looks like, from the four weeks
+  /// before [day]; null with too few days.
+  UsualRange? usualRange(ActivityMetric metric, DateTime day) =>
+      usualRangeBefore(daily(metric, day.subtract(usualRangeWindow), day), day);
 }

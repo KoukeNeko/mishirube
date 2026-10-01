@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/sleep/sleep_schedule_chart.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
+import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
@@ -125,6 +127,42 @@ void main() {
         scrollable: find.byType(Scrollable).last,
       );
     }
+    await disposeTree(tester);
+  });
+
+  testWidgets('a target schedule is drawn on the nights as lines', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = staged(3, deep: 90);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: store,
+    );
+    await tester.tap(find.text('週'));
+    await tester.pumpAndSettle();
+    final chart = find.byType(SleepScheduleChart);
+    await tester.scrollUntilVisible(
+      chart.first,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      tester.widget<SleepScheduleChart>(chart.first).targets,
+      isEmpty,
+      reason: 'none until the user sets one',
+    );
+
+    store.backend.sleep
+      ..setTargetBedtime(23 * 60)
+      ..setTargetWake(7 * 60);
+    await tester.pumpAndSettle();
+    expect(tester.widget<SleepScheduleChart>(chart.first).targets, [
+      23 * 60,
+      7 * 60,
+    ]);
+    expect(find.text('目標作息'), findsWidgets);
     await disposeTree(tester);
   });
 }

@@ -2297,6 +2297,147 @@
   "@noActivityThisDay": {
     "description": "Empty state for a day without activity data."
   },
+  "heartZonesTitle": "心率區間",
+  "needsBirthYear": "需要出生年",
+  "nightsWithinUsual": "{total} 晚中 {count} 晚在平常範圍內",
+  "@nightsWithinUsual": {
+    "description": "How many nights sat within the person's own usual range.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "daysWithinUsual": "{total} 天中 {count} 天在平常範圍內",
+  "@daysWithinUsual": {
+    "description": "How many days sat within the person's own usual range.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAllWithinUsual": "{count} 天都在平常範圍內",
+  "@daysAllWithinUsual": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysRecordedWithinUsual": "{recorded} 天有紀錄，{count} 天在平常範圍內",
+  "@daysRecordedWithinUsual": {
+    "placeholders": {
+      "recorded": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usualRangeNeedsDays": "需要近 28 天有 14 天的紀錄（目前 {count} 天）",
+  "@usualRangeNeedsDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nightsAllWithinUsual": "{count} 晚都在平常範圍內",
+  "@nightsAllWithinUsual": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nightsRecordedWithinUsual": "{recorded} 晚有紀錄，{count} 晚在平常範圍內",
+  "@nightsRecordedWithinUsual": {
+    "placeholders": {
+      "recorded": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usualRangeNeedsNights": "需要近 28 天有 14 晚的紀錄（目前 {count} 晚）",
+  "@usualRangeNeedsNights": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outsideUsual": "範圍外",
+  "targetBedtime": "目標入睡",
+  "targetWake": "目標起床",
+  "clearTargetSchedule": "清除目標作息",
+  "targetSchedule": "目標作息",
+  "refSectionUsualRange": "平常範圍",
+  "@refSectionUsualRange": {
+    "description": "References page: section title."
+  },
+  "refSectionSleepStages": "睡眠階段",
+  "@refSectionSleepStages": {
+    "description": "References page: section title."
+  },
+  "refUseUsualRangeMinMax": "平常範圍是前 28 天的最低到最高，有值的日子至少 14 天",
+  "@refUseUsualRangeMinMax": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeWindow": "個人基線取前 28 天的紀錄，不含當天",
+  "@refUseUsualRangeWindow": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeMarks": "範圍外只用空心圈標出，不分好壞、不用警示色",
+  "@refUseUsualRangeMarks": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeNoAnchor": "範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字",
+  "@refUseUsualRangeNoAnchor": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesEstimate": "睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍",
+  "@refUseStagesEstimate": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesNoTarget": "睡眠結構沒有共識，不設各階段的目標",
+  "@refUseStagesNoTarget": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesNoSummary": "睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受",
+  "@refUseStagesNoSummary": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseRegularityOutcomes": "規律的作息與較低的死亡風險相關（觀察性）",
+  "@refUseRegularityOutcomes": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseTargetScheduleAssociation": "目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂",
+  "@refUseTargetScheduleAssociation": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseTargetScheduleTrial": "目標作息：固定作息四週，白天嗜睡下降（小型實驗）",
+  "@refUseTargetScheduleTrial": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseMaxHeartRateError": "依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間",
+  "@refUseMaxHeartRateError": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseHeartRateReserve": "儲備心率對應儲備攝氧量，區間依此計算",
+  "@refUseHeartRateReserve": {
+    "description": "References page: what the cited work is used for."
+  },
   "usualRangeValue": "平常 {range}",
   "@usualRangeValue": {
     "description": "A metric's usual range; range is formatted with its unit.",

@@ -171,6 +171,7 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                   child: _SleepSchedule(
                     weekStarts: trend.detail.weekStarts,
                     schedule: schedule,
+                    targets: targetsOf(_sleepModel),
                   ),
                 ),
               if (isSleep && trend.days.isNotEmpty)
@@ -210,9 +211,16 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                   child: SleepRegularityCard(
                     nights: nights,
                     day: _sleepModel.day,
+                    targets: targetsOf(_sleepModel),
                   ),
                 ),
               ],
+              ...sleepStageItems(
+                context,
+                _sleepModel,
+                nightly ??
+                    trend.detail.weekStarts.length * DateTime.daysPerWeek,
+              ),
               ...sleepVitalItems(
                 context,
                 _sleepModel,
@@ -1000,10 +1008,17 @@ String _clockFromNoon(double minutes) =>
 /// Each week's average night from bedtime down to waking: whether nights
 /// begin later, end later, or drift, which an average length hides.
 class _SleepSchedule extends StatelessWidget {
-  const _SleepSchedule({required this.weekStarts, required this.schedule});
+  const _SleepSchedule({
+    required this.weekStarts,
+    required this.schedule,
+    this.targets = const [],
+  });
 
   final List<DateTime> weekStarts;
   final List<(double, double)?> schedule;
+
+  /// The schedule the user aims for, minutes after midnight.
+  final List<int> targets;
 
   @override
   Widget build(BuildContext context) {
@@ -1038,8 +1053,17 @@ class _SleepSchedule extends StatelessWidget {
               end: ends.$2,
               selected: selected,
               downward: true,
+              // On the chart's own clock, which starts at noon.
+              levels: [
+                for (final minutes in targets)
+                  ((minutes - 12 * 60) % Duration.minutesPerDay).toDouble(),
+              ],
             ),
           ),
+          if (targets.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            targetKey(context),
+          ],
         ],
       ),
     );

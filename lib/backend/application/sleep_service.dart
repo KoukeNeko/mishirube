@@ -75,6 +75,22 @@ class SleepService {
   void setGoal(Duration? goal) =>
       _db.setSetting(_goalKey, goal == null ? '' : '${goal.inMinutes}');
 
+  static const _targetBedtimeKey = 'sleep.target_bedtime';
+  static const _targetWakeKey = 'sleep.target_wake';
+
+  /// When the user aims to fall asleep and to wake, in minutes after
+  /// midnight; null until set. Off until the user picks the times: the
+  /// evidence is for keeping to a schedule, not for any particular one
+  /// (research/85).
+  int? get targetBedtime => int.tryParse(_db.setting(_targetBedtimeKey) ?? '');
+  int? get targetWake => int.tryParse(_db.setting(_targetWakeKey) ?? '');
+
+  void setTargetBedtime(int? minutes) =>
+      _db.setSetting(_targetBedtimeKey, minutes == null ? '' : '$minutes');
+
+  void setTargetWake(int? minutes) =>
+      _db.setSetting(_targetWakeKey, minutes == null ? '' : '$minutes');
+
   /// The night each day is read against: the goal, or [defaultSleepNeed]
   /// until one is set.
   Duration get need => goal ?? defaultSleepNeed;
@@ -152,6 +168,23 @@ class SleepService {
       nights: staged,
     );
   }
+
+  /// Each staged night that ended in `[start, end)`, oldest first: its
+  /// morning, the time in each stage from its shown source, and its
+  /// efficiency when the source also recorded time in bed. Nights the
+  /// source did not stage are left out.
+  List<
+    ({DateTime morning, Map<SleepStage, Duration> stages, double? efficiency})
+  >
+  nightlyStages(DateTime start, DateTime end) => [
+    for (final night in nights(start, end))
+      if (_recordOf(night) case final record when record.hasStages)
+        (
+          morning: night.sleptAt,
+          stages: stageTotals(record.stages),
+          efficiency: record.continuity?.efficiency,
+        ),
+  ];
 
   /// Each night's average of [measure] over `[start, end)` with the
   /// morning it belongs to, oldest first: what a night's reading is

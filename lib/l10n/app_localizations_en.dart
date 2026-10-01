@@ -1622,6 +1622,124 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noActivityThisDay => 'No activity data this day';
 
   @override
+  String get heartZonesTitle => 'Heart rate zones';
+
+  @override
+  String get needsBirthYear => 'Needs a birth year';
+
+  @override
+  String nightsWithinUsual({required int count, required int total}) {
+    return '$count of $total nights within the usual range';
+  }
+
+  @override
+  String daysWithinUsual({required int count, required int total}) {
+    return '$count of $total days within the usual range';
+  }
+
+  @override
+  String daysAllWithinUsual({required int count}) {
+    return 'All $count days within the usual range';
+  }
+
+  @override
+  String daysRecordedWithinUsual({required int recorded, required int count}) {
+    return '$recorded days recorded, $count within the usual range';
+  }
+
+  @override
+  String usualRangeNeedsDays({required int count}) {
+    return 'Needs 14 days recorded in the last 28 ($count so far)';
+  }
+
+  @override
+  String nightsAllWithinUsual({required int count}) {
+    return 'All $count nights within the usual range';
+  }
+
+  @override
+  String nightsRecordedWithinUsual({
+    required int recorded,
+    required int count,
+  }) {
+    return '$recorded nights recorded, $count within the usual range';
+  }
+
+  @override
+  String usualRangeNeedsNights({required int count}) {
+    return 'Needs 14 nights recorded in the last 28 days ($count so far)';
+  }
+
+  @override
+  String get outsideUsual => 'Outside';
+
+  @override
+  String get targetBedtime => 'Target bedtime';
+
+  @override
+  String get targetWake => 'Target wake time';
+
+  @override
+  String get clearTargetSchedule => 'Clear target schedule';
+
+  @override
+  String get targetSchedule => 'Target schedule';
+
+  @override
+  String get refSectionUsualRange => 'Usual range';
+
+  @override
+  String get refSectionSleepStages => 'Sleep stages';
+
+  @override
+  String get refUseUsualRangeMinMax =>
+      'The usual range is the lowest to the highest of the 28 days before, with at least 14 days recorded';
+
+  @override
+  String get refUseUsualRangeWindow =>
+      'A personal baseline from the 28 days before, the day itself left out';
+
+  @override
+  String get refUseUsualRangeMarks =>
+      'Days outside the range are only ringed, with no good-or-bad colour';
+
+  @override
+  String get refUseUsualRangeNoAnchor =>
+      'With no clinical line to read an outside day against, the mark stays faint and the figure is shown';
+
+  @override
+  String get refUseStagesEstimate =>
+      'Sleep stages are a device estimate, read against the person\'s own nights, never an age group\'s';
+
+  @override
+  String get refUseStagesNoTarget =>
+      'No consensus on sleep architecture, so no stage has a target';
+
+  @override
+  String get refUseStagesNoSummary =>
+      'Sleep stages and efficiency carry no count of nights in range: negative sleep feedback colours how the day feels';
+
+  @override
+  String get refUseRegularityOutcomes =>
+      'Regular sleep is associated with lower mortality (observational)';
+
+  @override
+  String get refUseTargetScheduleAssociation =>
+      'Target schedule: regularity is linked with health outcomes; the times are the user\'s own';
+
+  @override
+  String get refUseTargetScheduleTrial =>
+      'Target schedule: four weeks on a fixed schedule lowered daytime sleepiness (small trial)';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      'Age-predicted maximum heart rate errs by some 11 bpm for one person, so the day chart draws no zones';
+
+  @override
+  String get refUseHeartRateReserve =>
+      'Heart rate reserve matches oxygen uptake reserve, which the zones are set on';
+
+  @override
   String usualRangeValue({required String range}) {
     return 'Usually $range';
   }

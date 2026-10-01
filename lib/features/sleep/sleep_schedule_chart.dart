@@ -18,10 +18,19 @@ const _axisHeight = 20.0;
 /// the ragged edges are how regular bedtimes and wake times are, which a
 /// single number hides.
 class SleepScheduleChart extends StatelessWidget {
-  const SleepScheduleChart({super.key, required this.nights, this.selected});
+  const SleepScheduleChart({
+    super.key,
+    required this.nights,
+    this.selected,
+    this.targets = const [],
+  });
 
   /// Nights that say when they began, oldest first.
   final List<SleepEntry> nights;
+
+  /// Times of day the user aims for, minutes after midnight, each a thin
+  /// line down the chart, as a target is drawn.
+  final List<int> targets;
 
   /// The row being read, drawn full while the others dim.
   final int? selected;
@@ -54,6 +63,7 @@ class SleepScheduleChart extends StatelessWidget {
             selected: selected,
             rowHeight: rowHeight,
             labelStyle: AppTextStyles.caption,
+            targets: targets,
             progress: progress,
           ),
         ),
@@ -68,6 +78,7 @@ class _SchedulePainter extends CustomPainter {
     required this.selected,
     required this.rowHeight,
     required this.labelStyle,
+    required this.targets,
     required this.progress,
   });
 
@@ -75,6 +86,7 @@ class _SchedulePainter extends CustomPainter {
   final int? selected;
   final double rowHeight;
   final TextStyle labelStyle;
+  final List<int> targets;
 
   /// How far each night has run out from its bedtime.
   final double progress;
@@ -105,6 +117,19 @@ class _SchedulePainter extends CustomPainter {
       final left = (dx - label.width / 2).clamp(0.0, size.width - label.width);
       label.paint(canvas, Offset(left, chartHeight + 4));
     }
+    final target = Paint()
+      ..color = AppColors.textPrimary.withValues(alpha: 0.7)
+      ..strokeWidth = 1;
+    for (final minutes in targets) {
+      final dx =
+          ((minutes - _axisStartHour * 60) % Duration.minutesPerDay).clamp(
+            0,
+            axisMinutes,
+          ) /
+          axisMinutes *
+          size.width;
+      canvas.drawLine(Offset(dx, 0), Offset(dx, chartHeight), target);
+    }
     for (final (index, night) in nights.indexed) {
       final top = index * (rowHeight + _rowGap);
       final start = x(night.startedAt!);
@@ -127,5 +152,6 @@ class _SchedulePainter extends CustomPainter {
       old.nights != nights ||
       old.rowHeight != rowHeight ||
       old.selected != selected ||
+      old.targets != targets ||
       old.progress != progress;
 }

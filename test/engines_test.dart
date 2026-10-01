@@ -21,6 +21,7 @@ import 'package:mishirube/backend/engines/streak_engine.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_detail.dart';
+import 'package:mishirube/backend/engines/usual_range.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
 import 'package:mishirube/backend/engines/trend_insights.dart';
 import 'package:mishirube/backend/engines/workout_review.dart';
@@ -313,12 +314,12 @@ void main() {
     });
 
     test('a usual range needs two weeks of days', () {
-      final days = [
-        for (var i = 0; i < 20; i++)
-          (DateTime(2026, 9, 1 + i), 5000.0 + i * 100),
-      ];
-      expect(usualRangeOf(days.take(13).toList()), isNull);
-      expect(usualRangeOf(days), (low: 5500.0, high: 6400.0));
+      final values = [for (var i = 0; i < 20; i++) 5000.0 + i * 100];
+      expect(usualRangeOf(values.take(13)), isNull);
+      expect(usualRangeOf(values), (
+        low: 5000.0,
+        high: 6900.0,
+      ), reason: 'the lowest to the highest');
     });
   });
 
@@ -530,8 +531,9 @@ void main() {
         DateTime(today.year, today.month, today.day - ago, 8);
 
     test('weeks are averaged, gaps stay gaps, and the levels are placed', () {
+      // Records reach back half a year, past the 16 weeks shown.
       final daily = [
-        for (var ago = 0; ago < 16 * 7; ago++)
+        for (var ago = 0; ago < 32 * 7; ago++)
           if (ago ~/ 7 != 6) (day(ago), ago < 28 ? 480.0 : 420.0),
       ];
       final detail = trendDetail(
@@ -547,7 +549,10 @@ void main() {
       expect((detail.recent!.fromWeek, detail.recent!.toWeek), (12, 15));
       expect(detail.baseline!.value, 420);
       expect((detail.baseline!.fromWeek, detail.baseline!.toWeek), (0, 11));
-      expect(detail.normal, isNotNull);
+      expect(detail.normal, (
+        420,
+        420,
+      ), reason: 'the 26 weeks before the latest four, read past those shown');
       expect(detail.daysWithRecords.last, 7);
     });
 
@@ -1107,9 +1112,14 @@ Wall sit 2 x 1.5 min
         const Duration(hours: 7),
       );
       final today = store.backend.timeline.month(DateTime(2026, 9)).days.first;
-      expect(today.entries.map((entry) => entry.title), contains('睡眠 7 小時 30 分'));
       expect(
-        today.entries.firstWhere((entry) => entry.title == '睡眠 7 小時 30 分').detail,
+        today.entries.map((entry) => entry.title),
+        contains('睡眠 7 小時 30 分'),
+      );
+      expect(
+        today.entries
+            .firstWhere((entry) => entry.title == '睡眠 7 小時 30 分')
+            .detail,
         '品質 4 / 5',
       );
     });
@@ -2985,7 +2995,8 @@ Wall sit 2 x 1.5 min
 
     test('within the usual range is usual, with the change still said', () {
       final gist = trendGist(
-        detailOf(days(16, 420, 425)),
+        // Half a year of weeks before the latest four set what is usual.
+        detailOf(days(30, 420, 425)),
         recentWeeks: 4,
         minimumDays: 14,
       );
@@ -2996,7 +3007,7 @@ Wall sit 2 x 1.5 min
 
     test('past the usual range is above, by the difference', () {
       final gist = trendGist(
-        detailOf(days(16, 420, 480)),
+        detailOf(days(30, 420, 480)),
         recentWeeks: 4,
         minimumDays: 14,
       );

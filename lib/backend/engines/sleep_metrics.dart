@@ -16,7 +16,6 @@ const _longestLatency = Duration(hours: 2);
 /// Nights needed before regularity, a baseline or a comparison says
 /// anything: fewer are anecdotes.
 const minimumNightsForRegularity = 3;
-const minimumNightsForBaseline = 7;
 const minimumNightsPerSide = 5;
 
 /// How one sleep held together, from one source's stretches. Each figure
@@ -412,18 +411,6 @@ SleepShortfall shortfallOf(List<SleepDay> days, Duration need) {
   ).add(Duration(minutes: usual));
   if (!wake.isAfter(now)) wake = wake.add(const Duration(days: 1));
   return (bedtime: wake.subtract(goal), wake: wake);
-}
-
-/// The usual range of a nightly reading: the mean give or take one
-/// standard deviation of [values]; null below [minimumNightsForBaseline].
-({double low, double high})? baselineOf(List<double> values) {
-  if (values.length < minimumNightsForBaseline) return null;
-  final mean = values.reduce((a, b) => a + b) / values.length;
-  final deviation = math.sqrt(
-    values.map((v) => (v - mean) * (v - mean)).reduce((a, b) => a + b) /
-        values.length,
-  );
-  return (low: mean - deviation, high: mean + deviation);
 }
 
 /// Nights after days with something against nights after days without

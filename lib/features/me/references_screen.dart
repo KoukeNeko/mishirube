@@ -347,6 +347,21 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         use: l10n.refUse35,
         url: 'https://pubmed.ncbi.nlm.nih.gov/13470504/',
       ),
+      (
+        citation: 'Nes, B. M., Janszky, I., Wisløff, U., Støylen, A., & Karlsen, T. (2013). Age-predicted maximal heart rate in healthy subjects: The HUNT Fitness Study. Scandinavian Journal of Medicine & Science in Sports, 23(6), 697–704.',
+        use: l10n.refUseMaxHeartRateError,
+        url: 'https://doi.org/10.1111/j.1600-0838.2012.01445.x',
+      ),
+      (
+        citation: 'Sarzynski, M. A., Rankinen, T., Earnest, C. P., Leon, A. S., Rao, D. C., Skinner, J. S., & Bouchard, C. (2013). Measured maximal heart rates compared to commonly used age-based prediction equations in the Heritage Family Study. American Journal of Human Biology, 25(5), 695–701.',
+        use: l10n.refUseMaxHeartRateError,
+        url: 'https://doi.org/10.1002/ajhb.22431',
+      ),
+      (
+        citation: 'Swain, D. P., & Leutholtz, B. C. (1997). Heart rate reserve is equivalent to %VO2 reserve, not to %VO2max. Medicine & Science in Sports & Exercise, 29(3), 410–414.',
+        use: l10n.refUseHeartRateReserve,
+        url: 'https://doi.org/10.1097/00005768-199703000-00018',
+      ),
     ],
   ),
   (
@@ -393,6 +408,51 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         use: l10n.refUseSocialJetlag,
         url: 'https://doi.org/10.1016/j.cub.2012.03.038',
       ),
+      (
+        citation: 'Windred, D. P., Burns, A. C., Lane, J. M., Saxena, R., Rutter, M. K., Cain, S. W., & Phillips, A. J. K. (2024). Sleep regularity is a stronger predictor of mortality risk than sleep duration: A prospective cohort study. Sleep, 47(1), Article zsad253.',
+        use: l10n.refUseRegularityOutcomes,
+        url: 'https://doi.org/10.1093/sleep/zsad253',
+      ),
+      (
+        citation: 'Kalkanis, A., Lenkens, D., Steiropoulos, P., & Testelmans, D. (2025). Sleep regularity as an important component of sleep hygiene: A systematic review. Sleep Medicine Reviews, 84, Article 102203.',
+        use: l10n.refUseTargetScheduleAssociation,
+        url: 'https://doi.org/10.1016/j.smrv.2025.102203',
+      ),
+      (
+        citation: 'Manber, R., Bootzin, R. R., Acebo, C., & Carskadon, M. A. (1996). The effects of regularizing sleep-wake schedules on daytime sleepiness. Sleep, 19(5), 432–441.',
+        use: l10n.refUseTargetScheduleTrial,
+        url: 'https://doi.org/10.1093/sleep/19.5.432',
+      ),
+    ],
+  ),
+  (
+    l10n.refSectionSleepStages,
+    [
+      (
+        citation: 'Chinoy, E. D., Cuellar, J. A., Huwa, K. E., Jameson, J. T., Watson, C. H., Bessman, S. C., Hirsch, D. A., Cooper, A. D., Drummond, S. P. A., & Markwald, R. R. (2021). Performance of seven consumer sleep-tracking devices compared with polysomnography. Sleep, 44(5), Article zsaa291.',
+        use: l10n.refUseStagesEstimate,
+        url: 'https://doi.org/10.1093/sleep/zsaa291',
+      ),
+      (
+        citation: 'de Zambotti, M., Rosas, L., Colrain, I. M., & Baker, F. C. (2019). The sleep of the ring: Comparison of the ŌURA sleep tracker against polysomnography. Behavioral Sleep Medicine, 17(2), 124–136.',
+        use: l10n.refUseStagesEstimate,
+        url: 'https://doi.org/10.1080/15402002.2017.1300587',
+      ),
+      (
+        citation: 'Miller, D. J., Sargent, C., & Roach, G. D. (2022). A validation of six wearable devices for estimating sleep, heart rate and heart rate variability in healthy adults. Sensors, 22(16), Article 6317.',
+        use: l10n.refUseStagesEstimate,
+        url: 'https://doi.org/10.3390/s22166317',
+      ),
+      (
+        citation: 'Ohayon, M., Wickwire, E. M., Hirshkowitz, M., Albert, S. M., Avidan, A., Daly, F. J., Dauvilliers, Y., Ferri, R., Fung, C., Gozal, D., Hazen, N., Krystal, A., Lichstein, K., Mallampalli, M., Plazzi, G., Rawding, R., Scheer, F. A., Somers, V., & Vitiello, M. V. (2017). National Sleep Foundation’s sleep quality recommendations: First report. Sleep Health, 3(1), 6–19.',
+        use: l10n.refUseStagesNoTarget,
+        url: 'https://doi.org/10.1016/j.sleh.2016.11.006',
+      ),
+      (
+        citation: 'Gavriloff, D., Sheaves, B., Juss, A., Espie, C. A., Miller, C. B., & Kyle, S. D. (2018). Sham sleep feedback delivered via actigraphy biases daytime symptom reports in people with insomnia: Implications for insomnia disorder and wearable devices. Journal of Sleep Research, 27(6), Article e12726.',
+        use: l10n.refUseStagesNoSummary,
+        url: 'https://doi.org/10.1111/jsr.12726',
+      ),
     ],
   ),
   (
@@ -427,6 +487,31 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         citation: 'Trevena, L. J., Zikmund-Fisher, B. J., Edwards, A., Gaissmaier, W., Galesic, M., Han, P. K. J., King, J., Lawson, M. L., Linder, S. K., Lipkus, I., Ozanne, E., Peters, E., Timmermans, D., & Woloshin, S. (2013). Presenting quantitative information about decision outcomes: A risk communication primer for patient decision aid developers. BMC Medical Informatics and Decision Making, 13(Suppl. 2), Article S7.',
         use: l10n.refUseSummaryReference,
         url: 'https://doi.org/10.1186/1472-6947-13-S2-S7',
+      ),
+    ],
+  ),
+  (
+    l10n.refSectionUsualRange,
+    [
+      (
+        citation: 'Wilks, S. S. (1941). Determination of sample sizes for setting tolerance limits. The Annals of Mathematical Statistics, 12(1), 91–96.',
+        use: l10n.refUseUsualRangeMinMax,
+        url: 'https://doi.org/10.1214/aoms/1177731788',
+      ),
+      (
+        citation: 'Mishra, T., Wang, M., Metwally, A. A., Bogu, G. K., Brooks, A. W., Bahmani, A., Alavi, A., Celli, A., Higgs, E., Dagan-Rosenfeld, O., Fay, B., Kirkpatrick, S., Kellogg, R., Gibson, M., Wang, T., Hunting, E. M., Mamic, P., Ganz, A. B., Rolnik, B., … Snyder, M. P. (2020). Pre-symptomatic detection of COVID-19 from smartwatch data. Nature Biomedical Engineering, 4(12), 1208–1220.',
+        use: l10n.refUseUsualRangeWindow,
+        url: 'https://doi.org/10.1038/s41551-020-00640-6',
+      ),
+      (
+        citation: 'Zikmund-Fisher, B. J., Scherer, A. M., Witteman, H. O., Solomon, J. B., Exe, N. L., Tarini, B. A., & Fagerlin, A. (2017). Graphics help patients distinguish between urgent and non-urgent deviations in laboratory test results. Journal of the American Medical Informatics Association, 24(3), 520–528.',
+        use: l10n.refUseUsualRangeMarks,
+        url: 'https://doi.org/10.1093/jamia/ocw169',
+      ),
+      (
+        citation: 'Zikmund-Fisher, B. J., Scherer, A. M., Witteman, H. O., Solomon, J. B., Exe, N. L., & Fagerlin, A. (2018). Effect of harm anchors in visual displays of test results on patient perceptions of urgency about near-normal values: Experimental study. Journal of Medical Internet Research, 20(3), Article e98.',
+        use: l10n.refUseUsualRangeNoAnchor,
+        url: 'https://doi.org/10.2196/jmir.8889',
       ),
     ],
   ),

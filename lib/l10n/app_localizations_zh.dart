@@ -1611,6 +1611,112 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noActivityThisDay => '這一天沒有活動資料';
 
   @override
+  String get heartZonesTitle => '心率區間';
+
+  @override
+  String get needsBirthYear => '需要出生年';
+
+  @override
+  String nightsWithinUsual({required int count, required int total}) {
+    return '$total 晚中 $count 晚在平常範圍內';
+  }
+
+  @override
+  String daysWithinUsual({required int count, required int total}) {
+    return '$total 天中 $count 天在平常範圍內';
+  }
+
+  @override
+  String daysAllWithinUsual({required int count}) {
+    return '$count 天都在平常範圍內';
+  }
+
+  @override
+  String daysRecordedWithinUsual({required int recorded, required int count}) {
+    return '$recorded 天有紀錄，$count 天在平常範圍內';
+  }
+
+  @override
+  String usualRangeNeedsDays({required int count}) {
+    return '需要近 28 天有 14 天的紀錄（目前 $count 天）';
+  }
+
+  @override
+  String nightsAllWithinUsual({required int count}) {
+    return '$count 晚都在平常範圍內';
+  }
+
+  @override
+  String nightsRecordedWithinUsual({
+    required int recorded,
+    required int count,
+  }) {
+    return '$recorded 晚有紀錄，$count 晚在平常範圍內';
+  }
+
+  @override
+  String usualRangeNeedsNights({required int count}) {
+    return '需要近 28 天有 14 晚的紀錄（目前 $count 晚）';
+  }
+
+  @override
+  String get outsideUsual => '範圍外';
+
+  @override
+  String get targetBedtime => '目標入睡';
+
+  @override
+  String get targetWake => '目標起床';
+
+  @override
+  String get clearTargetSchedule => '清除目標作息';
+
+  @override
+  String get targetSchedule => '目標作息';
+
+  @override
+  String get refSectionUsualRange => '平常範圍';
+
+  @override
+  String get refSectionSleepStages => '睡眠階段';
+
+  @override
+  String get refUseUsualRangeMinMax => '平常範圍是前 28 天的最低到最高，有值的日子至少 14 天';
+
+  @override
+  String get refUseUsualRangeWindow => '個人基線取前 28 天的紀錄，不含當天';
+
+  @override
+  String get refUseUsualRangeMarks => '範圍外只用空心圈標出，不分好壞、不用警示色';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字';
+
+  @override
+  String get refUseStagesEstimate => '睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠結構沒有共識，不設各階段的目標';
+
+  @override
+  String get refUseStagesNoSummary => '睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受';
+
+  @override
+  String get refUseRegularityOutcomes => '規律的作息與較低的死亡風險相關（觀察性）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂';
+
+  @override
+  String get refUseTargetScheduleTrial => '目標作息：固定作息四週，白天嗜睡下降（小型實驗）';
+
+  @override
+  String get refUseMaxHeartRateError => '依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間';
+
+  @override
+  String get refUseHeartRateReserve => '儲備心率對應儲備攝氧量，區間依此計算';
+
+  @override
   String usualRangeValue({required String range}) {
     return '平常 $range';
   }
@@ -7706,6 +7812,112 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get noActivityThisDay => '这一天没有活动数据';
+
+  @override
+  String get heartZonesTitle => '心率区间';
+
+  @override
+  String get needsBirthYear => '需要出生年';
+
+  @override
+  String nightsWithinUsual({required int count, required int total}) {
+    return '$total 晚中 $count 晚在平常范围内';
+  }
+
+  @override
+  String daysWithinUsual({required int count, required int total}) {
+    return '$total 天中 $count 天在平常范围内';
+  }
+
+  @override
+  String daysAllWithinUsual({required int count}) {
+    return '$count 天都在平常范围内';
+  }
+
+  @override
+  String daysRecordedWithinUsual({required int recorded, required int count}) {
+    return '$recorded 天有记录，$count 天在平常范围内';
+  }
+
+  @override
+  String usualRangeNeedsDays({required int count}) {
+    return '需要近 28 天有 14 天的记录（目前 $count 天）';
+  }
+
+  @override
+  String nightsAllWithinUsual({required int count}) {
+    return '$count 晚都在平常范围内';
+  }
+
+  @override
+  String nightsRecordedWithinUsual({
+    required int recorded,
+    required int count,
+  }) {
+    return '$recorded 晚有记录，$count 晚在平常范围内';
+  }
+
+  @override
+  String usualRangeNeedsNights({required int count}) {
+    return '需要近 28 天有 14 晚的记录（目前 $count 晚）';
+  }
+
+  @override
+  String get outsideUsual => '范围外';
+
+  @override
+  String get targetBedtime => '目标入睡';
+
+  @override
+  String get targetWake => '目标起床';
+
+  @override
+  String get clearTargetSchedule => '清除目标作息';
+
+  @override
+  String get targetSchedule => '目标作息';
+
+  @override
+  String get refSectionUsualRange => '平常范围';
+
+  @override
+  String get refSectionSleepStages => '睡眠阶段';
+
+  @override
+  String get refUseUsualRangeMinMax => '平常范围是前 28 天的最低到最高，有值的日子至少 14 天';
+
+  @override
+  String get refUseUsualRangeWindow => '个人基线取前 28 天的记录，不含当天';
+
+  @override
+  String get refUseUsualRangeMarks => '范围外只用空心圈标出，不分好坏、不用警示色';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '范围外的点没有临床界线可对照，所以标记要弱并附上数字';
+
+  @override
+  String get refUseStagesEstimate => '睡眠阶段是设备估计，只和自己的夜晚比，不用同年龄的范围';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠结构没有共识，不设各阶段的目标';
+
+  @override
+  String get refUseStagesNoSummary => '睡眠阶段与效率不写几晚在范围内：负面的睡眠反馈会影响白天的感受';
+
+  @override
+  String get refUseRegularityOutcomes => '规律的作息与较低的死亡风险相关（观察性）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目标作息：作息规律与健康结果的关联，目标时刻由用户自订';
+
+  @override
+  String get refUseTargetScheduleTrial => '目标作息：固定作息四周，白天嗜睡下降（小型实验）';
+
+  @override
+  String get refUseMaxHeartRateError => '依年龄估计的最大心率，个人误差约 11 次/分，所以全天心率图不画区间';
+
+  @override
+  String get refUseHeartRateReserve => '储备心率对应储备摄氧量，区间依此计算';
 
   @override
   String usualRangeValue({required String range}) {

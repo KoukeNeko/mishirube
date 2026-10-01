@@ -1,8 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/activity_metrics.dart';
+import '../../backend/engines/overnight_series.dart';
+import '../../backend/engines/usual_range.dart';
+import '../trends/usual_range_trend.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -55,8 +60,29 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     day: widget.day,
   );
 
-  /// A measured metric has no hours: it is one figure a day.
-  late var _range = widget.metric.isCumulative ? _Range.day : _Range.month;
+  /// A measured metric has no hours: it is one figure a day. Heart rate
+  /// is the exception: its day is read through, sample by sample.
+  late var _range = widget.metric.isCumulative || _hasDaySeries
+      ? _Range.day
+      : _Range.month;
+
+  /// Readings of the body a watch takes every day: how many days sat in
+  /// their usual range is worth a sentence. A sparse one (an estimated
+  /// VO₂ max, a walking test) rarely reaches the days a range needs.
+  bool get _isDailyReading => const {
+    ActivityMetric.heartRate,
+    ActivityMetric.restingHeartRate,
+    ActivityMetric.walkingHeartRate,
+    ActivityMetric.hrvSdnn,
+    ActivityMetric.hrvRmssd,
+    ActivityMetric.respiratoryRate,
+    ActivityMetric.oxygenSaturation,
+    ActivityMetric.bodyTemperature,
+  }.contains(_metric);
+
+  /// Heart rate's day is drawn from the platform's own samples, as the
+  /// night's is on the sleep page.
+  bool get _hasDaySeries => widget.metric == ActivityMetric.heartRate;
 
   ActivityMetric get _metric => widget.metric;
 
@@ -106,9 +132,12 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
   Widget _page() {
     final day = _model.day;
     final days = _model.daily(_metric, _range.days);
-    // The user's own middle half of the last month, never a population
-    // norm; blood pressure is a pair one band cannot stand for.
-    final usual = _isBloodPressure ? null : _model.usualRange(_metric);
+    // The user's own last four weeks, never a population norm, and only
+    // for a reading of the body: a count with a goal is read against the
+    // goal, and blood pressure is a pair one band cannot stand for.
+    final usual = _isBloodPressure || _metric.isCumulative
+        ? null
+        : _model.usualRange(_metric);
     final diastolic = _isBloodPressure
         ? _diastolic(_range.days)
         : const <DateTime, double>{};
@@ -147,7 +176,10 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           child: SegmentedChoice<_Range>(
             options: [
               for (final range in _Range.values)
-                if (_metric.isCumulative || range != _Range.day) range,
+                if (_metric.isCumulative ||
+                    _hasDaySeries ||
+                    range != _Range.day)
+                  range,
             ],
             selected: _range,
             labelOf: (range) => range.labelIn(context.l10n),
@@ -155,7 +187,11 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
             selectedColor: AppColors.activity,
           ),
         ),
-        if (days.isEmpty)
+        if (_hasDaySeries && _range == _Range.day)
+          Gutter(
+            child: AppCard(child: HeartRateDayChart(day: day)),
+          )
+        else if (days.isEmpty)
           Gutter(
             child: GroupedCard(
               children: [
@@ -281,6 +317,32 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           '${_isBloodPressure ? _pair(value, lowerAt[start]) : figure(value)}';
     }
 
+    // A reading of the body, day by day, is set against what was usual
+    // in the four weeks before each day.
+    if (!_metric.isCumulative &&
+        !_isBloodPressure &&
+        (_range == _Range.week || _range == _Range.month)) {
+      if (usualRangeTrend(
+            context,
+            color: AppColors.activity,
+            points: _model.daily(
+              _metric,
+              _range.days + usualRangeWindow.inDays,
+            ),
+            from: _model.day.subtract(Duration(days: _range.days - 1)),
+            to: _model.day,
+            format: _value,
+            formatRange: (low, high) => withUnit(
+              '${_metric.format(low)}–${_metric.format(high)}',
+              _metric.unitIn(l10n),
+            ),
+            isNightly: false,
+            summarises: _isDailyReading,
+          )
+          case final trend?) {
+        return trend;
+      }
+    }
     if (!_metric.isCumulative) {
       return ChartScrubber(
         count: points.length,
@@ -362,5 +424,104 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           return (day, byDay[day]);
         }(),
     ];
+  }
+}
+
+/// Stretches a day's heart rate is drawn in: half an hour each.
+const _heartRateBins = 48;
+
+/// A day's heart rate from the health platform, half an hour to a bar
+/// from its lowest to its highest reading, as the night's is drawn on
+/// the sleep page; read when the day is shown, its bars holding their
+/// place while the platform answers.
+class HeartRateDayChart extends StatefulWidget {
+  const HeartRateDayChart({super.key, required this.day});
+
+  /// Midnight of the day drawn.
+  final DateTime day;
+
+  @override
+  State<HeartRateDayChart> createState() => _HeartRateDayChartState();
+}
+
+class _HeartRateDayChartState extends State<HeartRateDayChart> {
+  late Future<List<(DateTime, double)>> _samples = _read();
+
+  DateTime get _from =>
+      DateTime(widget.day.year, widget.day.month, widget.day.day);
+  DateTime get _to =>
+      DateTime(widget.day.year, widget.day.month, widget.day.day + 1);
+
+  Future<List<(DateTime, double)>> _read() async =>
+      (await AppStoreScope.read(context)
+          .overnightSeries(_from, _to))[OvernightMeasure.heartRate] ??
+      const [];
+
+  @override
+  void didUpdateWidget(HeartRateDayChart old) {
+    super.didUpdateWidget(old);
+    if (old.day != widget.day) _samples = _read();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final unit = ActivityMetric.heartRate.unitIn(l10n);
+    String bpm(double value) => withUnit('${value.round()}', unit);
+    return FutureBuilder(
+      future: _samples,
+      builder: (context, snapshot) {
+        final points = snapshot.data ?? const <(DateTime, double)>[];
+        final ranges = rangeBins(points, _from, _to, bins: _heartRateBins);
+        final values = [for (final (_, value) in points) value];
+        final stretch = _to.difference(_from) ~/ _heartRateBins;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              values.isEmpty
+                  ? (snapshot.connectionState == ConnectionState.done
+                        ? l10n.noEntriesShort
+                        : '—')
+                  : withUnit(
+                      '${values.reduce(math.min).round()}–'
+                      '${values.reduce(math.max).round()}',
+                      unit,
+                    ),
+              style: AppTextStyles.bigNumber,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ChartScrubber(
+              count: ranges.length,
+              indexAt: ChartScrubber.slots(ranges.length),
+              idle: l10n.everyMinutes(minutes: stretch.inMinutes),
+              readoutOf: (index) {
+                final start = _from.add(stretch * index);
+                return [
+                  '${formatTimeOfDay(start)}–'
+                      '${formatTimeOfDay(start.add(stretch))}',
+                  switch (ranges[index]) {
+                    (final low, final high) when low == high => bpm(low),
+                    (final low, final high) => withUnit(
+                      '${low.round()}–${high.round()}',
+                      unit,
+                    ),
+                    null => l10n.noEntriesShort,
+                  },
+                ].join(' · ');
+              },
+              builder: (context, selected) => RangeBarChart(
+                ranges: ranges,
+                color: AppColors.heart,
+                labelOf: (value) => '${value.round()}',
+                start: '00:00',
+                end: '24:00',
+                selected: selected,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

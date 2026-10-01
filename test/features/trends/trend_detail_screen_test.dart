@@ -312,13 +312,14 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('sixteen weeks of nights read against the usual range', (
+  testWidgets('half a year of nights read against the usual range', (
     tester,
   ) async {
     usePhoneViewport(tester);
-    // Seven hours a night for twelve weeks, then eight for four.
+    // Seven hours a night for half a year, then eight for four weeks:
+    // the usual range is the 26 weeks before those four.
     final store = sleeper([
-      for (var back = 0; back < 16 * 7; back++) back < 28 ? 8 : 7,
+      for (var back = 0; back < 30 * 7; back++) back < 28 ? 8 : 7,
     ]);
     await pumpScreen(
       tester,
@@ -326,6 +327,16 @@ void main() {
       store: store,
     );
     expect(find.text('比平常多 · 每晚 +60 分'), findsOneWidget);
+
+    await tester.tap(find.text('3 個月'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('比平常多'),
+      findsOneWidget,
+      reason:
+          'the usual range reads back past the three months shown; the '
+          'twelve weeks to compare with do not fit in them',
+    );
     await disposeTree(tester);
   });
 }

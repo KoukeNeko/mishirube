@@ -1307,12 +1307,12 @@ void main() {
     store.backend.journal.recordSleep(const Duration(hours: 7));
     await pumpScreen(tester, const SleepScreen(), store: store);
 
-    await tester.scrollUntilVisible(
-      find.text('未設定'),
-      200,
-      scrollable: _pageScroll,
+    final goalRow = find.widgetWithText(NavRow, '睡眠目標');
+    await tester.scrollUntilVisible(goalRow, 200, scrollable: _pageScroll);
+    expect(
+      find.descendant(of: goalRow, matching: find.text('未設定')),
+      findsOneWidget,
     );
-    expect(find.text('未設定'), findsOneWidget);
     await _tapText(tester, '睡眠目標');
     await _tapText(tester, '儲存');
     expect(store.backend.sleep.goal, const Duration(hours: 8));

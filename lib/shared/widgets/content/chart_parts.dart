@@ -3,14 +3,23 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import 'chart_entrance.dart';
 import 'chart_scrubber.dart';
+import '../controls/chips.dart';
 import 'charts.dart';
 
 /// A swatch and what it stands for, under a chart.
 class ChartKey extends StatelessWidget {
-  const ChartKey({super.key, required this.color, required this.label});
+  const ChartKey({
+    super.key,
+    required this.color,
+    required this.label,
+    this.isRing = false,
+  });
 
   final Color color;
   final String label;
+
+  /// A hollow ring, for points a chart rings, rather than a swatch.
+  final bool isRing;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +27,17 @@ class ChartKey extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 4,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
+          width: isRing ? 8 : 12,
+          height: isRing ? 8 : 4,
+          decoration: isRing
+              ? BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 1.5),
+                )
+              : BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
+                ),
         ),
         const SizedBox(width: AppSpacing.xxs),
         Text(label, style: AppTextStyles.caption),
@@ -222,6 +236,122 @@ class ShareBar extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// A figure day by day against what is usual for the person: the line,
+/// a band that moves with the days ([bands], each day's own usual range,
+/// null before there is one), days apart from it ringed rather than
+/// coloured, a reading for each day, and [summary] at rest, such as how
+/// many days sat within it.
+class UsualRangeTrend extends StatelessWidget {
+  const UsualRangeTrend({
+    super.key,
+    this.label,
+    required this.color,
+    required this.days,
+    required this.values,
+    required this.bands,
+    required this.format,
+    required this.formatRange,
+    required this.usualLabel,
+    required this.outsideLabel,
+    required this.usualValue,
+    required this.noValue,
+    required this.readoutDay,
+    this.summary,
+    this.semanticLabel,
+    this.height = 96,
+  });
+
+  /// What it measures; none where the page already names it.
+  final String? label;
+  final Color color;
+
+  /// Each slot's day, oldest first, aligned with [values] and [bands]; a
+  /// day without a figure is a null value and a gap in the line.
+  final List<DateTime> days;
+  final List<double?> values;
+  final List<(double, double)?> bands;
+
+  /// A value, and a range of them, as the page writes them, with the
+  /// unit once: `62 次/分`, `52–68 次/分`.
+  final String Function(double value) format;
+  final String Function(double low, double high) formatRange;
+
+  /// The legend's names for the band and the ringed points, `平常範圍`
+  /// and `範圍外`; a reading's range, `平常 52–68 次/分`; and a day
+  /// without a figure.
+  final String usualLabel;
+  final String outsideLabel;
+  final String Function(String range) usualValue;
+  final String noValue;
+
+  /// A day as a reading names it.
+  final String Function(DateTime day) readoutDay;
+  final String? summary;
+
+  /// What a screen reader says the chart is.
+  final String? semanticLabel;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final outside = {
+      for (final (index, value) in values.indexed)
+        if ((value, bands[index]) case (final figure?, (final low, final high))
+            when figure < low || figure > high)
+          index,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label case final label?) ...[
+          CategoryLabel(label: label, color: color),
+          const SizedBox(height: AppSpacing.sm),
+        ],
+        Semantics(
+          label: semanticLabel,
+          child: ChartScrubber(
+            count: values.length,
+            indexAt: ChartScrubber.points(values.length),
+            idle: summary ?? '',
+            readoutOf: (index) => [
+              readoutDay(days[index]),
+              switch (values[index]) {
+                final value? => format(value),
+                null => noValue,
+              },
+              if (bands[index] case (final low, final high))
+                usualValue(formatRange(low, high)),
+            ].join(' · '),
+            builder: (context, selected) => Sparkline(
+              values: values,
+              color: color,
+              height: height,
+              selected: selected,
+              bands: bands,
+              outside: outside,
+            ),
+          ),
+        ),
+        if (bands.any((band) => band != null)) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.xxs,
+            children: [
+              ChartKey(
+                color: AppColors.textSecondary.withValues(alpha: 0.3),
+                label: usualLabel,
+              ),
+              if (outside.isNotEmpty)
+                ChartKey(color: color, label: outsideLabel, isRing: true),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

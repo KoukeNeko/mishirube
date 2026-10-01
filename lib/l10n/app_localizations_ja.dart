@@ -1615,6 +1615,115 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noActivityThisDay => 'この日のアクティビティのデータなし';
 
   @override
+  String get heartZonesTitle => '心拍ゾーン';
+
+  @override
+  String get needsBirthYear => '生まれ年が必要';
+
+  @override
+  String nightsWithinUsual({required int count, required int total}) {
+    return '$total晩中$count晩が普段の範囲内';
+  }
+
+  @override
+  String daysWithinUsual({required int count, required int total}) {
+    return '$total日中$count日が普段の範囲内';
+  }
+
+  @override
+  String daysAllWithinUsual({required int count}) {
+    return '$count日すべてが普段の範囲内';
+  }
+
+  @override
+  String daysRecordedWithinUsual({required int recorded, required int count}) {
+    return '$recorded日記録、$count日が普段の範囲内';
+  }
+
+  @override
+  String usualRangeNeedsDays({required int count}) {
+    return '直近28日に14日分の記録が必要（現在$count日）';
+  }
+
+  @override
+  String nightsAllWithinUsual({required int count}) {
+    return '$count晩すべてが普段の範囲内';
+  }
+
+  @override
+  String nightsRecordedWithinUsual({
+    required int recorded,
+    required int count,
+  }) {
+    return '$recorded晩記録、$count晩が普段の範囲内';
+  }
+
+  @override
+  String usualRangeNeedsNights({required int count}) {
+    return '直近28日に14晩分の記録が必要（現在$count晩）';
+  }
+
+  @override
+  String get outsideUsual => '範囲外';
+
+  @override
+  String get targetBedtime => '目標の入眠';
+
+  @override
+  String get targetWake => '目標の起床';
+
+  @override
+  String get clearTargetSchedule => '目標スケジュールを消去';
+
+  @override
+  String get targetSchedule => '目標スケジュール';
+
+  @override
+  String get refSectionUsualRange => '普段の範囲';
+
+  @override
+  String get refSectionSleepStages => '睡眠段階';
+
+  @override
+  String get refUseUsualRangeMinMax => '普段の範囲は直前28日の最小から最大（記録が14日以上）';
+
+  @override
+  String get refUseUsualRangeWindow => '個人の基準は当日を除く直前28日の記録から';
+
+  @override
+  String get refUseUsualRangeMarks => '範囲外の日は白抜きの丸だけで示し、良し悪しの色は使わない';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '範囲外の点に臨床的な目安はないため、印は控えめにして数値を添える';
+
+  @override
+  String get refUseStagesEstimate => '睡眠段階は端末の推定なので、同年代ではなく自分の夜と比べる';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠構造には合意がないため、段階ごとの目標は設けない';
+
+  @override
+  String get refUseStagesNoSummary =>
+      '睡眠段階と効率には範囲内の晩数を書かない：否定的な睡眠フィードバックは日中の感じ方に影響する';
+
+  @override
+  String get refUseRegularityOutcomes => '規則的な睡眠は低い死亡リスクと関連（観察研究）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目標スケジュール：規則性と健康の関連、時刻は自分で決める';
+
+  @override
+  String get refUseTargetScheduleTrial =>
+      '目標スケジュール：4週間の固定スケジュールで日中の眠気が低下（小規模試験）';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      '年齢から推定した最大心拍数は個人で約11拍/分ずれるため、1日のグラフにはゾーンを描かない';
+
+  @override
+  String get refUseHeartRateReserve => '心拍予備量は酸素摂取予備量に対応し、ゾーンはそれで決める';
+
+  @override
   String usualRangeValue({required String range}) {
     return '普段 $range';
   }

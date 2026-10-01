@@ -1616,6 +1616,116 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noActivityThisDay => '이 날의 활동 데이터 없음';
 
   @override
+  String get heartZonesTitle => '심박 구간';
+
+  @override
+  String get needsBirthYear => '출생 연도 필요';
+
+  @override
+  String nightsWithinUsual({required int count, required int total}) {
+    return '$total밤 중 $count밤이 평소 범위 안';
+  }
+
+  @override
+  String daysWithinUsual({required int count, required int total}) {
+    return '$total일 중 $count일이 평소 범위 안';
+  }
+
+  @override
+  String daysAllWithinUsual({required int count}) {
+    return '$count일 모두 평소 범위 안';
+  }
+
+  @override
+  String daysRecordedWithinUsual({required int recorded, required int count}) {
+    return '$recorded일 기록, $count일 평소 범위 안';
+  }
+
+  @override
+  String usualRangeNeedsDays({required int count}) {
+    return '최근 28일 중 14일 기록 필요(현재 $count일)';
+  }
+
+  @override
+  String nightsAllWithinUsual({required int count}) {
+    return '$count밤 모두 평소 범위 안';
+  }
+
+  @override
+  String nightsRecordedWithinUsual({
+    required int recorded,
+    required int count,
+  }) {
+    return '$recorded밤 기록, $count밤 평소 범위 안';
+  }
+
+  @override
+  String usualRangeNeedsNights({required int count}) {
+    return '최근 28일 중 14밤 기록 필요(현재 $count밤)';
+  }
+
+  @override
+  String get outsideUsual => '범위 밖';
+
+  @override
+  String get targetBedtime => '목표 취침';
+
+  @override
+  String get targetWake => '목표 기상';
+
+  @override
+  String get clearTargetSchedule => '목표 일정 지우기';
+
+  @override
+  String get targetSchedule => '목표 일정';
+
+  @override
+  String get refSectionUsualRange => '평소 범위';
+
+  @override
+  String get refSectionSleepStages => '수면 단계';
+
+  @override
+  String get refUseUsualRangeMinMax => '평소 범위는 직전 28일의 최저~최고(기록 14일 이상)';
+
+  @override
+  String get refUseUsualRangeWindow => '개인 기준은 당일을 뺀 직전 28일 기록';
+
+  @override
+  String get refUseUsualRangeMarks => '범위 밖의 날은 빈 원으로만 표시하고 좋고 나쁨의 색은 쓰지 않음';
+
+  @override
+  String get refUseUsualRangeNoAnchor =>
+      '범위 밖 값에 임상 기준이 없으므로 표시는 약하게, 수치를 함께 보여 줌';
+
+  @override
+  String get refUseStagesEstimate => '수면 단계는 기기 추정이므로 같은 연령대가 아니라 자신의 밤과 비교';
+
+  @override
+  String get refUseStagesNoTarget => '수면 구조에 합의가 없어 단계별 목표를 두지 않음';
+
+  @override
+  String get refUseStagesNoSummary =>
+      '수면 단계와 효율에는 범위 안 밤 수를 쓰지 않음: 부정적인 수면 피드백은 낮의 느낌에 영향을 줌';
+
+  @override
+  String get refUseRegularityOutcomes => '규칙적인 수면은 낮은 사망 위험과 관련(관찰 연구)';
+
+  @override
+  String get refUseTargetScheduleAssociation =>
+      '목표 일정: 규칙성과 건강 결과의 관련, 시각은 사용자가 정함';
+
+  @override
+  String get refUseTargetScheduleTrial => '목표 일정: 4주간 고정 일정으로 낮 졸림 감소(소규모 시험)';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      '연령 추정 최대 심박수는 개인 오차가 약 11회/분이라 하루 그래프에는 구간을 그리지 않음';
+
+  @override
+  String get refUseHeartRateReserve => '심박 예비량은 산소 섭취 예비량에 대응하며 구간은 이를 기준으로 함';
+
+  @override
   String usualRangeValue({required String range}) {
     return '평소 $range';
   }

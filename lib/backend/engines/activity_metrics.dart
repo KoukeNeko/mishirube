@@ -1,10 +1,5 @@
 import '../../domain/domain.dart';
 
-/// Days a usual range is drawn from, and how many of them need a figure
-/// before there is one: a week of records is not yet a habit.
-const usualRangeDays = 30;
-const _usualRangeMinimumDays = 14;
-
 DateTime _dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
 
 /// Each local day with a figure, oldest first: a counted metric's
@@ -65,15 +60,4 @@ List<(DateTime, double)> averagedBy(
             groups[key]!.length,
       ),
   ];
-}
-
-/// The middle half of the last [usualRangeDays] days' figures — what an
-/// ordinary day looks like for this person — or null with too few days
-/// to say.
-({double low, double high})? usualRangeOf(List<(DateTime, double)> days) {
-  if (days.length < _usualRangeMinimumDays) return null;
-  final values = [for (final (_, value) in days) value]..sort();
-  double at(double fraction) =>
-      values[((values.length - 1) * fraction).round()];
-  return (low: at(0.25), high: at(0.75));
 }

@@ -245,8 +245,19 @@ void main() {
     await tester.tap(find.text('月'));
     await tester.pump();
 
-    expect(find.text('平常範圍'), findsOneWidget);
-    expect(tester.widget<Sparkline>(find.byType(Sparkline)).normal, isNotNull);
+    expect(find.text('平常範圍'), findsWidgets);
+    final bands = tester.widget<Sparkline>(find.byType(Sparkline)).bands!;
+    expect(
+      bands.last,
+      isNotNull,
+      reason: 'today read against the 19 days before it',
+    );
+    expect(
+      bands.first,
+      isNull,
+      reason: 'the first day shown has no weeks before it on record',
+    );
+    expect(find.textContaining('天在平常範圍內'), findsOneWidget);
     await disposeTree(tester);
   });
 

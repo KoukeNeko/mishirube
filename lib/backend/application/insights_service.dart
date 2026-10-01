@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../domain/domain.dart';
 import '../../l10n/app_localizations.dart';
 import '../engines/activity_metrics.dart';
@@ -10,6 +12,7 @@ import '../engines/trend_engine.dart';
 import '../engines/sleep_metrics.dart';
 import '../engines/trend_detail.dart';
 import '../engines/trend_gist.dart';
+import '../engines/usual_range.dart';
 import '../engines/trend_findings.dart';
 import '../engines/workout_review.dart';
 import '../storage/activity_sample_repository.dart';
@@ -363,20 +366,41 @@ class InsightsService {
     final from = weeks == null
         ? DateTime(_earliestYear)
         : _dayOf(now).subtract(Duration(days: weeks * DateTime.daysPerWeek));
+    // Steps are set against the year, as their long-run line is.
+    final isYearly = domain == TrendDomain.activity;
+    final recentWeeks = isYearly
+        ? _quarterWeeks
+        : trendWindowDays ~/ DateTime.daysPerWeek;
+    // What is usual is read from the half year before the latest stretch,
+    // further back than a short span shows; only the area's own figure
+    // reaches back, everything the page counts keeps to the span.
+    final historyFrom = weeks == null
+        ? from
+        : _dayOf(now).subtract(
+            Duration(
+              days:
+                  math.max(weeks, recentWeeks + weeklyUsualRangeWeeks) *
+                  DateTime.daysPerWeek,
+            ),
+          );
     ({double protein, double carb, double fat})? macros;
     int? loggedDays;
     final (daily, aggregate, secondary) = switch (domain) {
       TrendDomain.body => () {
-        final weights = _journal.weightsBetween(from, until);
+        final weights = _journal.weightsBetween(historyFrom, until);
         return (
           [for (final (at, _, value) in trendOf(weights)) (at, value)],
           WeekAggregate.mean,
-          [for (final weight in weights) (weight.measuredAt, weight.weightKg)],
+          [
+            for (final weight in weights)
+              if (!weight.measuredAt.isBefore(from))
+                (weight.measuredAt, weight.weightKg),
+          ],
         );
       }(),
       TrendDomain.training => (
         [
-          for (final start in _workouts.completedStarts(since: from))
+          for (final start in _workouts.completedStarts(since: historyFrom))
             (start, 1.0),
         ],
         WeekAggregate.sum,
@@ -389,7 +413,7 @@ class InsightsService {
       ),
       TrendDomain.sleep => (
         [
-          for (final (wokeAt, minutes, _) in _nights(from, until))
+          for (final (wokeAt, minutes, _) in _nights(historyFrom, until))
             (wokeAt, minutes),
         ],
         WeekAggregate.mean,
@@ -412,10 +436,15 @@ class InsightsService {
             fat: mean([for (final (_, fat) in carbAndFat) fat]),
           );
         }
-        return (kcal, WeekAggregate.mean, protein);
+        final history = historyFrom == from
+            ? kcal
+            : _completeFoodDays(historyFrom, until, now).kcal;
+        return (history, WeekAggregate.mean, protein);
       }(),
       TrendDomain.activity => (
-        dailyValues(_samples.between(ActivityMetric.steps, from, _dayOf(now))),
+        dailyValues(
+          _samples.between(ActivityMetric.steps, historyFrom, _dayOf(now)),
+        ),
         WeekAggregate.mean,
         dailyValues(
           _samples.between(ActivityMetric.restingHeartRate, from, until),
@@ -436,8 +465,6 @@ class InsightsService {
                 1),
           null => 1,
         };
-    // Steps are set against the year, as their long-run line is.
-    final isYearly = domain == TrendDomain.activity;
     TrendDetail detailOf(
       List<(DateTime, double)> values,
       WeekAggregate aggregate,
@@ -446,7 +473,7 @@ class InsightsService {
       now,
       weeks: span,
       aggregate: aggregate,
-      recentWeeks: isYearly ? _quarterWeeks : trendWindowDays ~/ 7,
+      recentWeeks: recentWeeks,
       baselineWeeks: isYearly ? _yearWeeks : 3 * trendWindowDays ~/ 7,
       baselineIncludesRecent: isYearly,
     );
@@ -457,9 +484,6 @@ class InsightsService {
     // and none for workouts, where a week without one is still a week.
     // A product rule, not a figure from the literature.
     TrendGist gistOf(TrendDetail detail) {
-      final recentWeeks = isYearly
-          ? _quarterWeeks
-          : trendWindowDays ~/ DateTime.daysPerWeek;
       return trendGist(
         detail,
         recentWeeks: recentWeeks,
@@ -478,7 +502,10 @@ class InsightsService {
         // Each weighing as it was, not the trend through them.
         TrendDomain.body => secondary ?? const [],
         TrendDomain.training => const [],
-        _ => daily,
+        _ => [
+          for (final day in daily)
+            if (!day.$1.isBefore(from)) day,
+        ],
       },
       schedule: domain == TrendDomain.sleep
           ? weeklySchedule(

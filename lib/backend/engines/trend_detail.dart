@@ -5,6 +5,8 @@
 /// out from the records on each read.
 library;
 
+import 'usual_range.dart';
+
 /// How a week's records make one value: an average of its days (sleep,
 /// steps), or a count over the week (workouts).
 enum WeekAggregate { mean, sum }
@@ -46,8 +48,9 @@ class TrendDetail {
   /// How many days of each week have a record.
   final List<int> daysWithRecords;
 
-  /// The middle half of the weekly values: what is normal for this
-  /// person. Null with too few weeks to say.
+  /// The lowest to the highest week of the half year before the latest
+  /// stretch: what is normal for this person. Null with too few weeks
+  /// to say.
   final (double, double)? normal;
 
   /// The latest stretch and the baseline before it, when the weeks
@@ -60,18 +63,58 @@ class TrendDetail {
   final List<double?> weekdays;
 }
 
-/// Weekly values before the normal range is drawn.
-const minimumWeeksForNormal = 8;
-
 DateTime _dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
 
 double _mean(Iterable<double> values) =>
     values.fold(0.0, (sum, value) => sum + value) / values.length;
 
+/// [daily] in the [weeks] weeks from [start], one value a week by
+/// [aggregate], with the days of each week that had a record. A count is
+/// zero in a week without any, but only once records began.
+({List<double?> values, List<int> days}) _weekly(
+  List<(DateTime, double)> daily,
+  DateTime start,
+  int weeks,
+  WeekAggregate aggregate,
+) {
+  final end = start.add(Duration(days: weeks * DateTime.daysPerWeek));
+  final byWeek = List.generate(weeks, (_) => <double>[]);
+  final daysByWeek = List.generate(weeks, (_) => <DateTime>{});
+  DateTime? first;
+  for (final (at, value) in daily) {
+    final day = _dayOf(at);
+    if (day.isBefore(start) || !day.isBefore(end)) continue;
+    final week = day.difference(start).inDays ~/ DateTime.daysPerWeek;
+    byWeek[week].add(value);
+    daysByWeek[week].add(day);
+    if (first == null || day.isBefore(first)) first = day;
+  }
+  final firstWeek = first == null
+      ? weeks
+      : first.difference(start).inDays ~/ DateTime.daysPerWeek;
+  return (
+    values: [
+      for (var week = 0; week < weeks; week++)
+        switch (aggregate) {
+          WeekAggregate.mean =>
+            byWeek[week].isEmpty ? null : _mean(byWeek[week]),
+          WeekAggregate.sum =>
+            week < firstWeek
+                ? null
+                : byWeek[week].fold<double>(0, (sum, value) => sum + value),
+        },
+    ],
+    days: [for (final days in daysByWeek) days.length],
+  );
+}
+
 /// [daily] over the last [weeks] weeks up to [today], aggregated by
 /// [aggregate]. The latest [recentWeeks] are set against the
 /// [baselineWeeks] before them, or, when [baselineIncludesRecent], the
-/// [baselineWeeks] ending today.
+/// [baselineWeeks] ending today. What is normal for this person is the
+/// lowest to the highest of the [weeklyUsualRangeWeeks] weeks before the
+/// latest stretch, read from [daily] even where that reaches back past
+/// the weeks shown.
 TrendDetail trendDetail(
   List<(DateTime, double)> daily,
   DateTime today, {
@@ -83,34 +126,16 @@ TrendDetail trendDetail(
 }) {
   final end = _dayOf(today);
   final start = end.subtract(Duration(days: weeks * DateTime.daysPerWeek - 1));
-  final byWeek = List.generate(weeks, (_) => <double>[]);
-  final daysByWeek = List.generate(weeks, (_) => <DateTime>{});
+  final shown = _weekly(daily, start, weeks, aggregate);
+  final values = shown.values;
   final byWeekday = List.generate(DateTime.daysPerWeek, (_) => <double>[]);
-  DateTime? first;
   for (final (at, value) in daily) {
     final day = _dayOf(at);
     if (day.isBefore(start) || day.isAfter(end)) continue;
-    final week = day.difference(start).inDays ~/ DateTime.daysPerWeek;
-    byWeek[week].add(value);
-    daysByWeek[week].add(day);
     byWeekday[day.weekday - 1].add(value);
-    if (first == null || day.isBefore(first)) first = day;
   }
-  // A count is zero in a week without any, but only once records began.
-  final firstWeek = first == null
-      ? weeks
-      : first.difference(start).inDays ~/ DateTime.daysPerWeek;
-  final values = [
-    for (var week = 0; week < weeks; week++)
-      switch (aggregate) {
-        WeekAggregate.mean => byWeek[week].isEmpty ? null : _mean(byWeek[week]),
-        WeekAggregate.sum =>
-          week < firstWeek
-              ? null
-              : byWeek[week].fold(0.0, (sum, value) => sum + value),
-      },
-  ];
-  final countedWeeks = weeks - firstWeek;
+  final firstWeek = values.indexWhere((value) => value != null);
+  final countedWeeks = firstWeek < 0 ? 0 : weeks - firstWeek;
   final weekdays = [
     for (final values in byWeekday)
       switch (aggregate) {
@@ -132,31 +157,27 @@ TrendDetail trendDetail(
 
   final recentFrom = weeks - recentWeeks;
   final baselineTo = baselineIncludesRecent ? weeks - 1 : recentFrom - 1;
+  final usualStart = start.add(
+    Duration(days: (recentFrom - weeklyUsualRangeWeeks) * DateTime.daysPerWeek),
+  );
+  final usual = usualRangeOf([
+    ..._weekly(
+      daily,
+      usualStart,
+      weeklyUsualRangeWeeks,
+      aggregate,
+    ).values.nonNulls,
+  ], minimum: weeklyUsualRangeMinimumWeeks);
   return TrendDetail(
     weekStarts: [
       for (var week = 0; week < weeks; week++)
         start.add(Duration(days: week * DateTime.daysPerWeek)),
     ],
     values: values,
-    daysWithRecords: [for (final days in daysByWeek) days.length],
-    normal: _middleHalf([for (final value in values) ?value]),
+    daysWithRecords: shown.days,
+    normal: usual == null ? null : (usual.low, usual.high),
     recent: levelOver(recentFrom, weeks - 1),
     baseline: levelOver(baselineTo - baselineWeeks + 1, baselineTo),
     weekdays: weekdays,
   );
-}
-
-/// The lower and upper quartile of [values]; null with fewer than
-/// [minimumWeeksForNormal] of them.
-(double, double)? _middleHalf(List<double> values) {
-  if (values.length < minimumWeeksForNormal) return null;
-  final sorted = [...values]..sort();
-  double at(double share) {
-    final position = share * (sorted.length - 1);
-    final below = position.floor();
-    final above = position.ceil();
-    return sorted[below] + (sorted[above] - sorted[below]) * (position - below);
-  }
-
-  return (at(0.25), at(0.75));
 }

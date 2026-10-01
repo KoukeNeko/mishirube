@@ -3066,6 +3066,180 @@ abstract class AppLocalizations {
   /// **'這一天沒有活動資料'**
   String get noActivityThisDay;
 
+  /// No description provided for @heartZonesTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'心率區間'**
+  String get heartZonesTitle;
+
+  /// No description provided for @needsBirthYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要出生年'**
+  String get needsBirthYear;
+
+  /// How many nights sat within the person's own usual range.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 晚中 {count} 晚在平常範圍內'**
+  String nightsWithinUsual({required int count, required int total});
+
+  /// How many days sat within the person's own usual range.
+  ///
+  /// In zh, this message translates to:
+  /// **'{total} 天中 {count} 天在平常範圍內'**
+  String daysWithinUsual({required int count, required int total});
+
+  /// No description provided for @daysAllWithinUsual.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 天都在平常範圍內'**
+  String daysAllWithinUsual({required int count});
+
+  /// No description provided for @daysRecordedWithinUsual.
+  ///
+  /// In zh, this message translates to:
+  /// **'{recorded} 天有紀錄，{count} 天在平常範圍內'**
+  String daysRecordedWithinUsual({required int recorded, required int count});
+
+  /// No description provided for @usualRangeNeedsDays.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要近 28 天有 14 天的紀錄（目前 {count} 天）'**
+  String usualRangeNeedsDays({required int count});
+
+  /// No description provided for @nightsAllWithinUsual.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 晚都在平常範圍內'**
+  String nightsAllWithinUsual({required int count});
+
+  /// No description provided for @nightsRecordedWithinUsual.
+  ///
+  /// In zh, this message translates to:
+  /// **'{recorded} 晚有紀錄，{count} 晚在平常範圍內'**
+  String nightsRecordedWithinUsual({required int recorded, required int count});
+
+  /// No description provided for @usualRangeNeedsNights.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要近 28 天有 14 晚的紀錄（目前 {count} 晚）'**
+  String usualRangeNeedsNights({required int count});
+
+  /// No description provided for @outsideUsual.
+  ///
+  /// In zh, this message translates to:
+  /// **'範圍外'**
+  String get outsideUsual;
+
+  /// No description provided for @targetBedtime.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標入睡'**
+  String get targetBedtime;
+
+  /// No description provided for @targetWake.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標起床'**
+  String get targetWake;
+
+  /// No description provided for @clearTargetSchedule.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除目標作息'**
+  String get clearTargetSchedule;
+
+  /// No description provided for @targetSchedule.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息'**
+  String get targetSchedule;
+
+  /// References page: section title.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常範圍'**
+  String get refSectionUsualRange;
+
+  /// References page: section title.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段'**
+  String get refSectionSleepStages;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常範圍是前 28 天的最低到最高，有值的日子至少 14 天'**
+  String get refUseUsualRangeMinMax;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'個人基線取前 28 天的紀錄，不含當天'**
+  String get refUseUsualRangeWindow;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'範圍外只用空心圈標出，不分好壞、不用警示色'**
+  String get refUseUsualRangeMarks;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字'**
+  String get refUseUsualRangeNoAnchor;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍'**
+  String get refUseStagesEstimate;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠結構沒有共識，不設各階段的目標'**
+  String get refUseStagesNoTarget;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受'**
+  String get refUseStagesNoSummary;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'規律的作息與較低的死亡風險相關（觀察性）'**
+  String get refUseRegularityOutcomes;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂'**
+  String get refUseTargetScheduleAssociation;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息：固定作息四週，白天嗜睡下降（小型實驗）'**
+  String get refUseTargetScheduleTrial;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間'**
+  String get refUseMaxHeartRateError;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'儲備心率對應儲備攝氧量，區間依此計算'**
+  String get refUseHeartRateReserve;
+
   /// A metric's usual range; range is formatted with its unit.
   ///
   /// In zh, this message translates to:

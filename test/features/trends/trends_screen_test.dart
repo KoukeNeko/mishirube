@@ -128,8 +128,8 @@ void main() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     store.backend.provenance.setShowsDemo(false);
     final now = store.now();
-    // Seven hours a night for twelve weeks, then eight for four.
-    for (var back = 0; back < 16 * 7; back++) {
+    // Seven hours a night for half a year, then eight for four weeks.
+    for (var back = 0; back < 30 * 7; back++) {
       final hours = back < 28 ? 8 : 7;
       final woke = DateTime(now.year, now.month, now.day - back, 7);
       store.backend.journal.recordSleep(

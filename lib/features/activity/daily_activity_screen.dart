@@ -111,7 +111,11 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
                         for (final metric in inGroup)
                           NavRow(
                             title: metric.labelIn(context.l10n),
-                            subtitle: switch (_model.usualRange(metric)) {
+                            // Only a reading of the body has a usual
+                            // range; a count is read against its goal.
+                            subtitle: switch (metric.isCumulative
+                                ? null
+                                : _model.usualRange(metric)) {
                               final range? => context.l10n.usualRangeValue(
                                 range: withUnit(
                                   '${metric.format(range.low)}–'
