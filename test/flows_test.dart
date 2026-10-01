@@ -1625,6 +1625,31 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the step goal is set from 我的 as from the steps page', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const MeScreen(), store: store);
+
+    final row = find.widgetWithText(NavRow, '步數目標');
+    await tester.scrollUntilVisible(row, 200, scrollable: _pageScroll);
+    expect(
+      find.descendant(of: row, matching: find.text('未設定')),
+      findsOneWidget,
+      reason: 'the app picks no goal of its own',
+    );
+    await _tapText(tester, '步數目標');
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+    expect(store.backend.activity.stepGoal, 5000);
+    expect(
+      find.descendant(of: row, matching: find.text('5,000 步')),
+      findsOneWidget,
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('a sore muscle is marked before starting', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

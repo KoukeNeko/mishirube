@@ -18,6 +18,8 @@ import '../nutrition/food_library_screen.dart';
 import '../nutrition/nutrition_target_screen.dart';
 import '../nutrition/nutrition_view_model.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../activity/daily_activity_view_model.dart';
+import '../activity/step_goal_row.dart';
 import '../sleep/sleep_goal_rows.dart';
 import '../sleep/sleep_view_model.dart';
 import '../trends/trends_view_model.dart';
@@ -42,6 +44,7 @@ class _MeScreenState extends State<MeScreen> {
   late final _backend = AppStoreScope.read(context).backend;
   late final _goal = GoalViewModel(_backend);
   late final _sleep = SleepViewModel(_backend);
+  late final _activity = DailyActivityViewModel(_backend);
   late final _trends = TrendsViewModel(_backend);
   late final _body = BodyViewModel(_backend);
   late final _nutrition = NutritionViewModel(_backend);
@@ -49,7 +52,14 @@ class _MeScreenState extends State<MeScreen> {
 
   @override
   void dispose() {
-    for (final model in [_goal, _sleep, _trends, _body, _nutrition]) {
+    for (final model in [
+      _goal,
+      _sleep,
+      _activity,
+      _trends,
+      _body,
+      _nutrition,
+    ]) {
       model.dispose();
     }
     super.dispose();
@@ -116,7 +126,14 @@ class _MeScreenState extends State<MeScreen> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Listenable.merge([_goal, _sleep, _trends, _body, _nutrition]),
+    listenable: Listenable.merge([
+      _goal,
+      _sleep,
+      _activity,
+      _trends,
+      _body,
+      _nutrition,
+    ]),
     builder: (context, _) => _page(context),
   );
 
@@ -207,6 +224,7 @@ class _MeScreenState extends State<MeScreen> {
                         pushPage(context, const NutritionTargetScreen()),
                   ),
                   ...sleepGoalRows(context, _sleep),
+                  stepGoalRow(context, _activity),
                 ],
               ),
             ),

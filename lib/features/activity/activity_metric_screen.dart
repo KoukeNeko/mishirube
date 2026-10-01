@@ -4,10 +4,10 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/activity_metrics.dart';
 import '../../domain/domain.dart';
-import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'daily_activity_screen.dart';
 import 'daily_activity_view_model.dart';
+import 'step_goal_row.dart';
 import '../../l10n/l10n.dart';
 
 enum _Range {
@@ -169,18 +169,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           Gutter(child: AppCard(child: _chart(days, usual))),
           if (_metric == ActivityMetric.steps)
             Gutter(
-              child: GroupedCard(
-                children: [
-                  NavRow(
-                    title: context.l10n.stepGoal,
-                    trailing: Text(switch (_stepGoal) {
-                      final goal? => _steps(context, goal),
-                      null => context.l10n.notSet,
-                    }, style: AppTextStyles.caption),
-                    onTap: _editStepGoal,
-                  ),
-                ],
-              ),
+              child: GroupedCard(children: [stepGoalRow(context, _model)]),
             ),
           Gutter(
             child: GroupedCard(
@@ -360,59 +349,6 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     );
   }
 
-  Future<void> _editStepGoal() async {
-    var steps = _stepGoal ?? 5000;
-    final result = await showAppDialog<int?>(
-      context,
-      StatefulBuilder(
-        builder: (context, setState) => AppDialog(
-          title: context.l10n.stepGoal,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _steps(context, steps),
-                style: AppTextStyles.hugeNumber.copyWith(
-                  color: AppColors.activity,
-                ),
-              ),
-              StepSlider(
-                value: steps.toDouble(),
-                min: 2000,
-                max: 20000,
-                step: 500,
-                color: AppColors.activity,
-                semanticLabel: context.l10n.stepGoal,
-                labelOf: (value) => _steps(context, value.round()),
-                onChanged: (value) => setState(() => steps = value.round()),
-              ),
-            ],
-          ),
-          actions: [
-            DialogAction(
-              label: context.l10n.commonSave,
-              tone: DialogTone.primary,
-              onTap: () => Navigator.of(context).pop(steps),
-            ),
-            if (_stepGoal != null)
-              DialogAction(
-                label: context.l10n.clearGoal,
-                tone: DialogTone.destructive,
-                onTap: () => Navigator.of(context).pop(0),
-              ),
-            DialogAction(
-              label: context.l10n.commonCancel,
-              onTap: () => Navigator.of(context).pop(),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (result == null) return;
-    _model.setStepGoal(result == 0 ? null : result);
-  }
-
   List<(DateTime, double?)> _daySlots(List<(DateTime, double)> points) {
     final byDay = {for (final (day, value) in points) day: value};
     final last = _model.day;
@@ -425,7 +361,3 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
     ];
   }
 }
-
-/// `7,500 步`: a count of steps as the page writes it.
-String _steps(BuildContext context, int steps) =>
-    context.l10n.stepsValue(steps: formatKcal(steps));
