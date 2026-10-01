@@ -189,6 +189,7 @@ class ShareBar extends StatelessWidget {
                     builder: (context, progress) => Align(
                       alignment: Alignment.centerLeft,
                       child: SizedBox(
+                        height: _height,
                         // At least round, so a sliver still reads as a
                         // capsule.
                         width:
