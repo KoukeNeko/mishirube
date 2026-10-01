@@ -22,6 +22,9 @@ const usualRangeMinimumDays = 14;
 /// the range is drawn from, and how many of them need a figure.
 const weeklyUsualRangeWeeks = 26;
 const weeklyUsualRangeMinimumWeeks = 13;
+const weeklyUsualRangeWindow = Duration(
+  days: weeklyUsualRangeWeeks * DateTime.daysPerWeek,
+);
 
 typedef UsualRange = ({double low, double high});
 

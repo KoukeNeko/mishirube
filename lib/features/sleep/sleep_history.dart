@@ -211,32 +211,39 @@ String _averageClock(List<DateTime> times, {required int fromHour}) {
   );
 }
 
+/// The nights before the [days] up to the day shown that a usual range
+/// for their first is drawn from.
+int _withRangeHistory(int days, {required bool weekly}) =>
+    days + (weekly ? weeklyUsualRangeWindow : usualRangeWindow).inDays;
+
 /// Each overnight reading's nightly average across the [days] up to the
 /// day [model] shows, behind it the usual range of the four weeks
-/// before; a reading with fewer than two nights is left out.
+/// before; [weekly] reads them week by week from the first. A reading
+/// with fewer than two nights or weeks is left out.
 List<Widget> sleepVitalItems(
   BuildContext context,
   SleepViewModel model,
-  int days,
-) {
+  int days, {
+  bool weekly = false,
+}) {
   final l10n = context.l10n;
   final first = model.day.subtract(Duration(days: days - 1));
   final shownFrom = DateTime(first.year, first.month, first.day);
   final trends = [
     for (final measure in OvernightMeasure.values)
       if (measure != OvernightMeasure.breathingDisturbances)
-        // The band for the first nights shown needs the weeks before.
         if (usualRangeTrend(
               context,
               label: measure.labelIn(l10n),
               color: AppColors.wellness,
               points: model.nightlyAverages(
                 measure,
-                days + usualRangeWindow.inDays,
+                _withRangeHistory(days, weekly: weekly),
               ),
               from: shownFrom,
               to: model.day,
               isNightly: true,
+              weekly: weekly,
               semanticLabel: l10n.trendOverNights(
                 measure: measure.labelIn(l10n),
                 count: days,
@@ -298,22 +305,21 @@ List<Widget> sleepFactorItems(BuildContext context, SleepViewModel model) {
 /// and its efficiency, over the [days] up to the day [model] shows, each
 /// against what was usual for this person in the four weeks before that
 /// night: a band that moves with the nights, and nights apart from it
-/// ringed. Stages are a device's estimate, so they are read against the
-/// person's own nights, never a population's (see
-/// `research/85-normal-ranges-and-google-health-gaps.md`).
+/// ringed; [weekly] reads them week by week from the first. Stages are
+/// a device's estimate, so they are read against the person's own
+/// nights, never a population's (see
+/// `research/85-normal-ranges-and-google-health-gaps.md`). A figure
+/// with fewer than two nights or weeks is left out.
 List<Widget> sleepStageItems(
   BuildContext context,
   SleepViewModel model,
-  int days,
-) {
+  int days, {
+  bool weekly = false,
+}) {
   final l10n = context.l10n;
-  // The band for the first nights shown needs the weeks before them.
-  final nights = model.nightlyStages(days + usualRangeWindow.inDays);
+  final nights = model.nightlyStages(_withRangeHistory(days, weekly: weekly));
   final firstShown = model.day.subtract(Duration(days: days - 1));
   final shownFrom = DateTime(firstShown.year, firstShown.month, firstShown.day);
-  if (!nights.any((night) => !night.morning.isBefore(shownFrom))) {
-    return const [];
-  }
   String length(double minutes) =>
       formatDuration(l10n, Duration(minutes: minutes.round()));
   String percent(double value) => '${value.round()}%';
@@ -350,8 +356,7 @@ List<Widget> sleepStageItems(
       percent,
     ),
   ];
-  return [
-    Gutter(child: SectionLabel(l10n.sleepStagesSection)),
+  final trends = [
     for (final (label, color, points, format) in series)
       // A device's estimate: drawn against its usual range, with no
       // sentence saying how many nights fit it.
@@ -368,9 +373,15 @@ List<Widget> sleepStageItems(
             format: format,
             formatRange: (low, high) => '${format(low)}–${format(high)}',
             isNightly: true,
+            weekly: weekly,
             summarises: false,
           )
-          case final trend?)
-        Gutter(child: AppCard(child: trend)),
+          case final trend? when trend.values.nonNulls.length > 1)
+        trend,
+  ];
+  if (trends.isEmpty) return const [];
+  return [
+    Gutter(child: SectionLabel(l10n.sleepStagesSection)),
+    for (final trend in trends) Gutter(child: AppCard(child: trend)),
   ];
 }

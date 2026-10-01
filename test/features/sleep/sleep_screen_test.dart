@@ -130,6 +130,66 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('over months the stages are read week by week, a month '
+      'night by night', (tester) async {
+    usePhoneViewport(tester);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: staged(220, deep: 90),
+    );
+    final deep = find.byWidgetPredicate(
+      (widget) => widget is UsualRangeTrend && widget.label == '深層',
+    );
+    await tester.scrollUntilVisible(
+      deep,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    var trend = tester.widget<UsualRangeTrend>(deep);
+    expect(trend.days, hasLength(26), reason: 'six months, one point a week');
+    expect(trend.summary, '平均 1 小時 30 分 · 182 晚');
+    expect(
+      trend.bands.last,
+      isNotNull,
+      reason: 'the latest week has 13 weeks of nights before it',
+    );
+
+    // The picked week's range is named by the band's key, not squeezed
+    // into the reading line.
+    final chart = find.descendant(of: deep, matching: find.byType(Sparkline));
+    await Scrollable.ensureVisible(tester.element(chart), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tapAt(
+      tester.getCenter(chart) + Offset(tester.getSize(chart).width / 2 - 1, 0),
+    );
+    await tester.pump();
+    expect(find.textContaining(' 起 · 1 小時 30 分'), findsOneWidget);
+    expect(find.text('平常 1 小時 30 分–1 小時 30 分'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('月'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await Scrollable.ensureVisible(
+      tester.element(find.text('月')),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('月'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      deep,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    trend = tester.widget<UsualRangeTrend>(deep);
+    expect(trend.days, hasLength(30));
+    expect(trend.summary, '平均 1 小時 30 分 · 30 晚');
+    await disposeTree(tester);
+  });
+
   testWidgets('a target schedule is drawn on the nights as lines', (
     tester,
   ) async {

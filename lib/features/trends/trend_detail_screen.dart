@@ -215,17 +215,21 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                   ),
                 ),
               ],
+              // Night by night for a week or a month, week by week
+              // alongside the weeks above for longer.
               ...sleepStageItems(
                 context,
                 _sleepModel,
                 nightly ??
                     trend.detail.weekStarts.length * DateTime.daysPerWeek,
+                weekly: nightly == null,
               ),
               ...sleepVitalItems(
                 context,
                 _sleepModel,
                 nightly ??
                     trend.detail.weekStarts.length * DateTime.daysPerWeek,
+                weekly: nightly == null,
               ),
               ...sleepFactorItems(context, _sleepModel),
             ],

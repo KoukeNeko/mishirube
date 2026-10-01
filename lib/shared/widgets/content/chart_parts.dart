@@ -240,11 +240,12 @@ class ShareBar extends StatelessWidget {
   }
 }
 
-/// A figure day by day against what is usual for the person: the line,
-/// a band that moves with the days ([bands], each day's own usual range,
-/// null before there is one), days apart from it ringed rather than
-/// coloured, a reading for each day, and [summary] at rest, such as how
-/// many days sat within it.
+/// A figure day by day, or week by week, against what is usual for the
+/// person: the line, a band that moves with the days ([bands], each
+/// slot's own usual range, null before there is one), slots apart from
+/// it ringed rather than coloured, a reading for each slot with its
+/// range in the band's key, and [summary] at rest, such as how many days
+/// sat within it.
 class UsualRangeTrend extends StatelessWidget {
   const UsualRangeTrend({
     super.key,
@@ -269,8 +270,9 @@ class UsualRangeTrend extends StatelessWidget {
   final String? label;
   final Color color;
 
-  /// Each slot's day, oldest first, aligned with [values] and [bands]; a
-  /// day without a figure is a null value and a gap in the line.
+  /// Each slot's day, or its week's first, oldest first, aligned with
+  /// [values] and [bands]; a slot without a figure is a null value and a
+  /// gap in the line.
   final List<DateTime> days;
   final List<double?> values;
   final List<(double, double)?> bands;
@@ -288,7 +290,7 @@ class UsualRangeTrend extends StatelessWidget {
   final String Function(String range) usualValue;
   final String noValue;
 
-  /// A day as a reading names it.
+  /// A slot as a reading names it.
   final String Function(DateTime day) readoutDay;
   final String? summary;
 
@@ -323,34 +325,50 @@ class UsualRangeTrend extends StatelessWidget {
                 final value? => format(value),
                 null => noValue,
               },
-              if (bands[index] case (final low, final high))
-                usualValue(formatRange(low, high)),
             ].join(' · '),
-            builder: (context, selected) => Sparkline(
-              values: values,
-              color: color,
-              height: height,
-              selected: selected,
-              bands: bands,
-              outside: outside,
+            // The picked day's range is named by the band's own key: the
+            // reading line has no room for it.
+            builder: (context, selected) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Sparkline(
+                  values: values,
+                  color: color,
+                  height: height,
+                  selected: selected,
+                  bands: bands,
+                  outside: outside,
+                ),
+                if (bands.any((band) => band != null)) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Wrap(
+                    spacing: AppSpacing.md,
+                    runSpacing: AppSpacing.xxs,
+                    children: [
+                      ChartKey(
+                        color: AppColors.textSecondary.withValues(alpha: 0.3),
+                        label: switch (selected == null
+                            ? null
+                            : bands[selected]) {
+                          (final low, final high) => usualValue(
+                            formatRange(low, high),
+                          ),
+                          null => usualLabel,
+                        },
+                      ),
+                      if (outside.isNotEmpty)
+                        ChartKey(
+                          color: color,
+                          label: outsideLabel,
+                          isRing: true,
+                        ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         ),
-        if (bands.any((band) => band != null)) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.xxs,
-            children: [
-              ChartKey(
-                color: AppColors.textSecondary.withValues(alpha: 0.3),
-                label: usualLabel,
-              ),
-              if (outside.isNotEmpty)
-                ChartKey(color: color, label: outsideLabel, isRing: true),
-            ],
-          ),
-        ],
       ],
     );
   }

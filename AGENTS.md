@@ -283,9 +283,10 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
   each bar in `met`, which the caller decides), `GoalWeeksChart` (weeks
   against a goal), `DistributionChart` (how days spread across ranges),
   `Sparkline`, `UsualRangeTrend` (a figure day by day against its own
-  moving usual range), `RangeBarChart`, `CurveChart`, `SegmentBar`, with
-  `ChartKey` for a legend and `ChartScrubber` for reading a point; a
-  period's figures go in a `FigureGrid`.
+  moving usual range, week by week past a month), `RangeBarChart`,
+  `CurveChart`, `SegmentBar`, with `ChartKey` for a legend and
+  `ChartScrubber` for reading a point; a period's figures go in a
+  `FigureGrid`.
 
 ## Accessibility
 
