@@ -9,11 +9,16 @@ import '../../motion.dart';
 /// How long a chart takes to draw itself in, once it starts.
 const chartEntranceDuration = Duration(milliseconds: 600);
 
-/// How long a chart must be in view before it starts, so one scrolled
-/// past on the way elsewhere does not play (see
+/// How long a chart scrolled into view must stay before it starts, so
+/// one passed on the way elsewhere does not play (see
 /// `research/84-chart-entrance-timing.md`; a judgement, not a figure
-/// from the literature).
+/// from the literature). A chart in view as its page arrives starts
+/// without it.
 const chartEntranceDwell = Duration(milliseconds: 150);
+
+/// How far its page has slid in when a chart starts: the drawing
+/// overlaps the end of the slide rather than waiting for it to settle.
+const _arrivedShare = 0.6;
 
 /// The share of a chart that must be on screen before it counts as seen.
 const _visibleShare = 0.5;
@@ -22,10 +27,10 @@ const _visibleShare = 0.5;
 /// changes, as Google Health's charts rise into place: [builder] gets
 /// how far in it is, from 0 to 1.
 ///
-/// It waits until the page has finished sliding in, its tab is the one
-/// showing and half of it is on screen, and then a moment more, so the
-/// drawing is watched rather than over before anyone looks (see
-/// `research/84-chart-entrance-timing.md`). It plays once: having played
+/// It waits until its page has mostly slid in, its tab is the one
+/// showing and half of it is on screen, so the drawing is watched rather
+/// than over before anyone looks; one brought into view by scrolling
+/// waits a moment more (see `research/84-chart-entrance-timing.md`). It plays once: having played
 /// it keeps its place in a list, so scrolling away and back does not
 /// replay it. A change to what it shows replays it at once, the user
 /// having just asked for it. A reading picking a point is not a change.
@@ -66,6 +71,10 @@ class _ChartEntranceState extends State<ChartEntrance>
   bool _isPending = true;
   bool _isCheckQueued = false;
 
+  /// Whether the next check was asked for by a scroll, which brings a
+  /// chart into view in passing.
+  bool _isScrolled = false;
+
   @override
   bool get wantKeepAlive => _hasPlayed;
 
@@ -93,13 +102,13 @@ class _ChartEntranceState extends State<ChartEntrance>
     _isTabShowing = TickerMode.valuesOf(context).enabled;
     final route = ModalRoute.of(context)?.animation;
     if (route != _route) {
-      _route?.removeStatusListener(_onRoute);
-      _route = route?..addStatusListener(_onRoute);
+      _route?.removeListener(_queueCheck);
+      _route = route?..addListener(_queueCheck);
     }
     final position = Scrollable.maybeOf(context)?.position;
     if (position != _position) {
-      _position?.removeListener(_queueCheck);
-      _position = position?..addListener(_queueCheck);
+      _position?.removeListener(_onScroll);
+      _position = position?..addListener(_onScroll);
     }
     _queueCheck();
   }
@@ -115,24 +124,36 @@ class _ChartEntranceState extends State<ChartEntrance>
     _queueCheck();
   }
 
-  void _onRoute(AnimationStatus _) => _queueCheck();
+  /// Whether it is lingering before the drawing begins.
+  bool get _isDwelling =>
+      _controller.isAnimating && _controller.value < _dwellShare;
+
+  void _onScroll() {
+    _isScrolled = true;
+    _queueCheck();
+  }
 
   /// Checks once the frame is laid out, when where the chart sits is
   /// known.
   void _queueCheck() {
-    if (_isCheckQueued) return;
+    if (_isCheckQueued || !(_isPending || _isDwelling)) return;
     _isCheckQueued = true;
     WidgetsBinding.instance
       ..addPostFrameCallback((_) {
         _isCheckQueued = false;
-        if (mounted) _check();
+        final isScrolled = _isScrolled;
+        _isScrolled = false;
+        if (mounted) _check(isScrolled: isScrolled);
       })
       ..ensureVisualUpdate();
   }
 
   bool get _isReady =>
       _isTabShowing &&
-      (_route == null || _route!.status == AnimationStatus.completed) &&
+      (_route == null ||
+          _route!.status == AnimationStatus.completed ||
+          (_route!.status == AnimationStatus.forward &&
+              _route!.value >= _arrivedShare)) &&
       _isVisibleEnough();
 
   /// Whether half the chart is inside the viewport it scrolls in, or as
@@ -155,16 +176,14 @@ class _ChartEntranceState extends State<ChartEntrance>
     return true;
   }
 
-  void _check() {
+  void _check({required bool isScrolled}) {
     if (_isStill) {
       _isPending = false;
       return;
     }
-    final isDwelling =
-        _controller.isAnimating && _controller.value < _dwellShare;
     if (!_isReady) {
       // Out of view before the drawing began: wait for the next look.
-      if (isDwelling) {
+      if (_isDwelling) {
         _controller
           ..stop()
           ..value = 0;
@@ -174,14 +193,15 @@ class _ChartEntranceState extends State<ChartEntrance>
     }
     if (!_isPending || _controller.isAnimating) return;
     _isPending = false;
-    // A change the user asked for is drawn again at once.
-    _controller.forward(from: _hasPlayed ? _dwellShare : 0);
+    // Only a chart scrolled into view lingers first; one there as its
+    // page arrives, or one whose data the user just changed, starts now.
+    _controller.forward(from: isScrolled && !_hasPlayed ? 0 : _dwellShare);
   }
 
   @override
   void dispose() {
-    _route?.removeStatusListener(_onRoute);
-    _position?.removeListener(_queueCheck);
+    _route?.removeListener(_queueCheck);
+    _position?.removeListener(_onScroll);
     _controller.dispose();
     super.dispose();
   }

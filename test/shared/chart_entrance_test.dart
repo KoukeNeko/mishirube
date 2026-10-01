@@ -70,7 +70,7 @@ void main() {
     );
   });
 
-  testWidgets('a chart on a page sliding in waits for it to arrive', (
+  testWidgets('a chart on a page sliding in starts as it arrives', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -89,8 +89,15 @@ void main() {
     );
     await tester.tap(find.text('open'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(_progressOf(tester, 'pushed'), 0, reason: 'still sliding in');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(_progressOf(tester, 'pushed'), 0, reason: 'only setting off');
+
+    // Drawn over the end of the slide, not after it settles.
+    final route = ModalRoute.of(tester.element(find.text('pushed 0.0')))!;
+    while (route.animation!.status != AnimationStatus.completed) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(_progressOf(tester, 'pushed'), greaterThan(0));
 
     await tester.pumpAndSettle();
     expect(_progressOf(tester, 'pushed'), 1);
