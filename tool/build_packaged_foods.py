@@ -6,20 +6,25 @@
     python3 tool/build_packaged_foods.py off <directory of fetched pages>
     python3 tool/build_packaged_foods.py off-csv <products.csv.gz> [directory for the fetched products]
 
-Writes `assets/packaged/tfda-tw.json` and `assets/packaged/openfoodfacts-tw.json`.
-Both are read by `lib/backend/seed/packaged_foods.dart`; see
-`research/76-taiwan-food-labels.md` for the sources, licences and what is
-dropped.
+The three `off` commands take `--market jp` (default `tw`) and write
+`assets/packaged/openfoodfacts-<market>.json`, and `--max-requests N` to stop
+calling the public API after N requests (retries included).
+
+Writes `assets/packaged/tfda-tw.json`, `assets/packaged/openfoodfacts-tw.json`
+and `assets/packaged/openfoodfacts-jp.json`. All are read by
+`lib/backend/seed/packaged_foods.dart`; see
+`research/76-taiwan-food-labels.md` and `research/83-japan-food-labels.md`
+for the sources, licences and what is dropped.
 
   tfda       Taiwan FDA's 食品追溯追蹤系統消費者查詢資料集, dataset 33575 on
              data.gov.tw (政府資料開放授權條款－第1版). Download the JSON from
              https://data.fda.gov.tw/data/opendata/export/188/json
-  off-fetch  Products Open Food Facts lists as sold in Taiwan, through its
+  off-fetch  Products Open Food Facts lists as sold in the market, through its
              public search API, slowly (ODbL 1.0).
   off        The same, turned into the app's format.
   off-csv    The whole set, from Open Food Facts' daily CSV export
              (https://world.openfoodfacts.org/data), streamed; the way to
-             get every Taiwan product. Writes the same file as `off`.
+             get every product of a market. Writes the same file as `off`.
 
 Only a product whose label gives energy, protein, fat, carbohydrate and
 sodium survives, and only if those figures agree with each other.
@@ -34,6 +39,7 @@ import pathlib
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
@@ -214,34 +220,75 @@ def tfda(path):
 # --- Open Food Facts ----------------------------------------------------
 
 OFF_FIELDS = ','.join([
-    'code', 'product_name', 'product_name_zh', 'brands', 'quantity',
-    'serving_size', 'serving_quantity', 'nutriments', 'countries_tags',
+    'code', 'product_name', 'product_name_zh', 'product_name_ja', 'brands',
+    'quantity', 'serving_size', 'serving_quantity', 'nutriments',
+    'countries_tags', 'states_tags',
 ])
 OFF_AGENT = 'MISHIRUBE-catalogue-import/1.0 (open-source nutrition logger)'
+
+# What differs between the markets Open Food Facts files are built for.
+#   country   the `countries_tags` entry and the search API's country name
+#   names     the product-name fields to try, in order
+#   salt      grams of salt equivalent per gram of sodium
+#   salt_first
+#             whether the label's salt figure outranks a sodium figure.
+#             Japanese labels (食品表示基準) print 食塩相当量 and only
+#             optionally sodium, so Open Food Facts' sodium there is nearly
+#             always its own salt / 2.5; the label's factor is 2.54.
+MARKETS = {
+    'tw': {'country': 'taiwan', 'names': ('product_name_zh', 'product_name'),
+           'salt': 2.5, 'salt_first': False},
+    'jp': {'country': 'japan', 'names': ('product_name_ja', 'product_name'),
+           'salt': 2.54, 'salt_first': True},
+}
+
+# Every call to the public API, retries included, counted against a cap
+# the caller may set so a run cannot go on asking.
+api_requests = 0
+api_request_cap = None
+# Refusals (429, 5xx, timeouts) in a row; five stop a run.
+refusals = 0
+MAX_REFUSALS = 5
 
 
 def off_get(url):
     """A JSON reply, asked for again a few times: the service is shared and
     answers 503 (and sometimes 401) while it is busy. None when it stays
     unavailable."""
+    global api_requests, refusals
     request = urllib.request.Request(url, headers={'User-Agent': OFF_AGENT})
     for attempt in range(6):
+        if refusals >= MAX_REFUSALS or (
+                api_request_cap is not None and api_requests >= api_request_cap):
+            return None
+        api_requests += 1
         try:
-            return json.load(urllib.request.urlopen(request, timeout=90))
+            reply = json.load(urllib.request.urlopen(request, timeout=90))
+            refusals = 0
+            return reply
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                # A product the service does not have; asking again is no use.
+                refusals = 0
+                return {'status': 0}
+            refusals += 1
+            print('retry', url[-60:], error, flush=True)
+            time.sleep(15 * (attempt + 1))
         except Exception as error:
+            refusals += 1
             print('retry', url[-60:], error, flush=True)
             time.sleep(15 * (attempt + 1))
     return None
 
 
-def off_fetch(directory):
-    """Everything the public API will give about Taiwan's products.
+def off_fetch(directory, market='tw'):
+    """Everything the public API will give about the market's products.
 
     1. The search API's pages, 100 products each and 8 s apart (it allows 10
        calls a minute), for as far as it answers; it refuses deep pages
        now and then. A page already in the directory is kept, so a run
        resumes.
-    2. The products that search-a-licious lists for Taiwan and the pages
+    2. The products that search-a-licious lists for the market and the pages
        did not bring, one product call each (limit 100 a minute).
     The daily CSV export is the full list of products, but it leaves out
     the figures of those entered under Open Food Facts' newer nutrition
@@ -256,7 +303,7 @@ def off_fetch(directory):
             body = off_get(
                 'https://world.openfoodfacts.org/api/v2/search?'
                 + urllib.parse.urlencode({
-                    'countries_tags_en': 'taiwan', 'fields': OFF_FIELDS,
+                    'countries_tags_en': MARKETS[market]['country'], 'fields': OFF_FIELDS,
                     'page_size': 100, 'page': page}))
             if body is None:
                 print(f'page {page} would not load; going on without it')
@@ -281,7 +328,8 @@ def off_fetch(directory):
         reply = off_get(
             'https://search.openfoodfacts.org/search?'
             + urllib.parse.urlencode({
-                'q': 'countries_tags:"en:taiwan"', 'fields': 'code',
+                'q': f'countries_tags:"en:{MARKETS[market]["country"]}"',
+                'fields': 'code',
                 'page_size': 100, 'page': number}))
         if reply is None or not reply['hits']:
             break
@@ -295,6 +343,7 @@ def fetch_by_code(directory, codes):
     kept in `extra.json` (limit 100 a minute, so one a second). A run
     resumes; it gives up when the service keeps refusing."""
     directory = pathlib.Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
     target = directory / 'extra.json'
     extra = (json.loads(target.read_text(encoding='utf-8'))['products']
              if target.exists() else [])
@@ -308,20 +357,20 @@ def fetch_by_code(directory, codes):
         target.write_text(json.dumps({'products': extra}, ensure_ascii=False),
                           encoding='utf-8')
 
-    failures = 0
-    for code in codes:
-        if code in have:
-            continue
+    pending = [code for code in codes if code not in have]
+    for done, code in enumerate(pending):
+        if api_request_cap is not None and api_requests >= api_request_cap:
+            print(f'request cap of {api_request_cap} reached; '
+                  f'{len(pending) - done} products left unfetched')
+            break
         reply = off_get(
             f'https://world.openfoodfacts.org/api/v2/product/{code}?'
             + urllib.parse.urlencode({'fields': OFF_FIELDS}, safe=','))
         if reply is None:
-            failures += 1
-            if failures >= 5:
+            if refusals >= MAX_REFUSALS:
                 print('the service keeps refusing; stopping')
                 break
         else:
-            failures = 0
             if reply.get('status') == 1:
                 extra.append(reply['product'])
             have.add(code)
@@ -361,22 +410,34 @@ def serving_of(product):
     return 100, 'g'
 
 
-def off(directory):
+def salt_to_sodium(salt_g, sodium_g, salt_per_sodium, salt_first):
+    """Sodium in grams from a label's salt and sodium figures, None when it
+    has neither. Salt is sodium times `salt_per_sodium` (2.5, or 2.54 where
+    the label states it so, as Japan's does)."""
+    if salt_first and salt_g is not None:
+        return salt_g / salt_per_sodium
+    if sodium_g is not None:
+        return sodium_g
+    return None if salt_g is None else salt_g / salt_per_sodium
+
+
+def off(directory, market='tw'):
     products = []
     for page in sorted(pathlib.Path(directory).glob('*.json')):
         products += json.loads(page.read_text(encoding='utf-8'))['products']
-    build_off(products)
+    build_off(products, market)
 
 
 # The export's columns that carry what OFF_FIELDS asks the API for.
 OFF_CSV_TEXT_COLUMNS = ['code', 'product_name', 'brands', 'quantity',
-                        'serving_size', 'countries_tags', 'states_tags']
+                        'serving_size', 'countries_tags', 'states_tags',
+                        'completeness', 'nutriscore_grade']
 OFF_CSV_NUTRIMENTS = ['energy-kcal', 'proteins', 'fat', 'carbohydrates',
                       'sodium', 'salt', 'saturated-fat', 'trans-fat', 'sugars']
 
 
-def off_csv(path, directory=None):
-    """The export's Taiwan rows, in the shape the API gives them.
+def off_csv(path, directory=None, market='tw'):
+    """The export's rows for the market, in the shape the API gives them.
 
     The file is 1.3 GB gzipped and about 4 million rows, so it is read one
     row at a time. The export is tab-separated with no quoting.
@@ -392,11 +453,12 @@ def off_csv(path, directory=None):
     with opener(path, 'rt', encoding='utf-8', newline='') as stream:
         rows = csv.reader(stream, delimiter='\t', quoting=csv.QUOTE_NONE)
         header = {name: index for index, name in enumerate(next(rows))}
+        tag = 'en:' + MARKETS[market]['country']
         tags = header['countries_tags']
         text = {name: header[name] for name in OFF_CSV_TEXT_COLUMNS}
         figures = {key: header[key + '_100g'] for key in OFF_CSV_NUTRIMENTS}
         for row in rows:
-            if len(row) <= tags or 'en:taiwan' not in row[tags].split(','):
+            if len(row) <= tags or tag not in row[tags].split(','):
                 continue
             product = {name: row[index] for name, index in text.items()
                        if index < len(row)}
@@ -409,35 +471,57 @@ def off_csv(path, directory=None):
                 except (IndexError, ValueError):
                     pass
             products.append(product)
-    print(f'{len(products)} Taiwan products in the export', flush=True)
+    print(f'{len(products)} {market} products in the export', flush=True)
     if directory:
-        fetch_by_code(directory, [
-            p['code'] for p in products
+        wanted = [
+            p for p in products
             if 'energy-kcal_100g' not in p['nutriments']
             and 'en:nutrition-facts-completed' in p['states_tags']
-            and ean_is_valid(p['code'])])
+            and p.get('product_name')
+            and ean_is_valid(p['code'])]
+        # A run may be capped (--max-requests), so ask first for the products
+        # most likely to have a usable label: those Open Food Facts could
+        # score (a-e needs sugar, fat, salt and protein), then the better
+        # filled-in pages.
+        wanted.sort(key=lambda p: (
+            p.get('nutriscore_grade') in ('a', 'b', 'c', 'd', 'e'),
+            float(p.get('completeness') or 0),
+            bool(p.get('serving_size'))), reverse=True)
+        fetch_by_code(directory, [p['code'] for p in wanted])
         fetched = {}
         for file in sorted(pathlib.Path(directory).glob('*.json')):
             for product in json.loads(file.read_text(encoding='utf-8'))['products']:
                 fetched[product['code']] = product
         products = [fetched.get(p['code'], p) for p in products]
-    build_off(products)
+    build_off(products, market)
 
 
-def build_off(products):
+def build_off(products, market='tw'):
+    config = MARKETS[market]
+    tag = 'en:' + config['country']
     # Pages fetched in different runs can overlap.
     products = list({p['code']: p for p in products}.values())
 
+    # A product sold in two markets is in the file built first: the app
+    # keys foods by id, so the same barcode may not be in two files.
+    listed_elsewhere = set()
+    for other in OUT.glob('openfoodfacts-*.json'):
+        if other.name != f'openfoodfacts-{market}.json':
+            file = json.loads(other.read_text(encoding='utf-8'))
+            column = file['columns'].index('barcode')
+            listed_elsewhere |= {row[column].lstrip('0') for row in file['foods']}
+
     dropped = Dropped()
-    rows, seen = [], set()
+    rows, seen = [], set(listed_elsewhere)
     for product in products:
         code = product.get('code') or ''
-        if 'en:taiwan' not in product.get('countries_tags', []):
-            dropped('not sold in Taiwan')
+        if tag not in product.get('countries_tags', []):
+            dropped(f'not sold in {config["country"].title()}')
             continue
         name = re.sub(
             r'\s+', ' ',
-            product.get('product_name_zh') or product.get('product_name') or '',
+            next((product[key] for key in config['names'] if product.get(key)),
+                 ''),
         ).strip()
         brand = (product.get('brands') or '').split(',')[0].strip()
         if not name:
@@ -445,6 +529,9 @@ def build_off(products):
             continue
         if not ean_is_valid(code):
             dropped('barcode fails its check digit')
+            continue
+        if code.lstrip('0') in listed_elsewhere:
+            dropped('already in another market\'s file')
             continue
         if code.lstrip('0') in seen:
             dropped('duplicate barcode')
@@ -457,9 +544,15 @@ def build_off(products):
 
         kcal = per_100('energy-kcal')
         protein, fat, carb = per_100('proteins'), per_100('fat'), per_100('carbohydrates')
-        sodium_g = per_100('sodium')
-        if sodium_g is None and per_100('salt') is not None:
-            sodium_g = per_100('salt') / 2.5
+        salt_g, sodium_g = per_100('salt'), per_100('sodium')
+        # Open Food Facts derives each from the other (salt = sodium * 2.5),
+        # so a pair that disagrees is a typing error in one of them.
+        if (salt_g is not None and sodium_g is not None
+                and abs(salt_g / 2.5 - sodium_g) > max(0.1 * sodium_g, 0.005)):
+            dropped('salt and sodium disagree')
+            continue
+        sodium_g = salt_to_sodium(salt_g, sodium_g, config['salt'],
+                                  config['salt_first'])
         if None in (kcal, protein, fat, carb, sodium_g):
             dropped('label incomplete')
             continue
@@ -481,9 +574,9 @@ def build_off(products):
             *(None if f is None else tidy(f) for f in (saturated, trans, sugar)),
             tidy(figures[4]), 0, code,
         ])
-    write('openfoodfacts-tw.json', {
+    write(f'openfoodfacts-{market}.json', {
         'source': 'openfoodfacts',
-        'market': 'tw',
+        'market': market,
         'checkedAt': RETRIEVED,
         'sourceUrl': 'https://world.openfoodfacts.org/',
         'productUrl': 'https://world.openfoodfacts.org/product/{barcode}',
@@ -500,9 +593,24 @@ def report(total, rows, dropped):
         print(f'  {count:6}  {reason}')
 
 
+def option(name, default):
+    """`--name value` taken out of the arguments, or [default]."""
+    if name in sys.argv:
+        index = sys.argv.index(name)
+        value = sys.argv[index + 1]
+        del sys.argv[index:index + 2]
+        return value
+    return default
+
+
 if __name__ == '__main__':
     commands = {'tfda': tfda, 'off': off, 'off-fetch': off_fetch,
                 'off-csv': off_csv}
-    if not 3 <= len(sys.argv) <= 4 or sys.argv[1] not in commands:
+    market = option('--market', 'tw')
+    cap = option('--max-requests', None)
+    api_request_cap = None if cap is None else int(cap)
+    if (not 3 <= len(sys.argv) <= 4 or sys.argv[1] not in commands
+            or market not in MARKETS):
         sys.exit(__doc__)
-    commands[sys.argv[1]](*sys.argv[2:])
+    commands[sys.argv[1]](*sys.argv[2:],
+                          **({} if sys.argv[1] == 'tfda' else {'market': market}))

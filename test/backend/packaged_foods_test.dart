@@ -39,7 +39,7 @@ void main() {
         expect(file['licence'], isNotEmpty, reason: path);
         expect(file['attribution'], isNotEmpty, reason: path);
         expect(file['sourceUrl'], startsWith('https://'), reason: path);
-        expect(file['market'], 'tw', reason: path);
+        expect(file['market'], isIn(['tw', 'jp']), reason: path);
         expect(DateTime.tryParse(file['checkedAt'] as String), isNotNull);
       }
     });
@@ -60,7 +60,7 @@ void main() {
           }
           expect(food.name, isNotEmpty, reason: food.id);
           if (food.barcode == null) expect(food.brand, isNotEmpty);
-          expect(food.country, 'TW');
+          expect(food.country, (file['market'] as String).toUpperCase());
           expect(food.valueType, NutrientValueType.declared);
           expect(food.sourceUrl, startsWith('https://'));
           final amount = food.servingAmount;
@@ -148,6 +148,18 @@ void main() {
         expect(found.single.kcal, 110);
         expect(found.single.servingAmount, 25);
       }
+    });
+
+    test('a Japanese product is found by its name, sodium from its salt', () {
+      // 明治ミルクチョコレート: 50 g with 0.065 g 食塩相当量, which is
+      // 0.065 / 2.54 = 25.6 mg of sodium (the label's own factor, not 2.5).
+      final found = search('明治ミルクチョコレート')
+          .singleWhere((food) => food.id == 'off-4902777015927');
+
+      expect(found.country, 'JP');
+      expect(found.servingAmount, 50);
+      expect(found.kcal, 283);
+      expect(found.nutrients[Nutrient.sodium], closeTo(25.59, 0.01));
     });
 
     test('they are offered only when asked for', () {

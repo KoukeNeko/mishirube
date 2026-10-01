@@ -8,15 +8,17 @@ import '../../domain/domain.dart';
 import '../engines/exercise_search.dart' show normalizeTerm;
 import '../engines/food_search.dart';
 
-/// Packaged foods sold in Taiwan, read from their labels.
+/// Packaged foods sold in Taiwan and Japan, read from their labels.
 ///
 /// Built by `tool/build_packaged_foods.py`; the sources, their licences
-/// and what was left out are in `research/76-taiwan-food-labels.md`.
+/// and what was left out are in `research/76-taiwan-food-labels.md` and
+/// `research/83-japan-food-labels.md`.
 /// Each file is one source, kept apart from the others so its licence
 /// stays with it.
 const packagedFoodFiles = [
   'assets/packaged/tfda-tw.json',
   'assets/packaged/openfoodfacts-tw.json',
+  'assets/packaged/openfoodfacts-jp.json',
 ];
 
 /// How many packaged foods one search offers: the list draws every row
@@ -188,8 +190,9 @@ void registerPackagedFoodLicences() {
       '(https://opendatacommons.org/licenses/odbl/1-0/). Individual contents '
       'are under the Database Contents License 1.0 '
       '(https://opendatacommons.org/licenses/dbcl/1-0/).\n\n'
-      'The data ships as assets/packaged/openfoodfacts-tw.json, a '
-      'machine-readable copy that remains under the ODbL. Products whose '
+      'The data ships as assets/packaged/openfoodfacts-tw.json and '
+      'assets/packaged/openfoodfacts-jp.json, machine-readable copies that '
+      'remain under the ODbL. Products whose '
       'figures contradict one another were left out.',
     );
   });
