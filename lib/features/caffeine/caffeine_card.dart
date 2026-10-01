@@ -14,6 +14,7 @@ class CaffeineCard extends StatelessWidget {
     required this.curve,
     required this.nowIndex,
     this.onTap,
+    this.action,
     this.chartHeight = 88,
   });
 
@@ -22,6 +23,9 @@ class CaffeineCard extends StatelessWidget {
 
   /// Opens the caffeine page; null on that page itself.
   final VoidCallback? onTap;
+
+  /// Beside the label: on 今天, ending what the lock screen shows.
+  final Widget? action;
   final double chartHeight;
 
   @override
@@ -32,9 +36,14 @@ class CaffeineCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CategoryLabel(
-            label: context.l10n.nutrientCaffeine,
-            color: AppColors.caffeine,
+          Row(
+            children: [
+              CategoryLabel(
+                label: context.l10n.nutrientCaffeine,
+                color: AppColors.caffeine,
+              ),
+              if (action case final action?) ...[const Spacer(), action],
+            ],
           ),
           const SizedBox(height: AppSpacing.xs),
           ValueWithUnit(value: '$now', unit: 'mg'),

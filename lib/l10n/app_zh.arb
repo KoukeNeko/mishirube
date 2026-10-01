@@ -6716,6 +6716,22 @@
       }
     }
   },
+  "caffeineBelowReference": "低於就寢參考",
+  "@caffeineBelowReference": {
+    "description": "Live Activity: label over the time the caffeine estimate falls under the bedtime reference."
+  },
+  "caffeineBelowReferenceDone": "已低於就寢參考",
+  "@caffeineBelowReferenceDone": {
+    "description": "Live Activity: state once the caffeine estimate is under the bedtime reference, beside the time it fell."
+  },
+  "liveActivities": "即時動態",
+  "@liveActivities": {
+    "description": "Switch on the caffeine page: show caffeine on the lock screen and in the Dynamic Island. Apple's own term for Live Activities in this language."
+  },
+  "endLiveActivity": "結束即時動態",
+  "@endLiveActivity": {
+    "description": "Button on Today's caffeine card: takes the caffeine Live Activity off the lock screen until the next caffeinated drink."
+  },
   "last24Hours": "近 24 小時",
   "@last24Hours": {
     "description": "Section label: records of the last 24 hours."

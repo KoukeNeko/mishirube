@@ -4423,6 +4423,18 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get caffeineBelowReference => '就寝時の目安を下回る';
+
+  @override
+  String get caffeineBelowReferenceDone => '就寝時の目安以下';
+
+  @override
+  String get liveActivities => 'ライブアクティビティ';
+
+  @override
+  String get endLiveActivity => 'ライブアクティビティを終了';
+
+  @override
   String get last24Hours => '過去 24 時間';
 
   @override

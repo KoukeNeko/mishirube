@@ -7730,6 +7730,30 @@ abstract class AppLocalizations {
   /// **'就寢參考 {mg} mg'**
   String caffeineReference({required String mg});
 
+  /// Live Activity: label over the time the caffeine estimate falls under the bedtime reference.
+  ///
+  /// In zh, this message translates to:
+  /// **'低於就寢參考'**
+  String get caffeineBelowReference;
+
+  /// Live Activity: state once the caffeine estimate is under the bedtime reference, beside the time it fell.
+  ///
+  /// In zh, this message translates to:
+  /// **'已低於就寢參考'**
+  String get caffeineBelowReferenceDone;
+
+  /// Switch on the caffeine page: show caffeine on the lock screen and in the Dynamic Island. Apple's own term for Live Activities in this language.
+  ///
+  /// In zh, this message translates to:
+  /// **'即時動態'**
+  String get liveActivities;
+
+  /// Button on Today's caffeine card: takes the caffeine Live Activity off the lock screen until the next caffeinated drink.
+  ///
+  /// In zh, this message translates to:
+  /// **'結束即時動態'**
+  String get endLiveActivity;
+
   /// Section label: records of the last 24 hours.
   ///
   /// In zh, this message translates to:

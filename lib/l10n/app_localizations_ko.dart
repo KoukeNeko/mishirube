@@ -4424,6 +4424,18 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get caffeineBelowReference => '취침 참고 아래로';
+
+  @override
+  String get caffeineBelowReferenceDone => '취침 참고 아래';
+
+  @override
+  String get liveActivities => '실시간 현황';
+
+  @override
+  String get endLiveActivity => '실시간 현황 종료';
+
+  @override
   String get last24Hours => '최근 24시간';
 
   @override

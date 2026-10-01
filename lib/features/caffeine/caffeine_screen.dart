@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
+import '../../app/caffeine_activity.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
@@ -11,8 +12,9 @@ import 'caffeine_card.dart';
 import 'caffeine_view_model.dart';
 import '../../l10n/l10n.dart';
 
-/// Caffeine on its own: the estimate now and as it falls away, and each
-/// record of the last day it came from, to open and correct.
+/// Caffeine on its own: the estimate now and as it falls away, each
+/// record of the last day it came from, to open and correct, and whether
+/// it is also shown on the lock screen.
 class CaffeineScreen extends StatefulWidget {
   const CaffeineScreen({super.key});
 
@@ -69,6 +71,18 @@ class _CaffeineScreenState extends State<CaffeineScreen> {
               ),
             ),
         ],
+        if (CaffeineActivity.isSupported)
+          Gutter(
+            child: GroupedCard(
+              children: [
+                SwitchRow(
+                  title: context.l10n.liveActivities,
+                  value: _model.isLiveActivityOn,
+                  onChanged: _model.setLiveActivity,
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }

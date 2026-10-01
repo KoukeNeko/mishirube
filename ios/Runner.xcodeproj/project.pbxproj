@@ -32,6 +32,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		9E701AE0BC612BDD1ED7D09F /* MishirubeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D5419B73C4386D9441F84BF9 /* RestActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECED69CFA868023773AABE5A /* RestActivityBundle.swift */; };
+		5B39BDF81B75AA0FEBA7EC41 /* CaffeineActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B61B01C40E1B1DD87CBA889 /* CaffeineActivityWidget.swift */; };
 		F45CA4BC1C0ED4B143D6652B /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDFC8E2E5D772FE2E09DD94E /* ActivityKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -129,6 +130,7 @@
 		BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MishirubeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFBA4494FA634C34297200D5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ECED69CFA868023773AABE5A /* RestActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestActivityBundle.swift; sourceTree = "<group>"; };
+		1B61B01C40E1B1DD87CBA889 /* CaffeineActivityWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaffeineActivityWidget.swift; sourceTree = "<group>"; };
 		EDFC8E2E5D772FE2E09DD94E /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/ActivityKit.framework; sourceTree = DEVELOPER_DIR; };
 		F212590B6C06191684129584 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F291B0277AF3C4124D6965D3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -273,6 +275,7 @@
 			isa = PBXGroup;
 			children = (
 				ECED69CFA868023773AABE5A /* RestActivityBundle.swift */,
+				1B61B01C40E1B1DD87CBA889 /* CaffeineActivityWidget.swift */,
 				9006A0A48DCE2772FF2906D2 /* RestAttributes.swift */,
 				F212590B6C06191684129584 /* Info.plist */,
 			);
@@ -496,6 +499,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5419B73C4386D9441F84BF9 /* RestActivityBundle.swift in Sources */,
+				5B39BDF81B75AA0FEBA7EC41 /* CaffeineActivityWidget.swift in Sources */,
 				2486F5B65378F62113DB9EF4 /* RestAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

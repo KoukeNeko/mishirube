@@ -50,6 +50,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "RestNotice") {
       RestNotice.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "CaffeineActivity") {
+      CaffeineActivity.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ScreenAwake") {
       ScreenAwake.register(with: registrar.messenger())
     }
@@ -1199,7 +1202,9 @@ extension RestNotice {
     guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
     let state = RestAttributes.ContentState(
       endsAt: endsAt, startedAt: Date(), title: title, body: body)
-    let content = ActivityContent(state: state, staleDate: endsAt)
+    // Over the caffeine activity (`CaffeineActivity.relevance`) in the
+    // Dynamic Island: the rest is what the workout is waiting on.
+    let content = ActivityContent(state: state, staleDate: endsAt, relevanceScore: 100)
     if let running = Activity<RestAttributes>.activities.first {
       Task { await running.update(content) }
     } else {
@@ -1209,6 +1214,114 @@ extension RestNotice {
 
   static func endActivities() {
     for activity in Activity<RestAttributes>.activities {
+      Task { await activity.end(nil, dismissalPolicy: .immediate) }
+    }
+  }
+}
+
+/// Caffeine over the bedtime reference on the lock screen and in the
+/// Dynamic Island (`lib/app/caffeine_activity.dart`), with the time it
+/// falls under it: one activity, moved by another cup.
+enum CaffeineActivity {
+  static func register(with messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(
+      name: "mishirube/caffeine_activity", binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard #available(iOS 16.2, *) else {
+        result(nil)
+        return
+      }
+      switch call.method {
+      case "show":
+        guard let arguments = call.arguments as? [String: Any],
+          let state = contentState(from: arguments)
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        result(show(state))
+      case "end":
+        end()
+        result(nil)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+}
+
+@available(iOS 16.2, *)
+extension CaffeineActivity {
+  /// Under the rest timer (`RestNotice`) when both run: the Dynamic Island
+  /// shows the app's activity that scores higher.
+  static let relevance = 10.0
+
+  static func contentState(from arguments: [String: Any]) -> CaffeineAttributes.ContentState? {
+    func date(_ key: String) -> Date? {
+      (arguments[key] as? Double).map { Date(timeIntervalSince1970: $0 / 1000) }
+    }
+    func text(_ key: String) -> String { arguments[key] as? String ?? "" }
+    guard let cupAt = date("cupAt"), let belowAt = date("belowAt"), cupAt < belowAt else {
+      return nil
+    }
+    return CaffeineAttributes.ContentState(
+      cupAt: cupAt, belowAt: belowAt, bedtimeAt: date("bedtimeAt"),
+      title: text("title"), cup: text("cup"), cupTime: text("cupTime"),
+      belowLabel: text("belowLabel"), belowDoneLabel: text("belowDoneLabel"),
+      belowTime: text("belowTime"), bedtime: arguments["bedtime"] as? String,
+      basis: text("basis"))
+  }
+
+  /// How long the system lets a Live Activity run before it ends it.
+  static let systemLimit: TimeInterval = 8 * 60 * 60
+
+  /// The cup the running activity is for, and when it was started.
+  private static let cupKey = "caffeineActivity.cupAt"
+  private static let startedKey = "caffeineActivity.startedAt"
+
+  /// Shows `state`, and whether the system now does: not one swiped
+  /// away, nor with Live Activities turned off in Settings.
+  static func show(_ state: CaffeineAttributes.ContentState) -> Bool {
+    guard ActivityAuthorizationInfo().areActivitiesEnabled else { return false }
+    let content = ActivityContent(
+      state: state, staleDate: state.belowAt, relevanceScore: relevance)
+    let defaults = UserDefaults.standard
+    let activities = Activity<CaffeineAttributes>.activities
+    if let running = activities.first(where: {
+      $0.activityState == .active || $0.activityState == .stale
+    }) {
+      Task { await running.update(content) }
+      defaults.set(state.cupAt, forKey: cupKey)
+      return true
+    }
+    // Gone before the system's limit for the cup it was started for: it
+    // was swiped away, and stays away until a later cup. Gone after the
+    // limit, a new one takes its place on the lock screen.
+    if let cupAt = defaults.object(forKey: cupKey) as? Date,
+      abs(cupAt.timeIntervalSince(state.cupAt)) < 1,
+      let startedAt = defaults.object(forKey: startedKey) as? Date,
+      Date().timeIntervalSince(startedAt) < systemLimit
+    {
+      return false
+    }
+    endAll()
+    guard (try? Activity.request(attributes: CaffeineAttributes(), content: content)) != nil
+    else { return false }
+    defaults.set(state.cupAt, forKey: cupKey)
+    defaults.set(Date(), forKey: startedKey)
+    return true
+  }
+
+  /// Ended by the app: under the reference, or turned off. What it was
+  /// started for is forgotten, so turning it on again shows it.
+  static func end() {
+    endAll()
+    UserDefaults.standard.removeObject(forKey: cupKey)
+    UserDefaults.standard.removeObject(forKey: startedKey)
+  }
+
+  static func endAll() {
+    for activity in Activity<CaffeineAttributes>.activities {
       Task { await activity.end(nil, dismissalPolicy: .immediate) }
     }
   }

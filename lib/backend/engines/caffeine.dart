@@ -61,6 +61,30 @@ double estimatedCaffeineRemaining(
   return remaining;
 }
 
+/// When [estimatedCaffeineRemaining] falls under
+/// [caffeineBedtimeReferenceMg] after [now]; null while it is under it.
+///
+/// Every intake halves at the same rate, so once the last one is drunk
+/// their sum is a single exponential and the crossing has a closed form,
+/// worked out here to the minute rather than read off a curve.
+DateTime? caffeineFallsBelowReference(
+  Iterable<CaffeineIntake> intakes, {
+  required DateTime now,
+  double halfLifeHours = caffeineHalfLifeHours,
+}) {
+  final remaining = estimatedCaffeineRemaining(
+    intakes,
+    now: now,
+    halfLifeHours: halfLifeHours,
+  );
+  if (remaining < caffeineBedtimeReferenceMg) return null;
+  final hours =
+      halfLifeHours *
+      math.log(remaining / caffeineBedtimeReferenceMg) /
+      math.ln2;
+  return now.add(Duration(minutes: (hours * 60).ceil()));
+}
+
 /// The caffeine [meals] recorded, as intakes to estimate from.
 List<CaffeineIntake> caffeineIntakes(Iterable<(DateTime, MealEvent)> meals) => [
   for (final (at, meal) in meals)

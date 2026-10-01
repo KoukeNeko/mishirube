@@ -4416,6 +4416,18 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get caffeineBelowReference => '低於就寢參考';
+
+  @override
+  String get caffeineBelowReferenceDone => '已低於就寢參考';
+
+  @override
+  String get liveActivities => '即時動態';
+
+  @override
+  String get endLiveActivity => '結束即時動態';
+
+  @override
   String get last24Hours => '近 24 小時';
 
   @override
@@ -10491,6 +10503,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String caffeineReference({required String mg}) {
     return '就寝参考 $mg mg';
   }
+
+  @override
+  String get caffeineBelowReference => '低于就寝参考';
+
+  @override
+  String get caffeineBelowReferenceDone => '已低于就寝参考';
+
+  @override
+  String get liveActivities => '实时活动';
+
+  @override
+  String get endLiveActivity => '结束实时活动';
 
   @override
   String get last24Hours => '近 24 小时';

@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../domain/domain.dart';
 // The one place that decides how a typed search term is normalised; a
 // food is searched the same way an exercise is.
+import '../engines/caffeine.dart';
 import '../engines/exercise_search.dart' show normalizeTerm;
 import '../engines/food_portion.dart';
 import '../engines/food_search.dart';
@@ -194,6 +195,48 @@ class NutritionService {
   }
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
+
+  /// The caffeine over the bedtime reference now: the last record that
+  /// carried any, and when the estimate falls under the reference
+  /// ([caffeineFallsBelowReference]); null while it is under it.
+  ({DateTime at, MealEvent meal, DateTime below})? caffeineOverReference() {
+    final now = _db.now();
+    final meals = _caffeineMeals(now);
+    final below = caffeineFallsBelowReference(caffeineIntakes(meals), now: now);
+    if (below == null) return null;
+    final (at, meal) = meals.lastWhere(
+      (eaten) => (eaten.$2.nutrients[Nutrient.caffeine] ?? 0) > 0,
+    );
+    return (at: at, meal: meal, below: below);
+  }
+
+  /// The records old enough to still show on the caffeine curve at [at].
+  List<(DateTime, MealEvent)> _caffeineMeals(DateTime at) =>
+      between(at.subtract(caffeineCurveBack + const Duration(days: 1)), at);
+
+  static const _caffeineActivityKey = 'caffeine.live_activity';
+
+  /// Whether caffeine over the bedtime reference is shown on the lock
+  /// screen (`lib/app/caffeine_activity.dart`); on until turned off.
+  bool get isCaffeineActivityOn => _db.setting(_caffeineActivityKey) != 'false';
+
+  void setCaffeineActivity(bool isOn) =>
+      _db.setSetting(_caffeineActivityKey, '$isOn');
+
+  static const _caffeineActivityEndedKey = 'caffeine.live_activity_ended';
+
+  /// The last cup whose Live Activity was ended from 今天: it is not shown
+  /// again for that cup, only for a later one.
+  DateTime? get caffeineActivityEndedFor =>
+      switch (int.tryParse(_db.setting(_caffeineActivityEndedKey) ?? '')) {
+        final ms? => DateTime.fromMillisecondsSinceEpoch(ms),
+        null => null,
+      };
+
+  void endCaffeineActivity(DateTime cupAt) => _db.setSetting(
+    _caffeineActivityEndedKey,
+    '${cupAt.millisecondsSinceEpoch}',
+  );
 
   /// What the user usually calls a meal eaten at [at], learned from the
   /// last eight weeks of their own labels; null until there is a habit.

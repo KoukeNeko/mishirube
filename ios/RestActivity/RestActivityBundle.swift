@@ -6,6 +6,7 @@ import WidgetKit
 struct RestActivityBundle: WidgetBundle {
   var body: some Widget {
     RestActivityWidget()
+    CaffeineActivityWidget()
   }
 }
 

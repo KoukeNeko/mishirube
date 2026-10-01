@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
 import '../../app/app_store.dart';
+import '../../app/caffeine_activity.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../app/view_model.dart';
@@ -245,6 +246,13 @@ class TodayScreen extends StatelessWidget {
                 curve: curve,
                 nowIndex: nowIndex,
                 onTap: () => pushPage(context, const CaffeineScreen()),
+                action: switch (CaffeineActivityScope.maybeOf(context)) {
+                  final liveActivity? when liveActivity.isShowing => ChipButton(
+                    label: context.l10n.endLiveActivity,
+                    onTap: liveActivity.end,
+                  ),
+                  _ => null,
+                },
               ),
             ),
         ]),

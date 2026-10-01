@@ -4481,6 +4481,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get caffeineBelowReference => 'Below bedtime reference';
+
+  @override
+  String get caffeineBelowReferenceDone => 'Below bedtime reference';
+
+  @override
+  String get liveActivities => 'Live Activities';
+
+  @override
+  String get endLiveActivity => 'End Live Activity';
+
+  @override
   String get last24Hours => 'Last 24 hours';
 
   @override

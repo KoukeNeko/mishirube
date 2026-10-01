@@ -10,6 +10,7 @@ import '../shared/toast/toast_host.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'bedtime_reminder.dart';
+import 'caffeine_activity.dart';
 import 'rest_notice.dart';
 import 'watch_sync.dart';
 import 'theme.dart';
@@ -83,8 +84,10 @@ class _MishirubeAppState extends State<MishirubeApp> {
             backdropKey: _backdrop,
             child: WindowControlsScope(
               child: RestNotice(
-                child: WatchSync(
-                  child: ToastHost(child: child ?? const SizedBox.shrink()),
+                child: CaffeineActivity(
+                  child: WatchSync(
+                    child: ToastHost(child: child ?? const SizedBox.shrink()),
+                  ),
                 ),
               ),
             ),

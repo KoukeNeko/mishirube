@@ -32,4 +32,11 @@ class CaffeineViewModel extends ViewModel {
       at: at,
     );
   }
+
+  /// Whether caffeine over the bedtime reference is shown on the lock
+  /// screen and in the Dynamic Island.
+  bool get isLiveActivityOn => backend.nutrition.isCaffeineActivityOn;
+
+  void setLiveActivity(bool isOn) =>
+      backend.nutrition.setCaffeineActivity(isOn);
 }

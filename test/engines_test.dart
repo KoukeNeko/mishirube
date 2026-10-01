@@ -2532,6 +2532,49 @@ Wall sit 2 x 1.5 min
       expect(curve.last.$2, lessThan(curve[3].$2), reason: 'it falls away');
     });
 
+    test('the estimate falls under the reference when the curve does', () {
+      final doses = [
+        intake(150, const Duration(hours: 3)),
+        intake(60, const Duration(minutes: 40)),
+      ];
+      final below = caffeineFallsBelowReference(doses, now: clock.now())!;
+
+      expect(
+        estimatedCaffeineRemaining(doses, now: below),
+        lessThanOrEqualTo(caffeineBedtimeReferenceMg),
+      );
+      expect(
+        estimatedCaffeineRemaining(
+          doses,
+          now: below.subtract(const Duration(minutes: 1)),
+        ),
+        greaterThan(caffeineBedtimeReferenceMg),
+        reason: 'not a minute late',
+      );
+    });
+
+    test('one cup crosses the reference after log2(dose / 35) half-lives', () {
+      // 120 mg: 5 h × log2(120 / 35) = 8 h 53.3 min.
+      final below = caffeineFallsBelowReference([
+        intake(120, Duration.zero),
+      ], now: clock.now());
+
+      expect(
+        below!.difference(clock.now()),
+        const Duration(hours: 8, minutes: 54),
+      );
+    });
+
+    test('under the reference there is nothing to fall below', () {
+      expect(
+        caffeineFallsBelowReference([
+          intake(30, Duration.zero),
+        ], now: clock.now()),
+        isNull,
+      );
+      expect(caffeineFallsBelowReference([], now: clock.now()), isNull);
+    });
+
     test('caffeine not yet drunk is not counted', () {
       final remaining = estimatedCaffeineRemaining([
         CaffeineIntake(
