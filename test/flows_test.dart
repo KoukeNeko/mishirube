@@ -1364,13 +1364,19 @@ void main() {
     await tester.tap(line);
     await tester.pumpAndSettle();
     // Each of the 14 days, under the trend.
+    // Each day's sleep over its date, how far it was from the goal at
+    // its end.
+    Finder dayRow(String slept, String gap) => find.ancestor(
+      of: find.text(gap, skipOffstage: false),
+      matching: find.widgetWithText(NavRow, slept, skipOffstage: false),
+    );
     await tester.scrollUntilVisible(
-      find.text('9 小時 · 多 1 小時'),
+      dayRow('9 小時', '多 1 小時'),
       200,
       scrollable: _pageScroll,
     );
-    expect(find.text('7 小時 · 少 1 小時'), findsOneWidget);
-    expect(find.text('9 小時 · 多 1 小時'), findsOneWidget);
+    expect(dayRow('7 小時', '少 1 小時'), findsOneWidget);
+    expect(dayRow('9 小時', '多 1 小時'), findsOneWidget);
     expect(find.text('沒有紀錄', skipOffstage: false), findsNWidgets(9));
     await disposeTree(tester);
   });

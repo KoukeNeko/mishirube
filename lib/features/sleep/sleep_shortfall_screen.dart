@@ -116,10 +116,7 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
                 child: GroupedCard(
                   children: [
                     for (final day in summed.reversed)
-                      KeyValueRow(
-                        label: context.dates.dayWithWeekday(day.day),
-                        value: _dayValue(context.l10n, day.slept, _model.need),
-                      ),
+                      _dayRow(day, _model.need),
                   ],
                 ),
               ),
@@ -137,6 +134,32 @@ class _SleepShortfallScreenState extends State<SleepShortfallScreen> {
       );
     },
   );
+
+  /// A day's time asleep over its date, and how far it was from [need]
+  /// at its end: short in the colour the shortfall is drawn in above,
+  /// over in grey, since only the short time adds to the debt.
+  NavRow _dayRow(SleepDay day, Duration need) {
+    final l10n = context.l10n;
+    final slept = day.slept;
+    final gap = slept == null ? Duration.zero : slept - need;
+    return NavRow(
+      title: slept == null ? l10n.noEntriesShort : formatDuration(l10n, slept),
+      subtitle: context.dates.dayWithWeekday(day.day),
+      trailing: gap.inMinutes == 0
+          ? null
+          : Text(
+              gap.isNegative
+                  ? l10n.shortBy(time: formatDuration(l10n, -gap))
+                  : l10n.overBy(time: formatDuration(l10n, gap)),
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600,
+                color: gap.isNegative
+                    ? AppColors.wellness
+                    : AppColors.textSecondary,
+              ),
+            ),
+    );
+  }
 
   /// The 14-day sum as of each day; a day whose 14 days hold too few
   /// records is a gap, not a zero.
@@ -315,12 +338,3 @@ String _number(Duration hours) => (hours.inMinutes / 60).toStringAsFixed(1);
 /// `6.3 小時`, `6.3 h`.
 String _hours(AppLocalizations l10n, Duration hours) =>
     l10n.hoursValue(hours: _number(hours));
-
-/// A day's time asleep and how far it was from [need].
-String _dayValue(AppLocalizations l10n, Duration? slept, Duration need) {
-  if (slept == null) return l10n.noEntriesShort;
-  final gap = slept - need;
-  if (gap.inMinutes == 0) return formatDuration(l10n, slept);
-  return '${formatDuration(l10n, slept)} · '
-      '${gap.isNegative ? l10n.shortBy(time: formatDuration(l10n, -gap)) : l10n.overBy(time: formatDuration(l10n, gap))}';
-}
