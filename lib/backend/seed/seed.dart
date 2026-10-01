@@ -81,10 +81,10 @@ final _activities = [
 
 /// Fills an empty store with the design's demo data, dated relative to
 /// [today] so the demo reads the same whenever the app is first opened.
-/// Does nothing once the store has been seeded.
-void seedDemoData(Backend backend, DateTime today) {
+/// Does nothing once the store has been seeded; true when it seeded.
+bool seedDemoData(Backend backend, DateTime today) {
   final db = backend.db;
-  if (db.setting(_seededKey) != null) return;
+  if (db.setting(_seededKey) != null) return false;
   final day = DateTime(today.year, today.month, today.day);
   DateTime at(int daysAgo, int hour, int minute) =>
       DateTime(day.year, day.month, day.day - daysAgo, hour, minute);
@@ -172,6 +172,7 @@ void seedDemoData(Backend backend, DateTime today) {
 
     db.setSetting(_seededKey, today.toIso8601String());
   });
+  return true;
 }
 
 void _seedWorkout(

@@ -33,8 +33,12 @@ Future<void> main() async {
   registerPackagedFoodLicences();
   backend.nutrition.packagedFoods = await PackagedFoods.load();
   // The demo goes in first, so the library then takes over the exercises
-  // the demo also names instead of the demo overwriting them.
-  seedDemoData(backend, DateTime.now());
+  // the demo also names instead of the demo overwriting them. A new
+  // install starts with its own records only: the demo stays in the
+  // store, hidden, for 我的 → 資料 to show (research/81, item 1).
+  if (seedDemoData(backend, DateTime.now())) {
+    backend.provenance.setShowsDemo(false);
+  }
   await loadExerciseCatalogue(backend.db, backend.storage.exercises);
   final store = AppStore(
     backend: backend,
