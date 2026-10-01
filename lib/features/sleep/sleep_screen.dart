@@ -710,8 +710,8 @@ class _NightCharts extends StatelessWidget {
   final bool isRead;
 
   static const _shown = [
-    (OvernightMeasure.heartRate, AppColors.heart),
-    (OvernightMeasure.respiratoryRate, AppColors.activity),
+    OvernightMeasure.heartRate,
+    OvernightMeasure.respiratoryRate,
   ];
 
   @override
@@ -728,7 +728,7 @@ class _NightCharts extends StatelessWidget {
         return Column(
           spacing: pageItemSpacing,
           children: [
-            for (final (measure, color) in _shown)
+            for (final measure in _shown)
               if (byMeasure[measure] ??
                       (isWaiting && isRead
                           ? const <(DateTime, double)>[]
@@ -738,7 +738,6 @@ class _NightCharts extends StatelessWidget {
                   child: _NightChartCard(
                     title: measure.labelIn(context.l10n),
                     measure: measure,
-                    color: color,
                     points: points,
                     from: from,
                     to: to,
@@ -758,7 +757,6 @@ class _NightChartCard extends StatelessWidget {
   const _NightChartCard({
     required this.title,
     required this.measure,
-    required this.color,
     required this.points,
     required this.from,
     required this.to,
@@ -766,7 +764,6 @@ class _NightChartCard extends StatelessWidget {
 
   final String title;
   final OvernightMeasure measure;
-  final Color color;
   final List<(DateTime, double)> points;
   final DateTime from;
   final DateTime to;
@@ -783,7 +780,8 @@ class _NightChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CategoryLabel(label: title, color: color),
+          // A night's heart and breathing are vitals: the heart's colour.
+          CategoryLabel(label: title, color: AppColors.heart),
           const SizedBox(height: AppSpacing.xs),
           Text(
             values.isEmpty
@@ -821,7 +819,7 @@ class _NightChartCard extends StatelessWidget {
             },
             builder: (context, selected) => RangeBarChart(
               ranges: ranges,
-              color: color,
+              color: AppColors.heart,
               labelOf: (value) => overnightNumber(measure, value),
               start: formatTimeOfDay(from),
               end: formatTimeOfDay(to),

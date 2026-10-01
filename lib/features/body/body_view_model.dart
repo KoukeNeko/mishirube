@@ -35,22 +35,6 @@ class BodyViewModel extends ViewModel {
   Map<BodyMetric, BodyReading> get latestReadings =>
       backend.journal.latestBodyReadings();
 
-  /// Each vital's last day with a reading within [vitalsWindow], and
-  /// that day's figure: read from the health platform, never typed in.
-  Map<ActivityMetric, (DateTime, double)> get latestVitals {
-    final today = backend.db.now();
-    return {
-      for (final metric in ActivityMetric.values)
-        if (metric.group == ActivityMetricGroup.vitals)
-          metric: ?backend.activity
-              .daily(metric, today.subtract(vitalsWindow), today)
-              .lastOrNull,
-    };
-  }
-
-  /// How far back the body page looks for a vital.
-  static const vitalsWindow = Duration(days: 90);
-
   Map<MeasurementSite, BodyMeasurement> get latestMeasurements =>
       backend.journal.latestMeasurements();
 

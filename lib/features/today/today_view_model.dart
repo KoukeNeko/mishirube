@@ -21,7 +21,7 @@ enum TodaySection {
     activity => l10n.todaySectionActivity,
     intake => l10n.moduleNutrition,
     caffeine => l10n.nutrientCaffeine,
-    vitals => l10n.activityMetricGroupVitals,
+    vitals => l10n.vitalsTitle,
     week => l10n.todaySectionWeek,
     records => l10n.todaySectionRecords,
     insights => l10n.todaySectionInsights,
@@ -98,21 +98,26 @@ class TodayViewModel extends ViewModel {
     );
   }
 
-  /// Today's vitals, each at the day's figure.
+  /// Today's resting heart rate and vitals, each at the day's figure.
   Map<ActivityMetric, double> get vitals {
     final totals = backend.activity.dayTotals(_today);
     return {
       for (final MapEntry(key: metric, value: value) in totals.entries)
-        if (metric.group == ActivityMetricGroup.vitals) metric: value,
+        if (metric == ActivityMetric.restingHeartRate ||
+            metric.group == ActivityMetricGroup.vitals)
+          metric: value,
     };
   }
 
-  /// Whether a vital was taken on purpose today, a blood pressure or a
-  /// body temperature: a watch's background readings alone would put the
-  /// card on Today every day.
-  static bool isTaken(Map<ActivityMetric, double> vitals) =>
+  /// Whether today's card earns its place: a vital taken on purpose, a
+  /// blood pressure or a body temperature, or the day's resting heart
+  /// rate, one figure a day as the steps are. A watch's background
+  /// readings of breathing and oxygen alone would put it there every day
+  /// with nothing to say.
+  static bool earnsCard(Map<ActivityMetric, double> vitals) =>
       vitals.containsKey(ActivityMetric.bloodPressureSystolic) ||
-      vitals.containsKey(ActivityMetric.bodyTemperature);
+      vitals.containsKey(ActivityMetric.bodyTemperature) ||
+      vitals.containsKey(ActivityMetric.restingHeartRate);
 
   /// Today's energy target; null while the body it is worked out from is
   /// not set.

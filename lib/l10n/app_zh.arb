@@ -2447,6 +2447,14 @@
       }
     }
   },
+  "vitalsTitle": "心臟與生命徵象",
+  "@vitalsTitle": {
+    "description": "The page of the health platform's heart readings and vitals, apart from the body's own measurements."
+  },
+  "noVitalsData": "沒有心臟與生命徵象資料",
+  "@noVitalsData": {
+    "description": "Empty state: no heart reading or vital has come in from the health platform."
+  },
   "perHour": "每小時",
   "@perHour": {
     "description": "A chart of hourly totals."

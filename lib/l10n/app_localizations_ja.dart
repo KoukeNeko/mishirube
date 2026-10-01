@@ -1729,6 +1729,12 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get vitalsTitle => '心臓とバイタル';
+
+  @override
+  String get noVitalsData => '心臓とバイタルのデータなし';
+
+  @override
   String get perHour => '1時間ごと';
 
   @override

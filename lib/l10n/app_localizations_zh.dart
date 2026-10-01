@@ -1722,6 +1722,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get vitalsTitle => '心臟與生命徵象';
+
+  @override
+  String get noVitalsData => '沒有心臟與生命徵象資料';
+
+  @override
   String get perHour => '每小時';
 
   @override
@@ -7923,6 +7929,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String usualRangeValue({required String range}) {
     return '平常 $range';
   }
+
+  @override
+  String get vitalsTitle => '心脏与生命体征';
+
+  @override
+  String get noVitalsData => '没有心脏与生命体征数据';
 
   @override
   String get perHour => '每小时';

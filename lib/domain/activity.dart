@@ -233,8 +233,9 @@ class LiveActivity {
       (pausedAt ?? now).difference(startedAt) - pausedTotal;
 }
 
-/// How the activity page groups its metrics, following Apple Health's
-/// categories.
+/// How the metrics are grouped, following Apple Health's categories.
+/// The heart and the vitals describe the body rather than what it did,
+/// so they have their own page; the activity page lists the rest.
 enum ActivityMetricGroup {
   movement,
   heart,
@@ -293,8 +294,9 @@ enum ActivityMetric {
   heartRateRecovery(ActivityMetricGroup.heart),
   vo2Max(ActivityMetricGroup.heart, decimals: 1),
 
-  /// Apple Watch's estimate of effort, in METs.
-  physicalEffort(ActivityMetricGroup.heart, decimals: 1),
+  /// Apple Watch's estimate of effort, in METs: what the body did, so
+  /// with movement, where Apple Health files it too.
+  physicalEffort(ActivityMetricGroup.movement, decimals: 1),
 
   /// Degrees Celsius, as taken with a thermometer: not the wrist
   /// temperature a watch reads overnight, which is on the sleep page.

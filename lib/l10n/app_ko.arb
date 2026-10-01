@@ -523,6 +523,8 @@
   "refUseMaxHeartRateError": "연령 추정 최대 심박수는 개인 오차가 약 11회/분이라 하루 그래프에는 구간을 그리지 않음",
   "refUseHeartRateReserve": "심박 예비량은 산소 섭취 예비량에 대응하며 구간은 이를 기준으로 함",
   "usualRangeValue": "평소 {range}",
+  "vitalsTitle": "심장과 바이탈",
+  "noVitalsData": "심장 및 바이탈 데이터 없음",
   "perHour": "시간별",
   "hourSpan": "{start}~{end}시",
   "hourOfDay": "{hour}시",

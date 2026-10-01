@@ -523,6 +523,8 @@
   "refUseMaxHeartRateError": "Age-predicted maximum heart rate errs by some 11 bpm for one person, so the day chart draws no zones",
   "refUseHeartRateReserve": "Heart rate reserve matches oxygen uptake reserve, which the zones are set on",
   "usualRangeValue": "Usually {range}",
+  "vitalsTitle": "Heart & vitals",
+  "noVitalsData": "No heart or vitals data",
   "perHour": "Per hour",
   "hourSpan": "{start}–{end} h",
   "hourOfDay": "{hour}h",

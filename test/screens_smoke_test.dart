@@ -18,6 +18,7 @@ import 'package:mishirube/features/exercise/exercise_filter_screen.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
 import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/vitals/vitals_screen.dart';
 import 'package:mishirube/features/today/today_layout_screen.dart';
 import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
@@ -565,6 +566,8 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'body': ((_) => const BodyScreen(), _noSetup),
   'today layout': ((_) => const TodayLayoutScreen(), _noSetup),
   'body, measured': ((_) => const BodyScreen(), _withBody),
+  'heart and vitals': ((_) => const VitalsScreen(), _withMovement),
+  'heart and vitals, nothing read': ((_) => const VitalsScreen(), _noSetup),
   'body reading entry': ((_) => const BodyReadingEntryScreen(), _noSetup),
   'ai proposal': ((_) => const AiProposalScreen(), _noSetup),
   'export': ((_) => const ExportScreen(), _noSetup),

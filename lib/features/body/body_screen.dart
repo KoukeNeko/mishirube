@@ -7,7 +7,6 @@ import '../../backend/engines/body_metrics.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
-import '../activity/activity_metric_screen.dart';
 import '../journal/body_reading_entry_screen.dart';
 import '../journal/measurement_entry_screen.dart';
 import '../journal/weight_entry_screen.dart';
@@ -19,7 +18,8 @@ import '../../l10n/l10n.dart';
 
 /// What the body is: weight and its trend first, then what follows from
 /// height, what a body composition scale reported and tape measurements.
-/// Each figure opens its own history.
+/// Each figure opens its own history. What a health platform reads of
+/// the heart and the vitals is on their own page.
 ///
 /// A scale's composition figures are estimates, comparable only with the
 /// same scale; they are marked so once, and no change in them is called
@@ -128,7 +128,6 @@ class _BodyScreenState extends State<BodyScreen> {
         ..._weight(model),
         ..._build(model),
         ..._composition(model),
-        ..._vitals(model),
         ..._girths(model),
       ],
     ),
@@ -312,52 +311,6 @@ class _BodyScreenState extends State<BodyScreen> {
       ),
       if (metrics.isNotEmpty)
         Gutter(child: TagWrap(labels: [context.l10n.bodyScaleCompareSame])),
-    ];
-  }
-
-  /// What a health platform recorded of the vitals, each at its last
-  /// reading: blood pressure as the pair it is taken as. Nothing here is
-  /// called high or low, and nothing is logged from here.
-  List<Widget> _vitals(BodyViewModel model) {
-    final latest = model.latestVitals;
-    if (latest.isEmpty) return const [];
-    final l10n = context.l10n;
-    NavRow row(ActivityMetric metric, String title, String value) {
-      final (day, _) = latest[metric]!;
-      return NavRow(
-        title: title,
-        subtitle: context.dates.monthDay(day),
-        trailing: Text(value, style: AppTextStyles.itemTitle),
-        onTap: () => pushModalPage<void>(
-          context,
-          ActivityMetricScreen(metric: metric, day: day),
-        ),
-      );
-    }
-
-    String figure(ActivityMetric metric) =>
-        withUnit(metric.format(latest[metric]!.$2), metric.unitIn(l10n));
-    return [
-      Gutter(child: SectionLabel(ActivityMetricGroup.vitals.labelIn(l10n))),
-      Gutter(
-        child: GroupedCard(
-          children: [
-            if (bloodPressureOf(latest) case final pressure?)
-              row(
-                ActivityMetric.bloodPressureSystolic,
-                l10n.vitalBloodPressure,
-                pressure,
-              ),
-            for (final metric in [
-              ActivityMetric.bodyTemperature,
-              ActivityMetric.respiratoryRate,
-              ActivityMetric.oxygenSaturation,
-            ])
-              if (latest.containsKey(metric))
-                row(metric, metric.labelIn(l10n), figure(metric)),
-          ],
-        ),
-      ),
     ];
   }
 

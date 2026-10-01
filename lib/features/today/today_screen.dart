@@ -24,6 +24,7 @@ import '../caffeine/caffeine_screen.dart';
 import '../training/workout_summary_screen.dart';
 import '../water/water_screen.dart';
 import '../trends/insight_detail_screen.dart';
+import '../vitals/vitals_screen.dart';
 import 'active_workout_today.dart';
 import 'today_layout_screen.dart';
 import 'today_view_model.dart';
@@ -201,7 +202,7 @@ class TodayScreen extends StatelessWidget {
       TodaySection.activity => pushPage(context, const DailyActivityScreen()),
       TodaySection.intake => pushPage(context, const DailyNutritionScreen()),
       TodaySection.caffeine => pushPage(context, const CaffeineScreen()),
-      TodaySection.vitals => pushPage(context, const BodyScreen()),
+      TodaySection.vitals => pushPage(context, const VitalsScreen()),
       TodaySection.insights => pushPage(context, const InsightDetailScreen()),
       _ => store.selectTab(HomeTab.log),
     };
@@ -256,19 +257,20 @@ class TodayScreen extends StatelessWidget {
               ),
             ),
         ]),
-      TodaySection.vitals when modules.contains(AppModule.weight) => orEmpty(
+      // Read from the health platform, as activity is.
+      TodaySection.vitals when modules.contains(AppModule.activity) => orEmpty(
         section,
-        AppColors.body,
+        AppColors.heart,
         [
-          // Only a vital taken on purpose earns the card, unless every
+          // Only what [TodayViewModel.earnsCard] allows, unless every
           // section is kept: then whatever was read shows, never "none".
           if (today.vitals case final vitals
               when vitals.isNotEmpty &&
-                  (!onlyWithData || TodayViewModel.isTaken(vitals)))
+                  (!onlyWithData || TodayViewModel.earnsCard(vitals)))
             Gutter(
               child: VitalsCard(
                 vitals: vitals,
-                onTap: () => pushPage(context, const BodyScreen()),
+                onTap: () => pushPage(context, const VitalsScreen()),
               ),
             ),
         ],

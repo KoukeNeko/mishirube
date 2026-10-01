@@ -3246,6 +3246,18 @@ abstract class AppLocalizations {
   /// **'平常 {range}'**
   String usualRangeValue({required String range});
 
+  /// The page of the health platform's heart readings and vitals, apart from the body's own measurements.
+  ///
+  /// In zh, this message translates to:
+  /// **'心臟與生命徵象'**
+  String get vitalsTitle;
+
+  /// Empty state: no heart reading or vital has come in from the health platform.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有心臟與生命徵象資料'**
+  String get noVitalsData;
+
   /// A chart of hourly totals.
   ///
   /// In zh, this message translates to:

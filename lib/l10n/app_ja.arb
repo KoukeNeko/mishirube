@@ -523,6 +523,8 @@
   "refUseMaxHeartRateError": "年齢から推定した最大心拍数は個人で約11拍/分ずれるため、1日のグラフにはゾーンを描かない",
   "refUseHeartRateReserve": "心拍予備量は酸素摂取予備量に対応し、ゾーンはそれで決める",
   "usualRangeValue": "普段 {range}",
+  "vitalsTitle": "心臓とバイタル",
+  "noVitalsData": "心臓とバイタルのデータなし",
   "perHour": "1時間ごと",
   "hourSpan": "{start}〜{end}時",
   "hourOfDay": "{hour}時",

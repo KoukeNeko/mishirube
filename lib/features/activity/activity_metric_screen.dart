@@ -86,6 +86,13 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
 
   ActivityMetric get _metric => widget.metric;
 
+  /// The heart and the vitals are drawn in their own colour, as Apple
+  /// Health draws them; what the body did, in the activity colour.
+  Color get _color => switch (_metric.group) {
+    ActivityMetricGroup.heart || ActivityMetricGroup.vitals => AppColors.heart,
+    _ => AppColors.activity,
+  };
+
   /// Blood pressure is read as the pair it is taken as: opened from its
   /// systolic figure, the page shows the diastolic beside it.
   bool get _isBloodPressure => _metric == ActivityMetric.bloodPressureSystolic;
@@ -184,7 +191,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
             selected: _range,
             labelOf: (range) => range.labelIn(context.l10n),
             onChanged: (range) => setState(() => _range = range),
-            selectedColor: AppColors.activity,
+            selectedColor: _color,
           ),
         ),
         if (_hasDaySeries && _range == _Range.day)
@@ -324,7 +331,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
         (_range == _Range.week || _range == _Range.month)) {
       if (usualRangeTrend(
             context,
-            color: AppColors.activity,
+            color: _color,
             points: _model.daily(
               _metric,
               _range.days + usualRangeWindow.inDays,
@@ -353,7 +360,7 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
           children: [
             Sparkline(
               values: [for (final (_, value) in points) value],
-              color: AppColors.activity,
+              color: _color,
               height: 80,
               selected: selected,
               normal: switch (usual) {
@@ -363,9 +370,10 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
             ),
             if (_isBloodPressure) ...[
               const SizedBox(height: AppSpacing.xs),
+              // 0.7 keeps the paler line at 3:1 against the card.
               Sparkline(
                 values: [for (final (start, _) in points) lowerAt[start]],
-                color: AppColors.activity.withValues(alpha: 0.5),
+                color: _color.withValues(alpha: 0.7),
                 height: 48,
                 selected: selected,
               ),
@@ -401,8 +409,8 @@ class _ActivityMetricScreenState extends State<ActivityMetricScreen> {
         ],
         height: 80,
         showLabels: _range == _Range.week,
-        color: AppColors.activity,
-        dimColor: AppColors.activity.withValues(alpha: 0.4),
+        color: _color,
+        dimColor: _color.withValues(alpha: 0.4),
         selected: selected,
         goal: _stepGoal == null ? null : _stepGoal! * 10,
         met: {

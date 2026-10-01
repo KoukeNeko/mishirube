@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/activity/activity_metric_screen.dart';
@@ -9,6 +10,7 @@ import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/features/vitals/vitals_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
@@ -74,6 +76,40 @@ void main() {
       (today) => [
         at(ActivityMetric.steps, today, 9, 5000),
         ActivitySample(
+          metric: ActivityMetric.walkingSpeed,
+          start: DateTime(today.year, today.month, today.day - 3),
+          end: DateTime(today.year, today.month, today.day - 2),
+          value: 1.3,
+        ),
+      ],
+    );
+    await pumpScreen(tester, const DailyActivityScreen(), store: store);
+
+    expect(find.text('步數'), findsWidgets);
+    expect(find.text('步行速度'), findsOneWidget);
+    expect(find.text('爬樓'), findsNothing, reason: 'no source records it');
+    expect(
+      find.text('沒有紀錄'),
+      findsOneWidget,
+      reason: 'walking speed has no reading today, and says so instead of 0',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the heart has its own page, at its last reading', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWith(
+      (today) => [
+        at(ActivityMetric.steps, today, 9, 5000),
+        ActivitySample(
+          metric: ActivityMetric.restingHeartRate,
+          start: DateTime(today.year, today.month, today.day),
+          end: DateTime(today.year, today.month, today.day + 1),
+          value: 58,
+        ),
+        ActivitySample(
           metric: ActivityMetric.vo2Max,
           start: DateTime(today.year, today.month, today.day - 3),
           end: DateTime(today.year, today.month, today.day - 2),
@@ -82,15 +118,18 @@ void main() {
       ],
     );
     await pumpScreen(tester, const DailyActivityScreen(), store: store);
+    expect(find.text('心臟與心肺'), findsNothing, reason: 'not what it did');
+    expect(find.text('靜止心率'), findsNothing);
+    await disposeTree(tester);
 
-    expect(find.text('步數'), findsWidgets);
-    expect(find.text('最大攝氧量'), findsOneWidget);
-    expect(find.text('爬樓'), findsNothing, reason: 'no source records it');
-    expect(
-      find.text('沒有紀錄'),
-      findsOneWidget,
-      reason: 'VO₂ max has no reading today, and says so instead of 0',
-    );
+    await pumpScreen(tester, const BodyScreen(), store: store);
+    expect(find.text('心臟與心肺', skipOffstage: false), findsNothing);
+    await disposeTree(tester);
+
+    await pumpScreen(tester, const VitalsScreen(), store: store);
+    expect(find.text('心臟與心肺'), findsOneWidget);
+    expect(find.text('58 次/分'), findsOneWidget);
+    expect(find.text('44.1 mL/kg/min'), findsOneWidget, reason: 'its last');
     await disposeTree(tester);
   });
 
@@ -102,7 +141,7 @@ void main() {
         value: value,
       );
 
-  testWidgets('vitals are on the body page, blood pressure as a pair', (
+  testWidgets('vitals are beside the heart, blood pressure as a pair', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -118,21 +157,16 @@ void main() {
     expect(find.text('生命徵象'), findsNothing, reason: 'not what it did');
     await disposeTree(tester);
 
-    await pumpScreen(tester, const BodyScreen(), store: store);
-    await tester.scrollUntilVisible(
-      find.text('118/76 mmHg'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await pumpScreen(tester, const VitalsScreen(), store: store);
+    expect(find.text('118/76 mmHg'), findsOneWidget);
     expect(find.text('生命徵象'), findsOneWidget);
     expect(find.text('收縮壓'), findsNothing, reason: 'one reading, one row');
     expect(find.text('97%'), findsOneWidget, reason: 'a fraction as %');
     await disposeTree(tester);
   });
 
-  testWidgets('a vital taken today shows on Today, a watch\'s alone not', (
-    tester,
-  ) async {
+  testWidgets('a vital taken today or a resting heart rate shows on Today, '
+      'a watch\'s oxygen alone not', (tester) async {
     usePhoneViewport(tester);
     var store = storeWith(
       (today) => [daily(ActivityMetric.oxygenSaturation, today, 0.97)],
@@ -168,6 +202,23 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('118/76 mmHg'), findsOneWidget);
+    await disposeTree(tester);
+
+    // A watch's resting heart rate is the day's one figure, as steps are.
+    store = storeWith(
+      (today) => [daily(ActivityMetric.restingHeartRate, today, 58)],
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.byType(VitalsCard),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('心臟與生命徵象'), findsOneWidget);
+    expect(find.text('58 次/分'), findsOneWidget);
+    await tester.tap(find.byType(VitalsCard));
+    await tester.pumpAndSettle();
+    expect(find.byType(VitalsScreen), findsOneWidget);
     await disposeTree(tester);
   });
 
@@ -246,6 +297,11 @@ void main() {
     await tester.pump();
 
     expect(find.text('平常範圍'), findsWidgets);
+    expect(
+      tester.widget<Sparkline>(find.byType(Sparkline)).color,
+      AppColors.heart,
+      reason: 'a vital is drawn in the colour Apple Health gives vitals',
+    );
     final bands = tester.widget<Sparkline>(find.byType(Sparkline)).bands!;
     expect(
       bands.last,

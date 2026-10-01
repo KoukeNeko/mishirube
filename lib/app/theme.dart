@@ -45,9 +45,10 @@ abstract final class AppColors {
   static const activitySurface = Color(0xFF0E2427);
   static const activityOutline = Color(0xFF1B4448);
 
-  /// Heart rate, wherever it is drawn: the red people read as a pulse,
-  /// kept apart from [destructive] so a chart never reads as a warning.
-  static const heart = Color(0xFFFF5A67);
+  /// The heart and the vitals, wherever they are drawn: the pink Apple
+  /// Health gives both, kept apart from [destructive] (ΔE2000 16) so a
+  /// chart never reads as a warning (see `research/86-color-allocation.md`).
+  static const heart = Color(0xFFFF5F83);
 
   /// Losing data for good. Amber is a caution; this is the one that says
   /// something will not come back.

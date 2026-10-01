@@ -1745,6 +1745,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get vitalsTitle => 'Heart & vitals';
+
+  @override
+  String get noVitalsData => 'No heart or vitals data';
+
+  @override
   String get perHour => 'Per hour';
 
   @override

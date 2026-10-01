@@ -97,9 +97,11 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
               hours: _model.hourly(lead) ?? List.filled(24, 0),
             ),
           ),
-        // Vitals describe the body, not what it did: they are on its page.
+        // The heart and the vitals describe the body, not what it did:
+        // they have their own page.
         for (final group in ActivityMetricGroup.values)
-          if (group != ActivityMetricGroup.vitals)
+          if (group != ActivityMetricGroup.heart &&
+              group != ActivityMetricGroup.vitals)
             if (metrics.where((metric) => metric.group == group).toList()
                 case final inGroup when inGroup.isNotEmpty)
               PageSection(

@@ -576,9 +576,10 @@ class TodayActivityCard extends StatelessWidget {
   }
 }
 
-/// Today's vitals as recorded: blood pressure as its pair, the others
-/// each at the day's figure, at most three and a count of the rest.
-/// Nothing is called normal, high or low, and no colour says so.
+/// Today's resting heart rate and vitals as recorded: blood pressure as
+/// its pair, the others each at the day's figure, at most three and a
+/// count of the rest. Nothing is called normal, high or low, and no
+/// colour says so.
 class VitalsCard extends StatelessWidget {
   const VitalsCard({super.key, required this.vitals, required this.onTap});
 
@@ -594,6 +595,11 @@ class VitalsCard extends StatelessWidget {
         withUnit(metric.format(vitals[metric]!), metric.unitIn(l10n));
     final day = DateTime(0);
     final rows = <(String, String)>[
+      if (vitals.containsKey(ActivityMetric.restingHeartRate))
+        (
+          ActivityMetric.restingHeartRate.labelIn(l10n),
+          figure(ActivityMetric.restingHeartRate),
+        ),
       if (bloodPressureOf({
             for (final MapEntry(key: metric, value: value) in vitals.entries)
               metric: (day, value),
@@ -612,10 +618,7 @@ class VitalsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CategoryLabel(
-            label: ActivityMetricGroup.vitals.labelIn(l10n),
-            color: AppColors.body,
-          ),
+          CategoryLabel(label: l10n.vitalsTitle, color: AppColors.heart),
           for (final (label, value) in rows.take(_shown)) ...[
             const SizedBox(height: AppSpacing.xs),
             Row(

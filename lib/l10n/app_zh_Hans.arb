@@ -523,6 +523,8 @@
   "refUseMaxHeartRateError": "依年龄估计的最大心率，个人误差约 11 次/分，所以全天心率图不画区间",
   "refUseHeartRateReserve": "储备心率对应储备摄氧量，区间依此计算",
   "usualRangeValue": "平常 {range}",
+  "vitalsTitle": "心脏与生命体征",
+  "noVitalsData": "没有心脏与生命体征数据",
   "perHour": "每小时",
   "hourSpan": "{start}–{end} 时",
   "hourOfDay": "{hour} 时",
