@@ -57,6 +57,8 @@ void main() {
   ) async {
     await tester.pumpWidget(chart(reduceMotion: false));
     expect(heights(tester), everyElement(0), reason: 'drawn in from nothing');
+    await tester.pump(chartEntranceDwell);
+    expect(heights(tester), everyElement(0), reason: 'a moment in view first');
 
     await tester.pump(chartEntranceDuration * 0.3);
     final [first, second] = heights(tester);
