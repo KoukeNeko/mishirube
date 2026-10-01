@@ -538,38 +538,34 @@ class _Weekdays extends StatelessWidget {
     // Weight moves little day to day; its bars start from the lightest
     // day so the differences show.
     final floor = domain == TrendDomain.body ? lowest.$2 * 0.99 : 0.0;
+    String dayValue(int index, double? value) =>
+        '${context.dates.weekdayNumberName(index + 1)} '
+        '${value == null ? context.l10n.noEntriesShort : _valueOf(context.l10n, domain, value)}';
+    // Reading a day says its figure; at rest the highest and lowest.
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MiniBarChart(
-            bars: [
-              for (final (index, value) in values.indexed)
-                (
-                  context.dates.weekdayNumber(index + 1),
-                  value == null ? null : ((value - floor) * 100).round(),
-                ),
-            ],
-            height: 80,
-            color: color,
-            dimColor: color.withValues(alpha: 0.4),
-            selected: highest.$1,
-            // Weekdays, not periods: none of them is still going.
-            highlightsLast: false,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            context.l10n.highestLowest(
-              high:
-                  '${context.dates.weekdayNumberName(highest.$1 + 1)} '
-                  '${_valueOf(context.l10n, domain, highest.$2)}',
-              low:
-                  '${context.dates.weekdayNumberName(lowest.$1 + 1)} '
-                  '${_valueOf(context.l10n, domain, lowest.$2)}',
-            ),
-            style: AppTextStyles.caption,
-          ),
-        ],
+      child: ChartScrubber(
+        count: values.length,
+        indexAt: ChartScrubber.slots(values.length),
+        idle: context.l10n.highestLowest(
+          high: dayValue(highest.$1, highest.$2),
+          low: dayValue(lowest.$1, lowest.$2),
+        ),
+        readoutOf: (index) => dayValue(index, values[index]),
+        builder: (context, selected) => MiniBarChart(
+          bars: [
+            for (final (index, value) in values.indexed)
+              (
+                context.dates.weekdayNumber(index + 1),
+                value == null ? null : ((value - floor) * 100).round(),
+              ),
+          ],
+          height: 80,
+          color: color,
+          dimColor: color.withValues(alpha: 0.4),
+          selected: selected ?? highest.$1,
+          // Weekdays, not periods: none of them is still going.
+          highlightsLast: false,
+        ),
       ),
     );
   }

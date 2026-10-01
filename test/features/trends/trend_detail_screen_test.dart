@@ -164,6 +164,33 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a weekday reads out when touched', (tester) async {
+    usePhoneViewport(tester);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: sleeper([6, 7, 8, 9, 7, 7, 8]),
+    );
+
+    final chart = find.byWidgetPredicate(
+      (widget) => widget is MiniBarChart && widget.bars.first.$1 == '一',
+    );
+    await tester.scrollUntilVisible(
+      chart,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await Scrollable.ensureVisible(tester.element(chart), alignment: 0.5);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('最高'), findsOneWidget);
+
+    await tester.tapAt(tester.getRect(chart).centerLeft + const Offset(4, 0));
+    await tester.pump();
+    expect(find.textContaining('星期一 '), findsOneWidget);
+    expect(find.textContaining('最高'), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('a few nights are figures, not yet a spread', (tester) async {
     usePhoneViewport(tester);
     final store = sleeper([7, 8]);
