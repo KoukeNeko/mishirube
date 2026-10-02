@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
@@ -40,6 +41,27 @@ class ActiveWorkoutScreen extends StatefulWidget {
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   /// One per exercise card, for bringing the one being done into view.
   final _cardKeys = <GlobalKey>[];
+
+  /// Whether the rest is tucked into one line, as the tab bar is while
+  /// the page scrolls down.
+  bool _isRestCompact = false;
+
+  /// Scrolling down tucks the rest away; scrolling up or reaching the
+  /// top brings it back, as the home screen's chrome does.
+  bool _onScroll(UserScrollNotification notification) {
+    final metrics = notification.metrics;
+    if (metrics.axis != Axis.vertical) return false;
+    final isCompact = switch (notification.direction) {
+      ScrollDirection.reverse => true,
+      ScrollDirection.forward => false,
+      ScrollDirection.idle =>
+        metrics.pixels <= metrics.minScrollExtent ? false : _isRestCompact,
+    };
+    if (isCompact != _isRestCompact) {
+      setState(() => _isRestCompact = isCompact);
+    }
+    return false;
+  }
 
   @override
   void initState() {
@@ -136,87 +158,90 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       child: EdgeToEdgeScaffold(
         // Measured below the Scaffold so text uses Material's line height.
         body: Builder(
-          builder: (context) => CollapsingScrollView(
-            header: CollapsingHeaderDelegate(
-              toolbar: ToolbarMetrics.of(context),
-              topInset: media.padding.top,
-              largeHeight: _WorkoutHero.measureHeight(
-                context,
-                extraLines:
-                    _heroTotals(context.l10n, workout, review).others.isEmpty
-                    ? 0
-                    : 1,
-              ),
-              isHighContrast: media.highContrast,
-              reduceMotion: prefersReducedMotion(context),
-              leading: const AppBarBackButton(),
-              actions: [
-                // Ready, the workout is only arranged: it can be dropped,
-                // and there is nothing to pause or end yet.
-                if (workout.isReady)
-                  HeaderAction(
-                    icon: Icons.close_rounded,
-                    label: context.l10n.cancelSchedule,
-                    semanticLabel: context.l10n.cancelWorkoutAction,
-                    onTap: () => _cancelSchedule(context),
-                  )
-                else ...[
-                  HeaderAction(
-                    icon: workout.isPaused
-                        ? Icons.play_arrow_rounded
-                        : Icons.pause_rounded,
-                    label: workout.isPaused
-                        ? context.l10n.commonResume
-                        : context.l10n.commonPause,
-                    semanticLabel: workout.isPaused
-                        ? context.l10n.sessionResume(
-                            session: workout.routineName,
-                          )
-                        : context.l10n.sessionPause(
-                            session: workout.routineName,
-                          ),
-                    onTap: store.togglePause,
-                  ),
-                  HeaderAction(
-                    icon: Icons.stop_rounded,
-                    label: context.l10n.commonEnd,
-                    semanticLabel: context.l10n.endWorkout,
-                    onTap: () => _end(context, workout),
-                  ),
+          builder: (context) => NotificationListener<UserScrollNotification>(
+            onNotification: _onScroll,
+            child: CollapsingScrollView(
+              header: CollapsingHeaderDelegate(
+                toolbar: ToolbarMetrics.of(context),
+                topInset: media.padding.top,
+                largeHeight: _WorkoutHero.measureHeight(
+                  context,
+                  extraLines:
+                      _heroTotals(context.l10n, workout, review).others.isEmpty
+                      ? 0
+                      : 1,
+                ),
+                isHighContrast: media.highContrast,
+                reduceMotion: prefersReducedMotion(context),
+                leading: const AppBarBackButton(),
+                actions: [
+                  // Ready, the workout is only arranged: it can be dropped,
+                  // and there is nothing to pause or end yet.
+                  if (workout.isReady)
+                    HeaderAction(
+                      icon: Icons.close_rounded,
+                      label: context.l10n.cancelSchedule,
+                      semanticLabel: context.l10n.cancelWorkoutAction,
+                      onTap: () => _cancelSchedule(context),
+                    )
+                  else ...[
+                    HeaderAction(
+                      icon: workout.isPaused
+                          ? Icons.play_arrow_rounded
+                          : Icons.pause_rounded,
+                      label: workout.isPaused
+                          ? context.l10n.commonResume
+                          : context.l10n.commonPause,
+                      semanticLabel: workout.isPaused
+                          ? context.l10n.sessionResume(
+                              session: workout.routineName,
+                            )
+                          : context.l10n.sessionPause(
+                              session: workout.routineName,
+                            ),
+                      onTap: store.togglePause,
+                    ),
+                    HeaderAction(
+                      icon: Icons.stop_rounded,
+                      label: context.l10n.commonEnd,
+                      semanticLabel: context.l10n.endWorkout,
+                      onTap: () => _end(context, workout),
+                    ),
+                  ],
                 ],
-              ],
-              compactTitle: _LiveTitle(workout: workout),
-              large: _WorkoutHero(workout: workout, review: review),
-            ),
-            children: [
-              for (final (index, exercise) in workout.exercises.indexed)
+                compactTitle: _LiveTitle(workout: workout),
+                large: _WorkoutHero(workout: workout, review: review),
+              ),
+              children: [
+                for (final (index, exercise) in workout.exercises.indexed)
+                  Gutter(
+                    key: _cardKeys[index],
+                    child: _ExerciseCard(
+                      index: index,
+                      exercise: exercise,
+                      isCurrent: index == workout.currentExerciseIndex,
+                      isInSuperset: workout.supersetOf(index).length > 1,
+                      canRemove: workout.exercises.length > 1,
+                    ),
+                  ),
                 Gutter(
-                  key: _cardKeys[index],
-                  child: _ExerciseCard(
-                    index: index,
-                    exercise: exercise,
-                    isCurrent: index == workout.currentExerciseIndex,
-                    isInSuperset: workout.supersetOf(index).length > 1,
-                    canRemove: workout.exercises.length > 1,
+                  child: DashedActionCard(
+                    label: context.l10n.addExercise,
+                    onTap: () => _addExercises(context),
                   ),
                 ),
-              Gutter(
-                child: DashedActionCard(
-                  label: context.l10n.addExercise,
-                  onTap: () => _addExercises(context),
+                Gutter(
+                  child: NavCard(
+                    title: context.l10n.notesSection,
+                    subtitle: switch (workout.notes) {
+                      final notes? when notes.isNotEmpty => notes,
+                      _ => context.l10n.notFilled,
+                    },
+                    onTap: () => _editNotes(context),
+                  ),
                 ),
-              ),
-              Gutter(
-                child: NavCard(
-                  title: context.l10n.notesSection,
-                  subtitle: switch (workout.notes) {
-                    final notes? when notes.isNotEmpty => notes,
-                    _ => context.l10n.notFilled,
-                  },
-                  onTap: () => _editNotes(context),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         // Ready, the page is for looking the plan over: the time starts
@@ -232,7 +257,11 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   mainAxisSize: MainAxisSize.min,
                   spacing: AppSpacing.sm,
                   children: [
-                    if (store.restEndsAt != null) const _RestTimer(),
+                    if (store.restEndsAt != null)
+                      _RestTimer(
+                        isCompact: _isRestCompact,
+                        onExpand: () => setState(() => _isRestCompact = false),
+                      ),
                     Row(
                       spacing: AppSpacing.sm,
                       children: [
@@ -453,8 +482,14 @@ const _restAdjustments = [-15, 15, 30];
 
 /// The rest after a set, over the foot while it runs: what is left of
 /// it, as a figure and a bar, and more time or an end to it at a tap.
+/// [isCompact] tucks it into one line, the time, the bar and the skip,
+/// as the tab bar shrinks while the page scrolls down; a tap on it opens
+/// it out again ([onExpand]).
 class _RestTimer extends StatefulWidget {
-  const _RestTimer();
+  const _RestTimer({required this.isCompact, required this.onExpand});
+
+  final bool isCompact;
+  final VoidCallback onExpand;
 
   @override
   State<_RestTimer> createState() => _RestTimerState();
@@ -492,94 +527,139 @@ class _RestTimerState extends State<_RestTimer> {
     final remaining = left.isNegative ? Duration.zero : left;
     final length = store.restLength.inMilliseconds;
     final restExercise = store.restExercise;
-    // Glass like the dock's: it floats over the page as the dock does.
+    final progress = length == 0 ? 0.0 : remaining.inMilliseconds / length;
+    final clock = formatClock(remaining);
+    final skip = ChipButton(
+      label: context.l10n.skipRest,
+      tone: TagTone.training,
+      onTap: store.skipRest,
+    );
+    final compact = Semantics(
+      button: true,
+      label: context.l10n.restTitle,
+      onTap: widget.onExpand,
+      child: InkWell(
+        onTap: widget.onExpand,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.xs,
+          ),
+          child: Row(
+            children: [
+              Text(context.l10n.restTitle, style: AppTextStyles.caption),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                clock,
+                style: AppTextStyles.itemTitle.copyWith(
+                  color: AppColors.training,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(child: ProgressLine(progress: progress, height: 4)),
+              const SizedBox(width: AppSpacing.sm),
+              skip,
+            ],
+          ),
+        ),
+      ),
+    );
+    final duration = chromeDuration(context, const Duration(milliseconds: 250));
+    // Glass like the dock's: it floats over the page as the dock does,
+    // and shrinks as the dock does.
     return ChromeSurface(
       refracts: true,
       radius: AppRadius.card,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Semantics(
-                  button: true,
-                  label: context.l10n.restTimeTitle,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: restExercise == null
-                          ? null
-                          : () => showRestTimeDialog(
-                              context,
-                              exercise: restExercise,
-                            ),
-                      borderRadius: BorderRadius.circular(AppRadius.small),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.xxs),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.l10n.restTitle,
-                              style: AppTextStyles.caption,
-                            ),
-                            Text(
-                              formatClock(remaining),
-                              style: AppTextStyles.bigNumber.copyWith(
-                                color: AppColors.training,
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures(),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                // Wraps under the figure rather than overflow at large text.
-                Expanded(
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    children: [
-                      ChipButton(
-                        label: context.l10n.skipRest,
-                        tone: TagTone.training,
-                        onTap: store.skipRest,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: [
-                for (final seconds in _restAdjustments)
-                  ChipButton(
-                    label: changeLabel(
-                      seconds,
-                      (size) => context.l10n.durationSeconds(seconds: size),
-                    ),
-                    onTap: () => store.extendRest(Duration(seconds: seconds)),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            ProgressLine(
-              progress: length == 0 ? 0 : remaining.inMilliseconds / length,
-            ),
-          ],
+      child: AnimatedSize(
+        duration: duration,
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.bottomCenter,
+        child: AnimatedSwitcher(
+          duration: duration,
+          child: widget.isCompact
+              ? compact
+              : _full(context, store, clock, progress, restExercise, skip),
         ),
       ),
     );
   }
+
+  Widget _full(
+    BuildContext context,
+    AppStore store,
+    String clock,
+    double progress,
+    ExerciseDefinition? restExercise,
+    Widget skip,
+  ) => Padding(
+    padding: const EdgeInsets.all(AppSpacing.md),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Semantics(
+              button: true,
+              label: context.l10n.restTimeTitle,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: restExercise == null
+                      ? null
+                      : () =>
+                            showRestTimeDialog(context, exercise: restExercise),
+                  borderRadius: BorderRadius.circular(AppRadius.small),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xxs),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.restTitle,
+                          style: AppTextStyles.caption,
+                        ),
+                        Text(
+                          clock,
+                          style: AppTextStyles.bigNumber.copyWith(
+                            color: AppColors.training,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            // Wraps under the figure rather than overflow at large text.
+            Expanded(
+              child: Wrap(alignment: WrapAlignment.end, children: [skip]),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: [
+            for (final seconds in _restAdjustments)
+              ChipButton(
+                label: changeLabel(
+                  seconds,
+                  (size) => context.l10n.durationSeconds(seconds: size),
+                ),
+                onTap: () => store.extendRest(Duration(seconds: seconds)),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ProgressLine(progress: progress),
+      ],
+    ),
+  );
 }
 
 /// The workout's time so far, beside 完成訓練; held still, in the warning
@@ -949,7 +1029,10 @@ class _ExerciseCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (_hasTimer(type)) const SizedBox(width: _timerColumn),
+              if (_hasTimer(type)) ...[
+                const SizedBox(width: AppSpacing.xs),
+                const SizedBox(width: _timerColumn),
+              ],
               const SizedBox(width: AppSpacing.xs),
               SizedBox(
                 width: _doneColumn,
@@ -987,6 +1070,8 @@ class _ExerciseCard extends StatelessWidget {
                     _commit(context, setIndex, meters: meters),
                 onStartTimer: () => _startTimer(context, setIndex),
                 onToggleTimer: store.toggleSetTimerPause,
+                // A set timed to its planned length is done then.
+                onTimeUp: () => _toggle(context, setIndex),
                 onToggle: () => _toggle(context, setIndex),
                 onEdit: () => _edit(context, setIndex, reference),
               ),
@@ -1046,6 +1131,7 @@ class _SetRow extends StatelessWidget {
     required this.onMeters,
     required this.onStartTimer,
     required this.onToggleTimer,
+    required this.onTimeUp,
     required this.onToggle,
     required this.onEdit,
   });
@@ -1077,10 +1163,14 @@ class _SetRow extends StatelessWidget {
   final ValueChanged<double> onMeters;
   final VoidCallback onStartTimer;
   final VoidCallback onToggleTimer;
+
+  /// The timer has counted the set's planned time down to nothing.
+  final VoidCallback onTimeUp;
   final VoidCallback onToggle;
 
   /// One of the set's figures, typed in place or, for a time, set in its
-  /// dialog; a set being timed shows the time counting up instead.
+  /// dialog; a set being timed shows its time counting down instead,
+  /// and cannot be changed until it ends.
   Widget _fieldFor(BuildContext context, _Field field, String name) {
     final l10n = context.l10n;
     switch (field) {
@@ -1111,7 +1201,7 @@ class _SetRow extends StatelessWidget {
           return InlineValueButton(
             label: l10n.setTime(set: name),
             onTap: onToggleTimer,
-            child: _TimingClock(timer: timer),
+            child: _TimingClock(timer: timer, onTimeUp: onTimeUp),
           );
         }
         return DurationField(
@@ -1137,6 +1227,8 @@ class _SetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = setName(context.l10n, set, ordinal);
     final percent = relativeLoadPercent(set.weightKg, reference);
+    // A set under way keeps what it was started with.
+    final edit = timer == null ? onEdit : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1151,14 +1243,14 @@ class _SetRow extends StatelessWidget {
                   button: true,
                   label: context.l10n.editItem(item: name),
                   // Excluding the child's semantics drops its tap too.
-                  onTap: onEdit,
+                  onTap: edit,
                   excludeSemantics: true,
                   child: Material(
                     color: AppColors.surfaceRaised,
                     borderRadius: BorderRadius.circular(AppRadius.button),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(AppRadius.button),
-                      onTap: onEdit,
+                      onTap: edit,
                       child: SizedBox.square(
                         dimension: _setButtonSize,
                         // Scaled down as one, so large text shrinks the
@@ -1197,7 +1289,8 @@ class _SetRow extends StatelessWidget {
                   child: _fieldFor(context, field, name),
                 ),
               ),
-            if (hasTimer)
+            if (hasTimer) ...[
+              const SizedBox(width: AppSpacing.xs),
               SizedBox(
                 width: _ExerciseCard._timerColumn,
                 child: set.isDone
@@ -1215,6 +1308,7 @@ class _SetRow extends StatelessWidget {
                         onPressed: timer == null ? onStartTimer : onToggleTimer,
                       ),
               ),
+            ],
             const SizedBox(width: AppSpacing.xs),
             SizedBox(
               width: doneColumn,
@@ -1274,22 +1368,27 @@ List<_Field> _fieldsOf(TrackingType type) => switch (type) {
   TrackingType.distance => const [_Field.distance, _Field.time],
 };
 
-/// The time a set being timed has counted, ticking; the vibration when it
-/// reaches what was planned comes from here, and the timer runs on.
+/// The time left of a set being timed, ticking down, with a bar of how
+/// much has gone; a set with no planned time counts up instead. Reaching
+/// the planned time vibrates once and calls [onTimeUp].
 class _TimingClock extends StatefulWidget {
-  const _TimingClock({required this.timer});
+  const _TimingClock({required this.timer, required this.onTimeUp});
 
   final SetTimer timer;
+  final VoidCallback onTimeUp;
 
   @override
   State<_TimingClock> createState() => _TimingClockState();
 }
 
 class _TimingClockState extends State<_TimingClock> {
-  late final Timer _tick = Timer.periodic(
-    const Duration(seconds: 1),
-    (_) => _onTick(),
-  );
+  late final Timer _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
+  }
 
   @override
   void dispose() {
@@ -1298,17 +1397,44 @@ class _TimingClockState extends State<_TimingClock> {
   }
 
   void _onTick() {
-    if (AppStoreScope.read(context).settleSetTimer()) AppHaptics.alert();
-    setState(() {});
+    if (AppStoreScope.read(context).settleSetTimer()) {
+      AppHaptics.alert();
+      widget.onTimeUp();
+    }
+    if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final elapsed = widget.timer.elapsedAt(AppStoreScope.read(context).now());
-    return Text(
-      formatClock(elapsed),
-      style: TextStyle(
-        color: widget.timer.isPaused ? AppColors.warning : AppColors.training,
+    final planned = widget.timer.set.durationSeconds ?? 0;
+    final color = widget.timer.isPaused
+        ? AppColors.warning
+        : AppColors.training;
+    final clock = Text(
+      formatClock(
+        planned > 0
+            ? Duration(seconds: planned) - elapsed < Duration.zero
+                  ? Duration.zero
+                  : Duration(seconds: planned) - elapsed
+            : elapsed,
+      ),
+      style: TextStyle(color: color),
+    );
+    if (planned <= 0) return clock;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          clock,
+          const SizedBox(height: AppSpacing.xxs),
+          ProgressLine(
+            progress: elapsed.inMilliseconds / (planned * 1000),
+            color: color,
+            height: 3,
+          ),
+        ],
       ),
     );
   }

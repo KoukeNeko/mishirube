@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'
     show CustomScrollView, Scaffold, StatefulBuilder;
+import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/engines/set_schemes.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -330,6 +331,36 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a rest tucks into one line as the page scrolls down', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final semantics = tester.ensureSemantics();
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+      await tester.pump();
+      expect(find.text('+15 秒'), findsOneWidget);
+
+      final page = find.byType(CustomScrollView).first;
+      await tester.drag(page, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      expect(find.text('+15 秒'), findsNothing, reason: 'tucked away');
+      expect(find.text('跳過休息'), findsOneWidget, reason: 'still a tap away');
+
+      await tester.drag(page, const Offset(0, 100));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('+15 秒'),
+        findsOneWidget,
+        reason: 'back on scrolling up',
+      );
+      semantics.dispose();
+      await disposeTree(tester);
+    });
+
     testWidgets('a rest is cut or lengthened at the foot, never below 0', (
       tester,
     ) async {
@@ -451,9 +482,8 @@ void main() {
       await disposeTree(tester);
     });
 
-    testWidgets('is timed from its button, and logs the time counted', (
-      tester,
-    ) async {
+    testWidgets('counts its time down from its button, locked as it runs, '
+        'and logs the time held when ended early', (tester) async {
       usePhoneViewport(tester);
       final semantics = tester.ensureSemantics();
       final clock = FakeClock();
@@ -466,23 +496,59 @@ void main() {
       await tester.tap(find.byTooltip('開始計時').first);
       await tester.pump();
       expect(store.setTimer, isNotNull);
-      clock.advance(const Duration(seconds: 45));
+      clock.advance(const Duration(seconds: 10));
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('0:45'), findsWidgets, reason: 'counting');
+      expect(
+        find.text('0:20'),
+        findsOneWidget,
+        reason: '30 s planned, 10 gone',
+      );
+      final bar = tester.widget<ProgressLine>(find.byType(ProgressLine));
+      expect(bar.progress, closeTo(1 / 3, 0.01));
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel(RegExp('^編輯第 1 組')))
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        isFalse,
+        reason: 'a set under way keeps what it was started with',
+      );
 
       // Leaving and coming back keeps the timer: it is not the page's.
       await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
       expect(store.setTimer, isNotNull);
 
+      clock.advance(const Duration(seconds: 5));
       await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
       await tester.pump();
       final set = store.activeWorkout!.exercises.first.sets.first;
       expect(set.isDone, isTrue);
-      expect(set.durationSeconds, 45);
+      expect(set.durationSeconds, 15);
       expect(store.setTimer, isNull);
       expect(store.restEndsAt, isNotNull, reason: 'the rest starts');
-      expect(find.text('總時間 0:45'), findsOneWidget);
+      expect(find.text('總時間 0:15'), findsOneWidget);
       semantics.dispose();
+      await disposeTree(tester);
+    });
+
+    testWidgets('is done by itself once its time runs out', (tester) async {
+      usePhoneViewport(tester);
+      final clock = FakeClock();
+      final store = newStore(clock);
+      store
+        ..startFreeWorkout([plank(store)])
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+      await tester.tap(find.byTooltip('開始計時').first);
+      await tester.pump();
+      clock.advance(const Duration(seconds: 30));
+      await tester.pump(const Duration(seconds: 1));
+      final set = store.activeWorkout!.exercises.first.sets.first;
+      expect(set.isDone, isTrue);
+      expect(set.durationSeconds, 30);
+      expect(store.setTimer, isNull);
+      expect(store.restEndsAt, isNotNull, reason: 'the rest starts');
       await disposeTree(tester);
     });
 
