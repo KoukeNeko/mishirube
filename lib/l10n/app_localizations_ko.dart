@@ -1737,6 +1737,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noVitalsData => '심장 및 바이탈 데이터 없음';
 
   @override
+  String get vitalsOnToday => '오늘에 표시';
+
+  @override
   String get perHour => '시간별';
 
   @override

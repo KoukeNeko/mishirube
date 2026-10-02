@@ -3258,6 +3258,12 @@ abstract class AppLocalizations {
   /// **'沒有心臟與生命徵象資料'**
   String get noVitalsData;
 
+  /// Section on the heart and vitals page: the readings, up to three, that Today's card holds.
+  ///
+  /// In zh, this message translates to:
+  /// **'今天顯示'**
+  String get vitalsOnToday;
+
   /// A chart of hourly totals.
   ///
   /// In zh, this message translates to:

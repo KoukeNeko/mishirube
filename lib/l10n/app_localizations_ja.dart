@@ -1735,6 +1735,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noVitalsData => '心臓とバイタルのデータなし';
 
   @override
+  String get vitalsOnToday => '今日に表示';
+
+  @override
   String get perHour => '1時間ごと';
 
   @override

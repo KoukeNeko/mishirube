@@ -576,24 +576,31 @@ class TodayActivityCard extends StatelessWidget {
   }
 }
 
-/// Today's resting heart rate and vitals as recorded: blood pressure as
-/// its pair, the others each at the day's figure beside their week, at
-/// most three in a fixed order and a count of the rest. Nothing is
-/// called normal, high or low, and no colour says so; the order never
-/// follows how far a figure is from usual, which would be a judgement.
+/// Resting heart rate and vitals, or the readings pinned to the card,
+/// each beside its week: blood pressure as its pair, a reading from
+/// before [today] with its date, at most three in a fixed order and a
+/// count of the rest. Nothing is called normal, high or low, and no
+/// colour says so; the order never follows how far a figure is from
+/// usual, which would be a judgement.
 class VitalsCard extends StatelessWidget {
   const VitalsCard({
     super.key,
-    required this.vitals,
+    required this.readings,
+    required this.today,
     required this.weekOf,
     required this.onTap,
   });
 
-  final Map<ActivityMetric, double> vitals;
+  /// Each reading's day and figure, in the card's order; blood pressure
+  /// as its systolic and diastolic figures.
+  final Map<ActivityMetric, (DateTime, double)> readings;
 
-  /// A reading's week, drawn small beside its figure; blood pressure's
-  /// is asked for by its systolic figure.
-  final Widget Function(ActivityMetric metric) weekOf;
+  /// Midnight today.
+  final DateTime today;
+
+  /// A reading's week up to [day], drawn small beside its figure; blood
+  /// pressure's is asked for by its systolic figure.
+  final Widget Function(ActivityMetric metric, DateTime day) weekOf;
   final VoidCallback onTap;
 
   static const _shown = 3;
@@ -601,33 +608,25 @@ class VitalsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String figure(ActivityMetric metric) =>
-        withUnit(metric.format(vitals[metric]!), metric.unitIn(l10n));
-    final day = DateTime(0);
-    final rows = <(String, String, ActivityMetric)>[
-      if (vitals.containsKey(ActivityMetric.restingHeartRate))
-        (
-          ActivityMetric.restingHeartRate.labelIn(l10n),
-          figure(ActivityMetric.restingHeartRate),
-          ActivityMetric.restingHeartRate,
-        ),
-      if (bloodPressureOf({
-            for (final MapEntry(key: metric, value: value) in vitals.entries)
-              metric: (day, value),
-          })
-          case final pressure?)
-        (
-          l10n.vitalBloodPressure,
-          pressure,
-          ActivityMetric.bloodPressureSystolic,
-        ),
-      for (final metric in [
-        ActivityMetric.bodyTemperature,
-        ActivityMetric.oxygenSaturation,
-        ActivityMetric.respiratoryRate,
-      ])
-        if (vitals.containsKey(metric))
-          (metric.labelIn(l10n), figure(metric), metric),
+    final rows = <(String, String, ActivityMetric, DateTime)>[
+      for (final MapEntry(key: metric, value: (day, value)) in readings.entries)
+        if (metric == ActivityMetric.bloodPressureSystolic)
+          if (bloodPressureOf(readings) case final pressure?)
+            (l10n.vitalBloodPressure, pressure, metric, day)
+          else
+            (
+              l10n.vitalBloodPressure,
+              withUnit(metric.format(value), metric.unitIn(l10n)),
+              metric,
+              day,
+            )
+        else if (metric != ActivityMetric.bloodPressureDiastolic)
+          (
+            metric.labelIn(l10n),
+            withUnit(metric.format(value), metric.unitIn(l10n)),
+            metric,
+            day,
+          ),
     ];
     return AppCard(
       onTap: onTap,
@@ -635,12 +634,24 @@ class VitalsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CategoryLabel(label: l10n.vitalsTitle, color: AppColors.heart),
-          for (final (label, value, metric) in rows.take(_shown)) ...[
+          for (final (label, value, metric, day) in rows.take(_shown)) ...[
             const SizedBox(height: AppSpacing.xs),
             Row(
               children: [
-                Expanded(child: Text(label, style: AppTextStyles.body)),
-                weekOf(metric),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label, style: AppTextStyles.body),
+                      if (day.isBefore(today))
+                        Text(
+                          context.dates.monthDay(day),
+                          style: AppTextStyles.caption,
+                        ),
+                    ],
+                  ),
+                ),
+                weekOf(metric, day),
                 const SizedBox(width: AppSpacing.sm),
                 Text(value, style: AppTextStyles.itemTitle),
               ],

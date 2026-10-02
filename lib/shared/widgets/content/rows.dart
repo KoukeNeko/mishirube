@@ -218,19 +218,27 @@ class CheckRow extends StatelessWidget {
   /// What the item holds, under its title.
   final String? subtitle;
   final bool isChecked;
-  final ValueChanged<bool> onChanged;
+
+  /// Null while the item cannot be changed, such as a list already
+  /// holding as many as it takes: the row dims.
+  final ValueChanged<bool>? onChanged;
   final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
+    final onChanged = this.onChanged;
     return Semantics(
       checked: isChecked,
-      child: NavRow(
-        title: title,
-        subtitle: subtitle,
-        titleTrailing: badge,
-        trailing: CheckSquare(isChecked: isChecked),
-        onTap: () => onChanged(!isChecked),
+      enabled: onChanged != null,
+      child: Opacity(
+        opacity: onChanged == null ? 0.4 : 1,
+        child: NavRow(
+          title: title,
+          subtitle: subtitle,
+          titleTrailing: badge,
+          trailing: CheckSquare(isChecked: isChecked),
+          onTap: onChanged == null ? null : () => onChanged(!isChecked),
+        ),
       ),
     );
   }

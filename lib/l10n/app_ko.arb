@@ -525,6 +525,7 @@
   "usualRangeValue": "평소 {range}",
   "vitalsTitle": "심장과 바이탈",
   "noVitalsData": "심장 및 바이탈 데이터 없음",
+  "vitalsOnToday": "오늘에 표시",
   "perHour": "시간별",
   "hourSpan": "{start}~{end}시",
   "hourOfDay": "{hour}시",

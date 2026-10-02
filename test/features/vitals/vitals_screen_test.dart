@@ -158,4 +158,95 @@ void main() {
     );
     await disposeTree(tester);
   });
+
+  testWidgets('three readings are pinned to Today, in the page\'s order', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final pinned = store();
+    final today = pinned.now();
+    // Walking heart rate, last read five days ago.
+    pinned.backend.storage.activitySamples.sync(
+      [
+        ActivitySample(
+          metric: ActivityMetric.walkingHeartRate,
+          start: DateTime(today.year, today.month, today.day - 5),
+          end: DateTime(today.year, today.month, today.day - 4),
+          value: 104,
+        ),
+      ],
+      idPrefix: 'healthkit-walk',
+      source: ChangeSource.healthKit,
+    );
+    await pumpScreen(tester, const VitalsScreen(), store: pinned);
+    final section = find.text('今天顯示');
+    await tester.scrollUntilVisible(
+      section,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('0 / 3'), findsOneWidget);
+    Finder check(String title) => find.widgetWithText(CheckRow, title);
+    for (final title in ['血壓', '步行平均心率', '平均心率']) {
+      await tester.scrollUntilVisible(
+        check(title),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await Scrollable.ensureVisible(
+        tester.element(check(title)),
+        alignment: 0.5,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(check(title));
+      await tester.pump();
+    }
+    expect(find.text('3 / 3'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      check('靜止心率'),
+      -100,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      tester.widget<CheckRow>(check('靜止心率')).onChanged,
+      isNull,
+      reason: 'three is as many as the card holds',
+    );
+    await disposeTree(tester);
+
+    await pumpScreen(tester, const TodayScreen(), store: pinned);
+    final card = find.byType(VitalsCard);
+    await tester.scrollUntilVisible(
+      card,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    final labels = [
+      for (final text in tester.widgetList<Text>(
+        find.descendant(of: card, matching: find.byType(Text)),
+      ))
+        text.data,
+    ];
+    expect(labels.where(['平均心率', '步行平均心率', '血壓'].contains), [
+      '平均心率',
+      '步行平均心率',
+      '血壓',
+    ], reason: 'the page\'s order, not the order they were pinned in');
+    expect(labels, isNot(contains('靜止心率')));
+    expect(
+      find.descendant(of: card, matching: find.text('104 次/分')),
+      findsOneWidget,
+      reason: 'its last reading',
+    );
+    final fiveDaysAgo = DateTime(today.year, today.month, today.day - 5);
+    expect(
+      find.descendant(
+        of: card,
+        matching: find.text('${fiveDaysAgo.month} 月 ${fiveDaysAgo.day} 日'),
+      ),
+      findsOneWidget,
+      reason: 'a reading from before today says when',
+    );
+    await disposeTree(tester);
+  });
 }

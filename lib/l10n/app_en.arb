@@ -525,6 +525,7 @@
   "usualRangeValue": "Usually {range}",
   "vitalsTitle": "Heart & vitals",
   "noVitalsData": "No heart or vitals data",
+  "vitalsOnToday": "On Today",
   "perHour": "Per hour",
   "hourSpan": "{start}–{end} h",
   "hourOfDay": "{hour}h",

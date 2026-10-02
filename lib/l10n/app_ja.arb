@@ -525,6 +525,7 @@
   "usualRangeValue": "普段 {range}",
   "vitalsTitle": "心臓とバイタル",
   "noVitalsData": "心臓とバイタルのデータなし",
+  "vitalsOnToday": "今日に表示",
   "perHour": "1時間ごと",
   "hourSpan": "{start}〜{end}時",
   "hourOfDay": "{hour}時",

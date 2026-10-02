@@ -55,6 +55,7 @@ class VitalsScreen extends StatelessWidget {
           ],
           ..._heart(context, heart, recentTo),
           ..._vitals(context, vitals, recentTo),
+          ..._pins(context, model, {...heart, ...vitals}),
         ],
       );
     },
@@ -142,13 +143,50 @@ class VitalsScreen extends StatelessWidget {
                 l10n.vitalBloodPressure,
                 pressure,
               ),
-            for (final metric in [
-              ActivityMetric.bodyTemperature,
-              ActivityMetric.respiratoryRate,
-              ActivityMetric.oxygenSaturation,
-            ])
+            for (final metric in VitalsViewModel.vitalsOrder.skip(1))
               if (latest.containsKey(metric))
                 row(metric, metric.labelIn(l10n), figure(metric)),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  /// Which readings Today's card holds, up to
+  /// [VitalsViewModel.pinnedLimit]; with none chosen it picks its own.
+  static List<Widget> _pins(
+    BuildContext context,
+    VitalsViewModel model,
+    Map<ActivityMetric, (DateTime, double)> latest,
+  ) {
+    if (latest.isEmpty) return const [];
+    final l10n = context.l10n;
+    final pinned = model.pinned;
+    final isFull = pinned.length >= VitalsViewModel.pinnedLimit;
+    return [
+      Gutter(
+        child: SectionLabel(
+          l10n.vitalsOnToday,
+          trailing: Text(
+            '${pinned.length} / ${VitalsViewModel.pinnedLimit}',
+            style: AppTextStyles.caption,
+          ),
+        ),
+      ),
+      Gutter(
+        child: GroupedCard(
+          children: [
+            for (final metric in VitalsViewModel.readingsOrder)
+              if (latest.containsKey(metric))
+                CheckRow(
+                  title: metric == ActivityMetric.bloodPressureSystolic
+                      ? l10n.vitalBloodPressure
+                      : metric.labelIn(l10n),
+                  isChecked: pinned.contains(metric),
+                  onChanged: isFull && !pinned.contains(metric)
+                      ? null
+                      : (isPinned) => model.setPinned(metric, isPinned),
+                ),
           ],
         ),
       ),

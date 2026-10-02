@@ -263,19 +263,30 @@ class TodayScreen extends StatelessWidget {
         section,
         AppColors.heart,
         [
-          // Only what [TodayViewModel.earnsCard] allows, unless every
-          // section is kept: then whatever was read shows, never "none".
-          if (today.vitals case final vitals
-              when vitals.isNotEmpty &&
-                  (!onlyWithData || TodayViewModel.earnsCard(vitals)))
+          // What the user pinned, or only what
+          // [TodayViewModel.earnsCard] allows, unless every section is
+          // kept: then whatever was read shows, never "none".
+          if (today.vitalReadings case final readings
+              when readings.isNotEmpty &&
+                  (today.hasPinnedVitals ||
+                      !onlyWithData ||
+                      TodayViewModel.earnsCard(today.vitals)))
             Gutter(
               child: VitalsCard(
-                vitals: vitals,
-                weekOf: (metric) => ReadingWeek(
+                readings: readings,
+                today: DateTime(
+                  store.now().year,
+                  store.now().month,
+                  store.now().day,
+                ),
+                weekOf: (metric, day) => ReadingWeek(
                   metric: metric,
-                  day: store.now(),
-                  recent: (metric) =>
-                      today.recent(metric, UsualRangeSpark.reach),
+                  day: day,
+                  recent: (metric) => today.daily(
+                    metric,
+                    day.subtract(UsualRangeSpark.reach),
+                    day,
+                  ),
                   width: 72,
                   height: 24,
                 ),

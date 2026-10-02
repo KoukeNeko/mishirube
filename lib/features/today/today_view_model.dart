@@ -3,6 +3,7 @@ import '../../backend/engines/caffeine.dart';
 import '../../backend/engines/nutrition_summary.dart';
 import '../../domain/domain.dart';
 import '../../l10n/l10n.dart';
+import '../vitals/vitals_view_model.dart';
 
 /// The parts of Today a user can hide. What is in progress and the next
 /// step are not among them: they are the page's reason to exist.
@@ -109,10 +110,47 @@ class TodayViewModel extends ViewModel {
     };
   }
 
-  /// [metric] on each day from [back] before today through today, oldest
-  /// first.
-  List<(DateTime, double)> recent(ActivityMetric metric, Duration back) =>
-      backend.activity.daily(metric, _today.subtract(back), _today);
+  /// What Today's card holds, in its order: the readings pinned to it,
+  /// each at its last reading, or with none pinned, today's resting
+  /// heart rate and vitals. Blood pressure comes as its pair.
+  Map<ActivityMetric, (DateTime, double)> get vitalReadings {
+    final pinned = VitalsViewModel.pinnedIn(backend);
+    if (pinned.isEmpty) {
+      final vitals = this.vitals;
+      return {
+        for (final metric in const [
+          ActivityMetric.restingHeartRate,
+          ActivityMetric.bloodPressureSystolic,
+          ActivityMetric.bloodPressureDiastolic,
+          ActivityMetric.bodyTemperature,
+          ActivityMetric.oxygenSaturation,
+          ActivityMetric.respiratoryRate,
+        ])
+          if (vitals[metric] case final value?) metric: (_today, value),
+      };
+    }
+    return {
+      for (final metric in [
+        for (final metric in pinned) ...[
+          metric,
+          if (metric == ActivityMetric.bloodPressureSystolic)
+            ActivityMetric.bloodPressureDiastolic,
+        ],
+      ])
+        metric: ?VitalsViewModel.latestIn(backend, metric),
+    };
+  }
+
+  /// Whether the user chose what Today's card holds: it then shows
+  /// whenever any of it was ever read.
+  bool get hasPinnedVitals => VitalsViewModel.pinnedIn(backend).isNotEmpty;
+
+  /// [metric] on each day from [from] to [to], oldest first.
+  List<(DateTime, double)> daily(
+    ActivityMetric metric,
+    DateTime from,
+    DateTime to,
+  ) => backend.activity.daily(metric, from, to);
 
   /// Whether today's card earns its place: a vital taken on purpose, a
   /// blood pressure or a body temperature, or the day's resting heart

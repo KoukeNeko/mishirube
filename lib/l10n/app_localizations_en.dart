@@ -1751,6 +1751,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noVitalsData => 'No heart or vitals data';
 
   @override
+  String get vitalsOnToday => 'On Today';
+
+  @override
   String get perHour => 'Per hour';
 
   @override
