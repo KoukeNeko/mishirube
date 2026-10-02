@@ -3264,6 +3264,24 @@ abstract class AppLocalizations {
   /// **'今天顯示'**
   String get vitalsOnToday;
 
+  /// Share a record: the header button that opens the share sheet.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享'**
+  String get shareAction;
+
+  /// Shares the record as a picture of its card.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享圖片'**
+  String get shareAsImage;
+
+  /// Shares the record as plain text.
+  ///
+  /// In zh, this message translates to:
+  /// **'分享文字'**
+  String get shareAsText;
+
   /// A chart of hourly totals.
   ///
   /// In zh, this message translates to:

@@ -1754,6 +1754,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vitalsOnToday => 'On Today';
 
   @override
+  String get shareAction => 'Share';
+
+  @override
+  String get shareAsImage => 'Share image';
+
+  @override
+  String get shareAsText => 'Share text';
+
+  @override
   String get perHour => 'Per hour';
 
   @override

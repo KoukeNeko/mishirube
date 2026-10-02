@@ -11,6 +11,7 @@ import '../../shared/widgets/widgets.dart';
 import '../trends/muscle_map.dart';
 import 'edit_workout_screen.dart';
 import 'new_routine_screen.dart';
+import 'workout_share.dart';
 import '../../l10n/l10n.dart';
 
 class WorkoutSummaryScreen extends StatelessWidget {
@@ -75,6 +76,15 @@ class WorkoutSummaryScreen extends StatelessWidget {
             '${context.dates.monthDay(workout.startedAt)} · '
             '${formatTimeOfDay(workout.startedAt)}–'
             '${formatTimeOfDay(finishedAt)}',
+        actions: [
+          if (review.exercises.isNotEmpty)
+            HeaderAction(
+              icon: Icons.ios_share_rounded,
+              semanticLabel: context.l10n.shareAction,
+              onTap: () =>
+                  showWorkoutShare(context, workout: workout, review: review),
+            ),
+        ],
       ),
       children: [
         Gutter(

@@ -1731,6 +1731,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vitalsOnToday => '今天顯示';
 
   @override
+  String get shareAction => '分享';
+
+  @override
+  String get shareAsImage => '分享圖片';
+
+  @override
+  String get shareAsText => '分享文字';
+
+  @override
   String get perHour => '每小時';
 
   @override
@@ -7941,6 +7950,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get vitalsOnToday => '今天显示';
+
+  @override
+  String get shareAction => '分享';
+
+  @override
+  String get shareAsImage => '分享图片';
+
+  @override
+  String get shareAsText => '分享文字';
 
   @override
   String get perHour => '每小时';

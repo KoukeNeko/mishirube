@@ -1740,6 +1740,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vitalsOnToday => '오늘에 표시';
 
   @override
+  String get shareAction => '공유';
+
+  @override
+  String get shareAsImage => '이미지로 공유';
+
+  @override
+  String get shareAsText => '텍스트로 공유';
+
+  @override
   String get perHour => '시간별';
 
   @override

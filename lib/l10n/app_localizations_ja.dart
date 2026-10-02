@@ -1738,6 +1738,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vitalsOnToday => '今日に表示';
 
   @override
+  String get shareAction => '共有';
+
+  @override
+  String get shareAsImage => '画像で共有';
+
+  @override
+  String get shareAsText => 'テキストで共有';
+
+  @override
   String get perHour => '1時間ごと';
 
   @override
