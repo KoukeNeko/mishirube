@@ -55,6 +55,7 @@ import 'package:mishirube/features/trends/trend_detail_screen.dart';
 import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
+import 'package:mishirube/features/training/workout_share.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/sleep/sleep_shortfall_screen.dart';
 import 'package:mishirube/features/trends/training_trends_screen.dart';
@@ -421,6 +422,13 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'exercise trends': ((_) => const ExerciseTrendsScreen(), _noSetup),
   'workout summary (sample)': ((_) => const WorkoutSummaryScreen(), _noSetup),
+  'workout share': (
+    (store) => WorkoutSharePage(
+      workout: store.lastFinishedWorkout!,
+      review: store.workoutReview(store.lastFinishedWorkout!),
+    ),
+    _noSetup,
+  ),
   'new routine': (
     (store) => NewRoutineScreen(
       planned: store.planFromWorkout(store.lastFinishedWorkout!),

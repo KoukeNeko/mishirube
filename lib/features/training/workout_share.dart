@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
+import '../../app/navigation.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
@@ -16,15 +17,15 @@ import '../../l10n/l10n.dart';
 const _cardWidth = 360.0;
 const _pixelRatio = 3.0;
 
-/// Opens the sheet that shares [workout] as a picture of its card or as
+/// Opens the page that shares [workout] as a picture of its card or as
 /// text, through the system's share sheet.
 Future<void> showWorkoutShare(
   BuildContext context, {
   required WorkoutSession workout,
   required WorkoutReview review,
-}) => showAppSheet<void>(
+}) => pushModalPage<void>(
   context,
-  (_) => _WorkoutShareSheet(workout: workout, review: review),
+  WorkoutSharePage(workout: workout, review: review),
 );
 
 /// [workout] as text: its name and when, its totals, then each exercise
@@ -70,17 +71,23 @@ List<String> _totals(
     '${l10n.totalDistance} ${formatKilometers(review.meters)} km',
 ];
 
-class _WorkoutShareSheet extends StatefulWidget {
-  const _WorkoutShareSheet({required this.workout, required this.review});
+/// A finished workout's card as it will be shared, with sharing it as a
+/// picture or as text at the foot.
+class WorkoutSharePage extends StatefulWidget {
+  const WorkoutSharePage({
+    super.key,
+    required this.workout,
+    required this.review,
+  });
 
   final WorkoutSession workout;
   final WorkoutReview review;
 
   @override
-  State<_WorkoutShareSheet> createState() => _WorkoutShareSheetState();
+  State<WorkoutSharePage> createState() => _WorkoutSharePageState();
 }
 
-class _WorkoutShareSheetState extends State<_WorkoutShareSheet> {
+class _WorkoutSharePageState extends State<WorkoutSharePage> {
   final _card = GlobalKey();
   bool _isSharing = false;
 
@@ -143,58 +150,44 @@ class _WorkoutShareSheetState extends State<_WorkoutShareSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Flexible(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(top: AppSpacing.md),
-            child: Gutter(
-              // The picture as it will be shared, scaled to the room.
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: RepaintBoundary(
-                  key: _card,
-                  child: WorkoutShareCard(
-                    workout: widget.workout,
-                    review: widget.review,
-                  ),
+    return DetailPage(
+      appBar: PageAppBar(title: l10n.shareAction),
+      footer: BottomActionBar(
+        child: Row(
+          spacing: AppSpacing.sm,
+          children: [
+            Expanded(
+              child: Builder(
+                builder: (button) => SecondaryButton(
+                  label: l10n.shareAsText,
+                  icon: Icons.notes_rounded,
+                  onPressed: _isSharing ? null : () => _shareText(button),
                 ),
               ),
             ),
-          ),
-        ),
-        Gutter(
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: AppSpacing.md,
-              bottom:
-                  AppSpacing.screenGutter +
-                  MediaQuery.paddingOf(context).bottom,
+            Expanded(
+              child: Builder(
+                builder: (button) => PrimaryButton(
+                  label: l10n.shareAsImage,
+                  icon: Icons.image_outlined,
+                  onPressed: _isSharing ? null : () => _shareImage(button),
+                ),
+              ),
             ),
-            child: Row(
-              spacing: AppSpacing.sm,
-              children: [
-                Expanded(
-                  child: Builder(
-                    builder: (button) => SecondaryButton(
-                      label: l10n.shareAsText,
-                      icon: Icons.notes_rounded,
-                      onPressed: _isSharing ? null : () => _shareText(button),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Builder(
-                    builder: (button) => PrimaryButton(
-                      label: l10n.shareAsImage,
-                      icon: Icons.image_outlined,
-                      onPressed: _isSharing ? null : () => _shareImage(button),
-                    ),
-                  ),
-                ),
-              ],
+          ],
+        ),
+      ),
+      children: [
+        Gutter(
+          // The picture as it will be shared, scaled to the room.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: RepaintBoundary(
+              key: _card,
+              child: WorkoutShareCard(
+                workout: widget.workout,
+                review: widget.review,
+              ),
             ),
           ),
         ),
