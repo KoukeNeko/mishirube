@@ -233,6 +233,11 @@ class NutritionViewModel extends ViewModel {
   List<FoodItem> searchFoods(String query, {bool includePackaged = false}) =>
       backend.nutrition.searchFoods(query, includePackaged: includePackaged);
 
+  /// Up to [limit] meals logged without a saved food that [query]
+  /// finds, newest first.
+  List<RecentMeal> searchMeals(String query, {required int limit}) =>
+      backend.nutrition.searchMeals(query, limit: limit);
+
   /// Brands whose menu [query] names on its own.
   List<String> brandsNamedBy(String query) =>
       backend.nutrition.brandsNamedBy(query);

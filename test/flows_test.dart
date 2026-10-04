@@ -41,6 +41,7 @@ import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
+import 'package:mishirube/features/nutrition/recent_meal_row.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/water/water_card.dart';
 import 'package:mishirube/features/water/water_screen.dart';
@@ -2150,6 +2151,46 @@ void main() {
       find.text('食物 1'),
       findsOneWidget,
       reason: 'the first food eaten, past the first page of 30',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a search finds meals logged without a saved food', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    final nutrition = store.backend.nutrition;
+    nutrition.logOnce(
+      FoodPortion(const FoodItem(id: 'once', name: '米漿', kcal: 180), 1),
+    );
+    final rice = nutrition.saveFood(
+      const FoodItem(id: 'rice', name: '白飯', kcal: 130),
+    );
+    clock.advance(const Duration(minutes: 5));
+    nutrition.logPortion(FoodPortion(rice, 1));
+    final before = store.todayMeals.length;
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    await tester.enterText(find.byType(TextField), '米漿');
+    await tester.pumpAndSettle();
+    final logged = find.descendant(
+      of: find.byType(RecentMealRow),
+      matching: find.text('米漿'),
+    );
+    expect(logged, findsOneWidget, reason: 'typed once, in no library');
+    await tester.tap(find.byTooltip('加入米漿'));
+    await tester.pumpAndSettle();
+    expect(store.todayMeals.length, before + 1);
+
+    // A meal from a saved food is that food's row, not a second one.
+    await tester.enterText(find.byType(TextField), '白飯');
+    await tester.pumpAndSettle();
+    expect(find.byType(RecentMealRow), findsNothing);
+    expect(
+      find.descendant(of: find.byType(FoodRow), matching: find.text('白飯')),
+      findsOneWidget,
     );
     await disposeTree(tester);
   });

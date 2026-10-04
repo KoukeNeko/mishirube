@@ -576,10 +576,7 @@ class NutritionService {
   /// With [includePackaged], the shipped packaged foods the user has not
   /// saved follow, best first and capped at [packagedResultLimit].
   List<FoodItem> searchFoods(String query, {bool includePackaged = false}) {
-    final words = [
-      for (final word in query.split(RegExp(r'\s+')))
-        if (normalizeTerm(word) case final term when term.isNotEmpty) term,
-    ];
+    final words = _searchWords(query);
     if (words.isEmpty) return foods();
     final personal = {
       ..._foods.favoriteIds(),
@@ -607,6 +604,37 @@ class NutritionService {
         ...packagedFoods.search(words, except: {for (final f in saved) f.id}),
     ];
   }
+
+  /// Meals logged without a saved food behind them — typed once, drafted
+  /// by the AI — whose name or brand [query] finds, newest first and one
+  /// per dish the way [recent] works. A meal logged from a saved food is
+  /// left out, since [searchFoods] already finds that food.
+  List<RecentMeal> searchMeals(String query, {int limit = 5}) {
+    final words = _searchWords(query);
+    if (words.isEmpty) return const [];
+    final seen = <String>{};
+    final found = <RecentMeal>[];
+    final meals = between(DateTime.fromMillisecondsSinceEpoch(0), _db.now());
+    for (final (eatenAt, meal) in meals.reversed) {
+      if (meal.isWater) continue;
+      if (meal.foodId case final id? when _foods.byId(id) != null) continue;
+      final entry = RecentMeal(meal: meal, eatenAt: eatenAt);
+      final name = normalizeTerm(entry.label);
+      final elsewhere = normalizeTerm('${meal.name}${meal.brand}');
+      if (foodMatchTier(words, name, elsewhere) == null) continue;
+      if (!seen.add(entry.label)) continue;
+      found.add(entry);
+      if (found.length == limit) break;
+    }
+    return found;
+  }
+
+  /// The words of a typed search, each normalised; empty when nothing
+  /// but spaces was typed.
+  List<String> _searchWords(String query) => [
+    for (final word in query.split(RegExp(r'\s+')))
+      if (normalizeTerm(word) case final term when term.isNotEmpty) term,
+  ];
 
   /// Brands whose shipped menu [query] names on its own — 「星巴克」 or
   /// 「starbucks」 — so the screen can offer the menu before the drinks.

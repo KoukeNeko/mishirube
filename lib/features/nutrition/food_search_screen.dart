@@ -49,7 +49,8 @@ enum _Scope {
 /// list without starting a second search; with nothing typed, 「全部」
 /// shows a few recent and starred foods, then the user's own.
 /// Once something is typed there is one ranked list, so a food never
-/// appears twice. Chains are found by searching like anything else, and
+/// appears twice, followed by the meals logged without a saved food that
+/// match. Chains are found by searching like anything else, and
 /// naming one on its own offers its whole menu first.
 ///
 /// Which meal this is sits in the title, since it is where everything on
@@ -568,6 +569,13 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     final brands = _scope == _Scope.all || _scope == _Scope.brands
         ? _nutrition.brandsNamedBy(query)
         : const <String>[];
+    // Meals logged without a saved food — typed once, drafted by the AI —
+    // are found here too; one from a saved food is that food's row.
+    final meals = switch (_scope) {
+      _Scope.all => _nutrition.searchMeals(query, limit: _preview),
+      _Scope.recent => _nutrition.searchMeals(query, limit: _recentPage),
+      _ => const <RecentMeal>[],
+    };
     final labels = {
       for (final catalogue in AppStoreScope.of(context).catalogues)
         catalogue.brand: catalogue.labelIn(context.l10n),
@@ -584,7 +592,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           ),
         ),
       for (final food in foods) Gutter(child: _row(food)),
-      if (foods.isEmpty && brands.isEmpty)
+      if (meals.isNotEmpty) ...[
+        Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
+        for (final meal in meals) Gutter(child: _mealRow(meal)),
+      ],
+      if (foods.isEmpty && brands.isEmpty && meals.isEmpty)
         Gutter(
           child: EmptyStateCard(
             icon: Icons.search_off,
