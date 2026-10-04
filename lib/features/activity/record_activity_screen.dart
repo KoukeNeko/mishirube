@@ -110,7 +110,9 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     if (!store.startActivity(_type)) {
       showToast(
         context,
-        context.l10n.workoutBlocksActivity,
+        context.l10n.sessionBlocksStart(
+          session: store.activeSession!.name(context.l10n),
+        ),
         kind: ToastKind.warning,
       );
       return;

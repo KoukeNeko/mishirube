@@ -221,3 +221,16 @@ class BathEntry {
   final BathKind? kind;
   final Duration? duration;
 }
+
+/// A shower or bath that has begun but not ended: it has a start and a
+/// clock, and becomes a [BathEntry] when it ends. Water and kind can be
+/// chosen while it runs.
+class LiveBath {
+  LiveBath({required this.startedAt, this.water, this.kind});
+
+  final DateTime startedAt;
+  BathWater? water;
+  BathKind? kind;
+
+  Duration elapsedAt(DateTime now) => now.difference(startedAt);
+}

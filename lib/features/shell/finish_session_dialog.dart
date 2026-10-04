@@ -21,6 +21,7 @@ Future<FinishChoice?> askHowSessionEnds(
       message: switch (session) {
         ActiveWorkout() => l10n.sessionEndWorkoutMessage,
         ActiveActivity() => l10n.sessionEndActivityMessage,
+        ActiveBath() => l10n.sessionEndBathMessage,
       },
       actions: [
         DialogAction(
@@ -32,6 +33,7 @@ Future<FinishChoice?> askHowSessionEnds(
           label: switch (session) {
             ActiveWorkout() => l10n.sessionDiscardWorkout,
             ActiveActivity() => l10n.sessionDiscardActivity,
+            ActiveBath() => l10n.sessionDiscardBath,
           },
           tone: DialogTone.destructive,
           onTap: () => Navigator.of(context).pop(FinishChoice.discard),

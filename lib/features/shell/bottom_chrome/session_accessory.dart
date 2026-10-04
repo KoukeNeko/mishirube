@@ -41,17 +41,23 @@ class SessionAccessory extends StatelessWidget {
       child: ChromeSurface(
         tint: switch (session.category) {
           RecordCategory.activity => AppColors.activitySurface,
+          RecordCategory.wellness => AppColors.wellnessSurface,
           _ => AppColors.trainingSurface,
         },
         borderColor: switch (session.category) {
           RecordCategory.activity => AppColors.activityOutline,
+          RecordCategory.wellness => AppColors.wellnessOutline,
           _ => AppColors.trainingOutline,
         },
         child: Row(
           children: [
             // Scheduled, there is nothing to pause or to end yet: the bar
             // only leads back to the workout, where it is begun.
-            if (!isReady)
+            // Nothing to pause in a bath; the space stays so the status
+            // sits in the middle between the two ends.
+            if (!isReady && !session.canPause)
+              const SizedBox.square(dimension: ChromeMetrics.accessoryHeight),
+            if (!isReady && session.canPause)
               _Yielding(
                 morph: morph,
                 child: _AccessoryIcon(
@@ -116,6 +122,7 @@ class _Status extends StatelessWidget {
     final color = switch (session) {
       _ when session.isPaused => AppColors.warning,
       ActiveActivity() => AppColors.activity,
+      ActiveBath() => AppColors.wellness,
       ActiveWorkout() => AppColors.training,
     };
     final style = AppTextStyles.itemTitle.copyWith(

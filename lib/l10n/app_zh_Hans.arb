@@ -447,7 +447,6 @@
   "routineNeverDone": "未完成过",
   "routineLastDone": "上次 {date} 完成",
   "optionalField": "{field}（选填）",
-  "workoutBlocksActivity": "训练进行中，先结束训练才能开始运动",
   "activityDurationRange": "时长请介于 {min} – {max} 分钟。",
   "activityDistanceRange": "距离请输入 0 – {max} km 之间。",
   "activityClimbRange": "爬升请输入 0 – {max} m 之间。",
@@ -1116,7 +1115,6 @@
   "deleteRoutine": "删除这份课表",
   "deletedNamed": "已删除「{name}」",
   "startWorkout": "开始训练",
-  "activityBlocksWorkout": "运动进行中，先结束运动才能开始训练",
   "plannedExercises": "计划的动作",
   "soreMusclesToday": "今天酸痛的肌群",
   "recentlyDone": "最近实际完成",
@@ -1805,5 +1803,10 @@
   "timeOfDaySection": "时段",
   "weekdaysAndDaysOffSection": "平日与假日",
   "weekdaysLabel": "平日",
-  "daysOffLabel": "假日"
+  "daysOffLabel": "假日",
+  "sessionEndBathMessage": "结束会保存为一笔洗澡记录；放弃则什么都不保留。",
+  "sessionDiscardBath": "放弃这次洗澡",
+  "sessionBlocksStart": "{session}进行中，先结束才能开始",
+  "bathEnded": "这次洗澡已经结束。",
+  "commonStart": "开始"
 }

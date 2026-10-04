@@ -2252,6 +2252,77 @@ void main() {
       expect(store.activeSession, isA<ActiveWorkout>());
     });
 
+    test('a running bath survives a restart and ends as an entry', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      );
+      expect(store.startBath(), isTrue);
+      store.chooseBath(water: BathWater.warm, kind: BathKind.shower);
+      clock.advance(const Duration(minutes: 7, seconds: 40));
+
+      final reopened = AppStore(clock: clock.now, backend: backend);
+      expect(reopened.activeSession, isA<ActiveBath>());
+      expect(reopened.activeBath!.water, BathWater.warm);
+      expect(reopened.activeBath!.kind, BathKind.shower);
+      expect(
+        reopened.activeBath!.elapsedAt(clock.now()),
+        const Duration(minutes: 7, seconds: 40),
+        reason: 'the clock runs from the start that was stored',
+      );
+
+      final entry = reopened.finishBath()!;
+      expect(entry.bathedAt, clock.now(), reason: 'it ends when it is ended');
+      expect(entry.duration, const Duration(minutes: 8), reason: 'rounded');
+      expect(entry.water, BathWater.warm);
+      expect(entry.kind, BathKind.shower);
+      expect(reopened.activeSession, isNull);
+      expect(
+        AppStore(clock: clock.now, backend: backend).activeSession,
+        isNull,
+        reason: 'ending clears what was stored',
+      );
+      expect(backend.journal.entry(entry.id), isA<BathEntry>());
+    });
+
+    test('a bath lasts at least a minute and can be discarded', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      store.startBath();
+      clock.advance(const Duration(seconds: 10));
+      final kept = store.finishBath()!;
+      expect(kept.duration, const Duration(minutes: 1));
+
+      store.startBath();
+      clock.advance(const Duration(minutes: 3));
+      store.discardBath();
+      expect(store.activeSession, isNull);
+      expect(store.backend.journal.runningBath(), isNull);
+      expect(store.finishBath(), isNull);
+      expect(store.backend.journal.entry(kept.id), isA<BathEntry>());
+      expect(store.backend.journal.runningBath(), isNull);
+    });
+
+    test('a bath does not start during, or end, another session', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+
+      store.startWorkout();
+      expect(store.startBath(), isFalse);
+      expect(store.activeSession, isA<ActiveWorkout>());
+      store.discardWorkout();
+
+      expect(store.startBath(), isTrue);
+      expect(store.startWorkout(), isFalse);
+      expect(store.startActivity(ActivityTypes.running), isFalse);
+      expect(store.startBath(), isFalse);
+      expect(store.activeSession, isA<ActiveBath>());
+    });
+
     test('exercise is counted apart from training', () {
       final store = AppStore(clock: clock.now, isOnboarded: true);
       addTearDown(store.dispose);

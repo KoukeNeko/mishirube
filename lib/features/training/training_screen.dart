@@ -67,7 +67,9 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
   void _refuse() => showToast(
     context,
-    context.l10n.activityBlocksWorkout,
+    context.l10n.sessionBlocksStart(
+      session: AppStoreScope.read(context).activeSession!.name(context.l10n),
+    ),
     kind: ToastKind.warning,
   );
 

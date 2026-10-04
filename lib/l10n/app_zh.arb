@@ -2057,10 +2057,6 @@
       }
     }
   },
-  "workoutBlocksActivity": "訓練進行中，先結束訓練才能開始運動",
-  "@workoutBlocksActivity": {
-    "description": "Warning: timing an activity cannot start while a workout runs."
-  },
   "activityDurationRange": "時長請介於 {min} – {max} 分鐘。",
   "@activityDurationRange": {
     "description": "Form error on an activity's duration.",
@@ -5900,10 +5896,6 @@
   "@startWorkout": {
     "description": "Button."
   },
-  "activityBlocksWorkout": "運動進行中，先結束運動才能開始訓練",
-  "@activityBlocksWorkout": {
-    "description": "Warning toast."
-  },
   "plannedExercises": "計畫的動作",
   "@plannedExercises": {
     "description": "Section."
@@ -9605,5 +9597,30 @@
   "daysOffLabel": "假日",
   "@daysOffLabel": {
     "description": "Label of a figure: Saturday and Sunday."
+  },
+  "sessionEndBathMessage": "結束會存成一筆洗澡紀錄；放棄則什麼都不留。",
+  "@sessionEndBathMessage": {
+    "description": "End-session dialog message for a bath."
+  },
+  "sessionDiscardBath": "放棄這次洗澡",
+  "@sessionDiscardBath": {
+    "description": "End-session dialog: throw the bath away."
+  },
+  "sessionBlocksStart": "{session}進行中，先結束才能開始",
+  "@sessionBlocksStart": {
+    "description": "Warning: nothing else can start while a session runs; session is its name.",
+    "placeholders": {
+      "session": {
+        "type": "String"
+      }
+    }
+  },
+  "bathEnded": "這次洗澡已經結束。",
+  "@bathEnded": {
+    "description": "Shown on the running bath page after the bath ended elsewhere."
+  },
+  "commonStart": "開始",
+  "@commonStart": {
+    "description": "Button that starts something running."
   }
 }

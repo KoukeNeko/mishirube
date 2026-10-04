@@ -123,7 +123,9 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
           if (!store.startWorkout(sore: _sore)) {
             showToast(
               context,
-              context.l10n.activityBlocksWorkout,
+              context.l10n.sessionBlocksStart(
+                session: store.activeSession!.name(context.l10n),
+              ),
               kind: ToastKind.warning,
             );
             return;

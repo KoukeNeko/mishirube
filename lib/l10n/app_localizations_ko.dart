@@ -1458,9 +1458,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get workoutBlocksActivity => '트레이닝이 진행 중입니다. 종료한 후 활동을 시작하세요.';
-
-  @override
   String activityDurationRange({required int min, required int max}) {
     return '시간은 $min~$max분 사이로 입력하세요.';
   }
@@ -3915,9 +3912,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get startWorkout => '운동 시작';
 
   @override
-  String get activityBlocksWorkout => '활동이 진행 중입니다. 운동을 시작하려면 먼저 종료하세요';
-
-  @override
   String get plannedExercises => '계획한 운동';
 
   @override
@@ -6342,4 +6336,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get daysOffLabel => '휴일';
+
+  @override
+  String get sessionEndBathMessage => '종료하면 목욕 기록으로 저장됩니다. 버리면 아무것도 남지 않습니다.';
+
+  @override
+  String get sessionDiscardBath => '이번 목욕 버리기';
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session 진행 중입니다. 먼저 종료하세요';
+  }
+
+  @override
+  String get bathEnded => '이번 목욕은 종료되었습니다.';
+
+  @override
+  String get commonStart => '시작';
 }

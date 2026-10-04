@@ -1462,10 +1462,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get workoutBlocksActivity =>
-      'A workout is running. End it before starting an activity.';
-
-  @override
   String activityDurationRange({required int min, required int max}) {
     return 'Enter a duration from $min to $max minutes.';
   }
@@ -3979,10 +3975,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startWorkout => 'Start workout';
 
   @override
-  String get activityBlocksWorkout =>
-      'An activity is running; end it before starting a workout';
-
-  @override
   String get plannedExercises => 'Planned exercises';
 
   @override
@@ -6454,4 +6446,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get daysOffLabel => 'Days off';
+
+  @override
+  String get sessionEndBathMessage =>
+      'Ending saves it as a bath. Discard it and nothing is kept.';
+
+  @override
+  String get sessionDiscardBath => 'Discard bath';
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return 'A session is running. End it before starting another.';
+  }
+
+  @override
+  String get bathEnded => 'This bath has ended.';
+
+  @override
+  String get commonStart => 'Start';
 }

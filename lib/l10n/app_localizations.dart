@@ -2790,12 +2790,6 @@ abstract class AppLocalizations {
   /// **'{field}（選填）'**
   String optionalField({required String field});
 
-  /// Warning: timing an activity cannot start while a workout runs.
-  ///
-  /// In zh, this message translates to:
-  /// **'訓練進行中，先結束訓練才能開始運動'**
-  String get workoutBlocksActivity;
-
   /// Form error on an activity's duration.
   ///
   /// In zh, this message translates to:
@@ -6847,12 +6841,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'開始訓練'**
   String get startWorkout;
-
-  /// Warning toast.
-  ///
-  /// In zh, this message translates to:
-  /// **'運動進行中，先結束運動才能開始訓練'**
-  String get activityBlocksWorkout;
 
   /// Section.
   ///
@@ -11019,6 +11007,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'假日'**
   String get daysOffLabel;
+
+  /// End-session dialog message for a bath.
+  ///
+  /// In zh, this message translates to:
+  /// **'結束會存成一筆洗澡紀錄；放棄則什麼都不留。'**
+  String get sessionEndBathMessage;
+
+  /// End-session dialog: throw the bath away.
+  ///
+  /// In zh, this message translates to:
+  /// **'放棄這次洗澡'**
+  String get sessionDiscardBath;
+
+  /// Warning: nothing else can start while a session runs; session is its name.
+  ///
+  /// In zh, this message translates to:
+  /// **'{session}進行中，先結束才能開始'**
+  String sessionBlocksStart({required String session});
+
+  /// Shown on the running bath page after the bath ended elsewhere.
+  ///
+  /// In zh, this message translates to:
+  /// **'這次洗澡已經結束。'**
+  String get bathEnded;
+
+  /// Button that starts something running.
+  ///
+  /// In zh, this message translates to:
+  /// **'開始'**
+  String get commonStart;
 }
 
 class _AppLocalizationsDelegate

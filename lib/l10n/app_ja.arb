@@ -447,7 +447,6 @@
   "routineNeverDone": "未実施",
   "routineLastDone": "前回 {date}に完了",
   "optionalField": "{field}（任意）",
-  "workoutBlocksActivity": "トレーニング中です。終了してからアクティビティを開始してください。",
   "activityDurationRange": "時間は{min}〜{max}分で入力してください。",
   "activityDistanceRange": "距離は0〜{max} kmで入力してください。",
   "activityClimbRange": "獲得標高は0〜{max} mで入力してください。",
@@ -1116,7 +1115,6 @@
   "deleteRoutine": "このルーティンを削除",
   "deletedNamed": "「{name}」を削除しました",
   "startWorkout": "トレーニング開始",
-  "activityBlocksWorkout": "運動中です。トレーニングを始めるには先に運動を終了してください",
   "plannedExercises": "予定の種目",
   "soreMusclesToday": "今日の筋肉痛",
   "recentlyDone": "最近の実施",
@@ -1805,5 +1803,10 @@
   "timeOfDaySection": "時間帯",
   "weekdaysAndDaysOffSection": "平日と休日",
   "weekdaysLabel": "平日",
-  "daysOffLabel": "休日"
+  "daysOffLabel": "休日",
+  "sessionEndBathMessage": "終了すると入浴として保存されます。破棄すると何も残りません。",
+  "sessionDiscardBath": "この入浴を破棄",
+  "sessionBlocksStart": "{session}中です。先に終了してください",
+  "bathEnded": "この入浴は終了しました。",
+  "commonStart": "開始"
 }

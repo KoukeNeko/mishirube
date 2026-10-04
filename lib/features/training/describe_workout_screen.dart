@@ -126,10 +126,13 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
   void _remove(int index) => setState(() => _draft!.removeAt(index));
 
   void _start() {
-    if (!AppStoreScope.read(context).startPlannedWorkout(_planned)) {
+    final store = AppStoreScope.read(context);
+    if (!store.startPlannedWorkout(_planned)) {
       showToast(
         context,
-        context.l10n.activityBlocksWorkout,
+        context.l10n.sessionBlocksStart(
+          session: store.activeSession!.name(context.l10n),
+        ),
         kind: ToastKind.warning,
       );
       return;

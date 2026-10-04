@@ -1457,9 +1457,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get workoutBlocksActivity => 'トレーニング中です。終了してからアクティビティを開始してください。';
-
-  @override
   String activityDurationRange({required int min, required int max}) {
     return '時間は$min〜$max分で入力してください。';
   }
@@ -3913,9 +3910,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get startWorkout => 'トレーニング開始';
 
   @override
-  String get activityBlocksWorkout => '運動中です。トレーニングを始めるには先に運動を終了してください';
-
-  @override
   String get plannedExercises => '予定の種目';
 
   @override
@@ -6336,4 +6330,21 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get daysOffLabel => '休日';
+
+  @override
+  String get sessionEndBathMessage => '終了すると入浴として保存されます。破棄すると何も残りません。';
+
+  @override
+  String get sessionDiscardBath => 'この入浴を破棄';
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session中です。先に終了してください';
+  }
+
+  @override
+  String get bathEnded => 'この入浴は終了しました。';
+
+  @override
+  String get commonStart => '開始';
 }

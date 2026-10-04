@@ -438,6 +438,10 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _noSetup,
   ),
   'bath entry': ((_) => const BathEntryScreen(), _noSetup),
+  'running bath': (
+    (_) => const BathEntryScreen.running(),
+    (store) => store.startBath(),
+  ),
   'wellness entry': ((_) => const WellnessEntryScreen(), _noSetup),
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),

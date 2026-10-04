@@ -1453,9 +1453,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get workoutBlocksActivity => '訓練進行中，先結束訓練才能開始運動';
-
-  @override
   String activityDurationRange({required int min, required int max}) {
     return '時長請介於 $min – $max 分鐘。';
   }
@@ -3903,9 +3900,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get startWorkout => '開始訓練';
 
   @override
-  String get activityBlocksWorkout => '運動進行中，先結束運動才能開始訓練';
-
-  @override
   String get plannedExercises => '計畫的動作';
 
   @override
@@ -6324,6 +6318,23 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get daysOffLabel => '假日';
+
+  @override
+  String get sessionEndBathMessage => '結束會存成一筆洗澡紀錄；放棄則什麼都不留。';
+
+  @override
+  String get sessionDiscardBath => '放棄這次洗澡';
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session進行中，先結束才能開始';
+  }
+
+  @override
+  String get bathEnded => '這次洗澡已經結束。';
+
+  @override
+  String get commonStart => '開始';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -7772,9 +7783,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String optionalField({required String field}) {
     return '$field（选填）';
   }
-
-  @override
-  String get workoutBlocksActivity => '训练进行中，先结束训练才能开始运动';
 
   @override
   String activityDurationRange({required int min, required int max}) {
@@ -10224,9 +10232,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get startWorkout => '开始训练';
 
   @override
-  String get activityBlocksWorkout => '运动进行中，先结束运动才能开始训练';
-
-  @override
   String get plannedExercises => '计划的动作';
 
   @override
@@ -12645,6 +12650,23 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get daysOffLabel => '假日';
+
+  @override
+  String get sessionEndBathMessage => '结束会保存为一笔洗澡记录；放弃则什么都不保留。';
+
+  @override
+  String get sessionDiscardBath => '放弃这次洗澡';
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session进行中，先结束才能开始';
+  }
+
+  @override
+  String get bathEnded => '这次洗澡已经结束。';
+
+  @override
+  String get commonStart => '开始';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

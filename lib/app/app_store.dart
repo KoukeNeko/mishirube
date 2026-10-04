@@ -90,9 +90,11 @@ class AppStore extends ChangeNotifier {
     _session = switch ((
       _backend.training.active(),
       _backend.activity.active(),
+      _backend.journal.runningBath(),
     )) {
-      (final WorkoutSession workout, _) => ActiveWorkout(workout),
-      (_, final LiveActivity live) => ActiveActivity(live),
+      (final WorkoutSession workout, _, _) => ActiveWorkout(workout),
+      (_, final LiveActivity live, _) => ActiveActivity(live),
+      (_, _, final LiveBath bath) => ActiveBath(bath),
       _ => null,
     };
     _lastFinishedWorkout = _backend.training.lastFinished();
@@ -423,13 +425,13 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Starts (or picks up) today's workout. Refuses while exercise is
-  /// being timed: ending someone's run for them is not ours to do.
+  /// Starts (or picks up) today's workout. Refuses while exercise or a
+  /// bath is being timed: ending someone's run for them is not ours to do.
   ///
   /// [routine] is the template shown unless given; muscles in [sore]
   /// get a set fewer on each exercise that works them.
   bool startWorkout({Routine? routine, Set<MuscleGroup> sore = const {}}) {
-    if (_session case ActiveActivity()) return false;
+    if (_session case ActiveActivity() || ActiveBath()) return false;
     _session = ActiveWorkout(
       activeWorkout ?? _backend.training.start(routine ?? _shown, sore: sore),
     );
@@ -1156,7 +1158,7 @@ class AppStore extends ChangeNotifier {
         _backend.training.togglePause(workout);
       case ActiveActivity(:final activity):
         _backend.activity.togglePause(activity);
-      case null:
+      case ActiveBath() || null:
         return;
     }
     _restEndedAt = null;
@@ -1395,6 +1397,49 @@ class AppStore extends ChangeNotifier {
     final live = activeActivity;
     if (live == null) return;
     _backend.activity.discard(live);
+    _session = null;
+    notifyListeners();
+  }
+
+  LiveBath? get activeBath => switch (_session) {
+    ActiveBath(:final bath) => bath,
+    _ => null,
+  };
+
+  /// Starts a bath now. Refuses while another session is running, rather
+  /// than quietly ending it.
+  bool startBath({BathWater? water, BathKind? kind}) {
+    if (_session != null) return false;
+    _session = ActiveBath(_backend.journal.startBath(water: water, kind: kind));
+    notifyListeners();
+    return true;
+  }
+
+  /// Changes the water or kind of the running bath; null clears it.
+  void chooseBath({required BathWater? water, required BathKind? kind}) {
+    final bath = activeBath;
+    if (bath == null) return;
+    bath
+      ..water = water
+      ..kind = kind;
+    _backend.journal.saveRunningBath(bath);
+    notifyListeners();
+  }
+
+  /// Ends the running bath and keeps it as an entry.
+  BathEntry? finishBath() {
+    final bath = activeBath;
+    if (bath == null) return null;
+    final entry = _backend.journal.finishBath(bath);
+    _session = null;
+    notifyListeners();
+    return entry;
+  }
+
+  /// Throws the running bath away without recording it.
+  void discardBath() {
+    if (activeBath == null) return;
+    _backend.journal.discardBath();
     _session = null;
     notifyListeners();
   }

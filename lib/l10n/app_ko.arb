@@ -447,7 +447,6 @@
   "routineNeverDone": "완료한 적 없음",
   "routineLastDone": "마지막 완료 {date}",
   "optionalField": "{field}(선택)",
-  "workoutBlocksActivity": "트레이닝이 진행 중입니다. 종료한 후 활동을 시작하세요.",
   "activityDurationRange": "시간은 {min}~{max}분 사이로 입력하세요.",
   "activityDistanceRange": "거리는 0~{max} km 사이로 입력하세요.",
   "activityClimbRange": "상승 고도는 0~{max} m 사이로 입력하세요.",
@@ -1116,7 +1115,6 @@
   "deleteRoutine": "이 루틴 삭제",
   "deletedNamed": "'{name}' 삭제됨",
   "startWorkout": "운동 시작",
-  "activityBlocksWorkout": "활동이 진행 중입니다. 운동을 시작하려면 먼저 종료하세요",
   "plannedExercises": "계획한 운동",
   "soreMusclesToday": "오늘 뻐근한 근육",
   "recentlyDone": "최근 완료",
@@ -1805,5 +1803,10 @@
   "timeOfDaySection": "시간대",
   "weekdaysAndDaysOffSection": "평일과 휴일",
   "weekdaysLabel": "평일",
-  "daysOffLabel": "휴일"
+  "daysOffLabel": "휴일",
+  "sessionEndBathMessage": "종료하면 목욕 기록으로 저장됩니다. 버리면 아무것도 남지 않습니다.",
+  "sessionDiscardBath": "이번 목욕 버리기",
+  "sessionBlocksStart": "{session} 진행 중입니다. 먼저 종료하세요",
+  "bathEnded": "이번 목욕은 종료되었습니다.",
+  "commonStart": "시작"
 }

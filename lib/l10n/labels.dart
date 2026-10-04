@@ -90,6 +90,7 @@ extension ActiveSessionText on ActiveSession {
   String name(AppLocalizations l10n) => switch (this) {
     ActiveWorkout() => l10n.sessionWorkout,
     ActiveActivity(:final activity) => activity.type.labelIn(l10n),
+    ActiveBath() => l10n.recordBath,
   };
 }
 

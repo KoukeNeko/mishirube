@@ -75,7 +75,7 @@ class TodayScreen extends StatelessWidget {
           ActiveWorkout() => buildActiveWorkoutToday(context, store),
           // The dock carries a running exercise and its controls; Today
           // goes on as usual beside it.
-          ActiveActivity() || null => [
+          ActiveActivity() || ActiveBath() || null => [
             ?_nextStep(context, store, today),
             ..._sections(context, store, today),
           ],

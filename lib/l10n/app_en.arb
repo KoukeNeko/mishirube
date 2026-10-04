@@ -447,7 +447,6 @@
   "routineNeverDone": "Not done yet",
   "routineLastDone": "Last done {date}",
   "optionalField": "{field} (optional)",
-  "workoutBlocksActivity": "A workout is running. End it before starting an activity.",
   "activityDurationRange": "Enter a duration from {min} to {max} minutes.",
   "activityDistanceRange": "Enter a distance from 0 to {max} km.",
   "activityClimbRange": "Enter an elevation gain from 0 to {max} m.",
@@ -1116,7 +1115,6 @@
   "deleteRoutine": "Delete this routine",
   "deletedNamed": "Deleted \"{name}\"",
   "startWorkout": "Start workout",
-  "activityBlocksWorkout": "An activity is running; end it before starting a workout",
   "plannedExercises": "Planned exercises",
   "soreMusclesToday": "Sore today",
   "recentlyDone": "Recently done",
@@ -1805,5 +1803,10 @@
   "timeOfDaySection": "Time of day",
   "weekdaysAndDaysOffSection": "Weekdays and days off",
   "weekdaysLabel": "Weekdays",
-  "daysOffLabel": "Days off"
+  "daysOffLabel": "Days off",
+  "sessionEndBathMessage": "Ending saves it as a bath. Discard it and nothing is kept.",
+  "sessionDiscardBath": "Discard bath",
+  "sessionBlocksStart": "A session is running. End it before starting another.",
+  "bathEnded": "This bath has ended.",
+  "commonStart": "Start"
 }

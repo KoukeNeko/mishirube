@@ -793,6 +793,55 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a bath is started from the add menu and ends as an entry', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    await tester.tap(find.bySemanticsLabel('新增紀錄'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(quickLogMenuKey),
+        matching: find.text('洗澡'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('開始'));
+    await tester.pumpAndSettle();
+    expect(store.activeSession, isA<ActiveBath>());
+
+    clock.advance(const Duration(minutes: 6, seconds: 5));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('6:05'), findsWidgets, reason: 'the clock is running');
+
+    await tester.tap(find.bySemanticsLabel('返回'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('洗澡進行中'), findsOneWidget);
+    expect(
+      find.byTooltip('暫停洗澡'),
+      findsNothing,
+      reason: 'a bath has nothing to pause',
+    );
+
+    await tester.tap(find.byTooltip('結束洗澡'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('結束並儲存'));
+    await tester.pumpAndSettle();
+
+    expect(store.activeSession, isNull);
+    expect(
+      find.text('6 分'),
+      findsWidgets,
+      reason: 'the entry shows its length',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('timing a session keeps the rest of the app reachable', (
     tester,
   ) async {
@@ -829,7 +878,7 @@ void main() {
     await tester.pump();
     await tester.pump(_pageTransition);
     expect(store.activeSession, isA<ActiveActivity>());
-    expect(find.textContaining('先結束運動'), findsOneWidget);
+    expect(find.textContaining('騎自行車進行中，先結束才能開始'), findsOneWidget);
     await disposeTree(tester);
   });
 

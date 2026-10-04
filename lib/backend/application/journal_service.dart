@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/domain.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
@@ -271,6 +273,58 @@ class JournalService {
     _journal.addBath(entry);
     return entry;
   }
+
+  static const _runningBathKey = 'bath.running';
+
+  /// The bath running right now, if any. It lives in a setting so a
+  /// restart does not lose it; an empty value means none.
+  LiveBath? runningBath() {
+    final stored = _db.setting(_runningBathKey);
+    if (stored == null || stored.isEmpty) return null;
+    final fields = jsonDecode(stored) as Map<String, dynamic>;
+    return LiveBath(
+      startedAt: DateTime.fromMillisecondsSinceEpoch(
+        fields['startedAt'] as int,
+      ),
+      water: BathWater.values.asNameMap()[fields['water']],
+      kind: BathKind.values.asNameMap()[fields['kind']],
+    );
+  }
+
+  /// Starts a bath now, with the water and kind already chosen.
+  LiveBath startBath({BathWater? water, BathKind? kind}) {
+    final live = LiveBath(startedAt: _db.now(), water: water, kind: kind);
+    saveRunningBath(live);
+    return live;
+  }
+
+  /// Writes the running bath through, so a restart finds it as it was.
+  void saveRunningBath(LiveBath live) => _db.setSetting(
+    _runningBathKey,
+    jsonEncode({
+      'startedAt': live.startedAt.millisecondsSinceEpoch,
+      'water': live.water?.name,
+      'kind': live.kind?.name,
+    }),
+  );
+
+  /// Ends [live] as a bath that ended now. The length is the whole
+  /// minutes it ran, at least one.
+  BathEntry finishBath(LiveBath live) => _db.transaction(() {
+    final now = _db.now();
+    final minutes = (live.elapsedAt(now).inSeconds / 60).round();
+    final entry = recordBath(
+      at: now,
+      water: live.water,
+      kind: live.kind,
+      duration: Duration(minutes: minutes < 1 ? 1 : minutes),
+    );
+    _db.setSetting(_runningBathKey, '');
+    return entry;
+  });
+
+  /// Throws the running bath away; nothing is recorded.
+  void discardBath() => _db.setSetting(_runningBathKey, '');
 
   /// A sleep typed in: how long, and, when the user gives them, when it
   /// began and ended ([at]) and whether it was the night or a nap.

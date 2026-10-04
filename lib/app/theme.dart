@@ -38,6 +38,8 @@ abstract final class AppColors {
   /// and kept apart from 飲食's orange beside it on Today (CIEDE2000 18).
   static const caffeine = Color(0xFFA58566);
   static const wellness = Color(0xFF8C7CF4);
+  static const wellnessSurface = Color(0xFF1B1830);
+  static const wellnessOutline = Color(0xFF39336B);
 
   /// General exercise: far enough from the training green to tell a run
   /// from a workout at a glance.

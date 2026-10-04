@@ -9,6 +9,8 @@ import '../../shared/widgets/widgets.dart';
 import '../../shared/window_layout.dart';
 import '../activity/activity_detail_screen.dart';
 import '../activity/live_activity_screen.dart';
+import '../journal/bath_entry_screen.dart';
+import '../journal/journal_detail_screen.dart';
 import '../log/log_screen.dart';
 import '../me/me_screen.dart';
 import '../today/today_screen.dart';
@@ -126,6 +128,7 @@ class _HomeShellState extends State<HomeShell> {
   void _openSession(ActiveSession session) => _open<void>(switch (session) {
     ActiveWorkout() => const ActiveWorkoutScreen(),
     ActiveActivity() => const LiveActivityScreen(),
+    ActiveBath() => const BathEntryScreen.running(),
   });
 
   Future<void> _confirmFinish(AppStore store, ActiveSession session) async {
@@ -142,6 +145,8 @@ class _HomeShellState extends State<HomeShell> {
             store.discardWorkout();
           case ActiveActivity():
             store.discardActivity();
+          case ActiveBath():
+            store.discardBath();
         }
         showToast(context, discarded);
       case FinishChoice.finish:
@@ -155,6 +160,12 @@ class _HomeShellState extends State<HomeShell> {
             final finished = store.finishActivity();
             if (finished == null) return;
             _open<void>(ActivityDetailScreen(activityId: finished.id));
+          case ActiveBath():
+            final finished = store.finishBath();
+            if (finished == null) return;
+            _open<void>(
+              JournalDetailScreen(id: finished.id, at: finished.bathedAt),
+            );
         }
     }
   }
