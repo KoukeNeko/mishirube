@@ -1052,7 +1052,7 @@ enum LabelReader {
 
 /// The running workout on a paired Apple Watch (`lib/app/watch_sync.dart`,
 /// the app in `MishirubeWatch/`): the phone sends what to show, and the
-/// watch asks the phone to log the next set.
+/// watch asks the phone to log the next set and sends its live heart rate.
 final class WatchBridge: NSObject, WCSessionDelegate {
   static let shared = WatchBridge()
   private var channel: FlutterMethodChannel?
@@ -1085,9 +1085,16 @@ final class WatchBridge: NSObject, WCSessionDelegate {
     _ session: WCSession, didReceiveMessage message: [String: Any],
     replyHandler: @escaping ([String: Any]) -> Void
   ) {
-    guard message["action"] as? String == "logNextSet" else { return replyHandler([:]) }
+    let action = message["action"] as? String
+    guard action == "logNextSet" || action == "heartRate" else { return replyHandler([:]) }
     DispatchQueue.main.async {
-      self.channel?.invokeMethod("logNextSet", arguments: nil)
+      if action == "heartRate" {
+        self.channel?.invokeMethod(
+          "heartRate",
+          arguments: ["bpm": message["bpm"] ?? NSNull(), "time": message["time"] ?? NSNull()])
+      } else {
+        self.channel?.invokeMethod("logNextSet", arguments: nil)
+      }
       replyHandler([:])
     }
   }

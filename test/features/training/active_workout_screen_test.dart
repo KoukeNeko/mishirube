@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart'
-    show CustomScrollView, Scaffold, StatefulBuilder;
+    show CustomScrollView, Icons, Scaffold, StatefulBuilder;
 import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart' show MethodChannel, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
@@ -310,6 +310,31 @@ void main() {
       expect(target, findsNothing, reason: 'dismissed');
     }
     await disposeTree(tester);
+  });
+
+  group('the watch heart rate', () {
+    testWidgets('shows beside the clock while recent, then goes', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final clock = FakeClock();
+      final store = newStore(clock)
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      expect(find.byIcon(Icons.favorite), findsNothing);
+
+      store.takeHeartRate(142, clock.now());
+      clock.advance(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('142'), findsOneWidget);
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+
+      clock.advance(AppStore.liveHeartRateMaxAge);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('142'), findsNothing);
+      expect(find.byIcon(Icons.favorite), findsNothing);
+    });
   });
 
   group('the workout clock', () {

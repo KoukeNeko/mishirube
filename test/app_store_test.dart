@@ -17,6 +17,32 @@ void main() {
     store = AppStore(clock: clock.now, isOnboarded: true);
   });
 
+  group('watch heart rate', () {
+    test('is current for 30 s, only during a workout, newest first', () {
+      expect(store.liveHeartRate, isNull, reason: 'no workout');
+      store.startWorkout();
+      store.takeHeartRate(120, clock.now());
+      expect(store.liveHeartRate, 120);
+
+      clock.advance(const Duration(seconds: 30));
+      expect(store.liveHeartRate, 120);
+      clock.advance(const Duration(seconds: 1));
+      expect(store.liveHeartRate, isNull, reason: 'stale');
+
+      store.takeHeartRate(130, clock.now());
+      store.takeHeartRate(90, clock.now().subtract(const Duration(seconds: 5)));
+      expect(store.liveHeartRate, 130, reason: 'an older reading is ignored');
+    });
+
+    test('is dropped when the workout ends', () {
+      store.startWorkout();
+      store.takeHeartRate(120, clock.now());
+      store.discardWorkout();
+      store.startWorkout();
+      expect(store.liveHeartRate, isNull);
+    });
+  });
+
   group('workout', () {
     test('startWorkout builds one session per planned exercise', () {
       store.startWorkout();

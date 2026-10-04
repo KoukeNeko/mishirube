@@ -12,7 +12,8 @@ const _channel = MethodChannel('mishirube/watch');
 /// `ios/Runner/AppDelegate.swift` (the app in `ios/MishirubeWatch/`),
 /// Wear OS through `WearBridge.kt` (the app in `android/wear/`). A set
 /// logged on the watch comes back here and is logged as from the
-/// workout page.
+/// workout page. The watch's heart rate comes back too, as
+/// `AppStore.liveHeartRate`.
 class WatchSync extends StatefulWidget {
   const WatchSync({super.key, required this.child});
 
@@ -29,8 +30,19 @@ class _WatchSyncState extends State<WatchSync> {
   void initState() {
     super.initState();
     _channel.setMethodCallHandler((call) async {
-      if (call.method == 'logNextSet' && mounted) {
-        AppStoreScope.read(context).logNextSet();
+      if (!mounted) return;
+      final store = AppStoreScope.read(context);
+      switch (call.method) {
+        case 'logNextSet':
+          store.logNextSet();
+        case 'heartRate':
+          final arguments = call.arguments as Map<Object?, Object?>;
+          store.takeHeartRate(
+            (arguments['bpm'] as num).round(),
+            DateTime.fromMillisecondsSinceEpoch(
+              (arguments['time'] as num).round(),
+            ),
+          );
       }
     });
   }

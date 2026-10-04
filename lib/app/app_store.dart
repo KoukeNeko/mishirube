@@ -204,6 +204,29 @@ class AppStore extends ChangeNotifier {
   /// Whatever is running, of whatever kind; null when nothing is.
   ActiveSession? get activeSession => _session;
 
+  /// The heart rate a paired watch last sent and when it was taken; live
+  /// and in memory only, never stored. Not a notifying change: the clock
+  /// on the workout page ticks every second and reads it then.
+  int? _heartRate;
+  DateTime? _heartRateAt;
+
+  /// How long a reading stays current once the watch stops sending.
+  static const liveHeartRateMaxAge = Duration(seconds: 30);
+
+  /// The latest watch heart rate while a workout runs and the reading is
+  /// recent; null otherwise.
+  int? get liveHeartRate {
+    final at = _heartRateAt;
+    if (_heartRate == null || at == null || activeWorkout == null) return null;
+    return now().difference(at) > liveHeartRateMaxAge ? null : _heartRate;
+  }
+
+  void takeHeartRate(int bpm, DateTime at) {
+    if (_heartRateAt case final last? when at.isBefore(last)) return;
+    _heartRate = bpm;
+    _heartRateAt = at;
+  }
+
   WorkoutSession? get activeWorkout => switch (_session) {
     ActiveWorkout(:final workout) => workout,
     _ => null,
@@ -1171,6 +1194,8 @@ class AppStore extends ChangeNotifier {
     final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.discard(workout);
+    _heartRate = null;
+    _heartRateAt = null;
     _session = null;
     _restEndsAt = null;
     _restEndedAt = null;
@@ -1192,6 +1217,8 @@ class AppStore extends ChangeNotifier {
     final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.finish(workout);
+    _heartRate = null;
+    _heartRateAt = null;
     _lastFinishedWorkout = workout;
     _session = null;
     _restEndsAt = null;

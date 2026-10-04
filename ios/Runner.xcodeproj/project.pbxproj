@@ -129,6 +129,7 @@
 		A91D41942A6DA890E549CA01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		BBF400BA726A4C85608AA4D4 /* MishirubeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MishirubeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFBA4494FA634C34297200D5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0DE7A11B2D34E5F60718293 /* MishirubeWatch.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = MishirubeWatch.entitlements; sourceTree = "<group>"; };
 		ECED69CFA868023773AABE5A /* RestActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestActivityBundle.swift; sourceTree = "<group>"; };
 		1B61B01C40E1B1DD87CBA889 /* CaffeineActivityWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CaffeineActivityWidget.swift; sourceTree = "<group>"; };
 		EDFC8E2E5D772FE2E09DD94E /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/ActivityKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -193,6 +194,7 @@
 				73423A129803507192A067E8 /* MishirubeWatchApp.swift */,
 				A1B2C3D4E5F60718293A4B5C /* Assets.xcassets */,
 				BFBA4494FA634C34297200D5 /* Info.plist */,
+				C0DE7A11B2D34E5F60718293 /* MishirubeWatch.entitlements */,
 			);
 			name = MishirubeWatch;
 			path = MishirubeWatch;
@@ -897,6 +899,7 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 33832Z66QU;
 				GENERATE_INFOPLIST_FILE = YES;
+				CODE_SIGN_ENTITLEMENTS = MishirubeWatch/MishirubeWatch.entitlements;
 				INFOPLIST_FILE = MishirubeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -949,6 +952,7 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 33832Z66QU;
 				GENERATE_INFOPLIST_FILE = YES;
+				CODE_SIGN_ENTITLEMENTS = MishirubeWatch/MishirubeWatch.entitlements;
 				INFOPLIST_FILE = MishirubeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -975,6 +979,7 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 33832Z66QU;
 				GENERATE_INFOPLIST_FILE = YES;
+				CODE_SIGN_ENTITLEMENTS = MishirubeWatch/MishirubeWatch.entitlements;
 				INFOPLIST_FILE = MishirubeWatch/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MISHIRUBE;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";

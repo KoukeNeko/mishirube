@@ -4,6 +4,14 @@
 <dict>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>在訓練中讀取手錶的心率，顯示在手錶與 App 的訓練頁面。</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>訓練中開啟心率時，需要手錶的運動權限。心率資料會存入「健康」App。</string>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
 	<string>dev.koukeneko.mishirube</string>
 </dict>

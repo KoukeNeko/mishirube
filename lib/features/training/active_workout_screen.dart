@@ -732,17 +732,44 @@ class _TimeSoFar extends StatelessWidget {
               children: [
                 ElapsedClock(
                   session: ActiveWorkout(workout),
-                  builder: (_, elapsed) => Text(
-                    elapsed,
-                    style: TextStyle(
+                  builder: (_, elapsed) {
+                    final bpm = AppStoreScope.read(context).liveHeartRate;
+                    final style = TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: workout.isPaused
                           ? AppColors.warning
                           : AppColors.textPrimary,
                       fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
+                    );
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpacing.sm,
+                      children: [
+                        if (bpm != null)
+                          Semantics(
+                            label: withUnit('$bpm', context.l10n.unitBpm),
+                            excludeSemantics: true,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 2,
+                              children: [
+                                const Icon(
+                                  Icons.favorite,
+                                  size: 16,
+                                  color: AppColors.heart,
+                                ),
+                                Text(
+                                  '$bpm',
+                                  style: style.copyWith(color: AppColors.heart),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Text(elapsed, style: style),
+                      ],
+                    );
+                  },
                 ),
                 Text(
                   context.l10n.elapsedTime,
