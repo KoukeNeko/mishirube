@@ -17,6 +17,31 @@ List<RoutePoint> _northward(int minutes, double metersPerMinute) => [
 ];
 
 void main() {
+  test('heart rate during a workout keeps its own samples, in order', () {
+    final start = DateTime(2026, 10, 4, 18);
+    final end = start.add(const Duration(hours: 1));
+    final points = heartRateDuring(
+      [
+        (end.add(const Duration(minutes: 1)), 70),
+        (end, 150),
+        (start.add(const Duration(minutes: 30)), 130),
+        (start.subtract(const Duration(seconds: 1)), 60),
+        (start, 100),
+      ],
+      start,
+      end,
+    );
+    expect(points, [
+      (at: Duration.zero, value: 100.0),
+      (at: const Duration(minutes: 30), value: 130.0),
+      (at: const Duration(hours: 1), value: 150.0),
+    ]);
+    final range = rangeOf(points)!;
+    expect(range.high, 150);
+    expect(range.average, closeTo(126.67, 0.01), reason: 'by samples');
+    expect(heartRateDuring(const [], start, end), isEmpty);
+  });
+
   test('a route is cut every kilometre, and a short end is its own', () {
     final heart = [
       for (var i = 0; i < 12; i++)

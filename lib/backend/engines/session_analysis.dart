@@ -93,6 +93,22 @@ List<RouteSplit> routeSplits(
   return splits;
 }
 
+/// The platform's heart rate [samples] that fall within [start] and
+/// [end], oldest first, each as the time since [start].
+List<SeriesPoint> heartRateDuring(
+  List<(DateTime, double)> samples,
+  DateTime start,
+  DateTime end,
+) {
+  final within = [
+    for (final sample in samples)
+      if (!sample.$1.isBefore(start) && !sample.$1.isAfter(end)) sample,
+  ]..sort((a, b) => a.$1.compareTo(b.$1));
+  return [
+    for (final (at, value) in within) (at: at.difference(start), value: value),
+  ];
+}
+
 /// The five heart rate zones and the time spent in each, from the
 /// heart rate reserve (maximum less resting) where the resting rate is
 /// known, else from the maximum alone. The maximum is estimated from age

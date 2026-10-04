@@ -1,24 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../app/theme.dart';
+import '../../app/view_model.dart';
+import '../../backend/engines/session_analysis.dart';
 import '../../backend/engines/training_metrics.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../activity/activity_detail_screen.dart';
+import '../activity/activity_view_model.dart';
 import '../trends/muscle_map.dart';
 import 'edit_workout_screen.dart';
 import 'new_routine_screen.dart';
 import 'workout_share.dart';
 import '../../l10n/l10n.dart';
 
-class WorkoutSummaryScreen extends StatelessWidget {
+class WorkoutSummaryScreen extends StatefulWidget {
   const WorkoutSummaryScreen({super.key, this.workoutId});
 
   /// Which finished workout to show; the last one when null.
   final String? workoutId;
+
+  @override
+  State<WorkoutSummaryScreen> createState() => _WorkoutSummaryScreenState();
+}
+
+class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
+  /// The heart rate the health platform kept during the workout, read
+  /// when the page opens and again only if the workout's times change.
+  Future<List<SeriesPoint>>? _heartRate;
+  (String, DateTime, DateTime)? _heartRateKey;
+
+  Future<List<SeriesPoint>> _heartRateOf(
+    AppStore store,
+    WorkoutSession workout,
+    DateTime finishedAt,
+  ) {
+    final key = (workout.id, workout.startedAt, finishedAt);
+    if (key != _heartRateKey) {
+      _heartRateKey = key;
+      _heartRate = _readHeartRate(store, workout.startedAt, finishedAt);
+    }
+    return _heartRate!;
+  }
+
+  /// A platform that cannot answer shows no heart rate, as when it has
+  /// none.
+  Future<List<SeriesPoint>> _readHeartRate(
+    AppStore store,
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      final series = await store.overnightSeries(start, end);
+      return heartRateDuring(
+        series[OvernightMeasure.heartRate] ?? const [],
+        start,
+        end,
+      );
+    } on PlatformException catch (error, stack) {
+      FlutterError.reportError(
+        FlutterErrorDetails(exception: error, stack: stack),
+      );
+      return const [];
+    }
+  }
 
   /// Removed with an undo, like any other record.
   void _delete(BuildContext context, WorkoutSession workout) {
@@ -35,9 +85,10 @@ class WorkoutSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
+    final workoutId = widget.workoutId;
     final workout = workoutId == null
         ? store.lastFinishedWorkout
-        : store.workoutById(workoutId!);
+        : store.workoutById(workoutId);
     if (workout == null) {
       return DetailPage(
         appBar: PageAppBar(title: context.l10n.moduleTraining),
@@ -69,6 +120,31 @@ class WorkoutSummaryScreen extends StatelessWidget {
         if (item.record != null) item,
     ];
 
+    return FutureBuilder(
+      future: _heartRateOf(store, workout, finishedAt),
+      builder: (context, snapshot) => _page(
+        context,
+        store,
+        workout,
+        finishedAt,
+        review,
+        references,
+        records,
+        snapshot.data ?? const [],
+      ),
+    );
+  }
+
+  Widget _page(
+    BuildContext context,
+    AppStore store,
+    WorkoutSession workout,
+    DateTime finishedAt,
+    WorkoutReview review,
+    Map<String, ExerciseHistoryEntry?> references,
+    List<ExerciseReview> records,
+    List<SeriesPoint> heartRate,
+  ) {
     return DetailPage(
       appBar: PageAppBar(
         title: workout.routineName,
@@ -145,6 +221,16 @@ class WorkoutSummaryScreen extends StatelessWidget {
         ),
         if (_volumeChange(context.l10n, review) case final change?)
           Gutter(child: TagWrap(labels: [change])),
+        if (heartRate.isNotEmpty)
+          ViewModelBuilder(
+            create: ActivityViewModel.new,
+            builder: (context, model) => HeartRateSection(
+              heartRate: heartRate,
+              start: workout.startedAt,
+              age: model.ageOn(workout.startedAt),
+              restingHeartRate: model.restingHeartRateBefore(workout.startedAt),
+            ),
+          ),
         PageSection(
           label: context.l10n.workloadSection,
           children: [

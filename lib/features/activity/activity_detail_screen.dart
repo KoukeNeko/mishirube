@@ -106,11 +106,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     final splits = detail == null
         ? const <RouteSplit>[]
         : routeSplits(detail.route, heartRate);
-    final zones = heartRateZones(
-      heartRate,
-      age: detail?.age ?? model.ageOn(activity.startedAt),
-      restingHeartRate: model.restingHeartRateBefore(activity.startedAt),
-    );
     final route = detail?.route ?? const <RoutePoint>[];
     final hasMap = RouteMap.isSupported && route.length > 1;
     final media = MediaQuery.of(context);
@@ -185,38 +180,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
             ],
           ),
         if (heartRate.isNotEmpty)
-          PageSection(
-            label: context.l10n.activitySeriesHeartRate,
-            children: [
-              Gutter(
-                child: _SeriesCard(
-                  series: ActivitySeries.heartRate,
-                  points: heartRate,
-                  start: activity.startedAt,
-                ),
-              ),
-              if (zones != null)
-                Gutter(child: _ZoneCard(zones: zones))
-              // Zones read the maximum from an age, which is not set: say
-              // so rather than assume one.
-              else if (heartRate.length > 1 &&
-                  detail?.age == null &&
-                  model.ageOn(activity.startedAt) == null)
-                Gutter(
-                  child: GroupedCard(
-                    children: [
-                      NavRow(
-                        title: context.l10n.heartZonesTitle,
-                        trailing: Text(
-                          context.l10n.needsBirthYear,
-                          style: AppTextStyles.caption,
-                        ),
-                        onTap: () => editBirthYear(context),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+          HeartRateSection(
+            heartRate: heartRate,
+            start: activity.startedAt,
+            age: detail?.age ?? model.ageOn(activity.startedAt),
+            restingHeartRate: model.restingHeartRateBefore(activity.startedAt),
           ),
         if (detail != null && detail.recovery.length > 1)
           PageSection(
@@ -832,6 +800,68 @@ class _SplitTable extends StatelessWidget {
     return showsPace
         ? '${_pace(metersPerSecond)} /km'
         : '${(metersPerSecond * 3.6).toStringAsFixed(1)} km/h';
+  }
+}
+
+/// A session's heart rate: its chart with the average and range, and
+/// the time in each zone, or the row that asks for the birth year the
+/// zones need. Shared by a session read from the platform and a
+/// workout logged here.
+class HeartRateSection extends StatelessWidget {
+  const HeartRateSection({
+    super.key,
+    required this.heartRate,
+    required this.start,
+    required this.age,
+    required this.restingHeartRate,
+  });
+
+  /// The readings, each as the time since [start].
+  final List<SeriesPoint> heartRate;
+  final DateTime start;
+
+  /// The age the zones' maximum is estimated from; null when not known.
+  final int? age;
+  final double? restingHeartRate;
+
+  @override
+  Widget build(BuildContext context) {
+    final zones = heartRateZones(
+      heartRate,
+      age: age,
+      restingHeartRate: restingHeartRate,
+    );
+    return PageSection(
+      label: context.l10n.activitySeriesHeartRate,
+      children: [
+        Gutter(
+          child: _SeriesCard(
+            series: ActivitySeries.heartRate,
+            points: heartRate,
+            start: start,
+          ),
+        ),
+        if (zones != null)
+          Gutter(child: _ZoneCard(zones: zones))
+        // Zones read the maximum from an age, which is not set: say
+        // so rather than assume one.
+        else if (heartRate.length > 1 && age == null)
+          Gutter(
+            child: GroupedCard(
+              children: [
+                NavRow(
+                  title: context.l10n.heartZonesTitle,
+                  trailing: Text(
+                    context.l10n.needsBirthYear,
+                    style: AppTextStyles.caption,
+                  ),
+                  onTap: () => editBirthYear(context),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }
 
