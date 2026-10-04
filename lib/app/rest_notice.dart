@@ -109,10 +109,7 @@ class _RestNoticeState extends State<RestNotice> with WidgetsBindingObserver {
 
   void _syncSet(AppStore store) {
     final timer = store.setTimer;
-    final planned = timer?.set.durationSeconds ?? 0;
-    final endsAt = timer == null || timer.isPaused || planned <= 0
-        ? null
-        : timer.startedAt.add(Duration(seconds: planned));
+    final endsAt = timer?.dueAt;
     if (_isSynced && endsAt == _setEndsAt) return;
     final scheduled = _setEndsAt;
     _setEndsAt = endsAt;

@@ -8,7 +8,7 @@ import '../l10n/l10n.dart';
 const _channel = MethodChannel('mishirube/watch');
 
 /// Keeps a paired watch showing the running workout: the exercise, the
-/// set to do and the rest. Apple Watch through `WatchBridge` in
+/// set to do, the rest and when a timed set is due. Apple Watch through `WatchBridge` in
 /// `ios/Runner/AppDelegate.swift` (the app in `ios/MishirubeWatch/`),
 /// Wear OS through `WearBridge.kt` (the app in `android/wear/`). A set
 /// logged on the watch comes back here and is logged as from the
@@ -69,6 +69,7 @@ class _WatchSyncState extends State<WatchSync> {
         total: workout.totalSets,
       ),
       'restEndsAt': store.restEndsAt?.millisecondsSinceEpoch.toDouble(),
+      'setEndsAt': store.setTimer?.dueAt?.millisecondsSinceEpoch.toDouble(),
       'hasNext': set != null,
     };
   }

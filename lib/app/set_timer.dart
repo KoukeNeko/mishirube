@@ -18,5 +18,14 @@ class SetTimer {
 
   bool get isPaused => pausedAt != null;
 
+  /// When it reaches the time the set was planned for, while it runs
+  /// toward one: null when held or counting up.
+  DateTime? get dueAt {
+    final planned = set.durationSeconds ?? 0;
+    return isPaused || planned <= 0
+        ? null
+        : startedAt.add(Duration(seconds: planned));
+  }
+
   Duration elapsedAt(DateTime now) => (pausedAt ?? now).difference(startedAt);
 }
