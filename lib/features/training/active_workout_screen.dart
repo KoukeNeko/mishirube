@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart' show SpringSimulation;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 
 import '../../app/app_store.dart';
@@ -11,13 +13,13 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/haptics.dart';
-import '../../shared/motion.dart';
 import '../../shared/screen_awake.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../backend/engines/training_metrics.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
+import '../shell/bottom_chrome/chrome_metrics.dart';
 import '../shell/finish_session_dialog.dart';
 import 'substitute_exercise_screen.dart';
 import 'exercise_history_sheet.dart';
@@ -481,11 +483,16 @@ class _LiveTitle extends StatelessWidget {
 /// The seconds a running rest is moved by, each way.
 const _restAdjustments = [-15, 15, 30];
 
+/// The most of the line the time may take once the bar is in it, the
+/// rest being the bar's.
+const _timeShareWithBar = 0.6;
+
 /// The rest after a set, over the foot while it runs: what is left of
 /// it, as a figure and a bar, and more time or an end to it at a tap.
 /// [isCompact] tucks it into one line, the time, the bar and the skip,
 /// as the tab bar shrinks while the page scrolls down; a tap on it opens
-/// it out again ([onExpand]).
+/// it out again ([onExpand]). Both are one card changing shape on the
+/// dock's spring: the time and the skip stay put, the rest gives way.
 class _RestTimer extends StatefulWidget {
   const _RestTimer({required this.isCompact, required this.onExpand});
 
@@ -496,8 +503,16 @@ class _RestTimer extends StatefulWidget {
   State<_RestTimer> createState() => _RestTimerState();
 }
 
-class _RestTimerState extends State<_RestTimer> {
+class _RestTimerState extends State<_RestTimer>
+    with SingleTickerProviderStateMixin {
   late final Timer _timer;
+
+  /// 0 is the whole card, 1 the one line.
+  late final AnimationController _morph = AnimationController(
+    vsync: this,
+    value: widget.isCompact ? 1 : 0,
+    duration: ChromeMetrics.morphDuration,
+  );
 
   @override
   void initState() {
@@ -506,8 +521,33 @@ class _RestTimerState extends State<_RestTimer> {
   }
 
   @override
+  void didUpdateWidget(_RestTimer old) {
+    super.didUpdateWidget(old);
+    if (old.isCompact != widget.isCompact) _animate();
+  }
+
+  /// As the dock does, carrying the speed into a reversed direction.
+  void _animate() {
+    final target = widget.isCompact ? 1.0 : 0.0;
+    if (chromeDuration(context, ChromeMetrics.morphDuration) == Duration.zero) {
+      _morph.value = target;
+      return;
+    }
+    _morph.animateWith(
+      SpringSimulation(
+        ChromeMetrics.morphSpring,
+        _morph.value,
+        target,
+        _morph.velocity,
+        snapToEnd: true,
+      ),
+    );
+  }
+
+  @override
   void dispose() {
     _timer.cancel();
+    _morph.dispose();
     super.dispose();
   }
 
@@ -547,160 +587,233 @@ class _RestTimerState extends State<_RestTimer> {
       tone: TagTone.training,
       onTap: store.skipRest,
     );
-    final compact = Semantics(
-      button: true,
-      label: context.l10n.restTitle,
-      onTap: widget.onExpand,
-      child: InkWell(
-        onTap: widget.onExpand,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.xs,
-          ),
-          child: Row(
-            children: [
-              Text(context.l10n.restTitle, style: AppTextStyles.caption),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                clock,
-                style: AppTextStyles.itemTitle.copyWith(
-                  color: color,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: ProgressLine(
-                  progress: progress,
-                  color: color,
-                  height: 4,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              skip,
-            ],
-          ),
-        ),
-      ),
-    );
-    final duration = chromeDuration(context, const Duration(milliseconds: 250));
+    final VoidCallback? onTap = widget.isCompact
+        ? widget.onExpand
+        : restExercise == null
+        ? null
+        : () => showRestTimeDialog(context, exercise: restExercise);
     // Glass like the dock's: it floats over the page as the dock does,
     // and shrinks as the dock does.
     return ChromeSurface(
       refracts: true,
       radius: AppRadius.card,
-      child: AnimatedSize(
-        duration: duration,
-        curve: Curves.easeOutCubic,
-        alignment: Alignment.bottomCenter,
-        child: AnimatedSwitcher(
-          duration: duration,
-          child: widget.isCompact
-              ? compact
-              : _full(
-                  context,
-                  store,
-                  clock,
-                  progress,
-                  color,
-                  restExercise,
-                  skip,
+      child: AnimatedBuilder(
+        animation: _morph,
+        builder: (context, _) {
+          final t = _morph.value.clamp(0.0, 1.0);
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: lerpDouble(AppSpacing.md, AppSpacing.xs, t)!,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        button: true,
+                        label: widget.isCompact
+                            ? context.l10n.restTitle
+                            : context.l10n.restTimeTitle,
+                        onTap: onTap,
+                        child: InkWell(
+                          onTap: onTap,
+                          borderRadius: BorderRadius.circular(
+                            widget.isCompact ? AppRadius.card : AppRadius.small,
+                          ),
+                          child: LayoutBuilder(
+                            builder: (context, box) => Row(
+                              children: [
+                                // Large text shrinks the time rather than
+                                // push the skip out of the card.
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        box.maxWidth *
+                                        lerpDouble(1, _timeShareWithBar, t)!,
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(
+                                        lerpDouble(AppSpacing.xxs, 0, t)!,
+                                      ),
+                                      child: _titleAndClock(
+                                        context,
+                                        clock,
+                                        color,
+                                        t,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // The bar grows into the line from where the
+                                // one below it gives way.
+                                Expanded(
+                                  child: t == 0
+                                      ? const SizedBox.shrink()
+                                      : Align(
+                                          alignment:
+                                              AlignmentDirectional.centerStart,
+                                          child: FractionallySizedBox(
+                                            widthFactor: t,
+                                            child: Opacity(
+                                              opacity: t,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: AppSpacing.sm,
+                                                    ),
+                                                child: ProgressLine(
+                                                  progress: progress,
+                                                  color: color,
+                                                  height: 4,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    skip,
+                  ],
                 ),
-        ),
+                _Reveal(
+                  amount: 1 - t,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (store.activeWorkout?.currentExercise.nextSetIn(
+                            context.l10n,
+                          )
+                          case final next?) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          context.l10n.restNextSet(set: next),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
+                      // Nothing to lengthen once it has run out.
+                      if (store.restEndsAt != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          runSpacing: AppSpacing.xs,
+                          children: [
+                            for (final seconds in _restAdjustments)
+                              ChipButton(
+                                label: changeLabel(
+                                  seconds,
+                                  (size) => context.l10n.durationSeconds(
+                                    seconds: size,
+                                  ),
+                                ),
+                                onTap: () => store.extendRest(
+                                  Duration(seconds: seconds),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.sm),
+                      ProgressLine(progress: progress, color: color),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _full(
+  /// The title sits over the time while whole, and moves in beside it as
+  /// the card tucks into a line; the time itself only changes size.
+  Widget _titleAndClock(
     BuildContext context,
-    AppStore store,
     String clock,
-    double progress,
     Color color,
-    ExerciseDefinition? restExercise,
-    Widget skip,
-  ) => Padding(
-    padding: const EdgeInsets.all(AppSpacing.md),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    double t,
+  ) {
+    final title = Text(context.l10n.restTitle, style: AppTextStyles.caption);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
+        _Reveal(
+          amount: t,
+          axis: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.xs),
+            child: title,
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Semantics(
-              button: true,
-              label: context.l10n.restTimeTitle,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: restExercise == null
-                      ? null
-                      : () =>
-                            showRestTimeDialog(context, exercise: restExercise),
-                  borderRadius: BorderRadius.circular(AppRadius.small),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xxs),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.l10n.restTitle,
-                          style: AppTextStyles.caption,
-                        ),
-                        Text(
-                          clock,
-                          style: AppTextStyles.bigNumber.copyWith(
-                            color: color,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ],
-                    ),
+            _Reveal(amount: 1 - t, child: title),
+            Text(
+              clock,
+              style:
+                  TextStyle.lerp(
+                    AppTextStyles.bigNumber,
+                    AppTextStyles.itemTitle,
+                    t,
+                  )!.copyWith(
+                    color: color,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            // Wraps under the figure rather than overflow at large text.
-            Expanded(
-              child: Wrap(alignment: WrapAlignment.end, children: [skip]),
             ),
           ],
         ),
-        if (store.activeWorkout?.currentExercise.nextSetIn(context.l10n)
-            case final next?) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            context.l10n.restNextSet(set: next),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption,
-          ),
-        ],
-        // Nothing to lengthen once it has run out.
-        if (store.restEndsAt != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final seconds in _restAdjustments)
-                ChipButton(
-                  label: changeLabel(
-                    seconds,
-                    (size) => context.l10n.durationSeconds(seconds: size),
-                  ),
-                  onTap: () => store.extendRest(Duration(seconds: seconds)),
-                ),
-            ],
-          ),
-        ],
-        const SizedBox(height: AppSpacing.sm),
-        ProgressLine(progress: progress, color: color),
       ],
-    ),
-  );
+    );
+  }
+}
+
+/// Opens and closes along [axis] by [amount] (1 whole, 0 gone), fading as
+/// it goes, as the dock's labels and the accessory's side controls do.
+class _Reveal extends StatelessWidget {
+  const _Reveal({
+    required this.amount,
+    required this.child,
+    this.axis = Axis.vertical,
+  });
+
+  final double amount;
+  final Widget child;
+  final Axis axis;
+
+  @override
+  Widget build(BuildContext context) {
+    if (amount <= 0) return const SizedBox.shrink();
+    final isVertical = axis == Axis.vertical;
+    return ClipRect(
+      child: Align(
+        alignment: isVertical
+            ? Alignment.topCenter
+            : AlignmentDirectional.centerStart,
+        heightFactor: isVertical ? amount : null,
+        widthFactor: isVertical ? null : amount,
+        child: IgnorePointer(
+          ignoring: amount < 0.5,
+          child: Opacity(opacity: amount, child: child),
+        ),
+      ),
+    );
+  }
 }
 
 /// The workout's time so far, beside 完成訓練; held still, in the warning

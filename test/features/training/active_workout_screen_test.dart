@@ -413,6 +413,43 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a rest changes shape on its way into one line, not swapped '
+        'for another', (tester) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+      await tester.pump();
+      final card = find.ancestor(
+        of: find.text('跳過休息'),
+        matching: find.byType(ChromeSurface),
+      );
+      final clock = find.textContaining(RegExp(r'^\d+:\d\d$')).first;
+      final whole = tester.getSize(card).height;
+      final wholeClock = tester.getSize(clock).height;
+
+      await tester.drag(
+        find.byType(CustomScrollView).first,
+        const Offset(0, -300),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 80));
+      final midway = tester.getSize(card).height;
+      expect(find.text('跳過休息'), findsOneWidget);
+      expect(find.text('+15 秒'), findsOneWidget, reason: 'still giving way');
+      expect(find.byType(ProgressLine), findsNWidgets(2), reason: 'crossing');
+
+      await tester.pumpAndSettle();
+      final tucked = tester.getSize(card).height;
+      expect(midway, lessThan(whole));
+      expect(midway, greaterThan(tucked));
+      expect(tester.getSize(clock).height, lessThan(wholeClock));
+      expect(find.byType(ProgressLine), findsOneWidget);
+      await disposeTree(tester);
+    });
+
     testWidgets('a rest shows the next set, and counts the time past its end '
         'until it is closed', (tester) async {
       usePhoneViewport(tester);
