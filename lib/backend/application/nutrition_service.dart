@@ -4,6 +4,7 @@ import '../../domain/domain.dart';
 // The one place that decides how a typed search term is normalised; a
 // food is searched the same way an exercise is.
 import '../engines/caffeine.dart';
+import '../engines/caffeine_history.dart';
 import '../engines/exercise_search.dart' show normalizeTerm;
 import '../engines/food_portion.dart';
 import '../engines/food_search.dart';
@@ -208,6 +209,21 @@ class NutritionService {
       (eaten) => (eaten.$2.nutrients[Nutrient.caffeine] ?? 0) > 0,
     );
     return (at: at, meal: meal, below: below);
+  }
+
+  /// The last [caffeineHistoryDays] days of caffeine ([caffeineHistory]),
+  /// read against [usualBedtime].
+  CaffeineHistory recentCaffeine(Duration? usualBedtime) {
+    final now = _db.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return caffeineHistory(
+      between(
+        DateTime(today.year, today.month, today.day - caffeineHistoryDays - 1),
+        today,
+      ),
+      today: today,
+      usualBedtime: usualBedtime,
+    );
   }
 
   /// The records old enough to still show on the caffeine curve at [at].

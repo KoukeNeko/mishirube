@@ -3,7 +3,7 @@ import '../../app/view_model.dart';
 import '../../domain/domain.dart';
 import '../../l10n/l10n.dart';
 
-/// Weights, tape measurements, nights typed in, check-ins and notes:
+/// Weights, tape measurements, nights typed in, check-ins, baths and notes:
 /// reading one, and recording, correcting and removing them.
 class JournalViewModel extends ViewModel {
   JournalViewModel(super.backend);
@@ -90,6 +90,18 @@ class JournalViewModel extends ViewModel {
   void recordWellness(WellnessKind kind, int score, {String note = ''}) =>
       backend.journal.recordWellness(kind, score, note: note);
 
+  void recordBath({
+    required DateTime at,
+    BathWater? water,
+    BathKind? kind,
+    Duration? duration,
+  }) => backend.journal.recordBath(
+    at: at,
+    water: water,
+    kind: kind,
+    duration: duration,
+  );
+
   void recordNote(String text) => backend.journal.recordNote(text);
 
   void updateWeight(BodyWeight weight) => backend.journal.updateWeight(weight);
@@ -99,11 +111,21 @@ class JournalViewModel extends ViewModel {
 
   void updateSleep(SleepEntry entry) => backend.journal.updateSleep(entry);
 
+  /// Makes a sleep a night or a nap; returns what [restoreSleepKinds]
+  /// needs to take it back, the day's other night included.
+  List<(String, SleepKind?)> setSleepKind(String id, SleepKind kind) =>
+      backend.journal.setSleepKind(id, kind);
+
+  void restoreSleepKinds(List<(String, SleepKind?)> previous) =>
+      backend.journal.restoreSleepKinds(previous);
+
   /// Whether a record was typed in here, not read from a health platform.
   bool isTypedIn(String id) => backend.journal.isTypedIn(id);
 
   void updateWellness(WellnessEntry entry) =>
       backend.journal.updateWellness(entry);
+
+  void updateBath(BathEntry entry) => backend.journal.updateBath(entry);
 
   void updateNote(Note note) => backend.journal.updateNote(note);
 

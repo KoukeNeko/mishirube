@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/backend/engines/caffeine.dart';
 import 'package:mishirube/backend/engines/sleep_metrics.dart';
 import 'package:mishirube/domain/domain.dart';
 
@@ -168,14 +169,104 @@ void main() {
     expect(lateNight.wake, DateTime(2026, 9, 25, 7), reason: 'still tonight');
   });
 
-  test('a comparison needs enough nights on both sides', () {
-    final nights = [
-      for (var day = 1; day <= 10; day++)
+  group('comparing nights', () {
+    // Twenty nights ending on the 2nd to the 21st, odd days 8 h, even 6 h.
+    List<SleepEntry> twenty() => [
+      for (var day = 1; day <= 20; day++)
         _slept(day + 1, bed: 0, wake: 0, hours: day.isEven ? 6 : 8),
     ];
-    final comparison = compareNights(nights, (morning) => morning.day.isOdd)!;
-    expect(comparison.withCount, 5);
-    expect(comparison.difference, const Duration(hours: -2));
-    expect(compareNights(nights.take(6).toList(), (_) => true), isNull);
+
+    test('says nothing below ten nights a side but still counts them', () {
+      final nights = twenty();
+      final few = compareNights(
+        nights.take(18).toList(),
+        (night) => night.sleptAt.day.isOdd,
+      );
+      expect(few.withCount, 9);
+      expect(few.withoutCount, 9);
+      expect(few.isEnough, isFalse);
+      expect(few.difference, isNull);
+
+      final enough = compareNights(nights, (night) => night.sleptAt.day.isEven);
+      expect(enough.withCount, 10);
+      expect(enough.isEnough, isTrue);
+      expect(enough.difference, const Duration(hours: 2));
+    });
+
+    test('a night the thing is not known for is left out', () {
+      final comparison = compareNights(
+        twenty(),
+        (night) => night.sleptAt.day <= 10 ? null : night.sleptAt.day.isOdd,
+      );
+      expect(comparison.withCount + comparison.withoutCount, 11);
+      expect(comparison.isEnough, isFalse);
+    });
+
+    test('takes another outcome, and skips nights without it', () {
+      final nights = [
+        ...twenty(),
+        for (var day = 21; day <= 24; day++)
+          _slept(day + 1, bed: 0, wake: 0, hours: 7),
+      ];
+      final comparison = compareNights(
+        nights,
+        (night) => night.sleptAt.day.isOdd,
+        outcome: (night) => night.sleptAt.day == 5
+            ? null
+            : Duration(minutes: night.sleptAt.day.isOdd ? 10 : 30),
+      );
+      expect(comparison.withCount, 11);
+      expect(comparison.withoutCount, 12);
+      expect(comparison.difference, const Duration(minutes: -20));
+    });
+
+    test('equal sides show no difference rather than hiding', () {
+      final comparison = compareNights([
+        for (var day = 1; day <= 20; day++)
+          _slept(day + 1, bed: 0, wake: 0, hours: 7),
+      ], (night) => night.sleptAt.day.isOdd);
+      expect(comparison.difference, Duration.zero);
+    });
+  });
+
+  group('caffeine at the usual bedtime', () {
+    final morning = DateTime(2026, 9, 20);
+    final coffee = [
+      CaffeineIntake(at: DateTime(2026, 9, 19, 14), milligrams: 107),
+    ];
+
+    test('an evening bedtime is on the evening before the morning', () {
+      // 107 mg at 14:00, 22:00 bedtime: 8 h = 1.6 half-lives, 35.3 mg.
+      final remaining = caffeineAtUsualBedtime(
+        coffee,
+        morning,
+        const Duration(hours: 22),
+      )!;
+      expect(remaining, closeTo(35.3, 0.1));
+      expect(remaining, greaterThanOrEqualTo(caffeineBedtimeReferenceMg));
+    });
+
+    test('a bedtime after midnight is on the morning itself', () {
+      // 01:00 on the 20th is 11 h later: 23.3 mg.
+      expect(
+        caffeineAtUsualBedtime(coffee, morning, const Duration(hours: 1))!,
+        closeTo(23.3, 0.1),
+      );
+    });
+
+    test('caffeine after the usual bedtime or a day before is not counted', () {
+      final intakes = [
+        CaffeineIntake(at: DateTime(2026, 9, 19, 23), milligrams: 200),
+        CaffeineIntake(at: DateTime(2026, 9, 18, 20), milligrams: 400),
+      ];
+      expect(
+        caffeineAtUsualBedtime(intakes, morning, const Duration(hours: 22)),
+        0,
+      );
+    });
+
+    test('is null without a usual bedtime', () {
+      expect(caffeineAtUsualBedtime(coffee, morning, null), isNull);
+    });
   });
 }

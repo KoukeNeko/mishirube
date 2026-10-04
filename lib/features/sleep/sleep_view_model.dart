@@ -168,14 +168,9 @@ class SleepViewModel extends ViewModel {
       value,
   ]);
 
-  /// Nights after training, late caffeine or a late meal against nights
-  /// without.
-  ({
-    SleepComparison? training,
-    SleepComparison? lateCaffeine,
-    SleepComparison? lateMeal,
-  })
-  get factors => backend.sleep.factors();
+  /// Nights after training, caffeine at bedtime, a late meal, a nap or
+  /// daylight against nights without.
+  SleepFactors get factors => backend.sleep.factors();
 
   /// Shows a sleep from another source that recorded it.
   void chooseSource(String id, String source) =>

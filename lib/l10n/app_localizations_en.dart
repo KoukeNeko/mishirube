@@ -2323,9 +2323,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get afterTraining => 'After training';
 
   @override
-  String get caffeineAfter2pm => 'Caffeine after 14:00';
-
-  @override
   String get mealAfter9pm => 'Eating after 21:00';
 
   @override
@@ -2337,7 +2334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get factorsSection => 'Factors';
 
   @override
-  String get factorsBasis => 'Difference in average sleep over 90 days';
+  String get factorsBasis => 'Difference between group averages over 90 days';
 
   @override
   String get correlationNotCause => 'Correlation, not cause';
@@ -6355,4 +6352,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cueSoundTitle => 'Sound';
+
+  @override
+  String get caffeineAtBedtime => 'Caffeine at bedtime';
+
+  @override
+  String get napThatDay => 'Nap that day';
+
+  @override
+  String get moreDaylight => 'More daylight';
+
+  @override
+  String get notEnoughData => 'Not enough data';
+
+  @override
+  String get refSectionSleepFactors => 'Factors';
+
+  @override
+  String get refUseFactorDaylight =>
+      'Nights after more daylight ran longer in an observational study of 21 people over 7 days; Apple\'s time in daylight is unvalidated and mixed up with outdoor exercise';
+
+  @override
+  String get refUseFactorNights =>
+      'A person\'s average total sleep settles after about 7 nights; each side of a factor needs 10, and it only describes, it does not test';
+
+  @override
+  String get recordBath => 'Bath';
+
+  @override
+  String get bathWaterSection => 'Water temperature';
+
+  @override
+  String get bathWaterCold => 'Cold';
+
+  @override
+  String get bathWaterWarm => 'Warm';
+
+  @override
+  String get bathWaterHot => 'Hot';
+
+  @override
+  String get bathKindSection => 'Type';
+
+  @override
+  String get bathKindShower => 'Shower';
+
+  @override
+  String get bathKindBath => 'Bath';
+
+  @override
+  String fallAsleepShorter({required String time}) {
+    return '$time shorter to fall asleep';
+  }
+
+  @override
+  String fallAsleepLonger({required String time}) {
+    return '$time longer to fall asleep';
+  }
+
+  @override
+  String get bathWaterUnknownTag => 'Includes unrecorded temperature';
+
+  @override
+  String get refUseBathHeating =>
+      'Warm shower or bath before bed shortened time to fall asleep; meta-analysis of small trials';
+
+  @override
+  String get refUseBathWindow =>
+      'Going to bed 61–180 minutes after a bath went with a shorter time to fall asleep; observational, small to medium effect. The bath factor\'s window is a product rule, and a comparison within one person has no statistical power';
+
+  @override
+  String get caffeineDailySection => 'Daily intake';
+
+  @override
+  String get statAverageLabel => 'Average';
+
+  @override
+  String get caffeineLastIntakeSection => 'Last intake and time before bed';
+
+  @override
+  String lastIntakeAt({required String time}) {
+    return 'Last at $time';
+  }
+
+  @override
+  String timeBeforeBedtime({required String time}) {
+    return '$time before bed';
+  }
+
+  @override
+  String get caffeineAtBedtimeSection => 'Estimated at bedtime';
+
+  @override
+  String get timeOfDaySection => 'Time of day';
+
+  @override
+  String get weekdaysAndDaysOffSection => 'Weekdays and days off';
+
+  @override
+  String get weekdaysLabel => 'Weekdays';
+
+  @override
+  String get daysOffLabel => 'Days off';
 }

@@ -5,6 +5,7 @@ import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/engines/insight_engine.dart';
 import 'package:mishirube/backend/engines/progression_engine.dart';
+import 'package:mishirube/backend/engines/sleep_metrics.dart';
 import 'package:mishirube/backend/engines/substitution_engine.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
 import 'package:mishirube/backend/engines/trend_engine.dart';
@@ -57,7 +58,8 @@ String _report(Backend backend) {
     ..writeln('insight: $insightEngineVersion')
     ..writeln('substitution: $substitutionEngineVersion')
     ..writeln('exercise search: $exerciseSearchVersion')
-    ..writeln('progression: $progressionEngineVersion');
+    ..writeln('progression: $progressionEngineVersion')
+    ..writeln('sleep metrics: $sleepMetricsVersion');
 
   final overview = backend.insights.trends();
   buffer

@@ -337,6 +337,7 @@ class TodayScreen extends StatelessWidget {
     final waterReference = today.waterReferenceMl;
     final night = store.lastNight;
     final sleepGoal = today.sleepGoal;
+    final napTime = today.napTimeOn(night?.entry.sleptAt ?? store.now());
     final tiles = [
       if (modules.contains(AppModule.sleep))
         QuickStatTile(
@@ -354,6 +355,12 @@ class TodayScreen extends StatelessWidget {
                 )
               : null,
           caption: switch (night) {
+            _ when napTime > Duration.zero => context.l10n.withNapsTotal(
+              time: formatDuration(
+                context.l10n,
+                (night?.entry.duration ?? Duration.zero) + napTime,
+              ),
+            ),
             null => null,
             _ when sleepGoal != null => context.l10n.goalValue(
               goal: formatDuration(context.l10n, sleepGoal),

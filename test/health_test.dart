@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,9 +11,13 @@ import 'package:mishirube/backend/application/health_service.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/sleep_nights.dart';
 import 'package:mishirube/backend/health/health_source.dart';
+import 'package:mishirube/backend/import_export/canonical_archive.dart';
 import 'package:mishirube/backend/storage/database.dart';
+import 'package:mishirube/backend/storage/journal_repository.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
+import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
@@ -273,6 +278,59 @@ void main() {
         summarize(night.samples, source: 'com.ouraring')!.length,
         const Duration(hours: 8),
         reason: 'another source can still be shown',
+      );
+    });
+
+    test('a day whose longest sleep is under three hours has no night', () {
+      List<SleepKind> kindsOf(Duration length) => [
+        for (final sleep in nightsOf([
+          _asleep(
+            DateTime(2026, 9, 21, 13),
+            DateTime(2026, 9, 21, 13).add(length),
+          ),
+        ]))
+          sleep.kind,
+      ];
+      expect(kindsOf(const Duration(hours: 2, minutes: 59)), [SleepKind.nap]);
+      expect(kindsOf(const Duration(hours: 3)), [SleepKind.night]);
+    });
+
+    test('an evening nap is a nap before its night arrives', () {
+      // Starting after 18:00 it belongs to the next morning's day, which
+      // has no night yet: it must not read as last night.
+      final nap = nightsOf([
+        _asleep(DateTime(2026, 9, 21, 19), DateTime(2026, 9, 21, 20)),
+      ]).single;
+      expect(nap.kind, SleepKind.nap);
+      expect(nap.morning, DateTime(2026, 9, 22));
+
+      final both = nightsOf([
+        _asleep(DateTime(2026, 9, 21, 19), DateTime(2026, 9, 21, 20)),
+        _asleep(DateTime(2026, 9, 21, 23), DateTime(2026, 9, 22, 7)),
+      ]);
+      expect(
+        [for (final sleep in both) sleep.kind],
+        [SleepKind.nap, SleepKind.night],
+      );
+    });
+
+    test('a sleep under twenty minutes is dropped, twenty is a nap', () {
+      final sleeps = nightsOf([
+        _asleep(DateTime(2026, 9, 20, 23), DateTime(2026, 9, 21, 7)),
+        _asleep(DateTime(2026, 9, 21, 12), DateTime(2026, 9, 21, 12, 19)),
+        _asleep(DateTime(2026, 9, 21, 15), DateTime(2026, 9, 21, 15, 20)),
+      ]);
+      expect(
+        [for (final sleep in sleeps) sleep.kind],
+        [SleepKind.night, SleepKind.nap],
+      );
+      expect(sleeps.last.asleep, const Duration(minutes: 20));
+      expect(
+        nightsOf([
+          _asleep(DateTime(2026, 9, 21, 12), DateTime(2026, 9, 21, 12, 10)),
+        ]),
+        isEmpty,
+        reason: 'a day with only a short rest has no sleep at all',
       );
     });
 
@@ -982,6 +1040,470 @@ void main() {
       final store = storeWith(_FakeHealth([lastNight]));
       expect(await store.syncHealth(), isNull);
       expect(imported(store), isEmpty);
+    });
+  });
+  group('a sleep the user calls a nap', () {
+    final clock = FakeClock();
+
+    AppStore storeWith(_FakeHealth health) => AppStore(
+      clock: clock.now,
+      isOnboarded: true,
+      backend: Backend.inMemory(clock: clock.now),
+      health: health,
+    );
+
+    // This morning's night and an afternoon nap, on one day.
+    final woke = DateTime(2026, 9, 19, 7);
+    final napStart = DateTime(2026, 9, 19, 14);
+    List<SleepSample> day() => [
+      _asleep(woke.subtract(const Duration(hours: 8)), woke),
+      _asleep(napStart, napStart.add(const Duration(minutes: 40))),
+    ];
+
+    SleepEntry nightOf(AppStore store) => store.backend.sleep
+        .day(woke)
+        .firstWhere((record) => record.entry.kind == SleepKind.night)
+        .entry;
+
+    Map<SleepKind, int> kinds(AppStore store) => {
+      for (final kind in SleepKind.values)
+        kind: store.backend.sleep
+            .day(woke)
+            .where((record) => record.entry.kind == kind)
+            .length,
+    };
+
+    test('beats the rules, survives a re-read and is not an update', () async {
+      final store = storeWith(_FakeHealth(day()));
+      await store.connectHealth();
+      final night = nightOf(store);
+
+      store.backend.journal.setSleepKind(night.id, SleepKind.nap);
+      expect(kinds(store), {SleepKind.night: 0, SleepKind.nap: 2});
+
+      final again = await store.syncHealth();
+      expect(kinds(store), {SleepKind.night: 0, SleepKind.nap: 2});
+      expect(again!.updated, 0, reason: 'the data did not move');
+      expect(again.foundNothing, isTrue);
+
+      // A short sleep the user calls the night is the night.
+      final nap = store.backend.sleep
+          .day(woke)
+          .firstWhere((record) => record.entry.duration.inMinutes == 40);
+      store.backend.journal.setSleepKind(nap.entry.id, SleepKind.night);
+      await store.syncHealth();
+      expect(nightOf(store).id, nap.entry.id);
+      expect(nightOf(store).duration, const Duration(minutes: 40));
+    });
+
+    test('saying what the data says clears the override', () async {
+      final store = storeWith(_FakeHealth(day()));
+      await store.connectHealth();
+      final night = nightOf(store);
+      final journal = store.backend.journal;
+      String? override() =>
+          store.backend.db.select(
+                'SELECT kind_override FROM sleep_entries WHERE id = ?',
+                [night.id],
+              ).single['kind_override']
+              as String?;
+
+      journal.setSleepKind(night.id, SleepKind.nap);
+      expect(override(), 'nap');
+      journal.setSleepKind(night.id, SleepKind.night);
+      expect(override(), isNull);
+      expect(
+        journal.setSleepKind(night.id, SleepKind.night),
+        isEmpty,
+        reason: 'nothing to change, nothing to undo',
+      );
+    });
+
+    test('making a nap the night turns the old night into a nap, and one '
+        'undo puts both back', () async {
+      final store = storeWith(_FakeHealth(day()));
+      await store.connectHealth();
+      final night = nightOf(store);
+      final nap = store.backend.sleep
+          .day(woke)
+          .firstWhere((record) => record.entry.kind == SleepKind.nap)
+          .entry;
+
+      final undo = store.backend.journal.setSleepKind(nap.id, SleepKind.night);
+      expect(nightOf(store).id, nap.id);
+      expect(kinds(store), {SleepKind.night: 1, SleepKind.nap: 1});
+      expect(
+        store.backend.db.select(
+          'SELECT payload FROM audit_events WHERE entity_id = ? '
+          "AND action = 'edit'",
+          [night.id],
+        ).single['payload'],
+        contains(nap.id),
+        reason: 'the swap says what it was swapped with',
+      );
+
+      store.backend.journal.restoreSleepKinds(undo);
+      expect(nightOf(store).id, night.id);
+      expect(kinds(store), {SleepKind.night: 1, SleepKind.nap: 1});
+    });
+
+    test('a typed-in sleep takes the switch too, and the override '
+        'round-trips through the archive', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final night = backend.journal.recordSleep(
+        const Duration(hours: 7),
+        at: woke,
+        startedAt: woke.subtract(const Duration(hours: 7)),
+      );
+      backend.journal.setSleepKind(night.id, SleepKind.nap);
+      expect(
+        backend.sleep.nights(woke, woke.add(const Duration(days: 1))),
+        isEmpty,
+      );
+
+      final archive = exportArchive(backend.db);
+      final restored = Backend.inMemory(clock: clock.now);
+      addTearDown(restored.close);
+      restoreArchive(restored.db, jsonDecode(encodeArchive(archive)));
+      expect(exportArchive(restored.db), archive);
+      expect(
+        (restored.journal.entry(night.id)! as SleepEntry).kind,
+        SleepKind.nap,
+      );
+    });
+
+    test('editing a sleep keeps what the data said, not what the user set', () {
+      final backend = Backend.inMemory(clock: clock.now);
+      addTearDown(backend.close);
+      final night = backend.journal.recordSleep(
+        const Duration(hours: 7),
+        at: woke,
+      );
+      backend.journal.setSleepKind(night.id, SleepKind.nap);
+      final edited = backend.journal.entry(night.id)! as SleepEntry;
+
+      backend.journal.updateSleep(
+        SleepEntry(
+          id: edited.id,
+          sleptAt: edited.sleptAt,
+          duration: edited.duration,
+          score: 4,
+          kind: edited.kind,
+        ),
+      );
+      // Calling it a night again is what the data says: no override left.
+      backend.journal.setSleepKind(night.id, SleepKind.night);
+      expect(
+        (backend.journal.entry(night.id)! as SleepEntry).kind,
+        SleepKind.night,
+      );
+    });
+  });
+
+  group('sleeps a platform stopped producing', () {
+    final clock = FakeClock();
+    final now = clock.now();
+
+    AppStore storeWith(_FakeHealth health) => AppStore(
+      clock: clock.now,
+      isOnboarded: true,
+      backend: Backend.inMemory(clock: clock.now),
+      health: health,
+    );
+
+    DateTime morning(int daysAgo) =>
+        DateTime(now.year, now.month, now.day - daysAgo, 7);
+
+    SleepSample night(int daysAgo) => _asleep(
+      morning(daysAgo).subtract(const Duration(hours: 8)),
+      morning(daysAgo),
+    );
+
+    /// A platform night an old rule made: stored, but no longer produced.
+    String leftBehind(
+      AppStore store,
+      int daysAgo, {
+      ChangeSource source = ChangeSource.healthKit,
+      String prefix = 'healthkit',
+    }) {
+      final end = morning(daysAgo);
+      final id = '$prefix-sleep-orphan-$daysAgo-${source.name}';
+      JournalRepository(store.backend.db).addSleep(
+        SleepEntry(
+          id: id,
+          sleptAt: end,
+          duration: const Duration(hours: 1),
+          startedAt: end.subtract(const Duration(hours: 1)),
+        ),
+        source: source,
+      );
+      return id;
+    }
+
+    bool isLive(AppStore store, String id) =>
+        store.backend.db.select(
+          'SELECT deleted_at FROM sleep_entries WHERE id = ?',
+          [id],
+        ).single['deleted_at'] ==
+        null;
+
+    Future<AppStore> connected(_FakeHealth health) async {
+      final store = storeWith(health);
+      await store.connectHealth();
+      return store;
+    }
+
+    test('are removed, with the reason on the audit trail', () async {
+      final health = _FakeHealth([night(3), night(2), night(1)]);
+      final store = await connected(health);
+      final orphan = leftBehind(store, 5);
+
+      await store.syncHealth();
+
+      expect(isLive(store, orphan), isFalse);
+      final event = store.backend.db.select(
+        'SELECT source, payload FROM audit_events WHERE entity_id = ? '
+        "AND action = 'delete'",
+        [orphan],
+      ).single;
+      expect(event['source'], 'healthKit');
+      expect(event['payload'], contains('orphan'));
+      expect(
+        store.backend.sleep.day(morning(1)).single.entry.duration,
+        const Duration(hours: 8),
+        reason: 'what the read produced stays',
+      );
+    });
+
+    test(
+      'the first read after an update clears what the old rule made',
+      () async {
+        final health = _FakeHealth([night(3), night(2)]);
+        final store = storeWith(health);
+        // Stored by an earlier version, before its full read was redone.
+        final orphan = leftBehind(store, 4);
+        store.backend.db.setSetting('health.full_read_version', '5');
+        store.backend.db.setSetting('health.synced_at', '1');
+        store.backend.db.setSetting('health.connected', 'true');
+
+        await store.syncHealth();
+
+        expect(isLive(store, orphan), isFalse);
+        expect(health.readFrom.length, greaterThan(1), reason: 'a full read');
+      },
+    );
+
+    test('never touch what the user touched, or typed in, or is not '
+        'platform', () async {
+      final health = _FakeHealth([night(3), night(2), night(1)]);
+      final store = await connected(health);
+      final journal = store.backend.journal;
+      final repository = JournalRepository(store.backend.db);
+
+      final overridden = leftBehind(store, 6);
+      journal.setSleepKind(overridden, SleepKind.nap);
+      final rated = leftBehind(store, 7);
+      journal.updateSleep(
+        SleepEntry(
+          id: rated,
+          sleptAt: morning(7),
+          duration: const Duration(hours: 1),
+          score: 5,
+        ),
+      );
+      final typed = leftBehind(store, 8, source: ChangeSource.local);
+      final demo = leftBehind(store, 9, source: ChangeSource.seed);
+      final otherPlatform = leftBehind(
+        store,
+        10,
+        source: ChangeSource.healthConnect,
+        prefix: 'healthconnect',
+      );
+      expect(repository.sleepRow(overridden), isNotNull);
+
+      await store.syncHealth();
+
+      for (final id in [overridden, rated, typed, demo, otherPlatform]) {
+        expect(isLive(store, id), isTrue, reason: id);
+      }
+    });
+
+    test('only touch a sleep the read covered in full', () async {
+      final health = _FakeHealth([night(3), night(2), night(1)]);
+      final store = await connected(health);
+      // Older than the 30 days the read reaches, and one that began
+      // before the rolling window's first day was complete.
+      final old = leftBehind(store, 60);
+      final edge = leftBehind(store, 30);
+
+      await store.syncHealth();
+
+      expect(isLive(store, old), isTrue);
+      expect(isLive(store, edge), isTrue);
+    });
+
+    test('an empty read removes nothing', () async {
+      final health = _FakeHealth([night(3), night(2), night(1)]);
+      final store = await connected(health);
+      final orphan = leftBehind(store, 5);
+
+      health.samples = [];
+      await store.syncHealth();
+
+      expect(isLive(store, orphan), isTrue, reason: 'a refused read is empty');
+    });
+
+    test(
+      'a read that would remove most of what it covers removes none',
+      () async {
+        final health = _FakeHealth([night(3), night(2), night(1)]);
+        final store = await connected(health);
+        final orphans = [
+          for (final days in [4, 5, 6, 7]) leftBehind(store, days),
+        ];
+
+        await store.syncHealth();
+
+        for (final id in orphans) {
+          expect(isLive(store, id), isTrue, reason: id);
+        }
+      },
+    );
+
+    test('one a platform removed comes back when it is produced again, one '
+        'the user deleted does not', () async {
+      final health = _FakeHealth([night(3), night(2), night(1)]);
+      final store = await connected(health);
+      final produced = store.backend.sleep.day(morning(2)).single.entry.id;
+      final deletedByUser = store.backend.sleep.day(morning(3)).single.entry.id;
+      store.backend.journal.delete(deletedByUser);
+
+      // The platform stops producing the night of two days ago: removed.
+      health.samples = [night(3), night(1)];
+      await store.syncHealth();
+      expect(isLive(store, produced), isFalse);
+      expect(
+        store.backend.db.select(
+          'SELECT source FROM audit_events WHERE entity_id = ? '
+          "AND action = 'delete'",
+          [produced],
+        ).single['source'],
+        'healthKit',
+      );
+
+      health.samples = [night(3), night(2), night(1)];
+      await store.syncHealth();
+      expect(isLive(store, produced), isTrue, reason: 'revived');
+      expect(
+        store.backend.db.select(
+          'SELECT source FROM audit_events WHERE entity_id = ? '
+          "AND action = 'restore'",
+          [produced],
+        ).single['source'],
+        'healthKit',
+      );
+      expect(isLive(store, deletedByUser), isFalse, reason: 'theirs to keep');
+    });
+  });
+
+  group('sleep screens with naps', () {
+    final clock = FakeClock();
+
+    AppStore newStore() => AppStore(clock: clock.now, isOnboarded: true);
+
+    testWidgets('Today adds the day\'s naps to the sleep tile', (tester) async {
+      final store = newStore();
+      final wake = DateTime(2026, 9, 19, 7);
+      store.backend.journal.recordSleep(
+        const Duration(hours: 8),
+        at: wake,
+        startedAt: wake.subtract(const Duration(hours: 8)),
+      );
+      await pumpScreen(tester, const TodayScreen(), store: store);
+      expect(find.text('含小睡共 8 小時 40 分'), findsNothing);
+
+      store.backend.journal.recordSleep(
+        const Duration(minutes: 40),
+        at: DateTime(2026, 9, 19, 14, 40),
+        startedAt: DateTime(2026, 9, 19, 14),
+        kind: SleepKind.nap,
+      );
+      await tester.pump();
+      expect(find.text('含小睡共 8 小時 40 分'), findsOneWidget);
+      await disposeTree(tester);
+    });
+
+    testWidgets('Today with only a nap leaves the main value empty', (
+      tester,
+    ) async {
+      final store = newStore();
+      store.backend.journal.recordSleep(
+        const Duration(minutes: 40),
+        at: DateTime(2026, 9, 19, 14, 40),
+        startedAt: DateTime(2026, 9, 19, 14),
+        kind: SleepKind.nap,
+      );
+      await pumpScreen(tester, const TodayScreen(), store: store);
+      expect(find.text('含小睡共 40 分'), findsOneWidget);
+      expect(
+        find.text('40 分'),
+        findsNothing,
+        reason: 'a nap is not last night',
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('a nap card opens the sleep page, whose switch makes it the '
+        'night and undoes both', (tester) async {
+      final store = newStore();
+      final backend = store.backend;
+      final wake = DateTime(2026, 9, 19, 7);
+      final night = backend.journal.recordSleep(
+        const Duration(hours: 8),
+        at: wake,
+        startedAt: wake.subtract(const Duration(hours: 8)),
+      );
+      final nap = backend.journal.recordSleep(
+        const Duration(minutes: 40),
+        at: DateTime(2026, 9, 19, 14, 40),
+        startedAt: DateTime(2026, 9, 19, 14),
+        kind: SleepKind.nap,
+      );
+      await pumpScreen(
+        tester,
+        SleepScreen(day: DateTime(2026, 9, 19)),
+        store: store,
+      );
+
+      await tester.tap(find.text('14:00–14:40'));
+      await tester.pumpAndSettle();
+      expect(find.byType(JournalDetailScreen), findsOneWidget);
+      final switchOn = find.byType(Switch);
+      expect(tester.widget<Switch>(switchOn).value, isTrue);
+
+      await tester.tap(switchOn);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(
+        (backend.journal.entry(nap.id)! as SleepEntry).kind,
+        SleepKind.night,
+      );
+      expect(
+        (backend.journal.entry(night.id)! as SleepEntry).kind,
+        SleepKind.nap,
+      );
+
+      await tester.tap(find.text('復原'));
+      await tester.pump();
+      expect(
+        (backend.journal.entry(nap.id)! as SleepEntry).kind,
+        SleepKind.nap,
+      );
+      expect(
+        (backend.journal.entry(night.id)! as SleepEntry).kind,
+        SleepKind.night,
+      );
+      await disposeTree(tester);
     });
   });
 }

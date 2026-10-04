@@ -76,6 +76,9 @@ class TodayViewModel extends ViewModel {
   /// How long a night the user aims for, when they have set it.
   Duration? get sleepGoal => backend.sleep.goal;
 
+  /// Time asleep in the naps of [day].
+  Duration napTimeOn(DateTime day) => backend.sleep.napTimeOn(day);
+
   /// Today's figure for each activity metric the health platform has one
   /// for.
   Map<ActivityMetric, double> get activityTotals =>

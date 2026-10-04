@@ -253,6 +253,25 @@ class JournalService {
     return entry;
   }
 
+  /// A shower or bath that ended at [at]. Water, kind and length are
+  /// stored as given, null when the user left them out.
+  BathEntry recordBath({
+    required DateTime at,
+    BathWater? water,
+    BathKind? kind,
+    Duration? duration,
+  }) {
+    final entry = BathEntry(
+      id: _db.newId(),
+      bathedAt: at,
+      water: water,
+      kind: kind,
+      duration: duration,
+    );
+    _journal.addBath(entry);
+    return entry;
+  }
+
   /// A sleep typed in: how long, and, when the user gives them, when it
   /// began and ended ([at]) and whether it was the night or a nap.
   SleepEntry recordSleep(
@@ -301,7 +320,17 @@ class JournalService {
 
   void updateSleep(SleepEntry entry) => _journal.updateSleep(entry);
 
+  /// Makes sleep [id] a night or a nap; see [JournalRepository.setSleepKind].
+  /// What it returns is what [restoreSleepKinds] takes back.
+  List<(String, SleepKind?)> setSleepKind(String id, SleepKind kind) =>
+      _journal.setSleepKind(id, kind);
+
+  void restoreSleepKinds(List<(String, SleepKind?)> previous) =>
+      _journal.restoreSleepKinds(previous);
+
   void updateWellness(WellnessEntry entry) => _journal.updateWellness(entry);
+
+  void updateBath(BathEntry entry) => _journal.updateBath(entry);
 
   void delete(String id) => _journal.delete(id);
 

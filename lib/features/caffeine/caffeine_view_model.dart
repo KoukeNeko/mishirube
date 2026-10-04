@@ -1,5 +1,6 @@
 import '../../app/view_model.dart';
 import '../../backend/engines/caffeine.dart';
+import '../../backend/engines/caffeine_history.dart';
 import '../../domain/domain.dart';
 
 /// Caffeine: what is likely still in the body around now, and what was
@@ -32,6 +33,13 @@ class CaffeineViewModel extends ViewModel {
       at: at,
     );
   }
+
+  /// The usual bedtime the page reads caffeine against; null while there
+  /// are too few nights that say when they began.
+  Duration? get usualBedtime => backend.sleep.usualBedtime();
+
+  /// The last 28 days of caffeine.
+  CaffeineHistory get history => backend.nutrition.recentCaffeine(usualBedtime);
 
   /// Whether caffeine over the bedtime reference is shown on the lock
   /// screen and in the Dynamic Island.

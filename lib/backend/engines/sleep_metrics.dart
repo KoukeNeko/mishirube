@@ -1,9 +1,10 @@
 import 'dart:math' as math;
 
 import '../../domain/domain.dart';
+import 'caffeine.dart';
 
 /// Bumped whenever a rule below changes.
-const sleepMetricsVersion = 1;
+const sleepMetricsVersion = 3;
 
 /// An awake stretch this long or longer inside a sleep counts as waking
 /// up; shorter ones are the stirring every night has.
@@ -13,10 +14,14 @@ const awakeningMinimum = Duration(minutes: 5);
 /// as reading in bed, not as trying to sleep, and gives no latency.
 const _longestLatency = Duration(hours: 2);
 
-/// Nights needed before regularity, a baseline or a comparison says
-/// anything: fewer are anecdotes.
+/// Nights needed before regularity or a baseline says anything: fewer
+/// are anecdotes.
 const minimumNightsForRegularity = 3;
-const minimumNightsPerSide = 5;
+
+/// Nights each side of a factor needs before its difference is shown;
+/// 5 is under what a personal average of sleep time needs to settle
+/// (research/92e A.5), and even 10 only describes, it does not test.
+const minimumNightsPerSide = 10;
 
 /// How one sleep held together, from one source's stretches. Each figure
 /// is null when the source did not record what it needs: a watch that
@@ -27,7 +32,12 @@ class SleepContinuity {
     required this.efficiency,
     required this.awake,
     required this.awakenings,
+    this.inBedAt,
   });
+
+  /// When the source says the person got into bed; null when it recorded
+  /// no time in bed.
+  final DateTime? inBedAt;
 
   /// From getting into bed to first falling asleep.
   final Duration? latency;
@@ -104,6 +114,7 @@ SleepContinuity continuityOf(List<SleepSample> stretches) {
       ? [for (final stretch in awakeStretches) stretch.length]
       : gaps;
   return SleepContinuity(
+    inBedAt: inBed.firstOrNull?.start,
     latency: latency,
     efficiency: efficiency,
     awake: awakeSpans.fold<Duration>(Duration.zero, (sum, d) => sum + d),
@@ -413,9 +424,10 @@ SleepShortfall shortfallOf(List<SleepDay> days, Duration need) {
   return (bedtime: wake.subtract(goal), wake: wake);
 }
 
-/// Nights after days with something against nights after days without
-/// it: how long they slept, and how many there were of each. It says the
-/// two go together in these records, not that one causes the other.
+/// Nights with something against nights without it: an outcome measure
+/// (how long they slept, or how long falling asleep took), averaged on
+/// each side, and how many nights each side has. It says the two go
+/// together in these records, not that one causes the other.
 class SleepComparison {
   const SleepComparison({
     required this.withCount,
@@ -426,39 +438,170 @@ class SleepComparison {
 
   final int withCount;
   final int withoutCount;
-  final Duration withAverage;
-  final Duration withoutAverage;
 
-  Duration get difference => withAverage - withoutAverage;
+  /// Null when that side has no night.
+  final Duration? withAverage;
+  final Duration? withoutAverage;
+
+  /// Whether both sides have [minimumNightsPerSide] nights.
+  bool get isEnough =>
+      withCount >= minimumNightsPerSide && withoutCount >= minimumNightsPerSide;
+
+  /// With minus without; null until [isEnough].
+  Duration? get difference => isEnough ? withAverage! - withoutAverage! : null;
 }
 
-/// [nights] split by whether the day before each had the thing
-/// ([hadIt] is given the night's morning); null unless both sides have
-/// [minimumNightsPerSide] nights.
-SleepComparison? compareNights(
+/// The morning a night ended on, as midnight.
+DateTime morningOf(SleepEntry night) =>
+    DateTime(night.sleptAt.year, night.sleptAt.month, night.sleptAt.day);
+
+/// The evening before [morning]: the day whose events a night follows.
+DateTime eveningBefore(DateTime morning) =>
+    DateTime(morning.year, morning.month, morning.day - 1);
+
+/// Total sleep time of a night, the outcome [compareNights] reads unless
+/// told otherwise.
+Duration? totalSleepOf(SleepEntry night) => night.duration;
+
+/// [nights] split by [hadIt]: true puts a night with the thing, false
+/// without it, null leaves it out of the comparison (the thing is not
+/// known for that night). [outcome] is what each side is averaged on,
+/// total sleep unless given; a night it returns null for is left out.
+/// The sides' counts come back even when too few to say anything, so
+/// the screen can show how many nights it has.
+SleepComparison compareNights(
   List<SleepEntry> nights,
-  bool Function(DateTime morning) hadIt,
-) {
+  bool? Function(SleepEntry night) hadIt, {
+  Duration? Function(SleepEntry night) outcome = totalSleepOf,
+}) {
   final withIt = <Duration>[];
   final without = <Duration>[];
   for (final night in nights) {
-    final morning = DateTime(
-      night.sleptAt.year,
-      night.sleptAt.month,
-      night.sleptAt.day,
-    );
-    (hadIt(morning) ? withIt : without).add(night.duration);
+    final measured = outcome(night);
+    final had = hadIt(night);
+    if (measured == null || had == null) continue;
+    (had ? withIt : without).add(measured);
   }
-  if (withIt.length < minimumNightsPerSide ||
-      without.length < minimumNightsPerSide) {
-    return null;
-  }
-  Duration average(List<Duration> all) =>
-      all.fold(Duration.zero, (sum, d) => sum + d) ~/ all.length;
+  Duration? average(List<Duration> all) => all.isEmpty
+      ? null
+      : all.fold(Duration.zero, (sum, d) => sum + d) ~/ all.length;
   return SleepComparison(
     withCount: withIt.length,
     withoutCount: without.length,
     withAverage: average(withIt),
     withoutAverage: average(without),
   );
+}
+
+/// The estimated caffeine left at the person's usual bedtime before
+/// [night]'s morning, from the intakes of the 24 hours before it; null
+/// when [usualBedtime] (a time after midnight, as [regularityOf] gives
+/// it) is not known. A usual bedtime before noon is after midnight, so
+/// it falls on the morning itself, otherwise on the evening before. The
+/// usual bedtime, not the night's own, so a late night caffeine caused
+/// does not move the night to the low side.
+double? caffeineAtUsualBedtime(
+  Iterable<CaffeineIntake> intakes,
+  DateTime morning,
+  Duration? usualBedtime,
+) {
+  if (usualBedtime == null) return null;
+  final day = usualBedtime < const Duration(hours: 12)
+      ? morning
+      : eveningBefore(morning);
+  final bedtime = day.add(usualBedtime);
+  return estimatedCaffeineRemaining([
+    for (final intake in intakes)
+      if (bedtime.difference(intake.at) <= const Duration(hours: 24)) intake,
+  ], now: bedtime);
+}
+
+/// A night with when its person got into bed and how long falling asleep
+/// took: only nights that have both can be set against a bath.
+typedef BedNight = ({SleepEntry night, DateTime inBedAt, Duration latency});
+
+/// Baths that ended up to this long before getting into bed are the ones
+/// a night is read against; a product rule (research/92f A3).
+const bathLookBack = Duration(hours: 6);
+
+/// Minutes between a bath's end and getting into bed in which it counts as
+/// a bath before sleep, ends included. The window is a product rule, not
+/// a finding: Tai 2021 saw a link between these minutes and shorter
+/// falling asleep, in other people.
+const bathWindowMinutes = (from: 61, to: 180);
+
+/// [nights] with a bath against nights without one, on how long falling
+/// asleep took ([compareNights] on latency). Research/92f A3:
+///
+/// - No bath ended 0–360 minutes before getting into bed: without.
+/// - Any known cold bath in that time: neither side.
+/// - Every bath in it ended 61–180 minutes before: with. Warm, hot and
+///   unrecorded water count alike.
+/// - Otherwise: neither side.
+///
+/// A night before the first bath on record, [firstBathAt], is left out:
+/// nothing was being recorded yet. With [excludeUnrecorded] a night with a
+/// bath of unrecorded water is left out too; that is only for checking
+/// how much the rule leans on them, and no screen shows it.
+BathComparison compareBathNights(
+  List<BedNight> nights,
+  List<BathEntry> baths, {
+  required DateTime? firstBathAt,
+  bool excludeUnrecorded = false,
+}) {
+  final groups = <String, bool?>{};
+  final unrecordedOnly = <String>{};
+  for (final (:night, :inBedAt, latency: _) in nights) {
+    if (firstBathAt == null || inBedAt.isBefore(firstBathAt)) continue;
+    final before = [
+      for (final bath in baths)
+        if (!inBedAt.isBefore(bath.bathedAt) &&
+            inBedAt.difference(bath.bathedAt) <= bathLookBack)
+          (bath, inBedAt.difference(bath.bathedAt).inMinutes),
+    ];
+    if (before.isEmpty) {
+      groups[night.id] = false;
+    } else if (before.any((entry) => entry.$1.water == BathWater.cold) ||
+        (excludeUnrecorded && before.any((entry) => entry.$1.water == null)) ||
+        before.any(
+          (entry) =>
+              entry.$2 < bathWindowMinutes.from ||
+              entry.$2 > bathWindowMinutes.to,
+        )) {
+      groups[night.id] = null;
+    } else {
+      groups[night.id] = true;
+      if (before.every((entry) => entry.$1.water == null)) {
+        unrecordedOnly.add(night.id);
+      }
+    }
+  }
+  final latencies = {for (final bed in nights) bed.night.id: bed.latency};
+  final comparison = compareNights(
+    [for (final bed in nights) bed.night],
+    (night) => groups[night.id],
+    outcome: (night) => latencies[night.id],
+  );
+  return BathComparison(
+    comparison: comparison,
+    unrecordedOnlyCount: unrecordedOnly
+        .where((id) => groups[id] == true)
+        .length,
+  );
+}
+
+/// A [SleepComparison] of baths, with how many of the nights counted as
+/// having one rest on baths whose water was not recorded.
+class BathComparison {
+  const BathComparison({
+    required this.comparison,
+    required this.unrecordedOnlyCount,
+  });
+
+  final SleepComparison comparison;
+  final int unrecordedOnlyCount;
+
+  /// Whether more than half the nights with a bath have no water recorded
+  /// on any bath, which the screen says beside the figure.
+  bool get isMostlyUnrecorded => unrecordedOnlyCount * 2 > comparison.withCount;
 }

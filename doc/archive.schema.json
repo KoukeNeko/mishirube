@@ -1929,6 +1929,12 @@
                   "null"
                 ]
               },
+              "kindOverride": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "localDay": {
                 "type": [
                   "integer",
@@ -2159,6 +2165,87 @@
               },
               "note": {
                 "type": "string"
+              },
+              "localDay": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "utcOffsetMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "deletedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "importBatchId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "bathEntries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "bathedAt",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "source"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "bathedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "water": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "kind": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "durationMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "localDay": {
                 "type": [

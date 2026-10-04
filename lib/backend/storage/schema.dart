@@ -552,6 +552,25 @@ final List<String> _migrations = [
   ALTER TABLE routine_exercises ADD COLUMN target_seconds INTEGER;
   ALTER TABLE routine_exercises ADD COLUMN target_meters REAL;
   ''',
+  // What the user says a sleep was, night or nap, over what the source's
+  // data gave (`kind`). Null follows the data; an import never writes it.
+  '''
+  ALTER TABLE sleep_entries ADD COLUMN kind_override TEXT;
+  ''',
+  // A shower or bath: when it ended, and only what the user says of the
+  // water, the kind and the length. A column left null is not a default.
+  '''
+  CREATE TABLE bath_entries (
+    id TEXT PRIMARY KEY,
+    bathed_at INTEGER NOT NULL,
+    water TEXT,
+    kind TEXT,
+    duration_minutes INTEGER,
+    $_livedColumns,
+    $_entityColumns
+  );
+  CREATE INDEX bath_entries_bathed ON bath_entries(bathed_at);
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;

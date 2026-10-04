@@ -426,6 +426,31 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
     ],
   ),
   (
+    l10n.refSectionSleepFactors,
+    [
+      (
+        citation: 'Montanari, A., Wang, L. M., Birenboim, A., et al. (2026). The impact of sunlight and artificial light at night on sleep stages: Evidence from a 7-day sensor-based observational study. JMIR mHealth and uHealth, 14, Article e75898.',
+        use: l10n.refUseFactorDaylight,
+        url: 'https://doi.org/10.2196/75898',
+      ),
+      (
+        citation: 'Leota, J., Messman, B. A., Le, F., Jasinski, S., et al. (2026). How many nights are needed? The short-term stability of intraindividual variability in sleep parameters derived from accelerometry data in a cohort of normal sleepers. Sleep, 49(6), Article zsag040.',
+        use: l10n.refUseFactorNights,
+        url: 'https://doi.org/10.1093/sleep/zsag040',
+      ),
+      (
+        citation: 'Haghayegh, S., Khoshnevis, S., Smolensky, M. H., Diller, K. R., & Castriotta, R. J. (2019). Before-bedtime passive body heating by warm shower or bath to improve sleep: A systematic review and meta-analysis. Sleep Medicine Reviews, 46, 124–135.',
+        use: l10n.refUseBathHeating,
+        url: 'https://doi.org/10.1016/j.smrv.2019.04.008',
+      ),
+      (
+        citation: 'Tai, Y., Obayashi, K., Yamagami, Y., Yoshimoto, K., Kurumatani, N., Nishio, K., & Saeki, K. (2021). Hot-water bathing before bedtime and shorter sleep onset latency are accompanied by a higher distal-proximal skin temperature gradient in older adults. Journal of Clinical Sleep Medicine, 17(6), 1257–1266.',
+        use: l10n.refUseBathWindow,
+        url: 'https://doi.org/10.5664/jcsm.9180',
+      ),
+    ],
+  ),
+  (
     l10n.refSectionSleepStages,
     [
       (

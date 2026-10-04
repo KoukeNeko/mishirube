@@ -2297,9 +2297,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get afterTraining => '訓練後';
 
   @override
-  String get caffeineAfter2pm => '14:00 後有咖啡因';
-
-  @override
   String get mealAfter9pm => '21:00 後進食';
 
   @override
@@ -2311,7 +2308,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get factorsSection => '影響因素';
 
   @override
-  String get factorsBasis => '近 90 天的平均睡著時間差';
+  String get factorsBasis => '近 90 天兩組的平均差';
 
   @override
   String get correlationNotCause => '相關，不代表因果';
@@ -6227,6 +6224,106 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cueSoundTitle => '提示音';
+
+  @override
+  String get caffeineAtBedtime => '就寢時咖啡因';
+
+  @override
+  String get napThatDay => '當天有小睡';
+
+  @override
+  String get moreDaylight => '日光時間較多';
+
+  @override
+  String get notEnoughData => '資料不足';
+
+  @override
+  String get refSectionSleepFactors => '影響因素';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜';
+
+  @override
+  String get refUseFactorNights => '個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定';
+
+  @override
+  String get recordBath => '洗澡';
+
+  @override
+  String get bathWaterSection => '水溫';
+
+  @override
+  String get bathWaterCold => '冷水';
+
+  @override
+  String get bathWaterWarm => '溫水';
+
+  @override
+  String get bathWaterHot => '熱水';
+
+  @override
+  String get bathKindSection => '種類';
+
+  @override
+  String get bathKindShower => '淋浴';
+
+  @override
+  String get bathKindBath => '泡澡';
+
+  @override
+  String fallAsleepShorter({required String time}) {
+    return '入睡所需少 $time';
+  }
+
+  @override
+  String fallAsleepLonger({required String time}) {
+    return '入睡所需多 $time';
+  }
+
+  @override
+  String get bathWaterUnknownTag => '含未填水溫';
+
+  @override
+  String get refUseBathHeating => '睡前以溫水淋浴或泡澡，入睡所需縮短；統合分析，試驗樣本小';
+
+  @override
+  String get refUseBathWindow =>
+      '洗澡結束後 61–180 分鐘就寢，入睡所需較短；觀察研究，效果量中等偏小。洗澡因素的窗口是產品規則，個人內比較沒有統計檢定力';
+
+  @override
+  String get caffeineDailySection => '每日攝取';
+
+  @override
+  String get statAverageLabel => '平均';
+
+  @override
+  String get caffeineLastIntakeSection => '最後一次與距就寢';
+
+  @override
+  String lastIntakeAt({required String time}) {
+    return '最後一次 $time';
+  }
+
+  @override
+  String timeBeforeBedtime({required String time}) {
+    return '距就寢 $time';
+  }
+
+  @override
+  String get caffeineAtBedtimeSection => '就寢估計殘留';
+
+  @override
+  String get timeOfDaySection => '時段';
+
+  @override
+  String get weekdaysAndDaysOffSection => '平日與假日';
+
+  @override
+  String get weekdaysLabel => '平日';
+
+  @override
+  String get daysOffLabel => '假日';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -8521,9 +8618,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get afterTraining => '训练后';
 
   @override
-  String get caffeineAfter2pm => '14:00 后有咖啡因';
-
-  @override
   String get mealAfter9pm => '21:00 后进食';
 
   @override
@@ -8535,7 +8629,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get factorsSection => '影响因素';
 
   @override
-  String get factorsBasis => '近 90 天的平均睡着时间差';
+  String get factorsBasis => '近 90 天两组的平均差';
 
   @override
   String get correlationNotCause => '相关，不代表因果';
@@ -12451,6 +12545,106 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get cueSoundTitle => '提示音';
+
+  @override
+  String get caffeineAtBedtime => '就寝时咖啡因';
+
+  @override
+  String get napThatDay => '当天有小睡';
+
+  @override
+  String get moreDaylight => '日光时间较多';
+
+  @override
+  String get notEnoughData => '数据不足';
+
+  @override
+  String get refSectionSleepFactors => '影响因素';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光时间较多的日子隔夜睡得较长，观察研究，21 人 7 天；Apple 日光时间未经验证，与户外运动混杂';
+
+  @override
+  String get refUseFactorNights => '个人总睡眠时间的平均约 7 晚才稳定，因素列每边至少 10 晚，仍只描述、不检验';
+
+  @override
+  String get recordBath => '洗澡';
+
+  @override
+  String get bathWaterSection => '水温';
+
+  @override
+  String get bathWaterCold => '冷水';
+
+  @override
+  String get bathWaterWarm => '温水';
+
+  @override
+  String get bathWaterHot => '热水';
+
+  @override
+  String get bathKindSection => '种类';
+
+  @override
+  String get bathKindShower => '淋浴';
+
+  @override
+  String get bathKindBath => '泡澡';
+
+  @override
+  String fallAsleepShorter({required String time}) {
+    return '入睡所需少 $time';
+  }
+
+  @override
+  String fallAsleepLonger({required String time}) {
+    return '入睡所需多 $time';
+  }
+
+  @override
+  String get bathWaterUnknownTag => '含未填水温';
+
+  @override
+  String get refUseBathHeating => '睡前以温水淋浴或泡澡，入睡所需缩短；荟萃分析，试验样本小';
+
+  @override
+  String get refUseBathWindow =>
+      '洗澡结束后 61–180 分钟就寝，入睡所需较短；观察研究，效果量中等偏小。洗澡因素的窗口是产品规则，个人内比较没有统计检验力';
+
+  @override
+  String get caffeineDailySection => '每日摄入';
+
+  @override
+  String get statAverageLabel => '平均';
+
+  @override
+  String get caffeineLastIntakeSection => '最后一次与距就寝';
+
+  @override
+  String lastIntakeAt({required String time}) {
+    return '最后一次 $time';
+  }
+
+  @override
+  String timeBeforeBedtime({required String time}) {
+    return '距就寝 $time';
+  }
+
+  @override
+  String get caffeineAtBedtimeSection => '就寝估计残留';
+
+  @override
+  String get timeOfDaySection => '时段';
+
+  @override
+  String get weekdaysAndDaysOffSection => '平日与假日';
+
+  @override
+  String get weekdaysLabel => '平日';
+
+  @override
+  String get daysOffLabel => '假日';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

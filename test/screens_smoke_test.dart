@@ -20,6 +20,7 @@ import 'package:mishirube/features/me/ai_proposal_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/vitals/vitals_screen.dart';
 import 'package:mishirube/features/today/today_layout_screen.dart';
+import 'package:mishirube/features/journal/bath_entry_screen.dart';
 import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
@@ -91,6 +92,52 @@ void _withCoffee(AppStore store) {
     ),
     eatenAt: at,
   );
+}
+
+/// A month of food with coffee at varied hours and a week of nights, so
+/// the caffeine page has every section it can show.
+void _withCaffeineMonth(AppStore store) {
+  final today = store.now();
+  for (var daysAgo = 1; daysAgo <= 28; daysAgo++) {
+    final day = DateTime(today.year, today.month, today.day - daysAgo);
+    for (final (hour, name, caffeine) in [
+      (8, '早餐', null),
+      (9, '美式', 95.0),
+      (12, '午餐', null),
+      (15 + daysAgo % 4, daysAgo.isEven ? '拿鐵' : '茶', 60.0 + daysAgo),
+      (19, '晚餐', null),
+    ]) {
+      store.backend.nutrition.logMeal(
+        MealEvent(
+          id: 'month-$daysAgo-$hour',
+          name: name,
+          timeLabel: '$hour:00',
+          qualityTag: '手動',
+          dishes: const [],
+          kind: caffeine == null
+              ? ConsumptionKind.food
+              : ConsumptionKind.beverage,
+          nutrients: caffeine == null
+              ? const {}
+              : {Nutrient.caffeine: caffeine},
+        ),
+        eatenAt: day.add(Duration(hours: hour)),
+      );
+    }
+  }
+  for (var daysAgo = 1; daysAgo <= 7; daysAgo++) {
+    final woke = DateTime(today.year, today.month, today.day - daysAgo, 7);
+    store.backend.storage.journal.addSleep(
+      SleepEntry(
+        id: 'month-night-$daysAgo',
+        sleptAt: woke,
+        duration: const Duration(hours: 8),
+        startedAt: woke.subtract(const Duration(hours: 8)),
+        sourceName: 'Apple Watch',
+      ),
+      source: ChangeSource.healthKit,
+    );
+  }
 }
 
 /// A month of what a phone and a watch counted: steps, distance and
@@ -318,6 +365,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'sleep': ((_) => const SleepScreen(), _withStagedNight),
   'water': ((_) => const WaterScreen(), _noSetup),
   'caffeine': ((_) => const CaffeineScreen(), _withCoffee),
+  'caffeine, a month': ((_) => const CaffeineScreen(), _withCaffeineMonth),
   'sleep shortfall': (
     (store) => SleepShortfallScreen(day: store.now()),
     _withStagedNight,
@@ -389,6 +437,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     },
     _noSetup,
   ),
+  'bath entry': ((_) => const BathEntryScreen(), _noSetup),
   'wellness entry': ((_) => const WellnessEntryScreen(), _noSetup),
   'shell / today morning': ((_) => const HomeShell(), _noSetup),
   'shell / today in workout': ((_) => const HomeShell(), _withWorkout),

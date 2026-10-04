@@ -194,3 +194,30 @@ class WellnessEntry {
   final int score;
   final String note;
 }
+
+/// How warm the water of a bath was. Cold is its own value: it is not
+/// warmth, and the sleep factor leaves a night after one out.
+enum BathWater { cold, warm, hot }
+
+enum BathKind { shower, bath }
+
+/// One shower or bath. Only when it ended is known; the water, the kind
+/// and the length stay null unless the user says, never filled in for
+/// them.
+class BathEntry {
+  const BathEntry({
+    required this.id,
+    required this.bathedAt,
+    this.water,
+    this.kind,
+    this.duration,
+  });
+
+  final String id;
+
+  /// When it ended.
+  final DateTime bathedAt;
+  final BathWater? water;
+  final BathKind? kind;
+  final Duration? duration;
+}

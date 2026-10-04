@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../backend/engines/sleep_metrics.dart';
 import '../../backend/engines/usual_range.dart';
 import '../trends/usual_range_trend.dart';
 import '../../domain/domain.dart';
@@ -268,33 +269,59 @@ List<Widget> sleepVitalItems(
   ];
 }
 
-/// Nights after training, late caffeine or a late meal against the
-/// others, with how many nights each side has. Only what both sides
-/// have enough nights for.
+/// Nights after training, caffeine at bedtime, a late meal, a nap, a bath or
+/// daylight against the others, with how many nights each side has. A
+/// factor whose sides are too small says so rather than going missing.
 List<Widget> sleepFactorItems(BuildContext context, SleepViewModel model) {
   final l10n = context.l10n;
   final factors = model.factors;
-  String signed(Duration difference) => difference.isNegative
-      ? l10n.sleptLess(time: formatDuration(context.l10n, -difference))
-      : l10n.sleptMore(time: formatDuration(context.l10n, difference));
-  final rows = [
-    for (final (label, comparison) in [
-      (l10n.afterTraining, factors.training),
-      (l10n.caffeineAfter2pm, factors.lateCaffeine),
-      (l10n.mealAfter9pm, factors.lateMeal),
-    ])
-      if (comparison != null)
-        KeyValueRow(
-          label: label,
-          value:
-              '${signed(comparison.difference)} · '
-              '${l10n.nightsVersus(withCount: comparison.withCount, withoutCount: comparison.withoutCount)}',
-        ),
-  ];
-  if (rows.isEmpty) return const [];
+  String value(
+    SleepComparison? comparison, {
+    String Function({required String time})? shorter,
+    String Function({required String time})? longer,
+    String? tag,
+  }) {
+    if (comparison == null) return l10n.notEnoughData;
+    final nights = l10n.nightsVersus(
+      withCount: comparison.withCount,
+      withoutCount: comparison.withoutCount,
+    );
+    final difference = comparison.difference;
+    if (difference == null) return '${l10n.notEnoughData} · $nights';
+    final length = formatDuration(l10n, difference.abs());
+    final figure = difference.isNegative
+        ? (shorter ?? l10n.sleptLess)(time: length)
+        : (longer ?? l10n.sleptMore)(time: length);
+    return [figure, nights, ?tag].join(' · ');
+  }
+
   return [
     Gutter(child: SectionLabel(l10n.factorsSection)),
-    Gutter(child: GroupedCard(children: rows)),
+    Gutter(
+      child: GroupedCard(
+        children: [
+          for (final (label, comparison) in [
+            (l10n.afterTraining, factors.training),
+            (l10n.caffeineAtBedtime, factors.caffeineAtBedtime),
+            (l10n.mealAfter9pm, factors.lateMeal),
+            (l10n.napThatDay, factors.nap),
+          ])
+            KeyValueRow(label: label, value: value(comparison)),
+          KeyValueRow(
+            label: l10n.recordBath,
+            value: value(
+              factors.bath.comparison,
+              shorter: l10n.fallAsleepShorter,
+              longer: l10n.fallAsleepLonger,
+              tag: factors.bath.isMostlyUnrecorded
+                  ? l10n.bathWaterUnknownTag
+                  : null,
+            ),
+          ),
+          KeyValueRow(label: l10n.moreDaylight, value: value(factors.daylight)),
+        ],
+      ),
+    ),
     Gutter(
       child: TagWrap(labels: [l10n.factorsBasis, l10n.correlationNotCause]),
     ),

@@ -55,6 +55,7 @@ class Storage {
       // After sleep: a check-in is the more specific thing to say about a
       // day that has both.
       WellnessTimelineSource(journal, l10n),
+      BathTimelineSource(journal, workouts, l10n),
       NoteTimelineSource(journal, l10n),
     ], l10n);
   }
@@ -98,7 +99,13 @@ class Backend {
       storage.activitySamples,
       l10n,
     );
-    sleep = SleepService(db, storage.journal, storage.workouts, storage.meals);
+    sleep = SleepService(
+      db,
+      storage.journal,
+      storage.workouts,
+      storage.meals,
+      storage.activitySamples,
+    );
     goal = GoalService(db, storage.goals, storage.workouts, storage.activities);
     provenance = ProvenanceService(db);
     insights = InsightsService(

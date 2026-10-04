@@ -4,6 +4,7 @@ import '../../app/app_store.dart';
 import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
+import '../journal/bath_entry_screen.dart';
 import '../journal/body_reading_entry_screen.dart';
 import '../nutrition/meal_detail_screen.dart';
 import '../journal/sleep_entry_screen.dart';
@@ -109,6 +110,13 @@ final recordOptions = [
     title: (l10n) => l10n.moduleSleep,
     module: AppModule.sleep,
     destination: () => const SleepEntryScreen(),
+  ),
+  RecordOption(
+    icon: Icons.bathtub_outlined,
+    color: AppColors.wellness,
+    title: (l10n) => l10n.recordBath,
+    module: AppModule.sleep,
+    destination: () => const BathEntryScreen(),
   ),
   RecordOption(
     icon: Icons.sentiment_satisfied_outlined,

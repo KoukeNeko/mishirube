@@ -9,12 +9,13 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/meal_detail_screen.dart';
 import 'caffeine_card.dart';
+import 'caffeine_history_sections.dart';
 import 'caffeine_view_model.dart';
 import '../../l10n/l10n.dart';
 
 /// Caffeine on its own: the estimate now and as it falls away, each
-/// record of the last day it came from, to open and correct, and whether
-/// it is also shown on the lock screen.
+/// record of the last day it came from, to open and correct, the last 28
+/// days, and whether it is also shown on the lock screen.
 class CaffeineScreen extends StatefulWidget {
   const CaffeineScreen({super.key});
 
@@ -71,6 +72,7 @@ class _CaffeineScreenState extends State<CaffeineScreen> {
               ),
             ),
         ],
+        ...caffeineHistorySections(context, _model),
         if (CaffeineActivity.isSupported)
           Gutter(
             child: GroupedCard(

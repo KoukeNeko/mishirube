@@ -4308,12 +4308,6 @@ abstract class AppLocalizations {
   /// **'訓練後'**
   String get afterTraining;
 
-  /// Nights after caffeine late in the day.
-  ///
-  /// In zh, this message translates to:
-  /// **'14:00 後有咖啡因'**
-  String get caffeineAfter2pm;
-
   /// Nights after a late meal.
   ///
   /// In zh, this message translates to:
@@ -4335,7 +4329,7 @@ abstract class AppLocalizations {
   /// What the factors compare.
   ///
   /// In zh, this message translates to:
-  /// **'近 90 天的平均睡著時間差'**
+  /// **'近 90 天兩組的平均差'**
   String get factorsBasis;
 
   /// The factors show association only.
@@ -10845,6 +10839,186 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'提示音'**
   String get cueSoundTitle;
+
+  /// Nights with caffeine estimated to be left at the usual bedtime.
+  ///
+  /// In zh, this message translates to:
+  /// **'就寢時咖啡因'**
+  String get caffeineAtBedtime;
+
+  /// Nights after a day with a nap.
+  ///
+  /// In zh, this message translates to:
+  /// **'當天有小睡'**
+  String get napThatDay;
+
+  /// Nights after a day with more time in daylight than usual.
+  ///
+  /// In zh, this message translates to:
+  /// **'日光時間較多'**
+  String get moreDaylight;
+
+  /// A factor whose sides have too few nights.
+  ///
+  /// In zh, this message translates to:
+  /// **'資料不足'**
+  String get notEnoughData;
+
+  /// References section for the sleep factors.
+  ///
+  /// In zh, this message translates to:
+  /// **'影響因素'**
+  String get refSectionSleepFactors;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜'**
+  String get refUseFactorDaylight;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定'**
+  String get refUseFactorNights;
+
+  /// One shower or bath: the add-menu entry, the page title and the sleep factor.
+  ///
+  /// In zh, this message translates to:
+  /// **'洗澡'**
+  String get recordBath;
+
+  /// Label of the choice of how warm the water was.
+  ///
+  /// In zh, this message translates to:
+  /// **'水溫'**
+  String get bathWaterSection;
+
+  /// Cold water. (BathWater.cold)
+  ///
+  /// In zh, this message translates to:
+  /// **'冷水'**
+  String get bathWaterCold;
+
+  /// Warm water. (BathWater.warm)
+  ///
+  /// In zh, this message translates to:
+  /// **'溫水'**
+  String get bathWaterWarm;
+
+  /// Hot water. (BathWater.hot)
+  ///
+  /// In zh, this message translates to:
+  /// **'熱水'**
+  String get bathWaterHot;
+
+  /// Label of the choice between a shower and a bath.
+  ///
+  /// In zh, this message translates to:
+  /// **'種類'**
+  String get bathKindSection;
+
+  /// A shower. (BathKind.shower)
+  ///
+  /// In zh, this message translates to:
+  /// **'淋浴'**
+  String get bathKindShower;
+
+  /// A bath in a tub. (BathKind.bath)
+  ///
+  /// In zh, this message translates to:
+  /// **'泡澡'**
+  String get bathKindBath;
+
+  /// Falling asleep took less time by a length; time is formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'入睡所需少 {time}'**
+  String fallAsleepShorter({required String time});
+
+  /// Falling asleep took more time by a length; time is formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'入睡所需多 {time}'**
+  String fallAsleepLonger({required String time});
+
+  /// Most nights counted as having a bath have no water temperature recorded.
+  ///
+  /// In zh, this message translates to:
+  /// **'含未填水溫'**
+  String get bathWaterUnknownTag;
+
+  /// What a sleep factor reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡前以溫水淋浴或泡澡，入睡所需縮短；統合分析，試驗樣本小'**
+  String get refUseBathHeating;
+
+  /// What a sleep factor reference supports.
+  ///
+  /// In zh, this message translates to:
+  /// **'洗澡結束後 61–180 分鐘就寢，入睡所需較短；觀察研究，效果量中等偏小。洗澡因素的窗口是產品規則，個人內比較沒有統計檢定力'**
+  String get refUseBathWindow;
+
+  /// Section label on the caffeine page: caffeine per day over the last 28 days.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日攝取'**
+  String get caffeineDailySection;
+
+  /// Label of a figure: the average of a period.
+  ///
+  /// In zh, this message translates to:
+  /// **'平均'**
+  String get statAverageLabel;
+
+  /// Section label on the caffeine page: each day's first to last intake and how long before the usual bedtime the last one was.
+  ///
+  /// In zh, this message translates to:
+  /// **'最後一次與距就寢'**
+  String get caffeineLastIntakeSection;
+
+  /// Row detail: the time of day's last caffeine record; time is formatted.
+  ///
+  /// In zh, this message translates to:
+  /// **'最後一次 {time}'**
+  String lastIntakeAt({required String time});
+
+  /// Row detail: how long before the usual bedtime; time is a length of time.
+  ///
+  /// In zh, this message translates to:
+  /// **'距就寢 {time}'**
+  String timeBeforeBedtime({required String time});
+
+  /// Section label on the caffeine page: the caffeine estimated to be left at the usual bedtime, night by night.
+  ///
+  /// In zh, this message translates to:
+  /// **'就寢估計殘留'**
+  String get caffeineAtBedtimeSection;
+
+  /// Section label on the caffeine page: caffeine by part of the day.
+  ///
+  /// In zh, this message translates to:
+  /// **'時段'**
+  String get timeOfDaySection;
+
+  /// Section label on the caffeine page: the daily average on weekdays and on Saturdays and Sundays.
+  ///
+  /// In zh, this message translates to:
+  /// **'平日與假日'**
+  String get weekdaysAndDaysOffSection;
+
+  /// Label of a figure: Monday to Friday.
+  ///
+  /// In zh, this message translates to:
+  /// **'平日'**
+  String get weekdaysLabel;
+
+  /// Label of a figure: Saturday and Sunday.
+  ///
+  /// In zh, this message translates to:
+  /// **'假日'**
+  String get daysOffLabel;
 }
 
 class _AppLocalizationsDelegate

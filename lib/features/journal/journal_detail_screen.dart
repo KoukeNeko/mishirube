@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import 'bath_entry_screen.dart';
 import 'body_reading_entry_screen.dart';
 import 'measurement_entry_screen.dart';
 import 'note_entry_screen.dart';
@@ -15,7 +16,7 @@ import 'weight_entry_screen.dart';
 import 'journal_view_model.dart';
 import '../../l10n/l10n.dart';
 
-/// One weight, tape measurement, night, check-in or note from the log.
+/// One weight, tape measurement, night, check-in, bath or note from the log.
 ///
 /// Opening a row is for reading, so this shows the record first — the
 /// value, when, where it came from, and for a weight how it moved since
@@ -36,6 +37,20 @@ class JournalDetailScreen extends StatelessWidget {
     toast.showUndo(
       context.l10n.deletedItem(item: what),
       onUndo: () => journal.restore(id),
+    );
+  }
+
+  /// Sets whether a sleep is a nap; the toast takes it back, together with
+  /// the day's other night when making this one the night turned it into a
+  /// nap.
+  void _setNap(BuildContext context, JournalViewModel journal, bool isNap) {
+    final kind = isNap ? SleepKind.nap : SleepKind.night;
+    final toast = ToastScope.read(context);
+    final previous = journal.setSleepKind(id, kind);
+    if (previous.isEmpty) return;
+    toast.showUndo(
+      kind.labelIn(context.l10n),
+      onUndo: () => journal.restoreSleepKinds(previous),
     );
   }
 
@@ -70,30 +85,40 @@ class JournalDetailScreen extends StatelessWidget {
     return DetailPage(
       appBar: PageAppBar(title: view.title, subtitle: when),
       children: [
-        Gutter(
-          child: AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        if (view.rows.isNotEmpty)
+          Gutter(
+            child: GroupedCard(
               children: [
-                if (view.value case final value?)
-                  StatBlock(
-                    value: value,
-                    unit: view.unit,
-                    label: view.title,
-                    valueColor: view.color,
-                    valueStyle: AppTextStyles.hugeNumber,
-                  )
-                else
-                  // A note has no figure; its words are the record.
-                  Text(view.note, style: AppTextStyles.body),
-                if (view.context case final line?) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(line, style: AppTextStyles.caption),
-                ],
+                for (final (label, value) in view.rows)
+                  KeyValueRow(label: label, value: value),
               ],
             ),
+          )
+        else
+          Gutter(
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (view.value case final value?)
+                    StatBlock(
+                      value: value,
+                      unit: view.unit,
+                      label: view.title,
+                      valueColor: view.color,
+                      valueStyle: AppTextStyles.hugeNumber,
+                    )
+                  else
+                    // A note has no figure; its words are the record.
+                    Text(view.note, style: AppTextStyles.body),
+                  if (view.context case final line?) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(line, style: AppTextStyles.caption),
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
         if (view.value != null && view.note.isNotEmpty) ...[
           Gutter(child: SectionLabel(context.l10n.notesSection)),
           Gutter(
@@ -103,6 +128,12 @@ class JournalDetailScreen extends StatelessWidget {
         Gutter(
           child: GroupedCard(
             children: [
+              if (entry is SleepEntry)
+                SwitchRow(
+                  title: SleepKind.nap.labelIn(context.l10n),
+                  value: entry.kind == SleepKind.nap,
+                  onChanged: (isNap) => _setNap(context, journal, isNap),
+                ),
               KeyValueRow(
                 label: context.l10n.journalSourceRow,
                 value: journal.sourceLabel(context.l10n, id),
@@ -216,6 +247,7 @@ class _View {
     this.unit,
     this.note = '',
     this.context,
+    this.rows = const [],
   });
 
   final String title;
@@ -228,67 +260,85 @@ class _View {
 
   /// One line of context, never a chart: the full trend is its own page.
   final String? context;
+
+  /// A record of several figures none of which is the headline, as label
+  /// and value rows in place of the card.
+  final List<(String, String)> rows;
   final Widget editor;
 }
 
-_View _viewOf(BuildContext context, Object entry, JournalViewModel journal) =>
-    switch (entry) {
-      BodyWeight weight => _View(
-        title: context.l10n.moduleWeight,
-        value: formatWeight(weight.weightKg),
-        unit: 'kg',
-        color: AppColors.body,
-        // l10n-ignore: what older weighings stored as their note.
-        note: weight.note == '手動輸入' ? '' : weight.note,
-        context: _sinceLast(context, weight, journal.recentWeights),
-        editor: WeightEntryScreen(editing: weight),
-      ),
-      BodyMeasurement measurement => _View(
-        title: measurement.site.labelIn(context.l10n),
-        value: formatWeight(measurement.centimetres),
-        unit: 'cm',
-        color: AppColors.body,
-        note: measurement.note,
-        editor: MeasurementEntryScreen(editing: measurement),
-      ),
-      BodyReading reading => _View(
-        title: reading.metric.labelIn(context.l10n),
-        value: formatAmount(reading.value),
-        unit: reading.metric.unitIn(context.l10n),
-        color: AppColors.body,
-        note: reading.note,
-        context: reading.metric.isEstimated
-            ? context.l10n.bodyScaleEstimate
-            : null,
-        editor: BodyReadingEntryScreen(editing: reading),
-      ),
-      SleepEntry night => _View(
-        title: context.l10n.moduleSleep,
-        value: formatDuration(context.l10n, night.duration),
-        color: AppColors.wellness,
-        note: night.note,
-        context: switch (night.score) {
-          final score? => context.l10n.sleepQualityScore(score: score),
-          null => context.l10n.notRated,
-        },
-        editor: SleepEntryScreen(editing: night),
-      ),
-      WellnessEntry checkIn => _View(
-        title: checkIn.kind.labelIn(context.l10n),
-        value: '${checkIn.score}',
-        unit: '/ 5',
-        color: AppColors.wellness,
-        note: checkIn.note,
-        editor: WellnessEntryScreen(editing: checkIn),
-      ),
-      Note note => _View(
-        title: context.l10n.moduleNotes,
-        color: AppColors.wellness,
-        note: note.text,
-        editor: NoteEntryScreen(editing: note),
-      ),
-      _ => throw ArgumentError.value(entry, 'entry', 'not a journal record'),
-    };
+_View _viewOf(
+  BuildContext context,
+  Object entry,
+  JournalViewModel journal,
+) => switch (entry) {
+  BodyWeight weight => _View(
+    title: context.l10n.moduleWeight,
+    value: formatWeight(weight.weightKg),
+    unit: 'kg',
+    color: AppColors.body,
+    // l10n-ignore: what older weighings stored as their note.
+    note: weight.note == '手動輸入' ? '' : weight.note,
+    context: _sinceLast(context, weight, journal.recentWeights),
+    editor: WeightEntryScreen(editing: weight),
+  ),
+  BodyMeasurement measurement => _View(
+    title: measurement.site.labelIn(context.l10n),
+    value: formatWeight(measurement.centimetres),
+    unit: 'cm',
+    color: AppColors.body,
+    note: measurement.note,
+    editor: MeasurementEntryScreen(editing: measurement),
+  ),
+  BodyReading reading => _View(
+    title: reading.metric.labelIn(context.l10n),
+    value: formatAmount(reading.value),
+    unit: reading.metric.unitIn(context.l10n),
+    color: AppColors.body,
+    note: reading.note,
+    context: reading.metric.isEstimated ? context.l10n.bodyScaleEstimate : null,
+    editor: BodyReadingEntryScreen(editing: reading),
+  ),
+  SleepEntry sleep => _View(
+    title: sleep.kind.labelIn(context.l10n),
+    value: formatDuration(context.l10n, sleep.duration),
+    color: AppColors.wellness,
+    note: sleep.note,
+    context: switch (sleep.score) {
+      final score? => context.l10n.sleepQualityScore(score: score),
+      null => context.l10n.notRated,
+    },
+    editor: SleepEntryScreen(editing: sleep),
+  ),
+  WellnessEntry checkIn => _View(
+    title: checkIn.kind.labelIn(context.l10n),
+    value: '${checkIn.score}',
+    unit: '/ 5',
+    color: AppColors.wellness,
+    note: checkIn.note,
+    editor: WellnessEntryScreen(editing: checkIn),
+  ),
+  BathEntry bath => _View(
+    title: context.l10n.recordBath,
+    color: AppColors.wellness,
+    rows: [
+      if (bath.water case final water?)
+        (context.l10n.bathWaterSection, water.labelIn(context.l10n)),
+      if (bath.kind case final kind?)
+        (context.l10n.bathKindSection, kind.labelIn(context.l10n)),
+      if (bath.duration case final duration?)
+        (context.l10n.durationLabel, formatDuration(context.l10n, duration)),
+    ],
+    editor: BathEntryScreen(editing: bath),
+  ),
+  Note note => _View(
+    title: context.l10n.moduleNotes,
+    color: AppColors.wellness,
+    note: note.text,
+    editor: NoteEntryScreen(editing: note),
+  ),
+  _ => throw ArgumentError.value(entry, 'entry', 'not a journal record'),
+};
 
 /// `較上次 −0.3 kg（9/16）`, against the reading just before this one;
 /// null when there is none to compare with.

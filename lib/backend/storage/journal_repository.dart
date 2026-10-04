@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import 'database.dart';
 import 'timeline_source.dart';
+import 'workout_repository.dart';
 import '../../l10n/l10n.dart';
 
 /// Body measurements and wellness check-ins.
@@ -74,6 +77,30 @@ class JournalRepository {
     });
   }
 
+  void addBath(BathEntry entry) {
+    _db.transaction(() {
+      final now = _db.now().millisecondsSinceEpoch;
+      _db.execute(
+        'INSERT INTO bath_entries (id, bathed_at, water, kind, '
+        'duration_minutes, created_at, updated_at, source, local_day, '
+        'utc_offset_minutes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          entry.id,
+          entry.bathedAt.millisecondsSinceEpoch,
+          entry.water?.name,
+          entry.kind?.name,
+          entry.duration?.inMinutes,
+          now,
+          now,
+          ChangeSource.local.name,
+          localDayOf(entry.bathedAt),
+          entry.bathedAt.timeZoneOffset.inMinutes,
+        ],
+      );
+      _db.audit(entityType: 'bath_entry', entityId: entry.id, action: 'create');
+    });
+  }
+
   void addSleep(SleepEntry entry, {ChangeSource source = ChangeSource.local}) {
     _db.transaction(() {
       final now = _db.now().millisecondsSinceEpoch;
@@ -109,17 +136,24 @@ class JournalRepository {
   }
 
   /// A night's row whatever its state: null when there is none, and
-  /// `isDeleted` when the user removed it — an import must not bring a
-  /// deleted night back.
-  ({bool isDeleted, SleepEntry entry, String? chosenSource})? sleepRow(
-    String id,
-  ) {
+  /// `isDeleted` when it was removed — an import must not bring back a
+  /// night the user deleted. `entry.kind` is the kind the user sees;
+  /// `derivedKind` is what the source's data gave, which is what an
+  /// import compares against.
+  ({
+    bool isDeleted,
+    SleepEntry entry,
+    SleepKind derivedKind,
+    String? chosenSource,
+  })?
+  sleepRow(String id) {
     final rows = _db.select('SELECT * FROM sleep_entries WHERE id = ?', [id]);
     if (rows.isEmpty) return null;
     final row = rows.single;
     return (
       isDeleted: row['deleted_at'] != null,
       entry: _sleepFrom(row),
+      derivedKind: SleepKind.values.byName(row['kind']! as String),
       chosenSource: row['chosen_source'] as String?,
     );
   }
@@ -150,6 +184,156 @@ class JournalRepository {
     'source_name': entry.sourceName,
     'chosen_source': ?chosenSource,
   }, source: source);
+
+  /// Makes sleep [id] a night or a nap as the user says. Saying what the
+  /// source's data already says clears the override instead of storing
+  /// it. Making a sleep the night turns the day's other night into a nap
+  /// in the same transaction: a day has one. Returns each sleep changed
+  /// with the override it had, for [restoreSleepKinds].
+  List<(String, SleepKind?)> setSleepKind(String id, SleepKind kind) =>
+      _db.transaction(() {
+        final row = sleepRow(id);
+        if (row == null || row.isDeleted) return const [];
+        final changed = <(String, SleepKind?)>[];
+        void set(
+          String sleepId,
+          SleepKind derived,
+          SleepKind value, {
+          String? swappedWith,
+        }) {
+          final previous = _kindOverrideOf(sleepId);
+          final next = value == derived ? null : value;
+          if (next == previous) return;
+          _update(
+            'sleep_entries',
+            sleepId,
+            {'kind_override': next?.name},
+            extraPayload: {'swappedWith': ?swappedWith},
+          );
+          changed.add((sleepId, previous));
+        }
+
+        if (kind == SleepKind.night) {
+          for (final other in sleepOn(row.entry.sleptAt)) {
+            if (other.id == id || other.kind != SleepKind.night) continue;
+            set(
+              other.id,
+              sleepRow(other.id)!.derivedKind,
+              SleepKind.nap,
+              swappedWith: id,
+            );
+          }
+        }
+        set(id, row.derivedKind, kind);
+        return changed;
+      });
+
+  /// Puts back the overrides [setSleepKind] returned, all or none.
+  void restoreSleepKinds(List<(String, SleepKind?)> previous) =>
+      _db.transaction(() {
+        for (final (id, kind) in previous) {
+          _update('sleep_entries', id, {'kind_override': kind?.name});
+        }
+      });
+
+  SleepKind? _kindOverrideOf(String id) => switch (_db.select(
+    'SELECT kind_override FROM sleep_entries WHERE id = ?',
+    [id],
+  ).single['kind_override']) {
+    final String name => SleepKind.values.byName(name),
+    _ => null,
+  };
+
+  /// Who last deleted [id], or null when nobody did: a night the user
+  /// deleted is theirs to keep deleted, one a platform stopped producing
+  /// is not.
+  String? lastDeletedBy(String id) =>
+      _db.select(
+            'SELECT source FROM audit_events WHERE entity_type = ? AND entity_id = ? '
+            "AND action = 'delete' ORDER BY id DESC LIMIT 1",
+            ['sleep_entry', id],
+          ).firstOrNull?['source']
+          as String?;
+
+  /// Takes back a night [source] removed as an orphan.
+  void reviveSleep(String id, {required ChangeSource source}) =>
+      _setDeleted(id, deleted: false, source: source);
+
+  /// Removes the sleeps [source] once brought in that its platform no
+  /// longer produces, and returns how many.
+  ///
+  /// Only a night the read covered in full qualifies (it began at or after
+  /// [from] and ended by [to]), that this read did not produce
+  /// ([producedIds]), and that the user never touched: no override, no
+  /// chosen source, no event of theirs in the audit trail. Typed-in and
+  /// demo sleeps are never candidates. A read that would remove more than
+  /// a handful, and more than half of what it covers, is more likely a
+  /// changed rule or a failed read than a clean-up, so it removes nothing.
+  int removeOrphanSleeps({
+    required ChangeSource source,
+    required String idPrefix,
+    required DateTime from,
+    required DateTime to,
+    required Set<String> producedIds,
+  }) => _db.transaction(() {
+    const covered =
+        'FROM sleep_entries WHERE deleted_at IS NULL AND source = ? '
+        'AND substr(id, 1, ?) = ? AND started_at >= ? AND slept_at <= ?';
+    final scope = [
+      source.name,
+      idPrefix.length + 1,
+      '$idPrefix-',
+      from.millisecondsSinceEpoch,
+      to.millisecondsSinceEpoch,
+    ];
+    final live = _db.select(
+      'SELECT id, started_at, slept_at, '
+      'duration_minutes, kind $covered',
+      scope,
+    );
+    final orphans = [
+      for (final row in live)
+        if (!producedIds.contains(row['id']) &&
+            !_touchedByUser(row['id']! as String))
+          row,
+    ];
+    if (orphans.isEmpty || orphans.length > math.max(3, live.length ~/ 2)) {
+      return 0;
+    }
+    final now = _db.now().millisecondsSinceEpoch;
+    for (final row in orphans) {
+      final id = row['id']! as String;
+      _db.execute(
+        'UPDATE sleep_entries SET deleted_at = ?, updated_at = ?, '
+        'revision = revision + 1 WHERE id = ?',
+        [now, now, id],
+      );
+      _db.audit(
+        entityType: 'sleep_entry',
+        entityId: id,
+        action: 'delete',
+        source: source,
+        payload: {
+          'reason': 'orphan',
+          'from': from.millisecondsSinceEpoch,
+          'to': to.millisecondsSinceEpoch,
+          'startedAt': row['started_at'],
+          'durationMinutes': row['duration_minutes'],
+          'kind': row['kind'],
+        },
+      );
+    }
+    return orphans.length;
+  });
+
+  /// Whether the user ever changed sleep [id] themselves.
+  bool _touchedByUser(String id) => _db.select(
+    'SELECT 1 FROM sleep_entries WHERE id = ? '
+    'AND (kind_override IS NOT NULL OR chosen_source IS NOT NULL) '
+    'UNION ALL SELECT 1 FROM audit_events WHERE entity_type = ? '
+    "AND entity_id = ? AND source = 'local' LIMIT 1",
+    [id, 'sleep_entry', id],
+  ).isNotEmpty;
 
   /// Sleeps logged against the day [day] falls on, oldest first.
   List<SleepEntry> sleepOn(DateTime day) => [
@@ -341,7 +525,10 @@ class JournalRepository {
       final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
       _ => null,
     },
-    kind: SleepKind.values.byName(row['kind']! as String),
+    // The one place the user's word beats the source's data.
+    kind: SleepKind.values.byName(
+      (row['kind_override'] ?? row['kind'])! as String,
+    ),
     measure: SleepMeasure.values.byName(row['measure']! as String),
     sourceName: row['source_name']! as String,
   );
@@ -561,6 +748,36 @@ class JournalRepository {
     note: row['note']! as String,
   );
 
+  /// Baths that ended in `[start, end)`, oldest first.
+  List<BathEntry> bathsBetween(DateTime start, DateTime end) => [
+    for (final row in _db.select(
+      'SELECT * FROM bath_entries WHERE deleted_at IS NULL '
+      'AND bathed_at >= ? AND bathed_at < ? ORDER BY bathed_at',
+      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      _bathFrom(row),
+  ];
+
+  /// When the first bath still on record ended; null when there is none.
+  DateTime? firstBathAt() => _earliest('bath_entries', 'bathed_at');
+
+  BathEntry _bathFrom(Map<String, Object?> row) => BathEntry(
+    id: row['id']! as String,
+    bathedAt: DateTime.fromMillisecondsSinceEpoch(row['bathed_at']! as int),
+    water: switch (row['water']) {
+      final String name => BathWater.values.byName(name),
+      _ => null,
+    },
+    kind: switch (row['kind']) {
+      final String name => BathKind.values.byName(name),
+      _ => null,
+    },
+    duration: switch (row['duration_minutes']) {
+      final int minutes => Duration(minutes: minutes),
+      _ => null,
+    },
+  );
+
   /// Stores a note about the day it was written on.
   void addNote(Note note) {
     _db.transaction(() {
@@ -617,13 +834,14 @@ class JournalRepository {
       ),
   ];
 
-  /// The four journal tables, with the name each is audited under.
+  /// The journal tables, with the name each is audited under.
   static const _tables = {
     'body_weights': 'body_weight',
     'body_measurements': 'body_measurement',
     'body_readings': 'body_reading',
     'sleep_entries': 'sleep_entry',
     'wellness_entries': 'wellness_entry',
+    'bath_entries': 'bath_entry',
     'notes': 'note',
   };
 
@@ -638,7 +856,8 @@ class JournalRepository {
   }
 
   /// A live journal record — a [BodyWeight], [BodyMeasurement],
-  /// [SleepEntry] or [WellnessEntry] — or null when there is none.
+  /// [SleepEntry], [WellnessEntry] or [BathEntry] — or null when there is
+  /// none.
   Object? byId(String id) {
     final table = _tableOf(id);
     if (table == null) return null;
@@ -653,6 +872,7 @@ class JournalRepository {
       'body_measurements' => _measurementFrom(row),
       'body_readings' => _bodyReadingFrom(row),
       'sleep_entries' => _sleepFrom(row),
+      'bath_entries' => _bathFrom(row),
       'notes' => _noteFrom(row),
       _ => _wellnessFrom(row),
     };
@@ -691,7 +911,6 @@ class JournalRepository {
     'note': entry.note,
     'slept_at': entry.sleptAt.millisecondsSinceEpoch,
     'started_at': entry.startedAt?.millisecondsSinceEpoch,
-    'kind': entry.kind.name,
     'local_day': localDayOf(entry.sleptAt),
     'utc_offset_minutes': entry.sleptAt.timeZoneOffset.inMinutes,
   });
@@ -702,6 +921,17 @@ class JournalRepository {
     {'score': entry.score, 'note': entry.note},
   );
 
+  /// Rewrites a bath, its end time included: a bath is only what the user
+  /// typed, so correcting when it ended moves it.
+  void updateBath(BathEntry entry) => _update('bath_entries', entry.id, {
+    'bathed_at': entry.bathedAt.millisecondsSinceEpoch,
+    'water': entry.water?.name,
+    'kind': entry.kind?.name,
+    'duration_minutes': entry.duration?.inMinutes,
+    'local_day': localDayOf(entry.bathedAt),
+    'utc_offset_minutes': entry.bathedAt.timeZoneOffset.inMinutes,
+  });
+
   /// Writes [values] over a record, recording what they replaced. The
   /// time it was taken is not among them: correcting a weight does not
   /// move it to another day.
@@ -710,6 +940,7 @@ class JournalRepository {
     String id,
     Map<String, Object?> values, {
     ChangeSource source = ChangeSource.local,
+    Map<String, Object?> extraPayload = const {},
   }) {
     _db.transaction(() {
       final previous = _db.select(
@@ -729,6 +960,7 @@ class JournalRepository {
         source: source,
         payload: {
           'previous': {...previous},
+          ...extraPayload,
         },
       );
     });
@@ -739,7 +971,11 @@ class JournalRepository {
 
   void restore(String id) => _setDeleted(id, deleted: false);
 
-  void _setDeleted(String id, {required bool deleted}) {
+  void _setDeleted(
+    String id, {
+    required bool deleted,
+    ChangeSource source = ChangeSource.local,
+  }) {
     final table = _tableOf(id)!;
     _db.transaction(() {
       final now = _db.now().millisecondsSinceEpoch;
@@ -752,6 +988,7 @@ class JournalRepository {
         entityType: _tables[table]!,
         entityId: id,
         action: deleted ? 'delete' : 'restore',
+        source: source,
       );
     });
   }
@@ -1006,6 +1243,73 @@ class WellnessTimelineSource extends TimelineSource {
 
   String _label(WellnessEntry entry) =>
       '${entry.kind.labelIn(l10n)} ${entry.score} / 5';
+}
+
+/// Showers and baths as log rows.
+class BathTimelineSource extends TimelineSource {
+  BathTimelineSource(this._journal, this._workouts, super.l10n);
+
+  final JournalRepository _journal;
+  final WorkoutRepository _workouts;
+
+  @override
+  RecordCategory get category => RecordCategory.wellness;
+
+  @override
+  DateTime? earliest() => _journal.firstBathAt();
+
+  @override
+  List<(DateTime, TimelineEntry)> entriesIn(DateTime start, DateTime end) {
+    final workoutEnds = _workouts.finishedBetween(start, end);
+    return [
+      for (final (_, at, bath) in _baths(start, end))
+        (
+          at,
+          TimelineEntry(
+            timeLabel: formatTimeOfDay(at),
+            at: at,
+            recordId: bath.id,
+            category: RecordCategory.wellness,
+            title: l10n.recordBath,
+            detail: [
+              ?bath.water?.labelIn(l10n),
+              ?bath.kind?.labelIn(l10n),
+              if (bath.duration case final duration?)
+                l10n.durationMinutes(minutes: duration.inMinutes),
+              ?_sinceWorkout(bath, workoutEnds),
+            ].join(' · '),
+          ),
+        ),
+    ];
+  }
+
+  /// How long after the day's last workout a known-cold bath ended; a
+  /// bath with no water recorded is never taken for one.
+  String? _sinceWorkout(BathEntry bath, List<DateTime> workoutEnds) {
+    if (bath.water != BathWater.cold) return null;
+    final bathDay = localDayOf(bath.bathedAt);
+    final last = workoutEnds
+        .where(
+          (end) => !end.isAfter(bath.bathedAt) && localDayOf(end) == bathDay,
+        )
+        .lastOrNull;
+    if (last == null) return null;
+    return '${l10n.afterTraining} '
+        '${formatDuration(l10n, bath.bathedAt.difference(last))}';
+  }
+
+  /// A bath is not a summary of a day, like a note.
+  @override
+  Map<int, String> summariesIn(DateTime start, DateTime end) => const {};
+
+  List<(int, DateTime, BathEntry)> _baths(DateTime start, DateTime end) =>
+      _journal._inDays(
+        'bath_entries',
+        'bathed_at',
+        start,
+        end,
+        _journal._bathFrom,
+      );
 }
 
 /// Notes about a day, as rows of their own under the day's state.

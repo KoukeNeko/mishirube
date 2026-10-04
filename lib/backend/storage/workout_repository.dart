@@ -100,6 +100,17 @@ class WorkoutRepository {
       DateTime.fromMillisecondsSinceEpoch(row['started_at']),
   ];
 
+  /// When each finished workout ended in `[start, end)`, oldest first.
+  List<DateTime> finishedBetween(DateTime start, DateTime end) => [
+    for (final row in _db.select(
+      "SELECT finished_at FROM workouts WHERE status = 'completed' "
+      'AND deleted_at IS NULL AND finished_at >= ? AND finished_at < ? '
+      'ORDER BY finished_at',
+      [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+    ))
+      DateTime.fromMillisecondsSinceEpoch(row['finished_at']! as int),
+  ];
+
   /// Each finished workout since [since], oldest first: when it started,
   /// its name, and the load moved in its counted sets (done, not
   /// warm-up), in kg.

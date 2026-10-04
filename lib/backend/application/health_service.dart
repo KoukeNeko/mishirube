@@ -68,8 +68,11 @@ class HealthService {
   /// Bumped whenever a platform starts reading more types under a kind
   /// it already had (a workout's route, heart rate and running figures
   /// under workouts): Apple Health never says a read was refused, so
-  /// without asking again those reads would quietly come back empty.
-  static const _accessVersion = 5;
+  /// without asking again those reads would quietly come back empty. Also
+  /// when a rule changes what a read produces (the sleep rules of
+  /// [sleepNightsVersion]), so one full read replaces what the old rule
+  /// made.
+  static const _accessVersion = 6;
   static const _askedVersionKey = 'health.asked_version';
   static const _syncedKey = 'health.synced_at';
 
@@ -196,6 +199,7 @@ class HealthService {
           to,
           kinds,
           isHourly: now.difference(from) <= hourlyActivity,
+          isFullRead: isFullRead,
         ),
       );
     }
@@ -249,6 +253,7 @@ class HealthService {
     DateTime now,
     Set<HealthDataKind> kinds, {
     required bool isHourly,
+    required bool isFullRead,
   }) async {
     // Read everything first: a platform call can fail, and a failure
     // should leave the log as it was, not half imported.
@@ -294,6 +299,12 @@ class HealthService {
       idPrefix: source.idPrefix,
       changeSource: source.changeSource,
       sleeps: sleeps,
+      // The rolling window starts at any moment of the day and so cuts a
+      // sleep in two at its start; a day in from it, none is cut. A full
+      // read's stretches start at noon, where none begins.
+      sleepRange: kinds.contains(HealthDataKind.sleep)
+          ? (isFullRead ? from : from.add(const Duration(days: 1)), now)
+          : null,
       readings: readings,
       weights: weights,
       waists: waists,

@@ -1085,3 +1085,18 @@ extension TrendDomainText on TrendDomain {
     TrendDomain.activity => l10n.trendDomainActivity,
   };
 }
+
+extension BathWaterText on BathWater {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    BathWater.cold => l10n.bathWaterCold,
+    BathWater.warm => l10n.bathWaterWarm,
+    BathWater.hot => l10n.bathWaterHot,
+  };
+}
+
+extension BathKindText on BathKind {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    BathKind.shower => l10n.bathKindShower,
+    BathKind.bath => l10n.bathKindBath,
+  };
+}

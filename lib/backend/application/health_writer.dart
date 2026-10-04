@@ -25,6 +25,7 @@ class HealthBatch {
     required this.idPrefix,
     required this.changeSource,
     required this.sleeps,
+    required this.sleepRange,
     required this.readings,
     required this.weights,
     required this.waists,
@@ -44,6 +45,11 @@ class HealthBatch {
   final ChangeSource changeSource;
 
   final List<PlannedSleep> sleeps;
+
+  /// The stretch whose sleeps this read covered in full, so a sleep the
+  /// platform no longer produces inside it can be cleaned up; null when
+  /// sleep was not read.
+  final (DateTime, DateTime)? sleepRange;
 
   /// What was measured over each of [sleeps], in the same order; null
   /// when overnight readings were not read.
@@ -176,47 +182,77 @@ class HealthWriter {
 
   /// Adds, updates or skips each sleep, with its stretches and what was
   /// measured over it; returns how many were added, updated and skipped.
+  /// Afterwards the sleeps the platform stopped producing are removed.
   (int, int, int) _importSleeps(HealthBatch batch) {
     final source = batch.changeSource;
     var added = 0, updated = 0, skipped = 0;
     for (final (index, (:id, :entry, :samples)) in batch.sleeps.indexed) {
-      switch (_journal.sleepRow(id)) {
-        case (isDeleted: true, entry: _, chosenSource: _):
-          continue;
-        case (isDeleted: false, entry: final stored, chosenSource: _):
-          if (!_sameFigures(stored, entry)) {
-            _journal.resyncSleep(entry, source: source);
-            updated++;
+      final row = _journal.sleepRow(id);
+      if (row != null && row.isDeleted) {
+        // A night the user deleted stays deleted; one cleaned up as an
+        // orphan comes back when the platform produces it again.
+        if (_journal.lastDeletedBy(id) != source.name) continue;
+        _journal.reviveSleep(id, source: source);
+      }
+      if (row != null) {
+        if (!_sameFigures(row, entry)) {
+          _journal.resyncSleep(entry, source: source);
+          updated++;
+        }
+      } else {
+        if (entry.kind == SleepKind.night) {
+          // A night logged by hand is dated when it was logged, which
+          // is usually soon after waking.
+          final from = entry.sleptAt.subtract(const Duration(hours: 12));
+          final to = entry.sleptAt.add(const Duration(hours: 12));
+          if (_journal.hasSleepOtherThan(source, from, to)) {
+            skipped++;
+            continue;
           }
-        case null:
-          if (entry.kind == SleepKind.night) {
-            // A night logged by hand is dated when it was logged, which
-            // is usually soon after waking.
-            final from = entry.sleptAt.subtract(const Duration(hours: 12));
-            final to = entry.sleptAt.add(const Duration(hours: 12));
-            if (_journal.hasSleepOtherThan(source, from, to)) {
-              skipped++;
-              continue;
-            }
-          }
-          _journal.addSleep(entry, source: source);
-          added++;
+        }
+        _journal.addSleep(entry, source: source);
+        added++;
       }
       _journal.replaceSleepSegments(id, samples, source: source);
       if (batch.readings case final readings?) {
         _journal.replaceSleepReadings(id, readings[index], source: source);
       }
     }
+    // An empty read proves nothing: Apple Health answers an allowance it
+    // was refused with no samples, not with an error.
+    if (batch.sleepRange case (final from, final to)
+        when batch.sleeps.isNotEmpty) {
+      _journal.removeOrphanSleeps(
+        source: source,
+        idPrefix: batch.idPrefix,
+        from: from,
+        to: to,
+        producedIds: {for (final sleep in batch.sleeps) sleep.id},
+      );
+    }
     return (added, updated, skipped);
   }
 
-  static bool _sameFigures(SleepEntry a, SleepEntry b) =>
-      a.sleptAt == b.sleptAt &&
-      a.duration == b.duration &&
-      a.startedAt == b.startedAt &&
-      a.kind == b.kind &&
-      a.measure == b.measure &&
-      a.sourceName == b.sourceName;
+  /// Whether the stored sleep already says what the platform now does.
+  /// Kinds are compared as the data gave them, not as the user set them.
+  static bool _sameFigures(
+    ({
+      bool isDeleted,
+      SleepEntry entry,
+      SleepKind derivedKind,
+      String? chosenSource,
+    })
+    row,
+    SleepEntry b,
+  ) {
+    final a = row.entry;
+    return a.sleptAt == b.sleptAt &&
+        a.duration == b.duration &&
+        a.startedAt == b.startedAt &&
+        row.derivedKind == b.kind &&
+        a.measure == b.measure &&
+        a.sourceName == b.sourceName;
+  }
 }
 
 /// Writes [batch] into the store at [path] on an isolate of its own, as

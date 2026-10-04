@@ -21,6 +21,7 @@ class ProvenanceService {
     'body_measurements': RecordCategory.body,
     'sleep_entries': RecordCategory.wellness,
     'wellness_entries': RecordCategory.wellness,
+    'bath_entries': RecordCategory.wellness,
     'notes': RecordCategory.wellness,
   };
 

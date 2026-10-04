@@ -2306,9 +2306,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get afterTraining => 'トレーニング後';
 
   @override
-  String get caffeineAfter2pm => '14:00以降のカフェイン';
-
-  @override
   String get mealAfter9pm => '21:00以降の食事';
 
   @override
@@ -2320,7 +2317,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get factorsSection => '影響する要因';
 
   @override
-  String get factorsBasis => '過去90日の平均睡眠時間の差';
+  String get factorsBasis => '過去90日の2群の平均の差';
 
   @override
   String get correlationNotCause => '相関であり因果ではない';
@@ -6238,4 +6235,105 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get cueSoundTitle => 'サウンド';
+
+  @override
+  String get caffeineAtBedtime => '就寝時のカフェイン';
+
+  @override
+  String get napThatDay => 'その日の仮眠';
+
+  @override
+  String get moreDaylight => '日光を浴びた時間が長い';
+
+  @override
+  String get notEnoughData => 'データ不足';
+
+  @override
+  String get refSectionSleepFactors => '影響する要因';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光を浴びた時間が長い日の夜は睡眠が長かった（観察研究、21人・7日）。Appleの日光時間は未検証で、屋外運動と混ざる';
+
+  @override
+  String get refUseFactorNights =>
+      '個人の総睡眠時間の平均は約7晩で安定する。要因は各群10晩を必要とし、記述のみで検定はしない';
+
+  @override
+  String get recordBath => '入浴';
+
+  @override
+  String get bathWaterSection => '水温';
+
+  @override
+  String get bathWaterCold => '冷水';
+
+  @override
+  String get bathWaterWarm => '温水';
+
+  @override
+  String get bathWaterHot => '熱水';
+
+  @override
+  String get bathKindSection => '種類';
+
+  @override
+  String get bathKindShower => 'シャワー';
+
+  @override
+  String get bathKindBath => '湯船';
+
+  @override
+  String fallAsleepShorter({required String time}) {
+    return '入眠まで$time短い';
+  }
+
+  @override
+  String fallAsleepLonger({required String time}) {
+    return '入眠まで$time長い';
+  }
+
+  @override
+  String get bathWaterUnknownTag => '水温未入力を含む';
+
+  @override
+  String get refUseBathHeating => '就寝前の温かいシャワーや入浴で入眠までの時間が短縮；小規模試験のメタ分析';
+
+  @override
+  String get refUseBathWindow =>
+      '入浴後61〜180分での就寝は入眠までが短い；観察研究、効果量は小〜中。入浴の要因の時間帯は製品の規則で、個人内の比較に統計的検出力はない';
+
+  @override
+  String get caffeineDailySection => '1日の摂取量';
+
+  @override
+  String get statAverageLabel => '平均';
+
+  @override
+  String get caffeineLastIntakeSection => '最後の摂取と就寝までの時間';
+
+  @override
+  String lastIntakeAt({required String time}) {
+    return '最後 $time';
+  }
+
+  @override
+  String timeBeforeBedtime({required String time}) {
+    return '就寝まで $time';
+  }
+
+  @override
+  String get caffeineAtBedtimeSection => '就寝時の推定残量';
+
+  @override
+  String get timeOfDaySection => '時間帯';
+
+  @override
+  String get weekdaysAndDaysOffSection => '平日と休日';
+
+  @override
+  String get weekdaysLabel => '平日';
+
+  @override
+  String get daysOffLabel => '休日';
 }

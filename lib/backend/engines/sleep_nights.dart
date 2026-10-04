@@ -1,7 +1,16 @@
 import '../../domain/domain.dart';
 
 /// Bumped whenever the rules below change.
-const sleepNightsVersion = 2;
+const sleepNightsVersion = 3;
+
+/// A day's longest sleep is its night only when it is at least this long;
+/// Oura and Garmin both call anything under three hours a nap.
+const minNightSleep = Duration(hours: 3);
+
+/// A sleep shorter than this is not kept as a nap: Fitbit's 20 minutes,
+/// the strictest of the apps that detect naps, so sitting still is not
+/// logged as sleep.
+const minNapSleep = Duration(minutes: 20);
 
 /// Stretches of one source this far apart or closer belong to one sleep:
 /// waking in the night leaves a gap, not a second sleep.
@@ -72,8 +81,10 @@ class NightOfSleep {
 ///
 /// A sleep belongs to the day whose 18:00-to-18:00 window it starts in,
 /// named after the morning inside it, so going to bed after midnight
-/// stays with that day. A day's longest sleep is its night; any other is
-/// a nap, kept apart rather than added to the night.
+/// stays with that day. A day's longest sleep is its night when it is at
+/// least [minNightSleep]; any other is a nap, kept apart rather than
+/// added to the night, and a day with no such sleep has no night. A nap
+/// under [minNapSleep] is dropped.
 List<NightOfSleep> nightsOf(Iterable<SleepSample> samples) {
   final byDay = <DateTime, List<(SleepSummary, List<SleepSample>)>>{};
   for (final cluster in _clusters(samples)) {
@@ -86,13 +97,14 @@ List<NightOfSleep> nightsOf(Iterable<SleepSample> samples) {
   final nights = <NightOfSleep>[];
   for (final MapEntry(key: morning, value: sleeps) in byDay.entries) {
     final longest = sleeps.reduce((a, b) => b.$1.length > a.$1.length ? b : a);
+    final night = longest.$1.length >= minNightSleep ? longest.$1 : null;
     for (final (summary, cluster) in sleeps) {
+      final isNight = identical(summary, night);
+      if (!isNight && summary.length < minNapSleep) continue;
       nights.add(
         NightOfSleep(
           morning: morning,
-          kind: identical(summary, longest.$1)
-              ? SleepKind.night
-              : SleepKind.nap,
+          kind: isNight ? SleepKind.night : SleepKind.nap,
           summary: summary,
           samples: cluster,
         ),

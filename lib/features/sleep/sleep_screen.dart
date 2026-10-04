@@ -12,6 +12,7 @@ import '../../backend/engines/trend_findings.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../journal/journal_detail_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
 import '../trends/trend_detail_screen.dart';
@@ -72,6 +73,12 @@ class _SleepScreenState extends State<SleepScreen> {
     _model.dispose();
     super.dispose();
   }
+
+  /// The sleep's own page, where it is made a nap or a night.
+  void _open(SleepRecord record) => pushPage(
+    context,
+    JournalDetailScreen(id: record.entry.id, at: record.entry.sleptAt),
+  );
 
   void _delete(SleepRecord record) {
     final toast = ToastScope.read(context);
@@ -150,6 +157,7 @@ class _SleepScreenState extends State<SleepScreen> {
               goal: _model.goal,
               usual: _model.usualNight,
               naps: naps,
+              onTap: () => _open(night),
             ),
           ),
           ..._stages(night),
@@ -191,6 +199,7 @@ class _SleepScreenState extends State<SleepScreen> {
                       formatDuration(context.l10n, nap.entry.duration),
                       style: AppTextStyles.itemTitle,
                     ),
+                    onTap: () => _open(nap),
                   ),
                 ),
             ],
@@ -588,9 +597,11 @@ class _Summary extends StatelessWidget {
     required this.goal,
     required this.usual,
     required this.naps,
+    required this.onTap,
   });
 
   final SleepRecord record;
+  final VoidCallback onTap;
 
   /// The night's length is read against it when there is one.
   final Duration? goal;
@@ -647,6 +658,7 @@ class _Summary extends StatelessWidget {
         context.l10n.sleepQualityScore(score: score),
     ];
     return AppCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

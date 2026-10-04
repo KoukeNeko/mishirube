@@ -106,6 +106,59 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('factors stay with too few nights and say so', (tester) async {
+    usePhoneViewport(tester);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: sleeper([7, 8, 7]),
+    );
+
+    await scrollTo(tester, find.text('影響因素'));
+    expect(find.text('影響因素'), findsOneWidget);
+    for (final (label, value) in [
+      ('訓練後', '資料不足 · 0 晚對 3 晚'),
+      ('就寢時咖啡因', '資料不足 · 0 晚對 0 晚'),
+      ('21:00 後進食', '資料不足 · 0 晚對 3 晚'),
+      ('當天有小睡', '資料不足 · 0 晚對 3 晚'),
+      ('洗澡', '資料不足 · 0 晚對 0 晚'),
+      ('日光時間較多', '資料不足 · 0 晚對 0 晚'),
+    ]) {
+      expect(find.text(label), findsOneWidget);
+      expect(find.text(value), findsWidgets, reason: label);
+    }
+    await scrollTo(tester, find.text('相關，不代表因果'));
+    expect(find.text('相關，不代表因果'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a factor with enough nights shows its difference', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = sleeper([for (var night = 0; night < 24; night++) 7]);
+    final now = store.now();
+    // A nap every other day, evening before the night it precedes.
+    for (var back = 1; back < 24; back += 2) {
+      final woke = DateTime(now.year, now.month, now.day - back - 1, 15);
+      store.backend.journal.recordSleep(
+        const Duration(minutes: 40),
+        at: woke,
+        startedAt: woke.subtract(const Duration(minutes: 40)),
+        kind: SleepKind.nap,
+      );
+    }
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.sleep),
+      store: store,
+    );
+
+    await scrollTo(tester, find.text('當天有小睡'));
+    expect(find.text('多睡 0 分 · 12 晚對 12 晚'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('six ranges fit a phone, each label on one line', (tester) async {
     usePhoneViewport(tester);
     await pumpScreen(

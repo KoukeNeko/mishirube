@@ -2307,9 +2307,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get afterTraining => '트레이닝 후';
 
   @override
-  String get caffeineAfter2pm => '14:00 이후 카페인';
-
-  @override
   String get mealAfter9pm => '21:00 이후 식사';
 
   @override
@@ -2321,7 +2318,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get factorsSection => '영향 요인';
 
   @override
-  String get factorsBasis => '최근 90일 평균 수면 시간 차이';
+  String get factorsBasis => '최근 90일 두 집단의 평균 차이';
 
   @override
   String get correlationNotCause => '상관관계일 뿐 인과는 아님';
@@ -6243,4 +6240,106 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get cueSoundTitle => '알림음';
+
+  @override
+  String get caffeineAtBedtime => '취침 시 카페인';
+
+  @override
+  String get napThatDay => '당일 낮잠';
+
+  @override
+  String get moreDaylight => '일광 노출이 많음';
+
+  @override
+  String get notEnoughData => '데이터 부족';
+
+  @override
+  String get refSectionSleepFactors => '영향 요인';
+
+  @override
+  String get refUseFactorDaylight =>
+      '일광 노출이 많았던 날의 밤에 수면이 더 길었음(관찰 연구, 21명, 7일). Apple 일광 시간은 검증되지 않았고 야외 운동과 섞임';
+
+  @override
+  String get refUseFactorNights =>
+      '개인의 총 수면 시간 평균은 약 7박이면 안정됨. 요인은 각 집단 10박이 필요하며 기술만 하고 검정하지 않음';
+
+  @override
+  String get recordBath => '목욕';
+
+  @override
+  String get bathWaterSection => '수온';
+
+  @override
+  String get bathWaterCold => '찬물';
+
+  @override
+  String get bathWaterWarm => '따뜻한 물';
+
+  @override
+  String get bathWaterHot => '뜨거운 물';
+
+  @override
+  String get bathKindSection => '종류';
+
+  @override
+  String get bathKindShower => '샤워';
+
+  @override
+  String get bathKindBath => '욕조';
+
+  @override
+  String fallAsleepShorter({required String time}) {
+    return '잠들기까지 $time 짧음';
+  }
+
+  @override
+  String fallAsleepLonger({required String time}) {
+    return '잠들기까지 $time 김';
+  }
+
+  @override
+  String get bathWaterUnknownTag => '수온 미입력 포함';
+
+  @override
+  String get refUseBathHeating =>
+      '취침 전 따뜻한 샤워나 목욕으로 잠들기까지의 시간이 단축; 소규모 시험의 메타분석';
+
+  @override
+  String get refUseBathWindow =>
+      '목욕 후 61–180분에 취침하면 잠들기까지가 짧음; 관찰 연구, 효과 크기 작음~중간. 목욕 요인의 시간대는 제품 규칙이며 개인 내 비교에는 통계적 검정력이 없음';
+
+  @override
+  String get caffeineDailySection => '일일 섭취량';
+
+  @override
+  String get statAverageLabel => '평균';
+
+  @override
+  String get caffeineLastIntakeSection => '마지막 섭취와 취침까지 시간';
+
+  @override
+  String lastIntakeAt({required String time}) {
+    return '마지막 $time';
+  }
+
+  @override
+  String timeBeforeBedtime({required String time}) {
+    return '취침까지 $time';
+  }
+
+  @override
+  String get caffeineAtBedtimeSection => '취침 시 추정 잔류량';
+
+  @override
+  String get timeOfDaySection => '시간대';
+
+  @override
+  String get weekdaysAndDaysOffSection => '평일과 휴일';
+
+  @override
+  String get weekdaysLabel => '평일';
+
+  @override
+  String get daysOffLabel => '휴일';
 }

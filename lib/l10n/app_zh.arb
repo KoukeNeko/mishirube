@@ -3274,10 +3274,6 @@
   "@afterTraining": {
     "description": "Nights after a workout."
   },
-  "caffeineAfter2pm": "14:00 後有咖啡因",
-  "@caffeineAfter2pm": {
-    "description": "Nights after caffeine late in the day."
-  },
   "mealAfter9pm": "21:00 後進食",
   "@mealAfter9pm": {
     "description": "Nights after a late meal."
@@ -3298,7 +3294,7 @@
   "@factorsSection": {
     "description": "What went with longer or shorter nights."
   },
-  "factorsBasis": "近 90 天的平均睡著時間差",
+  "factorsBasis": "近 90 天兩組的平均差",
   "@factorsBasis": {
     "description": "What the factors compare."
   },
@@ -9469,5 +9465,145 @@
   "cueSoundTitle": "提示音",
   "@cueSoundTitle": {
     "description": "Switch row: a sound when a rest or a timed set ends."
+  },
+  "caffeineAtBedtime": "就寢時咖啡因",
+  "@caffeineAtBedtime": {
+    "description": "Nights with caffeine estimated to be left at the usual bedtime."
+  },
+  "napThatDay": "當天有小睡",
+  "@napThatDay": {
+    "description": "Nights after a day with a nap."
+  },
+  "moreDaylight": "日光時間較多",
+  "@moreDaylight": {
+    "description": "Nights after a day with more time in daylight than usual."
+  },
+  "notEnoughData": "資料不足",
+  "@notEnoughData": {
+    "description": "A factor whose sides have too few nights."
+  },
+  "refSectionSleepFactors": "影響因素",
+  "@refSectionSleepFactors": {
+    "description": "References section for the sleep factors."
+  },
+  "refUseFactorDaylight": "日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜",
+  "@refUseFactorDaylight": {
+    "description": "What the reference is used for."
+  },
+  "refUseFactorNights": "個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定",
+  "@refUseFactorNights": {
+    "description": "What the reference is used for."
+  },
+  "recordBath": "洗澡",
+  "@recordBath": {
+    "description": "One shower or bath: the add-menu entry, the page title and the sleep factor."
+  },
+  "bathWaterSection": "水溫",
+  "@bathWaterSection": {
+    "description": "Label of the choice of how warm the water was."
+  },
+  "bathWaterCold": "冷水",
+  "@bathWaterCold": {
+    "description": "Cold water. (BathWater.cold)"
+  },
+  "bathWaterWarm": "溫水",
+  "@bathWaterWarm": {
+    "description": "Warm water. (BathWater.warm)"
+  },
+  "bathWaterHot": "熱水",
+  "@bathWaterHot": {
+    "description": "Hot water. (BathWater.hot)"
+  },
+  "bathKindSection": "種類",
+  "@bathKindSection": {
+    "description": "Label of the choice between a shower and a bath."
+  },
+  "bathKindShower": "淋浴",
+  "@bathKindShower": {
+    "description": "A shower. (BathKind.shower)"
+  },
+  "bathKindBath": "泡澡",
+  "@bathKindBath": {
+    "description": "A bath in a tub. (BathKind.bath)"
+  },
+  "fallAsleepShorter": "入睡所需少 {time}",
+  "@fallAsleepShorter": {
+    "description": "Falling asleep took less time by a length; time is formatted.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "fallAsleepLonger": "入睡所需多 {time}",
+  "@fallAsleepLonger": {
+    "description": "Falling asleep took more time by a length; time is formatted.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bathWaterUnknownTag": "含未填水溫",
+  "@bathWaterUnknownTag": {
+    "description": "Most nights counted as having a bath have no water temperature recorded."
+  },
+  "refUseBathHeating": "睡前以溫水淋浴或泡澡，入睡所需縮短；統合分析，試驗樣本小",
+  "@refUseBathHeating": {
+    "description": "What a sleep factor reference supports."
+  },
+  "refUseBathWindow": "洗澡結束後 61–180 分鐘就寢，入睡所需較短；觀察研究，效果量中等偏小。洗澡因素的窗口是產品規則，個人內比較沒有統計檢定力",
+  "@refUseBathWindow": {
+    "description": "What a sleep factor reference supports."
+  },
+  "caffeineDailySection": "每日攝取",
+  "@caffeineDailySection": {
+    "description": "Section label on the caffeine page: caffeine per day over the last 28 days."
+  },
+  "statAverageLabel": "平均",
+  "@statAverageLabel": {
+    "description": "Label of a figure: the average of a period."
+  },
+  "caffeineLastIntakeSection": "最後一次與距就寢",
+  "@caffeineLastIntakeSection": {
+    "description": "Section label on the caffeine page: each day's first to last intake and how long before the usual bedtime the last one was."
+  },
+  "lastIntakeAt": "最後一次 {time}",
+  "@lastIntakeAt": {
+    "description": "Row detail: the time of day's last caffeine record; time is formatted.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "timeBeforeBedtime": "距就寢 {time}",
+  "@timeBeforeBedtime": {
+    "description": "Row detail: how long before the usual bedtime; time is a length of time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "caffeineAtBedtimeSection": "就寢估計殘留",
+  "@caffeineAtBedtimeSection": {
+    "description": "Section label on the caffeine page: the caffeine estimated to be left at the usual bedtime, night by night."
+  },
+  "timeOfDaySection": "時段",
+  "@timeOfDaySection": {
+    "description": "Section label on the caffeine page: caffeine by part of the day."
+  },
+  "weekdaysAndDaysOffSection": "平日與假日",
+  "@weekdaysAndDaysOffSection": {
+    "description": "Section label on the caffeine page: the daily average on weekdays and on Saturdays and Sundays."
+  },
+  "weekdaysLabel": "平日",
+  "@weekdaysLabel": {
+    "description": "Label of a figure: Monday to Friday."
+  },
+  "daysOffLabel": "假日",
+  "@daysOffLabel": {
+    "description": "Label of a figure: Saturday and Sunday."
   }
 }

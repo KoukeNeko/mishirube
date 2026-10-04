@@ -1,18 +1,50 @@
 import '../../domain/domain.dart';
+import '../engines/activity_metrics.dart';
+import '../engines/caffeine.dart';
+import '../engines/nutrition_summary.dart';
 import '../engines/sleep_metrics.dart';
 import '../engines/sleep_nights.dart';
+import '../storage/activity_sample_repository.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
 import '../storage/meal_repository.dart';
 import '../storage/workout_repository.dart';
 
-/// A late meal, and caffeine late enough to still be around at bedtime:
-/// the hours of the day after which each counts.
+/// A late meal: the hour of the day after which one counts.
 const _lateMealHour = 21;
-const _lateCaffeineHour = 14;
 
 /// Nights that factors are compared over.
 const _factorWindow = Duration(days: 90);
+
+/// What [SleepService.factors] set nights against. Each is the nights
+/// after days with the thing against the others; [SleepComparison.isEnough]
+/// says whether the sides are big enough to show a difference.
+class SleepFactors {
+  const SleepFactors({
+    required this.training,
+    required this.caffeineAtBedtime,
+    required this.lateMeal,
+    required this.nap,
+    required this.bath,
+    required this.daylight,
+  });
+
+  final SleepComparison training;
+
+  /// Null when the usual bedtime cannot be worked out.
+  final SleepComparison? caffeineAtBedtime;
+
+  final SleepComparison lateMeal;
+  final SleepComparison nap;
+
+  /// On how long falling asleep took, not total sleep; only nights with
+  /// a time in bed have one.
+  final BathComparison bath;
+
+  /// Nights have no side where no day has a daylight reading, so it is
+  /// then a comparison of no nights.
+  final SleepComparison daylight;
+}
 
 /// One sleep as the sleep page shows it.
 class SleepRecord {
@@ -57,12 +89,19 @@ class SleepRecord {
 /// The sleep page's reads, and the one choice it makes: which source a
 /// sleep is shown from.
 class SleepService {
-  SleepService(this._db, this._journal, this._workouts, this._meals);
+  SleepService(
+    this._db,
+    this._journal,
+    this._workouts,
+    this._meals,
+    this._activitySamples,
+  );
 
   final AppDatabase _db;
   final JournalRepository _journal;
   final WorkoutRepository _workouts;
   final MealRepository _meals;
+  final ActivitySampleRepository _activitySamples;
 
   static const _goalKey = 'sleep.goal_minutes';
 
@@ -199,51 +238,139 @@ class SleepService {
         if (reading.measure == measure) (night.sleptAt, reading.average),
   ];
 
+  /// Nights that ended in `[start, end)` with time asleep measured.
+  List<SleepEntry> _asleepNights(DateTime start, DateTime end) => [
+    for (final night in nights(start, end))
+      if (night.measure == SleepMeasure.asleep) night,
+  ];
+
+  /// The usual bedtime over the last [_factorWindow] ([regularityOf]), as
+  /// a time after midnight; null below [minimumNightsForRegularity]
+  /// nights that say when they began. The one bedtime the caffeine
+  /// factor and the caffeine page read caffeine against.
+  Duration? usualBedtime() {
+    final end = _db.nowInclusive;
+    return regularityOf(_asleepNights(end.subtract(_factorWindow), end))
+        ?.bedtime;
+  }
+
   /// Nights asleep over the last [_factorWindow] set against what the day
-  /// before held: training, caffeine late in the day, a late meal. Each
-  /// is null until both sides have enough nights.
-  ({
-    SleepComparison? training,
-    SleepComparison? lateCaffeine,
-    SleepComparison? lateMeal,
-  })
-  factors() {
+  /// before held: training, estimated caffeine at the usual bedtime, a
+  /// late meal, a nap and time in daylight. Total sleep is what each is
+  /// compared on.
+  SleepFactors factors() {
     final end = _db.nowInclusive;
     final start = end.subtract(_factorWindow);
-    final asleep = [
-      for (final night in nights(start, end))
-        if (night.measure == SleepMeasure.asleep) night,
-    ];
+    final asleep = _asleepNights(start, end);
     DateTime dayOf(DateTime time) => DateTime(time.year, time.month, time.day);
+    // A night belongs to the evening before its morning.
+    DateTime eveningOf(SleepEntry night) => eveningBefore(morningOf(night));
+
     final trained = {
       for (final started in _workouts.completedStarts(since: start))
         dayOf(started),
     };
-    final lateCaffeine = <DateTime>{};
+
+    // Caffeine from the day before the window on, to reach back from its
+    // first bedtime.
+    final meals = _meals.between(start.subtract(const Duration(days: 2)), end);
+    final mealsByDay = <DateTime, List<MealEvent>>{};
     final lateMeal = <DateTime>{};
-    for (final (eatenAt, meal) in _meals.between(start, end)) {
+    for (final (eatenAt, meal) in meals) {
+      (mealsByDay[dayOf(eatenAt)] ??= []).add(meal);
       if (eatenAt.hour >= _lateMealHour) lateMeal.add(dayOf(eatenAt));
-      if (eatenAt.hour >= _lateCaffeineHour &&
-          (meal.nutrients[Nutrient.caffeine] ?? 0) > 0) {
-        lateCaffeine.add(dayOf(eatenAt));
+    }
+    final intakes = caffeineIntakes(meals);
+    final usualBedtime = regularityOf(asleep)?.bedtime;
+    bool? caffeineAtBedtime(SleepEntry night) {
+      final remaining = caffeineAtUsualBedtime(
+        intakes,
+        morningOf(night),
+        usualBedtime,
+      );
+      if (remaining == null) return null;
+      if (remaining >= caffeineBedtimeReferenceMg) return true;
+      // Nothing seen is only "none" on a day that was logged in full.
+      final day = mealsByDay[eveningOf(night)];
+      return day != null && summariseDay(day).isComplete ? false : null;
+    }
+
+    final naps = [
+      for (final entry in _journal.sleepBetween(
+        start.subtract(const Duration(days: 1)),
+        end,
+      ))
+        if (entry.kind == SleepKind.nap &&
+            entry.measure == SleepMeasure.asleep &&
+            entry.duration >= minNapSleep)
+          entry,
+    ];
+    bool hadNap(SleepEntry night) {
+      final evening = eveningOf(night);
+      return naps.any(
+        (nap) =>
+            dayOf(nap.sleptAt) == evening &&
+            (night.startedAt == null || !nap.sleptAt.isAfter(night.startedAt!)),
+      );
+    }
+
+    // Today is still going, so its daylight is not a day yet.
+    final lastDay = dayOf(end).subtract(const Duration(days: 1));
+    final daylightByDay = {
+      for (final (day, minutes) in dailyValues(
+        _activitySamples.between(
+          ActivityMetric.timeInDaylight,
+          dayOf(start),
+          lastDay.add(const Duration(days: 1)),
+        ),
+      ))
+        day: minutes,
+    };
+    final sorted = daylightByDay.values.toList()..sort();
+    final middle = sorted.length ~/ 2;
+    // Without a reading no night has a side, so the median is not used.
+    final median = sorted.isEmpty
+        ? 0
+        : sorted.length.isOdd
+        ? sorted[middle]
+        : (sorted[middle - 1] + sorted[middle]) / 2;
+    final daylight = compareNights(asleep, (night) {
+      final minutes = daylightByDay[eveningOf(night)];
+      return minutes == null ? null : minutes > median;
+    });
+
+    // A bath's window reaches back from getting into bed.
+    final baths = _journal.bathsBetween(
+      start.subtract(bathLookBack + const Duration(days: 1)),
+      end,
+    );
+    final bedNights = <BedNight>[];
+    for (final night in asleep) {
+      final continuity = _continuityOf(night);
+      if (continuity case SleepContinuity(:final inBedAt?, :final latency?)) {
+        bedNights.add((night: night, inBedAt: inBedAt, latency: latency));
       }
     }
-    // A night belongs to the evening before its morning.
-    DateTime eveningOf(DateTime morning) =>
-        DateTime(morning.year, morning.month, morning.day - 1);
-    return (
+
+    return SleepFactors(
       training: compareNights(
         asleep,
-        (morning) => trained.contains(eveningOf(morning)),
+        (night) => trained.contains(eveningOf(night)),
       ),
-      lateCaffeine: compareNights(
-        asleep,
-        (morning) => lateCaffeine.contains(eveningOf(morning)),
-      ),
+      caffeineAtBedtime: usualBedtime == null
+          ? null
+          : compareNights(asleep, caffeineAtBedtime),
       lateMeal: compareNights(
         asleep,
-        (morning) => lateMeal.contains(eveningOf(morning)),
+        (night) => lateMeal.contains(eveningOf(night)),
       ),
+      nap: compareNights(asleep, hadNap),
+      bath: compareBathNights(
+        bedNights,
+        baths,
+        firstBathAt: _journal.firstBathAt(),
+      ),
+      daylight: daylight,
     );
   }
 
@@ -256,6 +383,12 @@ class SleepService {
       });
     return [for (final entry in entries) _recordOf(entry)];
   }
+
+  /// Time asleep in the naps logged against [day].
+  Duration napTimeOn(DateTime day) => [
+    for (final entry in _journal.sleepOn(day))
+      if (entry.kind == SleepKind.nap) entry.duration,
+  ].fold(Duration.zero, (sum, time) => sum + time);
 
   /// The latest night, when it ended today or yesterday; older than that
   /// it is not last night.
@@ -288,7 +421,8 @@ class SleepService {
         score: entry.score,
         note: entry.note,
         startedAt: summary.start,
-        kind: entry.kind,
+        // As the data gave it, not as the user set it.
+        kind: row.derivedKind,
         measure: summary.measure,
         sourceName: summary.sourceName,
       ),
@@ -300,9 +434,7 @@ class SleepService {
   SleepRecord _recordOf(SleepEntry entry) {
     final samples = _journal.sleepSegments(entry.id);
     final origin = _journal.sourceOf(entry.id) ?? ChangeSource.local;
-    final shown = samples.isEmpty
-        ? null
-        : summarize(samples, source: _journal.chosenSleepSource(entry.id));
+    final shown = _shownOf(entry, samples);
     return SleepRecord(
       entry: entry,
       origin: origin,
@@ -310,13 +442,29 @@ class SleepService {
       sources: sourcesOf(samples),
       shownSource: shown,
       readings: _journal.sleepReadings(entry.id),
-      continuity: shown == null
-          ? null
-          : continuityOf([
-              for (final sample in samples)
-                if (sample.source == shown.source) sample,
-            ]),
+      continuity: _continuityIn(samples, shown),
     );
+  }
+
+  /// The source [entry] is shown from, among those that recorded it.
+  SleepSummary? _shownOf(SleepEntry entry, List<SleepSample> samples) =>
+      samples.isEmpty
+      ? null
+      : summarize(samples, source: _journal.chosenSleepSource(entry.id));
+
+  SleepContinuity? _continuityIn(
+    List<SleepSample> samples,
+    SleepSummary? shown,
+  ) => shown == null
+      ? null
+      : continuityOf([
+          for (final sample in samples)
+            if (sample.source == shown.source) sample,
+        ]);
+
+  SleepContinuity? _continuityOf(SleepEntry entry) {
+    final samples = _journal.sleepSegments(entry.id);
+    return _continuityIn(samples, _shownOf(entry, samples));
   }
 
   /// Today, for a page that opens on the latest night.
