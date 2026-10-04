@@ -269,8 +269,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get restEnded => '휴식 끝';
 
   @override
-  String restNextSet({required String exercise}) {
-    return '다음 세트 · $exercise';
+  String restNextSet({required String set}) {
+    return '다음 세트 · $set';
   }
 
   @override
@@ -6240,4 +6240,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String regularityNeeds({required int count}) {
     return '최근 28일 중 취침·기상 시각이 있는 밤 14박 필요(현재 $count박)';
   }
+
+  @override
+  String get cueSoundTitle => '알림음';
 }

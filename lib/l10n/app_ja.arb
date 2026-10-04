@@ -77,7 +77,7 @@
   "bedtimeReminderBody": "{bedtime}に就寝、{wake}に起床",
   "restResting": "休憩中",
   "restEnded": "休憩終了",
-  "restNextSet": "次のセット · {exercise}",
+  "restNextSet": "次のセット · {set}",
   "setsProgress": "{done} / {total} セット",
   "trackingTypeWeightReps": "重量 + 回数",
   "trackingTypeReps": "回数",
@@ -1775,5 +1775,6 @@
   "weekendMidsleepLater": "週末の睡眠中央時刻が {time} 遅い",
   "weekendMidsleepEarlier": "週末の睡眠中央時刻が {time} 早い",
   "weekendMidsleepSame": "週末と平日の睡眠中央時刻が同じ",
-  "regularityNeeds": "過去28日のうち就寝と起床の時刻がある夜が14晩必要（現在{count}晩）"
+  "regularityNeeds": "過去28日のうち就寝と起床の時刻がある夜が14晩必要（現在{count}晩）",
+  "cueSoundTitle": "サウンド"
 }

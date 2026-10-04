@@ -1,5 +1,7 @@
 import ActivityKit
+import AppIntents
 import Foundation
+import UserNotifications
 
 /// The rest between sets as a Live Activity: shared by the app, which
 /// starts and ends it (`RestNotice` in `Runner/AppDelegate.swift`), and
@@ -14,6 +16,32 @@ struct RestAttributes: ActivityAttributes {
     /// `休息中`, and what comes next: `下一組 · 槓鈴深蹲`.
     var title: String
     var body: String
+    /// The label of the button that ends the rest (iOS 17 and later); none
+    /// shows no button.
+    var skipLabel: String?
+  }
+}
+
+/// 跳過休息 on the lock screen. A Live Activity intent runs in the app's
+/// process, not the extension's: it ends the activity and takes the
+/// notification away, then tells the app (`onSkip`, set by `RestNotice` in
+/// `Runner/AppDelegate.swift`) to end the rest. The extension compiles it
+/// to draw the button and never runs it.
+@available(iOS 17.0, *)
+struct SkipRestIntent: LiveActivityIntent {
+  static let title: LocalizedStringResource = "Skip rest"
+
+  static var onSkip: (() -> Void)?
+
+  func perform() async throws -> some IntentResult {
+    for activity in Activity<RestAttributes>.activities {
+      await activity.end(nil, dismissalPolicy: .immediate)
+    }
+    let center = UNUserNotificationCenter.current()
+    center.removePendingNotificationRequests(withIdentifiers: ["rest"])
+    center.removeDeliveredNotifications(withIdentifiers: ["rest"])
+    SkipRestIntent.onSkip?()
+    return .result()
   }
 }
 

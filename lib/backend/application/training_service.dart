@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../domain/domain.dart';
 import '../engines/training_metrics.dart';
 import '../storage/database.dart';
@@ -7,6 +9,66 @@ import '../engines/workout_review.dart';
 import '../storage/routine_repository.dart';
 import '../storage/workout_repository.dart';
 import '../../l10n/l10n.dart';
+
+/// The rest and the timed set of the running workout, as far as they
+/// outlive the app: what [TrainingService.saveTiming] keeps and
+/// [TrainingService.timing] gives back.
+class WorkoutTiming {
+  const WorkoutTiming({
+    required this.workoutId,
+    this.restEndsAt,
+    this.restLength = Duration.zero,
+    this.restExerciseId,
+    this.timerExercise,
+    this.timerSet,
+    this.timerStartedAt,
+    this.timerPausedAt,
+  });
+
+  final String workoutId;
+  final DateTime? restEndsAt;
+  final Duration restLength;
+  final String? restExerciseId;
+
+  /// Where the timed set is in the workout: its exercise and its place
+  /// among that exercise's sets.
+  final int? timerExercise;
+  final int? timerSet;
+  final DateTime? timerStartedAt;
+  final DateTime? timerPausedAt;
+
+  bool get isEmpty => restEndsAt == null && timerSet == null;
+
+  String encode() => jsonEncode({
+    'workout': workoutId,
+    'restEndsAt': restEndsAt?.millisecondsSinceEpoch,
+    'restLength': restLength.inMilliseconds,
+    'restExercise': restExerciseId,
+    'timerExercise': timerExercise,
+    'timerSet': timerSet,
+    'timerStartedAt': timerStartedAt?.millisecondsSinceEpoch,
+    'timerPausedAt': timerPausedAt?.millisecondsSinceEpoch,
+  });
+
+  static WorkoutTiming? decode(String stored) {
+    if (stored.isEmpty) return null;
+    final json = jsonDecode(stored) as Map<String, dynamic>;
+    DateTime? time(String key) => switch (json[key]) {
+      final int millis => DateTime.fromMillisecondsSinceEpoch(millis),
+      _ => null,
+    };
+    return WorkoutTiming(
+      workoutId: json['workout'] as String,
+      restEndsAt: time('restEndsAt'),
+      restLength: Duration(milliseconds: json['restLength'] as int),
+      restExerciseId: json['restExercise'] as String?,
+      timerExercise: json['timerExercise'] as int?,
+      timerSet: json['timerSet'] as int?,
+      timerStartedAt: time('timerStartedAt'),
+      timerPausedAt: time('timerPausedAt'),
+    );
+  }
+}
 
 /// How many of a template's last workouts its length is judged from.
 const _recentForLength = 5;
@@ -80,6 +142,7 @@ class TrainingService {
   final AppLocalizations _l10n;
 
   static const _autoRestKey = 'training.auto_rest';
+  static const _cueSoundKey = 'training.cue_sound';
   static String _restKey(ExerciseDefinition exercise) =>
       'training.rest_seconds.${exercise.id}';
 
@@ -99,10 +162,40 @@ class TrainingService {
     _db.setSetting(_restKey(exercise), '${kept.inSeconds}');
   }
 
+  static const _timingKey = 'training.timing';
+
+  /// What [saveTiming] last kept, as stored: empty when nothing runs.
+  String get storedTiming => _db.setting(_timingKey) ?? '';
+
+  /// Keeps the rest and the timed set of the running workout, so a
+  /// restart finds them again; [WorkoutTiming.isEmpty] or null forgets
+  /// them.
+  void saveTiming(WorkoutTiming? timing) => _db.setSetting(
+    _timingKey,
+    timing == null || timing.isEmpty ? '' : timing.encode(),
+  );
+
+  /// What was kept for the workout [workoutId], null when it was kept
+  /// for another one or the stored text cannot be read.
+  WorkoutTiming? timing(String workoutId) {
+    try {
+      final stored = WorkoutTiming.decode(storedTiming);
+      return stored?.workoutId == workoutId ? stored : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
   /// Whether the rest starts by itself when a set is done.
   bool get isAutoRest => _db.setting(_autoRestKey) != 'false';
 
   void setAutoRest(bool isOn) => _db.setSetting(_autoRestKey, '$isOn');
+
+  /// Whether the end of a rest or a timed set is told by a sound as well
+  /// as a vibration.
+  bool get isCueSound => _db.setting(_cueSoundKey) != 'false';
+
+  void setCueSound(bool isOn) => _db.setSetting(_cueSoundKey, '$isOn');
 
   WorkoutSession? active() => _workouts.active(_exercise);
 

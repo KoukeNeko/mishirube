@@ -3,7 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import '../backend/application/training_service.dart' show routineNameFor;
+import '../backend/application/training_service.dart'
+    show WorkoutTiming, routineNameFor;
 import '../backend/engines/workout_text.dart';
 import 'device_motion.dart';
 import 'set_timer.dart';
@@ -95,6 +96,8 @@ class AppStore extends ChangeNotifier {
       _ => null,
     };
     _lastFinishedWorkout = _backend.training.lastFinished();
+    _savedTiming = _backend.training.storedTiming;
+    if (_session case ActiveWorkout(:final workout)) _restoreTiming(workout);
     _backend.db.changes.addListener(_onRecordsChanged);
   }
 
@@ -528,13 +531,28 @@ class AppStore extends ChangeNotifier {
   }
 
   /// When the rest between sets ends, and how long it was set for; null
-  /// when nobody is resting. Not stored: a rest does not outlive the app.
+  /// when nobody is resting. Kept with [WorkoutTiming], so a rest outlives
+  /// the app.
   DateTime? _restEndsAt;
   Duration _restLength = Duration.zero;
   ExerciseDefinition? _restExercise;
 
+  /// When the last rest ran out, while the card for it is still shown
+  /// counting the time since: the rest is over, the next set is not yet.
+  DateTime? _restEndedAt;
+
+  /// The text last handed to [TrainingService.saveTiming].
+  String _savedTiming = '';
+
+  /// When the running rest ends; null once it has, however long the card
+  /// goes on showing it ([restEndedAt]).
   DateTime? get restEndsAt => _restEndsAt;
+  DateTime? get restEndedAt => _restEndedAt;
   Duration get restLength => _restLength;
+
+  /// Whether the rest card is shown: a rest running, or run out and not
+  /// yet dismissed.
+  bool get isResting => _restEndsAt != null || _restEndedAt != null;
 
   /// The exercise whose set the running rest follows.
   ExerciseDefinition? get restExercise => _restExercise;
@@ -547,6 +565,7 @@ class AppStore extends ChangeNotifier {
     _restLength = length;
     _restExercise = exercise;
     _restEndsAt = now().add(length);
+    _restEndedAt = null;
     notifyListeners();
   }
 
@@ -585,6 +604,15 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Whether the end of a rest or a timed set is told by a sound as well
+  /// as a vibration.
+  bool get isCueSound => _backend.training.isCueSound;
+
+  void setCueSound(bool isOn) {
+    _backend.training.setCueSound(isOn);
+    notifyListeners();
+  }
+
   /// Lengthens the rest running by [by], or shortens it when negative; a
   /// rest cut to nothing is over.
   void extendRest(Duration by) {
@@ -597,27 +625,31 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Ends the rest, or takes the card away once it has run out.
   void skipRest() {
-    if (_restEndsAt == null) return;
+    if (!isResting) return;
     _restEndsAt = null;
+    _restEndedAt = null;
     notifyListeners();
   }
 
-  /// Ends the rest once its time is up. True only for the call that
-  /// ended it, so whichever clock notices first gives the one signal.
+  /// Ends the rest once its time is up; the card stays, counting the time
+  /// past it. True only for the call that ended it, so whichever clock
+  /// notices first gives the one signal.
   bool settleRest() {
     final endsAt = _restEndsAt;
     if (endsAt == null || now().isBefore(endsAt)) return false;
     _restEndsAt = null;
+    _restEndedAt = endsAt;
     notifyListeners();
     return true;
   }
 
   SetTimer? _setTimer;
 
-  /// The set being timed, if any: a plank held, a run under way. Not
-  /// stored: like a rest, it does not outlive the app. A timer whose set
-  /// has gone from the workout is dropped.
+  /// The set being timed, if any: a plank held, a run under way. Kept
+  /// with [WorkoutTiming], so it outlives the app. A timer whose set has
+  /// gone from the workout is dropped.
   SetTimer? get setTimer {
     final timer = _setTimer;
     final workout = activeWorkout;
@@ -639,6 +671,7 @@ class AppStore extends ChangeNotifier {
     if (workout == null) return;
     _backend.training.begin(workout);
     _setTimer = SetTimer(set, now());
+    _restEndedAt = null;
     notifyListeners();
   }
 
@@ -656,30 +689,127 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// True once when the timer reaches the time the set was planned for, so
-  /// whichever clock notices first gives the one signal. The timer runs on.
+  /// Does what the timer was started for once it reaches the time the set
+  /// was planned for: the set is done at that time, and the rest after it
+  /// starts. True only for the call that did, so whichever clock notices
+  /// first (the page's, the app coming back, a restart) gives the one
+  /// signal. A set with no planned time counts up until it is ended.
   bool settleSetTimer() {
     final timer = setTimer;
     final planned = timer?.set.durationSeconds;
+    final workout = activeWorkout;
     if (timer == null ||
-        timer.hasReachedPlan ||
+        workout == null ||
         planned == null ||
         planned <= 0 ||
         timer.elapsedAt(now()).inSeconds < planned) {
       return false;
     }
-    timer.hasReachedPlan = true;
+    final (exerciseIndex, setIndex) = _placeOf(workout, timer.set)!;
+    focusExercise(exerciseIndex);
+    editSet(
+      setIndex,
+      weightKg: timer.set.weightKg,
+      reps: timer.set.reps,
+      rir: timer.set.rir,
+      seconds: stopSetTimer(),
+    );
+    if (!workout.exercises[exerciseIndex].sets[setIndex].isDone) {
+      toggleSet(setIndex);
+    }
+    restAfterSet(exerciseIndex);
     return true;
   }
 
-  /// Ends the timer and gives the whole seconds it counted; null when no
-  /// set is being timed.
+  /// Ends the timer and gives the whole seconds it counted, no more than
+  /// the set was planned for: a timer nobody looked at past its time
+  /// logs that time, not the time it ran on. Null when no set is being
+  /// timed.
   int? stopSetTimer() {
     final timer = setTimer;
     if (timer == null) return null;
     _setTimer = null;
     notifyListeners();
-    return timer.elapsedAt(now()).inSeconds;
+    final seconds = timer.elapsedAt(now()).inSeconds;
+    final planned = timer.set.durationSeconds ?? 0;
+    return planned > 0 && seconds > planned ? planned : seconds;
+  }
+
+  /// Where [set] is in [workout]: its exercise and its place among that
+  /// exercise's sets; null when it is not there.
+  static (int, int)? _placeOf(WorkoutSession workout, WorkoutSet set) {
+    for (final (exerciseIndex, exercise) in workout.exercises.indexed) {
+      final setIndex = exercise.sets.indexWhere(
+        (other) => identical(other, set),
+      );
+      if (setIndex >= 0) return (exerciseIndex, setIndex);
+    }
+    return null;
+  }
+
+  /// The rest and the timed set as [WorkoutTiming] keeps them, null with
+  /// no workout under way. Reads the timer without [setTimer]'s dropping
+  /// it: a set being edited is briefly not the one the timer holds.
+  WorkoutTiming? _timing() {
+    final workout = activeWorkout;
+    if (workout == null) return null;
+    final timer = _setTimer;
+    final place = timer == null ? null : _placeOf(workout, timer.set);
+    return WorkoutTiming(
+      workoutId: workout.id,
+      restEndsAt: _restEndsAt,
+      restLength: _restLength,
+      restExerciseId: _restExercise?.id,
+      timerExercise: place?.$1,
+      timerSet: place?.$2,
+      timerStartedAt: place == null ? null : timer!.startedAt,
+      timerPausedAt: place == null ? null : timer!.pausedAt,
+    );
+  }
+
+  /// Keeps the timing when it changed. Every change to it is announced,
+  /// so it is saved from [notifyListeners].
+  void _saveTiming() {
+    final timing = _timing();
+    final encoded = timing == null || timing.isEmpty ? '' : timing.encode();
+    if (encoded == _savedTiming) return;
+    _savedTiming = encoded;
+    _backend.training.saveTiming(timing);
+  }
+
+  @override
+  void notifyListeners() {
+    _saveTiming();
+    super.notifyListeners();
+  }
+
+  /// Takes up the rest and the timed set kept for [workout]; a rest that
+  /// ran out meanwhile is gone, a set past its time is done at that time.
+  void _restoreTiming(WorkoutSession workout) {
+    final kept = _backend.training.timing(workout.id);
+    if (kept == null) return;
+    if (kept.restEndsAt case final endsAt? when endsAt.isAfter(now())) {
+      _restEndsAt = endsAt;
+      _restLength = kept.restLength;
+      _restExercise = switch (kept.restExerciseId) {
+        final id? => _exercisesById[id],
+        null => null,
+      };
+    }
+    final exercises = workout.exercises;
+    if (kept.timerExercise case final exerciseIndex? when exerciseIndex >= 0) {
+      final sets = exerciseIndex < exercises.length
+          ? exercises[exerciseIndex].sets
+          : const <WorkoutSet>[];
+      if (kept.timerSet case final setIndex?
+          when setIndex >= 0 &&
+              setIndex < sets.length &&
+              !sets[setIndex].isDone) {
+        _setTimer = SetTimer(sets[setIndex], kept.timerStartedAt!)
+          ..pausedAt = kept.timerPausedAt;
+        settleSetTimer();
+      }
+    }
   }
 
   /// Whether [set] of [exercise] in the running workout beats every
@@ -695,7 +825,10 @@ class AppStore extends ChangeNotifier {
     final workout = activeWorkout;
     if (workout == null) return null;
     final completed = _backend.training.completeNextSet(workout);
-    if (completed != null) notifyListeners();
+    if (completed != null) {
+      _restEndedAt = null;
+      notifyListeners();
+    }
     return completed;
   }
 
@@ -742,6 +875,7 @@ class AppStore extends ChangeNotifier {
     final workout = activeWorkout;
     if (workout == null) return;
     _backend.training.toggleSet(workout, setIndex);
+    _restEndedAt = null;
     notifyListeners();
   }
 
@@ -1025,6 +1159,7 @@ class AppStore extends ChangeNotifier {
       case null:
         return;
     }
+    _restEndedAt = null;
     notifyListeners();
   }
 
@@ -1036,6 +1171,7 @@ class AppStore extends ChangeNotifier {
     _backend.training.discard(workout);
     _session = null;
     _restEndsAt = null;
+    _restEndedAt = null;
     _setTimer = null;
     notifyListeners();
   }
@@ -1057,6 +1193,7 @@ class AppStore extends ChangeNotifier {
     _lastFinishedWorkout = workout;
     _session = null;
     _restEndsAt = null;
+    _restEndedAt = null;
     if (_routine case final shown?) {
       _routine = _backend.training.routine(shown.id, _exercisesById);
     }

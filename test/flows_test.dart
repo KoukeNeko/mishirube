@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MethodCall, MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
@@ -297,6 +298,108 @@ void main() {
     expect(store.restEndsAt, isNull);
     expect(tester.takeException(), isNull);
     semantics.dispose();
+    await disposeTree(tester);
+  });
+
+  testWidgets('the system is told of a rest and of a set timed, and not of '
+      'a rest that ran out', (tester) async {
+    usePhoneViewport(tester);
+    final semantics = tester.ensureSemantics();
+    final calls = <MethodCall>[];
+    const channel = MethodChannel('mishirube/rest_notice');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+      call,
+    ) async {
+      calls.add(call);
+      return null;
+    });
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        null,
+      ),
+    );
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    expect(calls.map((call) => call.method), [
+      'cancel',
+      'cancelSet',
+    ], reason: 'the first look clears what an earlier run left');
+
+    await _startFromRoutine(tester);
+    await _tapText(tester, '開始運動');
+    calls.clear();
+    await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+    await tester.pump();
+    final schedule = calls.singleWhere((call) => call.method == 'schedule');
+    expect(
+      (schedule.arguments as Map)['endsAt'],
+      store.restEndsAt!.millisecondsSinceEpoch.toDouble(),
+    );
+    expect((schedule.arguments as Map)['body'], contains('槓鈴深蹲 · '));
+    expect((schedule.arguments as Map)['skipLabel'], '跳過休息');
+
+    calls.clear();
+    clock.advance(store.restLength);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+    expect(calls.map((call) => call.method), contains('ended'));
+    expect(
+      calls.map((call) => call.method),
+      isNot(contains('cancel')),
+      reason: 'its alert may be on the lock screen already',
+    );
+
+    calls.clear();
+    store.skipRest();
+    await tester.pump();
+    expect(calls.map((call) => call.method), ['cancel']);
+
+    calls.clear();
+    final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+    store.discardWorkout();
+    store.startFreeWorkout([plank]);
+    store.beginWorkout();
+    store.startSetTimer(store.activeWorkout!.exercises.first.sets.first);
+    await tester.pump();
+    final timed = calls.singleWhere((call) => call.method == 'scheduleSet');
+    expect(
+      (timed.arguments as Map)['endsAt'],
+      clock.now().add(const Duration(seconds: 30)).millisecondsSinceEpoch,
+    );
+    expect((timed.arguments as Map)['title'], plank.name);
+
+    calls.clear();
+    store.toggleSetTimerPause();
+    await tester.pump();
+    expect(calls.map((call) => call.method), ['cancelSet']);
+    semantics.dispose();
+    await disposeTree(tester);
+  });
+
+  testWidgets('a set timed to its end is done without the workout page, when '
+      'the app comes back', (tester) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+    store
+      ..startFreeWorkout([plank])
+      ..beginWorkout()
+      ..startSetTimer(store.activeWorkout!.exercises.first.sets.first);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    expect(find.byType(ActiveWorkoutScreen), findsNothing, reason: 'on Today');
+
+    clock.advance(const Duration(minutes: 5));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+
+    final set = store.activeWorkout!.exercises.first.sets.first;
+    expect(set.isDone, isTrue);
+    expect(set.durationSeconds, 30, reason: 'the time planned');
+    expect(store.setTimer, isNull);
+    expect(store.restEndsAt, isNotNull, reason: 'the rest follows');
     await disposeTree(tester);
   });
 
@@ -1509,6 +1612,9 @@ void main() {
     await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
     await tester.pump();
     expect(store.activeWorkout!.currentExercise.sets.first.rir, isNull);
+    // Let the record's toast go: the rest card is a line taller with the
+    // next set, which lifts it over the dialog.
+    await tester.pump(const Duration(seconds: 4));
     await _tapText(tester, '結束');
     await _tapText(tester, '結束並儲存');
     expect(find.byType(WorkoutSummaryScreen), findsOneWidget);

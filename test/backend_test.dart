@@ -211,7 +211,8 @@ void main() {
       final squat = store.activeWorkout!.exercises.first.exercise;
       store
         ..setRestFor(squat, const Duration(seconds: 150))
-        ..setAutoRest(false);
+        ..setAutoRest(false)
+        ..setCueSound(false);
       firstRun.close();
 
       final secondRun = openFile();
@@ -219,12 +220,67 @@ void main() {
       final reopened = AppStore(clock: clock.now, backend: secondRun);
       expect(reopened.restFor(squat), const Duration(seconds: 150));
       expect(reopened.isAutoRest, isFalse);
+      expect(reopened.isCueSound, isFalse);
       final other = reopened.routine.exercises.last.exercise;
       expect(
         reopened.restFor(other),
         restAfter(other),
         reason: 'only that one',
       );
+    });
+
+    test('a rest and a timed set outlive the app, not their workout', () {
+      final firstRun = openFile();
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: firstRun,
+      );
+      final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      store
+        ..startFreeWorkout([plank])
+        ..beginWorkout()
+        ..logNextSet();
+      final endsAt = store.restEndsAt!;
+      store.startSetTimer(store.activeWorkout!.exercises.first.sets[1]);
+      firstRun.close();
+
+      clock.advance(const Duration(seconds: 10));
+      final secondRun = openFile();
+      final reopened = AppStore(clock: clock.now, backend: secondRun);
+      expect(reopened.restEndsAt, endsAt);
+      expect(reopened.restLength, store.restLength);
+      expect(reopened.restExercise?.id, 'plank');
+      expect(
+        reopened.setTimer!.set,
+        same(reopened.activeWorkout!.exercises.first.sets[1]),
+      );
+      expect(reopened.setTimer!.elapsedAt(clock.now()).inSeconds, 10);
+      secondRun.close();
+
+      clock.advance(const Duration(minutes: 10));
+      final thirdRun = openFile();
+      final late = AppStore(clock: clock.now, backend: thirdRun);
+      final sets = late.activeWorkout!.exercises.first.sets;
+      expect(late.setTimer, isNull);
+      expect(sets[1].isDone, isTrue, reason: 'past its time, so done');
+      expect(sets[1].durationSeconds, 30, reason: 'the time planned');
+      expect(
+        late.restEndsAt,
+        isNot(endsAt),
+        reason: 'the old rest ran out; one follows the set done now',
+      );
+      expect(late.restEndsAt!.isAfter(clock.now()), isTrue);
+      late.startSetTimer(sets[2]);
+      late.finishWorkout();
+      thirdRun.close();
+
+      final fourthRun = openFile();
+      addTearDown(fourthRun.close);
+      final after = AppStore(clock: clock.now, backend: fourthRun);
+      expect(after.activeWorkout, isNull);
+      expect(after.setTimer, isNull);
+      expect(after.restEndsAt, isNull);
     });
 
     test('every logged set is recorded in the audit trail', () {

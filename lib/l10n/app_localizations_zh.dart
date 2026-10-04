@@ -267,8 +267,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restEnded => '休息結束';
 
   @override
-  String restNextSet({required String exercise}) {
-    return '下一組 · $exercise';
+  String restNextSet({required String set}) {
+    return '下一組 · $set';
   }
 
   @override
@@ -6224,6 +6224,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String regularityNeeds({required int count}) {
     return '需要近 28 天有 14 晚記下入睡與起床時間（目前 $count 晚）';
   }
+
+  @override
+  String get cueSoundTitle => '提示音';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6488,8 +6491,8 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get restEnded => '休息结束';
 
   @override
-  String restNextSet({required String exercise}) {
-    return '下一组 · $exercise';
+  String restNextSet({required String set}) {
+    return '下一组 · $set';
   }
 
   @override
@@ -12445,6 +12448,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String regularityNeeds({required int count}) {
     return '需要近 28 天有 14 晚记下入睡与起床时间（目前 $count 晚）';
   }
+
+  @override
+  String get cueSoundTitle => '提示音';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

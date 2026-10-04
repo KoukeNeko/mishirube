@@ -271,8 +271,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restEnded => 'Rest over';
 
   @override
-  String restNextSet({required String exercise}) {
-    return 'Next set · $exercise';
+  String restNextSet({required String set}) {
+    return 'Next set · $set';
   }
 
   @override
@@ -6352,4 +6352,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String regularityNeeds({required int count}) {
     return 'Needs 14 nights with bed and wake times in the last 28 days (now $count)';
   }
+
+  @override
+  String get cueSoundTitle => 'Sound';
 }

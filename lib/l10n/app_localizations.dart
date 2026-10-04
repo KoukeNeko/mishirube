@@ -566,11 +566,11 @@ abstract class AppLocalizations {
   /// **'休息結束'**
   String get restEnded;
 
-  /// Rest timer notification body naming the next exercise.
+  /// Rest timer notification body and rest card line naming the next set: its exercise and figures.
   ///
   /// In zh, this message translates to:
-  /// **'下一組 · {exercise}'**
-  String restNextSet({required String exercise});
+  /// **'下一組 · {set}'**
+  String restNextSet({required String set});
 
   /// Sets done out of the workout's total.
   ///
@@ -10839,6 +10839,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'需要近 28 天有 14 晚記下入睡與起床時間（目前 {count} 晚）'**
   String regularityNeeds({required int count});
+
+  /// Switch row: a sound when a rest or a timed set ends.
+  ///
+  /// In zh, this message translates to:
+  /// **'提示音'**
+  String get cueSoundTitle;
 }
 
 class _AppLocalizationsDelegate

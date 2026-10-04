@@ -1,4 +1,5 @@
 import ActivityKit
+import AudioToolbox
 import Flutter
 import HealthKit
 import Photos
@@ -1142,16 +1143,28 @@ enum BedtimeReminder {
   }
 }
 
-/// The end of the rest between sets as a notification
-/// (`lib/app/rest_notice.dart`), so it is heard with the device locked.
-/// Permission is asked the first time a rest starts; declining leaves
-/// the rest shown in the app only.
+/// The end of the rest between sets, and of a timed set, as a
+/// notification (`lib/app/rest_notice.dart`), so it is heard with the
+/// device locked. Permission is asked the first time a rest starts;
+/// declining leaves the rest shown in the app only.
 enum RestNotice {
   static let identifier = "rest"
+  static let setIdentifier = "set"
+
+  /// A short system sound, which mixes with music and keeps to the
+  /// silent switch.
+  static let cueSound: SystemSoundID = 1057
 
   static func register(with messenger: FlutterBinaryMessenger) {
     let channel = FlutterMethodChannel(
       name: "mishirube/rest_notice", binaryMessenger: messenger)
+    if #available(iOS 17.0, *) {
+      // 跳過休息 on the lock screen runs in this process: the activity and
+      // the notification are gone already, the app is told to end the rest.
+      SkipRestIntent.onSkip = {
+        DispatchQueue.main.async { channel.invokeMethod("skip", arguments: nil) }
+      }
+    }
     channel.setMethodCallHandler { call, result in
       let center = UNUserNotificationCenter.current()
       switch call.method {
@@ -1179,13 +1192,47 @@ enum RestNotice {
           showActivity(
             endsAt: Date(timeIntervalSince1970: endsAt / 1000),
             title: arguments["restingTitle"] as? String ?? "",
-            body: content.body)
+            body: content.body,
+            skipLabel: arguments["skipLabel"] as? String)
         }
+        result(nil)
+      case "ended":
+        // The rest ran out in the app: its alert is on the way or shown,
+        // and stays; only the countdown goes.
+        if #available(iOS 16.2, *) { endActivities() }
         result(nil)
       case "cancel":
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
         center.removeDeliveredNotifications(withIdentifiers: [identifier])
         if #available(iOS 16.2, *) { endActivities() }
+        result(nil)
+      case "scheduleSet":
+        guard let arguments = call.arguments as? [String: Any],
+          let endsAt = arguments["endsAt"] as? Double
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = arguments["title"] as? String ?? ""
+        content.body = arguments["body"] as? String ?? ""
+        content.sound = .default
+        let seconds = max(1, endsAt / 1000 - Date().timeIntervalSince1970)
+        let request = UNNotificationRequest(
+          identifier: setIdentifier, content: content,
+          trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false))
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+          guard granted else { return }
+          center.removePendingNotificationRequests(withIdentifiers: [setIdentifier])
+          center.add(request)
+        }
+        result(nil)
+      case "cancelSet":
+        center.removePendingNotificationRequests(withIdentifiers: [setIdentifier])
+        center.removeDeliveredNotifications(withIdentifiers: [setIdentifier])
+        result(nil)
+      case "cue":
+        AudioServicesPlaySystemSound(cueSound)
         result(nil)
       default:
         result(FlutterMethodNotImplemented)
@@ -1198,10 +1245,10 @@ enum RestNotice {
 extension RestNotice {
   /// The rest on the lock screen and in the Dynamic Island, counting
   /// down: one activity, updated when the rest is lengthened.
-  static func showActivity(endsAt: Date, title: String, body: String) {
+  static func showActivity(endsAt: Date, title: String, body: String, skipLabel: String?) {
     guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
     let state = RestAttributes.ContentState(
-      endsAt: endsAt, startedAt: Date(), title: title, body: body)
+      endsAt: endsAt, startedAt: Date(), title: title, body: body, skipLabel: skipLabel)
     // Over the caffeine activity (`CaffeineActivity.relevance`) in the
     // Dynamic Island: the rest is what the workout is waiting on.
     let content = ActivityContent(state: state, staleDate: endsAt, relevanceScore: 100)

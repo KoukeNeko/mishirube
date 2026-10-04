@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart'
     show CustomScrollView, Scaffold, StatefulBuilder;
 import 'package:flutter/semantics.dart' show SemanticsAction;
+import 'package:flutter/services.dart' show MethodChannel, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/engines/set_schemes.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -19,6 +20,32 @@ import '../../support/harness.dart';
 void main() {
   AppStore newStore(FakeClock clock) =>
       AppStore(clock: clock.now, isOnboarded: true);
+
+  /// What the page asks the device to do: the kind of each vibration, and
+  /// each call to the rest notice's channel (`cue` among them).
+  ({List<String> haptics, List<String> notice}) listenToDevice(
+    WidgetTester tester,
+  ) {
+    final haptics = <String>[];
+    final notice = <String>[];
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        haptics.add(call.arguments as String);
+      }
+      return null;
+    });
+    const channel = MethodChannel('mishirube/rest_notice');
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      notice.add(call.method);
+      return null;
+    });
+    addTearDown(() {
+      messenger.setMockMethodCallHandler(SystemChannels.platform, null);
+      messenger.setMockMethodCallHandler(channel, null);
+    });
+    return (haptics: haptics, notice: notice);
+  }
 
   Finder inDialog(Finder finder) =>
       find.descendant(of: find.byType(AppDialog), matching: finder);
@@ -361,6 +388,45 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a rest shows the next set, and counts the time past its end '
+        'until it is closed', (tester) async {
+      usePhoneViewport(tester);
+      final semantics = tester.ensureSemantics();
+      final device = listenToDevice(tester);
+      final clock = FakeClock();
+      final store = newStore(clock)
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+      await tester.pump();
+      expect(find.textContaining('下一組 · 槓鈴深蹲 · '), findsOneWidget);
+      device.haptics.clear();
+
+      clock.advance(store.restLength + const Duration(seconds: 12));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('+0:12'), findsOneWidget);
+      expect(find.text('+15 秒'), findsNothing, reason: 'nothing to lengthen');
+      expect(
+        tester.widget<ProgressLine>(find.byType(ProgressLine).last).progress,
+        1,
+      );
+      expect(device.haptics, ['HapticFeedbackType.heavyImpact']);
+      expect(device.notice.where((call) => call == 'cue'), hasLength(1));
+
+      clock.advance(const Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('+0:15'), findsOneWidget);
+      expect(device.haptics, hasLength(1), reason: 'once, at the end');
+
+      await tester.tap(find.text('關閉').last);
+      await tester.pump();
+      expect(store.isResting, isFalse);
+      semantics.dispose();
+      await disposeTree(tester);
+    });
+
     testWidgets('a rest is cut or lengthened at the foot, never below 0', (
       tester,
     ) async {
@@ -549,6 +615,62 @@ void main() {
       expect(set.durationSeconds, 30);
       expect(store.setTimer, isNull);
       expect(store.restEndsAt, isNotNull, reason: 'the rest starts');
+      await disposeTree(tester);
+    });
+
+    testWidgets('counts the last three seconds down, then ends with a cue', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final device = listenToDevice(tester);
+      final clock = FakeClock();
+      final store = newStore(clock);
+      store
+        ..startFreeWorkout([plank(store)])
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+      await tester.tap(find.byTooltip('開始計時').first);
+      await tester.pump();
+      device.haptics.clear();
+      device.notice.clear();
+      for (var second = 1; second < 30; second++) {
+        clock.advance(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(
+        device.haptics,
+        List.filled(3, 'HapticFeedbackType.lightImpact'),
+        reason: 'at 3, 2 and 1 s left',
+      );
+      expect(device.notice.where((call) => call == 'cue'), hasLength(3));
+
+      clock.advance(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+      expect(device.haptics.last, 'HapticFeedbackType.heavyImpact');
+      expect(device.haptics, hasLength(4));
+      expect(device.notice.where((call) => call == 'cue'), hasLength(4));
+      await disposeTree(tester);
+    });
+
+    testWidgets('makes no sound with the cue off, and nothing under five '
+        'seconds counts down', (tester) async {
+      usePhoneViewport(tester);
+      final device = listenToDevice(tester);
+      final clock = FakeClock();
+      final store = newStore(clock)..setCueSound(false);
+      store
+        ..startFreeWorkout([plank(store)])
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+      await tester.tap(find.byTooltip('開始計時').first);
+      await tester.pump();
+      device.haptics.clear();
+      clock.advance(const Duration(seconds: 30));
+      await tester.pump(const Duration(seconds: 1));
+      expect(device.haptics, ['HapticFeedbackType.heavyImpact']);
+      expect(device.notice, isNot(contains('cue')));
       await disposeTree(tester);
     });
 

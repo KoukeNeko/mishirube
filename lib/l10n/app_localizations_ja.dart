@@ -268,8 +268,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get restEnded => '休憩終了';
 
   @override
-  String restNextSet({required String exercise}) {
-    return '次のセット · $exercise';
+  String restNextSet({required String set}) {
+    return '次のセット · $set';
   }
 
   @override
@@ -6235,4 +6235,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String regularityNeeds({required int count}) {
     return '過去28日のうち就寝と起床の時刻がある夜が14晩必要（現在$count晩）';
   }
+
+  @override
+  String get cueSoundTitle => 'サウンド';
 }

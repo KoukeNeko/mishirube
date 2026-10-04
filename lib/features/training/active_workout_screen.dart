@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
+import '../../app/rest_notice.dart';
 import '../../app/set_timer.dart';
 import '../../app/theme.dart';
 import '../../domain/domain.dart';
@@ -257,7 +258,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   mainAxisSize: MainAxisSize.min,
                   spacing: AppSpacing.sm,
                   children: [
-                    if (store.restEndsAt != null)
+                    if (store.isResting)
                       _RestTimer(
                         isCompact: _isRestCompact,
                         onExpand: () => setState(() => _isRestCompact = false),
@@ -511,8 +512,10 @@ class _RestTimerState extends State<_RestTimer> {
   }
 
   void _onTick() {
-    if (AppStoreScope.read(context).settleRest()) {
+    final store = AppStoreScope.read(context);
+    if (store.settleRest()) {
       AppHaptics.alert();
+      playCue(store);
     } else {
       setState(() {});
     }
@@ -522,15 +525,25 @@ class _RestTimerState extends State<_RestTimer> {
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final endsAt = store.restEndsAt;
-    if (endsAt == null) return const SizedBox.shrink();
-    final left = endsAt.difference(store.now());
+    final endedAt = store.restEndedAt;
+    if (endsAt == null && endedAt == null) return const SizedBox.shrink();
+    // Run out, the card stays and counts the time past it.
+    final isOver = endedAt != null;
+    final left = endsAt?.difference(store.now()) ?? Duration.zero;
     final remaining = left.isNegative ? Duration.zero : left;
     final length = store.restLength.inMilliseconds;
     final restExercise = store.restExercise;
-    final progress = length == 0 ? 0.0 : remaining.inMilliseconds / length;
-    final clock = formatClock(remaining);
+    final progress = isOver
+        ? 1.0
+        : length == 0
+        ? 0.0
+        : remaining.inMilliseconds / length;
+    final color = isOver ? AppColors.warning : AppColors.training;
+    final clock = isOver
+        ? '+${formatClock(store.now().difference(endedAt))}'
+        : formatClock(remaining);
     final skip = ChipButton(
-      label: context.l10n.skipRest,
+      label: isOver ? context.l10n.commonClose : context.l10n.skipRest,
       tone: TagTone.training,
       onTap: store.skipRest,
     );
@@ -553,12 +566,18 @@ class _RestTimerState extends State<_RestTimer> {
               Text(
                 clock,
                 style: AppTextStyles.itemTitle.copyWith(
-                  color: AppColors.training,
+                  color: color,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: ProgressLine(progress: progress, height: 4)),
+              Expanded(
+                child: ProgressLine(
+                  progress: progress,
+                  color: color,
+                  height: 4,
+                ),
+              ),
               const SizedBox(width: AppSpacing.sm),
               skip,
             ],
@@ -580,7 +599,15 @@ class _RestTimerState extends State<_RestTimer> {
           duration: duration,
           child: widget.isCompact
               ? compact
-              : _full(context, store, clock, progress, restExercise, skip),
+              : _full(
+                  context,
+                  store,
+                  clock,
+                  progress,
+                  color,
+                  restExercise,
+                  skip,
+                ),
         ),
       ),
     );
@@ -591,6 +618,7 @@ class _RestTimerState extends State<_RestTimer> {
     AppStore store,
     String clock,
     double progress,
+    Color color,
     ExerciseDefinition? restExercise,
     Widget skip,
   ) => Padding(
@@ -623,7 +651,7 @@ class _RestTimerState extends State<_RestTimer> {
                         Text(
                           clock,
                           style: AppTextStyles.bigNumber.copyWith(
-                            color: AppColors.training,
+                            color: color,
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
@@ -640,23 +668,36 @@ class _RestTimerState extends State<_RestTimer> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
-          children: [
-            for (final seconds in _restAdjustments)
-              ChipButton(
-                label: changeLabel(
-                  seconds,
-                  (size) => context.l10n.durationSeconds(seconds: size),
+        if (store.activeWorkout?.currentExercise.nextSetIn(context.l10n)
+            case final next?) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            context.l10n.restNextSet(set: next),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption,
+          ),
+        ],
+        // Nothing to lengthen once it has run out.
+        if (store.restEndsAt != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              for (final seconds in _restAdjustments)
+                ChipButton(
+                  label: changeLabel(
+                    seconds,
+                    (size) => context.l10n.durationSeconds(seconds: size),
+                  ),
+                  onTap: () => store.extendRest(Duration(seconds: seconds)),
                 ),
-                onTap: () => store.extendRest(Duration(seconds: seconds)),
-              ),
-          ],
-        ),
+            ],
+          ),
+        ],
         const SizedBox(height: AppSpacing.sm),
-        ProgressLine(progress: progress),
+        ProgressLine(progress: progress, color: color),
       ],
     ),
   );
@@ -799,7 +840,11 @@ class _ExerciseCard extends StatelessWidget {
     final set = exercise.sets[setIndex];
     if (!set.isDone) return;
     store.restAfterSet(index);
-    if (store.isPersonalRecord(exercise.exercise, set)) {
+    _sayIfRecord(context, set);
+  }
+
+  void _sayIfRecord(BuildContext context, WorkoutSet set) {
+    if (AppStoreScope.read(context).isPersonalRecord(exercise.exercise, set)) {
       _sayRecord(context, set, exercise.exercise.trackingType);
     }
   }
@@ -1070,8 +1115,9 @@ class _ExerciseCard extends StatelessWidget {
                     _commit(context, setIndex, meters: meters),
                 onStartTimer: () => _startTimer(context, setIndex),
                 onToggleTimer: store.toggleSetTimerPause,
-                // A set timed to its planned length is done then.
-                onTimeUp: () => _toggle(context, setIndex),
+                // A set timed to its planned length is done then, by the
+                // store; the page only says if it was a record.
+                onTimeUp: () => _sayIfRecord(context, exercise.sets[setIndex]),
                 onToggle: () => _toggle(context, setIndex),
                 onEdit: () => _edit(context, setIndex, reference),
               ),
@@ -1164,7 +1210,8 @@ class _SetRow extends StatelessWidget {
   final VoidCallback onStartTimer;
   final VoidCallback onToggleTimer;
 
-  /// The timer has counted the set's planned time down to nothing.
+  /// The timer has counted the set's planned time down to nothing and the
+  /// store has done the set.
   final VoidCallback onTimeUp;
   final VoidCallback onToggle;
 
@@ -1368,9 +1415,15 @@ List<_Field> _fieldsOf(TrackingType type) => switch (type) {
   TrackingType.distance => const [_Field.distance, _Field.time],
 };
 
+/// How many seconds before the end of a timed set are counted down, and
+/// the shortest set that is.
+const _countdownSeconds = 3;
+const _countdownFrom = 5;
+
 /// The time left of a set being timed, ticking down, with a bar of how
-/// much has gone; a set with no planned time counts up instead. Reaching
-/// the planned time vibrates once and calls [onTimeUp].
+/// much has gone; a set with no planned time counts up instead. The last
+/// three seconds of a set planned for five or more tick once each, and
+/// reaching the planned time vibrates once and calls [onTimeUp].
 class _TimingClock extends StatefulWidget {
   const _TimingClock({required this.timer, required this.onTimeUp});
 
@@ -1383,6 +1436,9 @@ class _TimingClock extends StatefulWidget {
 
 class _TimingClockState extends State<_TimingClock> {
   late final Timer _tick;
+
+  /// The last second counted down to, so each is told once.
+  int? _countedDown;
 
   @override
   void initState() {
@@ -1397,9 +1453,21 @@ class _TimingClockState extends State<_TimingClock> {
   }
 
   void _onTick() {
-    if (AppStoreScope.read(context).settleSetTimer()) {
+    final store = AppStoreScope.read(context);
+    final planned = widget.timer.set.durationSeconds ?? 0;
+    final left = planned - widget.timer.elapsedAt(store.now()).inSeconds;
+    if (store.settleSetTimer()) {
       AppHaptics.alert();
+      playCue(store);
       widget.onTimeUp();
+    } else if (planned >= _countdownFrom &&
+        !widget.timer.isPaused &&
+        left <= _countdownSeconds &&
+        left > 0 &&
+        left < (_countedDown ?? _countdownSeconds + 1)) {
+      _countedDown = left;
+      AppHaptics.tap();
+      playCue(store);
     }
     if (mounted) setState(() {});
   }

@@ -77,7 +77,7 @@
   "bedtimeReminderBody": "{bedtime} 취침, {wake} 기상",
   "restResting": "휴식 중",
   "restEnded": "휴식 끝",
-  "restNextSet": "다음 세트 · {exercise}",
+  "restNextSet": "다음 세트 · {set}",
   "setsProgress": "{done} / {total} 세트",
   "trackingTypeWeightReps": "무게 + 횟수",
   "trackingTypeReps": "횟수",
@@ -1775,5 +1775,6 @@
   "weekendMidsleepLater": "주말 수면 중간 시각이 {time} 늦음",
   "weekendMidsleepEarlier": "주말 수면 중간 시각이 {time} 이름",
   "weekendMidsleepSame": "주말과 평일 수면 중간 시각 같음",
-  "regularityNeeds": "최근 28일 중 취침·기상 시각이 있는 밤 14박 필요(현재 {count}박)"
+  "regularityNeeds": "최근 28일 중 취침·기상 시각이 있는 밤 14박 필요(현재 {count}박)",
+  "cueSoundTitle": "알림음"
 }

@@ -376,11 +376,11 @@
   "@restEnded": {
     "description": "Rest timer notification when the rest is over."
   },
-  "restNextSet": "下一組 · {exercise}",
+  "restNextSet": "下一組 · {set}",
   "@restNextSet": {
-    "description": "Rest timer notification body naming the next exercise.",
+    "description": "Rest timer notification body and rest card line naming the next set: its exercise and figures.",
     "placeholders": {
-      "exercise": {
+      "set": {
         "type": "String"
       }
     }
@@ -9465,5 +9465,9 @@
         "type": "int"
       }
     }
+  },
+  "cueSoundTitle": "提示音",
+  "@cueSoundTitle": {
+    "description": "Switch row: a sound when a rest or a timed set ends."
   }
 }

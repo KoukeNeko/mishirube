@@ -25,6 +25,19 @@ struct RestActivityWidget: Widget {
             .font(.footnote)
             .foregroundStyle(.secondary)
             .lineLimit(1)
+          if let label = context.state.skipLabel {
+            if #available(iOS 17.0, *) {
+              Button(intent: SkipRestIntent()) {
+                Text(label)
+                  .font(.footnote.weight(.semibold))
+                  .foregroundStyle(training)
+                  .padding(.horizontal, 12)
+                  .padding(.vertical, 6)
+                  .background(training.opacity(0.2), in: Capsule())
+              }
+              .buttonStyle(.plain)
+            }
+          }
         }
         Spacer()
         Text(timerInterval: context.state.startedAt...context.state.endsAt, countsDown: true)

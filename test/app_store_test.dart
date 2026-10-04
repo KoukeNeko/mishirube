@@ -473,30 +473,56 @@ void main() {
       store.startSetTimer(plankSet());
       expect(store.activeWorkout!.isReady, isFalse, reason: 'timing begins it');
 
-      clock.advance(const Duration(seconds: 20));
+      clock.advance(const Duration(seconds: 10));
       store.toggleSetTimerPause();
       clock.advance(const Duration(minutes: 5));
       expect(
         store.setTimer!.elapsedAt(clock.now()),
-        const Duration(seconds: 20),
+        const Duration(seconds: 10),
       );
       store.toggleSetTimerPause();
-      clock.advance(const Duration(seconds: 25));
+      clock.advance(const Duration(seconds: 15));
 
-      expect(store.stopSetTimer(), 45);
+      expect(store.stopSetTimer(), 25);
       expect(store.setTimer, isNull);
       expect(store.stopSetTimer(), isNull);
     });
 
-    test('signals once at the planned time, and runs on', () {
+    test('logs the planned time when noticed late, the time held if early', () {
       store.startSetTimer(plankSet());
-      clock.advance(const Duration(seconds: 29));
-      expect(store.settleSetTimer(), isFalse);
-      clock.advance(const Duration(seconds: 1));
-      expect(store.settleSetTimer(), isTrue, reason: '30 s planned');
-      expect(store.settleSetTimer(), isFalse, reason: 'once');
+      clock.advance(const Duration(minutes: 5));
+      expect(store.stopSetTimer(), 30, reason: '30 s planned, 5 min later');
+
+      store.startSetTimer(plankSet());
       clock.advance(const Duration(seconds: 15));
-      expect(store.setTimer!.elapsedAt(clock.now()).inSeconds, 45);
+      expect(store.stopSetTimer(), 15, reason: 'ended early');
+    });
+
+    test(
+      'is done at its planned time by itself, once, and the rest follows',
+      () {
+        store.startSetTimer(plankSet());
+        clock.advance(const Duration(seconds: 29));
+        expect(store.settleSetTimer(), isFalse);
+        expect(plankSet().isDone, isFalse);
+
+        clock.advance(const Duration(minutes: 5));
+        expect(store.settleSetTimer(), isTrue, reason: 'noticed late');
+        expect(store.settleSetTimer(), isFalse, reason: 'once');
+        expect(plankSet().isDone, isTrue);
+        expect(plankSet().durationSeconds, 30, reason: 'not the 5 min it ran');
+        expect(store.setTimer, isNull);
+        expect(store.restEndsAt, isNotNull);
+      },
+    );
+
+    test('a paused timer does not run out', () {
+      store.startSetTimer(plankSet());
+      clock.advance(const Duration(seconds: 10));
+      store.toggleSetTimerPause();
+      clock.advance(const Duration(minutes: 5));
+      expect(store.settleSetTimer(), isFalse);
+      expect(plankSet().isDone, isFalse);
     });
 
     test('follows the set through an edit, and ends with it', () {
@@ -558,6 +584,58 @@ void main() {
       store.extendRest(const Duration(seconds: -15));
       expect(store.restEndsAt, isNull, reason: 'to 0 is over');
       expect(store.restLength, greaterThanOrEqualTo(Duration.zero));
+    });
+
+    test('a rest that runs out stays as time over, until it is dismissed', () {
+      store.startWorkout();
+      store.logNextSet();
+      final endsAt = store.restEndsAt!;
+      clock.advance(store.restLength - const Duration(seconds: 1));
+      expect(store.settleRest(), isFalse);
+
+      clock.advance(const Duration(seconds: 13));
+      expect(store.settleRest(), isTrue);
+      expect(store.settleRest(), isFalse, reason: 'once');
+      expect(store.restEndsAt, isNull, reason: 'over, for the notification');
+      expect(store.restEndedAt, endsAt);
+      expect(store.isResting, isTrue, reason: 'the card stays');
+
+      store.skipRest();
+      expect(store.isResting, isFalse);
+      expect(store.restEndedAt, isNull);
+    });
+
+    test('time over ends with the next set, a new rest or the workout', () {
+      store.startWorkout();
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      void runOut() {
+        store.startRest(squat);
+        clock.advance(store.restLength);
+        expect(store.settleRest(), isTrue);
+        expect(store.restEndedAt, isNotNull);
+      }
+
+      runOut();
+      store.completeNextSet();
+      expect(store.restEndedAt, isNull, reason: 'the next set is done');
+
+      runOut();
+      store.toggleSet(0);
+      expect(store.restEndedAt, isNull, reason: 'a set toggled');
+
+      runOut();
+      store.startRest(squat);
+      expect(store.restEndedAt, isNull, reason: 'a new rest');
+      expect(store.restEndsAt, isNotNull);
+
+      runOut();
+      store.togglePause();
+      expect(store.isResting, isFalse, reason: 'paused');
+
+      store.togglePause();
+      runOut();
+      store.finishWorkout();
+      expect(store.isResting, isFalse, reason: 'finished');
     });
 
     test('a rest set for an exercise is the one it starts with', () {

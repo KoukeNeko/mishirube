@@ -16,9 +16,6 @@ class SetTimer {
   /// When it was held, while it is.
   DateTime? pausedAt;
 
-  /// Whether it has reached the time the set was planned for.
-  bool hasReachedPlan = false;
-
   bool get isPaused => pausedAt != null;
 
   Duration elapsedAt(DateTime now) => (pausedAt ?? now).difference(startedAt);

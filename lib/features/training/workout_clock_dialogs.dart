@@ -145,6 +145,11 @@ class _RestTime extends StatelessWidget {
               value: store.isAutoRest,
               onChanged: store.setAutoRest,
             ),
+            SwitchRow(
+              title: l10n.cueSoundTitle,
+              value: store.isCueSound,
+              onChanged: store.setCueSound,
+            ),
           ],
         ),
       ],

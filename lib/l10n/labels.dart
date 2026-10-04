@@ -127,6 +127,16 @@ extension WorkoutSetFigures on WorkoutSet {
   );
 }
 
+extension NextSetText on ExerciseSession {
+  /// The set to do next, `槓鈴深蹲 · 100 kg × 5`; null when none is left.
+  String? nextSetIn(AppLocalizations l10n) {
+    final index = nextSetIndex;
+    if (index == null) return null;
+    return '${exercise.name} · '
+        '${sets[index].figuresIn(l10n, exercise.trackingType)}';
+  }
+}
+
 extension SetLoadFigures on SetLoad {
   String figuresIn(AppLocalizations l10n, TrackingType type) => setFigures(
     l10n,

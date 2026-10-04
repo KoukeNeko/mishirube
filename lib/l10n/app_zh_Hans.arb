@@ -77,7 +77,7 @@
   "bedtimeReminderBody": "{bedtime} 就寝，{wake} 起床",
   "restResting": "休息中",
   "restEnded": "休息结束",
-  "restNextSet": "下一组 · {exercise}",
+  "restNextSet": "下一组 · {set}",
   "setsProgress": "{done} / {total} 组",
   "trackingTypeWeightReps": "重量 + 次数",
   "trackingTypeReps": "次数",
@@ -1775,5 +1775,6 @@
   "weekendMidsleepLater": "周末睡眠中点晚 {time}",
   "weekendMidsleepEarlier": "周末睡眠中点早 {time}",
   "weekendMidsleepSame": "周末与平日睡眠中点相同",
-  "regularityNeeds": "需要近 28 天有 14 晚记下入睡与起床时间（目前 {count} 晚）"
+  "regularityNeeds": "需要近 28 天有 14 晚记下入睡与起床时间（目前 {count} 晚）",
+  "cueSoundTitle": "提示音"
 }
