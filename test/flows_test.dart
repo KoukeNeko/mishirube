@@ -1859,6 +1859,20 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a planned exercise opens its info card', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RoutineDetailScreen(), store: store);
+    final name = store.routine.exercises.first.exercise.name;
+
+    await tester.tap(find.byTooltip('$name說明'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('在 YouTube 搜尋'), findsOneWidget);
+    expect(find.text('詳細資料'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('a sore muscle is marked before starting', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

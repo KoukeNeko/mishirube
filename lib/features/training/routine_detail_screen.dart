@@ -7,6 +7,7 @@ import '../../backend/engines/training_metrics.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../exercise/exercise_info_sheet.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'progression_card.dart';
@@ -340,6 +341,7 @@ class _PlannedExerciseCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            spacing: AppSpacing.xs,
             children: [
               Expanded(
                 child: Text(
@@ -350,37 +352,30 @@ class _PlannedExerciseCard extends StatelessWidget {
               if (qualifier != null)
                 Text(qualifier, style: AppTextStyles.caption),
               SquareIconButton(
+                icon: Icons.info_outline,
+                tooltip: context.l10n.aboutItem(name: planned.exercise.name),
+                onPressed: () =>
+                    showExerciseInfoSheet(context, planned.exercise),
+              ),
+              SquareIconButton(
                 icon: Icons.more_horiz,
                 tooltip: context.l10n.optionsFor(name: planned.exercise.name),
                 onPressed: () => _menu(context),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              const Icon(
-                Icons.trending_up,
-                size: 16,
-                color: AppColors.training,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  planned.progressionLabel,
-                  style: const TextStyle(
-                    color: AppColors.training,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              if (isLighter) TagChip(label: context.l10n.oneSetLessToday),
-              if (isInSuperset) ...[
-                const SizedBox(width: AppSpacing.xs),
-                TagChip(label: context.l10n.superset, tone: TagTone.training),
+          if (isLighter || isInSuperset) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                if (isLighter) TagChip(label: context.l10n.oneSetLessToday),
+                if (isInSuperset)
+                  TagChip(label: context.l10n.superset, tone: TagTone.training),
               ],
-            ],
-          ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           SetLoadTable(
             trackingType: planned.exercise.trackingType,

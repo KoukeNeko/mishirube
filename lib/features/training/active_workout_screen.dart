@@ -18,6 +18,7 @@ import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../backend/engines/training_metrics.dart';
 import '../../backend/engines/workout_review.dart';
 import '../../shared/widgets/widgets.dart';
+import '../exercise/exercise_info_sheet.dart';
 import '../exercise/exercise_picker_screen.dart';
 import '../shell/bottom_chrome/chrome_metrics.dart';
 import '../shell/finish_session_dialog.dart';
@@ -1209,6 +1210,7 @@ class _ExerciseCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            spacing: AppSpacing.xs,
             children: [
               Text(
                 '${index + 1} ',
@@ -1224,6 +1226,12 @@ class _ExerciseCard extends StatelessWidget {
               ),
               if (isInSuperset)
                 TagChip(label: context.l10n.superset, tone: TagTone.training),
+              SquareIconButton(
+                icon: Icons.info_outline,
+                tooltip: context.l10n.aboutItem(name: exercise.exercise.name),
+                onPressed: () =>
+                    showExerciseInfoSheet(context, exercise.exercise),
+              ),
               SquareIconButton(
                 icon: Icons.more_horiz,
                 tooltip: context.l10n.optionsFor(name: exercise.exercise.name),

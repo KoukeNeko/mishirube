@@ -10,6 +10,7 @@ import 'exercise_picker_screen.dart';
 import '../trends/muscle_map.dart';
 import 'create_exercise_screen.dart';
 import 'exercise_demo.dart';
+import 'exercise_info_sheet.dart';
 import '../../l10n/l10n.dart';
 
 /// Asks for the names this user wants to find [exercise] by.
@@ -92,6 +93,7 @@ class ExerciseDetailScreen extends StatelessWidget {
 
   /// When opened from the picker, the footer offers「加入這個動作」.
   final bool canAdd;
+
   /// Opened to choose the one exercise a page asks for, not to add to a
   /// list: the button says so.
   final bool picksOne;
@@ -129,7 +131,7 @@ class ExerciseDetailScreen extends StatelessWidget {
           ),
           Gutter(child: ExerciseDemoCredit(exercise: exercise)),
         ],
-        Gutter(child: _SpecCard(exercise: exercise)),
+        Gutter(child: ExerciseSpecCard(exercise: exercise)),
         Gutter(
           child: AppCard(
             child: MuscleRoleMap(
@@ -159,12 +161,12 @@ class ExerciseDetailScreen extends StatelessWidget {
         ],
         if (exercise.cues.isNotEmpty) ...[
           Gutter(child: SectionLabel(context.l10n.cuesSection)),
-          Gutter(child: _CueList(cues: exercise.cues)),
+          Gutter(child: ExerciseCueList(cues: exercise.cues)),
         ],
         Gutter(child: SectionLabel(context.l10n.recordTitle)),
         if (history.last != null)
           Gutter(
-            child: _HistoryCard(exercise: exercise, history: history),
+            child: ExerciseHistoryCard(exercise: exercise, history: history),
           )
         else
           Gutter(child: InfoBanner(message: context.l10n.noEntriesSentence)),
@@ -172,6 +174,12 @@ class ExerciseDetailScreen extends StatelessWidget {
         Gutter(
           child: GroupedCard(
             children: [
+              NavRow(
+                title: context.l10n.searchOnYoutube,
+                leading: const Icon(Icons.play_circle_outline),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: () => searchExerciseOnYoutube(context, exercise.name),
+              ),
               NavRow(
                 title: exercise.isFavorite
                     ? context.l10n.removeFavorite
@@ -248,8 +256,8 @@ List<ExerciseDefinition> _sameMovement(
             other,
       ];
 
-class _SpecCard extends StatelessWidget {
-  const _SpecCard({required this.exercise});
+class ExerciseSpecCard extends StatelessWidget {
+  const ExerciseSpecCard({super.key, required this.exercise});
 
   final ExerciseDefinition exercise;
 
@@ -293,8 +301,8 @@ class _SpecCard extends StatelessWidget {
   }
 }
 
-class _CueList extends StatelessWidget {
-  const _CueList({required this.cues});
+class ExerciseCueList extends StatelessWidget {
+  const ExerciseCueList({super.key, required this.cues});
 
   final List<String> cues;
 
@@ -329,8 +337,14 @@ class _CueList extends StatelessWidget {
   }
 }
 
-class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.exercise, required this.history});
+/// What the user did with the exercise last, and how its estimated max
+/// has gone.
+class ExerciseHistoryCard extends StatelessWidget {
+  const ExerciseHistoryCard({
+    super.key,
+    required this.exercise,
+    required this.history,
+  });
 
   static const _recentCount = 3;
 
