@@ -159,7 +159,7 @@ twice.
 - Deleted records are kept as tombstones in the audit history and can be restored.
 - Exports include a lossless JSON archive ([schema](doc/archive.schema.json)) and CSV views.
 
-[SECURITY.md](SECURITY.md) lists what the app holds, what leaves the device and when.
+[PRIVACY.md](PRIVACY.md) is the privacy policy. [SECURITY.md](SECURITY.md) lists what the app holds, what leaves the device and when.
 
 ## Getting started
 
