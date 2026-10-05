@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/domain/domain.dart';
+import 'package:mishirube/backend/storage/database.dart';
+import 'package:mishirube/backend/storage/journal_repository.dart';
+import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/caffeine/caffeine_card.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
@@ -72,6 +75,55 @@ void main() {
     expect(find.text('睡眠'), findsNothing, reason: 'the module is off');
     expect(find.text('體重'), findsOneWidget);
     expect(find.text('今天的紀錄'), findsNothing, reason: 'hidden');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a night of time in bed is not measured against the sleep goal', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.sleep.setGoal(const Duration(hours: 8));
+    final morning = store.now().subtract(const Duration(hours: 2));
+    JournalRepository(store.backend.db).addSleep(
+      SleepEntry(
+        id: 'in-bed',
+        sleptAt: morning,
+        duration: const Duration(hours: 8, minutes: 10),
+        startedAt: morning.subtract(const Duration(hours: 8, minutes: 10)),
+        measure: SleepMeasure.inBed,
+      ),
+      source: ChangeSource.healthKit,
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    expect(find.text('8 小時 10 分'), findsOneWidget);
+    expect(find.text('在床時間'), findsOneWidget);
+    expect(find.textContaining('目標'), findsNothing);
+    expect(find.byType(ProgressLine), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('Today opens the bath page, with the last bath on its row', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.journal.recordBath(
+      at: store.now(),
+      water: BathWater.warm,
+      kind: BathKind.bath,
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final row = find.widgetWithText(NavCard, '洗澡');
+    expect(
+      find.descendant(of: row, matching: find.textContaining('溫水')),
+      findsOneWidget,
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    expect(find.byType(BathScreen), findsOneWidget);
     await disposeTree(tester);
   });
 

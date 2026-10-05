@@ -18,6 +18,7 @@ import '../goal/goal_screen.dart';
 import '../log/timeline_destination.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../nutrition/food_search_screen.dart';
+import '../bath/bath_screen.dart';
 import '../sleep/sleep_screen.dart';
 import '../caffeine/caffeine_card.dart';
 import '../caffeine/caffeine_screen.dart';
@@ -346,7 +347,12 @@ class TodayScreen extends StatelessWidget {
           value: night == null
               ? null
               : formatDuration(context.l10n, night.entry.duration),
-          visual: night != null && sleepGoal != null
+          // Time in bed is not measured against a goal for sleep, as the
+          // sleep page does not.
+          visual:
+              night != null &&
+                  sleepGoal != null &&
+                  night.entry.measure == SleepMeasure.asleep
               ? ProgressLine(
                   progress:
                       night.entry.duration.inMinutes / sleepGoal.inMinutes,
@@ -362,6 +368,8 @@ class TodayScreen extends StatelessWidget {
               ),
             ),
             null => null,
+            final night when night.entry.measure == SleepMeasure.inBed =>
+              context.l10n.sleepMeasureInBed,
             _ when sleepGoal != null => context.l10n.goalValue(
               goal: formatDuration(context.l10n, sleepGoal),
             ),
@@ -397,21 +405,48 @@ class TodayScreen extends StatelessWidget {
           onTap: () => pushPage(context, const WaterScreen()),
         ),
     ];
-    if (tiles.isEmpty) return const [];
+    final baths = modules.contains(AppModule.sleep) ? today.baths : null;
+    if (tiles.isEmpty && baths == null) return const [];
     return [
-      Gutter(
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (i, tile) in tiles.indexed) ...[
-                if (i > 0) const SizedBox(width: AppSpacing.xs),
-                Expanded(child: tile),
+      if (tiles.isNotEmpty)
+        Gutter(
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, tile) in tiles.indexed) ...[
+                  if (i > 0) const SizedBox(width: AppSpacing.xs),
+                  Expanded(child: tile),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
+      if (baths != null)
+        Gutter(
+          child: NavCard(
+            title: context.l10n.recordBath,
+            subtitle: switch (baths.lastOrNull) {
+              final bath? => [
+                formatTimeOfDay(bath.bathedAt),
+                ?bath.water?.labelIn(context.l10n),
+                ?bath.kind?.labelIn(context.l10n),
+              ].join(' · '),
+              null => context.l10n.noEntriesShort,
+            },
+            leading: const Icon(
+              Icons.bathtub_outlined,
+              color: AppColors.wellness,
+            ),
+            trailing: baths.length > 1
+                ? Text(
+                    context.l10n.timesCount(count: baths.length),
+                    style: AppTextStyles.caption,
+                  )
+                : null,
+            onTap: () => pushPage(context, const BathScreen()),
+          ),
+        ),
     ];
   }
 

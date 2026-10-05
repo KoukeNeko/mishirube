@@ -46,6 +46,7 @@ import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
 import 'package:mishirube/features/nutrition/recent_meal_row.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
+import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/water/water_card.dart';
 import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
@@ -1590,6 +1591,46 @@ void main() {
     expect(nap.note, '午餐後');
     await disposeTree(tester);
   });
+
+  testWidgets(
+    'the bath page shows the day picked on its strip, and adds to it',
+    (tester) async {
+      usePhoneViewport(tester);
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      final today = store.now();
+      final yesterday = DateTime(today.year, today.month, today.day - 1, 8, 10);
+      store.backend.journal
+        ..recordBath(at: today, water: BathWater.warm)
+        ..recordBath(
+          at: yesterday,
+          kind: BathKind.bath,
+          duration: const Duration(minutes: 25),
+        );
+      await pumpScreen(tester, const BathScreen(), store: store);
+
+      expect(find.text(formatTimeOfDay(today)), findsOneWidget);
+      expect(find.text(formatTimeOfDay(yesterday)), findsNothing);
+
+      await tester.tap(
+        find.bySemanticsLabel(
+          RegExp('^${yesterday.month} 月 ${yesterday.day} 日'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(formatTimeOfDay(yesterday)), findsOneWidget);
+      expect(find.textContaining('25 分'), findsOneWidget);
+
+      await tester.tap(
+        find.text('新增紀錄到 ${yesterday.month} 月 ${yesterday.day} 日'),
+      );
+      await tester.pumpAndSettle();
+      await _tapText(tester, '儲存');
+      final onYesterday = store.backend.journal.bathsOn(yesterday);
+      expect(onYesterday, hasLength(2), reason: 'added to the day shown');
+      expect(DateUtils.isSameDay(onYesterday.last.bathedAt, yesterday), isTrue);
+      await disposeTree(tester);
+    },
+  );
 
   testWidgets('a sleep opened from another day is logged to that day', (
     tester,

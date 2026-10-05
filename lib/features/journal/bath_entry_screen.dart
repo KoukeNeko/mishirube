@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
+import '../shell/finish_session_dialog.dart';
 import 'journal_detail_screen.dart';
 import 'journal_view_model.dart';
 import '../../l10n/l10n.dart';
@@ -24,14 +25,22 @@ const _longestBathMinutes = 600;
 /// A bath can also be run live: 開始 begins it now, and this page then
 /// shows its clock ([BathEntryScreen.running]) until 結束 records it.
 class BathEntryScreen extends StatefulWidget {
-  const BathEntryScreen({super.key, this.editing}) : isRunning = false;
+  const BathEntryScreen({super.key, this.editing, this.day})
+    : isRunning = false;
 
   /// The bath that is running, with its clock; water and kind chosen
   /// here are kept with it.
-  const BathEntryScreen.running({super.key}) : editing = null, isRunning = true;
+  const BathEntryScreen.running({super.key})
+    : editing = null,
+      day = null,
+      isRunning = true;
 
   /// A bath to correct instead of logging a new one.
   final BathEntry? editing;
+
+  /// The day a new bath is logged to, ending at this time of day; today,
+  /// ending now, when null.
+  final DateTime? day;
 
   final bool isRunning;
 
@@ -61,7 +70,20 @@ class _BathEntryScreenState extends State<BathEntryScreen> {
     super.initState();
     final store = AppStoreScope.read(context);
     _journal = JournalViewModel(store.backend);
-    _end = widget.editing?.bathedAt ?? store.now();
+    final now = store.now();
+    final day = widget.day;
+    _end =
+        widget.editing?.bathedAt ??
+        switch (day) {
+          final day? when !DateUtils.isSameDay(day, now) => DateTime(
+            day.year,
+            day.month,
+            day.day,
+            now.hour,
+            now.minute,
+          ),
+          _ => now,
+        };
   }
 
   @override
@@ -115,14 +137,24 @@ class _BathEntryScreenState extends State<BathEntryScreen> {
     );
   }
 
-  void _discard() {
+  /// Asks first, as the dock's stop button does.
+  Future<void> _discard(LiveBath running) async {
     final store = AppStoreScope.read(context);
     final discarded = context.l10n.sessionDiscarded(
       session: context.l10n.recordBath,
     );
-    store.discardBath();
-    Navigator.of(context).pop();
-    showToast(context, discarded);
+    final choice = await askHowSessionEnds(context, ActiveBath(running));
+    if (!mounted) return;
+    switch (choice) {
+      case null || FinishChoice.keepGoing:
+        return;
+      case FinishChoice.finish:
+        _finish();
+      case FinishChoice.discard:
+        store.discardBath();
+        Navigator.of(context).pop();
+        showToast(context, discarded);
+    }
   }
 
   void _save() {
@@ -272,7 +304,7 @@ class _BathEntryScreenState extends State<BathEntryScreen> {
               child: LinkText(
                 label: l10n.sessionDiscardBath,
                 color: AppColors.warning,
-                onTap: _discard,
+                onTap: () => _discard(running),
               ),
             ),
           ),

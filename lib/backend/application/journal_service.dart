@@ -386,6 +386,12 @@ class JournalService {
 
   void updateBath(BathEntry entry) => _journal.updateBath(entry);
 
+  /// The baths that ended on [day], oldest first.
+  List<BathEntry> bathsOn(DateTime day) => _journal.bathsBetween(
+    DateTime(day.year, day.month, day.day),
+    DateTime(day.year, day.month, day.day + 1),
+  );
+
   void delete(String id) => _journal.delete(id);
 
   void restore(String id) => _journal.restore(id);

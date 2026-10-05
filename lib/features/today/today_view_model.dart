@@ -52,6 +52,9 @@ class TodayViewModel extends ViewModel {
   /// Every record of today, oldest first.
   List<TimelineEntry> get records => backend.timeline.day(_today);
 
+  /// The showers and baths that ended today, oldest first.
+  List<BathEntry> get baths => backend.journal.bathsOn(_today);
+
   /// Whether [id] is a sleep, which opens on the sleep page.
   bool isSleep(String id) => backend.journal.entry(id) is SleepEntry;
 
@@ -89,18 +92,8 @@ class TodayViewModel extends ViewModel {
       backend.activity.hourly(metric, _today);
 
   /// The caffeine likely still in the body around now ([caffeineAround]).
-  ({List<(DateTime, double)> curve, int nowIndex})? get caffeine {
-    final at = now();
-    return caffeineAround(
-      caffeineIntakes(
-        backend.nutrition.between(
-          at.subtract(caffeineCurveBack + const Duration(days: 1)),
-          at,
-        ),
-      ),
-      at: at,
-    );
-  }
+  ({List<(DateTime, double)> curve, int nowIndex})? get caffeine =>
+      backend.nutrition.caffeineNow();
 
   /// Today's resting heart rate and vitals, each at the day's figure.
   Map<ActivityMetric, double> get vitals {

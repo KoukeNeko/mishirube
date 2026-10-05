@@ -127,6 +127,15 @@ class JournalViewModel extends ViewModel {
 
   void updateBath(BathEntry entry) => backend.journal.updateBath(entry);
 
+  /// The baths that ended on [day], oldest first.
+  List<BathEntry> bathsOn(DateTime day) => backend.journal.bathsOn(day);
+
+  /// Which of [days] have a bath, for the week strip's marks.
+  Set<DateTime> daysWithBaths(Iterable<DateTime> days) => {
+    for (final day in days)
+      if (bathsOn(day).isNotEmpty) day,
+  };
+
   void updateNote(Note note) => backend.journal.updateNote(note);
 
   /// Tombstones a record; [restore] takes it back.

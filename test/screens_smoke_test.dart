@@ -67,6 +67,7 @@ import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/personal_records_screen.dart';
+import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -438,6 +439,17 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _noSetup,
   ),
   'bath entry': ((_) => const BathEntryScreen(), _noSetup),
+  'bath': ((_) => const BathScreen(), _noSetup),
+  'bath with entries': (
+    (_) => const BathScreen(),
+    (store) => store.backend.journal
+      ..recordBath(at: store.now(), water: BathWater.warm)
+      ..recordBath(
+        at: store.now().subtract(const Duration(hours: 5)),
+        kind: BathKind.bath,
+        duration: const Duration(minutes: 25),
+      ),
+  ),
   'running bath': (
     (_) => const BathEntryScreen.running(),
     (store) => store.startBath(),
