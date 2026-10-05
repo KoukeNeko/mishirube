@@ -145,8 +145,16 @@ class AiService {
         AiAvailability.available;
   }
 
-  void setProvider(AiProviderKind kind) =>
-      _db.setSetting(_providerKey, kind.name);
+  /// Chooses [kind]. A consent was given for the provider then chosen,
+  /// by its name: another one that sends text or photos off the device is
+  /// asked about afresh.
+  void setProvider(AiProviderKind kind) {
+    if (provider != kind && kind.leavesDevice) {
+      setCloudConsent(false);
+      setPhotoConsent(false);
+    }
+    _db.setSetting(_providerKey, kind.name);
+  }
 
   /// The model [kind] is set to use.
   String modelFor(AiProviderKind kind) =>

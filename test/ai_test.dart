@@ -238,6 +238,22 @@ void main() {
       expect(apple.named, isEmpty);
     });
 
+    test('asks again for another provider than the one agreed to', () {
+      final apple = _FakeDrafter(AiProviderKind.appleOnDevice, const []);
+      final cloud = _FakeDrafter(AiProviderKind.ollamaCloud, const []);
+      final ai = serviceWith(apple, cloud)
+        ..setProvider(AiProviderKind.ollamaCloud)
+        ..setCloudConsent(true)
+        ..setPhotoConsent(true);
+
+      ai.setProvider(AiProviderKind.ollamaCloud);
+      expect(ai.hasCloudConsent, isTrue, reason: 'the same one: nothing new');
+
+      ai.setProvider(AiProviderKind.googleAiStudio);
+      expect(ai.hasCloudConsent, isFalse);
+      expect(ai.hasPhotoConsent, isFalse);
+    });
+
     test('has nothing to ask when no provider is there', () async {
       expect(
         await AiService.none(Backend.inMemory().db)
