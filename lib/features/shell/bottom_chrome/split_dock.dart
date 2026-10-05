@@ -530,17 +530,22 @@ class _TabButton extends StatelessWidget {
                     SizedBox(height: metrics.labelGap),
                     SizedBox(
                       height: metrics.labelHeight,
-                      child: Text(
-                        spec.labelIn(context.l10n),
-                        style: TextStyle(
-                          color: color,
-                          fontSize: metrics.labelSize,
-                          height: metrics.labelHeight / metrics.labelSize,
-                          // Semibold like system tab labels; bolder when
-                          // selected so colour is not the only cue.
-                          fontWeight: isSelected
-                              ? FontWeight.w800
-                              : FontWeight.w600,
+                      // Tab labels keep their size as the system's do: the
+                      // dock is a fixed height, and a larger label was cut
+                      // off at the bottom.
+                      child: MediaQuery.withNoTextScaling(
+                        child: Text(
+                          spec.labelIn(context.l10n),
+                          style: TextStyle(
+                            color: color,
+                            fontSize: metrics.labelSize,
+                            height: metrics.labelHeight / metrics.labelSize,
+                            // Semibold like system tab labels; bolder when
+                            // selected so colour is not the only cue.
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),

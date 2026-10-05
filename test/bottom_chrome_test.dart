@@ -290,6 +290,28 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the dock labels keep their size with large text', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pump();
+
+    final label = find.descendant(
+      of: find.byType(SplitDock),
+      matching: find.text('紀錄'),
+    );
+    expect(
+      MediaQuery.textScalerOf(tester.element(label)).scale(10),
+      10,
+      reason: 'the dock is a fixed height; a larger label is cut off',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('workout accessory ticks, pauses and resumes', (tester) async {
     final clock = FakeClock();
     final store = await _pumpApp(tester, clock);
