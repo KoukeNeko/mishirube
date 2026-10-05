@@ -208,9 +208,13 @@ class _LogScreenState extends State<LogScreen> {
   List<DateTime> _listedDays() => [
     for (final day in _log.month(_month).days)
       if (day.entries.where(_filter.accepts).where(_matchesQuery).isNotEmpty ||
-          _query.isEmpty)
+          !_isNarrowed)
         day.date,
   ];
+
+  /// Whether a search or a category keeps only some of what was logged,
+  /// so a day with none of it is not listed.
+  bool get _isNarrowed => _query.isNotEmpty || _filter.category != null;
 
   /// Once the timeline stops, the week strip picks the day at its top.
   bool _followScroll(ScrollEndNotification notification) {
@@ -286,7 +290,7 @@ class _LogScreenState extends State<LogScreen> {
         entry.title,
         entry.detail,
         ...entry.tags,
-      ].any((text) => text.contains(_query));
+      ].any((text) => text.toLowerCase().contains(_query.toLowerCase()));
 
   void _goToToday() {
     setState(() {
@@ -447,7 +451,7 @@ class _LogScreenState extends State<LogScreen> {
     final days = [
       for (final day in records.days)
         if (day.entries.where(_filter.accepts).where(_matchesQuery).toList()
-            case final entries when entries.isNotEmpty || _query.isEmpty)
+            case final entries when entries.isNotEmpty || !_isNarrowed)
           (day, entries),
     ];
     return [
@@ -463,7 +467,9 @@ class _LogScreenState extends State<LogScreen> {
       else if (days.isEmpty)
         Gutter(
           child: InfoBanner(
-            message: context.l10n.noEntriesMatching(query: _query),
+            message: _query.isEmpty
+                ? context.l10n.noEntriesShort
+                : context.l10n.noEntriesMatching(query: _query),
           ),
         )
       else
