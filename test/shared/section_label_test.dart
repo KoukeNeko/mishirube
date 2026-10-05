@@ -59,4 +59,23 @@ void main() {
       );
     });
   }
+
+  testWidgets('a section label is a heading to a screen reader', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(body: SectionLabel('餐點')),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.text('餐點')),
+      matchesSemantics(label: '餐點', isHeader: true),
+    );
+    semantics.dispose();
+  });
 }

@@ -314,7 +314,11 @@ class SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = Text(text, style: AppTextStyles.overline);
+    // A heading to a screen reader, which can jump from one to the next.
+    final label = Semantics(
+      header: true,
+      child: Text(text, style: AppTextStyles.overline),
+    );
     final trailing = this.trailing;
     if (trailing == null) {
       return Padding(
