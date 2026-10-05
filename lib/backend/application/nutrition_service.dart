@@ -197,6 +197,13 @@ class NutritionService {
 
   List<MealEvent> mealsOn(DateTime day) => _meals.onDay(day);
 
+  /// The caffeine likely still in the body around now ([caffeineAround]);
+  /// null when none of it comes to a milligram.
+  ({List<(DateTime, double)> curve, int nowIndex})? caffeineNow() {
+    final at = _db.now();
+    return caffeineAround(caffeineIntakes(_caffeineMeals(at)), at: at);
+  }
+
   /// The caffeine over the bedtime reference now: the last record that
   /// carried any, and when the estimate falls under the reference
   /// ([caffeineFallsBelowReference]); null while it is under it.

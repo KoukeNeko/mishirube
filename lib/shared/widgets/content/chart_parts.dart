@@ -271,8 +271,8 @@ class UsualRangeTrend extends StatelessWidget {
   final Color color;
 
   /// Each slot's day, or its week's first, oldest first, aligned with
-  /// [values] and [bands]; a slot without a figure is a null value and a
-  /// gap in the line.
+  /// [values] and [bands]; a slot without a figure is a null value, which
+  /// the line runs across.
   final List<DateTime> days;
   final List<double?> values;
   final List<(double, double)?> bands;

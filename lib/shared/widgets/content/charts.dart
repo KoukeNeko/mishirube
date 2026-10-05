@@ -1,6 +1,11 @@
+import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
+
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
+import '../../motion.dart';
 import 'chart_entrance.dart';
 
 const _dash = 5.0;
@@ -206,7 +211,8 @@ class ChartLevel {
 
 /// Line chart without axes, ending in a dot on the latest value, or
 /// marking the [selected] one while a reading picks it. A null value is
-/// a gap the line breaks at rather than bridges. Behind the line it can
+/// a day with no reading: the line runs on from the reading before to the
+/// one after. Behind the line it can
 /// show a [normal] band, or a usual range of its own for each point
 /// ([bands], which moves as the days do), and [levels] across the
 /// stretches they average. Points in [outside] are ringed, not coloured:
@@ -377,36 +383,22 @@ class _SparklinePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2
       ..strokeJoin = StrokeJoin.round;
-    Path? path;
-    var run = 0;
-    void endRun(int last) {
-      if (run == 1) {
-        // A point alone between gaps would otherwise not show at all.
-        canvas.drawCircle(
-          Offset(xOf(last), yOf(values[last]!)),
-          _loneDotRadius,
-          Paint()..color = color,
-        );
-      } else if (path != null) {
-        canvas.drawPath(isEstimate ? _dashed(path!) : path!, line);
+    // Readings are joined from one to the next, across the days with
+    // none: a few readings still make a line.
+    final points = [
+      for (final (index, value) in values.indexed)
+        if (value != null) Offset(xOf(index), yOf(value)),
+    ];
+    if (points.length == 1) {
+      // A point alone would otherwise not show at all.
+      canvas.drawCircle(points.single, _loneDotRadius, Paint()..color = color);
+    } else if (points.length > 1) {
+      final path = Path()..moveTo(points.first.dx, points.first.dy);
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
       }
-      path = null;
-      run = 0;
+      canvas.drawPath(isEstimate ? _dashed(path) : path, line);
     }
-
-    for (var i = 0; i < values.length; i++) {
-      final value = values[i];
-      if (value == null) {
-        endRun(i - 1);
-        continue;
-      }
-      final point = Offset(xOf(i), yOf(value));
-      path == null
-          ? path = (Path()..moveTo(point.dx, point.dy))
-          : path!.lineTo(point.dx, point.dy);
-      run++;
-    }
-    endRun(values.length - 1);
 
     final ring = Paint()
       ..color = color
@@ -668,10 +660,22 @@ class _RangeBarPainter extends CustomPainter {
 /// [end] sit under the axis; an end too close to now gives way to it.
 /// A modelled curve ([isEstimate], such as caffeine left in the body) is
 /// dashed; the [reference] is a thin solid level, as a target is.
-class CurveChart extends StatelessWidget {
+///
+/// The curve is drawn from its left end when the chart first appears, the
+/// dot on now arriving as the line reaches it. When [values] change, the
+/// curve grows or sinks from where it changed and out to the right, so a
+/// new step rises where it happened; [origin] and [step] say what time
+/// each value is for, so a window that merely moved on does not animate.
+/// While now is at or above the [reference] (anything, without one) the dot
+/// gives a few soft beats once the drawing has settled, then rests, so
+/// a chart left on screen costs nothing. With Reduce Motion it is drawn
+/// still.
+class CurveChart extends StatefulWidget {
   const CurveChart({
     super.key,
     required this.values,
+    required this.origin,
+    required this.step,
     required this.nowIndex,
     required this.color,
     required this.start,
@@ -684,6 +688,10 @@ class CurveChart extends StatelessWidget {
   });
 
   final List<double> values;
+
+  /// The time of the first of [values], and between one and the next.
+  final DateTime origin;
+  final Duration step;
   final int nowIndex;
   final Color color;
   final String start;
@@ -699,32 +707,195 @@ class CurveChart extends StatelessWidget {
   static const _endRoom = 0.18;
 
   @override
+  State<CurveChart> createState() => _CurveChartState();
+}
+
+/// How long the curve takes to draw, to grow to new values, and each beat
+/// of the dot; and how many beats.
+const _revealDuration = Duration(milliseconds: 900);
+const _morphDuration = Duration(milliseconds: 700);
+const _beatDuration = Duration(milliseconds: 1800);
+const _beats = 3;
+
+/// How much of a change's time is spent travelling out to the right: the
+/// rest is each point's own rise.
+const _stagger = 0.6;
+
+/// A change smaller than this share of the peak is not worth animating.
+const _moveThreshold = 0.01;
+
+/// [to], a [t] of the way from [from], each point setting off after the
+/// one before it, from [first] on.
+List<double> _morphed(
+  List<double> to,
+  List<double>? from,
+  int first,
+  double t,
+) {
+  if (from == null || t >= 1 || from.length != to.length) return to;
+  final span = to.length - 1 - first;
+  double progress(int i) {
+    final delay = i <= first || span <= 0 ? 0.0 : _stagger * (i - first) / span;
+    return Curves.easeOutCubic.transform(
+      ((t - delay) / (1 - _stagger)).clamp(0.0, 1.0),
+    );
+  }
+
+  return [
+    for (var i = 0; i < to.length; i++)
+      lerpDouble(from[i], to[i], progress(i))!,
+  ];
+}
+
+/// [values] read between its points, at a position in them.
+double _sampleAt(List<double> values, double index) {
+  final at = index.clamp(0.0, values.length - 1.0);
+  final low = at.floor();
+  return lerpDouble(
+    values[low],
+    values[math.min(low + 1, values.length - 1)],
+    at - low,
+  )!;
+}
+
+class _CurveChartState extends State<CurveChart> with TickerProviderStateMixin {
+  late final _reveal = AnimationController(
+    vsync: this,
+    duration: _revealDuration,
+  );
+  late final _morph = AnimationController(
+    vsync: this,
+    duration: _morphDuration,
+    value: 1,
+  );
+  late final _pulse = AnimationController(vsync: this, duration: _beatDuration);
+
+  /// Where the growing curve sets off from, and the first point it moves;
+  /// null when it is at rest.
+  List<double>? _from;
+  int _firstMoved = 0;
+  bool _hasStarted = false;
+
+  bool get _isStill => prefersReducedMotion(context);
+
+  /// Whether now is where the dot is worth drawing the eye to.
+  bool get _isAboveReference {
+    final now =
+        widget.values[widget.nowIndex.clamp(0, widget.values.length - 1)];
+    return widget.reference == null ? now > 0 : now >= widget.reference!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _reveal.addStatusListener(_onSettled);
+    _morph.addStatusListener(_onSettled);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasStarted) return;
+    _hasStarted = true;
+    if (_isStill) {
+      _reveal.value = 1;
+    } else {
+      _reveal.forward();
+    }
+  }
+
+  void _onSettled(AnimationStatus status) {
+    if (status != AnimationStatus.completed || !mounted) return;
+    if (!_isStill && widget.values.isNotEmpty && _isAboveReference) {
+      _pulse.repeat(count: _beats);
+    }
+  }
+
+  @override
+  void didUpdateWidget(CurveChart old) {
+    super.didUpdateWidget(old);
+    if (listEquals(old.values, widget.values)) return;
+    final values = widget.values;
+    final peak = values.isEmpty ? 0.0 : values.reduce(math.max);
+    if (_isStill ||
+        old.values.length != values.length ||
+        widget.step <= Duration.zero ||
+        old.step != widget.step ||
+        peak <= 0) {
+      _settle();
+      return;
+    }
+    // What is on screen, moved onto the new window's times.
+    final shown = _morphed(old.values, _from, _firstMoved, _morph.value);
+    final shift =
+        widget.origin.difference(old.origin).inMicroseconds /
+        widget.step.inMicroseconds;
+    final from = [
+      for (var i = 0; i < values.length; i++) _sampleAt(shown, i + shift),
+    ];
+    final moved = [
+      for (var i = 0; i < values.length; i++)
+        if ((values[i] - from[i]).abs() > peak * _moveThreshold) i,
+    ];
+    if (moved.isEmpty) {
+      _settle();
+      return;
+    }
+    _from = from;
+    _firstMoved = moved.first;
+    _pulse.value = 0;
+    _morph.forward(from: 0);
+  }
+
+  /// At rest on the new values at once.
+  void _settle() {
+    _from = null;
+    // Only a morph under way: a controller already there reports its
+    // first status change as a settling, which would set the dot beating.
+    if (_morph.value < 1) _morph.value = 1;
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    _morph.dispose();
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final at = values.length < 2 ? 0.0 : nowIndex / (values.length - 1);
+    final values = widget.values;
+    final at = values.length < 2 ? 0.0 : widget.nowIndex / (values.length - 1);
     return Column(
       children: [
         SizedBox(
-          height: height,
+          height: widget.height,
           width: double.infinity,
           child: CustomPaint(
             painter: _CurvePainter(
               values: values,
-              nowIndex: nowIndex,
-              color: color,
-              reference: reference,
-              referenceLabel: referenceLabel,
+              from: _from,
+              firstMoved: _firstMoved,
+              morph: _morph,
+              reveal: _reveal,
+              pulse: _pulse,
+              nowIndex: widget.nowIndex,
+              color: widget.color,
+              reference: widget.reference,
+              referenceLabel: widget.referenceLabel,
               labelStyle: AppTextStyles.caption,
-              isEstimate: isEstimate,
+              isEstimate: widget.isEstimate,
             ),
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Stack(
           children: [
-            if (at >= _endRoom)
+            if (at >= CurveChart._endRoom)
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(start, style: AppTextStyles.caption),
+                child: Text(widget.start, style: AppTextStyles.caption),
               ),
             // Align puts the label's own point at [at] there; shifting it
             // by the rest centres it under the line.
@@ -733,17 +904,17 @@ class CurveChart extends StatelessWidget {
               child: FractionalTranslation(
                 translation: Offset(at - 0.5, 0),
                 child: Text(
-                  now,
+                  widget.now,
                   style: AppTextStyles.caption.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),
               ),
             ),
-            if (at <= 1 - _endRoom)
+            if (at <= 1 - CurveChart._endRoom)
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(end, style: AppTextStyles.caption),
+                child: Text(widget.end, style: AppTextStyles.caption),
               ),
           ],
         ),
@@ -755,17 +926,40 @@ class CurveChart extends StatelessWidget {
 class _CurvePainter extends CustomPainter {
   _CurvePainter({
     required this.values,
+    required this.from,
+    required this.firstMoved,
+    required this.morph,
+    required this.reveal,
+    required this.pulse,
     required this.nowIndex,
     required this.color,
     required this.reference,
     required this.referenceLabel,
     required this.labelStyle,
     required this.isEstimate,
-  });
+  }) : super(repaint: Listenable.merge([morph, reveal, pulse]));
 
   static const _nowRadius = 4.5;
 
+  /// How far along the drawing the dot on now arrives, from the line
+  /// reaching it.
+  static const _dotArrival = 0.15;
+
+  /// How far the beat of the dot spreads.
+  static const _beatReach = 6.0;
+
+  /// Where the curve is going, where it is setting off from and the first
+  /// point that moves ([_morphed]), and how far along each is.
   final List<double> values;
+  final List<double>? from;
+  final int firstMoved;
+  final Animation<double> morph;
+
+  /// How much of the curve is drawn, left to right, 0–1.
+  final Animation<double> reveal;
+
+  /// One beat of the dot, 0–1.
+  final Animation<double> pulse;
   final int nowIndex;
   final Color color;
   final double? reference;
@@ -775,6 +969,7 @@ class _CurvePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final values = _morphed(this.values, from, firstMoved, morph.value);
     if (values.length < 2) return;
     final peak = values.reduce((a, b) => a > b ? a : b);
     if (peak <= 0) return;
@@ -792,6 +987,15 @@ class _CurvePainter extends CustomPainter {
     }
 
     final now = nowIndex.clamp(0, values.length - 1);
+    final drawn = reveal.value;
+    // The curve comes out from its left end; the dot on now arrives as the
+    // line reaches it.
+    final reached = drawn >= 1
+        ? 1.0
+        : ((drawn - now / (values.length - 1)) / _dotArrival).clamp(0.0, 1.0);
+    canvas
+      ..save()
+      ..clipRect(Rect.fromLTRB(0, 0, size.width * drawn, size.height));
     final area = lineThrough(0, values.length - 1)
       ..lineTo(size.width, bottom)
       ..lineTo(0, bottom)
@@ -812,11 +1016,15 @@ class _CurvePainter extends CustomPainter {
       ..strokeWidth = 2.5
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round;
-    Path drawn(Path path) => isEstimate ? _dashed(path) : path;
-    if (now > 0) canvas.drawPath(drawn(lineThrough(0, now)), stroke(1));
+    Path dashed(Path path) => isEstimate ? _dashed(path) : path;
+    if (now > 0) canvas.drawPath(dashed(lineThrough(0, now)), stroke(1));
     if (now < values.length - 1) {
-      canvas.drawPath(drawn(lineThrough(now, values.length - 1)), stroke(0.45));
+      canvas.drawPath(
+        dashed(lineThrough(now, values.length - 1)),
+        stroke(0.45),
+      );
     }
+    canvas.restore();
 
     if (reference case final level? when level > 0 && level <= peak) {
       final y = yOf(level);
@@ -824,12 +1032,18 @@ class _CurvePainter extends CustomPainter {
         Offset(0, y),
         Offset(size.width, y),
         Paint()
-          ..color = AppColors.textSecondary
+          ..color = AppColors.textSecondary.withValues(alpha: drawn)
           ..strokeWidth = 1,
       );
       if (referenceLabel case final label?) {
+        final labelColor = labelStyle.color ?? AppColors.textSecondary;
         final text = TextPainter(
-          text: TextSpan(text: label, style: labelStyle),
+          text: TextSpan(
+            text: label,
+            style: labelStyle.copyWith(
+              color: labelColor.withValues(alpha: labelColor.a * drawn),
+            ),
+          ),
           textDirection: TextDirection.ltr,
         )..layout();
         // Above the line at the right end, below it when there is no room.
@@ -841,25 +1055,39 @@ class _CurvePainter extends CustomPainter {
       }
     }
 
+    if (reached <= 0) return;
     final point = Offset(xOf(now), yOf(values[now]));
     canvas.drawLine(
       Offset(point.dx, 0),
       Offset(point.dx, bottom),
       Paint()
-        ..color = AppColors.textSecondary.withValues(alpha: 0.5)
+        ..color = AppColors.textSecondary.withValues(alpha: 0.5 * reached)
         ..strokeWidth = 1,
     );
-    canvas.drawCircle(
-      point,
-      _nowRadius + 2,
-      Paint()..color = AppColors.surface,
-    );
-    canvas.drawCircle(point, _nowRadius, Paint()..color = color);
+    // A soft ring spreading from the dot, fading as it goes.
+    final beat = pulse.value;
+    if (beat > 0 && beat < 1) {
+      canvas.drawCircle(
+        point,
+        _nowRadius + _beatReach * Curves.easeOut.transform(beat),
+        Paint()..color = color.withValues(alpha: 0.3 * (1 - beat)),
+      );
+    }
+    final arrival = Curves.easeOutBack.transform(reached);
+    canvas
+      ..drawCircle(
+        point,
+        (_nowRadius + 2) * arrival,
+        Paint()..color = AppColors.surface,
+      )
+      ..drawCircle(point, _nowRadius * arrival, Paint()..color = color);
   }
 
   @override
   bool shouldRepaint(_CurvePainter old) =>
       old.values != values ||
+      old.from != from ||
+      old.firstMoved != firstMoved ||
       old.nowIndex != nowIndex ||
       old.color != color ||
       old.reference != reference ||

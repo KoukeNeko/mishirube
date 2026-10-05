@@ -21,18 +21,8 @@ class CaffeineViewModel extends ViewModel {
   }
 
   /// The caffeine likely still in the body around now ([caffeineAround]).
-  ({List<(DateTime, double)> curve, int nowIndex})? get curve {
-    final at = now();
-    return caffeineAround(
-      caffeineIntakes(
-        backend.nutrition.between(
-          at.subtract(caffeineCurveBack + const Duration(days: 1)),
-          at,
-        ),
-      ),
-      at: at,
-    );
-  }
+  ({List<(DateTime, double)> curve, int nowIndex})? get curve =>
+      backend.nutrition.caffeineNow();
 
   /// The usual bedtime the page reads caffeine against; null while there
   /// are too few nights that say when they began.

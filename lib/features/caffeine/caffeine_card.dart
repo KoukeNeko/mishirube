@@ -60,6 +60,10 @@ class CaffeineCard extends StatelessWidget {
             child: ExcludeSemantics(
               child: CurveChart(
                 values: [for (final (_, mg) in curve) mg],
+                origin: curve.first.$1,
+                step: curve.length < 2
+                    ? Duration.zero
+                    : curve[1].$1.difference(curve.first.$1),
                 nowIndex: nowIndex,
                 color: AppColors.caffeine,
                 start: formatTimeOfDay(curve.first.$1),

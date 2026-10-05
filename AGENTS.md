@@ -280,9 +280,10 @@ One meaning, one look, on every chart (see `research/71-data-presentation.md`):
   readings of the body get one, never a count with a goal; a day outside
   it is ringed, never coloured, and only daily readings say how many
   days sat within it. No population range, and no count across metrics.
-- Nothing recorded is a gap, never a zero: pass null to `Sparkline` so
-  the line breaks, and leave the bar out. Only a count of events (workouts
-  in a week) has a true zero.
+- Nothing recorded is never a zero: pass null to `Sparkline`, whose line
+  runs straight from the reading before to the one after (a few readings
+  still make a line), and leave the bar out. Only a count of events
+  (workouts in a week) has a true zero.
 - An average only takes days that are complete: food days by
   `DaySummary.isComplete`, and never today while it is still going.
 - Choose the chart by the question. A bar or line against a target says
