@@ -38,6 +38,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
   late ActivityType _type;
   late DateTime _startedAt;
   late int _minutes;
+  late final TextEditingController _minutesField;
   final _distance = TextEditingController();
   final _elevation = TextEditingController();
   final _note = TextEditingController();
@@ -55,6 +56,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       _startedAt = activity.startedAt;
       _effort = activity.effort;
       _note.text = activity.note;
+      _minutesField = TextEditingController(text: '$_minutes');
       if (activity.distanceMeters case final metres?) {
         _distance.text = formatWeight(metres / 1000);
       }
@@ -66,10 +68,12 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
     _type = _activities.recentTypes.firstOrNull ?? ActivityTypes.running;
     _minutes = _activities.startingDuration(_type).inMinutes;
     _startedAt = store.now().subtract(Duration(minutes: _minutes));
+    _minutesField = TextEditingController(text: '$_minutes');
   }
 
   @override
   void dispose() {
+    _minutesField.dispose();
     _elevation.dispose();
     _distance.dispose();
     _note.dispose();
@@ -81,7 +85,14 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
 
   /// Changing the length keeps the end where it is: "I just finished a
   /// 45-minute run" is the usual case.
-  void _setMinutes(int minutes) => setState(() {
+  void _setMinutes(int minutes) {
+    _minutesField.text = '$minutes';
+    _typeMinutes(minutes);
+  }
+
+  /// The length as typed: an empty field is 0, which saving refuses,
+  /// instead of the old number coming back under the cursor.
+  void _typeMinutes(int minutes) => setState(() {
     final end = _endedAt;
     _minutes = minutes;
     _startedAt = end.subtract(Duration(minutes: minutes));
@@ -99,6 +110,7 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
       // length that type usually runs to.
       if (widget.activity == null) {
         _minutes = _activities.startingDuration(type).inMinutes;
+        _minutesField.text = '$_minutes';
       }
       if (!type.tracksDistance) _distance.clear();
       if (!type.tracksElevation) _elevation.clear();
@@ -284,17 +296,14 @@ class _RecordActivityScreenState extends State<RecordActivityScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        controller: TextEditingController(text: '$_minutes')
-                          ..selection = TextSelection.collapsed(
-                            offset: '$_minutes'.length,
-                          ),
+                        controller: _minutesField,
                         style: AppTextStyles.bigNumber,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isCollapsed: true,
                         ),
                         onChanged: (value) =>
-                            _setMinutes(int.tryParse(value) ?? _minutes),
+                            _typeMinutes(int.tryParse(value) ?? 0),
                       ),
                     ),
                     Text(

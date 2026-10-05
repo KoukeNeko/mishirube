@@ -2213,6 +2213,28 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the length of an exercise can be cleared and typed again', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const RecordActivityScreen(), store: store);
+    final field = find.byKey(const ValueKey('activity-minutes'));
+
+    await tester.enterText(field, '');
+    await tester.pump();
+    expect(
+      tester.widget<TextField>(field).controller!.text,
+      isEmpty,
+      reason: 'the old number does not come back under the cursor',
+    );
+
+    await tester.enterText(field, '90');
+    await tester.pump();
+    expect(tester.widget<TextField>(field).controller!.text, '90');
+    await disposeTree(tester);
+  });
+
   testWidgets('the form asks only what the type can measure', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
