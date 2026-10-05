@@ -160,6 +160,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '종료하면 활동 기록으로 저장됩니다. 버리면 아무것도 남지 않습니다.';
 
   @override
+  String get sessionEndBathMessage => '종료하면 목욕 기록으로 저장됩니다. 버리면 아무것도 남지 않습니다.';
+
+  @override
   String get sessionFinishAndSave => '종료하고 저장';
 
   @override
@@ -169,8 +172,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get sessionDiscardActivity => '이번 활동 버리기';
 
   @override
+  String get sessionDiscardBath => '이번 목욕 버리기';
+
+  @override
   String sessionKeepGoing({required String session}) {
     return '계속하기';
+  }
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session 진행 중입니다. 먼저 종료하세요';
   }
 
   @override
@@ -426,6 +437,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get equipmentCardio => '유산소 기구';
 
   @override
+  String get equipmentPullUpBar => '철봉';
+
+  @override
+  String get equipmentRings => '링';
+
+  @override
+  String get equipmentSuspension => '서스펜션 트레이너';
+
+  @override
+  String get equipmentMedicineBall => '메디신 볼';
+
+  @override
+  String get equipmentStabilityBall => '짐볼';
+
+  @override
+  String get equipmentFoamRoller => '폼롤러';
+
+  @override
+  String get equipmentSled => '슬레드';
+
+  @override
+  String get equipmentBox => '박스';
+
+  @override
   String get equipmentOther => '기타';
 
   @override
@@ -460,6 +495,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get movementPatternConditioning => '컨디셔닝';
+
+  @override
+  String get movementPatternOlympic => '올림픽 리프팅';
+
+  @override
+  String get movementPatternMobility => '가동성';
+
+  @override
+  String get movementPatternStretch => '스트레칭';
 
   @override
   String get movementPatternUnilateral => '한쪽';
@@ -1361,6 +1405,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get heartZonesTitle => '심박 구간';
+
+  @override
+  String get needsBirthYear => '출생 연도 필요';
+
+  @override
   String heartZone({required int number}) {
     return '존 $number';
   }
@@ -1541,10 +1591,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get activityEnded => '이 활동은 종료되었습니다.';
 
   @override
+  String get bathEnded => '이번 목욕은 종료되었습니다.';
+
+  @override
   String get sessionInProgress => '진행 중';
 
   @override
   String get commonEnd => '종료';
+
+  @override
+  String get commonStart => '시작';
 
   @override
   String get commonResume => '재개';
@@ -1613,12 +1669,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noActivityThisDay => '이 날의 활동 데이터 없음';
 
   @override
-  String get heartZonesTitle => '심박 구간';
-
-  @override
-  String get needsBirthYear => '출생 연도 필요';
-
-  @override
   String nightsWithinUsual({required int count, required int total}) {
     return '$total밤 중 $count밤이 평소 범위 안';
   }
@@ -1663,64 +1713,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get outsideUsual => '범위 밖';
-
-  @override
-  String get targetBedtime => '목표 취침';
-
-  @override
-  String get targetWake => '목표 기상';
-
-  @override
-  String get clearTargetSchedule => '목표 일정 지우기';
-
-  @override
-  String get targetSchedule => '목표 일정';
-
-  @override
-  String get refSectionUsualRange => '평소 범위';
-
-  @override
-  String get refSectionSleepStages => '수면 단계';
-
-  @override
-  String get refUseUsualRangeMinMax => '평소 범위는 직전 28일의 최저~최고(기록 14일 이상)';
-
-  @override
-  String get refUseUsualRangeWindow => '개인 기준은 당일을 뺀 직전 28일 기록';
-
-  @override
-  String get refUseUsualRangeMarks => '범위 밖의 날은 빈 원으로만 표시하고 좋고 나쁨의 색은 쓰지 않음';
-
-  @override
-  String get refUseUsualRangeNoAnchor =>
-      '범위 밖 값에 임상 기준이 없으므로 표시는 약하게, 수치를 함께 보여 줌';
-
-  @override
-  String get refUseStagesEstimate => '수면 단계는 기기 추정이므로 같은 연령대가 아니라 자신의 밤과 비교';
-
-  @override
-  String get refUseStagesNoTarget => '수면 구조에 합의가 없어 단계별 목표를 두지 않음';
-
-  @override
-  String get refUseStagesNoSummary =>
-      '수면 단계와 효율에는 범위 안 밤 수를 쓰지 않음: 부정적인 수면 피드백은 낮의 느낌에 영향을 줌';
-
-  @override
-  String get refUseRegularityOutcomes => '규칙적인 수면은 낮은 사망 위험과 관련(관찰 연구)';
-
-  @override
-  String get refUseTargetScheduleAssociation =>
-      '목표 일정: 규칙성과 건강 결과의 관련, 시각은 사용자가 정함';
-
-  @override
-  String get refUseTargetScheduleTrial => '목표 일정: 4주간 고정 일정으로 낮 졸림 감소(소규모 시험)';
-
-  @override
-  String get refUseMaxHeartRateError =>
-      '연령 추정 최대 심박수는 개인 오차가 약 11회/분이라 하루 그래프에는 구간을 그리지 않음';
-
-  @override
-  String get refUseHeartRateReserve => '심박 예비량은 산소 섭취 예비량에 대응하며 구간은 이를 기준으로 함';
 
   @override
   String usualRangeValue({required String range}) {
@@ -2304,12 +2296,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get afterTraining => '트레이닝 후';
 
   @override
+  String get caffeineAtBedtime => '취침 시 카페인';
+
+  @override
   String get mealAfter9pm => '21:00 이후 식사';
 
   @override
   String nightsVersus({required int withCount, required int withoutCount}) {
     return '$withCount박 대 $withoutCount박';
   }
+
+  @override
+  String get napThatDay => '당일 낮잠';
+
+  @override
+  String get moreDaylight => '일광 노출이 많음';
+
+  @override
+  String get notEnoughData => '데이터 부족';
+
+  @override
+  String get refSectionSleepFactors => '영향 요인';
+
+  @override
+  String get refUseFactorDaylight =>
+      '일광 노출이 많았던 날의 밤에 수면이 더 길었음(관찰 연구, 21명, 7일). Apple 일광 시간은 검증되지 않았고 야외 운동과 섞임';
+
+  @override
+  String get refUseFactorNights =>
+      '개인의 총 수면 시간 평균은 약 7박이면 안정됨. 요인은 각 집단 10박이 필요하며 기술만 하고 검정하지 않음';
 
   @override
   String get factorsSection => '영향 요인';
@@ -2435,6 +2450,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String remindsAt({required String time}) {
     return '$time 알림';
   }
+
+  @override
+  String get targetBedtime => '목표 취침';
+
+  @override
+  String get targetWake => '목표 기상';
+
+  @override
+  String get clearTargetSchedule => '목표 일정 지우기';
+
+  @override
+  String get targetSchedule => '목표 일정';
 
   @override
   String get clearGoal => '목표 지우기';
@@ -3032,6 +3059,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get playing => '재생 중';
+
+  @override
+  String get watchNoWorkout => '진행 중인 운동 없음';
+
+  @override
+  String get watchNotConnected => '연결 안 됨';
+
+  @override
+  String get watchLogSet => '세트 완료';
+
+  @override
+  String get watchSkip => '건너뛰기';
+
+  @override
+  String get watchControls => '컨트롤';
+
+  @override
+  String get watchStop => '중지';
+
+  @override
+  String exerciseDemoOf({required String name}) {
+    return '시연: $name';
+  }
 
   @override
   String get exerciseDemoCredit =>
@@ -3829,6 +3879,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String optionsFor({required String name}) {
     return '$name 옵션';
   }
+
+  @override
+  String get exerciseDetails => '상세 정보';
+
+  @override
+  String get searchOnYoutube => 'YouTube에서 검색';
 
   @override
   String volumeValue({required String volume}) {
@@ -5113,6 +5169,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get privacyRecordsValue => '이 기기에만';
 
   @override
+  String get privacyWidgets => '홈 화면 위젯';
+
+  @override
+  String get privacyWidgetsValue => '수치 사본, 이 기기에만';
+
+  @override
   String get privacyAccount => '계정';
 
   @override
@@ -5958,6 +6020,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get restTimeTitle => '휴식 시간';
 
   @override
+  String get cueSoundTitle => '알림음';
+
+  @override
   String get autoRestTitle => '세트 완료 후 자동으로 휴식 시작';
 
   @override
@@ -6152,6 +6217,52 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get refSectionUsualRange => '평소 범위';
+
+  @override
+  String get refSectionSleepStages => '수면 단계';
+
+  @override
+  String get refUseUsualRangeMinMax => '평소 범위는 직전 28일의 최저~최고(기록 14일 이상)';
+
+  @override
+  String get refUseUsualRangeWindow => '개인 기준은 당일을 뺀 직전 28일 기록';
+
+  @override
+  String get refUseUsualRangeMarks => '범위 밖의 날은 빈 원으로만 표시하고 좋고 나쁨의 색은 쓰지 않음';
+
+  @override
+  String get refUseUsualRangeNoAnchor =>
+      '범위 밖 값에 임상 기준이 없으므로 표시는 약하게, 수치를 함께 보여 줌';
+
+  @override
+  String get refUseStagesEstimate => '수면 단계는 기기 추정이므로 같은 연령대가 아니라 자신의 밤과 비교';
+
+  @override
+  String get refUseStagesNoTarget => '수면 구조에 합의가 없어 단계별 목표를 두지 않음';
+
+  @override
+  String get refUseStagesNoSummary =>
+      '수면 단계와 효율에는 범위 안 밤 수를 쓰지 않음: 부정적인 수면 피드백은 낮의 느낌에 영향을 줌';
+
+  @override
+  String get refUseRegularityOutcomes => '규칙적인 수면은 낮은 사망 위험과 관련(관찰 연구)';
+
+  @override
+  String get refUseTargetScheduleAssociation =>
+      '목표 일정: 규칙성과 건강 결과의 관련, 시각은 사용자가 정함';
+
+  @override
+  String get refUseTargetScheduleTrial => '목표 일정: 4주간 고정 일정으로 낮 졸림 감소(소규모 시험)';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      '연령 추정 최대 심박수는 개인 오차가 약 11회/분이라 하루 그래프에는 구간을 그리지 않음';
+
+  @override
+  String get refUseHeartRateReserve => '심박 예비량은 산소 섭취 예비량에 대응하며 구간은 이를 기준으로 함';
+
+  @override
   String get refSectionSummaries => '추세 요약';
 
   @override
@@ -6233,32 +6344,6 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get cueSoundTitle => '알림음';
-
-  @override
-  String get caffeineAtBedtime => '취침 시 카페인';
-
-  @override
-  String get napThatDay => '당일 낮잠';
-
-  @override
-  String get moreDaylight => '일광 노출이 많음';
-
-  @override
-  String get notEnoughData => '데이터 부족';
-
-  @override
-  String get refSectionSleepFactors => '영향 요인';
-
-  @override
-  String get refUseFactorDaylight =>
-      '일광 노출이 많았던 날의 밤에 수면이 더 길었음(관찰 연구, 21명, 7일). Apple 일광 시간은 검증되지 않았고 야외 운동과 섞임';
-
-  @override
-  String get refUseFactorNights =>
-      '개인의 총 수면 시간 평균은 약 7박이면 안정됨. 요인은 각 집단 10박이 필요하며 기술만 하고 검정하지 않음';
-
-  @override
   String get recordBath => '목욕';
 
   @override
@@ -6336,21 +6421,4 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get daysOffLabel => '휴일';
-
-  @override
-  String get sessionEndBathMessage => '종료하면 목욕 기록으로 저장됩니다. 버리면 아무것도 남지 않습니다.';
-
-  @override
-  String get sessionDiscardBath => '이번 목욕 버리기';
-
-  @override
-  String sessionBlocksStart({required String session}) {
-    return '$session 진행 중입니다. 먼저 종료하세요';
-  }
-
-  @override
-  String get bathEnded => '이번 목욕은 종료되었습니다.';
-
-  @override
-  String get commonStart => '시작';
 }

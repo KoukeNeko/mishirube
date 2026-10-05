@@ -162,6 +162,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ending saves it as an activity. Discard it and nothing is kept.';
 
   @override
+  String get sessionEndBathMessage =>
+      'Ending saves it as a bath. Discard it and nothing is kept.';
+
+  @override
   String get sessionFinishAndSave => 'End and save';
 
   @override
@@ -171,8 +175,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sessionDiscardActivity => 'Discard activity';
 
   @override
+  String get sessionDiscardBath => 'Discard bath';
+
+  @override
   String sessionKeepGoing({required String session}) {
     return 'Keep going';
+  }
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return 'A session is running. End it before starting another.';
   }
 
   @override
@@ -428,6 +440,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentCardio => 'Cardio machine';
 
   @override
+  String get equipmentPullUpBar => 'Pull-up bar';
+
+  @override
+  String get equipmentRings => 'Rings';
+
+  @override
+  String get equipmentSuspension => 'Suspension trainer';
+
+  @override
+  String get equipmentMedicineBall => 'Medicine ball';
+
+  @override
+  String get equipmentStabilityBall => 'Stability ball';
+
+  @override
+  String get equipmentFoamRoller => 'Foam roller';
+
+  @override
+  String get equipmentSled => 'Sled';
+
+  @override
+  String get equipmentBox => 'Box';
+
+  @override
   String get equipmentOther => 'Other';
 
   @override
@@ -462,6 +498,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get movementPatternConditioning => 'Conditioning';
+
+  @override
+  String get movementPatternOlympic => 'Olympic lift';
+
+  @override
+  String get movementPatternMobility => 'Mobility';
+
+  @override
+  String get movementPatternStretch => 'Stretch';
 
   @override
   String get movementPatternUnilateral => 'Unilateral';
@@ -1365,6 +1410,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get heartZonesTitle => 'Heart rate zones';
+
+  @override
+  String get needsBirthYear => 'Needs a birth year';
+
+  @override
   String heartZone({required int number}) {
     return 'Zone $number';
   }
@@ -1546,10 +1597,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityEnded => 'This activity has ended.';
 
   @override
+  String get bathEnded => 'This bath has ended.';
+
+  @override
   String get sessionInProgress => 'In progress';
 
   @override
   String get commonEnd => 'End';
+
+  @override
+  String get commonStart => 'Start';
 
   @override
   String get commonResume => 'Resume';
@@ -1618,12 +1675,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noActivityThisDay => 'No activity data this day';
 
   @override
-  String get heartZonesTitle => 'Heart rate zones';
-
-  @override
-  String get needsBirthYear => 'Needs a birth year';
-
-  @override
   String nightsWithinUsual({required int count, required int total}) {
     return '$count of $total nights within the usual range';
   }
@@ -1668,72 +1719,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outsideUsual => 'Outside';
-
-  @override
-  String get targetBedtime => 'Target bedtime';
-
-  @override
-  String get targetWake => 'Target wake time';
-
-  @override
-  String get clearTargetSchedule => 'Clear target schedule';
-
-  @override
-  String get targetSchedule => 'Target schedule';
-
-  @override
-  String get refSectionUsualRange => 'Usual range';
-
-  @override
-  String get refSectionSleepStages => 'Sleep stages';
-
-  @override
-  String get refUseUsualRangeMinMax =>
-      'The usual range is the lowest to the highest of the 28 days before, with at least 14 days recorded';
-
-  @override
-  String get refUseUsualRangeWindow =>
-      'A personal baseline from the 28 days before, the day itself left out';
-
-  @override
-  String get refUseUsualRangeMarks =>
-      'Days outside the range are only ringed, with no good-or-bad colour';
-
-  @override
-  String get refUseUsualRangeNoAnchor =>
-      'With no clinical line to read an outside day against, the mark stays faint and the figure is shown';
-
-  @override
-  String get refUseStagesEstimate =>
-      'Sleep stages are a device estimate, read against the person\'s own nights, never an age group\'s';
-
-  @override
-  String get refUseStagesNoTarget =>
-      'No consensus on sleep architecture, so no stage has a target';
-
-  @override
-  String get refUseStagesNoSummary =>
-      'Sleep stages and efficiency carry no count of nights in range: negative sleep feedback colours how the day feels';
-
-  @override
-  String get refUseRegularityOutcomes =>
-      'Regular sleep is associated with lower mortality (observational)';
-
-  @override
-  String get refUseTargetScheduleAssociation =>
-      'Target schedule: regularity is linked with health outcomes; the times are the user\'s own';
-
-  @override
-  String get refUseTargetScheduleTrial =>
-      'Target schedule: four weeks on a fixed schedule lowered daytime sleepiness (small trial)';
-
-  @override
-  String get refUseMaxHeartRateError =>
-      'Age-predicted maximum heart rate errs by some 11 bpm for one person, so the day chart draws no zones';
-
-  @override
-  String get refUseHeartRateReserve =>
-      'Heart rate reserve matches oxygen uptake reserve, which the zones are set on';
 
   @override
   String usualRangeValue({required String range}) {
@@ -2319,12 +2304,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get afterTraining => 'After training';
 
   @override
+  String get caffeineAtBedtime => 'Caffeine at bedtime';
+
+  @override
   String get mealAfter9pm => 'Eating after 21:00';
 
   @override
   String nightsVersus({required int withCount, required int withoutCount}) {
     return '$withCount vs $withoutCount nights';
   }
+
+  @override
+  String get napThatDay => 'Nap that day';
+
+  @override
+  String get moreDaylight => 'More daylight';
+
+  @override
+  String get notEnoughData => 'Not enough data';
+
+  @override
+  String get refSectionSleepFactors => 'Factors';
+
+  @override
+  String get refUseFactorDaylight =>
+      'Nights after more daylight ran longer in an observational study of 21 people over 7 days; Apple\'s time in daylight is unvalidated and mixed up with outdoor exercise';
+
+  @override
+  String get refUseFactorNights =>
+      'A person\'s average total sleep settles after about 7 nights; each side of a factor needs 10, and it only describes, it does not test';
 
   @override
   String get factorsSection => 'Factors';
@@ -2450,6 +2458,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String remindsAt({required String time}) {
     return 'Reminds at $time';
   }
+
+  @override
+  String get targetBedtime => 'Target bedtime';
+
+  @override
+  String get targetWake => 'Target wake time';
+
+  @override
+  String get clearTargetSchedule => 'Clear target schedule';
+
+  @override
+  String get targetSchedule => 'Target schedule';
 
   @override
   String get clearGoal => 'Clear goal';
@@ -3077,6 +3097,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playing => 'Playing';
+
+  @override
+  String get watchNoWorkout => 'No workout in progress';
+
+  @override
+  String get watchNotConnected => 'Not connected';
+
+  @override
+  String get watchLogSet => 'Complete set';
+
+  @override
+  String get watchSkip => 'Skip';
+
+  @override
+  String get watchControls => 'Controls';
+
+  @override
+  String get watchStop => 'Stop';
+
+  @override
+  String exerciseDemoOf({required String name}) {
+    return 'Demo: $name';
+  }
 
   @override
   String get exerciseDemoCredit =>
@@ -3892,6 +3935,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String optionsFor({required String name}) {
     return 'Options for $name';
   }
+
+  @override
+  String get exerciseDetails => 'Details';
+
+  @override
+  String get searchOnYoutube => 'Search on YouTube';
 
   @override
   String volumeValue({required String volume}) {
@@ -5179,6 +5228,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyRecordsValue => 'Only on this device';
 
   @override
+  String get privacyWidgets => 'Home Screen widgets';
+
+  @override
+  String get privacyWidgetsValue =>
+      'A copy of the figures, only on this device';
+
+  @override
   String get privacyAccount => 'Account';
 
   @override
@@ -6060,6 +6116,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restTimeTitle => 'Rest time';
 
   @override
+  String get cueSoundTitle => 'Sound';
+
+  @override
   String get autoRestTitle => 'Start rest automatically after a set';
 
   @override
@@ -6254,6 +6313,60 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get refSectionUsualRange => 'Usual range';
+
+  @override
+  String get refSectionSleepStages => 'Sleep stages';
+
+  @override
+  String get refUseUsualRangeMinMax =>
+      'The usual range is the lowest to the highest of the 28 days before, with at least 14 days recorded';
+
+  @override
+  String get refUseUsualRangeWindow =>
+      'A personal baseline from the 28 days before, the day itself left out';
+
+  @override
+  String get refUseUsualRangeMarks =>
+      'Days outside the range are only ringed, with no good-or-bad colour';
+
+  @override
+  String get refUseUsualRangeNoAnchor =>
+      'With no clinical line to read an outside day against, the mark stays faint and the figure is shown';
+
+  @override
+  String get refUseStagesEstimate =>
+      'Sleep stages are a device estimate, read against the person\'s own nights, never an age group\'s';
+
+  @override
+  String get refUseStagesNoTarget =>
+      'No consensus on sleep architecture, so no stage has a target';
+
+  @override
+  String get refUseStagesNoSummary =>
+      'Sleep stages and efficiency carry no count of nights in range: negative sleep feedback colours how the day feels';
+
+  @override
+  String get refUseRegularityOutcomes =>
+      'Regular sleep is associated with lower mortality (observational)';
+
+  @override
+  String get refUseTargetScheduleAssociation =>
+      'Target schedule: regularity is linked with health outcomes; the times are the user\'s own';
+
+  @override
+  String get refUseTargetScheduleTrial =>
+      'Target schedule: four weeks on a fixed schedule lowered daytime sleepiness (small trial)';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      'Age-predicted maximum heart rate errs by some 11 bpm for one person, so the day chart draws no zones';
+
+  @override
+  String get refUseHeartRateReserve =>
+      'Heart rate reserve matches oxygen uptake reserve, which the zones are set on';
+
+  @override
   String get refSectionSummaries => 'Trend summaries';
 
   @override
@@ -6343,32 +6456,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get cueSoundTitle => 'Sound';
-
-  @override
-  String get caffeineAtBedtime => 'Caffeine at bedtime';
-
-  @override
-  String get napThatDay => 'Nap that day';
-
-  @override
-  String get moreDaylight => 'More daylight';
-
-  @override
-  String get notEnoughData => 'Not enough data';
-
-  @override
-  String get refSectionSleepFactors => 'Factors';
-
-  @override
-  String get refUseFactorDaylight =>
-      'Nights after more daylight ran longer in an observational study of 21 people over 7 days; Apple\'s time in daylight is unvalidated and mixed up with outdoor exercise';
-
-  @override
-  String get refUseFactorNights =>
-      'A person\'s average total sleep settles after about 7 nights; each side of a factor needs 10, and it only describes, it does not test';
-
-  @override
   String get recordBath => 'Bath';
 
   @override
@@ -6446,22 +6533,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get daysOffLabel => 'Days off';
-
-  @override
-  String get sessionEndBathMessage =>
-      'Ending saves it as a bath. Discard it and nothing is kept.';
-
-  @override
-  String get sessionDiscardBath => 'Discard bath';
-
-  @override
-  String sessionBlocksStart({required String session}) {
-    return 'A session is running. End it before starting another.';
-  }
-
-  @override
-  String get bathEnded => 'This bath has ended.';
-
-  @override
-  String get commonStart => 'Start';
 }

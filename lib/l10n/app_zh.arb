@@ -202,6 +202,10 @@
   "@sessionEndActivityMessage": {
     "description": "End-session dialog message for an activity."
   },
+  "sessionEndBathMessage": "結束會存成一筆洗澡紀錄；放棄則什麼都不留。",
+  "@sessionEndBathMessage": {
+    "description": "End-session dialog message for a bath."
+  },
   "sessionFinishAndSave": "結束並儲存",
   "@sessionFinishAndSave": {
     "description": "End-session dialog: keep the session as a record."
@@ -214,9 +218,22 @@
   "@sessionDiscardActivity": {
     "description": "End-session dialog: throw the activity away."
   },
+  "sessionDiscardBath": "放棄這次洗澡",
+  "@sessionDiscardBath": {
+    "description": "End-session dialog: throw the bath away."
+  },
   "sessionKeepGoing": "繼續{session}",
   "@sessionKeepGoing": {
     "description": "End-session dialog: back out and carry on.",
+    "placeholders": {
+      "session": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionBlocksStart": "{session}進行中，先結束才能開始",
+  "@sessionBlocksStart": {
+    "description": "Warning: nothing else can start while a session runs; session is its name.",
     "placeholders": {
       "session": {
         "type": "String"
@@ -593,6 +610,38 @@
   "@equipmentCardio": {
     "description": "The equipment an exercise uses. (Equipment.cardio)"
   },
+  "equipmentPullUpBar": "單槓",
+  "@equipmentPullUpBar": {
+    "description": "The equipment an exercise uses. (Equipment.pullUpBar)"
+  },
+  "equipmentRings": "吊環",
+  "@equipmentRings": {
+    "description": "The equipment an exercise uses. (Equipment.rings)"
+  },
+  "equipmentSuspension": "懸吊訓練帶",
+  "@equipmentSuspension": {
+    "description": "The equipment an exercise uses. (Equipment.suspension)"
+  },
+  "equipmentMedicineBall": "藥球",
+  "@equipmentMedicineBall": {
+    "description": "The equipment an exercise uses. (Equipment.medicineBall)"
+  },
+  "equipmentStabilityBall": "瑜伽球",
+  "@equipmentStabilityBall": {
+    "description": "The equipment an exercise uses. (Equipment.stabilityBall)"
+  },
+  "equipmentFoamRoller": "滾筒",
+  "@equipmentFoamRoller": {
+    "description": "The equipment an exercise uses. (Equipment.foamRoller)"
+  },
+  "equipmentSled": "雪橇",
+  "@equipmentSled": {
+    "description": "The equipment an exercise uses. (Equipment.sled)"
+  },
+  "equipmentBox": "跳箱",
+  "@equipmentBox": {
+    "description": "The equipment an exercise uses. (Equipment.box)"
+  },
   "equipmentOther": "其他",
   "@equipmentOther": {
     "description": "The equipment an exercise uses. (Equipment.other)"
@@ -605,7 +654,7 @@
   "@movementPatternHinge": {
     "description": "The movement pattern an exercise follows. (MovementPattern.hinge)"
   },
-  "movementPatternLunge": "弓步與單腳",
+  "movementPatternLunge": "弓箭步與單腳",
   "@movementPatternLunge": {
     "description": "The movement pattern an exercise follows. (MovementPattern.lunge)"
   },
@@ -640,6 +689,18 @@
   "movementPatternConditioning": "體能",
   "@movementPatternConditioning": {
     "description": "The movement pattern an exercise follows. (MovementPattern.conditioning)"
+  },
+  "movementPatternOlympic": "奧林匹克舉重",
+  "@movementPatternOlympic": {
+    "description": "How an exercise moves. (MovementPattern.olympic)"
+  },
+  "movementPatternMobility": "活動度",
+  "@movementPatternMobility": {
+    "description": "How an exercise moves. (MovementPattern.mobility)"
+  },
+  "movementPatternStretch": "伸展",
+  "@movementPatternStretch": {
+    "description": "How an exercise moves. (MovementPattern.stretch)"
   },
   "movementPatternUnilateral": "單側",
   "@movementPatternUnilateral": {
@@ -1892,6 +1953,8 @@
       }
     }
   },
+  "heartZonesTitle": "心率區間",
+  "needsBirthYear": "需要出生年",
   "heartZone": "區間 {number}",
   "@heartZone": {
     "description": "A heart rate zone.",
@@ -2190,6 +2253,10 @@
   "@activityEnded": {
     "description": "Shown on the live page once the activity is over."
   },
+  "bathEnded": "這次洗澡已經結束。",
+  "@bathEnded": {
+    "description": "Shown on the running bath page after the bath ended elsewhere."
+  },
   "sessionInProgress": "進行中",
   "@sessionInProgress": {
     "description": "A live session is running."
@@ -2197,6 +2264,10 @@
   "commonEnd": "結束",
   "@commonEnd": {
     "description": "Ends a running session."
+  },
+  "commonStart": "開始",
+  "@commonStart": {
+    "description": "Button that starts something running."
   },
   "commonResume": "繼續",
   "@commonResume": {
@@ -2293,8 +2364,6 @@
   "@noActivityThisDay": {
     "description": "Empty state for a day without activity data."
   },
-  "heartZonesTitle": "心率區間",
-  "needsBirthYear": "需要出生年",
   "nightsWithinUsual": "{total} 晚中 {count} 晚在平常範圍內",
   "@nightsWithinUsual": {
     "description": "How many nights sat within the person's own usual range.",
@@ -2374,66 +2443,6 @@
     }
   },
   "outsideUsual": "範圍外",
-  "targetBedtime": "目標入睡",
-  "targetWake": "目標起床",
-  "clearTargetSchedule": "清除目標作息",
-  "targetSchedule": "目標作息",
-  "refSectionUsualRange": "平常範圍",
-  "@refSectionUsualRange": {
-    "description": "References page: section title."
-  },
-  "refSectionSleepStages": "睡眠階段",
-  "@refSectionSleepStages": {
-    "description": "References page: section title."
-  },
-  "refUseUsualRangeMinMax": "平常範圍是前 28 天的最低到最高，有值的日子至少 14 天",
-  "@refUseUsualRangeMinMax": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseUsualRangeWindow": "個人基線取前 28 天的紀錄，不含當天",
-  "@refUseUsualRangeWindow": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseUsualRangeMarks": "範圍外只用空心圈標出，不分好壞、不用警示色",
-  "@refUseUsualRangeMarks": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseUsualRangeNoAnchor": "範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字",
-  "@refUseUsualRangeNoAnchor": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseStagesEstimate": "睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍",
-  "@refUseStagesEstimate": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseStagesNoTarget": "睡眠結構沒有共識，不設各階段的目標",
-  "@refUseStagesNoTarget": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseStagesNoSummary": "睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受",
-  "@refUseStagesNoSummary": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseRegularityOutcomes": "規律的作息與較低的死亡風險相關（觀察性）",
-  "@refUseRegularityOutcomes": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseTargetScheduleAssociation": "目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂",
-  "@refUseTargetScheduleAssociation": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseTargetScheduleTrial": "目標作息：固定作息四週，白天嗜睡下降（小型實驗）",
-  "@refUseTargetScheduleTrial": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseMaxHeartRateError": "依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間",
-  "@refUseMaxHeartRateError": {
-    "description": "References page: what the cited work is used for."
-  },
-  "refUseHeartRateReserve": "儲備心率對應儲備攝氧量，區間依此計算",
-  "@refUseHeartRateReserve": {
-    "description": "References page: what the cited work is used for."
-  },
   "usualRangeValue": "平常 {range}",
   "@usualRangeValue": {
     "description": "A metric's usual range; range is formatted with its unit.",
@@ -3270,6 +3279,10 @@
   "@afterTraining": {
     "description": "Nights after a workout."
   },
+  "caffeineAtBedtime": "就寢時咖啡因",
+  "@caffeineAtBedtime": {
+    "description": "Nights with caffeine estimated to be left at the usual bedtime."
+  },
   "mealAfter9pm": "21:00 後進食",
   "@mealAfter9pm": {
     "description": "Nights after a late meal."
@@ -3285,6 +3298,30 @@
         "type": "int"
       }
     }
+  },
+  "napThatDay": "當天有小睡",
+  "@napThatDay": {
+    "description": "Nights after a day with a nap."
+  },
+  "moreDaylight": "日光時間較多",
+  "@moreDaylight": {
+    "description": "Nights after a day with more time in daylight than usual."
+  },
+  "notEnoughData": "資料不足",
+  "@notEnoughData": {
+    "description": "A factor whose sides have too few nights."
+  },
+  "refSectionSleepFactors": "影響因素",
+  "@refSectionSleepFactors": {
+    "description": "References section for the sleep factors."
+  },
+  "refUseFactorDaylight": "日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜",
+  "@refUseFactorDaylight": {
+    "description": "What the reference is used for."
+  },
+  "refUseFactorNights": "個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定",
+  "@refUseFactorNights": {
+    "description": "What the reference is used for."
   },
   "factorsSection": "影響因素",
   "@factorsSection": {
@@ -3492,6 +3529,10 @@
       }
     }
   },
+  "targetBedtime": "目標入睡",
+  "targetWake": "目標起床",
+  "clearTargetSchedule": "清除目標作息",
+  "targetSchedule": "目標作息",
   "clearGoal": "清除目標",
   "@clearGoal": {
     "description": "Removes a goal."
@@ -4468,6 +4509,39 @@
   "playing": "播放中",
   "@playing": {
     "description": "State of the demonstration."
+  },
+  "watchNoWorkout": "沒有進行中的訓練",
+  "@watchNoWorkout": {
+    "description": "Shown on the watch when nothing is running."
+  },
+  "watchNotConnected": "未連線",
+  "@watchNotConnected": {
+    "description": "Shown on the watch when the phone cannot be reached."
+  },
+  "watchLogSet": "完成這一組",
+  "@watchLogSet": {
+    "description": "Watch button that logs the set to do next."
+  },
+  "watchSkip": "跳過",
+  "@watchSkip": {
+    "description": "Watch button that ends the rest."
+  },
+  "watchControls": "控制",
+  "@watchControls": {
+    "description": "Title of the watch page with pause and finish."
+  },
+  "watchStop": "停止",
+  "@watchStop": {
+    "description": "Watch button that stops the heart-rate reading."
+  },
+  "exerciseDemoOf": "示範：{name}",
+  "@exerciseDemoOf": {
+    "description": "Tag under the demonstration when it shows another exercise: the one it is a version of.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "exerciseDemoCredit": "圖：Workout Guide／Everkinetic · CC BY-SA 4.0",
   "@exerciseDemoCredit": {
@@ -5763,6 +5837,14 @@
         "type": "String"
       }
     }
+  },
+  "exerciseDetails": "詳細資料",
+  "@exerciseDetails": {
+    "description": "Button on the exercise info sheet that opens the exercise's page."
+  },
+  "searchOnYoutube": "在 YouTube 搜尋",
+  "@searchOnYoutube": {
+    "description": "Row that opens the YouTube app on a search for the exercise."
   },
   "volumeValue": "訓練量 {volume} kg",
   "@volumeValue": {
@@ -7749,6 +7831,14 @@
   "@privacyRecordsValue": {
     "description": "Privacy value."
   },
+  "privacyWidgets": "桌面小工具",
+  "@privacyWidgets": {
+    "description": "Privacy row."
+  },
+  "privacyWidgetsValue": "數字的副本，只在這台裝置",
+  "@privacyWidgetsValue": {
+    "description": "Privacy value."
+  },
   "privacyAccount": "帳號",
   "@privacyAccount": {
     "description": "Privacy row."
@@ -9010,6 +9100,10 @@
   "@restTimeTitle": {
     "description": "Dialog title where the rest after a set of an exercise is set."
   },
+  "cueSoundTitle": "提示音",
+  "@cueSoundTitle": {
+    "description": "Switch row: a sound when a rest or a timed set ends."
+  },
   "autoRestTitle": "完成一組後自動開始休息",
   "@autoRestTitle": {
     "description": "Switch: whether the rest starts by itself when a set is done."
@@ -9334,6 +9428,62 @@
       }
     }
   },
+  "refSectionUsualRange": "平常範圍",
+  "@refSectionUsualRange": {
+    "description": "References page: section title."
+  },
+  "refSectionSleepStages": "睡眠階段",
+  "@refSectionSleepStages": {
+    "description": "References page: section title."
+  },
+  "refUseUsualRangeMinMax": "平常範圍是前 28 天的最低到最高，有值的日子至少 14 天",
+  "@refUseUsualRangeMinMax": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeWindow": "個人基線取前 28 天的紀錄，不含當天",
+  "@refUseUsualRangeWindow": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeMarks": "範圍外只用空心圈標出，不分好壞、不用警示色",
+  "@refUseUsualRangeMarks": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseUsualRangeNoAnchor": "範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字",
+  "@refUseUsualRangeNoAnchor": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesEstimate": "睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍",
+  "@refUseStagesEstimate": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesNoTarget": "睡眠結構沒有共識，不設各階段的目標",
+  "@refUseStagesNoTarget": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseStagesNoSummary": "睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受",
+  "@refUseStagesNoSummary": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseRegularityOutcomes": "規律的作息與較低的死亡風險相關（觀察性）",
+  "@refUseRegularityOutcomes": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseTargetScheduleAssociation": "目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂",
+  "@refUseTargetScheduleAssociation": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseTargetScheduleTrial": "目標作息：固定作息四週，白天嗜睡下降（小型實驗）",
+  "@refUseTargetScheduleTrial": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseMaxHeartRateError": "依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間",
+  "@refUseMaxHeartRateError": {
+    "description": "References page: what the cited work is used for."
+  },
+  "refUseHeartRateReserve": "儲備心率對應儲備攝氧量，區間依此計算",
+  "@refUseHeartRateReserve": {
+    "description": "References page: what the cited work is used for."
+  },
   "refSectionSummaries": "趨勢摘要",
   "@refSectionSummaries": {
     "description": "References section for how trend pages put figures into words."
@@ -9364,7 +9514,7 @@
   },
   "sleepRegularityIndexLabel": "睡眠規律指數",
   "@sleepRegularityIndexLabel": {
-    "description": "The Sleep Regularity Index, −100 to 100."
+    "description": "The Sleep Regularity Index, \u2212100 to 100."
   },
   "refSectionSleepRegularity": "睡眠規律",
   "@refSectionSleepRegularity": {
@@ -9453,38 +9603,6 @@
         "type": "int"
       }
     }
-  },
-  "cueSoundTitle": "提示音",
-  "@cueSoundTitle": {
-    "description": "Switch row: a sound when a rest or a timed set ends."
-  },
-  "caffeineAtBedtime": "就寢時咖啡因",
-  "@caffeineAtBedtime": {
-    "description": "Nights with caffeine estimated to be left at the usual bedtime."
-  },
-  "napThatDay": "當天有小睡",
-  "@napThatDay": {
-    "description": "Nights after a day with a nap."
-  },
-  "moreDaylight": "日光時間較多",
-  "@moreDaylight": {
-    "description": "Nights after a day with more time in daylight than usual."
-  },
-  "notEnoughData": "資料不足",
-  "@notEnoughData": {
-    "description": "A factor whose sides have too few nights."
-  },
-  "refSectionSleepFactors": "影響因素",
-  "@refSectionSleepFactors": {
-    "description": "References section for the sleep factors."
-  },
-  "refUseFactorDaylight": "日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜",
-  "@refUseFactorDaylight": {
-    "description": "What the reference is used for."
-  },
-  "refUseFactorNights": "個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定",
-  "@refUseFactorNights": {
-    "description": "What the reference is used for."
   },
   "recordBath": "洗澡",
   "@recordBath": {
@@ -9597,30 +9715,5 @@
   "daysOffLabel": "假日",
   "@daysOffLabel": {
     "description": "Label of a figure: Saturday and Sunday."
-  },
-  "sessionEndBathMessage": "結束會存成一筆洗澡紀錄；放棄則什麼都不留。",
-  "@sessionEndBathMessage": {
-    "description": "End-session dialog message for a bath."
-  },
-  "sessionDiscardBath": "放棄這次洗澡",
-  "@sessionDiscardBath": {
-    "description": "End-session dialog: throw the bath away."
-  },
-  "sessionBlocksStart": "{session}進行中，先結束才能開始",
-  "@sessionBlocksStart": {
-    "description": "Warning: nothing else can start while a session runs; session is its name.",
-    "placeholders": {
-      "session": {
-        "type": "String"
-      }
-    }
-  },
-  "bathEnded": "這次洗澡已經結束。",
-  "@bathEnded": {
-    "description": "Shown on the running bath page after the bath ended elsewhere."
-  },
-  "commonStart": "開始",
-  "@commonStart": {
-    "description": "Button that starts something running."
   }
 }

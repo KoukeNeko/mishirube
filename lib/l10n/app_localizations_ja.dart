@@ -159,6 +159,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sessionEndActivityMessage => '終了するとアクティビティとして保存されます。破棄すると何も残りません。';
 
   @override
+  String get sessionEndBathMessage => '終了すると入浴として保存されます。破棄すると何も残りません。';
+
+  @override
   String get sessionFinishAndSave => '終了して保存';
 
   @override
@@ -168,8 +171,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sessionDiscardActivity => 'このアクティビティを破棄';
 
   @override
+  String get sessionDiscardBath => 'この入浴を破棄';
+
+  @override
   String sessionKeepGoing({required String session}) {
     return '$sessionを続ける';
+  }
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session中です。先に終了してください';
   }
 
   @override
@@ -425,6 +436,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String get equipmentCardio => '有酸素マシン';
 
   @override
+  String get equipmentPullUpBar => '懸垂バー';
+
+  @override
+  String get equipmentRings => '吊り輪';
+
+  @override
+  String get equipmentSuspension => 'サスペンショントレーナー';
+
+  @override
+  String get equipmentMedicineBall => 'メディシンボール';
+
+  @override
+  String get equipmentStabilityBall => 'バランスボール';
+
+  @override
+  String get equipmentFoamRoller => 'フォームローラー';
+
+  @override
+  String get equipmentSled => 'スレッド';
+
+  @override
+  String get equipmentBox => 'ボックス';
+
+  @override
   String get equipmentOther => 'その他';
 
   @override
@@ -459,6 +494,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get movementPatternConditioning => 'コンディショニング';
+
+  @override
+  String get movementPatternOlympic => 'オリンピックリフティング';
+
+  @override
+  String get movementPatternMobility => 'モビリティ';
+
+  @override
+  String get movementPatternStretch => 'ストレッチ';
 
   @override
   String get movementPatternUnilateral => '片側';
@@ -1360,6 +1404,12 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get heartZonesTitle => '心拍ゾーン';
+
+  @override
+  String get needsBirthYear => '生まれ年が必要';
+
+  @override
   String heartZone({required int number}) {
     return 'ゾーン$number';
   }
@@ -1540,10 +1590,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get activityEnded => 'このアクティビティは終了しました。';
 
   @override
+  String get bathEnded => 'この入浴は終了しました。';
+
+  @override
   String get sessionInProgress => '進行中';
 
   @override
   String get commonEnd => '終了';
+
+  @override
+  String get commonStart => '開始';
 
   @override
   String get commonResume => '再開';
@@ -1612,12 +1668,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noActivityThisDay => 'この日のアクティビティのデータなし';
 
   @override
-  String get heartZonesTitle => '心拍ゾーン';
-
-  @override
-  String get needsBirthYear => '生まれ年が必要';
-
-  @override
   String nightsWithinUsual({required int count, required int total}) {
     return '$total晩中$count晩が普段の範囲内';
   }
@@ -1662,63 +1712,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get outsideUsual => '範囲外';
-
-  @override
-  String get targetBedtime => '目標の入眠';
-
-  @override
-  String get targetWake => '目標の起床';
-
-  @override
-  String get clearTargetSchedule => '目標スケジュールを消去';
-
-  @override
-  String get targetSchedule => '目標スケジュール';
-
-  @override
-  String get refSectionUsualRange => '普段の範囲';
-
-  @override
-  String get refSectionSleepStages => '睡眠段階';
-
-  @override
-  String get refUseUsualRangeMinMax => '普段の範囲は直前28日の最小から最大（記録が14日以上）';
-
-  @override
-  String get refUseUsualRangeWindow => '個人の基準は当日を除く直前28日の記録から';
-
-  @override
-  String get refUseUsualRangeMarks => '範囲外の日は白抜きの丸だけで示し、良し悪しの色は使わない';
-
-  @override
-  String get refUseUsualRangeNoAnchor => '範囲外の点に臨床的な目安はないため、印は控えめにして数値を添える';
-
-  @override
-  String get refUseStagesEstimate => '睡眠段階は端末の推定なので、同年代ではなく自分の夜と比べる';
-
-  @override
-  String get refUseStagesNoTarget => '睡眠構造には合意がないため、段階ごとの目標は設けない';
-
-  @override
-  String get refUseStagesNoSummary =>
-      '睡眠段階と効率には範囲内の晩数を書かない：否定的な睡眠フィードバックは日中の感じ方に影響する';
-
-  @override
-  String get refUseRegularityOutcomes => '規則的な睡眠は低い死亡リスクと関連（観察研究）';
-
-  @override
-  String get refUseTargetScheduleAssociation => '目標スケジュール：規則性と健康の関連、時刻は自分で決める';
-
-  @override
-  String get refUseTargetScheduleTrial =>
-      '目標スケジュール：4週間の固定スケジュールで日中の眠気が低下（小規模試験）';
-
-  @override
-  String get refUseMaxHeartRateError =>
-      '年齢から推定した最大心拍数は個人で約11拍/分ずれるため、1日のグラフにはゾーンを描かない';
-
-  @override
-  String get refUseHeartRateReserve => '心拍予備量は酸素摂取予備量に対応し、ゾーンはそれで決める';
 
   @override
   String usualRangeValue({required String range}) {
@@ -2303,12 +2296,35 @@ class AppLocalizationsJa extends AppLocalizations {
   String get afterTraining => 'トレーニング後';
 
   @override
+  String get caffeineAtBedtime => '就寝時のカフェイン';
+
+  @override
   String get mealAfter9pm => '21:00以降の食事';
 
   @override
   String nightsVersus({required int withCount, required int withoutCount}) {
     return '$withCount晩対$withoutCount晩';
   }
+
+  @override
+  String get napThatDay => 'その日の仮眠';
+
+  @override
+  String get moreDaylight => '日光を浴びた時間が長い';
+
+  @override
+  String get notEnoughData => 'データ不足';
+
+  @override
+  String get refSectionSleepFactors => '影響する要因';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光を浴びた時間が長い日の夜は睡眠が長かった（観察研究、21人・7日）。Appleの日光時間は未検証で、屋外運動と混ざる';
+
+  @override
+  String get refUseFactorNights =>
+      '個人の総睡眠時間の平均は約7晩で安定する。要因は各群10晩を必要とし、記述のみで検定はしない';
 
   @override
   String get factorsSection => '影響する要因';
@@ -2434,6 +2450,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String remindsAt({required String time}) {
     return '$timeに通知';
   }
+
+  @override
+  String get targetBedtime => '目標の入眠';
+
+  @override
+  String get targetWake => '目標の起床';
+
+  @override
+  String get clearTargetSchedule => '目標スケジュールを消去';
+
+  @override
+  String get targetSchedule => '目標スケジュール';
 
   @override
   String get clearGoal => '目標を消去';
@@ -3031,6 +3059,29 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get playing => '再生中';
+
+  @override
+  String get watchNoWorkout => '進行中のトレーニングはありません';
+
+  @override
+  String get watchNotConnected => '未接続';
+
+  @override
+  String get watchLogSet => 'セット完了';
+
+  @override
+  String get watchSkip => 'スキップ';
+
+  @override
+  String get watchControls => '操作';
+
+  @override
+  String get watchStop => '停止';
+
+  @override
+  String exerciseDemoOf({required String name}) {
+    return 'デモ：$name';
+  }
 
   @override
   String get exerciseDemoCredit =>
@@ -3827,6 +3878,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String optionsFor({required String name}) {
     return '$nameのオプション';
   }
+
+  @override
+  String get exerciseDetails => '詳細';
+
+  @override
+  String get searchOnYoutube => 'YouTube で検索';
 
   @override
   String volumeValue({required String volume}) {
@@ -5110,6 +5167,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get privacyRecordsValue => 'この端末のみ';
 
   @override
+  String get privacyWidgets => 'ウィジェット';
+
+  @override
+  String get privacyWidgetsValue => '数値のコピー、この端末のみ';
+
+  @override
   String get privacyAccount => 'アカウント';
 
   @override
@@ -5955,6 +6018,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get restTimeTitle => '休憩時間';
 
   @override
+  String get cueSoundTitle => 'サウンド';
+
+  @override
   String get autoRestTitle => 'セット完了後に自動で休憩を開始';
 
   @override
@@ -6149,6 +6215,51 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get refSectionUsualRange => '普段の範囲';
+
+  @override
+  String get refSectionSleepStages => '睡眠段階';
+
+  @override
+  String get refUseUsualRangeMinMax => '普段の範囲は直前28日の最小から最大（記録が14日以上）';
+
+  @override
+  String get refUseUsualRangeWindow => '個人の基準は当日を除く直前28日の記録から';
+
+  @override
+  String get refUseUsualRangeMarks => '範囲外の日は白抜きの丸だけで示し、良し悪しの色は使わない';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '範囲外の点に臨床的な目安はないため、印は控えめにして数値を添える';
+
+  @override
+  String get refUseStagesEstimate => '睡眠段階は端末の推定なので、同年代ではなく自分の夜と比べる';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠構造には合意がないため、段階ごとの目標は設けない';
+
+  @override
+  String get refUseStagesNoSummary =>
+      '睡眠段階と効率には範囲内の晩数を書かない：否定的な睡眠フィードバックは日中の感じ方に影響する';
+
+  @override
+  String get refUseRegularityOutcomes => '規則的な睡眠は低い死亡リスクと関連（観察研究）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目標スケジュール：規則性と健康の関連、時刻は自分で決める';
+
+  @override
+  String get refUseTargetScheduleTrial =>
+      '目標スケジュール：4週間の固定スケジュールで日中の眠気が低下（小規模試験）';
+
+  @override
+  String get refUseMaxHeartRateError =>
+      '年齢から推定した最大心拍数は個人で約11拍/分ずれるため、1日のグラフにはゾーンを描かない';
+
+  @override
+  String get refUseHeartRateReserve => '心拍予備量は酸素摂取予備量に対応し、ゾーンはそれで決める';
+
+  @override
   String get refSectionSummaries => '傾向のまとめ';
 
   @override
@@ -6228,32 +6339,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get cueSoundTitle => 'サウンド';
-
-  @override
-  String get caffeineAtBedtime => '就寝時のカフェイン';
-
-  @override
-  String get napThatDay => 'その日の仮眠';
-
-  @override
-  String get moreDaylight => '日光を浴びた時間が長い';
-
-  @override
-  String get notEnoughData => 'データ不足';
-
-  @override
-  String get refSectionSleepFactors => '影響する要因';
-
-  @override
-  String get refUseFactorDaylight =>
-      '日光を浴びた時間が長い日の夜は睡眠が長かった（観察研究、21人・7日）。Appleの日光時間は未検証で、屋外運動と混ざる';
-
-  @override
-  String get refUseFactorNights =>
-      '個人の総睡眠時間の平均は約7晩で安定する。要因は各群10晩を必要とし、記述のみで検定はしない';
-
-  @override
   String get recordBath => '入浴';
 
   @override
@@ -6330,21 +6415,4 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get daysOffLabel => '休日';
-
-  @override
-  String get sessionEndBathMessage => '終了すると入浴として保存されます。破棄すると何も残りません。';
-
-  @override
-  String get sessionDiscardBath => 'この入浴を破棄';
-
-  @override
-  String sessionBlocksStart({required String session}) {
-    return '$session中です。先に終了してください';
-  }
-
-  @override
-  String get bathEnded => 'この入浴は終了しました。';
-
-  @override
-  String get commonStart => '開始';
 }

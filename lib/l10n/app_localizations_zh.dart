@@ -158,6 +158,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionEndActivityMessage => '結束會存成一筆運動紀錄；放棄則什麼都不留。';
 
   @override
+  String get sessionEndBathMessage => '結束會存成一筆洗澡紀錄；放棄則什麼都不留。';
+
+  @override
   String get sessionFinishAndSave => '結束並儲存';
 
   @override
@@ -167,8 +170,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionDiscardActivity => '放棄這次運動';
 
   @override
+  String get sessionDiscardBath => '放棄這次洗澡';
+
+  @override
   String sessionKeepGoing({required String session}) {
     return '繼續$session';
+  }
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session進行中，先結束才能開始';
   }
 
   @override
@@ -424,6 +435,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get equipmentCardio => '有氧器材';
 
   @override
+  String get equipmentPullUpBar => '單槓';
+
+  @override
+  String get equipmentRings => '吊環';
+
+  @override
+  String get equipmentSuspension => '懸吊訓練帶';
+
+  @override
+  String get equipmentMedicineBall => '藥球';
+
+  @override
+  String get equipmentStabilityBall => '瑜伽球';
+
+  @override
+  String get equipmentFoamRoller => '滾筒';
+
+  @override
+  String get equipmentSled => '雪橇';
+
+  @override
+  String get equipmentBox => '跳箱';
+
+  @override
   String get equipmentOther => '其他';
 
   @override
@@ -433,7 +468,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get movementPatternHinge => '髖伸';
 
   @override
-  String get movementPatternLunge => '弓步與單腳';
+  String get movementPatternLunge => '弓箭步與單腳';
 
   @override
   String get movementPatternHorizontalPush => '水平推';
@@ -458,6 +493,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get movementPatternConditioning => '體能';
+
+  @override
+  String get movementPatternOlympic => '奧林匹克舉重';
+
+  @override
+  String get movementPatternMobility => '活動度';
+
+  @override
+  String get movementPatternStretch => '伸展';
 
   @override
   String get movementPatternUnilateral => '單側';
@@ -1356,6 +1400,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get heartZonesTitle => '心率區間';
+
+  @override
+  String get needsBirthYear => '需要出生年';
+
+  @override
   String heartZone({required int number}) {
     return '區間 $number';
   }
@@ -1536,10 +1586,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get activityEnded => '這次運動已經結束。';
 
   @override
+  String get bathEnded => '這次洗澡已經結束。';
+
+  @override
   String get sessionInProgress => '進行中';
 
   @override
   String get commonEnd => '結束';
+
+  @override
+  String get commonStart => '開始';
 
   @override
   String get commonResume => '繼續';
@@ -1608,12 +1664,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noActivityThisDay => '這一天沒有活動資料';
 
   @override
-  String get heartZonesTitle => '心率區間';
-
-  @override
-  String get needsBirthYear => '需要出生年';
-
-  @override
   String nightsWithinUsual({required int count, required int total}) {
     return '$total 晚中 $count 晚在平常範圍內';
   }
@@ -1658,60 +1708,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get outsideUsual => '範圍外';
-
-  @override
-  String get targetBedtime => '目標入睡';
-
-  @override
-  String get targetWake => '目標起床';
-
-  @override
-  String get clearTargetSchedule => '清除目標作息';
-
-  @override
-  String get targetSchedule => '目標作息';
-
-  @override
-  String get refSectionUsualRange => '平常範圍';
-
-  @override
-  String get refSectionSleepStages => '睡眠階段';
-
-  @override
-  String get refUseUsualRangeMinMax => '平常範圍是前 28 天的最低到最高，有值的日子至少 14 天';
-
-  @override
-  String get refUseUsualRangeWindow => '個人基線取前 28 天的紀錄，不含當天';
-
-  @override
-  String get refUseUsualRangeMarks => '範圍外只用空心圈標出，不分好壞、不用警示色';
-
-  @override
-  String get refUseUsualRangeNoAnchor => '範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字';
-
-  @override
-  String get refUseStagesEstimate => '睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍';
-
-  @override
-  String get refUseStagesNoTarget => '睡眠結構沒有共識，不設各階段的目標';
-
-  @override
-  String get refUseStagesNoSummary => '睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受';
-
-  @override
-  String get refUseRegularityOutcomes => '規律的作息與較低的死亡風險相關（觀察性）';
-
-  @override
-  String get refUseTargetScheduleAssociation => '目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂';
-
-  @override
-  String get refUseTargetScheduleTrial => '目標作息：固定作息四週，白天嗜睡下降（小型實驗）';
-
-  @override
-  String get refUseMaxHeartRateError => '依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間';
-
-  @override
-  String get refUseHeartRateReserve => '儲備心率對應儲備攝氧量，區間依此計算';
 
   @override
   String usualRangeValue({required String range}) {
@@ -2294,12 +2290,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get afterTraining => '訓練後';
 
   @override
+  String get caffeineAtBedtime => '就寢時咖啡因';
+
+  @override
   String get mealAfter9pm => '21:00 後進食';
 
   @override
   String nightsVersus({required int withCount, required int withoutCount}) {
     return '$withCount 晚對 $withoutCount 晚';
   }
+
+  @override
+  String get napThatDay => '當天有小睡';
+
+  @override
+  String get moreDaylight => '日光時間較多';
+
+  @override
+  String get notEnoughData => '資料不足';
+
+  @override
+  String get refSectionSleepFactors => '影響因素';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜';
+
+  @override
+  String get refUseFactorNights => '個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定';
 
   @override
   String get factorsSection => '影響因素';
@@ -2425,6 +2443,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String remindsAt({required String time}) {
     return '$time 提醒';
   }
+
+  @override
+  String get targetBedtime => '目標入睡';
+
+  @override
+  String get targetWake => '目標起床';
+
+  @override
+  String get clearTargetSchedule => '清除目標作息';
+
+  @override
+  String get targetSchedule => '目標作息';
 
   @override
   String get clearGoal => '清除目標';
@@ -3022,6 +3052,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get playing => '播放中';
+
+  @override
+  String get watchNoWorkout => '沒有進行中的訓練';
+
+  @override
+  String get watchNotConnected => '未連線';
+
+  @override
+  String get watchLogSet => '完成這一組';
+
+  @override
+  String get watchSkip => '跳過';
+
+  @override
+  String get watchControls => '控制';
+
+  @override
+  String get watchStop => '停止';
+
+  @override
+  String exerciseDemoOf({required String name}) {
+    return '示範：$name';
+  }
 
   @override
   String get exerciseDemoCredit => '圖：Workout Guide／Everkinetic · CC BY-SA 4.0';
@@ -3817,6 +3870,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String optionsFor({required String name}) {
     return '$name的選項';
   }
+
+  @override
+  String get exerciseDetails => '詳細資料';
+
+  @override
+  String get searchOnYoutube => '在 YouTube 搜尋';
 
   @override
   String volumeValue({required String volume}) {
@@ -5101,6 +5160,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get privacyRecordsValue => '只在這台裝置';
 
   @override
+  String get privacyWidgets => '桌面小工具';
+
+  @override
+  String get privacyWidgetsValue => '數字的副本，只在這台裝置';
+
+  @override
   String get privacyAccount => '帳號';
 
   @override
@@ -5944,6 +6009,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restTimeTitle => '休息時間';
 
   @override
+  String get cueSoundTitle => '提示音';
+
+  @override
   String get autoRestTitle => '完成一組後自動開始休息';
 
   @override
@@ -6138,6 +6206,48 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get refSectionUsualRange => '平常範圍';
+
+  @override
+  String get refSectionSleepStages => '睡眠階段';
+
+  @override
+  String get refUseUsualRangeMinMax => '平常範圍是前 28 天的最低到最高，有值的日子至少 14 天';
+
+  @override
+  String get refUseUsualRangeWindow => '個人基線取前 28 天的紀錄，不含當天';
+
+  @override
+  String get refUseUsualRangeMarks => '範圍外只用空心圈標出，不分好壞、不用警示色';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字';
+
+  @override
+  String get refUseStagesEstimate => '睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠結構沒有共識，不設各階段的目標';
+
+  @override
+  String get refUseStagesNoSummary => '睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受';
+
+  @override
+  String get refUseRegularityOutcomes => '規律的作息與較低的死亡風險相關（觀察性）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂';
+
+  @override
+  String get refUseTargetScheduleTrial => '目標作息：固定作息四週，白天嗜睡下降（小型實驗）';
+
+  @override
+  String get refUseMaxHeartRateError => '依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間';
+
+  @override
+  String get refUseHeartRateReserve => '儲備心率對應儲備攝氧量，區間依此計算';
+
+  @override
   String get refSectionSummaries => '趨勢摘要';
 
   @override
@@ -6217,31 +6327,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get cueSoundTitle => '提示音';
-
-  @override
-  String get caffeineAtBedtime => '就寢時咖啡因';
-
-  @override
-  String get napThatDay => '當天有小睡';
-
-  @override
-  String get moreDaylight => '日光時間較多';
-
-  @override
-  String get notEnoughData => '資料不足';
-
-  @override
-  String get refSectionSleepFactors => '影響因素';
-
-  @override
-  String get refUseFactorDaylight =>
-      '日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜';
-
-  @override
-  String get refUseFactorNights => '個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定';
-
-  @override
   String get recordBath => '洗澡';
 
   @override
@@ -6318,23 +6403,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get daysOffLabel => '假日';
-
-  @override
-  String get sessionEndBathMessage => '結束會存成一筆洗澡紀錄；放棄則什麼都不留。';
-
-  @override
-  String get sessionDiscardBath => '放棄這次洗澡';
-
-  @override
-  String sessionBlocksStart({required String session}) {
-    return '$session進行中，先結束才能開始';
-  }
-
-  @override
-  String get bathEnded => '這次洗澡已經結束。';
-
-  @override
-  String get commonStart => '開始';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6490,6 +6558,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get sessionEndActivityMessage => '结束会保存为一笔运动记录；放弃则什么都不保留。';
 
   @override
+  String get sessionEndBathMessage => '结束会保存为一笔洗澡记录；放弃则什么都不保留。';
+
+  @override
   String get sessionFinishAndSave => '结束并保存';
 
   @override
@@ -6499,8 +6570,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get sessionDiscardActivity => '放弃这次运动';
 
   @override
+  String get sessionDiscardBath => '放弃这次洗澡';
+
+  @override
   String sessionKeepGoing({required String session}) {
     return '继续$session';
+  }
+
+  @override
+  String sessionBlocksStart({required String session}) {
+    return '$session进行中，先结束才能开始';
   }
 
   @override
@@ -6756,6 +6835,30 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get equipmentCardio => '有氧器材';
 
   @override
+  String get equipmentPullUpBar => '单杠';
+
+  @override
+  String get equipmentRings => '吊环';
+
+  @override
+  String get equipmentSuspension => '悬挂训练带';
+
+  @override
+  String get equipmentMedicineBall => '药球';
+
+  @override
+  String get equipmentStabilityBall => '健身球';
+
+  @override
+  String get equipmentFoamRoller => '泡沫轴';
+
+  @override
+  String get equipmentSled => '雪橇';
+
+  @override
+  String get equipmentBox => '跳箱';
+
+  @override
   String get equipmentOther => '其他';
 
   @override
@@ -6790,6 +6893,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get movementPatternConditioning => '体能';
+
+  @override
+  String get movementPatternOlympic => '奥林匹克举重';
+
+  @override
+  String get movementPatternMobility => '灵活性';
+
+  @override
+  String get movementPatternStretch => '拉伸';
 
   @override
   String get movementPatternUnilateral => '单侧';
@@ -7688,6 +7800,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
+  String get heartZonesTitle => '心率区间';
+
+  @override
+  String get needsBirthYear => '需要出生年';
+
+  @override
   String heartZone({required int number}) {
     return '区间 $number';
   }
@@ -7868,10 +7986,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get activityEnded => '这次运动已经结束。';
 
   @override
+  String get bathEnded => '这次洗澡已经结束。';
+
+  @override
   String get sessionInProgress => '进行中';
 
   @override
   String get commonEnd => '结束';
+
+  @override
+  String get commonStart => '开始';
 
   @override
   String get commonResume => '继续';
@@ -7940,12 +8064,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get noActivityThisDay => '这一天没有活动数据';
 
   @override
-  String get heartZonesTitle => '心率区间';
-
-  @override
-  String get needsBirthYear => '需要出生年';
-
-  @override
   String nightsWithinUsual({required int count, required int total}) {
     return '$total 晚中 $count 晚在平常范围内';
   }
@@ -7990,60 +8108,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get outsideUsual => '范围外';
-
-  @override
-  String get targetBedtime => '目标入睡';
-
-  @override
-  String get targetWake => '目标起床';
-
-  @override
-  String get clearTargetSchedule => '清除目标作息';
-
-  @override
-  String get targetSchedule => '目标作息';
-
-  @override
-  String get refSectionUsualRange => '平常范围';
-
-  @override
-  String get refSectionSleepStages => '睡眠阶段';
-
-  @override
-  String get refUseUsualRangeMinMax => '平常范围是前 28 天的最低到最高，有值的日子至少 14 天';
-
-  @override
-  String get refUseUsualRangeWindow => '个人基线取前 28 天的记录，不含当天';
-
-  @override
-  String get refUseUsualRangeMarks => '范围外只用空心圈标出，不分好坏、不用警示色';
-
-  @override
-  String get refUseUsualRangeNoAnchor => '范围外的点没有临床界线可对照，所以标记要弱并附上数字';
-
-  @override
-  String get refUseStagesEstimate => '睡眠阶段是设备估计，只和自己的夜晚比，不用同年龄的范围';
-
-  @override
-  String get refUseStagesNoTarget => '睡眠结构没有共识，不设各阶段的目标';
-
-  @override
-  String get refUseStagesNoSummary => '睡眠阶段与效率不写几晚在范围内：负面的睡眠反馈会影响白天的感受';
-
-  @override
-  String get refUseRegularityOutcomes => '规律的作息与较低的死亡风险相关（观察性）';
-
-  @override
-  String get refUseTargetScheduleAssociation => '目标作息：作息规律与健康结果的关联，目标时刻由用户自订';
-
-  @override
-  String get refUseTargetScheduleTrial => '目标作息：固定作息四周，白天嗜睡下降（小型实验）';
-
-  @override
-  String get refUseMaxHeartRateError => '依年龄估计的最大心率，个人误差约 11 次/分，所以全天心率图不画区间';
-
-  @override
-  String get refUseHeartRateReserve => '储备心率对应储备摄氧量，区间依此计算';
 
   @override
   String usualRangeValue({required String range}) {
@@ -8626,12 +8690,34 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get afterTraining => '训练后';
 
   @override
+  String get caffeineAtBedtime => '就寝时咖啡因';
+
+  @override
   String get mealAfter9pm => '21:00 后进食';
 
   @override
   String nightsVersus({required int withCount, required int withoutCount}) {
     return '$withCount 晚对 $withoutCount 晚';
   }
+
+  @override
+  String get napThatDay => '当天有小睡';
+
+  @override
+  String get moreDaylight => '日光时间较多';
+
+  @override
+  String get notEnoughData => '数据不足';
+
+  @override
+  String get refSectionSleepFactors => '影响因素';
+
+  @override
+  String get refUseFactorDaylight =>
+      '日光时间较多的日子隔夜睡得较长，观察研究，21 人 7 天；Apple 日光时间未经验证，与户外运动混杂';
+
+  @override
+  String get refUseFactorNights => '个人总睡眠时间的平均约 7 晚才稳定，因素列每边至少 10 晚，仍只描述、不检验';
 
   @override
   String get factorsSection => '影响因素';
@@ -8757,6 +8843,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String remindsAt({required String time}) {
     return '$time 提醒';
   }
+
+  @override
+  String get targetBedtime => '目标入睡';
+
+  @override
+  String get targetWake => '目标起床';
+
+  @override
+  String get clearTargetSchedule => '清除目标作息';
+
+  @override
+  String get targetSchedule => '目标作息';
 
   @override
   String get clearGoal => '清除目标';
@@ -9354,6 +9452,29 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get playing => '播放中';
+
+  @override
+  String get watchNoWorkout => '没有进行中的训练';
+
+  @override
+  String get watchNotConnected => '未连接';
+
+  @override
+  String get watchLogSet => '完成这一组';
+
+  @override
+  String get watchSkip => '跳过';
+
+  @override
+  String get watchControls => '控制';
+
+  @override
+  String get watchStop => '停止';
+
+  @override
+  String exerciseDemoOf({required String name}) {
+    return '示范：$name';
+  }
 
   @override
   String get exerciseDemoCredit => '图：Workout Guide／Everkinetic · CC BY-SA 4.0';
@@ -10149,6 +10270,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String optionsFor({required String name}) {
     return '$name的选项';
   }
+
+  @override
+  String get exerciseDetails => '详细资料';
+
+  @override
+  String get searchOnYoutube => '在 YouTube 搜索';
 
   @override
   String volumeValue({required String volume}) {
@@ -11433,6 +11560,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get privacyRecordsValue => '只在这台设备';
 
   @override
+  String get privacyWidgets => '桌面小组件';
+
+  @override
+  String get privacyWidgetsValue => '数字的副本，只在这台设备';
+
+  @override
   String get privacyAccount => '账号';
 
   @override
@@ -12276,6 +12409,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get restTimeTitle => '休息时间';
 
   @override
+  String get cueSoundTitle => '提示音';
+
+  @override
   String get autoRestTitle => '完成一组后自动开始休息';
 
   @override
@@ -12470,6 +12606,48 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
+  String get refSectionUsualRange => '平常范围';
+
+  @override
+  String get refSectionSleepStages => '睡眠阶段';
+
+  @override
+  String get refUseUsualRangeMinMax => '平常范围是前 28 天的最低到最高，有值的日子至少 14 天';
+
+  @override
+  String get refUseUsualRangeWindow => '个人基线取前 28 天的记录，不含当天';
+
+  @override
+  String get refUseUsualRangeMarks => '范围外只用空心圈标出，不分好坏、不用警示色';
+
+  @override
+  String get refUseUsualRangeNoAnchor => '范围外的点没有临床界线可对照，所以标记要弱并附上数字';
+
+  @override
+  String get refUseStagesEstimate => '睡眠阶段是设备估计，只和自己的夜晚比，不用同年龄的范围';
+
+  @override
+  String get refUseStagesNoTarget => '睡眠结构没有共识，不设各阶段的目标';
+
+  @override
+  String get refUseStagesNoSummary => '睡眠阶段与效率不写几晚在范围内：负面的睡眠反馈会影响白天的感受';
+
+  @override
+  String get refUseRegularityOutcomes => '规律的作息与较低的死亡风险相关（观察性）';
+
+  @override
+  String get refUseTargetScheduleAssociation => '目标作息：作息规律与健康结果的关联，目标时刻由用户自订';
+
+  @override
+  String get refUseTargetScheduleTrial => '目标作息：固定作息四周，白天嗜睡下降（小型实验）';
+
+  @override
+  String get refUseMaxHeartRateError => '依年龄估计的最大心率，个人误差约 11 次/分，所以全天心率图不画区间';
+
+  @override
+  String get refUseHeartRateReserve => '储备心率对应储备摄氧量，区间依此计算';
+
+  @override
   String get refSectionSummaries => '趋势摘要';
 
   @override
@@ -12549,31 +12727,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   }
 
   @override
-  String get cueSoundTitle => '提示音';
-
-  @override
-  String get caffeineAtBedtime => '就寝时咖啡因';
-
-  @override
-  String get napThatDay => '当天有小睡';
-
-  @override
-  String get moreDaylight => '日光时间较多';
-
-  @override
-  String get notEnoughData => '数据不足';
-
-  @override
-  String get refSectionSleepFactors => '影响因素';
-
-  @override
-  String get refUseFactorDaylight =>
-      '日光时间较多的日子隔夜睡得较长，观察研究，21 人 7 天；Apple 日光时间未经验证，与户外运动混杂';
-
-  @override
-  String get refUseFactorNights => '个人总睡眠时间的平均约 7 晚才稳定，因素列每边至少 10 晚，仍只描述、不检验';
-
-  @override
   String get recordBath => '洗澡';
 
   @override
@@ -12650,23 +12803,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get daysOffLabel => '假日';
-
-  @override
-  String get sessionEndBathMessage => '结束会保存为一笔洗澡记录；放弃则什么都不保留。';
-
-  @override
-  String get sessionDiscardBath => '放弃这次洗澡';
-
-  @override
-  String sessionBlocksStart({required String session}) {
-    return '$session进行中，先结束才能开始';
-  }
-
-  @override
-  String get bathEnded => '这次洗澡已经结束。';
-
-  @override
-  String get commonStart => '开始';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

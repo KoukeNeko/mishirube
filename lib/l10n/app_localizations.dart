@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'結束會存成一筆運動紀錄；放棄則什麼都不留。'**
   String get sessionEndActivityMessage;
 
+  /// End-session dialog message for a bath.
+  ///
+  /// In zh, this message translates to:
+  /// **'結束會存成一筆洗澡紀錄；放棄則什麼都不留。'**
+  String get sessionEndBathMessage;
+
   /// End-session dialog: keep the session as a record.
   ///
   /// In zh, this message translates to:
@@ -410,11 +416,23 @@ abstract class AppLocalizations {
   /// **'放棄這次運動'**
   String get sessionDiscardActivity;
 
+  /// End-session dialog: throw the bath away.
+  ///
+  /// In zh, this message translates to:
+  /// **'放棄這次洗澡'**
+  String get sessionDiscardBath;
+
   /// End-session dialog: back out and carry on.
   ///
   /// In zh, this message translates to:
   /// **'繼續{session}'**
   String sessionKeepGoing({required String session});
+
+  /// Warning: nothing else can start while a session runs; session is its name.
+  ///
+  /// In zh, this message translates to:
+  /// **'{session}進行中，先結束才能開始'**
+  String sessionBlocksStart({required String session});
 
   /// Toast after a session was thrown away.
   ///
@@ -872,6 +890,54 @@ abstract class AppLocalizations {
   /// **'有氧器材'**
   String get equipmentCardio;
 
+  /// The equipment an exercise uses. (Equipment.pullUpBar)
+  ///
+  /// In zh, this message translates to:
+  /// **'單槓'**
+  String get equipmentPullUpBar;
+
+  /// The equipment an exercise uses. (Equipment.rings)
+  ///
+  /// In zh, this message translates to:
+  /// **'吊環'**
+  String get equipmentRings;
+
+  /// The equipment an exercise uses. (Equipment.suspension)
+  ///
+  /// In zh, this message translates to:
+  /// **'懸吊訓練帶'**
+  String get equipmentSuspension;
+
+  /// The equipment an exercise uses. (Equipment.medicineBall)
+  ///
+  /// In zh, this message translates to:
+  /// **'藥球'**
+  String get equipmentMedicineBall;
+
+  /// The equipment an exercise uses. (Equipment.stabilityBall)
+  ///
+  /// In zh, this message translates to:
+  /// **'瑜伽球'**
+  String get equipmentStabilityBall;
+
+  /// The equipment an exercise uses. (Equipment.foamRoller)
+  ///
+  /// In zh, this message translates to:
+  /// **'滾筒'**
+  String get equipmentFoamRoller;
+
+  /// The equipment an exercise uses. (Equipment.sled)
+  ///
+  /// In zh, this message translates to:
+  /// **'雪橇'**
+  String get equipmentSled;
+
+  /// The equipment an exercise uses. (Equipment.box)
+  ///
+  /// In zh, this message translates to:
+  /// **'跳箱'**
+  String get equipmentBox;
+
   /// The equipment an exercise uses. (Equipment.other)
   ///
   /// In zh, this message translates to:
@@ -893,7 +959,7 @@ abstract class AppLocalizations {
   /// The movement pattern an exercise follows. (MovementPattern.lunge)
   ///
   /// In zh, this message translates to:
-  /// **'弓步與單腳'**
+  /// **'弓箭步與單腳'**
   String get movementPatternLunge;
 
   /// The movement pattern an exercise follows. (MovementPattern.horizontalPush)
@@ -943,6 +1009,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'體能'**
   String get movementPatternConditioning;
+
+  /// How an exercise moves. (MovementPattern.olympic)
+  ///
+  /// In zh, this message translates to:
+  /// **'奧林匹克舉重'**
+  String get movementPatternOlympic;
+
+  /// How an exercise moves. (MovementPattern.mobility)
+  ///
+  /// In zh, this message translates to:
+  /// **'活動度'**
+  String get movementPatternMobility;
+
+  /// How an exercise moves. (MovementPattern.stretch)
+  ///
+  /// In zh, this message translates to:
+  /// **'伸展'**
+  String get movementPatternStretch;
 
   /// The movement pattern an exercise follows. (MovementPattern.unilateral)
   ///
@@ -2660,6 +2744,18 @@ abstract class AppLocalizations {
   /// **'平均 {value}'**
   String statAverage({required String value});
 
+  /// No description provided for @heartZonesTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'心率區間'**
+  String get heartZonesTitle;
+
+  /// No description provided for @needsBirthYear.
+  ///
+  /// In zh, this message translates to:
+  /// **'需要出生年'**
+  String get needsBirthYear;
+
   /// A heart rate zone.
   ///
   /// In zh, this message translates to:
@@ -2928,6 +3024,12 @@ abstract class AppLocalizations {
   /// **'這次運動已經結束。'**
   String get activityEnded;
 
+  /// Shown on the running bath page after the bath ended elsewhere.
+  ///
+  /// In zh, this message translates to:
+  /// **'這次洗澡已經結束。'**
+  String get bathEnded;
+
   /// A live session is running.
   ///
   /// In zh, this message translates to:
@@ -2939,6 +3041,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'結束'**
   String get commonEnd;
+
+  /// Button that starts something running.
+  ///
+  /// In zh, this message translates to:
+  /// **'開始'**
+  String get commonStart;
 
   /// Resumes a paused session.
   ///
@@ -3060,18 +3168,6 @@ abstract class AppLocalizations {
   /// **'這一天沒有活動資料'**
   String get noActivityThisDay;
 
-  /// No description provided for @heartZonesTitle.
-  ///
-  /// In zh, this message translates to:
-  /// **'心率區間'**
-  String get heartZonesTitle;
-
-  /// No description provided for @needsBirthYear.
-  ///
-  /// In zh, this message translates to:
-  /// **'需要出生年'**
-  String get needsBirthYear;
-
   /// How many nights sat within the person's own usual range.
   ///
   /// In zh, this message translates to:
@@ -3125,114 +3221,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'範圍外'**
   String get outsideUsual;
-
-  /// No description provided for @targetBedtime.
-  ///
-  /// In zh, this message translates to:
-  /// **'目標入睡'**
-  String get targetBedtime;
-
-  /// No description provided for @targetWake.
-  ///
-  /// In zh, this message translates to:
-  /// **'目標起床'**
-  String get targetWake;
-
-  /// No description provided for @clearTargetSchedule.
-  ///
-  /// In zh, this message translates to:
-  /// **'清除目標作息'**
-  String get clearTargetSchedule;
-
-  /// No description provided for @targetSchedule.
-  ///
-  /// In zh, this message translates to:
-  /// **'目標作息'**
-  String get targetSchedule;
-
-  /// References page: section title.
-  ///
-  /// In zh, this message translates to:
-  /// **'平常範圍'**
-  String get refSectionUsualRange;
-
-  /// References page: section title.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠階段'**
-  String get refSectionSleepStages;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'平常範圍是前 28 天的最低到最高，有值的日子至少 14 天'**
-  String get refUseUsualRangeMinMax;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'個人基線取前 28 天的紀錄，不含當天'**
-  String get refUseUsualRangeWindow;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'範圍外只用空心圈標出，不分好壞、不用警示色'**
-  String get refUseUsualRangeMarks;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字'**
-  String get refUseUsualRangeNoAnchor;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍'**
-  String get refUseStagesEstimate;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠結構沒有共識，不設各階段的目標'**
-  String get refUseStagesNoTarget;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受'**
-  String get refUseStagesNoSummary;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'規律的作息與較低的死亡風險相關（觀察性）'**
-  String get refUseRegularityOutcomes;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂'**
-  String get refUseTargetScheduleAssociation;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'目標作息：固定作息四週，白天嗜睡下降（小型實驗）'**
-  String get refUseTargetScheduleTrial;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間'**
-  String get refUseMaxHeartRateError;
-
-  /// References page: what the cited work is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'儲備心率對應儲備攝氧量，區間依此計算'**
-  String get refUseHeartRateReserve;
 
   /// A metric's usual range; range is formatted with its unit.
   ///
@@ -4302,6 +4290,12 @@ abstract class AppLocalizations {
   /// **'訓練後'**
   String get afterTraining;
 
+  /// Nights with caffeine estimated to be left at the usual bedtime.
+  ///
+  /// In zh, this message translates to:
+  /// **'就寢時咖啡因'**
+  String get caffeineAtBedtime;
+
   /// Nights after a late meal.
   ///
   /// In zh, this message translates to:
@@ -4313,6 +4307,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{withCount} 晚對 {withoutCount} 晚'**
   String nightsVersus({required int withCount, required int withoutCount});
+
+  /// Nights after a day with a nap.
+  ///
+  /// In zh, this message translates to:
+  /// **'當天有小睡'**
+  String get napThatDay;
+
+  /// Nights after a day with more time in daylight than usual.
+  ///
+  /// In zh, this message translates to:
+  /// **'日光時間較多'**
+  String get moreDaylight;
+
+  /// A factor whose sides have too few nights.
+  ///
+  /// In zh, this message translates to:
+  /// **'資料不足'**
+  String get notEnoughData;
+
+  /// References section for the sleep factors.
+  ///
+  /// In zh, this message translates to:
+  /// **'影響因素'**
+  String get refSectionSleepFactors;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜'**
+  String get refUseFactorDaylight;
+
+  /// What the reference is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定'**
+  String get refUseFactorNights;
 
   /// What went with longer or shorter nights.
   ///
@@ -4511,6 +4541,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{time} 提醒'**
   String remindsAt({required String time});
+
+  /// No description provided for @targetBedtime.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標入睡'**
+  String get targetBedtime;
+
+  /// No description provided for @targetWake.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標起床'**
+  String get targetWake;
+
+  /// No description provided for @clearTargetSchedule.
+  ///
+  /// In zh, this message translates to:
+  /// **'清除目標作息'**
+  String get clearTargetSchedule;
+
+  /// No description provided for @targetSchedule.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息'**
+  String get targetSchedule;
 
   /// Removes a goal.
   ///
@@ -5468,6 +5522,48 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'播放中'**
   String get playing;
+
+  /// Shown on the watch when nothing is running.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有進行中的訓練'**
+  String get watchNoWorkout;
+
+  /// Shown on the watch when the phone cannot be reached.
+  ///
+  /// In zh, this message translates to:
+  /// **'未連線'**
+  String get watchNotConnected;
+
+  /// Watch button that logs the set to do next.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成這一組'**
+  String get watchLogSet;
+
+  /// Watch button that ends the rest.
+  ///
+  /// In zh, this message translates to:
+  /// **'跳過'**
+  String get watchSkip;
+
+  /// Title of the watch page with pause and finish.
+  ///
+  /// In zh, this message translates to:
+  /// **'控制'**
+  String get watchControls;
+
+  /// Watch button that stops the heart-rate reading.
+  ///
+  /// In zh, this message translates to:
+  /// **'停止'**
+  String get watchStop;
+
+  /// Tag under the demonstration when it shows another exercise: the one it is a version of.
+  ///
+  /// In zh, this message translates to:
+  /// **'示範：{name}'**
+  String exerciseDemoOf({required String name});
 
   /// Credit the licence asks for.
   ///
@@ -6715,6 +6811,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'{name}的選項'**
   String optionsFor({required String name});
+
+  /// Button on the exercise info sheet that opens the exercise's page.
+  ///
+  /// In zh, this message translates to:
+  /// **'詳細資料'**
+  String get exerciseDetails;
+
+  /// Row that opens the YouTube app on a search for the exercise.
+  ///
+  /// In zh, this message translates to:
+  /// **'在 YouTube 搜尋'**
+  String get searchOnYoutube;
 
   /// Caption; volume formatted.
   ///
@@ -8891,6 +8999,18 @@ abstract class AppLocalizations {
   /// Privacy row.
   ///
   /// In zh, this message translates to:
+  /// **'桌面小工具'**
+  String get privacyWidgets;
+
+  /// Privacy value.
+  ///
+  /// In zh, this message translates to:
+  /// **'數字的副本，只在這台裝置'**
+  String get privacyWidgetsValue;
+
+  /// Privacy row.
+  ///
+  /// In zh, this message translates to:
   /// **'帳號'**
   String get privacyAccount;
 
@@ -10372,6 +10492,12 @@ abstract class AppLocalizations {
   /// **'休息時間'**
   String get restTimeTitle;
 
+  /// Switch row: a sound when a rest or a timed set ends.
+  ///
+  /// In zh, this message translates to:
+  /// **'提示音'**
+  String get cueSoundTitle;
+
   /// Switch: whether the rest starts by itself when a set is done.
   ///
   /// In zh, this message translates to:
@@ -10684,6 +10810,90 @@ abstract class AppLocalizations {
   /// **'{total} 天中 {count} 天完整'**
   String completeOutOf({required int count, required int total});
 
+  /// References page: section title.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常範圍'**
+  String get refSectionUsualRange;
+
+  /// References page: section title.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段'**
+  String get refSectionSleepStages;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'平常範圍是前 28 天的最低到最高，有值的日子至少 14 天'**
+  String get refUseUsualRangeMinMax;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'個人基線取前 28 天的紀錄，不含當天'**
+  String get refUseUsualRangeWindow;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'範圍外只用空心圈標出，不分好壞、不用警示色'**
+  String get refUseUsualRangeMarks;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'範圍外的點沒有臨床界線可對照，所以標記要弱並附上數字'**
+  String get refUseUsualRangeNoAnchor;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段是裝置估計，只和自己的夜晚比，不用同年齡的範圍'**
+  String get refUseStagesEstimate;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠結構沒有共識，不設各階段的目標'**
+  String get refUseStagesNoTarget;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'睡眠階段與效率不寫幾晚在範圍內：負面的睡眠回饋會影響白天的感受'**
+  String get refUseStagesNoSummary;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'規律的作息與較低的死亡風險相關（觀察性）'**
+  String get refUseRegularityOutcomes;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息：作息規律與健康結果的關聯，目標時刻由使用者自訂'**
+  String get refUseTargetScheduleAssociation;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標作息：固定作息四週，白天嗜睡下降（小型實驗）'**
+  String get refUseTargetScheduleTrial;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'依年齡估計的最大心率，個人誤差約 11 次/分，所以全天心率圖不畫區間'**
+  String get refUseMaxHeartRateError;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'儲備心率對應儲備攝氧量，區間依此計算'**
+  String get refUseHeartRateReserve;
+
   /// References section for how trend pages put figures into words.
   ///
   /// In zh, this message translates to:
@@ -10822,54 +11032,6 @@ abstract class AppLocalizations {
   /// **'需要近 28 天有 14 晚記下入睡與起床時間（目前 {count} 晚）'**
   String regularityNeeds({required int count});
 
-  /// Switch row: a sound when a rest or a timed set ends.
-  ///
-  /// In zh, this message translates to:
-  /// **'提示音'**
-  String get cueSoundTitle;
-
-  /// Nights with caffeine estimated to be left at the usual bedtime.
-  ///
-  /// In zh, this message translates to:
-  /// **'就寢時咖啡因'**
-  String get caffeineAtBedtime;
-
-  /// Nights after a day with a nap.
-  ///
-  /// In zh, this message translates to:
-  /// **'當天有小睡'**
-  String get napThatDay;
-
-  /// Nights after a day with more time in daylight than usual.
-  ///
-  /// In zh, this message translates to:
-  /// **'日光時間較多'**
-  String get moreDaylight;
-
-  /// A factor whose sides have too few nights.
-  ///
-  /// In zh, this message translates to:
-  /// **'資料不足'**
-  String get notEnoughData;
-
-  /// References section for the sleep factors.
-  ///
-  /// In zh, this message translates to:
-  /// **'影響因素'**
-  String get refSectionSleepFactors;
-
-  /// What the reference is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'日光時間較多的日子隔夜睡得較長，觀察研究，21 人 7 天；Apple 日光時間未經驗證，與戶外運動混雜'**
-  String get refUseFactorDaylight;
-
-  /// What the reference is used for.
-  ///
-  /// In zh, this message translates to:
-  /// **'個人總睡眠時間的平均約 7 晚才穩定，因素列每邊至少 10 晚，仍只描述、不檢定'**
-  String get refUseFactorNights;
-
   /// One shower or bath: the add-menu entry, the page title and the sleep factor.
   ///
   /// In zh, this message translates to:
@@ -11007,36 +11169,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'假日'**
   String get daysOffLabel;
-
-  /// End-session dialog message for a bath.
-  ///
-  /// In zh, this message translates to:
-  /// **'結束會存成一筆洗澡紀錄；放棄則什麼都不留。'**
-  String get sessionEndBathMessage;
-
-  /// End-session dialog: throw the bath away.
-  ///
-  /// In zh, this message translates to:
-  /// **'放棄這次洗澡'**
-  String get sessionDiscardBath;
-
-  /// Warning: nothing else can start while a session runs; session is its name.
-  ///
-  /// In zh, this message translates to:
-  /// **'{session}進行中，先結束才能開始'**
-  String sessionBlocksStart({required String session});
-
-  /// Shown on the running bath page after the bath ended elsewhere.
-  ///
-  /// In zh, this message translates to:
-  /// **'這次洗澡已經結束。'**
-  String get bathEnded;
-
-  /// Button that starts something running.
-  ///
-  /// In zh, this message translates to:
-  /// **'開始'**
-  String get commonStart;
 }
 
 class _AppLocalizationsDelegate
