@@ -44,6 +44,12 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
         null => '',
       },
     );
+    // The weight shown is a starting point: typing a new one replaces it
+    // instead of joining it ("72.4" and "73" make "72.473").
+    _weight.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: _weight.text.length,
+    );
     _previous = editing == null ? previous : null;
   }
 
@@ -113,7 +119,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
                       decimal: true,
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                     ],
                     onSubmitted: (_) => _save(),
                     style: AppTextStyles.hugeNumber,

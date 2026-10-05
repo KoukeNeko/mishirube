@@ -32,6 +32,7 @@ import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
+import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
@@ -1623,6 +1624,26 @@ void main() {
     expect(nap.duration, const Duration(minutes: 30));
     expect(nap.startedAt, clock.now().subtract(const Duration(minutes: 30)));
     expect(nap.note, '午餐後');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a weight typed over the last one replaces it', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final last = store.backend.journal
+        .recentWeights(const Duration(days: 28))
+        .last
+        .weightKg;
+    await pumpScreen(tester, const WeightEntryScreen(), store: store);
+
+    final field = tester.widget<TextField>(find.byType(TextField));
+    final text = field.controller!.text;
+    expect(text, formatWeight(last), reason: 'the last weight to start from');
+    expect(
+      field.controller!.selection,
+      TextSelection(baseOffset: 0, extentOffset: text.length),
+      reason: 'all of it is selected, so typing replaces it',
+    );
     await disposeTree(tester);
   });
 
