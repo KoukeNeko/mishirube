@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         // The phone app's id: the Data Layer only connects apps that share it.
-        applicationId = "com.example.mishirube"
+        applicationId = "dev.koukeneko.mishirube"
         minSdk = 30
         targetSdk = 36
         versionCode = 1

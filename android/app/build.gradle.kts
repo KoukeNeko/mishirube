@@ -1,8 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// The upload key, kept out of the repository: key.properties locally, the
+// ANDROID_* variables in CI. Without either, release falls back to debug.
+val uploadKey = Properties().apply {
+    rootProject.file("key.properties").takeIf { it.exists() }?.reader()?.use(::load)
+}
+
+fun uploadKeyValue(property: String, variable: String): String? =
+    uploadKey.getProperty(property) ?: System.getenv(variable)
 
 android {
     namespace = "com.example.mishirube"
@@ -15,8 +26,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.mishirube"
+        // The same id as the iOS app. The Kotlin package stays the namespace.
+        applicationId = "dev.koukeneko.mishirube"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // Health Connect's client needs Android 8 (API 26).
@@ -30,11 +41,23 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("upload") {
+            storeFile = uploadKeyValue("storeFile", "ANDROID_KEYSTORE_PATH")?.let(::file)
+            storePassword = uploadKeyValue("storePassword", "ANDROID_KEYSTORE_PASSWORD")
+            keyAlias = uploadKeyValue("keyAlias", "ANDROID_KEY_ALIAS")
+            keyPassword = uploadKeyValue("keyPassword", "ANDROID_KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (signingConfigs.getByName("upload").storeFile != null) {
+                signingConfigs.getByName("upload")
+            } else {
+                // So `flutter run --release` works without the key.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
