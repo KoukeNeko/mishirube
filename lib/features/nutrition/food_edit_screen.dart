@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
@@ -214,10 +215,24 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
     return TextEditingController(text: formatAmount(shown));
   }
 
+  List<TextEditingController> get _figures => [
+    _kcal,
+    _protein,
+    _carb,
+    _fat,
+    _fibre,
+    ..._extra.values,
+  ];
+
+  /// What the figure fields said when the page opened, to tell a figure
+  /// that was corrected from one left as it was.
+  late final List<String> _openedFigures;
+
   @override
   void initState() {
     super.initState();
     _nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+    _openedFigures = [for (final field in _figures) field.text];
     for (final controller in [_name, _sizeName, _servingAmount]) {
       controller.addListener(() => setState(() {}));
     }
@@ -553,11 +568,16 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
   /// Saves the form over the logged meal. An empty figure is one nobody
   /// wrote down, not zero; a negative one is nonsense either way.
   void _saveMeal(MealEvent meal) {
-    final figures = [_kcal, _protein, _carb, _fat, _fibre, ..._extra.values];
+    final figures = _figures;
     if (figures.any((field) => (double.tryParse(field.text.trim()) ?? 0) < 0)) {
       setState(() => _error = context.l10n.nutrientNegative);
       return;
     }
+    // Changing only the time, the type or the name leaves what a model
+    // estimated as it was: the user has not vouched for the figures.
+    final isCorrected = !listEquals(_openedFigures, [
+      for (final field in figures) field.text,
+    ]);
     if (_eatenAt case final eatenAt?
         when eatenAt != _nutrition.eatenAtOf(meal.id)) {
       _nutrition.retimeMeal(meal, eatenAt);
@@ -591,12 +611,14 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
         carbGrams: _perServing(_carb),
         fatGrams: _perServing(_fat),
         fibreGrams: _perServing(_fibre),
-        // The user has just said what these are, so they are no longer
-        // somebody's guess.
-        isEstimated: false,
+        // Figures the user has just corrected are no longer somebody's
+        // guess.
+        isEstimated: isCorrected ? false : meal.isEstimated,
         // Water keeps its own mark, or a corrected glass would stop
         // counting as water.
-        qualityTag: meal.isWater ? meal.qualityTag : confirmedQualityTag,
+        qualityTag: meal.isWater || !isCorrected
+            ? meal.qualityTag
+            : confirmedQualityTag,
       ),
     );
     Navigator.of(context).pop();

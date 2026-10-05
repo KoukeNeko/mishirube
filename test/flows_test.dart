@@ -1149,6 +1149,40 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('saving a meal without touching its figures keeps the estimate', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final today = store.now();
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'estimated-lunch',
+        name: '牛肉麵',
+        timeLabel: '12:30',
+        qualityTag: aiDraftQualityTag,
+        dishes: [],
+        kcal: 650,
+        isEstimated: true,
+      ),
+      eatenAt: DateTime(today.year, today.month, today.day, 12, 30),
+    );
+    final before = store.todayMeals.firstWhere(
+      (meal) => meal.id == 'estimated-lunch',
+    );
+    await pumpScreen(tester, FoodEditScreen(meal: before), store: store);
+
+    await tester.tap(find.text('儲存'));
+    await tester.pumpAndSettle();
+
+    final after = store.todayMeals.firstWhere(
+      (meal) => meal.id == 'estimated-lunch',
+    );
+    expect(after.isEstimated, isTrue, reason: 'nobody checked the figures');
+    expect(after.qualityTag, before.qualityTag);
+    await disposeTree(tester);
+  });
+
   testWidgets('correcting a meal takes the estimate mark off it', (
     tester,
   ) async {
