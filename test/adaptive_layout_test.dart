@@ -408,6 +408,27 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a screen reader reaches the list beside an open page', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      final store = _store();
+      await pumpScreen(tester, const HomeShell(), store: store, window: tablet);
+      store.selectTab(HomeTab.me);
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('目標與提醒'), findsOneWidget);
+
+      await _tapRow(tester, '個人資料');
+
+      expect(
+        find.bySemanticsLabel('目標與提醒'),
+        findsOneWidget,
+        reason: 'the page beside it does not hide the list from VoiceOver',
+      );
+      semantics.dispose();
+      await disposeTree(tester);
+    });
+
     testWidgets('scrolling the page beside the list leaves the dock alone', (
       tester,
     ) async {

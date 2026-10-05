@@ -134,13 +134,21 @@ class ListDetailLayoutState extends State<ListDetailLayout> {
                         // first, as it does in a pushed page.
                         onPopWithResult: (_) =>
                             _paneKey.currentState?.maybePop(),
-                        child: Navigator(
-                          key: _paneKey,
-                          onGenerateRoute: (_) => PageRouteBuilder<void>(
-                            pageBuilder: (_, _, _) => Scaffold(
-                              body: Center(child: widget.placeholder),
+                        // Its own semantics boundary: the barrier of a page
+                        // open in the pane blocks every node painted before
+                        // it in the same one, which hid the list pane from
+                        // screen readers.
+                        child: Semantics(
+                          container: true,
+                          explicitChildNodes: true,
+                          child: Navigator(
+                            key: _paneKey,
+                            onGenerateRoute: (_) => PageRouteBuilder<void>(
+                              pageBuilder: (_, _, _) => Scaffold(
+                                body: Center(child: widget.placeholder),
+                              ),
+                              transitionDuration: Duration.zero,
                             ),
-                            transitionDuration: Duration.zero,
                           ),
                         ),
                       ),
