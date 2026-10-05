@@ -3,8 +3,10 @@
 
     python3 tool/build_exercise_catalogue.py <path to a workout-guide checkout>
 
-Writes `assets/exercises/catalogue.json` and, for every exercise, its three
-pose frames as WebP under `assets/exercises/frames/`. Workout Guide
+Writes `tool/exercise_data/core.json` and, for every exercise, its three
+pose frames as WebP under `assets/exercises/frames/`. The library the app
+loads, `assets/exercises/catalogue.json`, is that file with the additions
+merged in by `tool/merge_exercise_catalogue.py`. Workout Guide
 (https://github.com/bryllim/workout-guide) supplies the exercise list and the
 artwork; its metadata is MIT and its artwork CC BY-SA 4.0, derived in part
 from Everkinetic. Everything else here — the Chinese names, the muscles in
@@ -425,7 +427,7 @@ def build(source: pathlib.Path) -> None:
                 'frames': frames,
             })
 
-    (OUT / 'catalogue.json').write_text(
+    (ROOT / 'tool' / 'exercise_data' / 'core.json').write_text(
         json.dumps({
             'source': 'https://github.com/bryllim/workout-guide',
             'frameLicense': 'CC BY-SA 4.0',

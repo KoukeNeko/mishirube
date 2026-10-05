@@ -2,7 +2,7 @@ import '../../domain/domain.dart';
 import '../../l10n/l10n.dart';
 
 /// Bumped whenever the matching or ranking below changes.
-const exerciseSearchVersion = 1;
+const exerciseSearchVersion = 2;
 
 /// How close a typo may be and still match, as shared two-letter pieces
 /// over the longer word's pieces.
@@ -53,14 +53,20 @@ List<ExerciseSearchResult> searchExercises(
   bool includeHidden = false,
   bool allowFuzzy = true,
 }) {
-  final normalizedQuery = normalizeTerm(query);
+  final normalizedQuery = _foldChinese(normalizeTerm(query));
+  final queryPieces = _piecesOf(normalizedQuery);
   final results = <ExerciseSearchResult>[];
   for (final exercise in catalog) {
     if (exercise.isHidden && !includeHidden) continue;
     if (!filter.matches(exercise)) continue;
     final (match, isOnName) = normalizedQuery.isEmpty
         ? (SearchMatch.none, true)
-        : _matchOf(exercise, normalizedQuery, allowFuzzy: allowFuzzy);
+        : _matchOf(
+            exercise,
+            normalizedQuery,
+            queryPieces,
+            allowFuzzy: allowFuzzy,
+          );
     if (normalizedQuery.isNotEmpty && match == SearchMatch.none) continue;
     results.add(
       ExerciseSearchResult(
@@ -103,6 +109,80 @@ String normalizeTerm(String value) {
   }
   return buffer.toString();
 }
+
+/// The simplified characters of the words an exercise is named with, and
+/// the traditional ones they are written as in the library: 「杠铃卧推」
+/// finds 槓鈴臥推. Only what the vocabulary of training needs, not a
+/// conversion of Chinese.
+// l10n-ignore-start: search vocabulary, characters matched, not shown
+const _simplifiedToTraditional = {
+  '杠': '槓',
+  '铃': '鈴',
+  '卧': '臥',
+  '哑': '啞',
+  '壶': '壺',
+  '举': '舉',
+  '颈': '頸',
+  '悬': '懸',
+  '弯': '彎',
+  '转': '轉',
+  '体': '體',
+  '缩': '縮',
+  '开': '開',
+  '并': '並',
+  '单': '單',
+  '双': '雙',
+  '对': '對',
+  '撑': '撐',
+  '压': '壓',
+  '绳': '繩',
+  '带': '帶',
+  '机': '機',
+  '动': '動',
+  '运': '運',
+  '练': '練',
+  '训': '訓',
+  '滚': '滾',
+  '轮': '輪',
+  '绕': '繞',
+  '跃': '躍',
+  '卷': '捲',
+  '髋': '髖',
+  '韧': '韌',
+  '侧': '側',
+  '后': '後',
+  '内': '內',
+  '过': '過',
+  '头': '頭',
+  '脚': '腳',
+  '够': '夠',
+  '环': '環',
+  '墙': '牆',
+  '链': '鏈',
+  '铲': '鏟',
+  '铁': '鐵',
+  '钢': '鋼',
+  '药': '藥',
+  '发': '發',
+  '冲': '衝',
+  '钟': '鐘',
+  '摆': '擺',
+  '圆': '圓',
+  '复': '復',
+  '紧': '緊',
+  '软': '軟',
+  '难': '難',
+  '级': '級',
+  '组': '組',
+  '变': '變',
+  '宽': '寬',
+};
+// l10n-ignore-end
+
+String _foldChinese(String value) => String.fromCharCodes([
+  for (final rune in value.runes)
+    _simplifiedToTraditional[String.fromCharCode(rune)]?.runes.first ?? rune,
+]);
 
 /// Full-width forms sit a fixed distance above their ASCII twins.
 String _foldWidth(String value) => String.fromCharCodes([
@@ -164,16 +244,25 @@ final _languages = [
     lookupAppLocalizations(locale),
 ];
 
-/// The best match over an exercise's searchable terms, and whether it
-/// came from the name rather than an alias, the equipment or a muscle.
-(SearchMatch, bool) _matchOf(
-  ExerciseDefinition exercise,
-  String query, {
-  required bool allowFuzzy,
-}) {
-  var best = SearchMatch.none;
-  var isOnName = false;
-  final terms = [
+/// One searchable term, normalised once, with the two-letter pieces a
+/// fuzzy match compares, made when first needed.
+class _Term {
+  _Term(this.text);
+
+  final String text;
+  late final Set<String> pieces = _piecesOf(text);
+}
+
+Set<String> _piecesOf(String value) => {
+  for (var i = 0; i + 2 <= value.length; i++) value.substring(i, i + 2),
+};
+
+/// An exercise's searchable terms, which never change for the same
+/// definition, so a keystroke only compares them.
+final _termsOf = Expando<List<_Term>>('exercise search terms');
+
+List<_Term> _termsFor(ExerciseDefinition exercise) => _termsOf[exercise] ??= [
+  for (final term in [
     exercise.name,
     ...exercise.personalAliases,
     ...exercise.aliases,
@@ -183,14 +272,27 @@ final _languages = [
       exercise.equipment.labelIn(l10n),
       ...exercise.primaryMuscles.map((muscle) => muscle.labelIn(l10n)),
     ],
-  ];
-  for (final (index, term) in terms.indexed) {
-    final normalized = normalizeTerm(term);
+  ])
+    _Term(_foldChinese(normalizeTerm(term))),
+];
+
+/// The best match over an exercise's searchable terms, and whether it
+/// came from the name rather than an alias, the equipment or a muscle.
+(SearchMatch, bool) _matchOf(
+  ExerciseDefinition exercise,
+  String query,
+  Set<String> queryPieces, {
+  required bool allowFuzzy,
+}) {
+  var best = SearchMatch.none;
+  var isOnName = false;
+  for (final (index, term) in _termsFor(exercise).indexed) {
+    final normalized = term.text;
     final match = switch (normalized) {
       _ when normalized == query => SearchMatch.exact,
       _ when normalized.startsWith(query) => SearchMatch.prefix,
       _ when normalized.contains(query) => SearchMatch.substring,
-      _ when allowFuzzy && _isNearlyEqual(normalized, query) =>
+      _ when allowFuzzy && _isNearlyEqual(term, query, queryPieces) =>
         SearchMatch.fuzzy,
       _ => SearchMatch.none,
     };
@@ -229,14 +331,13 @@ int _scoreOf(
 
 /// Two-letter overlap, which catches a swapped or missing letter without
 /// matching unrelated words.
-bool _isNearlyEqual(String a, String b) {
-  if (a.length < 3 || b.length < 3) return false;
-  Set<String> pieces(String value) => {
-    for (var i = 0; i + 2 <= value.length; i++) value.substring(i, i + 2),
-  };
-  final left = pieces(a);
-  final right = pieces(b);
-  final shared = left.intersection(right).length;
-  return shared / (left.length > right.length ? left.length : right.length) >=
+bool _isNearlyEqual(_Term term, String query, Set<String> queryPieces) {
+  if (term.text.length < 3 || query.length < 3) return false;
+  final left = term.pieces;
+  final shared = left.intersection(queryPieces).length;
+  return shared /
+          (left.length > queryPieces.length
+              ? left.length
+              : queryPieces.length) >=
       _fuzzyThreshold;
 }

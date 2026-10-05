@@ -94,6 +94,14 @@ enum Equipment {
   band,
   bodyweight,
   cardio,
+  pullUpBar,
+  rings,
+  suspension,
+  medicineBall,
+  stabilityBall,
+  foamRoller,
+  sled,
+  box,
   other,
 }
 
@@ -109,6 +117,16 @@ enum MovementPattern {
   core,
   carry,
   conditioning,
+
+  /// A lift of the Olympic kind: the snatch, the clean, the jerk and the
+  /// pulls that train them.
+  olympic,
+
+  /// Moving a joint through its range, in reps, before or after training.
+  mobility,
+
+  /// A stretch held for time.
+  stretch,
 
   /// Kept for exercises made before lunges had their own pattern.
   unilateral,
@@ -180,6 +198,16 @@ class ExerciseDefinition {
   /// Its demonstration, as the poses of one repetition in order; empty
   /// when there is none.
   final List<String> frames;
+
+  /// The exercise whose poses these are, when they are not its own: a
+  /// variant that shows the movement of the one it is a version of. Null
+  /// for an exercise with its own poses, or with none.
+  String? get demoFromId {
+    final id = RegExp(r'/([^/]+)-\d+\.webp$')
+        .firstMatch(frames.firstOrNull ?? '')
+        ?.group(1);
+    return id == this.id ? null : id;
+  }
 
   /// The same exercise whatever its usage figures: identity is the stable
   /// id, so a definition reloaded from storage equals the one on screen.

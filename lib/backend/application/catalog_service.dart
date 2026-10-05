@@ -19,12 +19,19 @@ class TrackingChangeRefused implements Exception {
 /// The exercise catalog as the pickers use it: search, favourites, custom
 /// exercises, personal history and fair swaps.
 class CatalogService {
-  CatalogService(this._db, this._exercises);
+  CatalogService(this._db, this._exercises) {
+    _db.changes.addListener(() => _all = null);
+  }
 
   final AppDatabase _db;
   final ExerciseRepository _exercises;
 
-  List<ExerciseDefinition> all() => _exercises.all();
+  /// What [all] last read: a keystroke in a picker searches it again, and
+  /// reading a library of thousands each time is the cost, so it is kept
+  /// until the next write.
+  List<ExerciseDefinition>? _all;
+
+  List<ExerciseDefinition> all() => _all ??= _exercises.all();
 
   /// Catalog entries matching [query] and [filter], best first. With no
   /// query it is the whole catalog in familiarity order.

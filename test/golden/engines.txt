@@ -3,7 +3,7 @@ training metrics: 3
 trend: 2
 insight: 2
 substitution: 1
-exercise search: 1
+exercise search: 2
 progression: 2
 sleep metrics: 3
 

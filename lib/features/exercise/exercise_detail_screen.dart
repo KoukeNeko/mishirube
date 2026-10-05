@@ -85,12 +85,16 @@ class ExerciseDetailScreen extends StatelessWidget {
     super.key,
     required this.exercise,
     this.canAdd = false,
+    this.picksOne = false,
   });
 
   final ExerciseDefinition exercise;
 
   /// When opened from the picker, the footer offers「加入這個動作」.
   final bool canAdd;
+  /// Opened to choose the one exercise a page asks for, not to add to a
+  /// list: the button says so.
+  final bool picksOne;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +114,9 @@ class ExerciseDetailScreen extends StatelessWidget {
       ),
       footer: canAdd
           ? PrimaryButton(
-              label: context.l10n.addThisExercise,
+              label: picksOne
+                  ? context.l10n.chooseExercise
+                  : context.l10n.addThisExercise,
               onPressed: () => Navigator.of(context).pop(true),
             )
           : null,
@@ -121,7 +127,7 @@ class ExerciseDetailScreen extends StatelessWidget {
               child: ExerciseDemo(name: exercise.name, frames: exercise.frames),
             ),
           ),
-          Gutter(child: const ExerciseDemoCredit()),
+          Gutter(child: ExerciseDemoCredit(exercise: exercise)),
         ],
         Gutter(child: _SpecCard(exercise: exercise)),
         Gutter(

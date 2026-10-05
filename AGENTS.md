@@ -76,7 +76,18 @@ flutter test test/<file>_test.dart
     the platform's (a night from its morning, via
     `engines/sleep_nights.dart`), so a re-read never duplicates and a
     deleted record never returns.
-  - `seed/` – the demo content and the first-launch seed.
+  - `seed/` – the demo content, the first-launch seed and the exercise
+    library loader (`exercise_catalogue.dart`). The library is
+    `assets/exercises/catalogue.json`, built by
+    `tool/merge_exercise_catalogue.py` from `tool/exercise_data/core.json`
+    (exercises with pictures of their own) and `additions.json`
+    (exercises written for this app; a variant may show the poses of the
+    exercise it is a version of, `demoFrom`). Edit those two, never the
+    built file. `provenance.json` says, for each of the latter, which open
+    datasets list it and which pages show it exists (facts only, never
+    their wording or pictures). `test/backend/exercise_catalogue_test.dart`
+    is its gate, and an id that shipped never goes
+    (`test/golden/exercise_ids.txt`).
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`

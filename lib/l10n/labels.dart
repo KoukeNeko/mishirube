@@ -232,6 +232,14 @@ extension EquipmentText on Equipment {
     Equipment.band => l10n.equipmentBand,
     Equipment.bodyweight => l10n.equipmentBodyweight,
     Equipment.cardio => l10n.equipmentCardio,
+    Equipment.pullUpBar => l10n.equipmentPullUpBar,
+    Equipment.rings => l10n.equipmentRings,
+    Equipment.suspension => l10n.equipmentSuspension,
+    Equipment.medicineBall => l10n.equipmentMedicineBall,
+    Equipment.stabilityBall => l10n.equipmentStabilityBall,
+    Equipment.foamRoller => l10n.equipmentFoamRoller,
+    Equipment.sled => l10n.equipmentSled,
+    Equipment.box => l10n.equipmentBox,
     Equipment.other => l10n.equipmentOther,
   };
 }
@@ -249,6 +257,9 @@ extension MovementPatternText on MovementPattern {
     MovementPattern.core => l10n.movementPatternCore,
     MovementPattern.carry => l10n.movementPatternCarry,
     MovementPattern.conditioning => l10n.movementPatternConditioning,
+    MovementPattern.olympic => l10n.movementPatternOlympic,
+    MovementPattern.mobility => l10n.movementPatternMobility,
+    MovementPattern.stretch => l10n.movementPatternStretch,
     MovementPattern.unilateral => l10n.movementPatternUnilateral,
   };
 }

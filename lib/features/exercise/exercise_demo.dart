@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../domain/domain.dart';
 import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
@@ -119,11 +121,64 @@ class _ExerciseDemoState extends State<ExerciseDemo> {
   }
 }
 
-/// The credit the demonstration's licence asks for, under the pictures.
+/// The credit the demonstration's licence asks for, under the pictures,
+/// and whose they are when they belong to another exercise: a variant
+/// shows the movement of the one it is a version of.
 class ExerciseDemoCredit extends StatelessWidget {
-  const ExerciseDemoCredit({super.key});
+  const ExerciseDemoCredit({super.key, required this.exercise});
+
+  final ExerciseDefinition exercise;
 
   @override
-  Widget build(BuildContext context) =>
-      TagWrap(labels: [context.l10n.exerciseDemoCredit]);
+  Widget build(BuildContext context) {
+    final owner = switch (exercise.demoFromId) {
+      final id? => AppStoreScope.of(
+        context,
+      ).exercises.where((other) => other.id == id).firstOrNull,
+      null => null,
+    };
+    return TagWrap(
+      labels: [
+        if (owner != null) context.l10n.exerciseDemoOf(name: owner.name),
+        context.l10n.exerciseDemoCredit,
+      ],
+    );
+  }
+}
+
+/// The first pose of an exercise, small, for telling exercises apart in a
+/// list: the start of the movement, white line work on the surface the
+/// demonstration is drawn for. Decoded at the size it shows, so a list of
+/// a thousand does not hold a thousand full pictures.
+class ExerciseThumb extends StatelessWidget {
+  const ExerciseThumb({super.key, required this.frames});
+
+  static const size = 44.0;
+
+  final List<String> frames;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(AppRadius.small),
+        ),
+        child: frames.isEmpty
+            ? null
+            : Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxs),
+                child: Image.asset(
+                  frames.first,
+                  fit: BoxFit.contain,
+                  cacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
+                      .round(),
+                ),
+              ),
+      ),
+    );
+  }
 }

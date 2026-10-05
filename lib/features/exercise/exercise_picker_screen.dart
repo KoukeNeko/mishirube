@@ -7,6 +7,7 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../shared/window_layout.dart';
 import 'create_exercise_screen.dart';
+import 'exercise_demo.dart';
 import 'exercise_detail_screen.dart';
 import 'exercise_filter_screen.dart';
 import '../../l10n/l10n.dart';
@@ -81,7 +82,7 @@ class ExercisePickerScreen extends StatefulWidget {
 class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   final _searchController = TextEditingController();
   final List<ExerciseDefinition> _selected = [];
-  _PickerTab _tab = _PickerTab.recent;
+  _PickerTab? _tab;
   ExerciseFilter _filter = const ExerciseFilter();
 
   String get _query => _searchController.text.trim();
@@ -93,15 +94,28 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Opening on 最近使用 is for someone who has used something: for a
+    // first workout it would be an empty list over a library of hundreds.
+    _tab ??=
+        AppStoreScope.of(context).exercises
+            .any((exercise) => exercise.lastUsedDaysAgo != null)
+        ? _PickerTab.recent
+        : _PickerTab.all;
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
-  /// Ranked by the search engine; a query looks through everything, not
-  /// only the current tab.
+  /// Ranked by the search engine; a query or a filter looks through
+  /// everything, not only the current tab, so what the filter says it
+  /// found is what is listed.
   List<ExerciseDefinition> _visibleExercises() {
-    final tab = _query.isEmpty ? _tab : _PickerTab.all;
+    final tab = _query.isEmpty && _filter.isEmpty ? _tab! : _PickerTab.all;
     return [
       for (final exercise in AppStoreScope.of(
         context,
@@ -132,9 +146,18 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   Future<void> _openDetail(ExerciseDefinition exercise) async {
     final shouldAdd = await pushPage<bool>(
       context,
-      ExerciseDetailScreen(exercise: exercise, canAdd: widget.purpose.picks),
+      ExerciseDetailScreen(
+        exercise: exercise,
+        canAdd: widget.purpose.picks,
+        picksOne: widget.purpose.isSingle,
+      ),
     );
-    if (shouldAdd == true && !_selected.contains(exercise)) _toggle(exercise);
+    if (shouldAdd != true || !mounted) return;
+    if (widget.purpose.isSingle) {
+      Navigator.of(context).pop([exercise]);
+    } else if (!_selected.contains(exercise)) {
+      _toggle(exercise);
+    }
   }
 
   Future<void> _createExercise({String initialName = ''}) async {
@@ -145,9 +168,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
     if (created == null) return;
     if (!mounted) return;
     AppStoreScope.read(context).createExercise(created);
-    setState(() {
-      if (!_selected.contains(created)) _selected.add(created);
-    });
+    switch (widget.purpose) {
+      // Nothing is being picked: show what was made.
+      case PickerPurpose.browse:
+        await _openDetail(created);
+      case PickerPurpose.single:
+        Navigator.of(context).pop([created]);
+      case _:
+        setState(() {
+          if (!_selected.contains(created)) _selected.add(created);
+        });
+    }
   }
 
   /// Leaving with exercises picked asks first: the selection is work the
@@ -222,7 +253,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
             : null,
         children: [
           // Full-bleed like the Log chips: the tab row pads its own content.
-          if (_query.isEmpty) _TabRow(selected: _tab, onSelect: _selectTab),
+          if (_query.isEmpty) _TabRow(selected: _tab!, onSelect: _selectTab),
           if (!_filter.isEmpty)
             Gutter(
               child: _FilterSummary(
@@ -413,7 +444,14 @@ class _ExerciseTile extends StatelessWidget {
       selected: order == null ? null : isSelected,
       child: NavCard(
         tone: isSelected ? CardTone.training : CardTone.neutral,
-        leading: order == null ? null : _OrderBadge(order: order),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: AppSpacing.sm,
+          children: [
+            if (order != null) _OrderBadge(order: order),
+            ExerciseThumb(frames: exercise.frames),
+          ],
+        ),
         title: exercise.name,
         titleTrailing: exercise.isFavorite
             ? const Icon(Icons.star_border, size: 16, color: AppColors.warning)

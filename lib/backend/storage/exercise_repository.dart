@@ -23,9 +23,25 @@ class ExerciseRepository {
     final rows = _db.select(
       'SELECT * FROM exercises WHERE deleted_at IS NULL ORDER BY rowid',
     );
+    // Only an exercise with a finished session has a history to read: with
+    // a library of thousands, asking each one would be most of the cost.
+    final used = {
+      for (final row in _db.select('''
+        SELECT DISTINCT we.exercise_id AS id
+        FROM workout_exercises we
+        JOIN workouts w ON w.id = we.workout_id
+        WHERE w.status = 'completed' AND w.deleted_at IS NULL
+        '''))
+        row['id'] as String,
+    };
     return [
       for (final row in rows)
-        _fromRow(row, history(row['id'], tracking: _trackingOf(row))),
+        _fromRow(
+          row,
+          used.contains(row['id'])
+              ? history(row['id'], tracking: _trackingOf(row))
+              : ExerciseHistory.empty,
+        ),
     ];
   }
 
@@ -255,6 +271,33 @@ class ExerciseRepository {
       );
     });
   }
+
+  /// Whether the stored row for [exercise] already says what the shipped
+  /// library says (the library's fields, not the user's): live, owned by
+  /// the library, and the same in every one. An update to the library
+  /// then leaves it alone, with its revision and its audit trail.
+  bool matchesCatalogue(ExerciseDefinition exercise) => _db.select(
+    'SELECT 1 FROM exercises WHERE id = ? AND source = ? '
+    'AND deleted_at IS NULL AND name = ? AND aliases = ? AND equipment = ? '
+    'AND primary_muscles = ? AND secondary_muscles = ? AND pattern = ? '
+    'AND tracking_type = ? AND laterality = ? AND family = ? '
+    'AND frames = ? AND cues = ?',
+    [
+      exercise.id,
+      ChangeSource.catalogue.name,
+      exercise.name,
+      jsonEncode(exercise.aliases),
+      exercise.equipment.name,
+      jsonEncode([for (final m in exercise.primaryMuscles) m.name]),
+      jsonEncode([for (final m in exercise.secondaryMuscles) m.name]),
+      exercise.pattern.name,
+      exercise.trackingType.name,
+      exercise.laterality.name,
+      exercise.family,
+      jsonEncode(exercise.frames),
+      jsonEncode(exercise.cues),
+    ],
+  ).isNotEmpty;
 
   /// Replaces the names this user gave an exercise.
   void setPersonalAliases(String id, List<String> aliases) {

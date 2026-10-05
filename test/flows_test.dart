@@ -1180,6 +1180,43 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('choosing one exercise from its details answers at once', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    List<ExerciseDefinition>? chosen;
+    await pumpScreen(
+      tester,
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () async => chosen = await Navigator.of(context)
+              .push<List<ExerciseDefinition>>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const ExercisePickerScreen(purpose: PickerPurpose.single),
+                ),
+              ),
+          child: const Text('open'),
+        ),
+      ),
+      store: store,
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), '深蹲');
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.info_outline).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(PrimaryButton, '選擇動作'));
+    await tester.pumpAndSettle();
+
+    expect(chosen, hasLength(1), reason: 'one answer, with nothing to confirm');
+    expect(find.byType(ExercisePickerScreen), findsNothing);
+    await disposeTree(tester);
+  });
+
   testWidgets('browsing the catalogue picks nothing', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -1195,9 +1232,9 @@ void main() {
         .ancestor(of: find.text('槓鈴深蹲'), matching: find.byType(NavRow))
         .first;
     expect(
-      tester.widget<NavRow>(row).leading,
-      isNull,
-      reason: 'nothing to select, so no selection box',
+      (tester.widget<NavRow>(row).leading! as Row).children,
+      hasLength(1),
+      reason: 'only its picture: nothing to select, so no selection box',
     );
     expect(
       find.descendant(of: row, matching: find.byIcon(Icons.chevron_right)),

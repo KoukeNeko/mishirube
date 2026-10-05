@@ -31,6 +31,7 @@ Future<void> main() async {
   // it is read-only, and meals logged from it kept their own numbers.
   await loadCatalogue(backend.storage.foods);
   registerPackagedFoodLicences();
+  registerExerciseDemoLicences();
   backend.nutrition.packagedFoods = await PackagedFoods.load();
   // The demo goes in first, so the library then takes over the exercises
   // the demo also names instead of the demo overwriting them. A new

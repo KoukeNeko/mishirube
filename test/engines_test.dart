@@ -1025,10 +1025,19 @@ Wall sit 2 x 1.5 min
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);
       final plank = store.exercises.firstWhere((e) => e.id == 'plank');
+      // The demo has no other exercise for the trunk: a leg curl is not a
+      // swap for a plank, whatever pattern they share.
+      const cableCrunch = ExerciseDefinition(
+        id: 'cable-crunch',
+        name: '滑輪捲腹',
+        equipment: Equipment.cable,
+        primaryMuscles: [MuscleGroup.abs],
+        pattern: MovementPattern.isolation,
+      );
 
-      final options = substitutesFor(plank, store.exercises);
+      final options = substitutesFor(plank, [...store.exercises, cableCrunch]);
 
-      expect(options, isNotEmpty);
+      expect(options.map((o) => o.exercise.id), ['cable-crunch']);
       expect(
         options.first.reasons.map((r) => r.text(testL10n)),
         contains('記錄方式改為重量 + 次數'),
@@ -1176,6 +1185,12 @@ Wall sit 2 x 1.5 min
     test('finds an exercise by its Chinese name and by an alias', () {
       expect(idsFor('臥推'), contains('bench-press'));
       expect(idsFor('RDL').first, 'rdl');
+    });
+
+    test('a simplified query finds the traditional name', () {
+      expect(idsFor('杠铃卧推'), contains('bench-press'));
+      expect(idsFor('卧推'), contains('bench-press'));
+      expect(idsFor('哑铃').isNotEmpty, isTrue);
     });
 
     test('an exact name outranks a longer name containing it', () {
