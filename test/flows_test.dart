@@ -1591,6 +1591,24 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a sleep opened from another day is logged to that day', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    final day = DateTime(2026, 9, 10);
+    await pumpScreen(tester, SleepEntryScreen(day: day), store: store);
+
+    await _tapText(tester, '儲存');
+    final night = store.backend.journal
+        .recentSleep(const Duration(days: 30))
+        .firstWhere((entry) => entry.kind == SleepKind.night);
+    expect(night.sleptAt, DateTime(2026, 9, 10, 7), reason: 'woke that day');
+    expect(night.startedAt, DateTime(2026, 9, 9, 23));
+    await disposeTree(tester);
+  });
+
   testWidgets('a workout of my own is swiped away, and undone', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

@@ -12,8 +12,10 @@ import '../../l10n/l10n.dart';
 const _defaultBedtime = TimeOfDay(hour: 23, minute: 0);
 const _defaultWake = TimeOfDay(hour: 7, minute: 0);
 
-/// A nap assumed before anything else is said: the last half hour.
+/// A nap assumed before anything else is said: the last half hour, or,
+/// for another day, the half hour before this hour of it.
 const _defaultNap = Duration(minutes: 30);
+const _defaultNapEnd = 15;
 
 /// Logging one sleep: the night or a nap, when it began and ended, and
 /// how it felt if the user says.
@@ -22,10 +24,14 @@ const _defaultNap = Duration(minutes: 30);
 /// the next read would bring back anyway; only its rating and note are
 /// the user's to change here.
 class SleepEntryScreen extends StatefulWidget {
-  const SleepEntryScreen({super.key, this.editing});
+  const SleepEntryScreen({super.key, this.editing, this.day});
 
   /// A sleep to correct instead of logging a new one.
   final SleepEntry? editing;
+
+  /// The day a new sleep is for, when it is not today: a night that ended
+  /// that morning, a nap in its afternoon.
+  final DateTime? day;
 
   @override
   State<SleepEntryScreen> createState() => _SleepEntryScreenState();
@@ -68,12 +74,21 @@ class _SleepEntryScreenState extends State<SleepEntryScreen> {
   /// Last night from the default bedtime to the default waking, or, for a
   /// nap, the half hour before now.
   void _setDefaults(DateTime now) {
+    final shown = widget.day;
+    final isToday =
+        shown == null ||
+        DateTime(shown.year, shown.month, shown.day) ==
+            DateTime(now.year, now.month, now.day);
     if (_kind == SleepKind.nap) {
-      _end = now;
-      _start = now.subtract(_defaultNap);
+      _end = isToday
+          ? now
+          : DateTime(shown.year, shown.month, shown.day, _defaultNapEnd);
+      _start = _end.subtract(_defaultNap);
       return;
     }
-    final today = DateTime(now.year, now.month, now.day);
+    final today = isToday
+        ? DateTime(now.year, now.month, now.day)
+        : DateTime(shown.year, shown.month, shown.day);
     var wake = today.add(
       Duration(hours: _defaultWake.hour, minutes: _defaultWake.minute),
     );

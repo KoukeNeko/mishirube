@@ -137,7 +137,7 @@ class _SleepScreenState extends State<SleepScreen> {
               title: context.l10n.noSleepRecords,
               action: PrimaryButton(
                 label: context.l10n.logByHand,
-                onPressed: () => pushPage(context, const SleepEntryScreen()),
+                onPressed: () => pushPage(context, SleepEntryScreen(day: day)),
               ),
             ),
           ),
@@ -212,6 +212,20 @@ class _SleepScreenState extends State<SleepScreen> {
             ),
           ],
         ),
+        if (night != null || naps.isNotEmpty)
+          // Logs to the day shown, as 飲食 does: another day is a swipe
+          // away on the strip above.
+          Gutter(
+            child: DashedActionCard(
+              label: day == _model.today
+                  ? context.l10n.dockAddEntry
+                  : context.l10n.addEntryToDay(
+                      date: context.dates.monthDay(day),
+                    ),
+              color: AppColors.wellness,
+              onTap: () => pushPage(context, SleepEntryScreen(day: day)),
+            ),
+          ),
         if (night != null) ..._sources(night),
         if (night != null)
           PageSection(
