@@ -166,6 +166,16 @@ void main() {
       ]);
     });
 
+    test('a note about the bowl or the estimate itself is dropped', () {
+      final draft = parse(
+        '{"items":[{"name":"蘋果切片","kcal":104}],'
+        '"notes":["碗與叉子本身不計入營養。","數值僅供參考，請核對。",'
+        '"醬汁另計"]}',
+      );
+
+      expect(draft.warnings.map((warning) => warning.text(testL10n)), ['醬汁另計']);
+    });
+
     test('energy far from its macronutrients is flagged, not changed', () {
       final draft = parse(
         '{"items":[{"name":"雞腿","kcal":900,"protein_g":20,'

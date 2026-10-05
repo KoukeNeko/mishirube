@@ -88,7 +88,7 @@ $labelReadingRules
 
 【食物】
 辨識照片裡每一項食物或飲料，估計份量與營養，格式：
-{"items":[{"name":"品名","brand":"品牌","amount":"估計份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["照片看不出來、但會影響數字的地方"]}
+{"items":[{"name":"品名","brand":"品牌","amount":"估計份量","kcal":數字,"protein_g":數字,"carb_g":數字,"fat_g":數字,"fibre_g":數字,"nutrients":{"sugar_g":數字,"sodium_mg":數字},"is_drink":false}],"notes":["會改變數字怎麼讀的事"]}
 規則：
 $_photoItemRules
 $_brandRule
@@ -130,10 +130,23 @@ const _photoItemRules = '''
 - amount 寫估計的重量或容量與合理範圍，例如「約 180 g（150–220 g）」「約 700 ml」；看不出來就寫「一份」。
 - 使用者補充的份量、糖度、冰量、品牌優先於照片的判斷。''';
 
-/// What a photo cannot show, and what it must not count twice.
+/// What a photo cannot show, and what it must not count twice. Each
+/// note is shown beside the figures, so it has to change how they are
+/// read; models otherwise fill the field with their method and doubts.
 const _photoNoteRules = '''
-- 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）寫在 notes，一句一件事，最多三句；不要假裝看得到。
+- notes 只放會改變數字怎麼讀的事，一句一件事，最多兩句；沒有就回傳空的 notes。
+- 看不見的油、醬汁、滷汁、糖（炒菜油、炸物吸的油、手搖飲的糖）估進或沒估進數字時寫一句，例如「醬汁另計」「炸衣吸的油已估進熱量」；不要假裝看得到。
+- notes 不寫：估算方法、容器與餐具、沒看到的東西、對數字的提醒或辯護。例如這些都不要寫：「碗與叉子本身不計入營養」「未見額外添加糖、鹽或醬料」「份量以碗中視覺大小估算」「僅供參考」。
 - 同一份食物只算一次，只列照片裡看得到的東西。''';
+
+/// Notes that cannot change how a figure is read, whatever the prompt
+/// said: the bowl and cutlery, and cautions about the estimate itself.
+/// Kept narrow, because a note dropped here is lost without a trace.
+final _emptyNote = RegExp(
+  r'(碗|盤子|餐盤|餐具|叉子|湯匙|筷子|容器|背景|桌面).{0,8}'
+  r'(不計入|不列入|不納入|不算|不包含)'
+  r'|僅供參考|請核對|請自行(判斷|確認)|不是推測|並非(推測|猜測)',
+);
 
 /// Reads a model's answer about a photo ([photoInstructions]): a label
 /// when it answered with one, otherwise the food it saw. Throws as
@@ -172,10 +185,11 @@ MealDraft parseMealPhoto(
   if (items.isEmpty) throw AiException(AiFailure.noFood, answer);
   final notes = [
     if (decoded case {'notes': final List<dynamic> notes})
-      for (final note in notes.take(3))
-        if (note case final String text when text.trim().isNotEmpty)
+      for (final note in notes)
+        if (note case final String text
+            when text.trim().isNotEmpty && !_emptyNote.hasMatch(text))
           ModelNote(text.trim()),
-  ];
+  ].take(2);
   return MealDraft(
     items: items,
     provider: provider,

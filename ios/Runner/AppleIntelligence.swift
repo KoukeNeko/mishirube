@@ -472,7 +472,7 @@ enum AppleIntelligence {
     var label: FoodLabelOutput?
     @Guide(description: "照片裡看得到的每一項食物或飲料；是營養標示或沒有食物就是空的")
     var items: [Item]
-    @Guide(description: "照片看不出來、但會影響數字的油、醬汁或糖，一句一件事，最多三句")
+    @Guide(description: "會改變數字怎麼讀的事，例如醬汁另計；一句一件事，最多兩句，沒有就是空的。不寫估算方法、容器與餐具、沒看到的東西")
     var notes: [String]
 
     @Generable
