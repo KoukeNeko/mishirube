@@ -706,7 +706,10 @@ void main() {
       )..startWorkout();
       final slot = store.routine.exercises.first;
       final replacement = store.exercises.firstWhere(
-        (exercise) => exercise.id != slot.exercise.id,
+        (exercise) =>
+            exercise.id != slot.exercise.id &&
+            exercise.equipment == slot.exercise.equipment &&
+            exercise.trackingType == slot.exercise.trackingType,
       );
 
       store.replaceCurrentExercise(replacement, updateTemplate: true);
@@ -722,6 +725,67 @@ void main() {
         hasLength(store.routine.exercises.length),
         reason: 'a swap, not an addition',
       );
+    });
+
+    test('a weight does not follow the swap to other equipment', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      )..startWorkout();
+      final slot = store.routine.exercises.first;
+      expect(slot.targetWeightKg, greaterThan(0));
+      final replacement = store.exercises.firstWhere(
+        (exercise) =>
+            exercise.equipment != slot.exercise.equipment &&
+            exercise.trackingType == slot.exercise.trackingType,
+      );
+      final own = backend.training.planFor(replacement);
+      expect(own.targetWeightKg, isNot(slot.targetWeightKg));
+
+      store.replaceCurrentExercise(replacement, updateTemplate: true);
+
+      final today = store.activeWorkout!.currentExercise;
+      expect(today.sets, hasLength(slot.sets));
+      expect(today.sets.first.weightKg, own.targetWeightKg);
+      expect(today.sets.first.reps, slot.reps, reason: 'the prescription');
+      final updated = AppStore(
+        clock: clock.now,
+        backend: backend,
+      ).routine.exercises.first;
+      expect(updated.targetWeightKg, own.targetWeightKg);
+      expect(updated.sets, slot.sets);
+      expect(updated.reps, slot.reps);
+    });
+
+    test('a swap keeps the kind of each set and the superset', () {
+      final backend = openFile();
+      addTearDown(backend.close);
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: backend,
+      )..startWorkout();
+      final workout = store.activeWorkout!;
+      workout.exercises.first
+        ..joinsNext = true
+        ..sets[0] = WorkoutSet(
+          weightKg: 20,
+          reps: 10,
+          previousWeightKg: 0,
+          previousReps: 0,
+          type: SetType.warmup,
+        );
+      final replacement = store.exercises.firstWhere(
+        (exercise) => exercise.id != workout.exercises.first.exercise.id,
+      );
+
+      store.replaceCurrentExercise(replacement);
+
+      expect(workout.exercises.first.joinsNext, isTrue);
+      expect(workout.exercises.first.sets.first.type, SetType.warmup);
     });
   });
 

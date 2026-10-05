@@ -27,6 +27,7 @@ import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/seed/catalogue.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/journal/bath_entry_screen.dart';
 import 'package:mishirube/features/journal/body_reading_entry_screen.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/journal/note_entry_screen.dart';
@@ -34,6 +35,7 @@ import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
 import 'package:mishirube/backend/engines/nutrition_summary.dart';
 import 'package:mishirube/backend/engines/training_metrics.dart';
+import 'package:mishirube/features/activity/live_activity_screen.dart';
 import 'package:mishirube/features/activity/record_activity_screen.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/exercise/exercise_picker_screen.dart';
@@ -2028,6 +2030,58 @@ void main() {
     await tester.tap(find.text('繼續跑步'));
     await tester.pumpAndSettle();
     expect(store.activeSession, isA<ActiveActivity>());
+    await disposeTree(tester);
+  });
+
+  testWidgets('giving up a running exercise or bath asks first', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..startActivity(ActivityTypes.running);
+    Future<void> open(Widget page) async {
+      await pumpScreen(
+        tester,
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () =>
+                Navigator.of(context)
+                    .push(MaterialPageRoute<void>(builder: (_) => page)),
+            child: const Text('open'),
+          ),
+        ),
+        store: store,
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+    }
+
+    await open(const LiveActivityScreen());
+    await tester.tap(find.text('放棄這次運動'));
+    await tester.pumpAndSettle();
+    expect(find.text('結束這次跑步？'), findsOneWidget);
+    await tester.tap(find.text('繼續跑步'));
+    await tester.pumpAndSettle();
+    expect(store.activeActivity, isNotNull, reason: 'one tap lost nothing');
+
+    await tester.tap(find.text('放棄這次運動'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AppDialog),
+        matching: find.text('放棄這次運動'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(store.activeActivity, isNull);
+
+    store.startBath();
+    await open(const BathEntryScreen.running());
+    await tester.tap(find.text('放棄這次洗澡'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('繼續洗澡'));
+    await tester.pumpAndSettle();
+    expect(store.activeBath, isNotNull, reason: 'one tap lost nothing');
     await disposeTree(tester);
   });
 

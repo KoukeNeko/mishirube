@@ -49,6 +49,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   /// the page scrolls down.
   bool _isRestCompact = false;
 
+  /// Whether this page is already on its way out of a workout it ended
+  /// itself; a workout ended from elsewhere (the watch) takes it away.
+  bool _isLeaving = false;
+
   /// Scrolling down tucks the rest away; scrolling up or reaching the
   /// top brings it back, as the home screen's chrome does.
   bool _onScroll(UserScrollNotification notification) {
@@ -83,7 +87,26 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
     });
   }
 
+  /// Brings the card at [index] into view: the exercise the workout has
+  /// moved on to, as in a superset.
+  void _showCard(int index) {
+    if (index >= _cardKeys.length) return;
+    // After the page has rebuilt with the new current exercise.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_cardKeys[index].currentContext case final card?) {
+        Scrollable.ensureVisible(
+          card,
+          alignment: 0.1,
+          duration: chromeDuration(context, const Duration(milliseconds: 250)),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
+  }
+
   void _finish(BuildContext context) {
+    _isLeaving = true;
     final store = AppStoreScope.read(context)..finishWorkout();
     replaceWithPage(
       context,
@@ -104,6 +127,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       case FinishChoice.finish:
         _finish(context);
       case FinishChoice.discard:
+        _isLeaving = true;
         store.discardWorkout();
         Navigator.of(context).maybePop();
         showToast(context, context.l10n.workoutDiscarded);
@@ -132,6 +156,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       ),
     );
     if (isCancelled != true || !context.mounted) return;
+    _isLeaving = true;
     store.discardWorkout();
     Navigator.of(context).maybePop();
   }
@@ -150,7 +175,18 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
     final workout = store.activeWorkout;
-    if (workout == null) return const Scaffold();
+    if (workout == null) {
+      if (!_isLeaving) {
+        _isLeaving = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Not when a page was opened over this one meanwhile.
+          if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).maybePop();
+          }
+        });
+      }
+      return const Scaffold();
+    }
     while (_cardKeys.length < workout.exercises.length) {
       _cardKeys.add(GlobalKey());
     }
@@ -225,6 +261,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                       isCurrent: index == workout.currentExerciseIndex,
                       isInSuperset: workout.supersetOf(index).length > 1,
                       canRemove: workout.exercises.length > 1,
+                      onMoveOn: _showCard,
                     ),
                   ),
                 Gutter(
@@ -917,6 +954,7 @@ enum _ExerciseAction {
   warmup,
   drop,
   failure,
+  rest,
   replace,
   remove;
 
@@ -924,6 +962,7 @@ enum _ExerciseAction {
     warmup => l10n.addWarmupSets,
     drop => l10n.addDropSet,
     failure => l10n.addFailureSet,
+    rest => l10n.restTimeTitle,
     replace => l10n.replaceExercise,
     remove => l10n.removeFromWorkout,
   };
@@ -938,6 +977,7 @@ class _ExerciseCard extends StatelessWidget {
     required this.isCurrent,
     required this.isInSuperset,
     required this.canRemove,
+    required this.onMoveOn,
   });
 
   final int index;
@@ -947,6 +987,10 @@ class _ExerciseCard extends StatelessWidget {
   final bool isCurrent;
   final bool isInSuperset;
   final bool canRemove;
+
+  /// Called with the exercise the workout moved on to when ticking a set
+  /// handed the turn to another.
+  final ValueChanged<int> onMoveOn;
 
   static const _setColumn = 48.0;
   static const _doneColumn = 48.0;
@@ -979,8 +1023,18 @@ class _ExerciseCard extends StatelessWidget {
     store.toggleSet(setIndex);
     final set = exercise.sets[setIndex];
     if (!set.isDone) return;
+    final movedTo = store.activeWorkout?.currentExerciseIndex;
+    if (movedTo != null && movedTo != index) onMoveOn(movedTo);
     store.restAfterSet(index);
     _sayIfRecord(context, set);
+  }
+
+  /// A set or an exercise taken out: said, with the way back, as any
+  /// other removal is.
+  void _sayRemoved(BuildContext context, String name, VoidCallback? undo) {
+    if (undo == null) return;
+    ToastScope.read(context)
+        .showUndo(context.l10n.deletedNamed(name: name), onUndo: undo);
   }
 
   void _sayIfRecord(BuildContext context, WorkoutSet set) {
@@ -1054,7 +1108,15 @@ class _ExerciseCard extends StatelessWidget {
           meters: meters,
         );
       case SetRemoved():
-        store.removeSet(setIndex);
+        _sayRemoved(
+          context,
+          setName(
+            context.l10n,
+            exercise.sets[setIndex],
+            workingNumber(exercise.sets, setIndex),
+          ),
+          store.removeSet(setIndex),
+        );
       case null:
         break;
     }
@@ -1116,10 +1178,16 @@ class _ExerciseCard extends StatelessWidget {
         store.addSet(SetType.drop);
       case _ExerciseAction.failure:
         store.addSet(SetType.failure);
+      case _ExerciseAction.rest:
+        showRestTimeDialog(context, exercise: exercise.exercise);
       case _ExerciseAction.replace:
         pushPage(context, const SubstituteExerciseScreen());
       case _ExerciseAction.remove:
-        store.removeExercise(index);
+        _sayRemoved(
+          context,
+          exercise.exercise.name,
+          store.removeExercise(index),
+        );
     }
   }
 
@@ -1273,7 +1341,22 @@ class _ExerciseCard extends StatelessWidget {
                   isCompact: true,
                   onPressed: exercise.sets.isEmpty
                       ? null
-                      : () => _focused(context, index).removeLastSet(index),
+                      : () {
+                          final last = exercise.sets.length - 1;
+                          final pending = exercise.sets.lastIndexWhere(
+                            (set) => !set.isDone,
+                          );
+                          final at = pending >= 0 ? pending : last;
+                          _sayRemoved(
+                            context,
+                            setName(
+                              context.l10n,
+                              exercise.sets[at],
+                              workingNumber(exercise.sets, at),
+                            ),
+                            _focused(context, index).removeLastSet(index),
+                          );
+                        },
                 ),
               ),
               Expanded(
@@ -1503,14 +1586,27 @@ class _SetRow extends StatelessWidget {
                 label: context.l10n.setDone(set: name),
                 checked: set.isDone,
                 child: GestureDetector(
-                  onTap: onToggle,
-                  child: Center(
-                    child: CheckSquare(
-                      isChecked: set.isDone,
-                      size: 44,
-                      uncheckedColor: isNext
-                          ? AppColors.trainingSurface
-                          : AppColors.surfaceRaised,
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    AppHaptics.tap();
+                    onToggle();
+                  },
+                  // 48 each way, which Android asks of a control.
+                  child: SizedBox(
+                    height: 48,
+                    child: Center(
+                      child: CheckSquare(
+                        isChecked: set.isDone,
+                        size: 44,
+                        uncheckedColor: isNext
+                            ? AppColors.trainingSurface
+                            : AppColors.surfaceRaised,
+                        // The surface is nearly the box's own colour: the
+                        // set to do is outlined in green, the rest in grey.
+                        outlineColor: isNext
+                            ? AppColors.training
+                            : AppColors.textTertiary,
+                      ),
                     ),
                   ),
                 ),

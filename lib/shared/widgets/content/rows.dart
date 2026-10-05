@@ -251,12 +251,17 @@ class CheckSquare extends StatelessWidget {
     this.size = 22,
     this.checkedColor = AppColors.training,
     this.uncheckedColor = Colors.white,
+    this.outlineColor,
   });
 
   final bool isChecked;
   final double size;
   final Color checkedColor;
   final Color uncheckedColor;
+
+  /// A line round it while it is not ticked, for a box on a surface it
+  /// is hard to tell from: a fill alone is under the 3:1 a control wants.
+  final Color? outlineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -267,6 +272,9 @@ class CheckSquare extends StatelessWidget {
       decoration: BoxDecoration(
         color: isChecked ? checkedColor : uncheckedColor,
         borderRadius: BorderRadius.circular(size / 5),
+        border: !isChecked && outlineColor != null
+            ? Border.all(color: outlineColor!, width: 2)
+            : null,
       ),
       child: isChecked
           ? Icon(Icons.check, size: size * 0.8, color: AppColors.onTraining)

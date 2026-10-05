@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
+import '../shell/finish_session_dialog.dart';
 import 'activity_detail_screen.dart';
 import '../../l10n/l10n.dart';
 
@@ -21,17 +22,24 @@ class LiveActivityScreen extends StatelessWidget {
     replaceWithPage(context, ActivityDetailScreen(activityId: finished.id));
   }
 
-  void _discard(BuildContext context) {
+  /// Asks first, as the dock's stop button does.
+  Future<void> _discard(BuildContext context, LiveActivity live) async {
     final store = AppStoreScope.read(context);
-    final discarded = switch (store.activeActivity) {
-      final live? => context.l10n.sessionDiscarded(
-        session: live.type.labelIn(context.l10n),
-      ),
-      null => null,
-    };
-    store.discardActivity();
-    Navigator.of(context).pop();
-    if (discarded != null) showToast(context, discarded);
+    final discarded = context.l10n.sessionDiscarded(
+      session: live.type.labelIn(context.l10n),
+    );
+    final choice = await askHowSessionEnds(context, ActiveActivity(live));
+    if (!context.mounted) return;
+    switch (choice) {
+      case null || FinishChoice.keepGoing:
+        return;
+      case FinishChoice.finish:
+        _finish(context);
+      case FinishChoice.discard:
+        store.discardActivity();
+        Navigator.of(context).pop();
+        showToast(context, discarded);
+    }
   }
 
   @override
@@ -99,7 +107,7 @@ class LiveActivityScreen extends StatelessWidget {
             child: LinkText(
               label: context.l10n.sessionDiscardActivity,
               color: AppColors.warning,
-              onTap: () => _discard(context),
+              onTap: () => _discard(context, live),
             ),
           ),
         ),

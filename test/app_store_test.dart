@@ -353,6 +353,36 @@ void main() {
       );
     });
 
+    test('the last set of the workout starts no rest', () {
+      store.startWorkout();
+      final workout = store.activeWorkout!;
+      while (workout.completedSets < workout.totalSets - 1) {
+        expect(store.logNextSet()!.rests, isTrue, reason: 'a set to follow');
+      }
+
+      expect(store.logNextSet()!.rests, isFalse, reason: 'nothing follows');
+      expect(workout.completedSets, workout.totalSets);
+    });
+
+    test('a superset set ticked by hand goes on to its partner too', () {
+      store.setJoinsNext(0, joins: true);
+      store.startWorkout();
+      final workout = store.activeWorkout!;
+
+      store.toggleSet(0);
+      expect(workout.currentExerciseIndex, 1, reason: 'on to its partner');
+
+      store.toggleSet(0);
+      expect(workout.currentExerciseIndex, 0, reason: 'round again');
+
+      store.toggleSet(0);
+      expect(
+        workout.currentExerciseIndex,
+        0,
+        reason: 'unticking a set moves nothing',
+      );
+    });
+
     test('replaceCurrentExercise keeps the prescribed sets', () {
       store.startWorkout();
       store.replaceCurrentExercise(DemoExercises.gobletSquat);

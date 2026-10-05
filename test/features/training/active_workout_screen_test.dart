@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'
-    show CustomScrollView, Icons, Scaffold, StatefulBuilder;
+    show CustomScrollView, Icons, MaterialPageRoute, Scaffold, StatefulBuilder;
+import 'package:flutter/widgets.dart' show Navigator, NavigatorState, Text;
 import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart' show MethodChannel, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,7 @@ import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 
 import '../../support/harness.dart';
@@ -413,6 +415,86 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('the page leaves a workout that ends elsewhere', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const Text('home'), store: store);
+      tester
+          .state<NavigatorState>(find.byType(Navigator))
+          .push(
+            MaterialPageRoute<void>(
+              builder: (_) => const ActiveWorkoutScreen(),
+            ),
+          );
+      await tester.pumpAndSettle();
+      expect(find.byType(ActiveWorkoutScreen), findsOneWidget);
+
+      // The watch finishes it.
+      store.finishWorkout();
+      await tester.pumpAndSettle();
+      expect(find.byType(ActiveWorkoutScreen), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+      await disposeTree(tester);
+    });
+
+    testWidgets(
+      'an exercise opens its info card, and searches YouTube for it',
+      (tester) async {
+        usePhoneViewport(tester);
+        final opened = <String>[];
+        const channel = MethodChannel('plugins.flutter.io/url_launcher');
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          (call) async {
+            if (call.method == 'launch') {
+              opened.add((call.arguments as Map)['url'] as String);
+            }
+            return true;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            channel,
+            null,
+          ),
+        );
+        final semantics = tester.ensureSemantics();
+        final store = newStore(FakeClock())
+          ..startWorkout()
+          ..beginWorkout();
+        final name = store.activeWorkout!.exercises.first.exercise.name;
+        await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+        await tester.tap(find.byTooltip('$name說明'));
+        await tester.pumpAndSettle();
+        expect(find.text('在 YouTube 搜尋'), findsOneWidget);
+
+        await tester.tap(find.text('在 YouTube 搜尋'));
+        await tester.pump();
+        expect(opened, [
+          Uri.https('www.youtube.com', '/results', {
+            'search_query': name,
+          }).toString(),
+        ]);
+        // The card closes with its own button, and opens the page.
+        await tester.tap(find.byTooltip('關閉'));
+        await tester.pumpAndSettle();
+        expect(find.text('在 YouTube 搜尋'), findsNothing);
+
+        await tester.tap(find.byTooltip('$name說明'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('詳細資料'));
+        await tester.pumpAndSettle();
+        expect(find.byType(ExerciseDetailScreen), findsOneWidget);
+        semantics.dispose();
+        await disposeTree(tester);
+      },
+    );
+
     testWidgets('a rest changes shape on its way into one line, not swapped '
         'for another', (tester) async {
       usePhoneViewport(tester);
@@ -516,6 +598,63 @@ void main() {
       expect(store.restEndsAt, isNull, reason: '10 s left less 15 is over');
       expect(find.text('跳過休息'), findsNothing);
       semantics.dispose();
+      await disposeTree(tester);
+    });
+
+    testWidgets('a removed set or exercise comes back with its undo', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      final workout = store.activeWorkout!;
+      final first = workout.exercises.first;
+      final sets = first.sets.length;
+      final exercises = workout.exercises.length;
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+      await tester.tap(find.text('刪除組').first);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(first.sets, hasLength(sets - 1));
+      await tester.tap(find.text('復原'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(first.sets, hasLength(sets), reason: 'the set is back');
+
+      await tester.tap(find.byTooltip('${first.exercise.name}的選項'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('從這次訓練移除'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(workout.exercises, hasLength(exercises - 1));
+      await tester.tap(find.text('復原'));
+      await tester.pump();
+      expect(workout.exercises, hasLength(exercises));
+      expect(workout.exercises.first.exercise.id, first.exercise.id);
+      await disposeTree(tester);
+    });
+
+    testWidgets('the rest settings stay in reach with the automatic rest off', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..setAutoRest(false)
+        ..startWorkout()
+        ..beginWorkout();
+      final name = store.activeWorkout!.exercises.first.exercise.name;
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      expect(find.text('跳過休息'), findsNothing, reason: 'no rest runs');
+
+      await tester.tap(find.byTooltip('$name的選項'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('休息時間'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SwitchRow), findsNWidgets(2));
+      await tester.tap(find.byType(SwitchRow).first);
+      await tester.pump();
+      expect(store.isAutoRest, isTrue);
       await disposeTree(tester);
     });
 

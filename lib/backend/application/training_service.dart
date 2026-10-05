@@ -13,6 +13,23 @@ import '../../l10n/l10n.dart';
 /// The rest and the timed set of the running workout, as far as they
 /// outlive the app: what [TrainingService.saveTiming] keeps and
 /// [TrainingService.timing] gives back.
+/// A set taken off a workout and where it was.
+class RemovedSet {
+  const RemovedSet(this.exerciseIndex, this.setIndex, this.set);
+
+  final int exerciseIndex;
+  final int setIndex;
+  final WorkoutSet set;
+}
+
+/// An exercise taken out of a workout and where it was.
+class RemovedExercise {
+  const RemovedExercise(this.index, this.exercise);
+
+  final int index;
+  final ExerciseSession exercise;
+}
+
 class WorkoutTiming {
   const WorkoutTiming({
     required this.workoutId,
@@ -365,8 +382,16 @@ class TrainingService {
     final setIndex = exercise.nextSetIndex;
     if (setIndex == null) return null;
     final completed = exercise.sets[setIndex]..isDone = true;
-    // Round the superset: the next of its exercises with a set left,
-    // starting after this one; this one again when it is alone.
+    _moveOn(workout);
+    _workouts.save(workout, action: 'complete_set');
+    return completed;
+  }
+
+  /// After a set is done, makes the exercise to do next the current one:
+  /// round the superset, the next of its exercises with a set left,
+  /// starting after this one (this one again when it is alone); with the
+  /// whole of it done, the first exercise anywhere with a set left.
+  void _moveOn(WorkoutSession workout) {
     final current = workout.currentExerciseIndex;
     final superset = workout.supersetOf(current);
     final next = [
@@ -379,8 +404,6 @@ class TrainingService {
       final after = workout.exercises.indexWhere((item) => !item.isComplete);
       if (after >= 0) workout.currentExerciseIndex = after;
     }
-    _workouts.save(workout, action: 'complete_set');
-    return completed;
   }
 
   /// Adds one more set to the exercise being done. A warm-up or drop set
@@ -461,6 +484,8 @@ class TrainingService {
     _underWay(workout);
     final set = workout.currentExercise.sets[setIndex];
     set.isDone = !set.isDone;
+    // Ticked by hand, a set moves on as one logged from the watch does.
+    if (set.isDone) _moveOn(workout);
     _workouts.save(workout, action: set.isDone ? 'complete_set' : 'reopen_set');
   }
 
@@ -498,11 +523,23 @@ class TrainingService {
     _workouts.save(workout, action: 'edit_set');
   }
 
-  /// Takes a set off the current exercise, done or not. The workout's
-  /// earlier states stay in the audit trail.
-  void removeSet(WorkoutSession workout, int setIndex) {
-    workout.currentExercise.sets.removeAt(setIndex);
+  /// Takes a set off the current exercise, done or not, and returns it
+  /// with where it was, for [restoreSet]. The workout's earlier states
+  /// stay in the audit trail.
+  RemovedSet removeSet(WorkoutSession workout, int setIndex) {
+    final exerciseIndex = workout.currentExerciseIndex;
+    final set = workout.currentExercise.sets.removeAt(setIndex);
     _workouts.save(workout, action: 'remove_set');
+    return RemovedSet(exerciseIndex, setIndex, set);
+  }
+
+  /// Puts a removed set back where it was, when the exercise is still
+  /// there.
+  void restoreSet(WorkoutSession workout, RemovedSet removed) {
+    if (removed.exerciseIndex >= workout.exercises.length) return;
+    final sets = workout.exercises[removed.exerciseIndex].sets;
+    sets.insert(removed.setIndex.clamp(0, sets.length), removed.set);
+    _workouts.save(workout, action: 'restore_set');
   }
 
   /// [set] with the figures of [load], the rest of it kept.
@@ -570,19 +607,22 @@ class TrainingService {
 
   /// Takes the last set still to do off the exercise at [index], or its
   /// last set when all are done; nothing when it has none.
-  void removeLastSet(WorkoutSession workout, int index) {
+  RemovedSet? removeLastSet(WorkoutSession workout, int index) {
     final sets = workout.exercises[index].sets;
-    if (sets.isEmpty) return;
+    if (sets.isEmpty) return null;
     final pending = sets.lastIndexWhere((set) => !set.isDone);
-    sets.removeAt(pending >= 0 ? pending : sets.length - 1);
+    final at = pending >= 0 ? pending : sets.length - 1;
+    final set = sets.removeAt(at);
     _workouts.save(workout, action: 'remove_set');
+    return RemovedSet(index, at, set);
   }
 
-  /// Takes the exercise at [index] out of today's workout; the template
-  /// keeps it.
-  void removeExercise(WorkoutSession workout, int index) {
-    if (workout.exercises.length <= 1) return;
-    workout.exercises.removeAt(index);
+  /// Takes the exercise at [index] out of today's workout, with the sets
+  /// it had, for [restoreExercise]; the template keeps it. Null when it is
+  /// the only one.
+  RemovedExercise? removeExercise(WorkoutSession workout, int index) {
+    if (workout.exercises.length <= 1) return null;
+    final exercise = workout.exercises.removeAt(index);
     if (workout.currentExerciseIndex >= workout.exercises.length ||
         workout.currentExerciseIndex > index) {
       workout.currentExerciseIndex = (workout.currentExerciseIndex - 1).clamp(
@@ -591,6 +631,16 @@ class TrainingService {
       );
     }
     _workouts.save(workout, action: 'remove_exercise');
+    return RemovedExercise(index, exercise);
+  }
+
+  /// Puts a removed exercise back where it was.
+  void restoreExercise(WorkoutSession workout, RemovedExercise removed) {
+    workout.exercises.insert(
+      removed.index.clamp(0, workout.exercises.length),
+      removed.exercise,
+    );
+    _workouts.save(workout, action: 'restore_exercise');
   }
 
   void selectExercise(WorkoutSession workout, int index) {
@@ -609,25 +659,45 @@ class TrainingService {
   }
 
   /// Swaps today's exercise only; the template and history stay as they
-  /// are. Prescribed sets and reps carry over, the load does not.
+  /// are. Prescribed sets, their kinds, the superset and, for an exercise
+  /// recorded the same way, the reps carry over. The weight does too only
+  /// with the same equipment, since it has no reliable conversion between
+  /// equipment.
   void replaceCurrentExercise(
     WorkoutSession workout,
     ExerciseDefinition replacement,
   ) {
     final current = workout.currentExercise;
+    final own = plan(planFor(replacement));
+    final isRecordedAlike =
+        current.exercise.trackingType == replacement.trackingType;
+    final carriesLoad =
+        isRecordedAlike && current.exercise.equipment == replacement.equipment;
+    // What the replacement is last done at, not what the exercise it
+    // replaces was.
+    WorkoutSet swapped(int index, WorkoutSet set) {
+      final ownSet = own.sets[index.clamp(0, own.sets.length - 1)];
+      return WorkoutSet(
+        weightKg: carriesLoad ? set.weightKg : ownSet.weightKg,
+        reps: isRecordedAlike ? set.reps : ownSet.reps,
+        rir: set.rir,
+        previousWeightKg: ownSet.previousWeightKg,
+        previousReps: ownSet.previousReps,
+        type: set.type,
+        durationSeconds: isRecordedAlike
+            ? set.durationSeconds
+            : ownSet.durationSeconds,
+        distanceMeters: isRecordedAlike
+            ? set.distanceMeters
+            : ownSet.distanceMeters,
+      );
+    }
+
     workout.exercises[workout.currentExerciseIndex] = ExerciseSession(
       exercise: replacement,
+      joinsNext: current.joinsNext,
       sets: [
-        for (final set in current.sets)
-          WorkoutSet(
-            weightKg: set.weightKg,
-            reps: set.reps,
-            rir: set.rir,
-            previousWeightKg: set.previousWeightKg,
-            previousReps: set.previousReps,
-            durationSeconds: set.durationSeconds,
-            distanceMeters: set.distanceMeters,
-          ),
+        for (final (index, set) in current.sets.indexed) swapped(index, set),
       ],
     );
     _workouts.save(workout, action: 'replace_exercise');
@@ -919,13 +989,36 @@ class TrainingService {
     String exerciseId,
     ExerciseDefinition replacement,
   ) {
+    final own = planFor(replacement);
+    // The weight stays with the same equipment; the reps, time and
+    // distance with the same way of recording.
+    PlannedExercise swapped(PlannedExercise planned) {
+      final isRecordedAlike =
+          planned.exercise.trackingType == replacement.trackingType;
+      if (isRecordedAlike &&
+          planned.exercise.equipment == replacement.equipment) {
+        return planned.copyWith(exercise: replacement);
+      }
+      return PlannedExercise(
+        exercise: replacement,
+        sets: planned.sets,
+        reps: isRecordedAlike ? planned.reps : own.reps,
+        targetWeightKg: own.targetWeightKg,
+        targetSeconds: isRecordedAlike
+            ? planned.targetSeconds
+            : own.targetSeconds,
+        targetMeters: isRecordedAlike ? planned.targetMeters : own.targetMeters,
+        progressionLabel: planned.progressionLabel,
+        rir: planned.rir,
+        isUnilateral: planned.isUnilateral,
+        joinsNext: planned.joinsNext,
+      );
+    }
+
     final updated = routine.copyWith(
       exercises: [
         for (final planned in routine.exercises)
-          if (planned.exercise.id == exerciseId)
-            planned.copyWith(exercise: replacement)
-          else
-            planned,
+          planned.exercise.id == exerciseId ? swapped(planned) : planned,
       ],
     );
     _routines.save(updated, action: 'replace_exercise');

@@ -1,7 +1,7 @@
 import '../../domain/domain.dart';
 
 /// Bumped whenever the ranking below changes.
-const substitutionEngineVersion = 1;
+const substitutionEngineVersion = 2;
 
 const _defaultCandidateCount = 3;
 
@@ -10,8 +10,12 @@ const _defaultCandidateCount = 3;
 ///
 /// A fair swap keeps the stimulus, not the name: the same movement
 /// pattern first, then the muscles worked, then equipment the user
-/// actually has. Load is never carried across equipment; when the set-up
-/// differs the reasons say so instead of implying the same weights.
+/// actually has. A pattern alone is not enough for a single-joint or core
+/// movement, which any muscle may do: the exercise must also work the
+/// same region of the body, and one of the same family (a dumbbell press
+/// for a barbell press) comes first. Load is never carried across
+/// equipment; when the set-up differs the reasons say so instead of
+/// implying the same weights. An exercise the user hid is not offered.
 List<SubstitutionOption> substitutesFor(
   ExerciseDefinition exercise,
   Iterable<ExerciseDefinition> catalog, {
@@ -19,12 +23,17 @@ List<SubstitutionOption> substitutesFor(
 }) {
   final scored = <(int, SubstitutionOption)>[];
   for (final candidate in catalog) {
-    if (candidate.id == exercise.id) continue;
+    if (candidate.id == exercise.id || candidate.isHidden) continue;
     final sharedMuscles = candidate.primaryMuscles
         .where(exercise.primaryMuscles.contains)
         .toList();
     final samePattern = candidate.pattern == exercise.pattern;
     if (!samePattern && sharedMuscles.isEmpty) continue;
+    final sameRegion = candidate.primaryMuscles.any(
+      (muscle) =>
+          exercise.primaryMuscles.any((other) => other.region == muscle.region),
+    );
+    if (sharedMuscles.isEmpty && !sameRegion) continue;
 
     final reasons = <SubstitutionReason>[
       if (samePattern)
@@ -43,6 +52,9 @@ List<SubstitutionOption> substitutesFor(
     final score =
         (samePattern ? 4 : 0) +
         sharedMuscles.length +
+        (exercise.family.isNotEmpty && candidate.family == exercise.family
+            ? 3
+            : 0) +
         (candidate.isInHomeGym ? 2 : 0) +
         (candidate.trackingType == exercise.trackingType ? 2 : 0) +
         (candidate.equipment == exercise.equipment ? 1 : 0) +

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 import '../backend/application/training_service.dart'
-    show WorkoutTiming, routineNameFor;
+    show RemovedSet, WorkoutTiming, routineNameFor;
 import '../backend/engines/workout_text.dart';
 import 'device_motion.dart';
 import 'set_timer.dart';
@@ -595,13 +595,14 @@ class AppStore extends ChangeNotifier {
   }
 
   /// Starts the rest after a set of the exercise at [index] when one
-  /// follows it: not while a later exercise of its superset still has a
-  /// set to do, and not when the rest is not set to start by itself.
-  /// True when it started.
+  /// follows it: not after the last set of the workout, not while a later
+  /// exercise of its superset still has a set to do, and not when the rest
+  /// is not set to start by itself. True when it started.
   bool restAfterSet(int index) {
     final workout = activeWorkout;
     if (workout == null ||
         !isAutoRest ||
+        workout.completedSets == workout.totalSets ||
         !workout.restsAfter(index) ||
         restFor(workout.exercises[index].exercise) == Duration.zero) {
       return false;
@@ -932,10 +933,19 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeSet(int setIndex) {
+  /// Takes the set at [setIndex] off the exercise being done. Returns the
+  /// way to put it back, until the workout ends.
+  VoidCallback? removeSet(int setIndex) {
     final workout = activeWorkout;
-    if (workout == null) return;
-    _backend.training.removeSet(workout, setIndex);
+    if (workout == null) return null;
+    final removed = _backend.training.removeSet(workout, setIndex);
+    notifyListeners();
+    return () => _restoreSet(workout, removed);
+  }
+
+  void _restoreSet(WorkoutSession workout, RemovedSet removed) {
+    if (activeWorkout != workout) return;
+    _backend.training.restoreSet(workout, removed);
     notifyListeners();
   }
 
@@ -968,20 +978,30 @@ class AppStore extends ChangeNotifier {
   List<ExerciseSessionRecord> sessionsOf(ExerciseDefinition exercise) =>
       _backend.training.sessionsOf(exercise);
 
-  void removeLastSet(int index) {
+  /// Takes the last set still to do off the exercise at [index]; returns
+  /// the way to put it back, null when there was none.
+  VoidCallback? removeLastSet(int index) {
     final workout = activeWorkout;
-    if (workout == null) return;
-    _backend.training.removeLastSet(workout, index);
+    if (workout == null) return null;
+    final removed = _backend.training.removeLastSet(workout, index);
+    if (removed == null) return null;
     notifyListeners();
+    return () => _restoreSet(workout, removed);
   }
 
   /// Takes the exercise at [index] out of today's workout, keeping at
-  /// least one.
-  void removeExercise(int index) {
+  /// least one; returns the way to put it back, null when it was kept.
+  VoidCallback? removeExercise(int index) {
     final workout = activeWorkout;
-    if (workout == null) return;
-    _backend.training.removeExercise(workout, index);
+    if (workout == null) return null;
+    final removed = _backend.training.removeExercise(workout, index);
+    if (removed == null) return null;
     notifyListeners();
+    return () {
+      if (activeWorkout != workout) return;
+      _backend.training.restoreExercise(workout, removed);
+      notifyListeners();
+    };
   }
 
   void selectExercise(int index) {
