@@ -17,7 +17,8 @@ extension BackendExports on Backend {
     return file.writeAsString(encodeArchive(exportArchive(db)));
   }
 
-  /// Writes the CSV views into their own folder under exports.
+  /// Writes the CSV views into their own folder under exports; the files
+  /// are the ones the folder holds.
   Future<Directory> writeCsvViews() async {
     final directory = await Directory(
       p.join((await _exportDirectory()).path, 'mishirube-csv-${_stamp()}'),
