@@ -1055,7 +1055,7 @@ enum LabelReader {
 
 /// The running workout on a paired Apple Watch (`lib/app/watch_sync.dart`,
 /// the app in `MishirubeWatch/`): the phone sends what to show, and the
-/// watch asks the phone to log the next set and sends its live heart rate.
+/// watch asks the phone to run the workout and sends its live heart rate.
 final class WatchBridge: NSObject, WCSessionDelegate {
   static let shared = WatchBridge()
   private var channel: FlutterMethodChannel?
@@ -1084,20 +1084,24 @@ final class WatchBridge: NSObject, WCSessionDelegate {
     }
   }
 
+  /// What the watch can ask of the phone, each as on the workout page
+  /// (`lib/app/watch_sync.dart`).
+  private static let actions: Set<String> = [
+    "logNextSet", "extendRest", "skipRest", "togglePause", "beginWorkout", "startWorkout",
+    "finishWorkout", "selectExercise", "heartRate",
+  ]
+
   func session(
     _ session: WCSession, didReceiveMessage message: [String: Any],
     replyHandler: @escaping ([String: Any]) -> Void
   ) {
-    let action = message["action"] as? String
-    guard action == "logNextSet" || action == "heartRate" else { return replyHandler([:]) }
+    guard let action = message["action"] as? String, Self.actions.contains(action) else {
+      return replyHandler([:])
+    }
+    var arguments = message
+    arguments.removeValue(forKey: "action")
     DispatchQueue.main.async {
-      if action == "heartRate" {
-        self.channel?.invokeMethod(
-          "heartRate",
-          arguments: ["bpm": message["bpm"] ?? NSNull(), "time": message["time"] ?? NSNull()])
-      } else {
-        self.channel?.invokeMethod("logNextSet", arguments: nil)
-      }
+      self.channel?.invokeMethod(action, arguments: arguments)
       replyHandler([:])
     }
   }
