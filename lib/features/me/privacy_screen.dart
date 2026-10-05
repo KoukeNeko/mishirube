@@ -30,6 +30,7 @@ class PrivacyScreen extends StatelessWidget {
           title: l10n.privacyStorage,
           facts: [
             (l10n.privacyRecords, l10n.privacyRecordsValue),
+            (l10n.privacyWidgets, l10n.privacyWidgetsValue),
             (l10n.privacyAccount, l10n.none),
             (l10n.privacyServer, l10n.none),
             (l10n.privacyDeleted, l10n.privacyDeletedValue),

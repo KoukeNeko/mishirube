@@ -5,6 +5,14 @@ import WidgetKit
 @main
 struct RestActivityBundle: WidgetBundle {
   var body: some Widget {
+    TodayWidget()
+    NutritionWidget()
+    WaterWidget()
+    CaffeineWidget()
+    GoalWidget()
+    SleepWidget()
+    WeightWidget()
+    TrainingWidget()
     RestActivityWidget()
     CaffeineActivityWidget()
   }

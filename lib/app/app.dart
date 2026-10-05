@@ -11,6 +11,7 @@ import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'bedtime_reminder.dart';
 import 'caffeine_activity.dart';
+import 'home_widgets.dart';
 import 'rest_notice.dart';
 import 'watch_sync.dart';
 import 'theme.dart';
@@ -86,7 +87,9 @@ class _MishirubeAppState extends State<MishirubeApp> {
               child: RestNotice(
                 child: CaffeineActivity(
                   child: WatchSync(
-                    child: ToastHost(child: child ?? const SizedBox.shrink()),
+                    child: HomeWidgets(
+                      child: ToastHost(child: child ?? const SizedBox.shrink()),
+                    ),
                   ),
                 ),
               ),

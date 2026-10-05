@@ -66,6 +66,9 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WindowControls") {
       WindowControls.register(with: registrar.messenger())
     }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WidgetBridge") {
+      WidgetBridge.shared.register(with: registrar)
+    }
   }
 }
 

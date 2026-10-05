@@ -6,16 +6,6 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>UIPrefersShowingLanguageSettings</key>
-	<true/>
-	<key>CFBundleLocalizations</key>
-	<array>
-		<string>zh-Hant</string>
-		<string>zh-Hans</string>
-		<string>en</string>
-		<string>ja</string>
-		<string>ko</string>
-	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Mishirube</string>
 	<key>CFBundleExecutable</key>
@@ -24,6 +14,14 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hant</string>
+		<string>zh-Hans</string>
+		<string>en</string>
+		<string>ja</string>
+		<string>ko</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>mishirube</string>
 	<key>CFBundlePackageType</key>
@@ -32,18 +30,33 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>dev.koukeneko.mishirube</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mishirube</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>拍下食物、營養標示、體脂計畫面或圍度紀錄，估算營養或讀取數字後填進紀錄。</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>把在 App 裡記錄的體重、身體數據、腰圍、睡眠、體能訓練、飲食、喝水與心情寫入「健康」App，並在修改或刪除時同步更新。</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>讀取「健康」App 裡的睡眠、體重、腰圍、身高與身體組成、體能訓練、喝水、飲食與咖啡因、心情、步數與活動量、心率與有氧體能紀錄，記進你的紀錄。</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>把在 App 裡記錄的體重、身體數據、腰圍、睡眠、體能訓練、飲食、喝水與心情寫入「健康」App，並在修改或刪除時同步更新。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>在相機畫面顯示最新一張照片，並從相簿選食物或營養標示的照片，估算營養或讀取標示數字。</string>
 	<key>NSSupportsLiveActivities</key>
@@ -77,14 +90,14 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIPrefersShowingLanguageSettings</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
