@@ -129,50 +129,113 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the menu is evenly spaced and folds back on close', (
-    tester,
-  ) async {
+  testWidgets('a category stays in one row, and what is done through the day '
+      'is the row nearest the thumb', (tester) async {
     await _pumpApp(tester, FakeClock());
 
     await tester.tap(find.byKey(_centerAction));
     await _settleFor(tester);
-    final pills = find.descendant(
-      of: find.byKey(quickLogMenuKey),
-      matching: find.byType(InkWell),
+    final menu = find.byKey(quickLogMenuKey);
+    Finder labelled(String label) =>
+        find.descendant(of: menu, matching: find.text(label));
+    Rect tile(String label) => tester.getRect(
+      find.ancestor(of: labelled(label), matching: find.byType(InkWell)),
     );
-    // One rhythm all the way down, × included.
-    final byTop = <int, Rect>{
-      for (var i = 0; i < pills.evaluate().length; i++)
-        tester.getRect(pills.at(i)).top.round(): tester.getRect(pills.at(i)),
-    };
-    final rows = [
-      ...(byTop.keys.toList()..sort()).map((top) => byTop[top]!),
-      tester.getRect(find.byTooltip('關閉')),
-    ];
-    final gaps = {
-      for (var i = 1; i < rows.length; i++)
-        (rows[i].top - rows[i - 1].bottom).round(),
-    };
-    expect(gaps, hasLength(1), reason: 'the spacing is even, $gaps');
 
-    final food = tester.getRect(
-      find.descendant(
-        of: find.byKey(quickLogMenuKey),
-        matching: find.text('飲食'),
-      ),
-    );
-    final water = tester.getRect(
-      find.descendant(
-        of: find.byKey(quickLogMenuKey),
-        matching: find.text('水'),
-      ),
+    const done = ['訓練', '運動', '飲食', '水'];
+    const body = ['體重', '圍度', '身體組成'];
+    const states = ['睡眠', '洗澡', '心情、精力、症狀'];
+    for (final row in [done, body, states]) {
+      expect(
+        {for (final label in row) tile(label).top.round()},
+        hasLength(1),
+        reason: '$row stand in one row',
+      );
+      expect(
+        {for (final label in row) tile(label).width.round()},
+        hasLength(1),
+        reason: '$row are of one width',
+      );
+      final lefts = [for (final label in row) tile(label).left];
+      expect(lefts, [...lefts]..sort(), reason: '$row keep the list order');
+    }
+
+    expect(tile('睡眠').bottom, lessThan(tile('體重').top));
+    expect(tile('體重').bottom, lessThan(tile('訓練').top));
+    expect(
+      tile('體重').top - tile('睡眠').bottom,
+      moreOrLessEquals(AppSpacing.xs, epsilon: 0.5),
+      reason: 'rows of one kind are a tile gap apart',
     );
     expect(
-      water.top,
-      greaterThan(food.bottom),
-      reason: 'water is a module of its own, on a row of its own',
+      tile('訓練').top - tile('體重').bottom,
+      moreOrLessEquals(AppSpacing.sm, epsilon: 0.5),
+      reason: 'the larger row stands a little apart',
+    );
+    expect(
+      tile('訓練').height,
+      greaterThan(tile('體重').height),
+      reason: 'what is done through the day has the larger tiles',
     );
 
+    final panel = tester.getRect(find.byKey(quickLogPanelKey));
+    final dock = tester.getRect(find.byType(SplitDock));
+    expect(panel.left, moreOrLessEquals(dock.left, epsilon: 0.5));
+    expect(panel.right, moreOrLessEquals(dock.right, epsilon: 0.5));
+    expect(
+      tester.getRect(find.byTooltip('關閉')).top - panel.bottom,
+      moreOrLessEquals(10, epsilon: 0.5),
+      reason: '× sits under the panel where「+」was',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('a label a character too long shrinks instead of leaving that '
+      'character alone on a second line', (tester) async {
+    await _pumpApp(tester, FakeClock());
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    final label = find.descendant(
+      of: find.byKey(quickLogMenuKey),
+      matching: find.text('心情、精力、症狀'),
+    );
+    expect(tester.getSize(label).height, lessThan(20), reason: 'one line');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the panel grows out of the「+」and ends above it', (tester) async {
+    await _pumpApp(tester, FakeClock());
+    final plus = tester.getRect(find.byKey(_centerAction));
+    Rect glass() => tester.getRect(find.byKey(quickLogPanelKey));
+
+    await tester.tap(find.byKey(_centerAction));
+    await tester.pump();
+    final first = glass();
+    expect(
+      plus.contains(first.center),
+      isTrue,
+      reason: 'it starts inside the button, behind it',
+    );
+    expect(first.shortestSide, lessThan(plus.shortestSide / 4));
+
+    await tester.pump(const Duration(milliseconds: 60));
+    final midway = glass();
+    expect(midway.width, greaterThan(first.width));
+    expect(midway.top, lessThan(first.top), reason: 'it rises as it grows');
+
+    await _settleFor(tester);
+    final last = glass();
+    expect(last.width, greaterThan(300));
+    expect(last.bottom, lessThan(plus.top), reason: 'it ends above the button');
+    await disposeTree(tester);
+  });
+
+  testWidgets('the panel folds back into「+」on close', (tester) async {
+    await _pumpApp(tester, FakeClock());
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
     await tester.tap(find.byTooltip('關閉'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 80));
@@ -226,6 +289,51 @@ void main() {
           ? findsOneWidget
           : findsNothing,
       reason: 'switching a module changes the menu with it',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('water, which writes at once, says how much and sits beside '
+      'the meal rather than in it', (tester) async {
+    final store = await _pumpApp(tester, FakeClock());
+    final nutrition = NutritionViewModel(store.backend);
+    addTearDown(nutrition.dispose);
+    final menu = find.byKey(quickLogMenuKey);
+    Finder inMenu(Finder finder) => find.descendant(of: menu, matching: finder);
+
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    expect(
+      inMenu(find.textContaining(' mL')),
+      findsOneWidget,
+      reason: 'only the option that writes at once says what it writes',
+    );
+    expect(
+      inMenu(find.text('${nutrition.glassMillilitres} mL')),
+      findsOneWidget,
+    );
+    Rect tile(String label) => tester.getRect(
+      find.ancestor(
+        of: inMenu(find.text(label)),
+        matching: find.byType(InkWell),
+      ),
+    );
+    expect(
+      tile('水').left,
+      moreOrLessEquals(tile('飲食').right + AppSpacing.xs, epsilon: 0.5),
+      reason: 'water is a module of its own, a tile of its own',
+    );
+    expect(tile('水').top, tile('飲食').top);
+
+    await tester.tap(find.byTooltip('關閉'));
+    await _settleFor(tester);
+    nutrition.setGlassMillilitres(330);
+    await tester.tap(find.byKey(_centerAction));
+    await _settleFor(tester);
+    expect(
+      inMenu(find.text('330 mL')),
+      findsOneWidget,
+      reason: 'the glass the user chose',
     );
     await disposeTree(tester);
   });
@@ -826,29 +934,23 @@ void main() {
           reason: 'the page background still fills the screen',
         );
         expect(
-          tester
-              .widget<ImageFiltered>(find.byType(ImageFiltered).first)
-              .enabled,
-          isTrue,
-          reason: 'the app behind the menu is blurred',
+          find.ancestor(
+            of: find.byType(IndexedStack),
+            matching: find.byType(ImageFiltered),
+          ),
+          findsNothing,
+          reason: 'the app behind the menu is dimmed, not blurred',
         );
         double centerOpacity() => tester
             .widget<Opacity>(
               find.byKey(const ValueKey('dock-center-visibility')),
             )
             .opacity;
-        expect(centerOpacity(), 0, reason: '× stands in for the blurred「+」');
+        expect(centerOpacity(), 0, reason: '× stands in for the「+」');
 
         await tester.tap(find.byTooltip('關閉'));
         await _settleFor(tester);
         expect(contentRect(tester).width, phoneSize.width);
-        expect(
-          tester
-              .widget<ImageFiltered>(find.byType(ImageFiltered).first)
-              .enabled,
-          isFalse,
-          reason: 'no filter left running once closed',
-        );
         expect(centerOpacity(), 1);
         await disposeTree(tester);
       },

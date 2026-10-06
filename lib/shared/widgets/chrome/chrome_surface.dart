@@ -73,9 +73,11 @@ class ChromeSurface extends StatelessWidget {
   final double radius;
 
   /// Liquid glass instead of frost, where the device supports it: the dock
-  /// (capsules and「+」) and the app bar's action pills.
-  /// Smaller, scrolling or animated surfaces rendered it blocky, metallic
-  /// or misplaced, so they stay frosted.
+  /// (capsules and「+」), the app bar's action pills and the quick-log
+  /// menu's panel, which grows out of the「+」by being laid out larger each
+  /// frame, never scaled or faded. Smaller, scrolling or otherwise animated
+  /// surfaces rendered it blocky, metallic or misplaced, so they stay
+  /// frosted.
   final bool refracts;
 
   /// How much [tint] covers the surface; null uses the default for frost or

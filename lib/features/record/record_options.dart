@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/theme.dart';
+import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/record_activity_screen.dart';
 import '../journal/bath_entry_screen.dart';
@@ -21,24 +23,33 @@ import '../../l10n/l10n.dart';
 class RecordOption {
   const RecordOption({
     required this.icon,
-    required this.color,
+    required this.category,
     required this.title,
     required this.module,
     required Widget Function() this.destination,
-  }) : onSelect = null;
+    this._color,
+  }) : onSelect = null,
+       detail = null;
 
   /// An option that is done in one tap and opens nothing, such as logging
-  /// a glass of water.
+  /// a glass of water. [detail] says what that tap writes.
   const RecordOption.action({
     required this.icon,
-    required this.color,
+    required this.category,
     required this.title,
     required this.module,
     required void Function(BuildContext context) this.onSelect,
+    required String Function(BuildContext context) this.detail,
+    this._color,
   }) : destination = null;
 
   final IconData icon;
-  final Color color;
+
+  /// The kind of record it makes, as the log and calendar group it. The
+  /// menu keeps a category together.
+  final RecordCategory category;
+
+  final Color? _color;
   final String Function(AppLocalizations l10n) title;
 
   /// The module this record belongs to; turning the module off takes the
@@ -50,28 +61,37 @@ class RecordOption {
   /// nowhere would be a button that only says it is not done yet.
   final Widget Function()? destination;
   final void Function(BuildContext context)? onSelect;
+
+  /// What a tap writes, for an option that writes at once; null for one
+  /// that opens a screen.
+  final String Function(BuildContext context)? detail;
+
+  /// What its icon is drawn in: its category's colour, unless it has one
+  /// of its own. Water is a drink, so it is nutrition's, yet it is a
+  /// module of its own with a colour of its own.
+  Color get color => _color ?? category.color;
 }
 
-/// What the user can add, most used first. The menu shows the ones whose
-/// module is on.
+/// What the user can add: one entry per kind of record, kept by category.
+/// The menu shows the ones whose module is on.
 final recordOptions = [
   RecordOption(
     icon: Icons.fitness_center,
-    color: AppColors.training,
+    category: RecordCategory.training,
     title: (l10n) => l10n.moduleTraining,
     module: AppModule.training,
     destination: () => const TrainingScreen(),
   ),
   RecordOption(
     icon: Icons.directions_run,
-    color: AppColors.activity,
+    category: RecordCategory.activity,
     title: (l10n) => l10n.moduleActivity,
     module: AppModule.activity,
     destination: () => const RecordActivityScreen(),
   ),
   RecordOption(
     icon: Icons.restaurant,
-    color: AppColors.nutrition,
+    category: RecordCategory.nutrition,
     title: (l10n) => l10n.moduleNutrition,
     module: AppModule.nutrition,
     destination: () => const FoodSearchScreen(),
@@ -81,9 +101,16 @@ final recordOptions = [
   // in case the tap was a slip.
   RecordOption.action(
     icon: Icons.water_drop_outlined,
+    category: RecordCategory.nutrition,
     color: AppColors.water,
     title: (l10n) => l10n.recordWater,
     module: AppModule.water,
+    detail: (context) {
+      final nutrition = NutritionViewModel(AppStoreScope.read(context).backend);
+      final millilitres = nutrition.glassMillilitres;
+      nutrition.dispose();
+      return withUnit('$millilitres', 'mL');
+    },
     onSelect: (context) {
       final store = AppStoreScope.read(context);
       final nutrition = NutritionViewModel(store.backend);
@@ -99,49 +126,49 @@ final recordOptions = [
   ),
   RecordOption(
     icon: Icons.monitor_weight_outlined,
-    color: AppColors.body,
+    category: RecordCategory.body,
     title: (l10n) => l10n.moduleWeight,
     module: AppModule.weight,
     destination: () => const WeightEntryScreen(),
   ),
   RecordOption(
-    icon: Icons.bedtime_outlined,
-    color: AppColors.wellness,
-    title: (l10n) => l10n.moduleSleep,
-    module: AppModule.sleep,
-    destination: () => const SleepEntryScreen(),
-  ),
-  RecordOption(
-    icon: Icons.bathtub_outlined,
-    color: AppColors.wellness,
-    title: (l10n) => l10n.recordBath,
-    module: AppModule.sleep,
-    destination: () => const BathEntryScreen(),
-  ),
-  RecordOption(
-    icon: Icons.sentiment_satisfied_outlined,
-    color: AppColors.textSecondary,
-    title: (l10n) => l10n.moduleWellness,
-    module: AppModule.wellness,
-    destination: () => const WellnessEntryScreen(),
-  ),
-  RecordOption(
     icon: Icons.straighten,
-    color: AppColors.body,
+    category: RecordCategory.body,
     title: (l10n) => l10n.recordMeasurements,
     module: AppModule.weight,
     destination: () => const MeasurementEntryScreen(),
   ),
   RecordOption(
     icon: Icons.accessibility_new,
-    color: AppColors.body,
+    category: RecordCategory.body,
     title: (l10n) => l10n.recordBodyComposition,
     module: AppModule.weight,
     destination: () => const BodyReadingEntryScreen(),
   ),
   RecordOption(
+    icon: Icons.bedtime_outlined,
+    category: RecordCategory.wellness,
+    title: (l10n) => l10n.moduleSleep,
+    module: AppModule.sleep,
+    destination: () => const SleepEntryScreen(),
+  ),
+  RecordOption(
+    icon: Icons.bathtub_outlined,
+    category: RecordCategory.wellness,
+    title: (l10n) => l10n.recordBath,
+    module: AppModule.sleep,
+    destination: () => const BathEntryScreen(),
+  ),
+  RecordOption(
+    icon: Icons.sentiment_satisfied_outlined,
+    category: RecordCategory.wellness,
+    title: (l10n) => l10n.moduleWellness,
+    module: AppModule.wellness,
+    destination: () => const WellnessEntryScreen(),
+  ),
+  RecordOption(
     icon: Icons.description_outlined,
-    color: AppColors.textSecondary,
+    category: RecordCategory.wellness,
     title: (l10n) => l10n.moduleNotes,
     module: AppModule.notes,
     destination: () => const NoteEntryScreen(),
