@@ -201,6 +201,39 @@ void main() {
       expect(workout.currentExercise.sets.first.previousWeightKg, 95);
     });
 
+    test('an exercise put elsewhere stays there after the app is killed', () {
+      final firstRun = openFile();
+      final store = AppStore(
+        clock: clock.now,
+        isOnboarded: true,
+        backend: firstRun,
+      )..startWorkout();
+      final ids = [
+        for (final item in store.activeWorkout!.exercises) item.exercise.id,
+      ];
+      expect(store.activeWorkout!.currentExerciseIndex, 0);
+
+      store.moveExercise(0, 2);
+      expect(
+        store.activeWorkout!.currentExerciseIndex,
+        2,
+        reason: 'the one under way goes with it',
+      );
+      firstRun.close();
+
+      final secondRun = openFile();
+      addTearDown(secondRun.close);
+      final workout = AppStore(
+        clock: clock.now,
+        backend: secondRun,
+      ).activeWorkout!;
+      expect(
+        [for (final item in workout.exercises) item.exercise.id],
+        [ids[1], ids[2], ids[0], ...ids.skip(3)],
+      );
+      expect(workout.currentExerciseIndex, 2);
+    });
+
     test('the rest set for an exercise and automatic rest are kept', () {
       final firstRun = openFile();
       final store = AppStore(

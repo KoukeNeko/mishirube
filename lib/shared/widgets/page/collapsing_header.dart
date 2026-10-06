@@ -8,6 +8,7 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show ProgressiveBlur;
 
 import '../../../app/theme.dart';
+import '../../haptics.dart';
 import '../../motion.dart';
 import '../../window_controls.dart';
 import '../../window_layout.dart';
@@ -785,6 +786,31 @@ class HeaderAction extends StatelessWidget {
   }
 }
 
+/// The first [count] children of a page that the user can put in another
+/// order, by holding one down and dragging it. Each has a key, and gives
+/// the part to hold in a [ReorderableDelayedDragStartListener]. [onReorder]
+/// says where a child came from and the place it ends up in.
+class ReorderableChildren {
+  const ReorderableChildren({required this.count, required this.onReorder});
+
+  final int count;
+  final void Function(int from, int to) onReorder;
+}
+
+/// How much a held child grows as it comes off the page.
+const _liftScale = 0.02;
+
+/// A held child rises a little off the page.
+Widget _lifted(Widget child, int index, Animation<double> animation) =>
+    AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) => Transform.scale(
+        scale: 1 + _liftScale * Curves.easeOut.transform(animation.value),
+        child: child,
+      ),
+    );
+
 /// Scroll view with a [CollapsingHeaderDelegate] pinned on top and the
 /// standard gutter/rhythm for its children.
 class CollapsingScrollView extends StatefulWidget {
@@ -792,12 +818,16 @@ class CollapsingScrollView extends StatefulWidget {
     super.key,
     required this.header,
     required this.children,
+    this.reorder,
     this.bottomPadding = AppSpacing.xxl,
     this.hasTopGap = true,
   });
 
   final CollapsingHeaderDelegate header;
   final List<Widget> children;
+
+  /// Which of the [children] can be put in another order, if any.
+  final ReorderableChildren? reorder;
   final double bottomPadding;
 
   /// Whether the content starts a gap below the header, or right under
@@ -872,6 +902,7 @@ class _CollapsingScrollViewState extends State<CollapsingScrollView> {
                 widget.children,
                 hasTopGap: widget.hasTopGap,
                 bottomPadding: widget.bottomPadding,
+                reorder: widget.reorder,
               ),
               // Minimum page height: always enough to collapse the header fully,
               // so content that shrinks (a day without records, a narrow filter)
@@ -904,17 +935,40 @@ Widget _pageItems(
   List<Widget> children, {
   required bool hasTopGap,
   required double bottomPadding,
-}) => SliverPadding(
-  padding: EdgeInsets.only(
-    top: hasTopGap ? _contentTopGap : 0,
-    bottom: bottomPadding + MediaQuery.paddingOf(context).bottom,
-  ),
-  sliver: SliverList.separated(
-    itemCount: children.length,
+  ReorderableChildren? reorder,
+}) {
+  final held = reorder?.count ?? 0;
+  final rest = SliverList.separated(
+    itemCount: children.length - held,
     separatorBuilder: (_, _) => const SizedBox(height: pageItemSpacing),
-    itemBuilder: (_, index) => children[index],
-  ),
-);
+    itemBuilder: (_, index) => children[held + index],
+  );
+  return SliverPadding(
+    padding: EdgeInsets.only(
+      top: hasTopGap ? _contentTopGap : 0,
+      bottom: bottomPadding + MediaQuery.paddingOf(context).bottom,
+    ),
+    sliver: reorder == null
+        ? rest
+        : SliverMainAxisGroup(
+            slivers: [
+              SliverReorderableList(
+                itemCount: held,
+                // The page's gap under a child goes with it.
+                itemBuilder: (_, index) => Padding(
+                  key: ValueKey(children[index].key),
+                  padding: const EdgeInsets.only(bottom: pageItemSpacing),
+                  child: children[index],
+                ),
+                onReorderStart: (_) => AppHaptics.tap(),
+                onReorderItem: reorder.onReorder,
+                proxyDecorator: _lifted,
+              ),
+              rest,
+            ],
+          ),
+  );
+}
 
 /// A [CollapsingHeaderDelegate] with no large title over a block held at
 /// the top of the page, whose own scrolling runs up behind the header, as

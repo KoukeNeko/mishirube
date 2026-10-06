@@ -648,6 +648,17 @@ class TrainingService {
     _workouts.save(workout, action: 'select_exercise');
   }
 
+  /// Puts the exercise at [from] at [to], the place it ends up in. The one
+  /// being done stays the one being done, wherever it goes.
+  void moveExercise(WorkoutSession workout, int from, int to) {
+    if (from == to) return;
+    final exercises = workout.exercises;
+    final current = workout.currentExercise;
+    exercises.insert(to, exercises.removeAt(from));
+    workout.currentExerciseIndex = exercises.indexOf(current);
+    _workouts.save(workout, action: 'reorder_exercises');
+  }
+
   void addExercises(
     WorkoutSession workout,
     Iterable<ExerciseDefinition> exercises,

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart'
         Scaffold,
         StatefulBuilder;
 import 'package:flutter/widgets.dart' show Navigator, NavigatorState, Text;
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart' show MethodChannel, SystemChannels;
 import 'package:flutter_test/flutter_test.dart';
@@ -517,6 +518,65 @@ void main() {
 
       expect(find.text('時間'), findsOneWidget);
       expect(find.text('心率'), findsNothing);
+      await disposeTree(tester);
+    });
+
+    testWidgets('an exercise held by its header goes where it is dragged', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      List<String> order() => [
+        for (final item in store.activeWorkout!.exercises) item.exercise.name,
+      ];
+      final before = order();
+
+      final finger = await tester.startGesture(
+        tester.getCenter(find.text(before.first)),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      await finger.moveBy(const Offset(0, 40));
+      await tester.pump();
+      await finger.moveBy(const Offset(0, 460));
+      await tester.pump();
+      await finger.up();
+      await tester.pumpAndSettle();
+
+      expect(order(), [before[1], before.first, ...before.skip(2)]);
+      expect(
+        store.activeWorkout!.currentExercise.exercise.name,
+        before.first,
+        reason: 'the exercise under way went with it',
+      );
+      await disposeTree(tester);
+    });
+
+    testWidgets('a quick tap on a header does not pick the exercise up', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      final before = [
+        for (final item in store.activeWorkout!.exercises) item.exercise.name,
+      ];
+
+      await tester.dragFrom(
+        tester.getCenter(find.text(before.first)),
+        const Offset(0, -120),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        [for (final item in store.activeWorkout!.exercises) item.exercise.name],
+        before,
+        reason: 'a drag with no hold scrolls the page',
+      );
       await disposeTree(tester);
     });
 

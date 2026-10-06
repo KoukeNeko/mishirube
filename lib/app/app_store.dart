@@ -1011,6 +1011,14 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Puts the exercise at [from] at [to], the place it ends up in.
+  void moveExercise(int from, int to) {
+    final workout = activeWorkout;
+    if (workout == null) return;
+    _backend.training.moveExercise(workout, from, to);
+    notifyListeners();
+  }
+
   /// Opens [routine] for editing and starting.
   void selectRoutine(Routine routine) {
     _routine = routine;

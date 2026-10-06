@@ -43,8 +43,14 @@ class ActiveWorkoutScreen extends StatefulWidget {
 }
 
 class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
-  /// One per exercise card, for bringing the one being done into view.
-  final _cardKeys = <GlobalKey>[];
+  /// One per exercise card, for bringing the one being done into view. It
+  /// goes with the exercise when that is moved to another place, and marks
+  /// a point of the card rather than the card, which a list that can be
+  /// reordered rebuilds from the start when its place changes.
+  final _cardKeys = Expando<GlobalKey>();
+
+  GlobalKey _cardKey(ExerciseSession exercise) =>
+      _cardKeys[exercise] ??= GlobalKey();
 
   /// Whether the rest is tucked into one line, as the tab bar is while
   /// the page scrolls down.
@@ -79,10 +85,7 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       if (!mounted) return;
       final workout = AppStoreScope.read(context).activeWorkout;
       if (workout == null || workout.currentExerciseIndex == 0) return;
-      final key = workout.currentExerciseIndex < _cardKeys.length
-          ? _cardKeys[workout.currentExerciseIndex]
-          : null;
-      if (key?.currentContext case final card?) {
+      if (_cardKey(workout.currentExercise).currentContext case final card?) {
         Scrollable.ensureVisible(card, alignment: 0.1);
       }
     });
@@ -91,11 +94,12 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
   /// Brings the card at [index] into view: the exercise the workout has
   /// moved on to, as in a superset.
   void _showCard(int index) {
-    if (index >= _cardKeys.length) return;
     // After the page has rebuilt with the new current exercise.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (_cardKeys[index].currentContext case final card?) {
+      final exercises = AppStoreScope.read(context).activeWorkout?.exercises;
+      if (exercises == null || index >= exercises.length) return;
+      if (_cardKey(exercises[index]).currentContext case final card?) {
         Scrollable.ensureVisible(
           card,
           alignment: 0.1,
@@ -188,9 +192,6 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
       }
       return const Scaffold();
     }
-    while (_cardKeys.length < workout.exercises.length) {
-      _cardKeys.add(GlobalKey());
-    }
     final review = store.workoutReview(workout);
     final media = MediaQuery.of(context);
     // Between sets the device sits on a bench; it should not lock.
@@ -252,11 +253,17 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                 compactTitle: _LiveTitle(workout: workout),
                 large: _WorkoutHero(workout: workout, review: review),
               ),
+              // Held by its header, an exercise goes where it is dragged.
+              reorder: ReorderableChildren(
+                count: workout.exercises.length,
+                onReorder: store.moveExercise,
+              ),
               children: [
                 for (final (index, exercise) in workout.exercises.indexed)
                   Gutter(
-                    key: _cardKeys[index],
+                    key: ObjectKey(exercise),
                     child: _ExerciseCard(
+                      anchorKey: _cardKey(exercise),
                       index: index,
                       exercise: exercise,
                       isCurrent: index == workout.currentExerciseIndex,
@@ -984,6 +991,7 @@ enum _ExerciseAction {
 /// off, what it has come to so far, and what it was last time.
 class _ExerciseCard extends StatelessWidget {
   const _ExerciseCard({
+    required this.anchorKey,
     required this.index,
     required this.exercise,
     required this.isCurrent,
@@ -992,6 +1000,8 @@ class _ExerciseCard extends StatelessWidget {
     required this.onMoveOn,
   });
 
+  /// The top of the card, for scrolling to it.
+  final Key anchorKey;
   final int index;
   final ExerciseSession exercise;
 
@@ -1220,35 +1230,42 @@ class _ExerciseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            spacing: AppSpacing.xs,
-            children: [
-              Text(
-                '${index + 1} ',
-                style: AppTextStyles.itemTitle.copyWith(
-                  color: AppColors.training,
+          SizedBox(key: anchorKey),
+          // Hold the header to pick the exercise up and drag it elsewhere.
+          ReorderableDelayedDragStartListener(
+            index: index,
+            child: Row(
+              spacing: AppSpacing.xs,
+              children: [
+                Text(
+                  '${index + 1} ',
+                  style: AppTextStyles.itemTitle.copyWith(
+                    color: AppColors.training,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Text(
-                  exercise.exercise.name,
-                  style: AppTextStyles.itemTitle,
+                Expanded(
+                  child: Text(
+                    exercise.exercise.name,
+                    style: AppTextStyles.itemTitle,
+                  ),
                 ),
-              ),
-              if (isInSuperset)
-                TagChip(label: context.l10n.superset, tone: TagTone.training),
-              SquareIconButton(
-                icon: Icons.info_outline,
-                tooltip: context.l10n.aboutItem(name: exercise.exercise.name),
-                onPressed: () =>
-                    showExerciseInfoSheet(context, exercise.exercise),
-              ),
-              SquareIconButton(
-                icon: Icons.more_horiz,
-                tooltip: context.l10n.optionsFor(name: exercise.exercise.name),
-                onPressed: () => _menu(context),
-              ),
-            ],
+                if (isInSuperset)
+                  TagChip(label: context.l10n.superset, tone: TagTone.training),
+                SquareIconButton(
+                  icon: Icons.info_outline,
+                  tooltip: context.l10n.aboutItem(name: exercise.exercise.name),
+                  onPressed: () =>
+                      showExerciseInfoSheet(context, exercise.exercise),
+                ),
+                SquareIconButton(
+                  icon: Icons.more_horiz,
+                  tooltip: context.l10n.optionsFor(
+                    name: exercise.exercise.name,
+                  ),
+                  onPressed: () => _menu(context),
+                ),
+              ],
+            ),
           ),
           Text(
             [
