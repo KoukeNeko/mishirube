@@ -7232,6 +7232,18 @@ abstract class AppLocalizations {
   /// **'增加 {amount}'**
   String increaseBy({required String amount});
 
+  /// Number keypad key: moves to the figure before the one being typed.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一項'**
+  String get previousField;
+
+  /// Number keypad key: moves to the figure after the one being typed.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一項'**
+  String get nextField;
+
   /// Stepper label.
   ///
   /// In zh, this message translates to:

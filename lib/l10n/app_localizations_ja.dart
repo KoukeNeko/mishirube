@@ -4139,6 +4139,12 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get previousField => '前へ';
+
+  @override
+  String get nextField => '次へ';
+
+  @override
   String get oneRepLess => '1回減らす';
 
   @override

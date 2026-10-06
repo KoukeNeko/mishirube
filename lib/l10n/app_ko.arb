@@ -1178,6 +1178,8 @@
   "changedTo": "{name} {weight} kg로 변경",
   "decreaseBy": "{amount} 줄이기",
   "increaseBy": "{amount} 늘리기",
+  "previousField": "이전",
+  "nextField": "다음",
   "oneRepLess": "1회 줄이기",
   "oneRepMore": "1회 늘리기",
   "notLogged": "기록 안 함",

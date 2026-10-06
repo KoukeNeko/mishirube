@@ -4196,6 +4196,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get previousField => 'Previous';
+
+  @override
+  String get nextField => 'Next';
+
+  @override
   String get oneRepLess => '1 rep fewer';
 
   @override

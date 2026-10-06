@@ -4140,6 +4140,12 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get previousField => '이전';
+
+  @override
+  String get nextField => '다음';
+
+  @override
   String get oneRepLess => '1회 줄이기';
 
   @override

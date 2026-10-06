@@ -1178,6 +1178,8 @@
   "changedTo": "{name} set to {weight} kg",
   "decreaseBy": "Decrease by {amount}",
   "increaseBy": "Increase by {amount}",
+  "previousField": "Previous",
+  "nextField": "Next",
   "oneRepLess": "1 rep fewer",
   "oneRepMore": "1 rep more",
   "notLogged": "None",

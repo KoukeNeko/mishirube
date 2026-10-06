@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../l10n/l10n.dart';
 import '../../haptics.dart';
+import 'number_keypad.dart';
 
 const _fieldHeight = 56.0;
+
+/// How far from the edge a field being typed in is kept when it is
+/// scrolled into view, the framework's own default.
+const _scrollMargin = 20.0;
 
 /// How tall a [SearchField] is, for a page that pins one in its header.
 const searchFieldHeight = _fieldHeight;
@@ -275,8 +280,10 @@ class NumberFieldRow extends StatelessWidget {
   }
 }
 
-/// A figure typed in place, in a table of them: a set's weight or reps. What was typed is handed over when the field
-/// is left or submitted; until then the set keeps its figure.
+/// A figure typed in place, in a table of them: a set's weight or reps, on
+/// the app's [NumberKeypadHost] keypad. Taking focus selects the figure,
+/// so what is typed replaces it. What was typed is handed over when the
+/// field is left or submitted; until then the set keeps its figure.
 class InlineNumberField extends StatefulWidget {
   const InlineNumberField({
     super.key,
@@ -299,15 +306,38 @@ class InlineNumberField extends StatefulWidget {
   State<InlineNumberField> createState() => _InlineNumberFieldState();
 }
 
-class _InlineNumberFieldState extends State<InlineNumberField> {
+class _InlineNumberFieldState extends State<InlineNumberField>
+    implements KeypadField {
   late final _controller = TextEditingController(text: widget.text);
   final _focus = FocusNode();
+  late final _keypad = NumberKeypadHost.of(context);
+
+  @override
+  TextEditingController get controller => _controller;
+
+  @override
+  FocusNode get focusNode => _focus;
+
+  @override
+  bool get allowsDecimal => widget.decimal;
+
+  @override
+  EdgeInsets get scrollPadding => const EdgeInsets.all(_scrollMargin)
+      .copyWith(bottom: _scrollMargin + MediaQuery.paddingOf(context).bottom);
 
   @override
   void initState() {
     super.initState();
+    _keypad.attach(this);
     _focus.addListener(() {
-      if (!_focus.hasFocus) _commit();
+      if (_focus.hasFocus) {
+        _controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controller.text.length,
+        );
+      } else {
+        _commit();
+      }
     });
   }
 
@@ -322,6 +352,7 @@ class _InlineNumberFieldState extends State<InlineNumberField> {
 
   @override
   void dispose() {
+    _keypad.detach(this);
     _controller.dispose();
     _focus.dispose();
     super.dispose();
@@ -345,9 +376,11 @@ class _InlineNumberFieldState extends State<InlineNumberField> {
           onTapOutside: dismissKeyboardOnTapOutside,
           onSubmitted: (_) => _commit(),
           textAlign: TextAlign.center,
-          keyboardType: TextInputType.numberWithOptions(
-            decimal: widget.decimal,
-          ),
+          // The keypad is the app's own; a tap must not move the selection
+          // that taking focus made.
+          keyboardType: TextInputType.none,
+          enableInteractiveSelection: false,
+          scrollPadding: scrollPadding,
           textAlignVertical: TextAlignVertical.center,
           style: AppTextStyles.body.copyWith(
             fontSize: 17,

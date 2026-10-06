@@ -4131,6 +4131,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get previousField => '上一項';
+
+  @override
+  String get nextField => '下一項';
+
+  @override
   String get oneRepLess => '少 1 次';
 
   @override
@@ -10529,6 +10535,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String increaseBy({required String amount}) {
     return '增加 $amount';
   }
+
+  @override
+  String get previousField => '上一项';
+
+  @override
+  String get nextField => '下一项';
 
   @override
   String get oneRepLess => '少 1 次';

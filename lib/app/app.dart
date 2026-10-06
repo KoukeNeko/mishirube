@@ -7,6 +7,7 @@ import '../features/me/privacy_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/shell/home_shell.dart';
 import '../shared/toast/toast_host.dart';
+import '../shared/widgets/controls/number_keypad.dart';
 import '../shared/window_controls.dart';
 import 'app_store.dart';
 import 'bedtime_reminder.dart';
@@ -88,7 +89,11 @@ class _MishirubeAppState extends State<MishirubeApp> {
                 child: CaffeineActivity(
                   child: WatchSync(
                     child: HomeWidgets(
-                      child: ToastHost(child: child ?? const SizedBox.shrink()),
+                      child: NumberKeypadHost(
+                        child: ToastHost(
+                          child: child ?? const SizedBox.shrink(),
+                        ),
+                      ),
                     ),
                   ),
                 ),

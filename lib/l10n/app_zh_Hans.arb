@@ -1178,6 +1178,8 @@
   "changedTo": "{name} 改为 {weight} kg",
   "decreaseBy": "减少 {amount}",
   "increaseBy": "增加 {amount}",
+  "previousField": "上一项",
+  "nextField": "下一项",
   "oneRepLess": "少 1 次",
   "oneRepMore": "多 1 次",
   "notLogged": "未记",

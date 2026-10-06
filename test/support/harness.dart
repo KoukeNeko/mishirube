@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/l10n/l10n.dart';
-import 'package:mishirube/shared/toast/toast_host.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 /// iPhone-class logical size used by the design mock.
 const phoneSize = Size(390, 844);
@@ -103,7 +103,8 @@ Future<void> pumpScreen(
         locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        builder: (_, child) => ToastHost(child: child!),
+        builder: (_, child) =>
+            NumberKeypadHost(child: ToastHost(child: child!)),
         home: screen,
       ),
     ),

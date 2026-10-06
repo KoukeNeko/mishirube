@@ -1178,6 +1178,8 @@
   "changedTo": "{name}を{weight} kgに変更",
   "decreaseBy": "{amount}減らす",
   "increaseBy": "{amount}増やす",
+  "previousField": "前へ",
+  "nextField": "次へ",
   "oneRepLess": "1回減らす",
   "oneRepMore": "1回増やす",
   "notLogged": "未記録",

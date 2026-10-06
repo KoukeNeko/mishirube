@@ -6245,6 +6245,14 @@
       }
     }
   },
+  "previousField": "上一項",
+  "@previousField": {
+    "description": "Number keypad key: moves to the figure before the one being typed."
+  },
+  "nextField": "下一項",
+  "@nextField": {
+    "description": "Number keypad key: moves to the figure after the one being typed."
+  },
   "oneRepLess": "少 1 次",
   "@oneRepLess": {
     "description": "Stepper label."
