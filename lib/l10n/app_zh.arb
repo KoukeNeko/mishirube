@@ -5797,6 +5797,10 @@
   "@elapsedTime": {
     "description": "Clock label."
   },
+  "heartRateLabel": "心率",
+  "@heartRateLabel": {
+    "description": "Label under the live heart rate beside the running workout's clock."
+  },
   "workoutNotesTitle": "這次訓練的備註",
   "@workoutNotesTitle": {
     "description": "Dialog title."

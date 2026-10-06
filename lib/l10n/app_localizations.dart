@@ -6758,6 +6758,12 @@ abstract class AppLocalizations {
   /// **'時間'**
   String get elapsedTime;
 
+  /// Label under the live heart rate beside the running workout's clock.
+  ///
+  /// In zh, this message translates to:
+  /// **'心率'**
+  String get heartRateLabel;
+
   /// Dialog title.
   ///
   /// In zh, this message translates to:

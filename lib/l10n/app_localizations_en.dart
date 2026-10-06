@@ -3908,6 +3908,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get elapsedTime => 'Time';
 
   @override
+  String get heartRateLabel => 'Heart rate';
+
+  @override
   String get workoutNotesTitle => 'Workout note';
 
   @override

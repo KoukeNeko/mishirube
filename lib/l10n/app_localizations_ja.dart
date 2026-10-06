@@ -3851,6 +3851,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get elapsedTime => '時間';
 
   @override
+  String get heartRateLabel => '心拍数';
+
+  @override
   String get workoutNotesTitle => 'このトレーニングのメモ';
 
   @override

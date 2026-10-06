@@ -1101,6 +1101,7 @@
   "restTitle": "휴식",
   "skipRest": "휴식 건너뛰기",
   "elapsedTime": "시간",
+  "heartRateLabel": "심박수",
   "workoutNotesTitle": "이번 운동 메모",
   "workoutNotesHint": "예: 잠을 못 자서 악력이 먼저 한계",
   "addWarmupSets": "워밍업 세트 추가",

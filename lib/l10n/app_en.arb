@@ -1101,6 +1101,7 @@
   "restTitle": "Rest",
   "skipRest": "Skip rest",
   "elapsedTime": "Time",
+  "heartRateLabel": "Heart rate",
   "workoutNotesTitle": "Workout note",
   "workoutNotesHint": "E.g. slept badly, grip gave out first",
   "addWarmupSets": "Add warm-up sets",

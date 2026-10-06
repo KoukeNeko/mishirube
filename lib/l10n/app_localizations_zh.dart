@@ -3843,6 +3843,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get elapsedTime => '時間';
 
   @override
+  String get heartRateLabel => '心率';
+
+  @override
   String get workoutNotesTitle => '這次訓練的備註';
 
   @override
@@ -10247,6 +10250,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get elapsedTime => '时间';
+
+  @override
+  String get heartRateLabel => '心率';
 
   @override
   String get workoutNotesTitle => '这次训练的备注';

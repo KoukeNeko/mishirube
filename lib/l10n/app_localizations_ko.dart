@@ -3852,6 +3852,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get elapsedTime => '시간';
 
   @override
+  String get heartRateLabel => '심박수';
+
+  @override
   String get workoutNotesTitle => '이번 운동 메모';
 
   @override

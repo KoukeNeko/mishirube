@@ -479,6 +479,47 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets(
+      'the clock names the heart rate and the time, each under its own',
+      (tester) async {
+        usePhoneViewport(tester);
+        final clock = FakeClock();
+        final store = newStore(clock)
+          ..startWorkout()
+          ..beginWorkout()
+          ..takeHeartRate(125, clock.now());
+        await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+        final heart = tester.getRect(find.byIcon(Icons.favorite));
+        final figure = tester.getRect(find.text('125'));
+        final heartName = tester.getCenter(find.text('心率'));
+        final timeName = tester.getCenter(find.text('時間'));
+        expect(heartName.dy, greaterThan(figure.bottom), reason: 'under it');
+        expect(heartName.dx, inInclusiveRange(heart.left, figure.right));
+        expect(timeName.dy, heartName.dy, reason: 'names on one line');
+        expect(
+          timeName.dx,
+          greaterThan(figure.right),
+          reason: 'under the time',
+        );
+        await disposeTree(tester);
+      },
+    );
+
+    testWidgets('the clock has no heart rate to name when there is none', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+
+      expect(find.text('時間'), findsOneWidget);
+      expect(find.text('心率'), findsNothing);
+      await disposeTree(tester);
+    });
+
     testWidgets('the page leaves a workout that ends elsewhere', (
       tester,
     ) async {

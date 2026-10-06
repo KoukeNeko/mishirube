@@ -1101,6 +1101,7 @@
   "restTitle": "休息",
   "skipRest": "跳过休息",
   "elapsedTime": "时间",
+  "heartRateLabel": "心率",
   "workoutNotesTitle": "这次训练的备注",
   "workoutNotesHint": "例如：睡不好，握力先到极限",
   "addWarmupSets": "加入热身组",

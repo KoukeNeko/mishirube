@@ -1101,6 +1101,7 @@
   "restTitle": "休憩",
   "skipRest": "休憩をスキップ",
   "elapsedTime": "時間",
+  "heartRateLabel": "心拍数",
   "workoutNotesTitle": "このトレーニングのメモ",
   "workoutNotesHint": "例：寝不足で握力が先に限界",
   "addWarmupSets": "ウォームアップを追加",

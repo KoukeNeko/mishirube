@@ -881,55 +881,63 @@ class _TimeSoFar extends StatelessWidget {
           // spilling out of the bar.
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElapsedClock(
-                  session: ActiveWorkout(workout),
-                  builder: (_, elapsed) {
-                    final bpm = AppStoreScope.read(context).liveHeartRate;
-                    final style = TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: workout.isPaused
-                          ? AppColors.warning
-                          : AppColors.textPrimary,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    );
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: AppSpacing.sm,
-                      children: [
-                        if (bpm != null)
-                          Semantics(
-                            label: withUnit('$bpm', context.l10n.unitBpm),
-                            excludeSemantics: true,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 2,
-                              children: [
-                                const Icon(
-                                  Icons.favorite,
-                                  size: 16,
-                                  color: AppColors.heart,
-                                ),
-                                Text(
-                                  '$bpm',
-                                  style: style.copyWith(color: AppColors.heart),
-                                ),
-                              ],
-                            ),
+            child: ElapsedClock(
+              session: ActiveWorkout(workout),
+              builder: (_, elapsed) {
+                final l10n = context.l10n;
+                final bpm = AppStoreScope.read(context).liveHeartRate;
+                final style = TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: workout.isPaused
+                      ? AppColors.warning
+                      : AppColors.textPrimary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                );
+                // Each figure with what it is under it.
+                Widget named(Widget figure, String name) => Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    figure,
+                    Text(
+                      name,
+                      style: AppTextStyles.caption.copyWith(fontSize: 11),
+                    ),
+                  ],
+                );
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: AppSpacing.sm,
+                  children: [
+                    if (bpm != null)
+                      Semantics(
+                        label:
+                            '${l10n.heartRateLabel} '
+                            '${withUnit('$bpm', l10n.unitBpm)}',
+                        excludeSemantics: true,
+                        child: named(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 2,
+                            children: [
+                              const Icon(
+                                Icons.favorite,
+                                size: 16,
+                                color: AppColors.heart,
+                              ),
+                              Text(
+                                '$bpm',
+                                style: style.copyWith(color: AppColors.heart),
+                              ),
+                            ],
                           ),
-                        Text(elapsed, style: style),
-                      ],
-                    );
-                  },
-                ),
-                Text(
-                  context.l10n.elapsedTime,
-                  style: AppTextStyles.caption.copyWith(fontSize: 11),
-                ),
-              ],
+                          l10n.heartRateLabel,
+                        ),
+                      ),
+                    named(Text(elapsed, style: style), l10n.elapsedTime),
+                  ],
+                );
+              },
             ),
           ),
         ),
