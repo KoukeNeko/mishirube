@@ -415,6 +415,35 @@ void main() {
       await disposeTree(tester);
     });
 
+    testWidgets('a rest tucks into one line while the keypad is up', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final semantics = tester.ensureSemantics();
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組完成')).first);
+      await tester.pump();
+      expect(find.text('+15 秒'), findsOneWidget);
+
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組重量')).first);
+      await tester.pumpAndSettle();
+      expect(find.text('+15 秒'), findsNothing, reason: 'tucked away');
+      expect(find.text('跳過休息'), findsOneWidget, reason: 'still a tap away');
+
+      await tester.tapAt(const Offset(200, 130));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('+15 秒'),
+        findsOneWidget,
+        reason: 'back with the keypad gone',
+      );
+      semantics.dispose();
+      await disposeTree(tester);
+    });
+
     testWidgets('the page leaves a workout that ends elsewhere', (
       tester,
     ) async {

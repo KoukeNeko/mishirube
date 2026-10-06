@@ -300,7 +300,10 @@ class _ActiveWorkoutScreenState extends State<ActiveWorkoutScreen> {
                   children: [
                     if (store.isResting)
                       _RestTimer(
-                        isCompact: _isRestCompact,
+                        // The keypad leaves little of the page, so the
+                        // rest makes room for it as it does on scrolling.
+                        isCompact:
+                            _isRestCompact || media.viewInsets.bottom > 0,
                         onExpand: () => setState(() => _isRestCompact = false),
                       ),
                     Row(
