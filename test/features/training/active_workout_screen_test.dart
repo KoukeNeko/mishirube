@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart'
-    show CustomScrollView, Icons, MaterialPageRoute, Scaffold, StatefulBuilder;
+    show
+        CustomScrollView,
+        Icons,
+        InkWell,
+        MaterialPageRoute,
+        Scaffold,
+        StatefulBuilder;
 import 'package:flutter/widgets.dart' show Navigator, NavigatorState, Text;
 import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart' show MethodChannel, SystemChannels;
@@ -411,6 +417,35 @@ void main() {
         findsOneWidget,
         reason: 'back on scrolling up',
       );
+      semantics.dispose();
+      await disposeTree(tester);
+    });
+
+    testWidgets('a set ticked right after its figure was typed is ticked', (
+      tester,
+    ) async {
+      usePhoneViewport(tester);
+      final semantics = tester.ensureSemantics();
+      final store = newStore(FakeClock())
+        ..startWorkout()
+        ..beginWorkout();
+      await pumpScreen(tester, const ActiveWorkoutScreen(), store: store);
+      await tester.tap(find.bySemanticsLabel(RegExp('^第 1 組重量')).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(InkWell, '9'));
+      await tester.pump();
+
+      // A frame passes between a finger going down and coming up, in which
+      // leaving the figure writes it and the page is built again.
+      final tick = find.bySemanticsLabel(RegExp('^第 1 組完成')).first;
+      final finger = await tester.startGesture(tester.getCenter(tick));
+      await tester.pump(const Duration(milliseconds: 80));
+      await finger.up();
+      await tester.pumpAndSettle();
+
+      final set = store.activeWorkout!.exercises.first.sets.first;
+      expect(set.weightKg, 9);
+      expect(set.isDone, isTrue, reason: 'the tap that left the figure ticks');
       semantics.dispose();
       await disposeTree(tester);
     });

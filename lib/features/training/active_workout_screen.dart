@@ -1312,9 +1312,10 @@ class _ExerciseCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
               child: _SetRow(
-                // A set's cells keep their own text while typed in; a
-                // key per set keeps them with it when one is removed.
-                key: ObjectKey(set),
+                // Keyed by place, not by the set: editing a figure swaps
+                // the set for a new object, and a row built again under a
+                // finger takes away the tick that finger was pressing.
+                key: ValueKey(setIndex),
                 set: set,
                 fields: fields,
                 hasTimer: _hasTimer(type),
