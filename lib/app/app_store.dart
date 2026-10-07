@@ -175,6 +175,7 @@ class AppStore extends ChangeNotifier {
   Map<String, ExerciseDefinition> _exercisesById = const {};
   bool _hasSyncConflict = true;
   HomeTab _selectedTab = HomeTab.today;
+  RecordCategory? _requestedLogCategory;
 
   bool get _storedOnboarded => _backend.db.setting(_onboardedKey) == 'true';
 
@@ -429,6 +430,21 @@ class AppStore extends ChangeNotifier {
     if (_selectedTab == tab) return;
     _selectedTab = tab;
     notifyListeners();
+  }
+
+  /// Shows the log narrowed to [category]. The log keeps its filter to
+  /// itself, so it takes the request with [takeLogCategory].
+  void openLog(RecordCategory category) {
+    _requestedLogCategory = category;
+    _selectedTab = HomeTab.log;
+    notifyListeners();
+  }
+
+  /// The category [openLog] asked for, once.
+  RecordCategory? takeLogCategory() {
+    final category = _requestedLogCategory;
+    _requestedLogCategory = null;
+    return category;
   }
 
   void toggleModule(AppModule module) {

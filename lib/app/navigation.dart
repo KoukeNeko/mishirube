@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../domain/domain.dart';
 import '../shared/widgets/page/list_detail_layout.dart';
+import 'app_store.dart';
 
 /// Opens [page] over the current one; or, picked from a list with a detail
 /// pane beside it, in that pane.
@@ -29,4 +31,11 @@ Future<T?> openFromRoot<T>(BuildContext context, Widget page) {
     MaterialPageRoute(builder: (_) => page),
     (route) => route.isFirst,
   );
+}
+
+/// Closes every pushed page and shows the log, narrowed to [category], in
+/// the home shell: the shell's tabs are behind the pages.
+void returnToLog(BuildContext context, RecordCategory category) {
+  AppStoreScope.read(context).openLog(category);
+  Navigator.of(context).popUntil((route) => route.isFirst);
 }

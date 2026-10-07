@@ -17,6 +17,16 @@ void main() {
     store = AppStore(clock: clock.now, isOnboarded: true);
   });
 
+  group('opening the log', () {
+    test('selects it and keeps the category asked for until it is taken', () {
+      store.openLog(RecordCategory.training);
+
+      expect(store.selectedTab, HomeTab.log);
+      expect(store.takeLogCategory(), RecordCategory.training);
+      expect(store.takeLogCategory(), isNull, reason: 'taken once');
+    });
+  });
+
   group('watch heart rate', () {
     test('is current for 30 s, only during a workout, newest first', () {
       expect(store.liveHeartRate, isNull, reason: 'no workout');

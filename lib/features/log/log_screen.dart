@@ -24,6 +24,10 @@ class _LogFilter {
     for (final category in RecordCategory.values) _LogFilter(category),
   ];
 
+  /// The chip that narrows the log to [category].
+  static _LogFilter of(RecordCategory category) =>
+      values.firstWhere((filter) => filter.category == category);
+
   /// Null filters nothing out.
   final RecordCategory? category;
 
@@ -70,12 +74,14 @@ class _LogScreenState extends State<LogScreen> {
   /// not pick a day of its own.
   bool _isRevealing = false;
 
-  late final _log = LogViewModel(AppStoreScope.read(context).backend);
+  late final _store = AppStoreScope.read(context);
+  late final _log = LogViewModel(_store.backend);
 
   DateTime get _today => _log.now();
 
   @override
   void dispose() {
+    _store.removeListener(_showRequestedCategory);
     _log.dispose();
     super.dispose();
   }
@@ -85,6 +91,17 @@ class _LogScreenState extends State<LogScreen> {
     super.initState();
     _month = DateTime(_today.year, _today.month);
     _selected = _dayOf(_today);
+    if (_store.takeLogCategory() case final category?) {
+      _filter = _LogFilter.of(category);
+    }
+    _store.addListener(_showRequestedCategory);
+  }
+
+  /// Narrows the log to the category another page opened it on.
+  void _showRequestedCategory() {
+    if (_store.takeLogCategory() case final category?) {
+      setState(() => _filter = _LogFilter.of(category));
+    }
   }
 
   static DateTime _dayOf(DateTime time) =>

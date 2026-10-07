@@ -5,6 +5,7 @@ import 'package:mishirube/app/app.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/backend/backend.dart';
+import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/log/month_calendar.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/shared/window_layout.dart';
@@ -40,6 +41,46 @@ void main() {
     await tester.tap(find.bySemanticsLabel('以月曆顯示').hitTestable());
     await tester.pumpAndSettle();
   }
+
+  /// Whether the log's category chips have [category] selected.
+  Finder narrowedTo(RecordCategory category) => find.byWidgetPredicate(
+    (widget) =>
+        widget is FilterChipBar &&
+        (widget as dynamic).selected.category == category,
+  );
+
+  testWidgets('the log narrows to the category another page opened it on', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWithNotes();
+    store.backend.journal.recordNote('今天的筆記', at: DateTime(2026, 9, 19, 12));
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+    expect(find.text('今天的筆記'), findsOneWidget);
+    expect(narrowedTo(RecordCategory.training), findsNothing);
+
+    store.openLog(RecordCategory.training);
+    await tester.pumpAndSettle();
+
+    expect(narrowedTo(RecordCategory.training), findsOneWidget);
+    expect(find.text('今天的筆記'), findsNothing, reason: 'only training');
+    await disposeTree(tester);
+  });
+
+  testWidgets('a request made before the log was built still narrows it', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWithNotes()..openLog(RecordCategory.training);
+    store.backend.journal.recordNote('今天的筆記', at: DateTime(2026, 9, 19, 12));
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+
+    expect(narrowedTo(RecordCategory.training), findsOneWidget);
+    expect(find.text('今天的筆記'), findsNothing);
+    await disposeTree(tester);
+  });
 
   testWidgets('the log opens on the view last chosen', (tester) async {
     usePhoneViewport(tester);
