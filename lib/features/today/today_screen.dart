@@ -532,6 +532,7 @@ class TodayScreen extends StatelessWidget {
                   entry,
                   isSleep: today.isSleep,
                   mealById: today.backend.nutrition.mealById,
+                  mealGroup: today.backend.nutrition.mealGroup,
                 )) {
                   final page? => () => pushPage(context, page),
                   null => null,

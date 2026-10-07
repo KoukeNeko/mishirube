@@ -318,6 +318,7 @@ class _LogScreenState extends State<LogScreen> {
       entry,
       isSleep: _log.isSleep,
       mealById: _log.backend.nutrition.mealById,
+      mealGroup: _log.backend.nutrition.mealGroup,
     );
     if (destination != null) pushPage(context, destination);
   }

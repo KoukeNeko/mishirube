@@ -9,6 +9,8 @@ import 'package:mishirube/features/caffeine/caffeine_card.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
+import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
+import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
@@ -92,6 +94,53 @@ void main() {
     }
     await disposeTree(tester);
   });
+
+  testWidgets(
+    'a meal put together opens as the whole meal, not its first item',
+    (tester) async {
+      usePhoneViewport(tester);
+      final store = emptyDay();
+      final nutrition = store.backend.nutrition;
+      final items = [
+        for (final (name, kcal) in [('蛋餅', 250.0), ('冰奶茶', 300.0)])
+          nutrition.logMeal(
+            MealEvent(
+              id: name,
+              name: name,
+              timeLabel: '08:00',
+              qualityTag: '手動',
+              dishes: const [],
+              kcal: kcal,
+            ),
+            eatenAt: store.now(),
+          ),
+      ];
+      nutrition.groupMeals(items);
+      await pumpScreen(tester, const TodayScreen(), store: store);
+
+      Future<void> openRow(String title) async {
+        await tester.scrollUntilVisible(find.text(title), 200);
+        await tester.ensureVisible(find.text(title));
+        await tester.pump();
+        await tester.tap(find.text(title));
+        await tester.pumpAndSettle();
+      }
+
+      await openRow('蛋餅、冰奶茶');
+      expect(find.byType(MealGroupScreen), findsOneWidget);
+      expect(find.byType(MealDetailScreen), findsNothing);
+
+      // With the others gone it is one item again, and opens as one.
+      await tester.tap(find.byType(AppBarBackButton));
+      await tester.pumpAndSettle();
+      nutrition.deleteMeals(['冰奶茶']);
+      await tester.pumpAndSettle();
+      await openRow('蛋餅');
+      expect(find.byType(MealDetailScreen), findsOneWidget);
+      expect(find.byType(MealGroupScreen), findsNothing);
+      await disposeTree(tester);
+    },
+  );
 
   testWidgets('a hidden section and a module turned off leave Today', (
     tester,
