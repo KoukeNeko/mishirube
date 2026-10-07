@@ -7,10 +7,13 @@ import 'package:mishirube/backend/storage/journal_repository.dart';
 import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/caffeine/caffeine_card.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
+import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/features/trends/insight_detail_screen.dart';
+import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -58,6 +61,35 @@ void main() {
     final weight = tester.getTopLeft(find.text('體重 72.4 kg')).dy;
     final note = tester.getTopLeft(find.textContaining('膝蓋有點緊')).dy;
     expect(weight, lessThan(note), reason: 'the morning weighing comes first');
+    await disposeTree(tester);
+  });
+
+  testWidgets('each insight opens the page it is about', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final insights = store.todayInsights;
+    expect(insights.map((insight) => insight.kind), [
+      InsightKind.bodyWeight,
+      InsightKind.weeklyTraining,
+    ], reason: 'the demo has something to say about weight and the week');
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    for (final (insight, page) in <(Insight, Type)>[
+      (insights[0], BodyScreen),
+      (insights[1], TrainingTrendsScreen),
+    ]) {
+      final card = find.text(insight.statement);
+      await tester.scrollUntilVisible(card, 200);
+      await tester.ensureVisible(card);
+      await tester.pump();
+      await tester.tap(card);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(page), findsOneWidget);
+      expect(find.byType(InsightDetailScreen), findsNothing);
+      await tester.tap(find.byType(AppBarBackButton));
+      await tester.pumpAndSettle();
+    }
     await disposeTree(tester);
   });
 

@@ -725,6 +725,7 @@ class InsightsService {
       history: history,
       insight: volumeTrendInsight(
         _l10n,
+        exercise.id,
         exercise.name,
         weeklySets,
         sessionCount: sessions.length,

@@ -38,6 +38,7 @@ Insight? weightTrendInsight(
           kg: size.toStringAsFixed(1),
         );
   return Insight(
+    kind: InsightKind.bodyWeight,
     statement: statement,
     evidence: [
       l10n.basedOnWeights(count: trend.values.length),
@@ -64,6 +65,7 @@ Insight? weeklyTrainingInsight(
           left: goalPerWeek - thisWeek,
         );
   return Insight(
+    kind: InsightKind.weeklyTraining,
     statement: statement,
     evidence: [
       l10n.basedOnThisWeek,
@@ -78,6 +80,7 @@ Insight? weeklyTrainingInsight(
 /// yet.
 Insight? volumeTrendInsight(
   AppLocalizations l10n,
+  String exerciseId,
   String exerciseName,
   List<WeeklyBar> weeklySets, {
   required int sessionCount,
@@ -88,6 +91,8 @@ Insight? volumeTrendInsight(
   final last = weeklySets[weeklySets.length - 2].$2;
   if (first == 0 || last >= first * (1 - _meaningfulVolumeDrop)) return null;
   return Insight(
+    kind: InsightKind.exerciseVolume,
+    exerciseId: exerciseId,
     statement:
         (isMaxHolding ? l10n.volumeDropMaxHolding : l10n.volumeDropMaxFalling)(
           exercise: exerciseName,

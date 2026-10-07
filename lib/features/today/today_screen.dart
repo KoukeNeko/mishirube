@@ -24,7 +24,7 @@ import '../caffeine/caffeine_card.dart';
 import '../caffeine/caffeine_screen.dart';
 import '../training/workout_summary_screen.dart';
 import '../water/water_screen.dart';
-import '../trends/insight_detail_screen.dart';
+import '../trends/insight_destination.dart';
 import '../trends/usual_range_trend.dart';
 import '../vitals/vitals_screen.dart';
 import 'active_workout_today.dart';
@@ -205,7 +205,7 @@ class TodayScreen extends StatelessWidget {
       TodaySection.intake => pushPage(context, const DailyNutritionScreen()),
       TodaySection.caffeine => pushPage(context, const CaffeineScreen()),
       TodaySection.vitals => pushPage(context, const VitalsScreen()),
-      TodaySection.insights => pushPage(context, const InsightDetailScreen()),
+      TodaySection.insights => store.selectTab(HomeTab.trends),
       _ => store.selectTab(HomeTab.log),
     };
     List<Widget> orEmpty(
@@ -314,7 +314,10 @@ class TodayScreen extends StatelessWidget {
                 Gutter(
                   child: InsightCard(
                     insight: insight,
-                    onTap: () => pushPage(context, const InsightDetailScreen()),
+                    onTap: switch (insightDestination(insight)) {
+                      final page? => () => pushPage(context, page),
+                      null => null,
+                    },
                   ),
                 ),
             ],

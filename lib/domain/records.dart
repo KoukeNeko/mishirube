@@ -53,11 +53,28 @@ class TimelineDay {
   final String? warning;
 }
 
-class Insight {
-  const Insight({required this.statement, required this.evidence});
+/// What an insight is about, which decides the page that explains it.
+enum InsightKind {
+  exerciseVolume,
+  bodyWeight,
+  weeklyTraining,
+  sleepAndTraining,
+}
 
+class Insight {
+  const Insight({
+    required this.kind,
+    required this.statement,
+    required this.evidence,
+    this.exerciseId,
+  });
+
+  final InsightKind kind;
   final String statement;
   final List<String> evidence;
+
+  /// The exercise an [InsightKind.exerciseVolume] insight is about.
+  final String? exerciseId;
 }
 
 /// A month of the log: the days that have records, and one short

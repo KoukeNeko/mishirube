@@ -911,6 +911,7 @@ Wall sit 2 x 1.5 min
       );
 
       final insight = weightTrendInsight(testL10n, trend, dayCount: 28)!;
+      expect(insight.kind, InsightKind.bodyWeight);
       expect(insight.statement, contains('大致持平'));
       expect(insight.evidence, contains('依據 4 筆體重紀錄'));
       expect(insight.evidence.last, '近 4 週');
@@ -932,6 +933,7 @@ Wall sit 2 x 1.5 min
       const sessions = 12;
       final dropped = volumeTrendInsight(
         testL10n,
+        'back-squat',
         '槓鈴深蹲',
         const [('8/24', 12), ('8/31', 11), ('9/7', 9), ('本週', 8)],
         sessionCount: sessions,
@@ -944,10 +946,13 @@ Wall sit 2 x 1.5 min
       );
       expect(dropped.statement, contains('沒有跟著掉'));
       expect(dropped.evidence, contains('不含熱身組'));
+      expect(dropped.kind, InsightKind.exerciseVolume);
+      expect(dropped.exerciseId, 'back-squat');
 
       expect(
         volumeTrendInsight(
           testL10n,
+          'back-squat',
           '槓鈴深蹲',
           const [('8/24', 10), ('8/31', 10), ('本週', 10)],
           sessionCount: sessions,
@@ -958,6 +963,7 @@ Wall sit 2 x 1.5 min
       expect(
         volumeTrendInsight(
           testL10n,
+          'back-squat',
           '槓鈴深蹲',
           const [('8/24', 10), ('8/31', 10), ('本週', 2)],
           sessionCount: sessions,
@@ -978,6 +984,12 @@ Wall sit 2 x 1.5 min
           ('本週', 3),
         ], goalPerWeek: 3)!.statement,
         contains('達成'),
+      );
+      expect(
+        weeklyTrainingInsight(testL10n, const [
+          ('本週', 3),
+        ], goalPerWeek: 3)!.kind,
+        InsightKind.weeklyTraining,
       );
       expect(
         weeklyTrainingInsight(testL10n, const [

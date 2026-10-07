@@ -272,6 +272,7 @@ Insight? sleepAndTrainingInsight(
   final difference = _mean(longer) - _mean(shorter);
   if (difference.abs() < _volumeDifferenceShare) return null;
   return Insight(
+    kind: InsightKind.sleepAndTraining,
     statement: (difference < 0 ? l10n.sleepLoadLess : l10n.sleepLoadMore)(
       percent: _percent(difference),
     ),
