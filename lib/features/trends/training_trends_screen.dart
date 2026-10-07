@@ -110,7 +110,6 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
           child: MuscleLoadCard(
             load: _model.muscleLoad(window),
             figure: _model.muscleFigure,
-            onFigure: _model.setMuscleFigure,
           ),
         ),
         // A week of no sets at all says nothing yet: the weeks need a

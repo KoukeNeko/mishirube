@@ -5,6 +5,7 @@ import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/exercise/exercise_detail_screen.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
 import 'package:mishirube/features/trends/training_trends_screen.dart';
+import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
@@ -26,6 +27,11 @@ void main() {
 
     await scrollTo(tester, find.byType(MuscleMap));
     expect(find.byType(MuscleMap), findsOneWidget);
+    expect(
+      find.text(MuscleFigure.female.labelIn(testL10n)),
+      findsNothing,
+      reason: 'the body it is drawn on is chosen in 我的',
+    );
     await scrollTo(tester, find.text('每週工作組數 · 近 8 週'));
     // A trained exercise, with its best set and its estimate, not a row
     // that opens a page of them.

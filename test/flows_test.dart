@@ -1047,7 +1047,9 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the muscle map can be drawn on either body', (tester) async {
+  testWidgets('the muscle map is drawn on the body chosen in 我的', (
+    tester,
+  ) async {
     usePhoneViewport(tester);
     final backend = Backend.inMemory(clock: FakeClock().now);
     addTearDown(backend.close);
@@ -1055,7 +1057,7 @@ void main() {
       clock: FakeClock().now,
       isOnboarded: true,
       backend: backend,
-    )..selectTab(HomeTab.trends);
+    )..selectTab(HomeTab.me);
     await tester.pumpWidget(MishirubeApp(store: store));
     await tester.pumpAndSettle();
     MuscleFigure figureIn(Backend backend) {
@@ -1067,18 +1069,7 @@ void main() {
 
     expect(figureIn(backend), MuscleFigure.male, reason: 'one has to be first');
 
-    final trainingRow = find.widgetWithText(NavRow, '訓練');
-    await tester.dragUntilVisible(
-      trainingRow,
-      find.byType(CustomScrollView).hitTestable().first,
-      _scrollStep,
-    );
-    await Scrollable.ensureVisible(tester.element(trainingRow), alignment: 0.5);
-    await tester.pumpAndSettle();
-    await tester.tap(trainingRow);
-    await tester.pumpAndSettle();
-    expect(find.text('訓練趨勢'), findsWidgets);
-    await _tapText(tester, '訓練分析');
+    await _tapText(tester, '人體圖');
     await tester.pumpAndSettle();
     await _tapText(tester, MuscleFigure.female.labelIn(testL10n));
     await tester.pumpAndSettle();

@@ -14,18 +14,12 @@ const _labelWidth = 56.0;
 /// the shape of the list: what is getting the work, and what is missing
 /// from it.
 class MuscleLoadCard extends StatelessWidget {
-  const MuscleLoadCard({
-    super.key,
-    required this.load,
-    required this.figure,
-    required this.onFigure,
-  });
+  const MuscleLoadCard({super.key, required this.load, required this.figure});
 
   final List<(MuscleGroup, int)> load;
 
-  /// Which body the map is drawn on, and changing it.
+  /// Which body the map is drawn on; chosen in 我的, not here.
   final MuscleFigure figure;
-  final ValueChanged<MuscleFigure> onFigure;
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +33,6 @@ class MuscleLoadCard extends StatelessWidget {
             setsByMuscle: {for (final (m, sets) in load) m: sets},
             figure: figure,
           ),
-          const SizedBox(height: AppSpacing.sm),
-          _FigureChoice(selected: figure, onSelect: onFigure),
           const SizedBox(height: AppSpacing.sm),
           const _Legend(),
           const Divider(height: AppSpacing.xl),
@@ -157,34 +149,6 @@ class _Legend extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Which body the figure is drawn on. It changes nothing about the
-/// numbers, so it sits with the drawing rather than in settings.
-class _FigureChoice extends StatelessWidget {
-  const _FigureChoice({required this.selected, required this.onSelect});
-
-  final MuscleFigure selected;
-  final ValueChanged<MuscleFigure> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (final figure in MuscleFigure.values) ...[
-          if (figure != MuscleFigure.values.first)
-            const SizedBox(width: AppSpacing.xs),
-          SelectChip(
-            label: figure.labelIn(context.l10n),
-            isSelected: selected == figure,
-            showsSelectionAsOutline: true,
-            onTap: () => onSelect(figure),
-          ),
-        ],
-      ],
     );
   }
 }
