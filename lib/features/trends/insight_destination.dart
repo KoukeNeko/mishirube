@@ -1,9 +1,10 @@
 import 'package:flutter/widgets.dart';
 
+import '../../backend/engines/trend_findings.dart';
 import '../../domain/domain.dart';
 import '../body/body_screen.dart';
 import 'insight_detail_screen.dart';
-import 'training_trends_screen.dart';
+import 'trend_detail_screen.dart';
 
 /// The page that explains [insight], or null for one with nothing behind
 /// it.
@@ -15,6 +16,8 @@ Widget? insightDestination(Insight insight) => switch (insight.kind) {
     exerciseId: insight.exerciseId,
   ),
   InsightKind.bodyWeight => const BodyScreen(),
-  InsightKind.weeklyTraining => const TrainingTrendsScreen(),
+  InsightKind.weeklyTraining => const TrendDetailScreen(
+    domain: TrendDomain.training,
+  ),
   InsightKind.sleepAndTraining => null,
 };

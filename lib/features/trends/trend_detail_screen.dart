@@ -64,14 +64,16 @@ Color trendColor(TrendDomain domain) => switch (domain) {
   TrendDomain.activity => AppColors.activity,
 };
 
-/// The page where an area's records are looked up day by day.
-Widget areaPageFor(TrendDomain domain) => switch (domain) {
-  TrendDomain.body => const BodyScreen(),
-  TrendDomain.training => const TrainingTrendsScreen(),
-  TrendDomain.sleep => const SleepScreen(),
-  TrendDomain.nutrition => const DailyNutritionScreen(),
-  TrendDomain.activity => const DailyActivityScreen(),
-};
+/// Opens where an area's records are looked up day by day: its own page,
+/// or for training, which has none, the log narrowed to it.
+void openRecordsOf(BuildContext context, TrendDomain domain) =>
+    switch (domain) {
+      TrendDomain.body => pushPage(context, const BodyScreen()),
+      TrendDomain.training => returnToLog(context, RecordCategory.training),
+      TrendDomain.sleep => pushPage(context, const SleepScreen()),
+      TrendDomain.nutrition => pushPage(context, const DailyNutritionScreen()),
+      TrendDomain.activity => pushPage(context, const DailyActivityScreen()),
+    };
 
 /// One area over months (see `research/56-trends-insights.md`): where
 /// the latest stretch sits against the baseline and against what is
@@ -256,10 +258,17 @@ class _TrendDetailScreenState extends State<TrendDetailScreen> {
                 ),
               ),
             ],
+            if (domain == TrendDomain.training)
+              Gutter(
+                child: NavCard(
+                  title: context.l10n.trainingAnalysis,
+                  onTap: () => pushPage(context, const TrainingTrendsScreen()),
+                ),
+              ),
             Gutter(
               child: NavCard(
                 title: context.l10n.dailyEntries,
-                onTap: () => pushPage(context, areaPageFor(domain)),
+                onTap: () => openRecordsOf(context, domain),
               ),
             ),
           ],

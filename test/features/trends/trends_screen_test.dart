@@ -3,6 +3,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:flutter/material.dart';
 import 'package:mishirube/features/trends/muscle_load_card.dart';
 import 'package:mishirube/features/trends/muscle_map.dart';
+import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -72,6 +73,26 @@ void main() {
       inInclusiveRange(1, 3),
       reason: 'only the most trained',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the muscle card opens the training analysis', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(tester, const TrendsScreen(), store: store);
+
+    final map = find.byType(MuscleMap);
+    await tester.dragUntilVisible(
+      map,
+      find.byType(CustomScrollView).hitTestable().first,
+      const Offset(0, -200),
+    );
+    await tester.ensureVisible(map);
+    await tester.pump();
+    await tester.tap(map);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TrainingTrendsScreen), findsOneWidget);
     await disposeTree(tester);
   });
 

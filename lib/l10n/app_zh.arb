@@ -5271,6 +5271,10 @@
   "@dailyEntries": {
     "description": "Link to the day-by-day page."
   },
+  "trainingAnalysis": "訓練分析",
+  "@trainingAnalysis": {
+    "description": "Title of the page of training's muscles and exercises, and the link to it."
+  },
   "perWeekTimes": "每週 {count} 次",
   "@perWeekTimes": {
     "description": "A weekly rate; count is formatted.",

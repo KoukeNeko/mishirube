@@ -1033,6 +1033,7 @@
   "weekdaySection": "요일",
   "otherAreasSection": "같은 기간 다른 영역",
   "dailyEntries": "일별 기록",
+  "trainingAnalysis": "트레이닝 분석",
   "perWeekTimes": "주 {count}회",
   "stepsValue": "{steps}걸음",
   "timesValue": "{count}회",

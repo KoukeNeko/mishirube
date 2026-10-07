@@ -1033,6 +1033,7 @@
   "weekdaySection": "曜日",
   "otherAreasSection": "同期間のほかの項目",
   "dailyEntries": "日々の記録",
+  "trainingAnalysis": "トレーニング分析",
   "perWeekTimes": "週{count}回",
   "stepsValue": "{steps}歩",
   "timesValue": "{count}回",

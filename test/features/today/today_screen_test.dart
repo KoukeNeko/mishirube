@@ -15,7 +15,7 @@ import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
-import 'package:mishirube/features/trends/training_trends_screen.dart';
+import 'package:mishirube/features/trends/trend_detail_screen.dart';
 import 'package:mishirube/shared/format.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
@@ -78,7 +78,7 @@ void main() {
 
     for (final (insight, page) in <(Insight, Type)>[
       (insights[0], BodyScreen),
-      (insights[1], TrainingTrendsScreen),
+      (insights[1], TrendDetailScreen),
     ]) {
       final card = find.text(insight.statement);
       await tester.scrollUntilVisible(card, 200);

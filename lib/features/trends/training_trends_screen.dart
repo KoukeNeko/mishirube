@@ -1,19 +1,25 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_store.dart';
 import '../../app/navigation.dart';
 import '../../backend/application/activity_service.dart';
 import '../../backend/application/insights_service.dart';
+import '../../backend/engines/trend_engine.dart';
+import '../../backend/engines/workout_review.dart';
 import '../../app/theme.dart';
+import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../exercise/exercise_detail_screen.dart';
 import 'insight_detail_screen.dart';
-import 'exercise_trends_screen.dart';
 import 'muscle_load_card.dart';
-import 'muscle_trends_screen.dart';
-import 'personal_records_screen.dart';
 import 'trends_view_model.dart';
 import '../../l10n/l10n.dart';
+
+/// Weeks before this one that a muscle's usual range is read from.
+const _usualWeeks = 4;
 
 enum _TrendRange {
   // Whole weeks, so a week's figures are not thinned by a part week.
@@ -34,8 +40,8 @@ enum _TrendRange {
 }
 
 /// Training over a chosen range: how often, what was worked, and each
-/// exercise's progress. The Trends page lifts a change from here only
-/// when it is worth noticing.
+/// exercise's progress and best. The muscles' weeks and the exercises are
+/// here in full, not a tap away.
 class TrainingTrendsScreen extends StatefulWidget {
   const TrainingTrendsScreen({super.key});
 
@@ -62,9 +68,14 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
     final overview = _model.overview(window);
     final volume = _model.volumeReport(window: window);
     final activity = _model.activity(window);
+    final muscles = _model.muscleWeeks();
+    final exercises = _model.exerciseHistories();
+    final records = {
+      for (final bests in _model.personalRecords()) bests.exercise.id: bests,
+    };
     return DetailPage(
       appBar: PageAppBar(
-        title: context.l10n.moduleTraining,
+        title: context.l10n.trainingAnalysis,
         subtitle: context.dates.span(overview.from, overview.to),
       ),
       children: [
@@ -102,32 +113,16 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
             onFigure: _model.setMuscleFigure,
           ),
         ),
-        Gutter(
-          child: AccentRow(
-            color: AppColors.training,
-            title: context.l10n.weeklySetsTitle,
-            subtitle: context.l10n.last8Weeks,
-            showChevron: true,
-            onTap: () => pushPage(context, const MuscleTrendsScreen()),
-          ),
-        ),
+        // A week of no sets at all says nothing yet: the weeks need a
+        // muscle that has been trained in them.
+        if (muscles.any((muscle) => muscle.$2.any((week) => week.$2 > 0))) ...[
+          Gutter(child: SectionLabel(context.l10n.weeklySetsLast8)),
+          for (final (muscle, weeks) in muscles)
+            Gutter(
+              child: _MuscleCard(muscle: muscle, weeks: weeks),
+            ),
+        ],
         Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
-        Gutter(
-          child: AccentRow(
-            color: AppColors.training,
-            title: context.l10n.estimatedMax,
-            showChevron: true,
-            onTap: () => pushPage(context, const ExerciseTrendsScreen()),
-          ),
-        ),
-        Gutter(
-          child: AccentRow(
-            color: AppColors.training,
-            title: context.l10n.personalRecords,
-            showChevron: true,
-            onTap: () => pushPage(context, const PersonalRecordsScreen()),
-          ),
-        ),
         Gutter(
           child: AccentRow(
             color: AppColors.training,
@@ -139,6 +134,24 @@ class _TrainingTrendsScreenState extends State<TrainingTrendsScreen> {
             ),
           ),
         ),
+        if (exercises.isEmpty)
+          Gutter(
+            child: EmptyStateCard(
+              icon: Icons.fitness_center,
+              title: context.l10n.noEntriesShort,
+            ),
+          )
+        else ...[
+          for (final (exercise, history) in exercises)
+            Gutter(
+              child: _ExerciseCard(
+                exercise: exercise,
+                history: history,
+                bests: records[exercise.id],
+              ),
+            ),
+          Gutter(child: TagWrap(labels: [context.l10n.epleyEstimate])),
+        ],
       ],
     );
   }
@@ -286,3 +299,170 @@ class _SummaryTile extends StatelessWidget {
     );
   }
 }
+
+/// One muscle's working sets week by week: this week against what the
+/// weeks before it usually came to, not against a textbook target.
+class _MuscleCard extends StatelessWidget {
+  const _MuscleCard({required this.muscle, required this.weeks});
+
+  final MuscleGroup muscle;
+  final List<WeeklyBar> weeks;
+
+  /// The lowest and highest of the finished weeks just before this one;
+  /// null before there are any with sets.
+  (int, int)? get _usual {
+    final before = weeks
+        .take(weeks.length - 1)
+        .toList()
+        .reversed
+        .take(_usualWeeks)
+        .map((week) => week.$2)
+        .where((sets) => sets > 0)
+        .toList();
+    if (before.isEmpty) return null;
+    return (
+      before.reduce((a, b) => a < b ? a : b),
+      before.reduce((a, b) => a > b ? a : b),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final usual = _usual;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  muscle.labelIn(context.l10n),
+                  style: AppTextStyles.itemTitle,
+                ),
+              ),
+              ValueWithUnit(
+                value: '${weeks.last.$2}',
+                unit: context.l10n.setsThisWeekUnit,
+                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+              ),
+            ],
+          ),
+          if (usual != null) ...[
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              context.l10n.priorWeeksSets(
+                weeks: _usualWeeks,
+                sets: usual.$1 == usual.$2
+                    ? '${usual.$1}'
+                    : '${usual.$1}–${usual.$2}',
+              ),
+              style: AppTextStyles.caption,
+            ),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Semantics(
+            label: context.l10n.muscleSetsChart(
+              muscle: muscle.labelIn(context.l10n),
+              sets: joinList(context.l10n, weeks.map((week) => '${week.$2}')),
+            ),
+            excludeSemantics: true,
+            child: MiniBarChart(bars: weeks, height: 56),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One trained exercise: its estimated max over its sessions and its
+/// best set; it opens its history.
+class _ExerciseCard extends StatelessWidget {
+  const _ExerciseCard({
+    required this.exercise,
+    required this.history,
+    required this.bests,
+  });
+
+  final ExerciseDefinition exercise;
+  final ExerciseHistory history;
+
+  /// Null when no counted set gives a best.
+  final ExerciseBests? bests;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final last = history.last!;
+    final estimates = [
+      for (final entry in history.recent.reversed) ?entry.oneRepMaxKg,
+    ];
+    return AppCard(
+      onTap: () => pushPage(context, ExerciseDetailScreen(exercise: exercise)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(exercise.name, style: AppTextStyles.itemTitle),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            [
+              if (estimates.isNotEmpty)
+                l10n.estimatedMaxValue(weight: estimates.last.round()),
+              l10n.timesCount(count: history.sessionCount),
+              l10n.lastSetOn(
+                date: context.dates.monthDay(last.date),
+                set: last.figuresIn(l10n, exercise.trackingType),
+              ),
+            ].join(' · '),
+            style: AppTextStyles.caption,
+          ),
+          if (bests case final bests?)
+            Text(_record(context, bests), style: AppTextStyles.caption),
+          if (estimates.length > 1) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Semantics(
+              label: l10n.estimatedMaxTrend(count: estimates.length),
+              excludeSemantics: true,
+              child: Sparkline(
+                values: estimates,
+                color: AppColors.training,
+                height: 40,
+                isEstimate: true,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              [
+                '${l10n.statHighest} '
+                    '${formatWeight(_tenth(estimates.reduce(math.max)))} kg',
+                '${l10n.periodChange} '
+                    '${_signed(estimates.last - estimates.first)} kg',
+              ].join(' · '),
+              style: AppTextStyles.caption,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// What a record is depends on how the exercise is recorded.
+  String _record(BuildContext context, ExerciseBests bests) {
+    final l10n = context.l10n;
+    final set = bests.best.figuresIn(l10n, exercise.trackingType);
+    final date = context.dates.monthDay(bests.best.date);
+    return switch (exercise.trackingType) {
+      TrackingType.weightReps ||
+      TrackingType.weightDuration => l10n.heaviestSet(set: set, date: date),
+      TrackingType.reps => l10n.mostRepsSet(set: set, date: date),
+      TrackingType.duration => l10n.longestSet(set: set, date: date),
+      TrackingType.distance => l10n.furthestSet(set: set, date: date),
+    };
+  }
+}
+
+double _tenth(double value) => (value * 10).round() / 10;
+
+/// `+2.5` or `−1`: a change with its sign, a true minus for a fall.
+String _signed(double change) =>
+    '${change < 0 ? '−' : '+'}${formatWeight(_tenth(change.abs()))}';

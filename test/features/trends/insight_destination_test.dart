@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/body/body_screen.dart';
 import 'package:mishirube/features/trends/insight_destination.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
-import 'package:mishirube/features/trends/training_trends_screen.dart';
+import 'package:mishirube/features/trends/trend_detail_screen.dart';
 
 void main() {
   Insight insight(InsightKind kind, {String? exerciseId}) => Insight(
@@ -31,7 +32,11 @@ void main() {
     );
     expect(
       insightDestination(insight(InsightKind.weeklyTraining)),
-      isA<TrainingTrendsScreen>(),
+      isA<TrendDetailScreen>().having(
+        (page) => page.domain,
+        'domain',
+        TrendDomain.training,
+      ),
     );
     expect(
       insightDestination(insight(InsightKind.sleepAndTraining)),

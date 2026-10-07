@@ -6315,6 +6315,12 @@ abstract class AppLocalizations {
   /// **'每日紀錄'**
   String get dailyEntries;
 
+  /// Title of the page of training's muscles and exercises, and the link to it.
+  ///
+  /// In zh, this message translates to:
+  /// **'訓練分析'**
+  String get trainingAnalysis;
+
   /// A weekly rate; count is formatted.
   ///
   /// In zh, this message translates to:

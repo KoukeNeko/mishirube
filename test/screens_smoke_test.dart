@@ -63,11 +63,8 @@ import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/features/activity/activity_metric_screen.dart';
 import 'package:mishirube/features/activity/daily_activity_screen.dart';
-import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/volume_records_screen.dart';
-import 'package:mishirube/features/trends/muscle_trends_screen.dart';
-import 'package:mishirube/features/trends/personal_records_screen.dart';
 import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -479,14 +476,11 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   ),
   'active workout': ((_) => const ActiveWorkoutScreen(), _withWorkout),
   'active workout (resting)': ((_) => const ActiveWorkoutScreen(), _resting),
-  'personal records': ((_) => const PersonalRecordsScreen(), _noSetup),
-  'muscle trends': ((_) => const MuscleTrendsScreen(), _noSetup),
-  'training trends': ((_) => const TrainingTrendsScreen(), _noSetup),
+  'training analysis': ((_) => const TrainingTrendsScreen(), _noSetup),
   'trends, nothing recorded': (
     (_) => const TrendsScreen(),
     (store) => store.backend.provenance.setShowsDemo(false),
   ),
-  'exercise trends': ((_) => const ExerciseTrendsScreen(), _noSetup),
   'workout summary (sample)': ((_) => const WorkoutSummaryScreen(), _noSetup),
   'workout share': (
     (store) => WorkoutSharePage(

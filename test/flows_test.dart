@@ -52,9 +52,9 @@ import 'package:mishirube/features/water/water_card.dart';
 import 'package:mishirube/features/water/water_screen.dart';
 import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
+import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/features/today/today_screen.dart';
-import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/trends_view_model.dart';
 import 'package:mishirube/features/training/substitute_exercise_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
@@ -1078,7 +1078,7 @@ void main() {
     await tester.tap(trainingRow);
     await tester.pumpAndSettle();
     expect(find.text('訓練趨勢'), findsWidgets);
-    await _tapText(tester, '每日紀錄');
+    await _tapText(tester, '訓練分析');
     await tester.pumpAndSettle();
     await _tapText(tester, MuscleFigure.female.labelIn(testL10n));
     await tester.pumpAndSettle();
@@ -1091,18 +1091,54 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the muscle page lists every muscle, trained or not', (
+  testWidgets("training's records, day by day, are the log narrowed to it", (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true)
+      ..selectTab(HomeTab.trends);
+    await tester.pumpWidget(MishirubeApp(store: store));
+    await tester.pumpAndSettle();
+
+    final trainingRow = find.widgetWithText(NavRow, '訓練');
+    await tester.dragUntilVisible(
+      trainingRow,
+      find.byType(CustomScrollView).hitTestable().first,
+      _scrollStep,
+    );
+    await Scrollable.ensureVisible(tester.element(trainingRow), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(trainingRow);
+    await tester.pumpAndSettle();
+    expect(find.byType(TrendDetailScreen), findsOneWidget);
+
+    await _tapText(tester, '每日紀錄');
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byType(TrendDetailScreen),
+      findsNothing,
+      reason: 'the pages in front of the shell are closed, or the log hides',
+    );
+    expect(store.selectedTab, HomeTab.log);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is FilterChipBar &&
+            (widget as dynamic).selected.category == RecordCategory.training,
+      ),
+      findsOneWidget,
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the weeks of every muscle are listed, trained or not', (
     tester,
   ) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
-    await pumpScreen(tester, const MuscleTrendsScreen(), store: store);
+    await pumpScreen(tester, const TrainingTrendsScreen(), store: store);
 
-    expect(
-      find.text(MuscleGroup.glutes.labelIn(testL10n)),
-      findsOneWidget,
-      reason: 'the most trained leads',
-    );
     // The last of them never trained in the demo records: it is still
     // there, so the page says what the span is missing.
     final untrained = find.text(MuscleGroup.core.labelIn(testL10n));

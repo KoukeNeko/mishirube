@@ -3538,6 +3538,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dailyEntries => '일별 기록';
 
   @override
+  String get trainingAnalysis => '트레이닝 분석';
+
+  @override
   String perWeekTimes({required String count}) {
     return '주 $count회';
   }

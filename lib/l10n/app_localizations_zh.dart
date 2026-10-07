@@ -3530,6 +3530,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dailyEntries => '每日紀錄';
 
   @override
+  String get trainingAnalysis => '訓練分析';
+
+  @override
   String perWeekTimes({required String count}) {
     return '每週 $count 次';
   }
@@ -9937,6 +9940,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get dailyEntries => '每日记录';
+
+  @override
+  String get trainingAnalysis => '训练分析';
 
   @override
   String perWeekTimes({required String count}) {

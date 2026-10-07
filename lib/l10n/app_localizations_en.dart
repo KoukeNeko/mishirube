@@ -3593,6 +3593,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyEntries => 'Daily entries';
 
   @override
+  String get trainingAnalysis => 'Training analysis';
+
+  @override
   String perWeekTimes({required String count}) {
     return '$count a week';
   }

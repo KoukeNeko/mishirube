@@ -5,6 +5,7 @@ import 'package:mishirube/backend/engines/trend_findings.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/sleep/sleep_regularity_card.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
+import 'package:mishirube/features/trends/training_trends_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import '../../support/harness.dart';
@@ -308,6 +309,52 @@ void main() {
       findsWidgets,
       reason: 'the most trained exercises, with their sets',
     );
+    await disposeTree(tester);
+  });
+
+  testWidgets('training ends in its analysis and its records, day by day', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.training),
+      store: store,
+    );
+
+    await scrollTo(tester, find.text('訓練分析'));
+    await tester.ensureVisible(find.text('訓練分析'));
+    await tester.pump();
+    await tester.tap(find.text('訓練分析'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TrainingTrendsScreen), findsOneWidget);
+    await tester.tap(find.byType(AppBarBackButton));
+    await tester.pumpAndSettle();
+
+    await scrollTo(tester, find.text('每日紀錄'));
+    await tester.ensureVisible(find.text('每日紀錄'));
+    await tester.pump();
+    await tester.tap(find.text('每日紀錄'));
+    await tester.pumpAndSettle();
+    expect(store.selectedTab, HomeTab.log, reason: 'the log, not a page');
+    expect(store.takeLogCategory(), RecordCategory.training);
+    await disposeTree(tester);
+  });
+
+  testWidgets('another area has its records page, and no analysis', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    await pumpScreen(
+      tester,
+      const TrendDetailScreen(domain: TrendDomain.body),
+      store: store,
+    );
+
+    await scrollTo(tester, find.text('每日紀錄'));
+    expect(find.text('訓練分析'), findsNothing);
     await disposeTree(tester);
   });
 

@@ -1033,6 +1033,7 @@
   "weekdaySection": "星期",
   "otherAreasSection": "同期其他领域",
   "dailyEntries": "每日记录",
+  "trainingAnalysis": "训练分析",
   "perWeekTimes": "每周 {count} 次",
   "stepsValue": "{steps} 步",
   "timesValue": "{count} 次",

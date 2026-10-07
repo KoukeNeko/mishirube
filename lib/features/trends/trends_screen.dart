@@ -15,8 +15,8 @@ import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
 import 'muscle_load_card.dart';
 import 'muscle_map.dart';
-import 'muscle_trends_screen.dart';
 import 'trend_detail_screen.dart';
+import 'training_trends_screen.dart';
 import 'trends_view_model.dart';
 import '../../l10n/l10n.dart';
 
@@ -147,7 +147,7 @@ class _TrendsPage extends StatelessWidget {
                 final training? => _TrainingBalanceCard(
                   balance: training,
                   figure: figure,
-                  onTap: () => pushPage(context, const MuscleTrendsScreen()),
+                  onTap: () => pushPage(context, const TrainingTrendsScreen()),
                 ),
                 // Too few workouts to judge the balance, but where the sets
                 // went can already be shown.
@@ -161,7 +161,7 @@ class _TrendsPage extends StatelessWidget {
                       current: report.recentWorkouts,
                     ),
                   ],
-                  onTap: () => pushPage(context, const MuscleTrendsScreen()),
+                  onTap: () => pushPage(context, const TrainingTrendsScreen()),
                 ),
                 null => _Missing(
                   title: context.l10n.muscleSetsTitle,

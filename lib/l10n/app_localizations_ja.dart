@@ -3538,6 +3538,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dailyEntries => '日々の記録';
 
   @override
+  String get trainingAnalysis => 'トレーニング分析';
+
+  @override
   String perWeekTimes({required String count}) {
     return '週$count回';
   }

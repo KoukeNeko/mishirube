@@ -1033,6 +1033,7 @@
   "weekdaySection": "Day of week",
   "otherAreasSection": "Other areas, same period",
   "dailyEntries": "Daily entries",
+  "trainingAnalysis": "Training analysis",
   "perWeekTimes": "{count} a week",
   "stepsValue": "{steps} steps",
   "timesValue": "{count}×",
