@@ -172,6 +172,7 @@ class TrendsReport {
 class VolumeReport {
   const VolumeReport({
     required this.exercise,
+    required this.from,
     required this.weeklySets,
     required this.sessionCount,
     required this.history,
@@ -179,6 +180,9 @@ class VolumeReport {
   });
 
   final ExerciseDefinition exercise;
+
+  /// The first day the weeks drawn cover: the Monday of the first one.
+  final DateTime from;
   final List<WeeklyBar> weeklySets;
   final int sessionCount;
   final ExerciseHistory history;
@@ -682,6 +686,19 @@ class InsightsService {
       ? _volumeReport(window)
       : _reportFor(_exercises.byId(exerciseId)!, window);
 
+  /// The sessions [volumeReport] counted for [exerciseId] since [from],
+  /// newest first, with every set done in them; a session that did only
+  /// warm-ups was not counted and is left out.
+  List<ExerciseSessionRecord> volumeSessions(
+    String exerciseId, {
+    required DateTime from,
+  }) => [
+    for (final session in _exercises.sessionsOf(exerciseId))
+      if (!session.date.isBefore(from) &&
+          session.sets.any((set) => set.type != SetType.warmup))
+        session,
+  ];
+
   /// The exercise worth reporting on: one whose volume changed enough to
   /// say something, otherwise simply the most trained one.
   VolumeReport? _volumeReport(Duration window) {
@@ -720,6 +737,7 @@ class InsightsService {
     final history = _exercises.history(exercise.id);
     return VolumeReport(
       exercise: exercise,
+      from: from,
       weeklySets: weeklySets,
       sessionCount: sessions.length,
       history: history,

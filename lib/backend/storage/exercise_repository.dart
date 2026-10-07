@@ -91,7 +91,7 @@ class ExerciseRepository {
     }
     return [
       for (final MapEntry(key: id, value: sets) in setsByWorkout.entries)
-        ExerciseSessionRecord(date: startedAt[id]!, sets: sets),
+        ExerciseSessionRecord(workoutId: id, date: startedAt[id]!, sets: sets),
     ];
   }
 
@@ -101,6 +101,7 @@ class ExerciseRepository {
     for (final session in _finishedSessions(exerciseId))
       if (session.sets.any((set) => set.isDone))
         ExerciseSessionRecord(
+          workoutId: session.workoutId,
           date: session.date,
           sets: [
             for (final set in session.sets)

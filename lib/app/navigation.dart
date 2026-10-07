@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../shared/widgets/page/list_detail_layout.dart';
-import 'app_store.dart';
 
 /// Opens [page] over the current one; or, picked from a list with a detail
 /// pane beside it, in that pane.
@@ -30,10 +29,4 @@ Future<T?> openFromRoot<T>(BuildContext context, Widget page) {
     MaterialPageRoute(builder: (_) => page),
     (route) => route.isFirst,
   );
-}
-
-/// Closes every pushed page and shows [tab] in the home shell.
-void returnToTab(BuildContext context, HomeTab tab) {
-  AppStoreScope.read(context).selectTab(tab);
-  Navigator.of(context).popUntil((route) => route.isFirst);
 }

@@ -34,8 +34,14 @@ class ExerciseHistoryEntry {
 /// One finished session of an exercise and its sets, in the order they
 /// were planned.
 class ExerciseSessionRecord {
-  const ExerciseSessionRecord({required this.date, required this.sets});
+  const ExerciseSessionRecord({
+    required this.workoutId,
+    required this.date,
+    required this.sets,
+  });
 
+  /// The finished workout the session was done in.
+  final String workoutId;
   final DateTime date;
   final List<WorkoutSet> sets;
 }

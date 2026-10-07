@@ -65,6 +65,7 @@ import 'package:mishirube/features/activity/activity_metric_screen.dart';
 import 'package:mishirube/features/activity/daily_activity_screen.dart';
 import 'package:mishirube/features/trends/exercise_trends_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
+import 'package:mishirube/features/trends/volume_records_screen.dart';
 import 'package:mishirube/features/trends/muscle_trends_screen.dart';
 import 'package:mishirube/features/trends/personal_records_screen.dart';
 import 'package:mishirube/features/bath/bath_screen.dart';
@@ -636,6 +637,13 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withFood,
   ),
   'insight detail': ((_) => const InsightDetailScreen(), _noSetup),
+  'volume records': (
+    (store) {
+      final report = store.backend.insights.volumeReport()!;
+      return VolumeRecordsScreen(exercise: report.exercise, from: report.from);
+    },
+    _noSetup,
+  ),
   'body': ((_) => const BodyScreen(), _noSetup),
   'today layout': ((_) => const TodayLayoutScreen(), _noSetup),
   'body, measured': ((_) => const BodyScreen(), _withBody),

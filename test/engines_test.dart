@@ -1087,6 +1087,75 @@ Wall sit 2 x 1.5 min
       expect(report.history.estimatedOneRepMaxKg, isNotNull);
     });
 
+    test('the records behind a volume report are the sessions it counted', () {
+      final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final insights = store.backend.insights;
+
+      final report = insights.volumeReport()!;
+      final sessions = insights.volumeSessions(
+        report.exercise.id,
+        from: report.from,
+      );
+
+      expect(sessions, hasLength(report.sessionCount));
+      expect(
+        sessions.map((session) => session.date),
+        orderedEquals(
+          [...sessions.map((s) => s.date)]..sort((a, b) => b.compareTo(a)),
+        ),
+        reason: 'newest first',
+      );
+      expect(
+        sessions.fold(0, (sum, s) => sum + countedSets(s.sets).length),
+        report.weeklySets.fold(0, (sum, bar) => sum + bar.$2),
+        reason: 'they add up to what the weekly bars show',
+      );
+      expect(
+        store.workoutById(sessions.first.workoutId)?.startedAt,
+        sessions.first.date,
+        reason: 'each names the workout it was done in',
+      );
+    });
+
+    test('a session of only warm-ups is not one the report counted', () {
+      final clock = FakeClock();
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      final squat = store.exercises.firstWhere((e) => e.id == 'back-squat');
+      final from = DateTime(2026, 9, 1);
+      final counted = store.backend.insights.volumeSessions(
+        squat.id,
+        from: from,
+      );
+
+      store.startFreeWorkout([squat]);
+      store.activeWorkout!.exercises.first.sets
+        ..clear()
+        ..add(
+          WorkoutSet(
+            weightKg: 40,
+            reps: 10,
+            previousWeightKg: 0,
+            previousReps: 0,
+            type: SetType.warmup,
+            isDone: true,
+          ),
+        );
+      clock.advance(const Duration(minutes: 20));
+      store.finishWorkout();
+
+      expect(
+        store.sessionsOf(squat).first.sets,
+        hasLength(1),
+        reason: 'the warm-up was done and is kept',
+      );
+      expect(
+        store.backend.insights.volumeSessions(squat.id, from: from),
+        hasLength(counted.length),
+      );
+    });
+
     test('an empty store offers no insights instead of guessing', () {
       final store = AppStore(clock: FakeClock().now, isOnboarded: true);
       addTearDown(store.dispose);

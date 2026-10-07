@@ -87,6 +87,12 @@ class TrendsViewModel extends ViewModel {
     Duration window = const Duration(days: 28),
   }) => backend.insights.volumeReport(exerciseId: exerciseId, window: window);
 
+  /// The sessions behind a volume report, newest first.
+  List<ExerciseSessionRecord> volumeSessions(
+    String exerciseId, {
+    required DateTime from,
+  }) => backend.insights.volumeSessions(exerciseId, from: from);
+
   /// Working sets per muscle in each of the last eight weeks.
   List<(MuscleGroup, List<WeeklyBar>)> muscleWeeks() =>
       backend.insights.muscleWeeks();

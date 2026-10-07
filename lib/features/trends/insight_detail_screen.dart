@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../me/ai_proposal_screen.dart';
 import 'trends_view_model.dart';
+import 'volume_records_screen.dart';
 import '../../l10n/l10n.dart';
 
 /// Explains one insight: conclusion, evidence, data quality and next step.
@@ -101,8 +102,7 @@ class InsightDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_date(store.now().subtract(Duration(days: weeks * 7)))}'
-                  ' → ${_date(store.now())}',
+                  '${_date(report.from)} → ${_date(store.now())}',
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
@@ -154,7 +154,10 @@ class InsightDetailScreen extends StatelessWidget {
         Gutter(
           child: LinkText(
             label: context.l10n.viewRawEntries,
-            onTap: () => returnToTab(context, HomeTab.log),
+            onTap: () => pushPage(
+              context,
+              VolumeRecordsScreen(exercise: report.exercise, from: report.from),
+            ),
           ),
         ),
       ],
