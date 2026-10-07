@@ -381,7 +381,7 @@ class _PortionScreenState extends State<PortionScreen> {
           child: Row(
             children: [
               Expanded(
-                child: _PortionField(
+                child: PortionField(
                   label: context.l10n.servingsLabel,
                   controller: _servings,
                   suffix: ServingUnit.serving.labelIn(context.l10n),
@@ -391,7 +391,7 @@ class _PortionScreenState extends State<PortionScreen> {
               if (_isMeasured) ...[
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: _PortionField(
+                  child: PortionField(
                     label: context.l10n.actualAmount,
                     controller: _amount,
                     suffix: _unit.labelIn(context.l10n),
@@ -488,18 +488,21 @@ String _checked(BuildContext context, DateTime? at) => at == null
 String _grams(num? amount) =>
     amount == null ? '—' : '${formatAmount(amount.toDouble())} g';
 
-class _PortionField extends StatelessWidget {
-  const _PortionField({
+/// A number typed with its unit beside it, such as the servings of a food
+/// or of a meal.
+class PortionField extends StatelessWidget {
+  const PortionField({
+    super.key,
     required this.label,
     required this.controller,
     required this.suffix,
-    required this.onFocus,
+    this.onFocus,
   });
 
   final String label;
   final TextEditingController controller;
   final String suffix;
-  final VoidCallback onFocus;
+  final VoidCallback? onFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -510,7 +513,7 @@ class _PortionField extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Focus(
           onFocusChange: (hasFocus) {
-            if (hasFocus) onFocus();
+            if (hasFocus) onFocus?.call();
           },
           child: Row(
             children: [

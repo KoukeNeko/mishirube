@@ -45,6 +45,7 @@ import 'package:mishirube/features/goal/goal_setup_sheet.dart';
 import 'package:mishirube/features/nutrition/food_edit_screen.dart';
 import 'package:mishirube/features/nutrition/food_row.dart';
 import 'package:mishirube/features/nutrition/food_search_screen.dart';
+import 'package:mishirube/features/nutrition/meal_portion_screen.dart';
 import 'package:mishirube/features/nutrition/recent_meal_row.dart';
 import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/bath/bath_screen.dart';
@@ -2749,6 +2750,62 @@ void main() {
     await tester.pump();
     expect(store.todayKcal, greaterThan(before));
     expect(find.text('復原'), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a recent meal opens to its portion, its figures scaled', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    final nutrition = store.backend.nutrition;
+    final yesterday = store.now().subtract(const Duration(days: 1));
+    nutrition.logMeal(
+      const MealEvent(
+        id: 'bento',
+        name: '雞腿便當',
+        timeLabel: '12:00',
+        qualityTag: '自訂食物',
+        kcal: 700,
+        proteinGrams: 30,
+        carbGrams: 80,
+        fatGrams: 25,
+        dishes: [
+          DishEntry(name: '雞腿便當', quantityLabel: '1 份', subtitle: '自訂食物'),
+        ],
+      ),
+      eatenAt: yesterday,
+    );
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    await tester.tap(find.text('雞腿便當').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(MealPortionScreen), findsOneWidget);
+    Finder energy(String kcal) =>
+        find.textContaining('$kcal kcal', findRichText: true);
+    expect(energy('700'), findsOneWidget, reason: 'as it was');
+
+    await tester.tap(find.text('0.5 份'));
+    await tester.pump();
+    expect(energy('350'), findsOneWidget);
+    expect(find.text('0.5 份'), findsNWidgets(2), reason: 'chip and dish');
+
+    await tester.enterText(find.byType(TextField), '2');
+    await tester.pump();
+    expect(energy(formatKcal(1400)), findsOneWidget);
+    expect(find.text('0 份'), findsNothing);
+
+    await tester.tap(find.text('加入 2 份'));
+    // Not settled: the toast that undoes it goes by itself in time.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(MealPortionScreen), findsNothing);
+    final logged = nutrition.mealsOn(store.now()).single;
+    expect(logged.kcal, 1400);
+    expect(logged.proteinGrams, 60);
+    expect(logged.dishes.single.quantityLabel, '2 份');
+    expect(find.text('復原'), findsOneWidget, reason: 'logged, and undoable');
     await disposeTree(tester);
   });
 

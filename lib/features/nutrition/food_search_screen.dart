@@ -16,6 +16,7 @@ import 'meal_type_picker.dart';
 import 'nutrition_view_model.dart';
 import 'plate_screen.dart';
 import 'portion_screen.dart';
+import 'meal_portion_screen.dart';
 import 'recent_meal_row.dart';
 import '../../l10n/l10n.dart';
 
@@ -368,8 +369,19 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             : DailyNutritionScreen(day: _at),
       );
 
-  void _logAgain(RecentMeal recent) {
-    final logged = _nutrition.copyMeal(recent.meal, at: _at);
+  /// Opens a meal eaten before to choose how much of it, then logs that.
+  Future<void> _chooseMealPortion(RecentMeal recent) async {
+    final servings = await showMealPortionScreen(context, recent);
+    if (servings == null || !mounted) return;
+    _logAgain(recent, servings: servings);
+  }
+
+  /// Logs [recent] again, [servings] times as much as it was.
+  void _logAgain(RecentMeal recent, {double servings = 1}) {
+    final logged = _nutrition.copyMeal(
+      scaledMeal(recent.meal, servings),
+      at: _at,
+    );
     ToastScope.read(context).showUndo(
       context.l10n.loggedNamed(name: recent.label),
       onUndo: () => _nutrition.deleteMeals([logged]),
@@ -674,6 +686,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     when: mealWhenLabel(context, meal.eatenAt),
     onAdd: () => _logAgain(meal),
     onToggleFavorite: () => _toggleFavorite(meal),
+    onTap: () => _chooseMealPortion(meal),
   );
 }
 

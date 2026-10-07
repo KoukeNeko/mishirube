@@ -41,6 +41,7 @@ import 'package:mishirube/features/nutrition/portion_screen.dart';
 import 'package:mishirube/features/nutrition/meal_change_preview_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/nutrition/meal_group_screen.dart';
+import 'package:mishirube/features/nutrition/meal_portion_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
@@ -609,6 +610,11 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
     _withLunch,
   ),
   'food search (empty)': ((_) => const FoodSearchScreen(), _noSetup),
+  'meal portion': (
+    (store) =>
+        MealPortionScreen(recent: store.backend.nutrition.recent().first),
+    _noSetup,
+  ),
   'food search': ((_) => const FoodSearchScreen(), _withFood),
   'quick record': ((_) => const FoodEditScreen(logsOnce: true), _noSetup),
   'camera': (

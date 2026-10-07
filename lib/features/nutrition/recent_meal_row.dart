@@ -34,6 +34,7 @@ class RecentMealRow extends StatelessWidget {
     required this.when,
     required this.onAdd,
     required this.onToggleFavorite,
+    this.onTap,
   });
 
   final RecentMeal meal;
@@ -41,11 +42,16 @@ class RecentMealRow extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onToggleFavorite;
 
+  /// Opens the meal to choose how much of it, where [onAdd] logs it as it
+  /// was.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     return NavCard(
       title: meal.label,
       subtitle: when,
+      onTap: onTap,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -170,9 +170,10 @@ class MealEvent {
     String? Function()? groupId,
     String? brand,
     String? amount,
+    double? servings,
   }) => MealEvent(
     foodId: foodId,
-    servings: servings,
+    servings: servings ?? this.servings,
     groupId: groupId == null ? this.groupId : groupId(),
     labelCountry: labelCountry,
     brand: brand ?? this.brand,

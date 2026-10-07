@@ -2738,6 +2738,81 @@ Wall sit 2 x 1.5 min
     expect(const FoodPortion(milk, 1).fatGrams, 2.1);
   });
 
+  test('a meal eaten at another portion scales every figure it has', () {
+    const meal = MealEvent(
+      id: 'bento',
+      name: '雞腿便當',
+      timeLabel: '12:30',
+      qualityTag: '自訂食物',
+      kcal: 700,
+      proteinGrams: 30,
+      carbGrams: 80,
+      fatGrams: 25.4,
+      fibreGrams: 5,
+      nutrients: {Nutrient.sodium: 900},
+      millilitres: 450,
+      servings: 1,
+      amount: '~300 g',
+      dishes: [
+        DishEntry(
+          name: '雞腿便當',
+          quantityLabel: '1 份',
+          subtitle: '自訂食物',
+          components: [
+            FoodComponent(
+              name: '雞腿',
+              amountLabel: '~85 – 110 g',
+              source: 'TFDA',
+            ),
+            FoodComponent(name: '白飯', amountLabel: '1/2 碗', source: 'TFDA'),
+            FoodComponent(name: '青菜', amountLabel: '一份', source: 'TFDA'),
+          ],
+        ),
+      ],
+    );
+
+    final half = scaledMeal(meal, 0.5);
+    expect(half.kcal, 350);
+    expect(half.proteinGrams, 15);
+    expect(half.carbGrams, 40);
+    expect(half.fatGrams, 12.7);
+    expect(half.fibreGrams, 2.5);
+    expect(half.nutrients, {Nutrient.sodium: 450});
+    expect(half.millilitres, 225);
+    expect(half.servings, 0.5, reason: 'where the food opens next time');
+    expect(half.amount, '~150 g');
+    expect(half.dishes.single.quantityLabel, '0.5 份');
+    expect(
+      [for (final part in half.dishes.single.components) part.amountLabel],
+      ['~42.5 – 55 g', '0.25 碗', '一份 × 0.5'],
+    );
+    expect(half.name, meal.name);
+    expect(scaledMeal(meal, 1), same(meal), reason: 'as it was');
+
+    const unknown = MealEvent(
+      id: 'unread',
+      name: '包裝飯糰',
+      timeLabel: '08:00',
+      qualityTag: '自訂食物',
+      dishes: [],
+    );
+    final twice = scaledMeal(unknown, 2);
+    expect(twice.kcal, isNull, reason: 'a figure nobody wrote stays unwritten');
+    expect(twice.nutrients, isEmpty);
+    expect(twice.servings, isNull);
+  });
+
+  test('a quantity is scaled where it is written, never left as it was', () {
+    expect(scaledQuantity('450 ml', 0.5), '225 ml');
+    expect(scaledQuantity('~85 – 110 g', 2), '~170 – 220 g');
+    expect(scaledQuantity('1/2 碗', 2), '1 碗');
+    expect(scaledQuantity('1 份', 1.5), '1.5 份');
+    expect(scaledQuantity('1 份', 0.25), '0.25 份');
+    expect(scaledQuantity('一碗', 0.5), '一碗 × 0.5');
+    expect(scaledQuantity('', 2), '');
+    expect(scaledQuantity('1 份', 1), '1 份');
+  });
+
   test('a plate total names what it left out instead of marking it', () {
     FoodPortion one(double? kcal, NutrientValueType type) => FoodPortion(
       FoodItem(id: '$kcal$type', name: 'x', kcal: kcal, valueType: type),

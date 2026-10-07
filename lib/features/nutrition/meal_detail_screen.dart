@@ -108,67 +108,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ],
       ),
       children: [
-        Gutter(
-          child: MealSummaryCard(
-            meal: meal,
-            convention: _nutrition.convention,
-            details: [
-              if (meal.brand.isNotEmpty) meal.brand,
-              ?meal.mealType?.labelIn(context.l10n),
-              if (meal.kind != ConsumptionKind.unknown)
-                meal.kind.labelIn(context.l10n),
-              if (meal.millilitres case final millilitres?) '$millilitres mL',
-            ],
-          ),
-        ),
-        // What the card above does not show already.
-        if ([
-              for (final line in nutrientLines(
-                context.l10n,
-                meal.nutrients,
-                convention: _nutrition.convention,
-                carbGrams: meal.carbGrams,
-                fibreGrams: meal.fibreGrams,
-                labelCountry: meal.labelCountry,
-              ))
-                if (!energyNutrients.contains(line.$1) &&
-                    !_nutrition.convention.foldedAway.contains(line.$1))
-                  line,
-            ]
-            case final rest when rest.isNotEmpty)
-          PageSection(
-            label: context.l10n.nutrientsSection,
-            children: [
-              Gutter(
-                child: GroupedCard(
-                  children: [
-                    for (final (nutrient, value) in rest)
-                      KeyValueRow(
-                        label: _nutrition.convention.nameOf(
-                          context.l10n,
-                          nutrient,
-                        ),
-                        value: value,
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        if (meal.dishes.isNotEmpty)
-          PageSection(
-            label: context.l10n.contentsSection,
-            children: [
-              Gutter(
-                child: GroupedCard(
-                  children: [
-                    for (final dish in meal.dishes)
-                      KeyValueRow(label: dish.name, value: dish.quantityLabel),
-                  ],
-                ),
-              ),
-            ],
-          ),
+        ...mealFigures(context, meal, _nutrition.convention),
         ?mealQualityTag(
           context,
           meal,
@@ -178,6 +118,74 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 }
+
+/// What [meal] came to and what it held, as its page shows it: the energy
+/// and its parts, the other nutrients it has a figure for, and its dishes.
+/// A meal about to be logged is shown the same way.
+List<Widget> mealFigures(
+  BuildContext context,
+  MealEvent meal,
+  NutritionConvention convention,
+) => [
+  Gutter(
+    child: MealSummaryCard(
+      meal: meal,
+      convention: convention,
+      details: [
+        if (meal.brand.isNotEmpty) meal.brand,
+        ?meal.mealType?.labelIn(context.l10n),
+        if (meal.kind != ConsumptionKind.unknown)
+          meal.kind.labelIn(context.l10n),
+        if (meal.millilitres case final millilitres?) '$millilitres mL',
+      ],
+    ),
+  ),
+  // What the card above does not show already.
+  if ([
+        for (final line in nutrientLines(
+          context.l10n,
+          meal.nutrients,
+          convention: convention,
+          carbGrams: meal.carbGrams,
+          fibreGrams: meal.fibreGrams,
+          labelCountry: meal.labelCountry,
+        ))
+          if (!energyNutrients.contains(line.$1) &&
+              !convention.foldedAway.contains(line.$1))
+            line,
+      ]
+      case final rest when rest.isNotEmpty)
+    PageSection(
+      label: context.l10n.nutrientsSection,
+      children: [
+        Gutter(
+          child: GroupedCard(
+            children: [
+              for (final (nutrient, value) in rest)
+                KeyValueRow(
+                  label: convention.nameOf(context.l10n, nutrient),
+                  value: value,
+                ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  if (meal.dishes.isNotEmpty)
+    PageSection(
+      label: context.l10n.contentsSection,
+      children: [
+        Gutter(
+          child: GroupedCard(
+            children: [
+              for (final dish in meal.dishes)
+                KeyValueRow(label: dish.name, value: dish.quantityLabel),
+            ],
+          ),
+        ),
+      ],
+    ),
+];
 
 /// A meal's energy, what it was, and the parts that energy came from:
 /// the top of a meal's page and of a group's, which shows their sum.

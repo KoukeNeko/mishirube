@@ -81,3 +81,71 @@ class FoodPortion {
   double? _scaled(double? perServing) =>
       perServing == null ? null : (perServing * servings * 10).round() / 10;
 }
+
+/// [meal] as if [factor] times as much had been eaten: every figure it
+/// holds scaled the way a portion scales a food's, none it lacks made
+/// up, and the quantities it names with them (`1 碗` at half is
+/// `0.5 碗`). Logging a meal again at a different portion starts here.
+MealEvent scaledMeal(MealEvent meal, double factor) {
+  if (factor == 1) return meal;
+  double? tenth(double? figure) =>
+      figure == null ? null : (figure * factor * 10).round() / 10;
+  return meal.copyWith(
+    kcal: tenth(meal.kcal),
+    proteinGrams: tenth(meal.proteinGrams),
+    carbGrams: tenth(meal.carbGrams),
+    fatGrams: tenth(meal.fatGrams),
+    fibreGrams: tenth(meal.fibreGrams),
+    nutrients: {
+      for (final MapEntry(key: nutrient, value: amount)
+          in meal.nutrients.entries)
+        nutrient: amount * factor,
+    },
+    millilitres: meal.millilitres == null
+        ? null
+        : (meal.millilitres! * factor).round(),
+    servings: meal.servings == null ? null : meal.servings! * factor,
+    amount: meal.amount.isEmpty ? null : scaledQuantity(meal.amount, factor),
+    dishes: [
+      for (final dish in meal.dishes)
+        DishEntry(
+          name: dish.name,
+          quantityLabel: scaledQuantity(dish.quantityLabel, factor),
+          subtitle: dish.subtitle,
+          components: [
+            for (final component in dish.components)
+              FoodComponent(
+                name: component.name,
+                amountLabel: scaledQuantity(component.amountLabel, factor),
+                source: component.source,
+              ),
+          ],
+        ),
+    ],
+  );
+}
+
+/// A quantity as written (`~85 – 110 g`, `1/2 碗`) for [factor] times as
+/// much: each number in it scaled, a fraction as the number it is. A
+/// quantity with no number to scale (`一碗`) says what it is multiplied
+/// by instead, so it is never left reading as the original.
+String scaledQuantity(String quantity, double factor) {
+  if (factor == 1 || quantity.isEmpty) return quantity;
+  var hasNumber = false;
+  final scaled = quantity.replaceAllMapped(
+    RegExp(r'(\d+(?:\.\d+)?)\s*/\s*(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)'),
+    (match) {
+      hasNumber = true;
+      final value = match.group(3) != null
+          ? double.parse(match.group(3)!)
+          : double.parse(match.group(1)!) / double.parse(match.group(2)!);
+      return _trimmed(value * factor);
+    },
+  );
+  return hasNumber ? scaled : '$quantity × ${_trimmed(factor)}';
+}
+
+/// `1.5`, `0.25`, `75`: up to two decimals, none when whole.
+String _trimmed(double value) => ((value * 100).round() / 100)
+    .toStringAsFixed(2)
+    .replaceFirst(RegExp(r'\.?0+$'), '');
