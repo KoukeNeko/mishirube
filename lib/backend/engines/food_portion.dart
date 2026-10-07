@@ -139,13 +139,51 @@ String scaledQuantity(String quantity, double factor) {
       final value = match.group(3) != null
           ? double.parse(match.group(3)!)
           : double.parse(match.group(1)!) / double.parse(match.group(2)!);
-      return _trimmed(value * factor);
+      return formatQuantity(value * factor);
     },
   );
-  return hasNumber ? scaled : '$quantity × ${_trimmed(factor)}';
+  return hasNumber ? scaled : '$quantity × ${formatQuantity(factor)}';
 }
 
-/// `1.5`, `0.25`, `75`: up to two decimals, none when whole.
-String _trimmed(double value) => ((value * 100).round() / 100)
+/// How much [meal] was as a weight or volume: the first one its amount
+/// in words names, else its only dish's quantity (`150 g`), else the
+/// volume of a drink logged with no dish, as water is. Null when it was
+/// counted instead (`1 碗`) or is several dishes, since the app does not
+/// know how many grams a bowl is.
+(double, ServingUnit)? measuredMealAmount(MealEvent meal) {
+  final quantity = meal.amount.isNotEmpty
+      ? meal.amount
+      : meal.dishes.length == 1
+      ? meal.dishes.single.quantityLabel
+      : '';
+  if (measuredAmount(quantity) case (final amount, final unit)) {
+    return amount > 0 ? (amount, unit) : null;
+  }
+  final volume = meal.millilitres;
+  return meal.dishes.isEmpty && volume != null && volume > 0
+      ? (volume.toDouble(), ServingUnit.millilitre)
+      : null;
+}
+
+// l10n-ignore: units a model may write in, not words shown.
+final _measuredAmountPattern = RegExp(r'(\d+(?:\.\d+)?)\s*(g|公克|克|ml|mL|毫升)');
+
+/// The first weight or volume in a quantity written in words (「約 180 g
+/// （150–220 g）」 is 180 g), or null when it names none.
+(double, ServingUnit)? measuredAmount(String quantity) {
+  final match = _measuredAmountPattern.firstMatch(quantity);
+  if (match == null) return null;
+  final value = double.parse(match.group(1)!);
+  final unit = switch (match.group(2)) {
+    // l10n-ignore: as above.
+    'ml' || 'mL' || '毫升' => ServingUnit.millilitre,
+    _ => ServingUnit.gram,
+  };
+  return (value, unit);
+}
+
+/// A number as [scaledQuantity] writes one: `1.5`, `0.25`, `75`, up to two
+/// decimals and none when whole.
+String formatQuantity(double value) => ((value * 100).round() / 100)
     .toStringAsFixed(2)
     .replaceFirst(RegExp(r'\.?0+$'), '');

@@ -2809,6 +2809,78 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a recent meal eaten by weight also takes an amount', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    final nutrition = store.backend.nutrition;
+    const chicken = FoodItem(
+      id: 'chicken',
+      name: '雞胸肉',
+      kcal: 120,
+      proteinGrams: 24,
+      servingAmount: 100,
+      servingUnit: ServingUnit.gram,
+    );
+    nutrition.logPortion(
+      const FoodPortion(chicken, 1.5),
+      at: store.now().subtract(const Duration(days: 1)),
+    );
+    await pumpScreen(tester, const FoodSearchScreen(), store: store);
+
+    await tester.tap(find.text('雞胸肉').first);
+    await tester.pumpAndSettle();
+    Finder energy(String kcal) =>
+        find.textContaining('$kcal kcal', findRichText: true);
+    String typedIn(int field) => tester
+        .widget<TextField>(find.byType(TextField).at(field))
+        .controller!
+        .text;
+    expect(energy('180'), findsOneWidget, reason: 'as it was');
+    expect((typedIn(0), typedIn(1)), ('1', '150'));
+
+    await tester.enterText(find.byType(TextField).at(1), '75');
+    await tester.pump();
+    expect(typedIn(0), '0.5', reason: 'half of 150 g');
+    expect(energy('90'), findsOneWidget);
+    expect(find.text('加入 75 g'), findsOneWidget);
+
+    // Only how the amount is written changes, not how much it is.
+    await tester.tap(find.text('oz'));
+    await tester.pump();
+    expect((typedIn(0), typedIn(1)), ('0.5', '2.6'));
+    expect(energy('90'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).at(1), '3');
+    await tester.pump();
+    expect(energy('102.1'), findsOneWidget, reason: '3 oz is 85 g');
+    expect(
+      find.text('85.05 g'),
+      findsOneWidget,
+      reason: 'the dish, as it will be logged',
+    );
+    expect(find.text('加入 85.05 g'), findsOneWidget);
+
+    await tester.tap(find.text('2 份'));
+    await tester.pump();
+    expect((typedIn(0), typedIn(1)), ('2', '10.6'), reason: '300 g in oz');
+    expect(energy('360'), findsOneWidget);
+    await tester.tap(find.text('g'));
+    await tester.pump();
+    expect(typedIn(1), '300');
+
+    await tester.tap(find.text('加入 300 g'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(MealPortionScreen), findsNothing);
+    final logged = nutrition.mealsOn(store.now()).single;
+    expect(logged.kcal, 360);
+    expect(logged.dishes.single.quantityLabel, '300 g');
+    expect(logged.servings, 3, reason: 'twice the 1.5 servings it was');
+    await disposeTree(tester);
+  });
+
   testWidgets('新增紀錄 on another day logs to that day', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);

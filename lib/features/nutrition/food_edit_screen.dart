@@ -431,7 +431,7 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
 
     void put(TextEditingController field, double? value) =>
         field.text = value == null ? '' : formatAmount(value);
-    final amounts = items.map((item) => _measuredAmount(item.amount)).toList();
+    final amounts = items.map((item) => measuredAmount(item.amount)).toList();
     final unit = amounts.firstOrNull?.$2;
     final isMeasured =
         amounts.every((amount) => amount != null && amount.$2 == unit) &&
@@ -460,22 +460,6 @@ class _FoodEditScreenState extends State<FoodEditScreen> {
       _estimated = draft;
       _scanned = null;
     });
-  }
-
-  /// The first weight or volume in a model's amount (「約 180 g（150–220 g）」
-  /// is 180 g), or null when it gave none.
-  static (double, ServingUnit)? _measuredAmount(String amount) {
-    // l10n-ignore: units a model may write in, not words shown.
-    final match = RegExp(r'(\d+(?:\.\d+)?)\s*(g|公克|克|ml|mL|毫升)')
-        .firstMatch(amount);
-    if (match == null) return null;
-    final value = double.parse(match.group(1)!);
-    final unit = switch (match.group(2)) {
-      // l10n-ignore: as above.
-      'ml' || 'mL' || '毫升' => ServingUnit.millilitre,
-      _ => ServingUnit.gram,
-    };
-    return (value, unit);
   }
 
   /// Puts what the label said into the fields. A name already typed is

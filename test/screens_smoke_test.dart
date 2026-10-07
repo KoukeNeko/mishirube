@@ -615,6 +615,25 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
         MealPortionScreen(recent: store.backend.nutrition.recent().first),
     _noSetup,
   ),
+  'meal portion (by weight)': (
+    (store) => MealPortionScreen(
+      recent: RecentMeal(
+        meal: const MealEvent(
+          id: 'chicken',
+          name: '雞胸肉',
+          timeLabel: '12:00',
+          qualityTag: '自訂食物',
+          kcal: 180,
+          proteinGrams: 36,
+          dishes: [
+            DishEntry(name: '雞胸肉', quantityLabel: '150 g', subtitle: '自訂食物'),
+          ],
+        ),
+        eatenAt: store.now(),
+      ),
+    ),
+    _noSetup,
+  ),
   'food search': ((_) => const FoodSearchScreen(), _withFood),
   'quick record': ((_) => const FoodEditScreen(logsOnce: true), _noSetup),
   'camera': (

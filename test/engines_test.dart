@@ -2813,6 +2813,77 @@ Wall sit 2 x 1.5 min
     expect(scaledQuantity('1 份', 1), '1 份');
   });
 
+  test('a meal has a weight or volume only when its record gives one', () {
+    MealEvent meal({String amount = '', List<String> dishes = const []}) =>
+        MealEvent(
+          id: 'meal',
+          name: '雞胸肉',
+          timeLabel: '12:00',
+          qualityTag: '自訂食物',
+          amount: amount,
+          dishes: [
+            for (final label in dishes)
+              DishEntry(name: '雞胸肉', quantityLabel: label, subtitle: ''),
+          ],
+        );
+
+    expect(measuredMealAmount(meal(dishes: ['150 g'])), (
+      150.0,
+      ServingUnit.gram,
+    ));
+    expect(measuredMealAmount(meal(dishes: ['450 ml'])), (
+      450.0,
+      ServingUnit.millilitre,
+    ));
+    expect(measuredMealAmount(meal(amount: '約 180 g（150–220 g）')), (
+      180.0,
+      ServingUnit.gram,
+    ));
+    expect(measuredMealAmount(meal(amount: '300 mL', dishes: ['1 份'])), (
+      300.0,
+      ServingUnit.millilitre,
+    ), reason: 'the amount in words is the latest say');
+
+    // What a portion writes into the log reads back as what it was.
+    const chicken = FoodItem(
+      id: 'chicken',
+      name: '雞胸肉',
+      servingAmount: 100,
+      servingUnit: ServingUnit.gram,
+    );
+    expect(
+      measuredMealAmount(
+        meal(dishes: [const FoodPortion(chicken, 1.5).labelIn(testL10n)]),
+      ),
+      (150.0, ServingUnit.gram),
+    );
+
+    const water = MealEvent(
+      id: 'water',
+      name: '水',
+      timeLabel: '09:00',
+      qualityTag: waterQualityTag,
+      millilitres: 250,
+      dishes: [],
+    );
+    expect(measuredMealAmount(water), (250.0, ServingUnit.millilitre));
+
+    expect(measuredMealAmount(meal(dishes: ['1.5 份'])), isNull);
+    expect(measuredMealAmount(meal(dishes: ['1 碗'])), isNull, reason: 'a bowl');
+    expect(measuredMealAmount(meal(amount: '一碗')), isNull);
+    expect(
+      measuredMealAmount(meal(dishes: ['450 ml', '1 份'])),
+      isNull,
+      reason: 'several dishes are not one amount',
+    );
+    expect(measuredMealAmount(meal()), isNull);
+    expect(
+      measuredMealAmount(meal(dishes: ['0 g'])),
+      isNull,
+      reason: 'nothing to scale from',
+    );
+  });
+
   test('a plate total names what it left out instead of marking it', () {
     FoodPortion one(double? kcal, NutrientValueType type) => FoodPortion(
       FoodItem(id: '$kcal$type', name: 'x', kcal: kcal, valueType: type),
