@@ -6,16 +6,12 @@ import '../../../app/theme.dart';
 import '../../window_layout.dart';
 import '../page/page_layout.dart';
 
-/// How much narrower than the page column each card is, so the next one
-/// shows past the edge of the screen.
-const _peek = AppSpacing.xl;
-
 const _gap = AppSpacing.xs;
 
 /// Cards swiped sideways, one stopping at a time. The row runs edge to
-/// edge and each card is a little narrower than the page column, so the
-/// next shows past the edge of the screen and the row reads as one that
-/// goes on. A lone card is not a row: it is as wide as the column.
+/// edge and each card is as wide as the page column, so the next shows in
+/// the margin and the row reads as one that goes on past the screen. A
+/// lone card is not a row, and looks as any card does.
 class CardPager extends StatelessWidget {
   const CardPager({super.key, required this.children})
     : assert(children.length > 0);
@@ -28,7 +24,7 @@ class CardPager extends StatelessWidget {
     final gutter = PageColumn.gutterOf(context);
     return LayoutBuilder(
       builder: (context, space) {
-        final width = math.max(1.0, space.maxWidth - gutter.horizontal - _peek);
+        final width = math.max(1.0, space.maxWidth - gutter.horizontal);
         return SingleChildScrollView(
           // A scroll position keeps the stops it was made with, so a new
           // width or number of cards starts the row again from the first.

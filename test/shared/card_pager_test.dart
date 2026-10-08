@@ -51,6 +51,11 @@ void main() {
     await pumpPager(tester, 3);
 
     expect(tester.getTopLeft(card(0)).dx, AppSpacing.screenGutter);
+    expect(
+      tester.getSize(card(0)).width,
+      screenWidth(tester) - 2 * AppSpacing.screenGutter,
+      reason: 'as wide as any card on the page',
+    );
     final next = card(1);
     expect(tester.getTopLeft(next).dx, lessThan(screenWidth(tester)));
     expect(tester.getTopRight(next).dx, greaterThan(screenWidth(tester)));
