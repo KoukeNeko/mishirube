@@ -158,15 +158,16 @@ class TodayScreen extends StatelessWidget {
 
   /// The one card that says what to do now, or nothing when there is
   /// nothing to do: the meal that usually comes about now, then the
-  /// workout done today. What to train is not guessed: without a plan to
-  /// follow, the app does not know what comes next.
+  /// workouts done today, swiped when there were several. What to train
+  /// is not guessed: without a plan to follow, the app does not know what
+  /// comes next.
   Widget? _nextStep(
     BuildContext context,
     AppStore store,
     TodayViewModel today,
   ) {
     final modules = store.enabledModules;
-    final done = today.workoutToday;
+    final done = today.workoutsToday;
     if (modules.contains(AppModule.nutrition)) {
       if (today.nextMeal case final meal?) {
         return Gutter(
@@ -177,13 +178,18 @@ class TodayScreen extends StatelessWidget {
         );
       }
     }
-    if (done != null) {
-      return Gutter(
-        child: CompletedWorkoutCard(
-          workout: done,
-          onTap: () =>
-              pushPage(context, WorkoutSummaryScreen(workoutId: done.id)),
-        ),
+    if (done.isNotEmpty) {
+      return CardPager(
+        children: [
+          for (final workout in done)
+            CompletedWorkoutCard(
+              workout: workout,
+              onTap: () => pushPage(
+                context,
+                WorkoutSummaryScreen(workoutId: workout.id),
+              ),
+            ),
+        ],
       );
     }
     return null;

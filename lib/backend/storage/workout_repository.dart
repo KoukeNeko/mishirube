@@ -44,6 +44,21 @@ class WorkoutRepository {
           byId(row['id'], exercises)!,
       ];
 
+  /// The finished workouts that started on [day], newest first.
+  List<WorkoutSession> finishedOn(DateTime day, ExerciseResolver exercises) {
+    final start = DateTime(day.year, day.month, day.day);
+    final end = DateTime(day.year, day.month, day.day + 1);
+    return [
+      for (final row in _db.select(
+        "SELECT id FROM workouts WHERE status = 'completed' "
+        'AND deleted_at IS NULL AND started_at >= ? AND started_at < ? '
+        'ORDER BY started_at DESC',
+        [start.millisecondsSinceEpoch, end.millisecondsSinceEpoch],
+      ))
+        byId(row['id'], exercises)!,
+    ];
+  }
+
   /// The last [limit] finished workouts of [routineId], newest first.
   List<WorkoutSession> recentOf(
     String routineId,

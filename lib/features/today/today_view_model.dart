@@ -44,11 +44,6 @@ class TodayViewModel extends ViewModel {
     return DateTime(time.year, time.month, time.day);
   }
 
-  bool _isToday(DateTime time) =>
-      time.year == _today.year &&
-      time.month == _today.month &&
-      time.day == _today.day;
-
   /// Every record of today, oldest first.
   List<TimelineEntry> get records => backend.timeline.day(_today);
 
@@ -70,11 +65,8 @@ class TodayViewModel extends ViewModel {
     return logged ? null : suggested;
   }
 
-  /// The workout finished today, if one was.
-  WorkoutSession? get workoutToday => switch (backend.training.lastFinished()) {
-    final workout? when _isToday(workout.startedAt) => workout,
-    _ => null,
-  };
+  /// The workouts finished today, newest first.
+  List<WorkoutSession> get workoutsToday => backend.training.finishedOn(_today);
 
   /// How long a night the user aims for, when they have set it.
   Duration? get sleepGoal => backend.sleep.goal;

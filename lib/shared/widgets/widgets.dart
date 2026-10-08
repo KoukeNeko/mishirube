@@ -6,6 +6,7 @@ export 'chrome/app_sheet.dart';
 export 'chrome/chrome_surface.dart';
 export 'chrome/chrome_visibility.dart';
 // Display: cards, rows, stats, charts, banners.
+export 'content/card_pager.dart';
 export 'content/cards.dart';
 export 'content/chart_entrance.dart';
 export 'content/chart_parts.dart';

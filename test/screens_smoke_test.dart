@@ -297,6 +297,18 @@ final _todayStates = <(String, _StoreSetup)>[
         ..finishWorkout();
     },
   ),
+  (
+    'after two workouts',
+    (store) {
+      store
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout()
+        ..startWorkout()
+        ..completeNextSet()
+        ..finishWorkout();
+    },
+  ),
   ('during a workout', _withWorkout),
 ];
 

@@ -218,6 +218,10 @@ class TrainingService {
 
   WorkoutSession? lastFinished() => _workouts.lastFinished(_exercise);
 
+  /// The workouts finished that started on [day], newest first.
+  List<WorkoutSession> finishedOn(DateTime day) =>
+      _workouts.finishedOn(day, _exercise);
+
   ExerciseDefinition _exercise(String id) => _exercises.byId(id)!;
 
   /// Starts [routine], carrying last time's numbers into each exercise.

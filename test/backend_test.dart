@@ -331,6 +331,37 @@ void main() {
       expect(actions, ['start', 'complete_set']);
     });
 
+    test('a day lists the workouts finished on it, newest first', () {
+      final store = AppStore(clock: clock.now, isOnboarded: true);
+      addTearDown(store.dispose);
+      String trainAt(DateTime at) {
+        clock.current = at;
+        store
+          ..startWorkout()
+          ..completeNextSet()
+          ..finishWorkout();
+        return store.lastFinishedWorkout!.id;
+      }
+
+      final yesterday = trainAt(DateTime(2026, 9, 18, 22));
+      final morning = trainAt(DateTime(2026, 9, 19, 8));
+      final evening = trainAt(DateTime(2026, 9, 19, 19));
+      clock.current = DateTime(2026, 9, 19, 20);
+      store.startWorkout();
+
+      final training = store.backend.training;
+      final day = DateTime(2026, 9, 19);
+      expect(
+        [for (final w in training.finishedOn(day)) w.id],
+        [evening, morning],
+      );
+      expect(
+        [for (final w in training.finishedOn(DateTime(2026, 9, 18))) w.id],
+        [yesterday],
+      );
+      expect(training.finishedOn(DateTime(2026, 9, 20)), isEmpty);
+    });
+
     test('changing the template never rewrites a finished workout', () {
       final backend = openFile();
       addTearDown(backend.close);

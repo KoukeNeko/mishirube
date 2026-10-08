@@ -14,6 +14,7 @@ import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
 import 'package:mishirube/shared/format.dart';
@@ -366,6 +367,53 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), store: store);
 
     expect(find.byType(CompletedWorkoutCard), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('two workouts in a day are swiped between, newest first', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    clock.advance(const Duration(hours: 1));
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    final [newest, earlier] = store.backend.training.finishedOn(store.now());
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final cards = find.byType(CompletedWorkoutCard);
+    expect(cards, findsNWidgets(2));
+    expect(
+      tester.widget<CompletedWorkoutCard>(cards.first).workout.id,
+      newest.id,
+    );
+    final screen =
+        tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    expect(
+      tester.getTopLeft(cards.last).dx,
+      lessThan(screen),
+      reason: 'the earlier one shows past the edge, to swipe to',
+    );
+    expect(tester.getTopRight(cards.last).dx, greaterThan(screen));
+
+    await tester.drag(cards.first, const Offset(-250, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(cards.last);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<WorkoutSummaryScreen>(find.byType(WorkoutSummaryScreen))
+          .workoutId,
+      earlier.id,
+    );
     await disposeTree(tester);
   });
 }
