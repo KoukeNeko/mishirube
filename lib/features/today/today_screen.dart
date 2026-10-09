@@ -73,17 +73,16 @@ class TodayScreen extends StatelessWidget {
           onTap: () => pushPage(context, const TodayLayoutScreen()),
         ),
       ],
+      // Any day is a swipe away, as on 飲食 and 睡眠.
+      pinned: WeekDayStrip(
+        selected: today.day,
+        latest: today.today,
+        firstWeekday: store.firstWeekday,
+        markedDays: today.markedDays,
+        onSelected: today.pick,
+      ),
+      pinnedHeight: WeekDayStrip.pinnedHeightOf(context),
       children: [
-        // Any day is a swipe away, as on 飲食 and 睡眠. It goes up with the
-        // page rather than staying: the title names the day once it is not
-        // today, and a home page keeps its room.
-        WeekDayStrip(
-          selected: today.day,
-          latest: today.today,
-          firstWeekday: store.firstWeekday,
-          markedDays: today.markedDays,
-          onSelected: today.pick,
-        ),
         // A first read goes years back; a moving bar says the page is not
         // finished yet. The label above says it without the motion.
         if (store.isHealthReadSlow &&

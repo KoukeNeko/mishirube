@@ -179,6 +179,10 @@ void main() {
     // all, stays short of halfway.
     await _pumpShell(tester, tab: HomeTab.today);
     final expanded = tester.getRect(_header);
+    // Today holds its week strip under the bar.
+    final pinned = WeekDayStrip.pinnedHeightOf(
+      tester.element(find.byType(WeekDayStrip)),
+    );
 
     await _dragAndSettle(tester, 12);
     expect(
@@ -187,11 +191,12 @@ void main() {
       reason: 'a small drag snaps back open',
     );
 
-    final largeBlock = expanded.height - phoneTopInset - toolbar.height;
+    final largeBlock =
+        expanded.height - phoneTopInset - toolbar.height - pinned;
     await _dragAndSettle(tester, largeBlock * 0.7);
     expect(
       tester.getRect(_header).height,
-      phoneTopInset + toolbar.height,
+      phoneTopInset + toolbar.height + pinned,
       reason: 'past halfway it snaps shut',
     );
     await disposeTree(tester);
@@ -237,9 +242,8 @@ void main() {
         for (var i = 0; i < 3; i++) {
           await _dragAndSettle(tester, 600);
         }
-        return tester
-            .getRect(find.byType(ScrollEdgeGlass).hitTestable().first)
-            .height;
+        // Not hit-testable: Today's week strip sits over its middle.
+        return tester.getRect(find.byType(ScrollEdgeGlass).first).height;
       }
 
       final store = await _pumpShell(tester);
@@ -249,9 +253,16 @@ void main() {
         if (tab == HomeTab.log) continue;
         store.selectTab(tab);
         await tester.pump(_settle);
+        // Today keeps its week strip under the bar, a slot taller on
+        // purpose.
+        final pinned = tab == HomeTab.today
+            ? WeekDayStrip.pinnedHeightOf(
+                tester.element(find.byType(WeekDayStrip)),
+              )
+            : 0.0;
         expect(
           await shrunkHeight(),
-          phoneTopInset + toolbar.height,
+          phoneTopInset + toolbar.height + pinned,
           reason: '$tab',
         );
       }
