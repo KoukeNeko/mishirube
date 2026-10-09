@@ -212,6 +212,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.pinnedHeight = 0,
     this.pinnedMeetsContent = false,
     this.hideToolbarFraction = 0,
+    this.hidePinnedFraction = 0,
     this.scrollsToolbarAway = false,
     this.glassOpacity,
     this.isHighContrast = false,
@@ -236,6 +237,11 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   /// 0 shows the compact toolbar; 1 tucks it away (auto-hide while reading).
   final double hideToolbarFraction;
 
+  /// 0 shows the pinned row under the bar; 1 tucks it up under the bar.
+  /// Only once the large title is gone: at the top of the page it is
+  /// always shown.
+  final double hidePinnedFraction;
+
   /// No compact bar: once the large title has gone the toolbar row scrolls
   /// away too, leaving only the pinned control (if any) and the status bar.
   final bool scrollsToolbarAway;
@@ -254,7 +260,7 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent =>
       topInset +
       (scrollsToolbarAway ? 0 : _visibleToolbarHeight) +
-      pinnedHeight;
+      pinnedHeight * (1 - hidePinnedFraction);
 
   /// How far the header shrinks before it stops, i.e. the range to snap in.
   double get collapseRange =>
@@ -294,6 +300,15 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
           0.0,
           1.0,
         );
+    // With the pinned row tucked away the header is shorter than its bar,
+    // title and row together, and the row is what gives way.
+    final visiblePinnedHeight = hidePinnedFraction > 0
+        ? (math.max(minExtent, maxExtent - shrinkOffset) -
+                  topInset -
+                  toolbarHeight -
+                  math.max(0.0, largeHeight - shrinkOffset))
+              .clamp(0.0, pinnedHeight)
+        : pinnedHeight;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -391,28 +406,51 @@ class CollapsingHeaderDelegate extends SliverPersistentHeaderDelegate {
               ),
               if (pinned != null)
                 SizedBox(
-                  height: pinnedHeight,
-                  // As the bar, the control sits where toolbar controls do:
-                  // in the control row, with the bar's extra space below.
-                  // Horizontal spacing is the pinned element's own (see
-                  // Gutter), not the slot's.
-                  child: Padding(
-                    padding: scrollsToolbarAway
-                        ? EdgeInsets.only(
-                            bottom: toolbar.height - toolbar.controlRowHeight,
-                          )
-                        : pinnedMeetsContent
-                        ? EdgeInsets.zero
-                        : const EdgeInsets.symmetric(
-                            vertical: _pinnedVerticalPadding,
-                          ),
-                    child: scrollsToolbarAway ? Center(child: pinned) : pinned,
+                  height: visiblePinnedHeight,
+                  child: _tuckable(
+                    visiblePinnedHeight,
+                    // As the bar, the control sits where toolbar controls do:
+                    // in the control row, with the bar's extra space below.
+                    // Horizontal spacing is the pinned element's own (see
+                    // Gutter), not the slot's.
+                    Padding(
+                      padding: scrollsToolbarAway
+                          ? EdgeInsets.only(
+                              bottom: toolbar.height - toolbar.controlRowHeight,
+                            )
+                          : pinnedMeetsContent
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.symmetric(
+                              vertical: _pinnedVerticalPadding,
+                            ),
+                      child: scrollsToolbarAway
+                          ? Center(child: pinned)
+                          : pinned,
+                    ),
                   ),
                 ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  /// The pinned row as it slides up under the bar: laid out whole,
+  /// clipped to the [visible] height from its bottom and faded with it.
+  /// Left as it is for a page whose row never tucks away.
+  Widget _tuckable(double visible, Widget row) {
+    if (hidePinnedFraction == 0) return row;
+    return ExcludeSemantics(
+      excluding: visible < pinnedHeight / 2,
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: Alignment.bottomCenter,
+          minHeight: pinnedHeight,
+          maxHeight: pinnedHeight,
+          child: Opacity(opacity: visible / pinnedHeight, child: row),
+        ),
+      ),
     );
   }
 

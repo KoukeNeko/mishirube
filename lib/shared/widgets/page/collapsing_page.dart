@@ -32,6 +32,7 @@ class CollapsingPage extends StatelessWidget {
     this.actions = const [],
     this.pinned,
     this.pinnedHeight,
+    this.hidesPinnedOnScroll = false,
     this.compactBar = CompactBarBehavior.pinned,
     this.hasTopGap = true,
     this.held,
@@ -70,6 +71,10 @@ class CollapsingPage extends StatelessWidget {
   /// Height of [pinned]; defaults to a segmented control's height.
   final double? pinnedHeight;
 
+  /// Whether [pinned] slides up under the bar while the user reads
+  /// downwards, and is back on scrolling up and at the top.
+  final bool hidesPinnedOnScroll;
+
   /// What happens to the small bar once the large title has scrolled away.
   final CompactBarBehavior compactBar;
   final List<Widget> children;
@@ -79,7 +84,7 @@ class CollapsingPage extends StatelessWidget {
     assert(held == null || title == null, 'A held block has no large title.');
     final media = MediaQuery.of(context);
     final shouldHide =
-        compactBar == CompactBarBehavior.autoHide &&
+        (compactBar == CompactBarBehavior.autoHide || hidesPinnedOnScroll) &&
         ChromeVisibility.isMinimizedOf(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -150,7 +155,12 @@ class CollapsingPage extends StatelessWidget {
               pinned: pinned,
               pinnedHeight: pinnedHeight,
               pinnedMeetsContent: !hasTopGap || this.held != null,
-              hideToolbarFraction: hideFraction,
+              hideToolbarFraction: compactBar == CompactBarBehavior.autoHide
+                  ? hideFraction
+                  : 0,
+              hidePinnedFraction: hidesPinnedOnScroll && pinned != null
+                  ? hideFraction
+                  : 0,
               scrollsToolbarAway: compactBar == CompactBarBehavior.none,
               isHighContrast: media.highContrast,
               reduceMotion: prefersReducedMotion(context),

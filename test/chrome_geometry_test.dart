@@ -203,6 +203,35 @@ void main() {
   });
 
   testWidgets(
+    "Today's week strip tucks under the bar reading down, and is back on the way up",
+    variant: bothPlatforms,
+    (tester) async {
+      final toolbar = toolbarMetrics();
+      await _pumpShell(tester, tab: HomeTab.today);
+      final pinned = WeekDayStrip.pinnedHeightOf(
+        tester.element(find.byType(WeekDayStrip)),
+      );
+      final bar = phoneTopInset + toolbar.height;
+      double header() => tester.getRect(_header).height;
+      expect(header(), greaterThan(bar + pinned), reason: 'at the top');
+
+      // Past the large title and the strip's own height: reading down.
+      await _dragAndSettle(tester, 900);
+      expect(header(), bar, reason: 'tucked away under the bar');
+
+      await _dragAndSettle(tester, -150);
+      expect(header(), bar + pinned, reason: 'one swipe up brings it back');
+
+      await _dragAndSettle(tester, 900);
+      expect(header(), bar, reason: 'and reading down tucks it again');
+
+      await _dragAndSettle(tester, -3000);
+      expect(header(), greaterThan(bar + pinned), reason: 'back at the top');
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets(
     'title and actions share the control row centre',
     variant: bothPlatforms,
     (tester) async {
@@ -242,8 +271,9 @@ void main() {
         for (var i = 0; i < 3; i++) {
           await _dragAndSettle(tester, 600);
         }
-        // Not hit-testable: Today's week strip sits over its middle.
-        return tester.getRect(find.byType(ScrollEdgeGlass).first).height;
+        return tester
+            .getRect(find.byType(ScrollEdgeGlass).hitTestable().first)
+            .height;
       }
 
       final store = await _pumpShell(tester);
@@ -253,16 +283,10 @@ void main() {
         if (tab == HomeTab.log) continue;
         store.selectTab(tab);
         await tester.pump(_settle);
-        // Today keeps its week strip under the bar, a slot taller on
-        // purpose.
-        final pinned = tab == HomeTab.today
-            ? WeekDayStrip.pinnedHeightOf(
-                tester.element(find.byType(WeekDayStrip)),
-              )
-            : 0.0;
+        // Today's week strip tucks away under the bar while reading down.
         expect(
           await shrunkHeight(),
-          phoneTopInset + toolbar.height + pinned,
+          phoneTopInset + toolbar.height,
           reason: '$tab',
         );
       }

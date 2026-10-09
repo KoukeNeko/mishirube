@@ -82,6 +82,8 @@ class TodayScreen extends StatelessWidget {
         onSelected: today.pick,
       ),
       pinnedHeight: WeekDayStrip.pinnedHeightOf(context),
+      // Out of the way while reading down; back on the way up, and at the top.
+      hidesPinnedOnScroll: true,
       children: [
         // A first read goes years back; a moving bar says the page is not
         // finished yet. The label above says it without the motion.
