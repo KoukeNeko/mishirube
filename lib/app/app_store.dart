@@ -264,19 +264,10 @@ class AppStore extends ChangeNotifier {
     List<(DateTime, double, double)> week,
     double? weekChange,
   })
-  get weightSummary {
-    final weights = _backend.journal.recentWeights(const Duration(days: 14));
-    final from = now().subtract(const Duration(days: 7));
-    final week = [
-      for (final point in trendOf(weights))
-        if (!point.$1.isBefore(from)) point,
-    ];
-    return (
-      latest: weights.lastOrNull,
-      week: week,
-      weekChange: trendChange(week),
-    );
-  }
+  get weightSummary => weightSummaryOf(
+    _backend.journal.recentWeights(const Duration(days: 14)),
+    now(),
+  );
 
   /// The latest night, if it ended today or yesterday.
   SleepRecord? get lastNight => _backend.sleep.lastNight();

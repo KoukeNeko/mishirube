@@ -23,6 +23,13 @@ import 'package:mishirube/shared/widgets/widgets.dart';
 import '../../support/harness.dart';
 
 void main() {
+  /// The page's own scroll, not the week strip's sideways one.
+  final pageScroll = find
+      .byWidgetPredicate(
+        (widget) => widget is Scrollable && widget.axis == Axis.vertical,
+      )
+      .first;
+
   /// A store with the demo records hidden: the day as a new user has it.
   AppStore emptyDay() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -60,7 +67,11 @@ void main() {
       ..recordNote('膝蓋有點緊');
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    await tester.scrollUntilVisible(find.text('今天的紀錄'), 200);
+    await tester.scrollUntilVisible(
+      find.text('今天的紀錄'),
+      200,
+      scrollable: pageScroll,
+    );
     final weight = tester.getTopLeft(find.text('體重 72.4 kg')).dy;
     final note = tester.getTopLeft(find.textContaining('膝蓋有點緊')).dy;
     expect(weight, lessThan(note), reason: 'the morning weighing comes first');
@@ -82,7 +93,7 @@ void main() {
       (insights[1], TrendDetailScreen),
     ]) {
       final card = find.text(insight.statement);
-      await tester.scrollUntilVisible(card, 200);
+      await tester.scrollUntilVisible(card, 200, scrollable: pageScroll);
       await tester.ensureVisible(card);
       await tester.pump();
       await tester.tap(card);
@@ -120,7 +131,11 @@ void main() {
       await pumpScreen(tester, const TodayScreen(), store: store);
 
       Future<void> openRow(String title) async {
-        await tester.scrollUntilVisible(find.text(title), 200);
+        await tester.scrollUntilVisible(
+          find.text(title),
+          200,
+          scrollable: pageScroll,
+        );
         await tester.ensureVisible(find.text(title));
         await tester.pump();
         await tester.tap(find.text(title));
@@ -227,7 +242,11 @@ void main() {
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    await tester.scrollUntilVisible(find.byType(CaffeineCard), 200);
+    await tester.scrollUntilVisible(
+      find.byType(CaffeineCard),
+      200,
+      scrollable: pageScroll,
+    );
     expect(
       find.text('100 mg', findRichText: true),
       findsOneWidget,
@@ -368,6 +387,117 @@ void main() {
 
     expect(find.byType(CompletedWorkoutCard), findsOneWidget);
     await disposeTree(tester);
+  });
+
+  /// Picks [day] on the week strip.
+  Future<void> pickDay(WidgetTester tester, DateTime day) async {
+    await tester.tap(
+      find.bySemanticsLabel(RegExp('^${day.month} 月 ${day.day} 日')),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('another day is picked from the week strip and read as itself', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    final yesterday = store.now().subtract(const Duration(days: 1));
+    store.backend.journal
+      ..recordWeight(72.4, at: yesterday)
+      ..recordWeight(73.8, at: store.now().subtract(const Duration(hours: 1)));
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'bento',
+        name: '雞腿便當',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 700,
+      ),
+      eatenAt: yesterday,
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    Finder text(String text) => find.textContaining(text, findRichText: true);
+    expect(find.text('今天'), findsWidgets);
+    expect(text('73.8'), findsWidgets);
+    expect(
+      find.byType(IntakeCard),
+      findsNothing,
+      reason: 'nothing eaten today',
+    );
+
+    await pickDay(tester, yesterday);
+    expect(find.text('今天'), findsOneWidget, reason: 'only the way back');
+    expect(
+      find.text('${yesterday.month} 月 ${yesterday.day} 日（週五）'),
+      findsWidgets,
+    );
+    expect(text('72.4'), findsWidgets, reason: 'the weight of that day');
+    expect(text('73.8'), findsNothing);
+    expect(find.byType(IntakeCard), findsOneWidget);
+    expect(text('700'), findsWidgets);
+
+    await tester.tap(find.bySemanticsLabel('回到今天'));
+    await tester.pumpAndSettle();
+    expect(find.text('今天'), findsWidgets);
+    expect(text('73.8'), findsWidgets);
+    expect(find.byType(IntakeCard), findsNothing);
+    expect(find.bySemanticsLabel('回到今天'), findsNothing);
+    await disposeTree(tester);
+  });
+
+  testWidgets('what only means something now stays with today', (tester) async {
+    usePhoneViewport(tester);
+    final store = AppStore(clock: FakeClock().now, isOnboarded: true);
+    final at = store.now().subtract(const Duration(hours: 5));
+    store.backend.nutrition.logMeal(
+      MealEvent(
+        id: 'coffee',
+        name: '美式',
+        timeLabel: formatTimeOfDay(at),
+        qualityTag: '手動',
+        dishes: const [],
+        kind: ConsumptionKind.beverage,
+        nutrients: const {Nutrient.caffeine: 200},
+      ),
+      eatenAt: at,
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    final insight = store.todayInsights.first.statement;
+    await tester.scrollUntilVisible(
+      find.text(insight),
+      200,
+      scrollable: pageScroll,
+    );
+    expect(find.byType(CaffeineCard), findsOneWidget);
+    await tester.drag(pageScroll, const Offset(0, 3000));
+    await tester.pumpAndSettle();
+
+    await pickDay(tester, store.now().subtract(const Duration(days: 1)));
+    expect(find.byType(CaffeineCard), findsNothing, reason: 'in the body now');
+    expect(find.text(insight), findsNothing, reason: 'worth noticing now');
+    await disposeTree(tester);
+  });
+
+  test('a page left on today is still today after midnight', () {
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    final today = TodayViewModel(store.backend);
+    addTearDown(today.dispose);
+    final first = today.day;
+
+    today.pick(DateTime(first.year, first.month, first.day - 1));
+    expect(today.isToday, isFalse);
+    today.pick(first);
+    expect(today.isToday, isTrue, reason: 'picking today is not a pick');
+
+    clock.advance(const Duration(days: 1));
+    expect(today.day, DateTime(first.year, first.month, first.day + 1));
+    today.pick(DateTime(first.year, first.month, first.day));
+    clock.advance(const Duration(days: 1));
+    expect(today.day, first, reason: 'a day picked stays the one picked');
   });
 
   testWidgets('two workouts in a day are swiped between, newest first', (

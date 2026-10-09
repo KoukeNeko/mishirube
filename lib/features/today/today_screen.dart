@@ -52,13 +52,21 @@ class TodayScreen extends StatelessWidget {
 
   Widget _page(BuildContext context, TodayViewModel today) {
     final store = AppStoreScope.of(context);
-    final now = store.now();
     final page = CollapsingPage(
-      title: context.l10n.tabToday,
-      subtitle: context.dates.dayWithWeekday(now),
+      title: today.isToday
+          ? context.l10n.tabToday
+          : context.dates.dayWithWeekday(today.day),
+      subtitle: today.isToday ? context.dates.dayWithWeekday(today.day) : null,
       leading: const GoalEntryButton(),
       actions: [
         ?_healthReadStatus(context, store),
+        if (!today.isToday)
+          HeaderAction(
+            icon: Icons.today_outlined,
+            label: context.l10n.tabToday,
+            semanticLabel: context.l10n.backToToday,
+            onTap: () => today.pick(today.today),
+          ),
         HeaderAction(
           icon: Icons.tune,
           semanticLabel: context.l10n.customiseToday,
@@ -66,6 +74,16 @@ class TodayScreen extends StatelessWidget {
         ),
       ],
       children: [
+        // Any day is a swipe away, as on 飲食 and 睡眠. It goes up with the
+        // page rather than staying: the title names the day once it is not
+        // today, and a home page keeps its room.
+        WeekDayStrip(
+          selected: today.day,
+          latest: today.today,
+          firstWeekday: store.firstWeekday,
+          markedDays: today.markedDays,
+          onSelected: today.pick,
+        ),
         // A first read goes years back; a moving bar says the page is not
         // finished yet. The label above says it without the motion.
         if (store.isHealthReadSlow &&
@@ -73,10 +91,13 @@ class TodayScreen extends StatelessWidget {
             !prefersReducedMotion(context))
           const Gutter(child: ProgressLine(progress: null, height: 4)),
         ...switch (store.activeSession) {
-          ActiveWorkout() => buildActiveWorkoutToday(context, store),
+          ActiveWorkout() when today.isToday => buildActiveWorkoutToday(
+            context,
+            store,
+          ),
           // The dock carries a running exercise and its controls; Today
-          // goes on as usual beside it.
-          ActiveActivity() || ActiveBath() || null => [
+          // goes on as usual beside it, and so does another day.
+          _ => [
             ?_nextStep(context, store, today),
             ..._sections(context, store, today),
           ],
@@ -158,7 +179,7 @@ class TodayScreen extends StatelessWidget {
 
   /// The one card that says what to do now, or nothing when there is
   /// nothing to do: the meal that usually comes about now, then the
-  /// workouts done today, swiped when there were several. What to train
+  /// workouts done on the day, swiped when there were several. What to train
   /// is not guessed: without a plan to follow, the app does not know what
   /// comes next.
   Widget? _nextStep(
@@ -167,7 +188,7 @@ class TodayScreen extends StatelessWidget {
     TodayViewModel today,
   ) {
     final modules = store.enabledModules;
-    final done = today.workoutsToday;
+    final done = today.workouts;
     if (modules.contains(AppModule.nutrition)) {
       if (today.nextMeal case final meal?) {
         return Gutter(
@@ -207,8 +228,14 @@ class TodayScreen extends StatelessWidget {
     // to keep its place, shown as empty.
     // Still opening the section's own page, where the day is.
     void openPageOf(TodaySection section) => switch (section) {
-      TodaySection.activity => pushPage(context, const DailyActivityScreen()),
-      TodaySection.intake => pushPage(context, const DailyNutritionScreen()),
+      TodaySection.activity => pushPage(
+        context,
+        DailyActivityScreen(day: today.day),
+      ),
+      TodaySection.intake => pushPage(
+        context,
+        DailyNutritionScreen(day: today.day),
+      ),
       TodaySection.caffeine => pushPage(context, const CaffeineScreen()),
       TodaySection.vitals => pushPage(context, const VitalsScreen()),
       TodaySection.insights => store.selectTab(HomeTab.trends),
@@ -223,7 +250,7 @@ class TodayScreen extends StatelessWidget {
         : [
             Gutter(
               child: EmptySectionCard(
-                label: section.labelIn(context.l10n),
+                label: section.labelIn(context.l10n, isToday: today.isToday),
                 color: color,
                 onTap: () => openPageOf(section),
               ),
@@ -237,17 +264,21 @@ class TodayScreen extends StatelessWidget {
         section,
         AppColors.nutrition,
         [
-          if (store.todaySummary.recordCount > 0)
+          if (today.intake.recordCount > 0)
             Gutter(
               child: IntakeCard(
-                store: store,
+                summary: today.intake,
+                convention: today.backend.nutrition.convention,
                 kcalTarget: today.kcalTarget,
-                onTap: () => pushPage(context, const DailyNutritionScreen()),
+                onTap: () =>
+                    pushPage(context, DailyNutritionScreen(day: today.day)),
               ),
             ),
         ],
       ),
-      TodaySection.caffeine when modules.contains(AppModule.nutrition) =>
+      // What is in the body now means nothing of another day.
+      TodaySection.caffeine
+          when modules.contains(AppModule.nutrition) && today.isToday =>
         orEmpty(section, AppColors.caffeine, [
           if (today.caffeine case (:final curve, :final nowIndex))
             Gutter(
@@ -281,11 +312,7 @@ class TodayScreen extends StatelessWidget {
             Gutter(
               child: VitalsCard(
                 readings: readings,
-                today: DateTime(
-                  store.now().year,
-                  store.now().month,
-                  store.now().day,
-                ),
+                today: today.day,
                 weekOf: (metric, day) => ReadingWeek(
                   metric: metric,
                   day: day,
@@ -311,24 +338,28 @@ class TodayScreen extends StatelessWidget {
         AppColors.textSecondary,
         _records(context, today),
       ),
-      TodaySection.insights => orEmpty(section, AppColors.wellness, [
-        if (store.todayInsights.isNotEmpty)
-          PageSection(
-            label: TodaySection.insights.labelIn(context.l10n),
-            children: [
-              for (final insight in store.todayInsights)
-                Gutter(
-                  child: InsightCard(
-                    insight: insight,
-                    onTap: switch (insightDestination(insight)) {
-                      final page? => () => pushPage(context, page),
-                      null => null,
-                    },
+      TodaySection.insights when today.isToday => orEmpty(
+        section,
+        AppColors.wellness,
+        [
+          if (store.todayInsights.isNotEmpty)
+            PageSection(
+              label: TodaySection.insights.labelIn(context.l10n),
+              children: [
+                for (final insight in store.todayInsights)
+                  Gutter(
+                    child: InsightCard(
+                      insight: insight,
+                      onTap: switch (insightDestination(insight)) {
+                        final page? => () => pushPage(context, page),
+                        null => null,
+                      },
+                    ),
                   ),
-                ),
-            ],
-          ),
-      ]),
+              ],
+            ),
+        ],
+      ),
       _ => const [],
     };
     return [
@@ -345,9 +376,9 @@ class TodayScreen extends StatelessWidget {
   ) {
     final water = today.water;
     final waterReference = today.waterReferenceMl;
-    final night = store.lastNight;
+    final night = today.night;
     final sleepGoal = today.sleepGoal;
-    final napTime = today.napTimeOn(night?.entry.sleptAt ?? store.now());
+    final napTime = today.napTimeOn(night?.entry.sleptAt ?? today.day);
     final tiles = [
       if (modules.contains(AppModule.sleep))
         QuickStatTile(
@@ -388,9 +419,9 @@ class TodayScreen extends StatelessWidget {
                   ? store.healthSourceName
                   : night.entry.sourceName,
           },
-          onTap: () => pushPage(context, const SleepScreen()),
+          onTap: () => pushPage(context, SleepScreen(day: today.day)),
         ),
-      if (modules.contains(AppModule.weight)) const _WeightTile(),
+      if (modules.contains(AppModule.weight)) _WeightTile(weight: today.weight),
       if (modules.contains(AppModule.water))
         QuickStatTile(
           category: context.l10n.healthDataWater,
@@ -411,7 +442,7 @@ class TodayScreen extends StatelessWidget {
           caption: water.times == 0
               ? null
               : context.l10n.timesCount(count: water.times),
-          onTap: () => pushPage(context, const WaterScreen()),
+          onTap: () => pushPage(context, WaterScreen(day: today.day)),
         ),
     ];
     final baths = modules.contains(AppModule.sleep) ? today.baths : null;
@@ -453,13 +484,13 @@ class TodayScreen extends StatelessWidget {
                     style: AppTextStyles.caption,
                   )
                 : null,
-            onTap: () => pushPage(context, const BathScreen()),
+            onTap: () => pushPage(context, BathScreen(day: today.day)),
           ),
         ),
     ];
   }
 
-  /// Today's movement, when the health platform counted any.
+  /// The day's movement, when the health platform counted any.
   Widget? _activity(BuildContext context, TodayViewModel today) {
     final totals = today.activityTotals;
     final lead = ActivityMetric.headline.where(totals.containsKey).firstOrNull;
@@ -469,7 +500,7 @@ class TodayScreen extends StatelessWidget {
         lead: lead,
         totals: totals,
         hours: today.activityHours(lead) ?? List.filled(24, 0),
-        onTap: () => pushPage(context, const DailyActivityScreen()),
+        onTap: () => pushPage(context, DailyActivityScreen(day: today.day)),
       ),
     );
   }
@@ -513,7 +544,7 @@ class TodayScreen extends StatelessWidget {
     return [
       Gutter(
         child: SectionLabel(
-          TodaySection.records.labelIn(context.l10n),
+          TodaySection.records.labelIn(context.l10n, isToday: today.isToday),
           trailing: all.length > shown
               ? LinkText(
                   label: context.l10n.allCount(count: all.length),
@@ -552,12 +583,19 @@ class TodayScreen extends StatelessWidget {
 }
 
 class _WeightTile extends StatelessWidget {
-  const _WeightTile();
+  const _WeightTile({required this.weight});
+
+  final ({
+    BodyWeight? latest,
+    List<(DateTime, double, double)> week,
+    double? weekChange,
+  })
+  weight;
 
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
-    final (:latest, :week, :weekChange) = store.weightSummary;
+    final (:latest, :week, :weekChange) = weight;
     return QuickStatTile(
       category: context.l10n.moduleWeight,
       color: AppColors.body,

@@ -34,11 +34,15 @@ class VitalsViewModel extends ViewModel {
   static const _pinnedKey = 'today.vitals';
 
   /// [metric]'s last day with a reading within [readingsWindow] of
-  /// today, and that day's figure.
-  static (DateTime, double)? latestIn(Backend backend, ActivityMetric metric) {
-    final today = backend.db.now();
+  /// [day], today when null, and that day's figure.
+  static (DateTime, double)? latestIn(
+    Backend backend,
+    ActivityMetric metric, {
+    DateTime? day,
+  }) {
+    final end = day ?? backend.db.now();
     return backend.activity
-        .daily(metric, today.subtract(readingsWindow), today)
+        .daily(metric, end.subtract(readingsWindow), end)
         .lastOrNull;
   }
 

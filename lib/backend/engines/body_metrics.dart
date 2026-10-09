@@ -65,3 +65,24 @@ double? trendChange(List<(DateTime, double, double)> trend) {
   if (trend.length < 2) return null;
   return trend.last.$3 - trend.first.$3;
 }
+
+/// What a weight card shows as of [end]: the latest of [weights], the
+/// fortnight before it, then the last week's points and how far their
+/// trend moved; null for what there are no weighings for.
+({
+  BodyWeight? latest,
+  List<(DateTime, double, double)> week,
+  double? weekChange,
+})
+weightSummaryOf(List<BodyWeight> weights, DateTime end) {
+  final from = end.subtract(const Duration(days: 7));
+  final week = [
+    for (final point in trendOf(weights))
+      if (!point.$1.isBefore(from)) point,
+  ];
+  return (
+    latest: weights.lastOrNull,
+    week: week,
+    weekChange: trendChange(week),
+  );
+}

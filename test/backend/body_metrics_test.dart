@@ -28,4 +28,27 @@ void main() {
     expect(trendChange(trend), -2);
     expect(trendChange(trend.take(1).toList()), isNull);
   });
+
+  test('the weight card as of a day leaves out what came after it', () {
+    BodyWeight on(int day, double kg) => BodyWeight(
+      id: '$day',
+      measuredAt: DateTime(2026, 9, day, 7),
+      weightKg: kg,
+    );
+    final weights = [on(8, 72), on(10, 71), on(12, 70)];
+    final asOf = weightSummaryOf(
+      weights.take(2).toList(),
+      DateTime(2026, 9, 11),
+    );
+
+    expect(asOf.latest?.weightKg, 71);
+    expect([for (final point in asOf.week) point.$1.day], [8, 10]);
+    expect(asOf.weekChange, -0.5, reason: 'the trend from 72 to 71.5');
+
+    final lone = weightSummaryOf([on(1, 72)], DateTime(2026, 9, 12));
+    expect(lone.latest?.weightKg, 72, reason: 'still the latest');
+    expect(lone.week, isEmpty, reason: 'but not this week\'s');
+    expect(lone.weekChange, isNull);
+    expect(weightSummaryOf([], DateTime(2026, 9, 12)).latest, isNull);
+  });
 }

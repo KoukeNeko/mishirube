@@ -277,12 +277,15 @@ class NextMealCard extends StatelessWidget {
 class IntakeCard extends StatelessWidget {
   const IntakeCard({
     super.key,
-    required this.store,
+    required this.summary,
+    required this.convention,
     required this.kcalTarget,
     required this.onTap,
   });
 
-  final AppStore store;
+  /// What was eaten on the day.
+  final DaySummary summary;
+  final NutritionConvention convention;
 
   /// What the day's energy is set against; null draws no bar.
   final double? kcalTarget;
@@ -290,8 +293,6 @@ class IntakeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final summary = store.todaySummary;
-    final convention = store.backend.nutrition.convention;
     return AppCard(
       onTap: onTap,
       child: Column(
@@ -316,7 +317,7 @@ class IntakeCard extends StatelessWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: '~${formatKcal(store.todayKcal)}',
+                  text: '~${formatKcal(summary.kcal)}',
                   style: AppTextStyles.bigNumber,
                 ),
                 TextSpan(
@@ -331,7 +332,7 @@ class IntakeCard extends StatelessWidget {
           if (kcalTarget case final target? when target > 0) ...[
             const SizedBox(height: AppSpacing.xs),
             ProgressLine(
-              progress: store.todayKcal / target,
+              progress: summary.kcal / target,
               color: AppColors.nutrition,
               height: 6,
             ),
