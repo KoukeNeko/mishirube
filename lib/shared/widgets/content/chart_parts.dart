@@ -40,7 +40,7 @@ class ChartKey extends StatelessWidget {
                 ),
         ),
         const SizedBox(width: AppSpacing.xxs),
-        Text(label, style: AppTextStyles.caption),
+        Flexible(child: Text(label, style: AppTextStyles.caption)),
       ],
     );
   }

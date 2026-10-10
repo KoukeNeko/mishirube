@@ -163,8 +163,8 @@ class _SleepScreenState extends State<SleepScreen> {
               onTap: () => _open(night),
             ),
           ),
-          ..._againstUsual(night),
           ..._stages(night),
+          ..._againstUsual(night),
           ..._continuity(night),
           ..._readings(night),
           _NightCharts(

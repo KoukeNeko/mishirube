@@ -108,6 +108,14 @@ void main() {
     return store;
   }
 
+  // The page builds its sections as they scroll into view.
+  Future<void> scrollTo(WidgetTester tester, Finder finder) =>
+      tester.scrollUntilVisible(
+        finder,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+
   testWidgets('a night is read against the nights before it, as facts', (
     tester,
   ) async {
@@ -118,6 +126,7 @@ void main() {
       store: withUsualNights(bed: 21 * 60 + 57, awake: 45),
     );
 
+    await scrollTo(tester, find.text('與平常相比'));
     expect(find.text('與平常相比'), findsOneWidget);
     expect(find.text('入睡時間'), findsOneWidget);
     expect(find.text('21:57'), findsOneWidget);
@@ -157,6 +166,7 @@ void main() {
       store: withUsualNights(bed: 24 * 60 + 30, awake: 10),
     );
 
+    await scrollTo(tester, find.text('比平均晚 1 小時 30 分'));
     expect(find.text('比平均晚 1 小時 30 分'), findsOneWidget);
     await disposeTree(tester);
   });
@@ -169,6 +179,7 @@ void main() {
       store: withUsualNights(bed: 23 * 60, wake: 9 * 60 + 30, awake: 10),
     );
 
+    await scrollTo(tester, find.text('09:30'));
     expect(find.text('09:30'), findsOneWidget);
     expect(find.text('比平均晚 2 小時 30 分'), findsOneWidget);
     expect(find.text('與平均相同'), findsOneWidget, reason: 'bedtime as usual');
@@ -185,6 +196,8 @@ void main() {
       store: withUsualNights(before: 5, bed: 21 * 60 + 57, awake: 45),
     );
 
+    // Past where the card would be, so its absence is not just not built yet.
+    await scrollTo(tester, find.text('夜間清醒'));
     expect(find.text('與平常相比'), findsNothing);
     expect(find.textContaining('比平均'), findsNothing);
     // The time awake is still there, in the section it always was.
