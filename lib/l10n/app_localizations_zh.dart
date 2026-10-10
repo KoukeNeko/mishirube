@@ -2359,6 +2359,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get nightVersusUsualSection => '與平常相比';
+
+  @override
+  String get bedtimeRow => '入睡時間';
+
+  @override
   String goalMet({required String goal}) {
     return '目標 $goal · 達成';
   }
@@ -6224,6 +6230,68 @@ class AppLocalizationsZh extends AppLocalizations {
   String get refSectionSleepStages => '睡眠階段';
 
   @override
+  String get wakeRow => '起床時間';
+
+  @override
+  String earlierThanAverage({required String gap}) {
+    return '比平均早 $gap';
+  }
+
+  @override
+  String laterThanAverage({required String gap}) {
+    return '比平均晚 $gap';
+  }
+
+  @override
+  String get sameAsAverage => '與平均相同';
+
+  @override
+  String fromNights({required int count}) {
+    return '依近 28 天 $count 晚';
+  }
+
+  @override
+  String get nightContextAlcohol => '同一天記下飲酒';
+
+  @override
+  String get nightContextTraining => '同一天記下訓練';
+
+  @override
+  String get refSectionNightComparison => '夜間與平常相比';
+
+  @override
+  String get refUseOnsetAndWake =>
+      '入睡與起床時間的一致性都重要（NSF 睡眠時間與變異小組的共識），所以與平常相比同時列出兩者';
+
+  @override
+  String get refUseAwakeningFiveMinutes =>
+      '超過 5 分鐘的醒來才算一次；醒來次數與入睡後清醒時間是共識認可的睡眠連續性指標，不是疾病切點';
+
+  @override
+  String get refUseWakeBias =>
+      '24 項研究（798 人）統合：消費型手錶的入睡後清醒時間平均比 PSG 長 13 分鐘、總睡眠時間短 17 分鐘，所以夜間清醒只和同一來源的前幾晚比，不看絕對值';
+
+  @override
+  String get refUseWakeSpecificity =>
+      '六款手錶（含 Apple Watch Series 8）對 62 人一晚：睡著的敏感度高於 90%，清醒的特異度 29–52%';
+
+  @override
+  String get refUseContextAlcohol =>
+      '飲酒與較高的夜間心率、較低的 HRV 相關（20,968 人、5,109,185 人天，觀察研究）；只寫當天有記下飲酒，不推論原因';
+
+  @override
+  String get refUseContextTraining =>
+      'HRV 與訓練負荷、疲勞、適應相關（19 項研究的系統回顧，方法不一、品質中等）；只寫當天有記下訓練，不推論原因';
+
+  @override
+  String get refUseContextNotCause =>
+      '感染以外的壓力、飲酒、旅行也會觸發穿戴裝置警示（每人 1.15 天，感染 3.42 天），所以夜間讀數旁只寫當天記下什麼，不寫成原因';
+
+  @override
+  String get refUseDotsFraming =>
+      '圖形的畫法會改變人理解與感受健康數字的方式（系統回顧），所以夜間讀數畫成範圍帶上的點，範圍外只用空心圈，不分高低好壞';
+
+  @override
   String get refUseUsualRangeMinMax => '平常範圍是前 28 天的最低到最高，有值的日子至少 14 天';
 
   @override
@@ -8769,6 +8837,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String versusUsual({required String change}) {
     return '较近 28 晚平均 $change';
   }
+
+  @override
+  String get nightVersusUsualSection => '与平常相比';
+
+  @override
+  String get bedtimeRow => '入睡时间';
 
   @override
   String goalMet({required String goal}) {
@@ -12634,6 +12708,68 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get refSectionSleepStages => '睡眠阶段';
+
+  @override
+  String get wakeRow => '起床时间';
+
+  @override
+  String earlierThanAverage({required String gap}) {
+    return '比平均早 $gap';
+  }
+
+  @override
+  String laterThanAverage({required String gap}) {
+    return '比平均晚 $gap';
+  }
+
+  @override
+  String get sameAsAverage => '与平均相同';
+
+  @override
+  String fromNights({required int count}) {
+    return '依近 28 天 $count 晚';
+  }
+
+  @override
+  String get nightContextAlcohol => '同一天记下饮酒';
+
+  @override
+  String get nightContextTraining => '同一天记下训练';
+
+  @override
+  String get refSectionNightComparison => '夜间与平常相比';
+
+  @override
+  String get refUseOnsetAndWake =>
+      '入睡与起床时间的一致性都重要（NSF 睡眠时间与变异小组的共识），所以与平常相比同时列出两者';
+
+  @override
+  String get refUseAwakeningFiveMinutes =>
+      '超过 5 分钟的醒来才算一次；醒来次数与入睡后清醒时间是共识认可的睡眠连续性指标，不是疾病切点';
+
+  @override
+  String get refUseWakeBias =>
+      '24 项研究（798 人）统合：消费型手表的入睡后清醒时间平均比 PSG 长 13 分钟、总睡眠时间短 17 分钟，所以夜间清醒只和同一来源的前几晚比，不看绝对值';
+
+  @override
+  String get refUseWakeSpecificity =>
+      '六款手表（含 Apple Watch Series 8）对 62 人一晚：睡着的敏感度高于 90%，清醒的特异度 29–52%';
+
+  @override
+  String get refUseContextAlcohol =>
+      '饮酒与较高的夜间心率、较低的 HRV 相关（20,968 人、5,109,185 人天，观察研究）；只写当天有记下饮酒，不推论原因';
+
+  @override
+  String get refUseContextTraining =>
+      'HRV 与训练负荷、疲劳、适应相关（19 项研究的系统回顾，方法不一、质量中等）；只写当天有记下训练，不推论原因';
+
+  @override
+  String get refUseContextNotCause =>
+      '感染以外的压力、饮酒、旅行也会触发穿戴设备警示（每人 1.15 天，感染 3.42 天），所以夜间读数旁只写当天记下什么，不写成原因';
+
+  @override
+  String get refUseDotsFraming =>
+      '图形的画法会改变人理解与感受健康数字的方式（系统回顾），所以夜间读数画成范围带上的点，范围外只用空心圈，不分高低好坏';
 
   @override
   String get refUseUsualRangeMinMax => '平常范围是前 28 天的最低到最高，有值的日子至少 14 天';

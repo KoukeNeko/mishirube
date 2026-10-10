@@ -238,6 +238,39 @@ class SleepService {
         if (reading.measure == measure) (night.sleptAt, reading.average),
   ];
 
+  /// Each night's time awake after falling asleep over `[start, end)`
+  /// with the morning it belongs to, oldest first: what a night's waking
+  /// is read against. Nights whose source did not say are left out.
+  List<(DateTime, double)> nightlyAwake(DateTime start, DateTime end) => [
+    for (final night in nights(start, end))
+      if (_continuityOf(night)?.awake case final awake?)
+        (night.sleptAt, awake.inMinutes.toDouble()),
+  ];
+
+  /// What was recorded on the evening before [night], up to when it
+  /// began: an alcoholic drink in a meal, a workout started. Said as
+  /// recorded, never as what the night's readings came from.
+  ///
+  /// Only the two with evidence behind them: alcohol goes with a higher
+  /// nocturnal heart rate and lower HRV (Grosicki et al., 2026), training
+  /// load with HRV (Lipka et al., 2025). Late meals showed no HRV change
+  /// (Uçar et al., 2021) and caffeine, travel and medication have no
+  /// comparable effect sizes, so they are not offered; and since stress,
+  /// alcohol and travel set off the same wearable alerts as infection
+  /// (Alavi et al., 2022), nothing here says why a reading is what it is.
+  ({bool drankAlcohol, bool trained}) recordedBefore(SleepEntry night) {
+    final from = eveningBefore(morningOf(night));
+    final until = night.startedAt ?? morningOf(night);
+    return (
+      drankAlcohol: _meals
+          .between(from, until)
+          .any((entry) => (entry.$2.nutrients[Nutrient.alcohol] ?? 0) > 0),
+      trained: _workouts
+          .completedStarts(since: from)
+          .any((start) => start.isBefore(until)),
+    );
+  }
+
   /// Nights that ended in `[start, end)` with time asleep measured.
   List<SleepEntry> _asleepNights(DateTime start, DateTime end) => [
     for (final night in nights(start, end))

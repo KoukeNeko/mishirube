@@ -73,6 +73,18 @@ List<UsualRange?> rollingUsualRanges(
     usualRangeBefore(days, day, window: window, minimum: minimum),
 ];
 
+/// Where [value] sits against [range] as a share of its width: 0 on its
+/// lowest, 1 on its highest, below 0 or above 1 outside it. A range of
+/// one value has no width to share, so a value on it is half and one off
+/// it is half a step beyond.
+double shareInRange(double value, UsualRange range) {
+  final width = range.high - range.low;
+  if (width <= 0) {
+    return value == range.low ? 0.5 : (value < range.low ? -0.5 : 1.5);
+  }
+  return (value - range.low) / width;
+}
+
 /// Where a value sits against its usual range; on an edge is within.
 enum UsualPosition { below, within, above }
 

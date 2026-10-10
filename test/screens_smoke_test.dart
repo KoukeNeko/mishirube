@@ -378,6 +378,66 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'water': ((_) => const WaterScreen(), _noSetup),
   'caffeine': ((_) => const CaffeineScreen(), _withCoffee),
   'caffeine, a month': ((_) => const CaffeineScreen(), _withCaffeineMonth),
+  'sleep against the nights before': (
+    (_) => const SleepScreen(),
+    (store) {
+      // Fifteen earlier nights to read the staged one against: every
+      // night 23:00 to 07:00 with a little awake time and a heart rate.
+      final journal = store.backend.storage.journal;
+      final now = store.now();
+      for (var back = 2; back <= 16; back++) {
+        final woke = DateTime(now.year, now.month, now.day - back, 7);
+        final start = woke.subtract(const Duration(hours: 8));
+        final id = 'earlier-$back';
+        journal.addSleep(
+          SleepEntry(
+            id: id,
+            sleptAt: woke,
+            duration: const Duration(hours: 7, minutes: 50),
+            startedAt: start,
+          ),
+          source: ChangeSource.healthKit,
+        );
+        journal.replaceSleepSegments(id, [
+          SleepSample(
+            start: start,
+            end: start.add(const Duration(minutes: 200)),
+            stage: SleepStage.core,
+            source: 'watch',
+          ),
+          SleepSample(
+            start: start.add(const Duration(minutes: 200)),
+            end: start.add(Duration(minutes: 210 + back % 3 * 5)),
+            stage: SleepStage.awake,
+            source: 'watch',
+          ),
+          SleepSample(
+            start: start.add(Duration(minutes: 210 + back % 3 * 5)),
+            end: start.add(const Duration(minutes: 480)),
+            stage: SleepStage.deep,
+            source: 'watch',
+          ),
+        ], source: ChangeSource.healthKit);
+        journal.replaceSleepReadings(id, [
+          OvernightReading(
+            measure: OvernightMeasure.heartRate,
+            minimum: 50,
+            maximum: 66,
+            average: 55.0 + back % 4,
+            count: 100,
+          ),
+          OvernightReading(
+            measure: OvernightMeasure.respiratoryRate,
+            minimum: 12,
+            maximum: 16,
+            average: 14.0 + back % 3 * 0.2,
+            count: 100,
+          ),
+        ], source: ChangeSource.healthKit);
+      }
+      _withStagedNight(store);
+    },
+  ),
   'sleep shortfall': (
     (store) => SleepShortfallScreen(day: store.now()),
     _withStagedNight,

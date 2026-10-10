@@ -45,6 +45,22 @@ void main() {
     expect(positionIn(21, null), isNull);
   });
 
+  test('a value is a share of the range, beyond 0 and 1 outside it', () {
+    const range = (low: 12.0, high: 20.0);
+    expect(shareInRange(12, range), 0);
+    expect(shareInRange(16, range), 0.5);
+    expect(shareInRange(20, range), 1);
+    expect(shareInRange(24, range), 1.5);
+    expect(shareInRange(8, range), -0.5);
+  });
+
+  test('a range of one value puts a value on it in the middle', () {
+    const range = (low: 7.0, high: 7.0);
+    expect(shareInRange(7, range), 0.5);
+    expect(shareInRange(6, range), lessThan(0));
+    expect(shareInRange(8, range), greaterThan(1));
+  });
+
   test('ordinary days fall outside about 2 in n + 1 times', () {
     // Interchangeable days: a new one is outside the lowest and highest
     // of the 28 before it with a chance of 2/29, some 7%.

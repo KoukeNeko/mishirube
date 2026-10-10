@@ -4410,6 +4410,18 @@ abstract class AppLocalizations {
   /// **'較近 28 晚平均 {change}'**
   String versusUsual({required String change});
 
+  /// Section label on the sleep page: facts about the night read against the nights before it.
+  ///
+  /// In zh, this message translates to:
+  /// **'與平常相比'**
+  String get nightVersusUsualSection;
+
+  /// Row label on the sleep page: when the night began, the time of falling asleep.
+  ///
+  /// In zh, this message translates to:
+  /// **'入睡時間'**
+  String get bedtimeRow;
+
   /// A night that met the sleep goal; goal is formatted.
   ///
   /// In zh, this message translates to:
@@ -10845,6 +10857,102 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'睡眠階段'**
   String get refSectionSleepStages;
+
+  /// Row label on the sleep page: when the night ended.
+  ///
+  /// In zh, this message translates to:
+  /// **'起床時間'**
+  String get wakeRow;
+
+  /// A night began or ended earlier than the average of the nights before; gap is a formatted duration.
+  ///
+  /// In zh, this message translates to:
+  /// **'比平均早 {gap}'**
+  String earlierThanAverage({required String gap});
+
+  /// A night began or ended later than the average of the nights before; gap is a formatted duration.
+  ///
+  /// In zh, this message translates to:
+  /// **'比平均晚 {gap}'**
+  String laterThanAverage({required String gap});
+
+  /// A night began or ended at the average time.
+  ///
+  /// In zh, this message translates to:
+  /// **'與平均相同'**
+  String get sameAsAverage;
+
+  /// What a comparison rests on: how many nights of the last 28 days it is drawn from.
+  ///
+  /// In zh, this message translates to:
+  /// **'依近 28 天 {count} 晚'**
+  String fromNights({required int count});
+
+  /// A tag beside a night's readings: an alcoholic drink was logged on the evening before. Not a cause.
+  ///
+  /// In zh, this message translates to:
+  /// **'同一天記下飲酒'**
+  String get nightContextAlcohol;
+
+  /// A tag beside a night's readings: a workout was logged on the evening before. Not a cause.
+  ///
+  /// In zh, this message translates to:
+  /// **'同一天記下訓練'**
+  String get nightContextTraining;
+
+  /// References page: section title.
+  ///
+  /// In zh, this message translates to:
+  /// **'夜間與平常相比'**
+  String get refSectionNightComparison;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'入睡與起床時間的一致性都重要（NSF 睡眠時間與變異小組的共識），所以與平常相比同時列出兩者'**
+  String get refUseOnsetAndWake;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'超過 5 分鐘的醒來才算一次；醒來次數與入睡後清醒時間是共識認可的睡眠連續性指標，不是疾病切點'**
+  String get refUseAwakeningFiveMinutes;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'24 項研究（798 人）統合：消費型手錶的入睡後清醒時間平均比 PSG 長 13 分鐘、總睡眠時間短 17 分鐘，所以夜間清醒只和同一來源的前幾晚比，不看絕對值'**
+  String get refUseWakeBias;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'六款手錶（含 Apple Watch Series 8）對 62 人一晚：睡著的敏感度高於 90%，清醒的特異度 29–52%'**
+  String get refUseWakeSpecificity;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'飲酒與較高的夜間心率、較低的 HRV 相關（20,968 人、5,109,185 人天，觀察研究）；只寫當天有記下飲酒，不推論原因'**
+  String get refUseContextAlcohol;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'HRV 與訓練負荷、疲勞、適應相關（19 項研究的系統回顧，方法不一、品質中等）；只寫當天有記下訓練，不推論原因'**
+  String get refUseContextTraining;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'感染以外的壓力、飲酒、旅行也會觸發穿戴裝置警示（每人 1.15 天，感染 3.42 天），所以夜間讀數旁只寫當天記下什麼，不寫成原因'**
+  String get refUseContextNotCause;
+
+  /// References page: what the cited work is used for.
+  ///
+  /// In zh, this message translates to:
+  /// **'圖形的畫法會改變人理解與感受健康數字的方式（系統回顧），所以夜間讀數畫成範圍帶上的點，範圍外只用空心圈，不分高低好壞'**
+  String get refUseDotsFraming;
 
   /// References page: what the cited work is used for.
   ///

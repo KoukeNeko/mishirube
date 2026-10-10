@@ -481,6 +481,46 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
     ],
   ),
   (
+    l10n.refSectionNightComparison,
+    [
+      (
+        citation: 'Sletten, T. L., Weaver, M. D., Foster, R. G., Gozal, D., Klerman, E. B., Rajaratnam, S. M. W., Roenneberg, T., Takahashi, J. S., Turek, F. W., Vitiello, M. V., Young, M. W., & Czeisler, C. A. (2023). The importance of sleep regularity: A consensus statement of the National Sleep Foundation sleep timing and variability panel. Sleep Health, 9(6), 801–820.',
+        use: l10n.refUseOnsetAndWake,
+        url: 'https://doi.org/10.1016/j.sleh.2023.07.016',
+      ),
+      (
+        citation: 'Ohayon, M., Wickwire, E. M., Hirshkowitz, M., Albert, S. M., Avidan, A., Daly, F. J., Dauvilliers, Y., Ferri, R., Fung, C., Gozal, D., Hazen, N., Krystal, A., Lichstein, K., Mallampalli, M., Plazzi, G., Rawding, R., Scheer, F. A., Somers, V., & Vitiello, M. V. (2017). National Sleep Foundation’s sleep quality recommendations: First report. Sleep Health, 3(1), 6–19.',
+        use: l10n.refUseAwakeningFiveMinutes,
+        url: 'https://doi.org/10.1016/j.sleh.2016.11.006',
+      ),
+      (
+        citation: 'Lee, Y. J., Lee, J. Y., Cho, J. H., Kang, Y. J., & Choi, J. H. (2025). Performance of consumer wrist-worn sleep tracking devices compared to polysomnography: A meta-analysis. Journal of Clinical Sleep Medicine, 21(3), 573–582.',
+        use: l10n.refUseWakeBias,
+        url: 'https://doi.org/10.5664/jcsm.11460',
+      ),
+      (
+        citation: 'Schyvens, A. M., Peters, B., Van Oost, N. C., Aerts, J. M., Masci, F., Neven, A., Dirix, H., Wets, G., Ross, V., & Verbraecken, J. (2025). A performance validation of six commercial wrist-worn wearable sleep-tracking devices for sleep stage scoring compared to polysomnography. Sleep Advances, 6(2), Article zpaf021.',
+        use: l10n.refUseWakeSpecificity,
+        url: 'https://doi.org/10.1093/sleepadvances/zpaf021',
+      ),
+      (
+        citation: 'Grosicki, G. J., Robinson, A. T., Joyner, M. J., Carter, J. R., von Hippel, W., Presby, D. M., Fielding, F., Bigalke, J. A., Kim, J., Chapman, C., & Holmes, K. E. (2026). Real-world effects of alcohol on heart rate, sleep, and physical activity by age and sex. PLOS Digital Health, 5(3), Article e0001284.',
+        use: l10n.refUseContextAlcohol,
+        url: 'https://doi.org/10.1371/journal.pdig.0001284',
+      ),
+      (
+        citation: 'Lipka, A., Luthardt, C., Tognaccioli, T., Cairo, B., & Abreu, R. M. (2025). Heart rate variability and overtraining in soccer players: A systematic review. Physiological Reports, 13(10), Article e70357.',
+        use: l10n.refUseContextTraining,
+        url: 'https://doi.org/10.14814/phy2.70357',
+      ),
+      (
+        citation: 'Alavi, A., Bogu, G. K., Wang, M., Rangan, E. S., Brooks, A. W., Wang, Q., Higgs, E., Celli, A., Mishra, T., Metwally, A. A., Cha, K., Knowles, P., Alavi, A. A., Bhasin, R., Panchamukhi, S., Celis, D., Aditya, T., Honkala, A., Rolnik, B., . . . Snyder, M. P. (2022). Real-time alerting system for COVID-19 and other stress events using wearable data. Nature Medicine, 28(1), 175–184.',
+        use: l10n.refUseContextNotCause,
+        url: 'https://doi.org/10.1038/s41591-021-01593-2',
+      ),
+    ],
+  ),
+  (
     l10n.refSectionSummaries,
     [
       (
@@ -537,6 +577,11 @@ List<(String, List<_Reference>)> _references(AppLocalizations l10n) => [
         citation: 'Zikmund-Fisher, B. J., Scherer, A. M., Witteman, H. O., Solomon, J. B., Exe, N. L., & Fagerlin, A. (2018). Effect of harm anchors in visual displays of test results on patient perceptions of urgency about near-normal values: Experimental study. Journal of Medical Internet Research, 20(3), Article e98.',
         use: l10n.refUseUsualRangeNoAnchor,
         url: 'https://doi.org/10.2196/jmir.8889',
+      ),
+      (
+        citation: 'Ancker, J. S., Senathirajah, Y., Kukafka, R., & Starren, J. B. (2006). Design features of graphs in health risk communication: A systematic review. Journal of the American Medical Informatics Association, 13(6), 608–618.',
+        use: l10n.refUseDotsFraming,
+        url: 'https://doi.org/10.1197/jamia.M2115',
       ),
     ],
   ),

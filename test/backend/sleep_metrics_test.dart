@@ -76,6 +76,95 @@ void main() {
     });
   });
 
+  group('bedtime and waking against the usual', () {
+    // Seven nights at 23:00 and seven at 23:30: usually 23:15; woken at
+    // 07:00 or 07:30: usually 07:15.
+    final before = [
+      for (var day = 1; day <= 14; day++)
+        _slept(
+          day,
+          bed: 23 * 60 + (day.isEven ? 0 : 30),
+          wake: 7 * 60 + (day.isEven ? 0 : 30),
+        ),
+    ];
+
+    test('says how much earlier or later than the nights before', () {
+      final early = bedtimeAgainstUsual(
+        _slept(20, bed: 22 * 60 + 12, wake: 6 * 60),
+        before,
+      );
+      expect(early?.gap, const Duration(minutes: -63));
+      expect(early?.nights, 14, reason: 'and how many nights that rests on');
+      expect(
+        bedtimeAgainstUsual(
+          _slept(20, bed: 23 * 60 + 15, wake: 7 * 60),
+          before,
+        )?.gap,
+        Duration.zero,
+      );
+      expect(
+        wakeAgainstUsual(_slept(20, bed: 22 * 60, wake: 6 * 60), before)?.gap,
+        const Duration(minutes: -75),
+      );
+      expect(
+        wakeAgainstUsual(
+          _slept(20, bed: 23 * 60, wake: 8 * 60 + 45),
+          before,
+        )?.gap,
+        const Duration(minutes: 90),
+      );
+    });
+
+    test('after midnight is later, not a day earlier', () {
+      expect(
+        bedtimeAgainstUsual(
+          _slept(20, bed: 24 * 60 + 45, wake: 8 * 60),
+          before,
+        )?.gap,
+        const Duration(minutes: 90),
+      );
+    });
+
+    test('says nothing without 14 nights that say when they began', () {
+      final night = _slept(20, bed: 23 * 60, wake: 7 * 60);
+      expect(bedtimeAgainstUsual(night, before.take(13).toList()), isNull);
+      expect(wakeAgainstUsual(night, before.take(13).toList()), isNull);
+      final typed = [
+        ...before.take(13),
+        SleepEntry(
+          id: 'typed',
+          sleptAt: DateTime(2026, 9, 15, 7),
+          duration: const Duration(hours: 7),
+        ),
+      ];
+      expect(
+        bedtimeAgainstUsual(night, typed),
+        isNull,
+        reason: 'a length typed alone says when it began no more than a nap',
+      );
+      expect(wakeAgainstUsual(night, typed), isNull);
+    });
+
+    test('only a night asleep from its own start is compared', () {
+      final inBed = SleepEntry(
+        id: 'bed',
+        sleptAt: DateTime(2026, 9, 20, 7),
+        startedAt: DateTime(2026, 9, 19, 23),
+        duration: const Duration(hours: 8),
+        measure: SleepMeasure.inBed,
+      );
+      final typed = SleepEntry(
+        id: 'typed',
+        sleptAt: DateTime(2026, 9, 20, 7),
+        duration: const Duration(hours: 7),
+      );
+      for (final night in [inBed, typed]) {
+        expect(bedtimeAgainstUsual(night, before), isNull);
+        expect(wakeAgainstUsual(night, before), isNull);
+      }
+    });
+  });
+
   group('shortfall', () {
     const need = Duration(hours: 8);
 

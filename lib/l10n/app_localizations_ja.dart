@@ -2366,6 +2366,12 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get nightVersusUsualSection => '普段との比較';
+
+  @override
+  String get bedtimeRow => '就寝時刻';
+
+  @override
   String goalMet({required String goal}) {
     return '目標 $goal · 達成';
   }
@@ -6231,6 +6237,68 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get refSectionSleepStages => '睡眠段階';
+
+  @override
+  String get wakeRow => '起床時刻';
+
+  @override
+  String earlierThanAverage({required String gap}) {
+    return '平均より$gap早い';
+  }
+
+  @override
+  String laterThanAverage({required String gap}) {
+    return '平均より$gap遅い';
+  }
+
+  @override
+  String get sameAsAverage => '平均と同じ';
+
+  @override
+  String fromNights({required int count}) {
+    return '過去28日間の$count晩から';
+  }
+
+  @override
+  String get nightContextAlcohol => '同日に飲酒を記録';
+
+  @override
+  String get nightContextTraining => '同日にトレーニングを記録';
+
+  @override
+  String get refSectionNightComparison => '夜と普段の比較';
+
+  @override
+  String get refUseOnsetAndWake =>
+      '入眠と起床の時刻の一貫性はどちらも重要（NSF の睡眠タイミング・変動パネルのコンセンサス）なので、普段との比較に両方を並べる';
+
+  @override
+  String get refUseAwakeningFiveMinutes =>
+      '5分を超える覚醒だけを1回と数える。覚醒回数と入眠後の覚醒時間は、コンセンサスで認められた睡眠の連続性の指標で、疾患の基準値ではない';
+
+  @override
+  String get refUseWakeBias =>
+      '24研究（798人）の統合：市販の腕時計は入眠後の覚醒時間をPSGより平均13分長く、総睡眠時間を17分短く測る。夜間の覚醒は同じ記録元の過去の夜とだけ比べ、絶対値としては読まない';
+
+  @override
+  String get refUseWakeSpecificity =>
+      '6機種（Apple Watch Series 8を含む）、62人、1晩：睡眠の感度は90%超、覚醒の特異度は29–52%';
+
+  @override
+  String get refUseContextAlcohol =>
+      '飲酒は夜間の心拍数の上昇とHRVの低下に関連（20,968人、5,109,185人日、観察研究）。同日に飲酒を記録したことだけを示し、原因とは書かない';
+
+  @override
+  String get refUseContextTraining =>
+      'HRVはトレーニング負荷・疲労・適応と関連（19研究の系統的レビュー、方法は不揃い、質は中程度）。同日にトレーニングを記録したことだけを示し、原因とは書かない';
+
+  @override
+  String get refUseContextNotCause =>
+      '感染以外にストレス・飲酒・旅行でもウェアラブルの警告が出る（1人あたり1.15日、感染は3.42日）。夜間の数値の横には同日に記録したことだけを示し、原因とは書かない';
+
+  @override
+  String get refUseDotsFraming =>
+      'グラフの描き方は健康の数値の理解や受け止め方を変える（系統的レビュー）。夜間の数値は範囲帯の上の点で示し、範囲外は白抜きの輪だけにして、良し悪しは付けない';
 
   @override
   String get refUseUsualRangeMinMax => '普段の範囲は直前28日の最小から最大（記録が14日以上）';

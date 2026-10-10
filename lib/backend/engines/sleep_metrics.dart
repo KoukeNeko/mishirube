@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../../domain/domain.dart';
 import 'caffeine.dart';
+import 'usual_range.dart';
 
 /// Bumped whenever a rule below changes.
 const sleepMetricsVersion = 3;
@@ -168,6 +169,54 @@ SleepRegularity? regularityOf(List<SleepEntry> nights) {
     wake: _clockMean([for (final (_, wake) in timed) wake], 0),
     bedtimeSpread: _clockSpread([for (final (bed, _) in timed) bed], 12),
     wakeSpread: _clockSpread([for (final (_, wake) in timed) wake], 0),
+  );
+}
+
+/// How far a night's bedtime or waking sits from what the nights before
+/// it were like, and how many nights that is drawn from.
+typedef AgainstUsual = ({Duration gap, int nights});
+
+/// How much earlier (negative) or later than the nights of [before] the
+/// asleep [night] began: their average bedtime counted from noon, so
+/// either side of midnight is one stretch. Null when [night] does not say
+/// when it began, or fewer than [usualRangeMinimumDays] of [before] do:
+/// a few nights are not what is usual.
+///
+/// Both when sleep begins and when it ends matter to its regularity
+/// (Sletten et al., 2023); this is not the Sleep Regularity Index
+/// (Phillips et al., 2017), which asks how often the same clock time is
+/// asleep on successive days. See
+/// `research/99-sleep-score-and-overnight-vitals.md`.
+AgainstUsual? bedtimeAgainstUsual(SleepEntry night, List<SleepEntry> before) {
+  final start = night.startedAt;
+  if (start == null || night.measure != SleepMeasure.asleep) return null;
+  return _clockAgainstUsual(start, [
+    for (final other in _timedNights(before)) other.startedAt!,
+  ], 12);
+}
+
+/// The same for when the night ended: how much earlier or later than the
+/// nights of [before] the person woke, counted from midnight.
+AgainstUsual? wakeAgainstUsual(SleepEntry night, List<SleepEntry> before) {
+  if (night.startedAt == null || night.measure != SleepMeasure.asleep) {
+    return null;
+  }
+  return _clockAgainstUsual(night.sleptAt, [
+    for (final other in _timedNights(before)) other.sleptAt,
+  ], 0);
+}
+
+AgainstUsual? _clockAgainstUsual(
+  DateTime time,
+  List<DateTime> others,
+  int fromHour,
+) {
+  if (others.length < usualRangeMinimumDays) return null;
+  final minutes = [for (final other in others) clockMinutes(other, fromHour)];
+  final mean = minutes.reduce((a, b) => a + b) / minutes.length;
+  return (
+    gap: Duration(minutes: (clockMinutes(time, fromHour) - mean).round()),
+    nights: others.length,
   );
 }
 

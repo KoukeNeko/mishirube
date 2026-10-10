@@ -2374,6 +2374,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get nightVersusUsualSection => 'Against usual';
+
+  @override
+  String get bedtimeRow => 'Bedtime';
+
+  @override
   String goalMet({required String goal}) {
     return 'Goal $goal · met';
   }
@@ -6329,6 +6335,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refSectionSleepStages => 'Sleep stages';
+
+  @override
+  String get wakeRow => 'Wake time';
+
+  @override
+  String earlierThanAverage({required String gap}) {
+    return '$gap earlier than average';
+  }
+
+  @override
+  String laterThanAverage({required String gap}) {
+    return '$gap later than average';
+  }
+
+  @override
+  String get sameAsAverage => 'Same as average';
+
+  @override
+  String fromNights({required int count}) {
+    return 'From $count nights in the last 28 days';
+  }
+
+  @override
+  String get nightContextAlcohol => 'Alcohol logged that day';
+
+  @override
+  String get nightContextTraining => 'Workout logged that day';
+
+  @override
+  String get refSectionNightComparison => 'Nights against usual';
+
+  @override
+  String get refUseOnsetAndWake =>
+      'Consistency of both falling asleep and waking matters (National Sleep Foundation consensus), so both are listed against usual';
+
+  @override
+  String get refUseAwakeningFiveMinutes =>
+      'Only an awakening over 5 minutes counts; awakenings and wake after sleep onset are consensus indicators of sleep continuity, not disease cut-offs';
+
+  @override
+  String get refUseWakeBias =>
+      '24 studies, 798 people: consumer watches read wake after sleep onset 13 min longer and total sleep 17 min shorter than polysomnography on average, so time awake is only compared with earlier nights from the same source, never read as an absolute';
+
+  @override
+  String get refUseWakeSpecificity =>
+      'Six watches (Apple Watch Series 8 among them), 62 people, one night: over 90% sensitivity for sleep, 29–52% specificity for wake';
+
+  @override
+  String get refUseContextAlcohol =>
+      'Alcohol goes with a higher nocturnal heart rate and lower HRV (20,968 people, 5,109,185 person-days, observational); only says alcohol was logged that day, never the cause';
+
+  @override
+  String get refUseContextTraining =>
+      'HRV relates to training load, fatigue and adaptation (systematic review of 19 studies, mixed methods, fair quality); only says a workout was logged that day, never the cause';
+
+  @override
+  String get refUseContextNotCause =>
+      'Stress, alcohol and travel trigger wearable alerts besides infection (1.15 days per person against 3.42 for infection), so readings only say what was logged that day, never a cause';
+
+  @override
+  String get refUseDotsFraming =>
+      'How a graph is drawn changes how people understand and feel about health figures (systematic review), so overnight readings are dots on a range band, ringed outside it, with no better or worse';
 
   @override
   String get refUseUsualRangeMinMax =>

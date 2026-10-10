@@ -7,8 +7,10 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/application/sleep_service.dart';
 import '../../backend/engines/overnight_series.dart';
+import '../../backend/engines/sleep_metrics.dart';
 import '../../backend/engines/sleep_nights.dart';
 import '../../backend/engines/trend_findings.dart';
+import '../../backend/engines/usual_range.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
@@ -16,6 +18,7 @@ import '../journal/journal_detail_screen.dart';
 import '../journal/sleep_entry_screen.dart';
 import '../me/data_sources_screen.dart';
 import '../trends/trend_detail_screen.dart';
+import 'night_band_chart.dart';
 import 'sleep_shortfall_screen.dart';
 import 'sleep_stage_chart.dart';
 import 'sleep_goal_rows.dart';
@@ -160,6 +163,7 @@ class _SleepScreenState extends State<SleepScreen> {
               onTap: () => _open(night),
             ),
           ),
+          ..._againstUsual(night),
           ..._stages(night),
           ..._continuity(night),
           ..._readings(night),
@@ -295,6 +299,69 @@ class _SleepScreenState extends State<SleepScreen> {
     ];
   }
 
+  /// When the night began and ended and how long it was awake, each
+  /// beside what the nights before it were like, and how many nights
+  /// that rests on. A night's length against the goal and the average is
+  /// the summary's, and a figure with no nights to read it against is left
+  /// to its own section: this only says how a night differs, never
+  /// whether that is good, and adds nothing up.
+  List<Widget> _againstUsual(SleepRecord record) {
+    final l10n = context.l10n;
+    final entry = record.entry;
+    final awake = record.continuity?.awake;
+    final usualAwake = _model.usualAwake;
+    void openTrend() =>
+        pushPage(context, const TrendDetailScreen(domain: TrendDomain.sleep));
+    NavRow? clockRow(String title, DateTime? at, AgainstUsual? against) {
+      if (at == null || against == null) return null;
+      final gap = against.gap;
+      return NavRow(
+        title: title,
+        subtitle: switch (gap) {
+          _ when gap.inMinutes == 0 => l10n.sameAsAverage,
+          _ when gap.isNegative => l10n.earlierThanAverage(
+            gap: formatDuration(l10n, gap.abs()),
+          ),
+          _ => l10n.laterThanAverage(gap: formatDuration(l10n, gap)),
+        },
+        detail: l10n.fromNights(count: against.nights),
+        trailing: Text(formatTimeOfDay(at), style: AppTextStyles.itemTitle),
+        onTap: openTrend,
+      );
+    }
+
+    final rows = [
+      ?clockRow(l10n.bedtimeRow, entry.startedAt, _model.bedtimeGap(entry)),
+      ?clockRow(l10n.wakeRow, entry.sleptAt, _model.wakeGap(entry)),
+      if (awake != null && usualAwake != null)
+        NavRow(
+          title: l10n.awakeAtNight,
+          subtitle: [
+            if (record.continuity?.awakenings case final times? when times > 0)
+              l10n.wokeTimes(count: times),
+            l10n.usualRangeValue(
+              range:
+                  '${formatDuration(l10n, Duration(minutes: usualAwake.range.low.round()))}–'
+                  '${formatDuration(l10n, Duration(minutes: usualAwake.range.high.round()))}',
+            ),
+          ].join(' · '),
+          detail: l10n.fromNights(count: usualAwake.nights),
+          trailing: Text(
+            formatDuration(l10n, awake),
+            style: AppTextStyles.itemTitle,
+          ),
+          onTap: openTrend,
+        ),
+    ];
+    if (rows.isEmpty) return const [];
+    return [
+      PageSection(
+        label: l10n.nightVersusUsualSection,
+        children: [Gutter(child: GroupedCard(children: rows))],
+      ),
+    ];
+  }
+
   /// Time to fall asleep, efficiency and time awake, each only when the
   /// source recorded what it takes; nothing for a length typed in.
   List<Widget> _continuity(SleepRecord record) {
@@ -302,7 +369,9 @@ class _SleepScreenState extends State<SleepScreen> {
     if (continuity == null) return const [];
     final efficiency = continuity.efficiency;
     final latency = continuity.latency;
-    final awake = continuity.awake;
+    // Beside what is usual in 與平常相比, when there is a usual to read
+    // it against.
+    final awake = _model.usualAwake == null ? continuity.awake : null;
     final rows = [
       if (latency != null)
         KeyValueRow(
@@ -363,12 +432,62 @@ class _SleepScreenState extends State<SleepScreen> {
     ];
   }
 
+  /// The night's readings each as a dot on its measure's usual range,
+  /// for the measures that have one; empty when none of them was read.
+  List<NightBandColumn> _bandColumns(SleepRecord record) {
+    final l10n = context.l10n;
+    final columns = [
+      for (final measure in OvernightMeasure.values)
+        if (measure != OvernightMeasure.breathingDisturbances)
+          if (_model.baseline(measure) case final usual?)
+            () {
+              final reading = record.readings
+                  .where((reading) => reading.measure == measure)
+                  .firstOrNull;
+              return NightBandColumn(
+                measure: measure,
+                share: reading == null
+                    ? null
+                    : shareInRange(reading.average, usual),
+                label: reading == null
+                    ? ''
+                    : [
+                        '${measure.labelIn(l10n)} '
+                            '${overnightValue(l10n, reading)}',
+                        l10n.usualRangeValue(
+                          range: withUnit(
+                            '${overnightNumber(measure, usual.low)}–'
+                            '${overnightNumber(measure, usual.high)}',
+                            measure.unitIn(l10n),
+                          ),
+                        ),
+                        if (positionIn(reading.average, usual) !=
+                            UsualPosition.within)
+                          l10n.outsideUsual,
+                      ].join(', '),
+              );
+            }(),
+    ];
+    return columns.any((column) => column.share != null) ? columns : const [];
+  }
+
   List<Widget> _readings(SleepRecord record) {
     if (record.readings.isEmpty) return const [];
+    final columns = _bandColumns(record);
+    // What was logged that evening, beside the readings and never as what
+    // they came from.
+    final recorded = _model.recordedBefore(record.entry);
+    final tags = [
+      if (recorded.drankAlcohol) context.l10n.nightContextAlcohol,
+      if (recorded.trained) context.l10n.nightContextTraining,
+    ];
     return [
       PageSection(
         label: context.l10n.healthDataOvernight,
         children: [
+          if (columns.isNotEmpty)
+            Gutter(child: NightBandChart(columns: columns)),
+          if (tags.isNotEmpty) Gutter(child: TagWrap(labels: tags)),
           Gutter(
             child: GroupedCard(
               children: [

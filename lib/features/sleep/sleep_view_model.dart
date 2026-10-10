@@ -168,6 +168,40 @@ class SleepViewModel extends ViewModel {
       value,
   ]);
 
+  /// The nights of the four weeks before the day shown, for reading the
+  /// day's against.
+  List<SleepEntry> get _nightsBefore =>
+      backend.sleep.nights(_day.subtract(usualRangeWindow), _day);
+
+  /// How much earlier (negative) or later [night] began than the nights
+  /// before it ([bedtimeAgainstUsual]).
+  AgainstUsual? bedtimeGap(SleepEntry night) =>
+      bedtimeAgainstUsual(night, _nightsBefore);
+
+  /// The same for when it ended ([wakeAgainstUsual]).
+  AgainstUsual? wakeGap(SleepEntry night) =>
+      wakeAgainstUsual(night, _nightsBefore);
+
+  /// The usual range of a night's time awake in minutes over the four
+  /// weeks before the day, and how many nights it is drawn from.
+  ({UsualRange range, int nights})? get usualAwake {
+    final minutes = [
+      for (final (_, minutes) in backend.sleep.nightlyAwake(
+        _day.subtract(usualRangeWindow),
+        _day,
+      ))
+        minutes,
+    ];
+    return switch (usualRangeOf(minutes)) {
+      final range? => (range: range, nights: minutes.length),
+      null => null,
+    };
+  }
+
+  /// What was recorded on the evening before [night].
+  ({bool drankAlcohol, bool trained}) recordedBefore(SleepEntry night) =>
+      backend.sleep.recordedBefore(night);
+
   /// Nights after training, caffeine at bedtime, a late meal, a nap or
   /// daylight against nights without.
   SleepFactors get factors => backend.sleep.factors();
