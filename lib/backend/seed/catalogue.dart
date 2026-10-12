@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../../domain/domain.dart';
 import '../storage/database.dart';
 import '../storage/food_repository.dart';
+import '../storage/schema.dart';
 
 /// Brand drinks that ship with the app.
 ///
@@ -79,21 +81,44 @@ const catalogueFiles = [
   'assets/catalogue/dailyyamazaki-jp.json',
 ];
 
-/// Reads every bundled catalogue into [foods], replacing what is there.
+/// The setting that says which version of the catalogue was last loaded.
+const _loadedKey = 'foods.catalogue';
+
+/// Reads every bundled catalogue into [foods], replacing what is there,
+/// unless these files are the ones last loaded.
+///
+/// Loading rewrites thousands of rows and records a change for each, so
+/// doing it on every launch held back the first screen for seconds and
+/// grew the audit trail by the same thousands each time. The files' hash,
+/// with the schema version (a step can add what they are read into), says
+/// whether there is anything new. A change to how a file is read, with
+/// neither the files nor the schema changing, is not seen: it takes a
+/// schema step or an edit to a file to reach installed apps.
 ///
 /// Meals already logged from these keep their own numbers — they were
 /// copied when the meal was logged — so a correction here never rewrites
 /// what somebody drank.
-Future<void> loadCatalogue(FoodRepository foods) async {
-  final shipped = <String>{};
-  for (final path in catalogueFiles) {
-    final file = jsonDecode(await rootBundle.loadString(path));
-    for (final food in parseCatalogue(file as Map<String, dynamic>)) {
-      foods.save(food, source: ChangeSource.catalogue);
-      shipped.add(food.id);
+Future<void> loadCatalogue(AppDatabase db, FoodRepository foods) async {
+  final texts = [
+    for (final path in catalogueFiles) await rootBundle.loadString(path),
+  ];
+  final version =
+      '$latestSchemaVersion:${sha256.convert(utf8.encode(texts.join('\n')))}';
+  if (db.setting(_loadedKey) == version) return;
+  // One transaction, so a launch cut short leaves the catalogue as it was
+  // and not marked as loaded.
+  db.transaction(() {
+    final shipped = <String>{};
+    for (final text in texts) {
+      final file = jsonDecode(text) as Map<String, dynamic>;
+      for (final food in parseCatalogue(file)) {
+        foods.save(food, source: ChangeSource.catalogue);
+        shipped.add(food.id);
+      }
     }
-  }
-  foods.retireCatalogue(shipped);
+    foods.retireCatalogue(shipped);
+    db.setSetting(_loadedKey, version);
+  });
 }
 
 /// The foods one catalogue file describes: a drink, then its cup sizes.

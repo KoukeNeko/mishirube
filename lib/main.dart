@@ -26,10 +26,11 @@ Future<void> main() async {
   await LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   final backend = await Backend.openOnDevice();
-  // The bundled brand data is refreshed on every launch, so an app
-  // update brings the corrections with it. It is safe to replace because
-  // it is read-only, and meals logged from it kept their own numbers.
-  await loadCatalogue(backend.storage.foods);
+  // The bundled brand data is read again whenever its files change, so an
+  // app update brings the corrections with it. It is safe to replace
+  // because it is read-only, and meals logged from it kept their own
+  // numbers.
+  await loadCatalogue(backend.db, backend.storage.foods);
   registerPackagedFoodLicences();
   registerExerciseDemoLicences();
   backend.nutrition.packagedFoods = await PackagedFoods.load();

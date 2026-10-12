@@ -571,6 +571,44 @@ final List<String> _migrations = [
   );
   CREATE INDEX bath_entries_bathed ON bath_entries(bathed_at);
   ''',
+  // Every launch used to rewrite the built-in foods and record an edit for
+  // each. The last edit of a food says when it was last refreshed; the
+  // ones before it say nothing more. The table is rebuilt from the rows
+  // kept rather than emptied of the others: with years of launches that is
+  // millions of rows, and deleting them writes far more than copying the
+  // few that stay.
+  '''
+  ALTER TABLE audit_events RENAME TO audit_events_old;
+  DROP INDEX audit_events_entity;
+  CREATE TABLE audit_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_at INTEGER NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    source TEXT NOT NULL,
+    import_batch_id TEXT,
+    payload TEXT
+  );
+  CREATE INDEX audit_events_entity ON audit_events(entity_type, entity_id);
+  INSERT INTO audit_events (
+    id, occurred_at, entity_type, entity_id, action, source,
+    import_batch_id, payload
+  )
+  SELECT
+    id, occurred_at, entity_type, entity_id, action, source,
+    import_batch_id, payload
+  FROM audit_events_old
+  WHERE NOT (
+      entity_type = 'food' AND action = 'edit' AND source = 'catalogue'
+    )
+    OR id IN (
+      SELECT MAX(id) FROM audit_events_old
+      WHERE entity_type = 'food' AND action = 'edit' AND source = 'catalogue'
+      GROUP BY entity_id
+    );
+  DROP TABLE audit_events_old;
+  ''',
 ];
 
 int get latestSchemaVersion => _migrations.length;
