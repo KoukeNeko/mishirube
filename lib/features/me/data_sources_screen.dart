@@ -148,7 +148,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
     try {
       final imported = await action();
       if (!mounted) return;
-      toast.show(_summary(context.l10n, imported));
+      toast.show(healthImportSummary(context.l10n, imported));
     } on Exception catch (error) {
       if (!mounted) return;
       toast.show(
@@ -216,10 +216,6 @@ class _HealthPlatformState extends State<_HealthPlatform> {
           );
         }
         final synced = store.lastHealthSync;
-        final kinds = [
-          for (final kind in HealthDataKind.values)
-            if (store.healthKinds.contains(kind)) kind.labelIn(context.l10n),
-        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -271,7 +267,7 @@ class _HealthPlatformState extends State<_HealthPlatform> {
               ),
             Gutter(
               child: Text(
-                context.l10n.healthReads(kinds: joinList(context.l10n, kinds)),
+                healthReadsLine(context, store),
                 style: AppTextStyles.caption,
               ),
             ),
@@ -359,8 +355,19 @@ class _Permissions extends StatelessWidget {
   }
 }
 
+/// What the health platform is read for, as one line.
+String healthReadsLine(BuildContext context, AppStore store) {
+  final l10n = context.l10n;
+  return l10n.healthReads(
+    kinds: joinList(l10n, [
+      for (final kind in HealthDataKind.values)
+        if (store.healthKinds.contains(kind)) kind.labelIn(l10n),
+    ]),
+  );
+}
+
 /// What an import did, in a sentence; or why nothing came in.
-String _summary(AppLocalizations l10n, HealthImport? imported) {
+String healthImportSummary(AppLocalizations l10n, HealthImport? imported) {
   if (imported == null) return l10n.healthNotConnected;
   String kinds(Iterable<HealthDataKind> denied) =>
       joinList(l10n, denied.map((kind) => kind.labelIn(l10n)));

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/l10n/l10n.dart';
@@ -68,8 +69,12 @@ class _FakeHealth implements HealthSource {
   @override
   Set<HealthDataKind> get kinds => HealthDataKind.values.toSet();
 
+  /// Whether the platform is on the device, as Health Connect is not on
+  /// every Android.
+  bool isPresent = true;
+
   @override
-  Future<bool> isAvailable() async => true;
+  Future<bool> isAvailable() async => isPresent;
 
   @override
   Future<bool> requestAccess(Set<HealthDataKind> kinds) async {
@@ -1404,6 +1409,115 @@ void main() {
         'healthKit',
       );
       expect(isLive(store, deletedByUser), isFalse, reason: 'theirs to keep');
+    });
+  });
+
+  group('the first run offers to connect the health platform', () {
+    final clock = FakeClock();
+
+    AppStore firstRun(_FakeHealth health) => AppStore(
+      clock: clock.now,
+      backend: Backend.inMemory(clock: clock.now),
+      health: health,
+    );
+
+    Future<void> finish(
+      WidgetTester tester,
+      AppStore store, {
+      TargetPlatform platform = TargetPlatform.android,
+    }) async {
+      debugDefaultTargetPlatformOverride = platform;
+      usePhoneViewport(tester);
+      await tester.pumpWidget(MishirubeApp(store: store));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('繼續'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('on Android, finishing asks, and connecting reads', (
+      tester,
+    ) async {
+      final health = _FakeHealth(const []);
+      final store = firstRun(health);
+      await finish(tester, store);
+
+      expect(store.isOnboarded, isFalse, reason: 'waits for the answer');
+      expect(find.textContaining('讀取：'), findsOneWidget);
+      expect(health.askedFor, isNull);
+
+      await tester.tap(find.text('連接 Apple 健康'));
+      await tester.pumpAndSettle();
+      expect(store.isOnboarded, isTrue);
+      expect(health.askedFor, HealthDataKind.values.toSet());
+      expect(store.isHealthConnected, isTrue);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('declining still finishes, and connects nothing', (
+      tester,
+    ) async {
+      final health = _FakeHealth(const []);
+      final store = firstRun(health);
+      await finish(tester, store);
+
+      await tester.tap(find.text('取消'));
+      await tester.pumpAndSettle();
+      expect(store.isOnboarded, isTrue);
+      expect(store.isHealthConnected, isFalse);
+      expect(health.askedFor, isNull);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('a platform that is not on the device is not offered', (
+      tester,
+    ) async {
+      final health = _FakeHealth(const [])..isPresent = false;
+      final store = firstRun(health);
+      await finish(tester, store);
+
+      expect(store.isOnboarded, isTrue);
+      expect(find.textContaining('讀取：'), findsNothing);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('already connected, it is not offered again', (tester) async {
+      final store = firstRun(_FakeHealth(const []));
+      await store.connectHealth();
+      await finish(tester, store);
+
+      expect(store.isOnboarded, isTrue);
+      expect(find.textContaining('讀取：'), findsNothing);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('on iOS it is not offered', (tester) async {
+      final health = _FakeHealth(const []);
+      final store = firstRun(health);
+      await finish(tester, store, platform: TargetPlatform.iOS);
+
+      expect(store.isOnboarded, isTrue);
+      expect(find.textContaining('讀取：'), findsNothing);
+      expect(health.askedFor, isNull);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('a read that fails says so once the app is open', (
+      tester,
+    ) async {
+      final store = firstRun(_FakeHealth(const [])..fails = true);
+      await finish(tester, store);
+
+      await tester.tap(find.text('連接 Apple 健康'));
+      await tester.pumpAndSettle();
+      expect(store.isOnboarded, isTrue);
+      expect(find.textContaining('讀取失敗'), findsOneWidget);
+      await disposeTree(tester);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 
