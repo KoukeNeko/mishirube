@@ -6,6 +6,7 @@ import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/features/journal/weight_entry_screen.dart';
 import 'package:mishirube/features/log/log_screen.dart';
+import 'package:mishirube/features/me/me_screen.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/shell/bottom_chrome/chrome_metrics.dart';
@@ -15,6 +16,7 @@ import 'package:mishirube/features/shell/bottom_chrome/quick_log_menu.dart';
 import 'package:mishirube/features/shell/bottom_chrome/session_accessory.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/today/today_screen.dart';
+import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 import 'package:mishirube/l10n/l10n.dart';
 
@@ -60,13 +62,41 @@ void main() {
     ).enabled;
 
     expect(ticks(TodayScreen), isTrue);
-    expect(ticks(LogScreen), isFalse);
 
     await tester.tap(find.bySemanticsLabel('紀錄'));
     await _settleFor(tester);
 
     expect(ticks(TodayScreen), isFalse);
     expect(ticks(LogScreen), isTrue);
+
+    await tester.tap(find.bySemanticsLabel('今天'));
+    await _settleFor(tester);
+
+    expect(ticks(TodayScreen), isTrue);
+    expect(ticks(LogScreen), isFalse);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a tab is built when it is first shown, and kept after', (
+    tester,
+  ) async {
+    await _pumpApp(tester, FakeClock());
+    bool isBuilt(Type tab) =>
+        find.byType(tab, skipOffstage: false).evaluate().isNotEmpty;
+
+    expect(isBuilt(TodayScreen), isTrue);
+    expect(isBuilt(LogScreen), isFalse, reason: 'a start builds one tab');
+    expect(isBuilt(TrendsScreen), isFalse);
+    expect(isBuilt(MeScreen), isFalse);
+
+    await tester.tap(find.bySemanticsLabel('紀錄'));
+    await _settleFor(tester);
+    expect(isBuilt(LogScreen), isTrue);
+    expect(isBuilt(TrendsScreen), isFalse);
+
+    await tester.tap(find.bySemanticsLabel('今天'));
+    await _settleFor(tester);
+    expect(isBuilt(LogScreen), isTrue, reason: 'kept, scroll position too');
     await disposeTree(tester);
   });
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,6 @@ Future<void> main() async {
   await loadCatalogue(backend.db, backend.storage.foods);
   registerPackagedFoodLicences();
   registerExerciseDemoLicences();
-  backend.nutrition.packagedFoods = await PackagedFoods.load();
   // The demo goes in first, so the library then takes over the exercises
   // the demo also names instead of the demo overwriting them. A new
   // install starts with its own records only: the demo stays in the
@@ -53,6 +54,13 @@ Future<void> main() async {
       brightnessResolver: Theme.maybeBrightnessOf,
       child: MishirubeApp(store: store),
     ),
+  );
+  // Only food search reads the packaged foods, and nobody searches before
+  // the first screen is up, so reading them waits for it.
+  unawaited(
+    WidgetsBinding.instance.waitUntilFirstFrameRasterized.then((_) async {
+      backend.nutrition.packagedFoods = await PackagedFoods.load();
+    }),
   );
   // Apple Health or Health Connect is read again on every launch once
   // connected, so last night is there without asking, and again each

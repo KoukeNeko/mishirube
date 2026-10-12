@@ -43,6 +43,11 @@ class _HomeShellState extends State<HomeShell> {
     for (final _ in HomeTab.values) GlobalKey<ListDetailLayoutState>(),
   ];
 
+  /// The tabs that have been shown. A tab is built the first time it is
+  /// shown and kept built after that, so a start builds the one that
+  /// opens, not all four.
+  final _shown = <int>{};
+
   /// Opens [page] beside the selected tab's list, or over the shell when
   /// the window has one pane.
   Future<T?> _open<T>(Widget page) {
@@ -208,6 +213,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final store = AppStoreScope.of(context);
+    _shown.add(store.selectedTab.index);
     return QuickLogScrim(
       animation: _quickLogProgress,
       child: Scaffold(
@@ -226,17 +232,20 @@ class _HomeShellState extends State<HomeShell> {
                 // opened from it, so the dock stays put between tabs.
                 children: [
                   for (final (i, tab) in _tabs(context).indexed)
-                    // The stack keeps the other tabs built, so what the
-                    // showing tab answers to is kept from them: their
-                    // tickers would go on simulating Today's water every
-                    // frame, and their headers would rebuild on every
-                    // change of scroll direction.
-                    TickerMode(
-                      enabled: i == store.selectedTab.index,
-                      child: i == store.selectedTab.index
-                          ? tab
-                          : ChromeVisibility(isMinimized: false, child: tab),
-                    ),
+                    if (!_shown.contains(i))
+                      const SizedBox.shrink()
+                    else
+                      // The stack keeps the other tabs built, so what the
+                      // showing tab answers to is kept from them: their
+                      // tickers would go on simulating Today's water every
+                      // frame, and their headers would rebuild on every
+                      // change of scroll direction.
+                      TickerMode(
+                        enabled: i == store.selectedTab.index,
+                        child: i == store.selectedTab.index
+                            ? tab
+                            : ChromeVisibility(isMinimized: false, child: tab),
+                      ),
                 ],
               ),
             ),
