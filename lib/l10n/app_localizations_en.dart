@@ -1961,6 +1961,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiProviderMicrosoftCopilot => 'Microsoft 365 Copilot';
 
   @override
+  String get aiProviderChatGpt => 'ChatGPT';
+
+  @override
   String get aiProviderOpenAiCompatible => 'OpenAI-compatible endpoint';
 
   @override
@@ -2053,6 +2056,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiRewrite => 'Start over';
+
+  @override
+  String get aiThinking => 'Thinking';
+
+  @override
+  String get aiReasoningLevel => 'Thinking level';
+
+  @override
+  String get aiReasoningAuto => 'Auto';
+
+  @override
+  String get aiReasoningLow => 'Low';
+
+  @override
+  String get aiReasoningMedium => 'Medium';
+
+  @override
+  String get aiReasoningHigh => 'High';
 
   @override
   String deletedItem({required String item}) {
@@ -4782,6 +4803,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseAiFirst => 'Choose an AI to draft.';
 
   @override
+  String get aiOffReadsOnDevice => 'AI off — read on-device instead.';
+
+  @override
   String get foodPhoto => 'Food photo';
 
   @override
@@ -5647,6 +5671,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signedInCopilot => 'Signed in to Microsoft 365 Copilot';
+
+  @override
+  String get signedInChatGpt => 'Signed in to ChatGPT';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get signOutUnconfirmed =>
+      'Signed out, but the authorization was not revoked. Disconnect the app in ChatGPT settings.';
 
   @override
   String get clientId => 'Client ID';

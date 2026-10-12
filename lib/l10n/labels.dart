@@ -1024,7 +1024,17 @@ extension AiProviderKindText on AiProviderKind {
     AiProviderKind.anthropic => l10n.aiProviderAnthropic,
     AiProviderKind.azureAiFoundry => l10n.aiProviderAzureAiFoundry,
     AiProviderKind.microsoftCopilot => l10n.aiProviderMicrosoftCopilot,
+    AiProviderKind.chatgpt => l10n.aiProviderChatGpt,
     AiProviderKind.openAiCompatible => l10n.aiProviderOpenAiCompatible,
+  };
+}
+
+extension AiReasoningText on AiReasoning {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    AiReasoning.auto => l10n.aiReasoningAuto,
+    AiReasoning.low => l10n.aiReasoningLow,
+    AiReasoning.medium => l10n.aiReasoningMedium,
+    AiReasoning.high => l10n.aiReasoningHigh,
   };
 }
 

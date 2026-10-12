@@ -479,8 +479,9 @@ class AppStore extends ChangeNotifier {
   /// The same, read by the chosen AI, for text the rules could not read
   /// all of. Throws [AiException].
   Future<List<(WorkoutLine, PlannedExercise?)>> draftWorkoutWithAi(
-    String text,
-  ) async => _planLines(await _ai.draftWorkout(text));
+    String text, {
+    ThinkingSink? onThinking,
+  }) async => _planLines(await _ai.draftWorkout(text, onThinking: onThinking));
 
   List<(WorkoutLine, PlannedExercise?)> _planLines(List<WorkoutLine> lines) => [
     for (final line in lines)
@@ -1322,6 +1323,17 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// How hard the chosen provider's model thinks.
+  AiReasoning get aiReasoning => switch (_ai.provider) {
+    final kind? => _ai.reasoningFor(kind),
+    null => AiReasoning.auto,
+  };
+
+  void setAiReasoning(AiReasoning level) {
+    if (_ai.provider case final kind?) _ai.setReasoning(kind, level);
+    notifyListeners();
+  }
+
   /// The models the chosen provider offers. Throws [AiException].
   Future<List<String>> aiModels() => _ai.models();
 
@@ -1374,6 +1386,28 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Signs in to ChatGPT; false when the wait was cancelled. Throws
+  /// [AiException].
+  Future<bool> signInChatGpt() async {
+    try {
+      return await _ai.signInChatGpt();
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> cancelChatGptSignIn() => _ai.cancelChatGptSignIn();
+
+  /// Signs out of ChatGPT; false when the sign-in could not be revoked at
+  /// OpenAI.
+  Future<bool> signOutChatGpt() async {
+    try {
+      return await _ai.signOutChatGpt();
+    } finally {
+      notifyListeners();
+    }
+  }
+
   /// Whether the chosen provider has its key.
   Future<bool> hasAiKey() async => switch (_ai.provider) {
     final kind? => _ai.hasKey(kind),
@@ -1390,7 +1424,8 @@ class AppStore extends ChangeNotifier {
 
   /// A draft of a described meal; nothing is logged. Throws
   /// [AiException].
-  Future<MealDraft> draftMeal(String description) => _ai.draftMeal(description);
+  Future<MealDraft> draftMeal(String description, {ThinkingSink? onThinking}) =>
+      _ai.draftMeal(description, onThinking: onThinking);
 
   /// Whether a merged meal is named by AI.
   bool get namesMerges => _ai.namesMerges;
@@ -1418,8 +1453,11 @@ class AppStore extends ChangeNotifier {
   /// What a photo shows, as the chosen AI finds it: a nutrition label,
   /// or food with estimated figures; nothing is logged. Throws
   /// [AiException].
-  Future<PhotoDraft> draftPhoto(String imagePath, {String note = ''}) =>
-      _ai.draftPhoto(imagePath, note: note);
+  Future<PhotoDraft> draftPhoto(
+    String imagePath, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) => _ai.draftPhoto(imagePath, note: note, onThinking: onThinking);
 
   /// Exercise logged on [day].
   List<ActivitySession> activitiesOn(DateTime day) => _backend.activity.on(day);

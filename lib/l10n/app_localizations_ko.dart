@@ -1955,6 +1955,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiProviderMicrosoftCopilot => 'Microsoft 365 Copilot';
 
   @override
+  String get aiProviderChatGpt => 'ChatGPT';
+
+  @override
   String get aiProviderOpenAiCompatible => 'OpenAI 호환 엔드포인트';
 
   @override
@@ -2046,6 +2049,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiRewrite => '다시 입력';
+
+  @override
+  String get aiThinking => '추론';
+
+  @override
+  String get aiReasoningLevel => '추론 수준';
+
+  @override
+  String get aiReasoningAuto => '자동';
+
+  @override
+  String get aiReasoningLow => '낮음';
+
+  @override
+  String get aiReasoningMedium => '보통';
+
+  @override
+  String get aiReasoningHigh => '높음';
 
   @override
   String deletedItem({required String item}) {
@@ -4726,6 +4747,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chooseAiFirst => '초안을 만들려면 AI를 선택하세요.';
 
   @override
+  String get aiOffReadsOnDevice => 'AI 꺼짐. 기기에서 읽습니다.';
+
+  @override
   String get foodPhoto => '음식 사진';
 
   @override
@@ -5561,6 +5585,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get signedInCopilot => 'Microsoft 365 Copilot에 로그인됨';
+
+  @override
+  String get signedInChatGpt => 'ChatGPT에 로그인됨';
+
+  @override
+  String get signOut => '로그아웃';
+
+  @override
+  String get signOutUnconfirmed =>
+      '로그아웃했지만 권한이 해지되지 않았습니다. ChatGPT 설정에서 앱 연결을 해제하세요.';
 
   @override
   String get clientId => '클라이언트 ID';

@@ -25,6 +25,10 @@ enum AiProviderKind {
   /// or school account rather than a key.
   microsoftCopilot(leavesDevice: true),
 
+  /// The user's own ChatGPT plan, through Sign in with ChatGPT: a sign-in
+  /// instead of a key, and its usage comes out of the plan.
+  chatgpt(leavesDevice: true),
+
   /// Anything else speaking OpenAI's chat API at an address the user
   /// gives: a gateway, a server of their own.
   openAiCompatible(leavesDevice: true);
@@ -38,17 +42,26 @@ enum AiProviderKind {
   bool get needsKey => leavesDevice && !needsSignIn;
 
   /// Whether the user signs in instead of pasting a key.
-  bool get needsSignIn => this == AiProviderKind.microsoftCopilot;
+  bool get needsSignIn =>
+      this == AiProviderKind.microsoftCopilot || this == AiProviderKind.chatgpt;
 
   /// Whether the user picks the model.
   bool get hasModelChoice =>
       leavesDevice && this != AiProviderKind.microsoftCopilot;
+
+  /// Whether the user chooses how hard the model thinks.
+  bool get hasReasoningChoice => this == AiProviderKind.chatgpt;
 
   /// Whether the user also has to say where to send it.
   bool get needsEndpoint =>
       this == AiProviderKind.openAiCompatible ||
       this == AiProviderKind.azureAiFoundry;
 }
+
+/// How hard a model thinks before it answers, for a provider that lets
+/// the user say. [auto] leaves it to the model; the rest are the levels
+/// OpenAI's Responses API takes as `reasoning.effort`, by name.
+enum AiReasoning { auto, low, medium, high }
 
 /// Whether a provider can answer right now, and if not, what the user
 /// can do about it.

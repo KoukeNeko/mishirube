@@ -1950,6 +1950,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiProviderMicrosoftCopilot => 'Microsoft 365 Copilot';
 
   @override
+  String get aiProviderChatGpt => 'ChatGPT';
+
+  @override
   String get aiProviderOpenAiCompatible => 'OpenAI 相容端點';
 
   @override
@@ -2041,6 +2044,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiRewrite => '重新輸入';
+
+  @override
+  String get aiThinking => '思考';
+
+  @override
+  String get aiReasoningLevel => '思考程度';
+
+  @override
+  String get aiReasoningAuto => '自動';
+
+  @override
+  String get aiReasoningLow => '低';
+
+  @override
+  String get aiReasoningMedium => '中';
+
+  @override
+  String get aiReasoningHigh => '高';
 
   @override
   String deletedItem({required String item}) {
@@ -4717,6 +4738,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chooseAiFirst => '先選一個 AI 才能產生草稿。';
 
   @override
+  String get aiOffReadsOnDevice => '未啟用 AI，改在裝置上讀取。';
+
+  @override
   String get foodPhoto => '食物照片';
 
   @override
@@ -5552,6 +5576,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get signedInCopilot => '已登入 Microsoft 365 Copilot';
+
+  @override
+  String get signedInChatGpt => '已登入 ChatGPT';
+
+  @override
+  String get signOut => '登出';
+
+  @override
+  String get signOutUnconfirmed => '已登出，授權未撤銷。到 ChatGPT 設定中斷開連線。';
 
   @override
   String get clientId => '用戶端 ID';
@@ -8430,6 +8463,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get aiProviderMicrosoftCopilot => 'Microsoft 365 Copilot';
 
   @override
+  String get aiProviderChatGpt => 'ChatGPT';
+
+  @override
   String get aiProviderOpenAiCompatible => 'OpenAI 兼容端点';
 
   @override
@@ -8521,6 +8557,24 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get aiRewrite => '重新输入';
+
+  @override
+  String get aiThinking => '思考';
+
+  @override
+  String get aiReasoningLevel => '思考程度';
+
+  @override
+  String get aiReasoningAuto => '自动';
+
+  @override
+  String get aiReasoningLow => '低';
+
+  @override
+  String get aiReasoningMedium => '中';
+
+  @override
+  String get aiReasoningHigh => '高';
 
   @override
   String deletedItem({required String item}) {
@@ -11197,6 +11251,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get chooseAiFirst => '先选一个 AI 才能生成草稿。';
 
   @override
+  String get aiOffReadsOnDevice => '未启用 AI，改在设备上读取。';
+
+  @override
   String get foodPhoto => '食物照片';
 
   @override
@@ -12032,6 +12089,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get signedInCopilot => '已登录 Microsoft 365 Copilot';
+
+  @override
+  String get signedInChatGpt => '已登录 ChatGPT';
+
+  @override
+  String get signOut => '登出';
+
+  @override
+  String get signOutUnconfirmed => '已登出，授权未撤销。到 ChatGPT 设置中断开连接。';
 
   @override
   String get clientId => '客户端 ID';

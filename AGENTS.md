@@ -22,7 +22,8 @@ is on and nothing else was chosen (Private Cloud Compute needs a
 managed entitlement the app does not have), or a cloud provider
 with the user's own key (Ollama Cloud, Google AI Studio, Anthropic,
 Azure AI Foundry, or any OpenAI-compatible address), or Microsoft 365
-Copilot signed in to, and nothing a model returns is logged
+Copilot or the user's ChatGPT plan (Sign in with ChatGPT, over a loopback
+address) signed in to, and nothing a model returns is logged
 until the user confirms it. The UI is dark, edge-to-edge and built from custom
 floating glass chrome rather than stock Material widgets.
 

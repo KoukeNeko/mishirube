@@ -46,26 +46,36 @@ class AppleMealDrafter implements MealDrafter {
     }
   }
 
+  // The on-device model answers in one piece through the channel, so
+  // the thinking sink is never fed; a draft reads the same without it.
+
   @override
-  Future<MealDraft> draftMeal(String description) async => parseMealDraft(
+  Future<MealDraft> draftMeal(
+    String description, {
+    ThinkingSink? onThinking,
+  }) async => parseMealDraft(
     await _ask('draftMeal', mealDraftInstructions, description),
     provider: kind,
     model: await modelName(),
   );
 
   @override
-  Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
-      parseFoodLabel(
-        await _ask('draftFoodLabel', appleFoodLabelInstructions, labelText),
-        provider: kind,
-        model: await modelName(),
-      );
+  Future<FoodLabelDraft> draftFoodLabel(
+    String labelText, {
+    ThinkingSink? onThinking,
+  }) async => parseFoodLabel(
+    await _ask('draftFoodLabel', appleFoodLabelInstructions, labelText),
+    provider: kind,
+    model: await modelName(),
+  );
 
   @override
-  Future<List<WorkoutLine>> draftWorkout(String text) async =>
-      parseWorkoutDraft(
-        await _ask('draftWorkout', workoutDraftInstructions, text),
-      );
+  Future<List<WorkoutLine>> draftWorkout(
+    String text, {
+    ThinkingSink? onThinking,
+  }) async => parseWorkoutDraft(
+    await _ask('draftWorkout', workoutDraftInstructions, text),
+  );
 
   @override
   Future<String> nameMeal(List<String> itemNames, {required String language}) =>
@@ -85,17 +95,20 @@ class AppleMealDrafter implements MealDrafter {
   /// The photo is read from its file by the Swift side, which gives the
   /// model its pixels alone.
   @override
-  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
-      parsePhoto(
-        await _ask(
-          'draftPhoto',
-          applePhotoInstructions,
-          note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
-          path: photo.path,
-        ),
-        provider: kind,
-        model: await modelName(),
-      );
+  Future<PhotoDraft> draftPhoto(
+    FoodPhoto photo, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) async => parsePhoto(
+    await _ask(
+      'draftPhoto',
+      applePhotoInstructions,
+      note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
+      path: photo.path,
+    ),
+    provider: kind,
+    model: await modelName(),
+  );
 
   /// Runs one of the Swift side's guided generations; its JSON answer.
   Future<String> _ask(

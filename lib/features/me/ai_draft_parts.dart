@@ -84,6 +84,89 @@ class AiFailureBanner extends StatelessWidget {
   );
 }
 
+/// The model's reasoning as it streams in, while a draft is being made:
+/// a capped, self-scrolling panel that stays pinned to the newest line,
+/// collapsible for when the draft is what the user is waiting for. Shown
+/// only where the provider reasons out loud, so it is absent for the
+/// on-device model and any provider that returns its answer in one piece.
+class AiThinkingView extends StatefulWidget {
+  const AiThinkingView({super.key, required this.text});
+
+  final String text;
+
+  @override
+  State<AiThinkingView> createState() => _AiThinkingViewState();
+}
+
+/// Tall enough to follow the reasoning, short enough to keep the button
+/// and what is being read in view.
+const _thinkingMaxHeight = 160.0;
+
+class _AiThinkingViewState extends State<AiThinkingView> {
+  bool _isOpen = true;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: EdgeInsets.zero,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _isOpen = !_isOpen),
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.psychology_outlined,
+                  size: 16,
+                  color: AppColors.textSecondary,
+                ),
+                const SizedBox(width: AppSpacing.xxs),
+                Expanded(
+                  child: Text(
+                    context.l10n.aiThinking,
+                    style: AppTextStyles.caption,
+                  ),
+                ),
+                Icon(
+                  _isOpen ? Icons.expand_less : Icons.expand_more,
+                  size: 16,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isOpen)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              0,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: _thinkingMaxHeight),
+              // Reversed so the newest text stays in view without a
+              // controller chasing the extent on every token.
+              child: SingleChildScrollView(
+                reverse: true,
+                child: Text(
+                  widget.text,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
 /// Which AI a draft came from, under it: `Ollama Cloud / gemma4:31b`.
 class DraftAttribution extends StatelessWidget {
   const DraftAttribution({super.key, required this.label});

@@ -2773,6 +2773,10 @@
   "@aiProviderMicrosoftCopilot": {
     "description": "An AI provider; product names stay as they are. (AiProviderKind.microsoftCopilot)"
   },
+  "aiProviderChatGpt": "ChatGPT",
+  "@aiProviderChatGpt": {
+    "description": "An AI provider; product names stay as they are. (AiProviderKind.chatgpt)"
+  },
   "aiProviderOpenAiCompatible": "OpenAI 相容端點",
   "@aiProviderOpenAiCompatible": {
     "description": "An AI provider; product names stay as they are. (AiProviderKind.openAiCompatible)"
@@ -2896,6 +2900,30 @@
   "aiRewrite": "重新輸入",
   "@aiRewrite": {
     "description": "Discards the draft to write the request again."
+  },
+  "aiThinking": "思考",
+  "@aiThinking": {
+    "description": "Header of the panel that shows the model's reasoning live while it drafts."
+  },
+  "aiReasoningLevel": "思考程度",
+  "@aiReasoningLevel": {
+    "description": "Row title: how hard the model thinks before it answers."
+  },
+  "aiReasoningAuto": "自動",
+  "@aiReasoningAuto": {
+    "description": "Reasoning level: left to the model."
+  },
+  "aiReasoningLow": "低",
+  "@aiReasoningLow": {
+    "description": "Reasoning level."
+  },
+  "aiReasoningMedium": "中",
+  "@aiReasoningMedium": {
+    "description": "Reasoning level."
+  },
+  "aiReasoningHigh": "高",
+  "@aiReasoningHigh": {
+    "description": "Reasoning level."
   },
   "deletedItem": "已刪除{item}",
   "@deletedItem": {
@@ -7139,6 +7167,10 @@
   "@chooseAiFirst": {
     "description": "Warning."
   },
+  "aiOffReadsOnDevice": "未啟用 AI，改在裝置上讀取。",
+  "@aiOffReadsOnDevice": {
+    "description": "Warning on the describe-workout page when no AI is chosen: the lines are read by on-device rules instead."
+  },
   "foodPhoto": "食物照片",
   "@foodPhoto": {
     "description": "Screen-reader label."
@@ -8370,6 +8402,18 @@
   "signedInCopilot": "已登入 Microsoft 365 Copilot",
   "@signedInCopilot": {
     "description": "Toast."
+  },
+  "signedInChatGpt": "已登入 ChatGPT",
+  "@signedInChatGpt": {
+    "description": "Toast."
+  },
+  "signOut": "登出",
+  "@signOut": {
+    "description": "Row title that signs out of the AI provider."
+  },
+  "signOutUnconfirmed": "已登出，授權未撤銷。到 ChatGPT 設定中斷開連線。",
+  "@signOutUnconfirmed": {
+    "description": "Warning toast: signed out here, but OpenAI could not be told."
   },
   "clientId": "用戶端 ID",
   "@clientId": {

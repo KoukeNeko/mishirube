@@ -2,9 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/domain.dart';
 import '../ai/apple_meal_drafter.dart';
+import '../ai/chatgpt_drafter.dart';
 import '../ai/label_reader.dart';
 import '../ai/meal_drafter.dart';
 import '../ai/meal_name.dart';
@@ -15,6 +17,8 @@ import '../ai/secret_store.dart';
 import '../engines/label_text.dart';
 import '../engines/workout_text.dart';
 import '../storage/database.dart';
+
+export '../ai/meal_drafter.dart' show ThinkingSink;
 
 /// The AI layer's front door: which provider the user chose, its key
 /// and model, whether they agreed to send text to the cloud, and the
@@ -30,6 +34,8 @@ class AiService {
     required this.drafters,
     this.labelReader = const NoLabelReader(),
     this.readPhoto = _readFile,
+    this.openBrowser = _openInApp,
+    this.closeBrowser = closeInAppWebView,
   });
 
   /// The providers the app ships: Apple Intelligence and Ollama
@@ -77,6 +83,13 @@ class AiService {
           saveRefreshToken: (token) =>
               secrets.write(keyName(AiProviderKind.microsoftCopilot), token),
         ),
+        AiProviderKind.chatgpt: ChatGptDrafter(
+          client: shared,
+          readModel: () => modelOf(AiProviderKind.chatgpt),
+          secrets: secrets,
+          sessionKey: keyName(AiProviderKind.chatgpt),
+          readReasoning: () => service.reasoningFor(AiProviderKind.chatgpt),
+        ),
         AiProviderKind.openAiCompatible: OpenAiCompatibleDrafter(
           client: shared,
           readKey: () => keyOf(AiProviderKind.openAiCompatible),
@@ -103,6 +116,7 @@ class AiService {
     AiProviderKind.anthropic: 'claude-opus-4-5',
     AiProviderKind.azureAiFoundry: '',
     AiProviderKind.microsoftCopilot: '',
+    AiProviderKind.chatgpt: '',
     AiProviderKind.openAiCompatible: '',
   };
 
@@ -122,6 +136,15 @@ class AiService {
   final Future<Uint8List> Function(String path) readPhoto;
 
   static Future<Uint8List> _readFile(String path) => File(path).readAsBytes();
+
+  /// Opens a sign-in page; true when it opened. In the app's own browser
+  /// view, so the app stays in front while its loopback address waits
+  /// for the answer, and a test hands in what it likes.
+  final Future<bool> Function(Uri url) openBrowser;
+  final Future<void> Function() closeBrowser;
+
+  static Future<bool> _openInApp(Uri url) =>
+      launchUrl(url, mode: LaunchMode.inAppBrowserView);
 
   /// Reads a photo's text on the phone, before any model sees anything.
   final LabelReader labelReader;
@@ -163,6 +186,16 @@ class AiService {
   void setModel(AiProviderKind kind, String model) =>
       _db.setSetting('ai.model.${kind.name}', model.trim());
 
+  /// How hard [kind]'s model thinks; auto until the user says.
+  AiReasoning reasoningFor(AiProviderKind kind) =>
+      AiReasoning.values.asNameMap()[_db.setting(
+        'ai.reasoning.${kind.name}',
+      )] ??
+      AiReasoning.auto;
+
+  void setReasoning(AiProviderKind kind, AiReasoning level) =>
+      _db.setSetting('ai.reasoning.${kind.name}', level.name);
+
   /// The app registration Microsoft 365 Copilot signs in through, and
   /// the tenant it belongs to. Both are the user's own.
   String get clientId => _db.setting('ai.client_id') ?? '';
@@ -190,6 +223,28 @@ class AiService {
     }
     return drafter.finishSignIn(prompt);
   }
+
+  ChatGptDrafter get _chatGpt => switch (drafters[AiProviderKind.chatgpt]) {
+    final ChatGptDrafter drafter => drafter,
+    _ => throw const AiException(AiFailure.unavailable),
+  };
+
+  /// Signs in to ChatGPT in the browser; true once signed in, false when
+  /// the user ended the wait with [cancelChatGptSignIn].
+  Future<bool> signInChatGpt() async {
+    try {
+      return await _chatGpt.signIn(openBrowser);
+    } finally {
+      // The sign-in page is still open in the browser view.
+      await closeBrowser();
+    }
+  }
+
+  Future<void> cancelChatGptSignIn() => _chatGpt.cancelSignIn();
+
+  /// Signs out of ChatGPT; false when OpenAI could not be told to revoke
+  /// the sign-in, which is forgotten here all the same.
+  Future<bool> signOutChatGpt() => _chatGpt.signOut();
 
   /// Where a provider that needs an address lives, as the user gave it.
   String endpointFor(AiProviderKind kind) =>
@@ -229,14 +284,20 @@ class AiService {
 
   /// A draft of the meal [description] describes. Throws [AiException];
   /// [AiFailure.needsConsent] before the first cloud request.
-  Future<MealDraft> draftMeal(String description) async =>
-      _drafter().draftMeal(description);
+  /// [onThinking] is fed the model's reasoning as it streams in, where
+  /// the provider has any.
+  Future<MealDraft> draftMeal(
+    String description, {
+    ThinkingSink? onThinking,
+  }) async => _drafter().draftMeal(description, onThinking: onThinking);
 
   /// The exercises a workout written as [text] lists, for when the rules
   /// could not read all of it. Throws [AiException];
   /// [AiFailure.needsConsent] before the first cloud request.
-  Future<List<WorkoutLine>> draftWorkout(String text) async =>
-      _drafter().draftWorkout(text);
+  Future<List<WorkoutLine>> draftWorkout(
+    String text, {
+    ThinkingSink? onThinking,
+  }) async => _drafter().draftWorkout(text, onThinking: onThinking);
 
   /// A food drafted from a nutrition label's text, read off a photo on
   /// the phone: only the text is ever sent, never the photo.
@@ -311,14 +372,20 @@ class AiService {
   ///
   /// What leaves the device is the picture alone: the metadata that says
   /// where and when it was taken is stripped first.
-  Future<PhotoDraft> draftPhoto(String imagePath, {String note = ''}) async {
+  Future<PhotoDraft> draftPhoto(
+    String imagePath, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) async {
     if (drafters[provider] case final chosen?
         when !await chosen.readsPhotos()) {
       // Checked first, so a photo is not read for a request that cannot go.
       final drafter = _drafter();
       final text = await readPhotoText(imagePath);
       if (text.isEmpty) throw const AiException(AiFailure.photoUnsupported);
-      return PhotoOfLabel(await drafter.draftFoodLabel(text));
+      return PhotoOfLabel(
+        await drafter.draftFoodLabel(text, onThinking: onThinking),
+      );
     }
     final drafter = _drafter(sendsPhoto: true);
     final bytes = await readPhoto(imagePath);
@@ -331,6 +398,7 @@ class AiService {
         mimeType: mimeType,
       ),
       note: note,
+      onThinking: onThinking,
     );
   }
 

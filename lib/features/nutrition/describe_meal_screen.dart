@@ -58,6 +58,10 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
   AiFailure? _failure;
   MealDraft? _draft;
 
+  /// The model's reasoning so far, while it drafts; empty for a provider
+  /// that does not stream any.
+  String _thinking = '';
+
   /// The photo sent with the words, when one was taken.
   String? _photoPath;
 
@@ -98,22 +102,31 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
     super.dispose();
   }
 
+  void _onThinking(String delta) {
+    if (mounted) setState(() => _thinking += delta);
+  }
+
   Future<void> _generate() async {
     FocusManager.instance.primaryFocus?.unfocus();
     final store = AppStoreScope.read(context);
     setState(() {
       _isDrafting = true;
       _failure = null;
+      _thinking = '';
     });
     final words = _text.text.trim();
     try {
       final draft = switch (_photoPath) {
         // A label photographed here is one serving of it, logged as a meal.
-        final path? => switch (await store.draftPhoto(path, note: words)) {
+        final path? => switch (await store.draftPhoto(
+          path,
+          note: words,
+          onThinking: _onThinking,
+        )) {
           PhotoOfLabel(:final label) => label.asMealDraft(),
           PhotoOfFood(:final meal) => meal,
         },
-        null => await store.draftMeal(words),
+        null => await store.draftMeal(words, onThinking: _onThinking),
       };
       if (!mounted) return;
       setState(() {
@@ -278,6 +291,8 @@ class _DescribeMealScreenState extends State<DescribeMealScreen> {
               hint: context.l10n.describeMealHint,
             ),
           ),
+        if (_isDrafting && _thinking.isNotEmpty)
+          Gutter(child: AiThinkingView(text: _thinking)),
         if (_failure case final failure?)
           Gutter(child: AiFailureBanner(failure: failure)),
         if (draft != null) ...[

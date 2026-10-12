@@ -1954,6 +1954,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiProviderMicrosoftCopilot => 'Microsoft 365 Copilot';
 
   @override
+  String get aiProviderChatGpt => 'ChatGPT';
+
+  @override
   String get aiProviderOpenAiCompatible => 'OpenAI互換エンドポイント';
 
   @override
@@ -2045,6 +2048,24 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiRewrite => '入力し直す';
+
+  @override
+  String get aiThinking => '思考';
+
+  @override
+  String get aiReasoningLevel => '思考レベル';
+
+  @override
+  String get aiReasoningAuto => '自動';
+
+  @override
+  String get aiReasoningLow => '低';
+
+  @override
+  String get aiReasoningMedium => '中';
+
+  @override
+  String get aiReasoningHigh => '高';
 
   @override
   String deletedItem({required String item}) {
@@ -4725,6 +4746,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chooseAiFirst => '下書きを作るにはAIを選んでください。';
 
   @override
+  String get aiOffReadsOnDevice => 'AI オフ。端末で読み取ります。';
+
+  @override
   String get foodPhoto => '食べ物の写真';
 
   @override
@@ -5559,6 +5583,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get signedInCopilot => 'Microsoft 365 Copilotにサインインしました';
+
+  @override
+  String get signedInChatGpt => 'ChatGPTにサインインしました';
+
+  @override
+  String get signOut => 'サインアウト';
+
+  @override
+  String get signOutUnconfirmed =>
+      'サインアウトしましたが、認可は取り消されていません。ChatGPTの設定でアプリの連携を解除してください。';
 
   @override
   String get clientId => 'クライアントID';

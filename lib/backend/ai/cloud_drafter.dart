@@ -43,24 +43,37 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
       : AiAvailability.needsKey;
 
   @override
-  Future<MealDraft> draftMeal(String description) async => parseMealDraft(
-    await _chatSearching(mealDraftInstructions, description),
+  Future<MealDraft> draftMeal(
+    String description, {
+    ThinkingSink? onThinking,
+  }) async => parseMealDraft(
+    await _chatSearching(
+      mealDraftInstructions,
+      description,
+      onThinking: onThinking,
+    ),
     provider: kind,
     // What answered, which for Copilot is not a model the user picked.
     model: await modelName(),
   );
 
   @override
-  Future<FoodLabelDraft> draftFoodLabel(String labelText) async =>
-      parseFoodLabel(
-        await chat(foodLabelInstructions, labelText),
-        provider: kind,
-        model: await modelName(),
-      );
+  Future<FoodLabelDraft> draftFoodLabel(
+    String labelText, {
+    ThinkingSink? onThinking,
+  }) async => parseFoodLabel(
+    await _run(foodLabelInstructions, labelText, onThinking: onThinking),
+    provider: kind,
+    model: await modelName(),
+  );
 
   @override
-  Future<List<WorkoutLine>> draftWorkout(String text) async =>
-      parseWorkoutDraft(await chat(workoutDraftInstructions, text));
+  Future<List<WorkoutLine>> draftWorkout(
+    String text, {
+    ThinkingSink? onThinking,
+  }) async => parseWorkoutDraft(
+    await _run(workoutDraftInstructions, text, onThinking: onThinking),
+  );
 
   @override
   Future<String> nameMeal(List<String> itemNames, {required String language}) =>
@@ -70,16 +83,20 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
   Future<bool> readsPhotos() async => true;
 
   @override
-  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async =>
-      parsePhoto(
-        await _chatSearching(
-          photoInstructions,
-          note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
-          photo: photo,
-        ),
-        provider: kind,
-        model: await modelName(),
-      );
+  Future<PhotoDraft> draftPhoto(
+    FoodPhoto photo, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) async => parsePhoto(
+    await _chatSearching(
+      photoInstructions,
+      note.trim().isEmpty ? '這張照片。' : '補充：${note.trim()}',
+      photo: photo,
+      onThinking: onThinking,
+    ),
+    provider: kind,
+    model: await modelName(),
+  );
 
   /// One question, one whole answer: the model's reply text. [photo]
   /// goes with [message] when there is one. With [search] the model may
@@ -90,6 +107,51 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
     FoodPhoto? photo,
     bool search = false,
   });
+
+  /// [chat], but streaming, feeding [onThinking] the model's reasoning as
+  /// it arrives and returning the same whole reply text. The base answers
+  /// in one piece, so a provider that cannot stream its thinking — or has
+  /// none — needs no override; the ones that can override this.
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) => chat(instructions, message, photo: photo, search: search);
+
+  /// Reads a draft, streaming the thinking when [onThinking] is given.
+  /// A streaming-only failure (the request was made but its stream could
+  /// not be read, or the model would not stream) falls back to the
+  /// one-shot [chat], so watching the thinking never loses a draft the
+  /// plain request could have made; an auth, rate-limit or network
+  /// failure is the request's own and is raised as it is.
+  Future<String> _run(
+    String instructions,
+    String message, {
+    FoodPhoto? photo,
+    bool search = false,
+    ThinkingSink? onThinking,
+  }) async {
+    if (onThinking == null) {
+      return chat(instructions, message, photo: photo, search: search);
+    }
+    try {
+      return await streamChat(
+        instructions,
+        message,
+        onThinking: onThinking,
+        photo: photo,
+        search: search,
+      );
+    } on AiException catch (error) {
+      if (error.failure != AiFailure.providerError &&
+          error.failure != AiFailure.unreadable) {
+        rethrow;
+      }
+      return chat(instructions, message, photo: photo, search: search);
+    }
+  }
 
   /// Whether the provider can search the web while it drafts a meal, so
   /// a chain's or a packet's published figures can stand in for a guess.
@@ -103,18 +165,22 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
     String instructions,
     String message, {
     FoodPhoto? photo,
+    ThinkingSink? onThinking,
   }) async {
-    if (!searchesWeb) return chat(instructions, message, photo: photo);
+    if (!searchesWeb) {
+      return _run(instructions, message, photo: photo, onThinking: onThinking);
+    }
     try {
-      return await chat(
+      return await _run(
         '$instructions\n$webSearchRule',
         message,
         photo: photo,
         search: true,
+        onThinking: onThinking,
       );
     } on AiException catch (error) {
       if (error.failure != AiFailure.providerError) rethrow;
-      return chat(instructions, message, photo: photo);
+      return _run(instructions, message, photo: photo, onThinking: onThinking);
     }
   }
 
@@ -143,16 +209,9 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
     } on http.ClientException catch (error) {
       throw AiException(AiFailure.network, error.message);
     }
-    switch (response.statusCode) {
-      // Any success: creating a Copilot conversation answers 201.
-      case >= 200 && < 300:
-        break;
-      case 401 || 403:
-        throw AiException(AiFailure.authentication, response.body);
-      case 429:
-        throw AiException(AiFailure.rateLimited, response.body);
-      default:
-        throw AiException(AiFailure.providerError, response.body);
+    // Any success: creating a Copilot conversation answers 201.
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throwForStatus(response.statusCode, response.body);
     }
     try {
       final body = jsonDecode(utf8.decode(response.bodyBytes));
@@ -164,6 +223,108 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
       throw AiException(AiFailure.unreadable, response.body);
     }
   }
+
+  /// The failure a non-2xx status is, with [body] kept for diagnosis.
+  Never throwForStatus(int status, String body) => throw switch (status) {
+    401 || 403 => AiException(AiFailure.authentication, body),
+    429 => AiException(AiFailure.rateLimited, body),
+    _ => AiException(AiFailure.providerError, body),
+  };
+
+  /// Opens [request] and reads its body as a stream of decoded lines,
+  /// turning the ways a network call fails into the app's own failures
+  /// as [send] does. The status is checked before any line is read, and
+  /// a stall between lines times out like a whole request would.
+  Stream<String> lines(http.Request request) async* {
+    final http.StreamedResponse response;
+    try {
+      response = await client.send(request).timeout(timeout);
+    } on SocketException catch (error) {
+      throw AiException(AiFailure.network, error.message);
+    } on TimeoutException {
+      throw const AiException(AiFailure.network, 'timed out');
+    } on http.ClientException catch (error) {
+      throw AiException(AiFailure.network, error.message);
+    }
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throwForStatus(
+        response.statusCode,
+        await response.stream.bytesToString(),
+      );
+    }
+    final lines = response.stream
+        .timeout(
+          timeout,
+          onTimeout: (sink) =>
+              sink.addError(const AiException(AiFailure.network, 'timed out')),
+        )
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    yield* lines;
+  }
+
+  /// The JSON objects a `data:` line carries in a Server-Sent-Events
+  /// stream (Anthropic, Google, and the OpenAI-shaped ones); comments,
+  /// blank lines and the `[DONE]` sentinel are skipped.
+  Stream<Map<String, dynamic>> sse(http.Request request) async* {
+    await for (final line in lines(request)) {
+      if (!line.startsWith('data:')) continue;
+      final data = line.substring(5).trim();
+      if (data.isEmpty || data == '[DONE]') continue;
+      if (jsonDecode(data) case final Map<String, dynamic> object) {
+        yield object;
+      }
+    }
+  }
+
+  /// The JSON object on each line of a newline-delimited stream (Ollama).
+  Stream<Map<String, dynamic>> ndjson(http.Request request) async* {
+    await for (final line in lines(request)) {
+      if (line.trim().isEmpty) continue;
+      if (jsonDecode(line) case final Map<String, dynamic> object) {
+        yield object;
+      }
+    }
+  }
+
+  /// A POST [request] to [url] with [body] as JSON under [headers], ready
+  /// to stream.
+  http.Request jsonRequest(
+    Uri url,
+    Map<String, String> headers,
+    Map<String, Object?> body,
+  ) => http.Request('POST', url)
+    ..headers.addAll(headers)
+    ..body = jsonEncode(body);
+
+  /// Reads a streamed draft, catching a malformed stream as
+  /// [AiFailure.unreadable] so [_run] can fall back to the one-shot.
+  Future<String> readStream(Future<String> Function() read) async {
+    try {
+      return await read();
+    } on FormatException catch (error) {
+      throw AiException(AiFailure.unreadable, '$error');
+    }
+  }
+
+  /// Reads an OpenAI-shaped `chat/completions` stream (Azure and the
+  /// OpenAI-compatible endpoints): the answer builds from `delta.content`
+  /// deltas, and a reasoning model's `reasoning_content` (some call it
+  /// `reasoning`) is the thinking.
+  Future<String> openAiStream(http.Request request, ThinkingSink onThinking) =>
+      readStream(() async {
+        final content = StringBuffer();
+        await for (final event in sse(request)) {
+          if (event case {'choices': [final Map<String, dynamic> choice, ...]}
+              when choice['delta'] is Map<String, dynamic>) {
+            final delta = choice['delta'] as Map<String, dynamic>;
+            final thinking = delta['reasoning_content'] ?? delta['reasoning'];
+            if (thinking is String) onThinking(thinking);
+            if (delta['content'] case final String text) content.write(text);
+          }
+        }
+        return content.isEmpty ? unreadable('empty stream') : '$content';
+      });
 
   /// What a provider's answer must contain, or [AiFailure.unreadable].
   Never unreadable(Object? body) =>
@@ -220,6 +381,48 @@ class OllamaDrafter extends CloudDrafter {
       {'message': {'content': final String content}} => content,
       _ => unreadable(body),
     };
+  }
+
+  @override
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) async {
+    final request = jsonRequest(
+      endpoint,
+      {
+        'Authorization': 'Bearer ${await key()}',
+        'Content-Type': 'application/json',
+      },
+      {
+        'model': readModel(),
+        'stream': true,
+        // A model that cannot think refuses this; _run then falls back
+        // to the one-shot, so the draft is made without the thinking.
+        'think': true,
+        'messages': [
+          {'role': 'system', 'content': instructions},
+          {
+            'role': 'user',
+            'content': message,
+            'images': ?(photo == null ? null : [photo.base64]),
+          },
+        ],
+      },
+    );
+    return readStream(() async {
+      final content = StringBuffer();
+      await for (final chunk in ndjson(request)) {
+        if (chunk case {'message': final Map<String, dynamic> part}) {
+          if (part['thinking'] case final String thinking) onThinking(thinking);
+          if (part['content'] case final String text) content.write(text);
+        }
+      }
+      return content.isEmpty ? unreadable('empty stream') : '$content';
+    });
   }
 
   @override
@@ -312,6 +515,71 @@ class GoogleAiStudioDrafter extends CloudDrafter {
         ].join(),
       _ => unreadable(body),
     };
+  }
+
+  @override
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) async {
+    final request = jsonRequest(
+      Uri.https(host, '/v1beta/models/${readModel()}:streamGenerateContent', {
+        'alt': 'sse',
+      }),
+      {'x-goog-api-key': await key(), 'Content-Type': 'application/json'},
+      {
+        'systemInstruction': {
+          'parts': [
+            {'text': instructions},
+          ],
+        },
+        'contents': [
+          {
+            'role': 'user',
+            'parts': [
+              if (photo != null)
+                {
+                  'inlineData': {
+                    'mimeType': photo.mimeType,
+                    'data': photo.base64,
+                  },
+                },
+              {'text': message},
+            ],
+          },
+        ],
+        'generationConfig': {
+          if (!search) 'responseMimeType': 'application/json',
+          // Asks for the thought summary beside the answer.
+          'thinkingConfig': {'includeThoughts': true},
+        },
+        if (search)
+          'tools': [
+            {'google_search': <String, Object>{}},
+          ],
+      },
+    );
+    return readStream(() async {
+      final content = StringBuffer();
+      await for (final event in sse(request)) {
+        if (event case {
+          'candidates': [
+            {'content': {'parts': final List<dynamic> parts}},
+            ...,
+          ],
+        }) {
+          for (final part in parts) {
+            if (part case {'text': final String text}) {
+              part['thought'] == true ? onThinking(text) : content.write(text);
+            }
+          }
+        }
+      }
+      return content.isEmpty ? unreadable('empty stream') : '$content';
+    });
   }
 
   @override
@@ -442,6 +710,81 @@ class AnthropicDrafter extends CloudDrafter {
     }
   }
 
+  /// A thinking model's budget, below [max_tokens] so an answer still
+  /// has room after it.
+  static const _thinkingBudget = 1024;
+
+  @override
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) async {
+    final request = jsonRequest(endpoint, await _headers(), {
+      'model': readModel(),
+      'max_tokens': 4096,
+      'stream': true,
+      'thinking': {'type': 'enabled', 'budget_tokens': _thinkingBudget},
+      'system': instructions,
+      'messages': [
+        {
+          'role': 'user',
+          'content': photo == null
+              ? message
+              : [
+                  {
+                    'type': 'image',
+                    'source': {
+                      'type': 'base64',
+                      'media_type': photo.mimeType,
+                      'data': photo.base64,
+                    },
+                  },
+                  {'type': 'text', 'text': message},
+                ],
+        },
+      ],
+      if (search)
+        'tools': [
+          {
+            'type': 'web_search_20250305',
+            'name': 'web_search',
+            'max_uses': maxSearches,
+          },
+        ],
+    });
+    return readStream(() async {
+      // The answer is the text after the last search; a search clears
+      // what the model only said it was about to look up.
+      final content = StringBuffer();
+      String? stopReason;
+      await for (final event in sse(request)) {
+        switch (event) {
+          case {'type': 'content_block_start', 'content_block': final Map block}
+              when block['type'] == 'web_search_tool_result':
+            content.clear();
+          case {'type': 'content_block_delta', 'delta': final Map delta}:
+            switch (delta) {
+              case {'type': 'thinking_delta', 'thinking': final String text}:
+                onThinking(text);
+              case {'type': 'text_delta', 'text': final String text}:
+                content.write(text);
+            }
+          case {'type': 'message_delta', 'delta': {'stop_reason': final stop}}:
+            stopReason = stop as String?;
+        }
+      }
+      // A long search pauses; the one-shot drives its continuations, so
+      // fall back to it rather than answer from half a turn.
+      if (stopReason == 'pause_turn' || content.isEmpty) {
+        unreadable('paused or empty stream');
+      }
+      return '$content';
+    });
+  }
+
   @override
   Future<List<String>> models() async {
     final body = await send(
@@ -507,6 +850,39 @@ class AzureAiFoundryDrafter extends CloudDrafter {
     return _openAiReply(body, this);
   }
 
+  @override
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) async {
+    final base = baseOf(readEndpoint());
+    if (base == null) throw const AiException(AiFailure.unavailable);
+    return openAiStream(
+      jsonRequest(
+        base.replace(
+          path: '${base.path}/chat/completions',
+          queryParameters: {'api-version': apiVersion},
+        ),
+        {
+          'Authorization': 'Bearer ${await key()}',
+          'Content-Type': 'application/json',
+        },
+        {
+          'model': readModel(),
+          'stream': true,
+          'messages': [
+            {'role': 'system', 'content': instructions},
+            {'role': 'user', 'content': _openAiContent(message, photo)},
+          ],
+        },
+      ),
+      onThinking,
+    );
+  }
+
   /// Foundry's inference API has no listing of what is deployed, so the
   /// settings page falls back to typing the deployment's name.
   @override
@@ -565,6 +941,32 @@ class OpenAiCompatibleDrafter extends CloudDrafter {
     );
     return _openAiReply(body, this);
   }
+
+  @override
+  Future<String> streamChat(
+    String instructions,
+    String message, {
+    required ThinkingSink onThinking,
+    FoodPhoto? photo,
+    bool search = false,
+  }) async => openAiStream(
+    jsonRequest(
+      _at('/chat/completions'),
+      {
+        'Authorization': 'Bearer ${await key()}',
+        'Content-Type': 'application/json',
+      },
+      {
+        'model': readModel(),
+        'stream': true,
+        'messages': [
+          {'role': 'system', 'content': instructions},
+          {'role': 'user', 'content': _openAiContent(message, photo)},
+        ],
+      },
+    ),
+    onThinking,
+  );
 
   @override
   Future<List<String>> models() async {

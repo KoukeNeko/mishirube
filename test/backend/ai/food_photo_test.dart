@@ -73,15 +73,20 @@ class _FakeDrafter implements MealDrafter {
   Future<AiAvailability> availability() async => AiAvailability.available;
 
   @override
-  Future<MealDraft> draftMeal(String description) => throw UnimplementedError();
-
-  @override
-  Future<FoodLabelDraft> draftFoodLabel(String labelText) =>
+  Future<MealDraft> draftMeal(String description, {ThinkingSink? onThinking}) =>
       throw UnimplementedError();
 
   @override
-  Future<List<WorkoutLine>> draftWorkout(String text) =>
-      throw UnimplementedError();
+  Future<FoodLabelDraft> draftFoodLabel(
+    String labelText, {
+    ThinkingSink? onThinking,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<List<WorkoutLine>> draftWorkout(
+    String text, {
+    ThinkingSink? onThinking,
+  }) => throw UnimplementedError();
 
   @override
   Future<String> nameMeal(List<String> itemNames, {required String language}) =>
@@ -91,7 +96,11 @@ class _FakeDrafter implements MealDrafter {
   Future<bool> readsPhotos() async => canReadPhotos;
 
   @override
-  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async {
+  Future<PhotoDraft> draftPhoto(
+    FoodPhoto photo, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) async {
     photos.add(photo);
     notes.add(note);
     return parsePhoto(

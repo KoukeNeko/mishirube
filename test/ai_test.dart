@@ -13,6 +13,7 @@ import 'package:mishirube/backend/ai/label_reader.dart';
 import 'package:mishirube/backend/ai/meal_draft_json.dart';
 import 'package:mishirube/backend/ai/meal_drafter.dart';
 import 'package:mishirube/backend/ai/meal_name.dart';
+import 'package:mishirube/backend/ai/chatgpt_drafter.dart';
 import 'package:mishirube/backend/ai/cloud_drafter.dart';
 import 'package:mishirube/backend/ai/copilot_drafter.dart';
 import 'package:mishirube/backend/ai/secret_store.dart';
@@ -57,9 +58,21 @@ class _FakeDrafter implements MealDrafter {
   @override
   Future<AiAvailability> availability() async => status;
 
+  /// What it streams as thinking before answering, when watched.
+  String? thinking;
+
+  /// Holds a draft back until completed, so a test can see the page
+  /// while it is still being made.
+  Completer<void>? draftGate;
+
   @override
-  Future<MealDraft> draftMeal(String description) async {
+  Future<MealDraft> draftMeal(
+    String description, {
+    ThinkingSink? onThinking,
+  }) async {
     asked.add(description);
+    if (thinking case final text?) onThinking?.call(text);
+    if (draftGate case final gate?) await gate.future;
     return MealDraft(items: items, provider: kind, model: 'fake-1', name: name);
   }
 
@@ -71,7 +84,10 @@ class _FakeDrafter implements MealDrafter {
       '"carb_g":16,"sugar_g":7,"sodium_mg":95}';
 
   @override
-  Future<FoodLabelDraft> draftFoodLabel(String labelText) async {
+  Future<FoodLabelDraft> draftFoodLabel(
+    String labelText, {
+    ThinkingSink? onThinking,
+  }) async {
     labels.add(labelText);
     return parseFoodLabel(labelAnswer, provider: kind, model: 'fake-1');
   }
@@ -109,7 +125,11 @@ class _FakeDrafter implements MealDrafter {
   Future<bool> readsPhotos() async => canReadPhotos;
 
   @override
-  Future<PhotoDraft> draftPhoto(FoodPhoto photo, {String note = ''}) async {
+  Future<PhotoDraft> draftPhoto(
+    FoodPhoto photo, {
+    String note = '',
+    ThinkingSink? onThinking,
+  }) async {
     photos.add(photo);
     notes.add(note);
     return parsePhoto(photoAnswer, provider: kind, model: 'fake-1');
@@ -122,8 +142,13 @@ class _FakeDrafter implements MealDrafter {
   AiFailure? workoutFailure;
 
   @override
-  Future<List<WorkoutLine>> draftWorkout(String text) async {
+  Future<List<WorkoutLine>> draftWorkout(
+    String text, {
+    ThinkingSink? onThinking,
+  }) async {
     workouts.add(text);
+    if (thinking case final thought?) onThinking?.call(thought);
+    if (draftGate case final gate?) await gate.future;
     if (workoutFailure case final failure?) throw AiException(failure);
     return parseWorkoutDraft(workoutAnswer);
   }
@@ -1597,6 +1622,271 @@ void main() {
     });
   });
 
+  group('streaming the thinking', () {
+    // A streamed body, each line newline-terminated as it is on the wire.
+    http.StreamedResponse streamed(List<String> lines, {int status = 200}) =>
+        http.StreamedResponse(
+          Stream.fromIterable([
+            for (final line in lines) utf8.encode('$line\n'),
+          ]),
+          status,
+        );
+
+    test('Ollama streams its thinking and drafts from the content', () async {
+      late http.Request sent;
+      final client = MockClient.streaming((request, _) async {
+        sent = request as http.Request;
+        return streamed([
+          jsonEncode({
+            'message': {'thinking': '先看主食…'},
+          }),
+          jsonEncode({
+            'message': {'thinking': '再估熱量。'},
+          }),
+          jsonEncode({
+            'message': {'content': '{"items":[{"name":"蛋餅",'},
+          }),
+          jsonEncode({
+            'message': {'content': '"kcal":250}]}'},
+            'done': true,
+          }),
+        ]);
+      });
+      final thinking = StringBuffer();
+      final draft = await OllamaDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'gpt-oss:120b',
+      ).draftMeal('早餐 蛋餅', onThinking: thinking.write);
+
+      final body = jsonDecode(sent.body) as Map<String, dynamic>;
+      expect(body['stream'], true);
+      expect(body['think'], true, reason: 'ask the model to think out loud');
+      expect('$thinking', '先看主食…再估熱量。');
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('Google streams its thought parts as thinking', () async {
+      late http.Request sent;
+      final client = MockClient.streaming((request, _) async {
+        sent = request as http.Request;
+        return streamed([
+          'data: ${jsonEncode({
+            'candidates': [
+              {
+                'content': {
+                  'parts': [
+                    {'text': '想一下…', 'thought': true},
+                  ],
+                },
+              },
+            ],
+          })}',
+          'data: ${jsonEncode({
+            'candidates': [
+              {
+                'content': {
+                  'parts': [
+                    {'text': '{"items":[{"name":"蛋餅"}]}'},
+                  ],
+                },
+              },
+            ],
+          })}',
+        ]);
+      });
+      final thinking = StringBuffer();
+      final draft = await GoogleAiStudioDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'gemini-3.8-flash',
+      ).draftMeal('蛋餅', onThinking: thinking.write);
+
+      expect(sent.url.path, contains(':streamGenerateContent'));
+      expect(sent.url.queryParameters['alt'], 'sse');
+      expect('$thinking', '想一下…');
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('Anthropic streams thinking deltas, answers after them', () async {
+      late http.Request sent;
+      final client = MockClient.streaming((request, _) async {
+        sent = request as http.Request;
+        return streamed([
+          'data: ${jsonEncode({
+            'type': 'content_block_delta',
+            'delta': {'type': 'thinking_delta', 'thinking': '評估份量…'},
+          })}',
+          'data: ${jsonEncode({
+            'type': 'content_block_delta',
+            'delta': {'type': 'text_delta', 'text': '{"items":[{"name":"蛋餅"}]}'},
+          })}',
+          'data: ${jsonEncode({
+            'type': 'message_delta',
+            'delta': {'stop_reason': 'end_turn'},
+          })}',
+        ]);
+      });
+      final thinking = StringBuffer();
+      final draft = await AnthropicDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'claude-opus-4-5',
+      ).draftMeal('蛋餅', onThinking: thinking.write);
+
+      final body = jsonDecode(sent.body) as Map<String, dynamic>;
+      expect(body['stream'], true);
+      expect((body['thinking'] as Map)['type'], 'enabled');
+      expect('$thinking', '評估份量…');
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('a paused Anthropic search falls back to the one-shot', () async {
+      var streams = 0;
+      var oneShots = 0;
+      final client = MockClient.streaming((request, bodyStream) async {
+        final body = jsonDecode(
+          await bodyStream.bytesToString(),
+        ) as Map<String, dynamic>;
+        if (body['stream'] == true) {
+          streams++;
+          return streamed([
+            'data: ${jsonEncode({
+              'type': 'content_block_delta',
+              'delta': {'type': 'thinking_delta', 'thinking': '查一下…'},
+            })}',
+            'data: ${jsonEncode({
+              'type': 'message_delta',
+              'delta': {'stop_reason': 'pause_turn'},
+            })}',
+          ]);
+        }
+        oneShots++;
+        return streamed([
+          jsonEncode({
+            'content': [
+              {'type': 'text', 'text': '{"items":[{"name":"蛋餅"}]}'},
+            ],
+          }),
+        ]);
+      });
+      final draft = await AnthropicDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'claude-opus-4-5',
+      ).draftMeal('蛋餅', onThinking: (_) {});
+
+      expect(streams, 1, reason: 'tried to stream');
+      expect(oneShots, 1, reason: 'then fell back to the whole answer');
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test(
+      'an OpenAI-compatible endpoint streams reasoning as thinking',
+      () async {
+        final client = MockClient.streaming(
+          (request, _) async => streamed([
+            'data: ${jsonEncode({
+              'choices': [
+                {
+                  'delta': {'reasoning_content': '想…'},
+                },
+              ],
+            })}',
+            'data: ${jsonEncode({
+              'choices': [
+                {
+                  'delta': {'content': '{"items":[{"name":"蛋餅"}]}'},
+                },
+              ],
+            })}',
+            'data: [DONE]',
+          ]),
+        );
+        final thinking = StringBuffer();
+        final draft = await OpenAiCompatibleDrafter(
+          client: client,
+          readKey: () async => 'k',
+          readModel: () => 'some-model',
+          readEndpoint: () => 'https://example.invalid/v1',
+        ).draftMeal('蛋餅', onThinking: thinking.write);
+
+        expect('$thinking', '想…');
+        expect(draft.items.single.name, '蛋餅');
+      },
+    );
+
+    test('Azure streams to the deployment with the API version', () async {
+      late http.Request sent;
+      final client = MockClient.streaming((request, _) async {
+        sent = request as http.Request;
+        return streamed([
+          'data: ${jsonEncode({
+            'choices': [
+              {
+                'delta': {'reasoning_content': '想…'},
+              },
+            ],
+          })}',
+          'data: ${jsonEncode({
+            'choices': [
+              {
+                'delta': {'content': '{"items":[{"name":"蛋餅"}]}'},
+              },
+            ],
+          })}',
+          'data: [DONE]',
+        ]);
+      });
+      final thinking = StringBuffer();
+      final draft = await AzureAiFoundryDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'my-deployment',
+        readEndpoint: () => 'https://example.openai.azure.com/openai',
+      ).draftMeal('蛋餅', onThinking: thinking.write);
+
+      final body = jsonDecode(sent.body) as Map<String, dynamic>;
+      expect(body['stream'], true);
+      expect(sent.url.path, endsWith('/chat/completions'));
+      expect(
+        sent.url.queryParameters['api-version'],
+        AzureAiFoundryDrafter.apiVersion,
+      );
+      expect('$thinking', '想…');
+      expect(draft.items.single.name, '蛋餅');
+    });
+
+    test('a provider that returns nothing to stream still drafts', () async {
+      var streams = 0;
+      var oneShots = 0;
+      final client = MockClient.streaming((request, bodyStream) async {
+        final body = jsonDecode(
+          await bodyStream.bytesToString(),
+        ) as Map<String, dynamic>;
+        if (body['stream'] == true) {
+          streams++;
+          return streamed(const []); // nothing to read
+        }
+        oneShots++;
+        return streamed([
+          jsonEncode({
+            'message': {'content': '{"items":[{"name":"蛋餅"}]}'},
+          }),
+        ]);
+      });
+      final draft = await OllamaDrafter(
+        client: client,
+        readKey: () async => 'k',
+        readModel: () => 'gemma4:31b',
+      ).draftMeal('蛋餅', onThinking: (_) {});
+
+      expect(streams, 1);
+      expect(oneShots, 1, reason: 'an empty stream falls back to one answer');
+      expect(draft.items.single.name, '蛋餅');
+    });
+  });
+
   group('the AI layer', () {
     test('sends nothing until a provider is chosen', () async {
       final backend = Backend.inMemory();
@@ -2060,6 +2350,34 @@ void main() {
       );
       await disposeTree(tester);
     });
+
+    testWidgets('its thinking shows while it reads, then goes', (tester) async {
+      final (_, apple) = await open(tester);
+      apple.thinking = '先找深蹲…';
+      apple.draftGate = Completer<void>();
+      apple.workoutAnswer =
+          '{"exercises":[{"name":"深蹲","name_en":"Back Squat",'
+          '"line":"先深蹲五組五下一百公斤","sets":5,"reps":5,"weight_kg":100}]}';
+
+      await tester.enterText(find.byType(TextField), '先深蹲五組五下一百公斤，再看狀況');
+      await tester.pump();
+      await tester.tap(find.text('產生草稿'));
+      await tester.pump();
+
+      expect(find.byType(AiThinkingView), findsOneWidget);
+      expect(find.text('先找深蹲…'), findsOneWidget);
+
+      apple.draftGate!.complete();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byType(AiThinkingView),
+        findsNothing,
+        reason: 'the draft is what the user waits for; the thinking goes',
+      );
+      expect(find.text('槓鈴深蹲'), findsOneWidget);
+      await disposeTree(tester);
+    });
   });
 
   group('the merge page names the meal', () {
@@ -2210,6 +2528,61 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
       await disposeTree(tester);
     });
+  });
+
+  testWidgets('ChatGPT is set up in place: thinking level, sign-out, no key', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final backend = Backend.inMemory(clock: FakeClock().now);
+    final secrets = MemorySecretStore();
+    final sessionKey = AiService.keyName(AiProviderKind.chatgpt);
+    await secrets.write(
+      sessionKey,
+      jsonEncode({'client_id': 'oaiapp_1', 'refresh_token': 'r-1'}),
+    );
+    final store = AppStore(
+      clock: FakeClock().now,
+      isOnboarded: true,
+      backend: backend,
+      ai: AiService(
+        backend.db,
+        secrets: secrets,
+        drafters: {
+          AiProviderKind.chatgpt: ChatGptDrafter(
+            client: MockClient((_) async => http.Response('', 200)),
+            readModel: () => '',
+            secrets: secrets,
+            sessionKey: sessionKey,
+          ),
+        },
+      )..setProvider(AiProviderKind.chatgpt),
+    );
+    await pumpScreen(tester, const AiSettingsScreen(), store: store);
+
+    expect(find.text('已登入'), findsOneWidget);
+    expect(find.text('API 金鑰'), findsNothing);
+    expect(
+      find.text('用戶端 ID'),
+      findsNothing,
+      reason: 'the registration is Copilot\'s; OpenAI issues this one',
+    );
+
+    expect(store.aiReasoning, AiReasoning.auto);
+    await tester.tap(find.text('思考程度'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('高'));
+    await tester.pumpAndSettle();
+    expect(store.aiReasoning, AiReasoning.high);
+    expect(find.text('高'), findsOneWidget, reason: 'now the row\'s value');
+
+    await tester.tap(find.text('登出'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('登入'), findsOneWidget);
+    expect(find.text('登出'), findsNothing);
+    expect(await secrets.read(sessionKey), isNull);
+    await disposeTree(tester);
   });
 
   testWidgets('the AI settings switch merged-meal naming', (tester) async {

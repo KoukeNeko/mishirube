@@ -43,6 +43,10 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
   /// instead.
   AiFailure? _failure;
 
+  /// The AI's reasoning so far, while it reads; empty for a provider
+  /// that does not stream any.
+  String _thinking = '';
+
   @override
   void initState() {
     super.initState();
@@ -84,12 +88,18 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
     setState(() {
       _isReading = true;
       _failure = null;
+      _thinking = '';
     });
     // Named as it is asked, so a setting changed meanwhile does not rename
     // what already answered.
     final readBy = currentAiLabel(context.l10n, store);
     try {
-      final byAi = await store.draftWorkoutWithAi(text);
+      final byAi = await store.draftWorkoutWithAi(
+        text,
+        onThinking: (delta) {
+          if (mounted) setState(() => _thinking += delta);
+        },
+      );
       if (!mounted) return;
       // The AI's reading unless it found fewer exercises than the rules.
       int found(List<(WorkoutLine, PlannedExercise?)> draft) =>
@@ -152,12 +162,13 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final store = AppStoreScope.of(context);
     final draft = _draft;
     final planned = _planned;
     return DetailPage(
       appBar: PageAppBar(
         title: context.l10n.describeInWords,
-        subtitle: currentAiLabel(context.l10n, AppStoreScope.of(context)),
+        subtitle: currentAiLabel(context.l10n, store),
       ),
       footer: draft == null
           ? DraftButton(
@@ -175,14 +186,30 @@ class _DescribeWorkoutScreenState extends State<DescribeWorkoutScreen> {
               ),
             ),
       children: [
-        if (draft == null)
+        if (draft == null) ...[
+          if (store.aiProvider == null) ...[
+            Gutter(
+              child: InfoBanner(
+                icon: Icons.auto_awesome_outlined,
+                message: context.l10n.aiOffReadsOnDevice,
+              ),
+            ),
+            Gutter(
+              child: LinkText(
+                label: context.l10n.openAiSettings(me: context.l10n.tabMe),
+                onTap: () => pushPage(context, const AiSettingsScreen()),
+              ),
+            ),
+          ],
           Gutter(
             child: DescribeField(
               controller: _text,
               hint: context.l10n.describeWorkoutHint,
             ),
-          )
-        else ...[
+          ),
+          if (_isReading && _thinking.isNotEmpty)
+            Gutter(child: AiThinkingView(text: _thinking)),
+        ] else ...[
           if (_failure case final failure?)
             Gutter(child: AiFailureBanner(failure: failure)),
           if (draft.isEmpty)

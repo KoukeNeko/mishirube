@@ -33,7 +33,9 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     );
   }
 
-  void _refresh() => setState(() => _status = _readStatus());
+  void _refresh() => setState(() {
+    _status = _readStatus();
+  });
 
   Future<void> _editKey() async {
     final store = AppStoreScope.read(context);
@@ -119,8 +121,60 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
     store.setAiModel(chosen);
   }
 
+  Future<void> _editReasoning() async {
+    final store = AppStoreScope.read(context);
+    final chosen = await showAppDialog<AiReasoning>(
+      context,
+      AppDialog(
+        title: context.l10n.aiReasoningLevel,
+        isChoiceList: true,
+        actions: [
+          for (final level in AiReasoning.values)
+            DialogAction(
+              icon: level == store.aiReasoning ? Icons.check : null,
+              label: level.labelIn(context.l10n),
+              onTap: () => Navigator.of(context).pop(level),
+            ),
+        ],
+      ),
+    );
+    if (chosen != null) store.setAiReasoning(chosen);
+  }
+
   /// Not a model name: the choice that opens the text field.
   static const _typeModel = '';
+
+  /// Signing in to ChatGPT: the browser opens OpenAI's page and the app
+  /// waits for it to come back.
+  Future<void> _signInChatGpt() async {
+    final store = AppStoreScope.read(context);
+    final toast = ToastScope.read(context);
+    final l10n = context.l10n;
+    setState(() => _isSigningIn = true);
+    try {
+      if (await store.signInChatGpt()) toast.show(l10n.signedInChatGpt);
+    } on AiException catch (error) {
+      toast.show(
+        aiFailureMessage(l10n, error.failure),
+        kind: ToastKind.warning,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSigningIn = false);
+        _refresh();
+      }
+    }
+  }
+
+  Future<void> _signOutChatGpt() async {
+    final store = AppStoreScope.read(context);
+    final toast = ToastScope.read(context);
+    final l10n = context.l10n;
+    if (!await store.signOutChatGpt()) {
+      toast.show(l10n.signOutUnconfirmed, kind: ToastKind.warning);
+    }
+    if (mounted) _refresh();
+  }
 
   /// Signing in to Microsoft 365 Copilot: a code to type on Microsoft's
   /// page, then the app waits for the user to finish.
@@ -268,7 +322,7 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                               : store.aiEndpoint,
                           onTap: _editEndpoint,
                         ),
-                      if (provider.needsSignIn) ...[
+                      if (provider == AiProviderKind.microsoftCopilot) ...[
                         NavRow(
                           title: context.l10n.clientId,
                           subtitle: store.aiClientId.isEmpty
@@ -283,8 +337,13 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                               : store.aiTenant,
                           onTap: _editTenant,
                         ),
+                      ],
+                      if (provider.needsSignIn)
                         NavRow(
-                          title: hasKey
+                          title:
+                              _isSigningIn && provider == AiProviderKind.chatgpt
+                              ? context.l10n.commonCancel
+                              : hasKey
                               ? context.l10n.signedIn
                               : context.l10n.signIn,
                           subtitle: _isSigningIn
@@ -292,11 +351,20 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                               : hasKey
                               ? context.l10n.signInAgain
                               : null,
-                          onTap: _isSigningIn || store.aiClientId.isEmpty
+                          onTap: provider == AiProviderKind.chatgpt
+                              ? _isSigningIn
+                                    ? store.cancelChatGptSignIn
+                                    : _signInChatGpt
+                              : _isSigningIn || store.aiClientId.isEmpty
                               ? null
                               : _signIn,
                         ),
-                      ],
+                      if (provider == AiProviderKind.chatgpt && hasKey)
+                        NavRow(
+                          title: context.l10n.signOut,
+                          showChevron: false,
+                          onTap: _signOutChatGpt,
+                        ),
                       if (provider.needsKey)
                         NavRow(
                           title: context.l10n.apiKey,
@@ -317,6 +385,12 @@ class _AiSettingsScreenState extends State<AiSettingsScreen> {
                               ? context.l10n.notChosen
                               : store.aiModel,
                           onTap: _isLoadingModels ? null : _editModel,
+                        ),
+                      if (provider.hasReasoningChoice)
+                        NavRow(
+                          title: context.l10n.aiReasoningLevel,
+                          subtitle: store.aiReasoning.labelIn(context.l10n),
+                          onTap: _editReasoning,
                         ),
                       if (store.hasCloudConsent || store.hasPhotoConsent)
                         NavRow(

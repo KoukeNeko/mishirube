@@ -3690,6 +3690,12 @@ abstract class AppLocalizations {
   /// **'Microsoft 365 Copilot'**
   String get aiProviderMicrosoftCopilot;
 
+  /// An AI provider; product names stay as they are. (AiProviderKind.chatgpt)
+  ///
+  /// In zh, this message translates to:
+  /// **'ChatGPT'**
+  String get aiProviderChatGpt;
+
   /// An AI provider; product names stay as they are. (AiProviderKind.openAiCompatible)
   ///
   /// In zh, this message translates to:
@@ -3875,6 +3881,42 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'重新輸入'**
   String get aiRewrite;
+
+  /// Header of the panel that shows the model's reasoning live while it drafts.
+  ///
+  /// In zh, this message translates to:
+  /// **'思考'**
+  String get aiThinking;
+
+  /// Row title: how hard the model thinks before it answers.
+  ///
+  /// In zh, this message translates to:
+  /// **'思考程度'**
+  String get aiReasoningLevel;
+
+  /// Reasoning level: left to the model.
+  ///
+  /// In zh, this message translates to:
+  /// **'自動'**
+  String get aiReasoningAuto;
+
+  /// Reasoning level.
+  ///
+  /// In zh, this message translates to:
+  /// **'低'**
+  String get aiReasoningLow;
+
+  /// Reasoning level.
+  ///
+  /// In zh, this message translates to:
+  /// **'中'**
+  String get aiReasoningMedium;
+
+  /// Reasoning level.
+  ///
+  /// In zh, this message translates to:
+  /// **'高'**
+  String get aiReasoningHigh;
 
   /// Undo toast after a record was deleted; item names what it was.
   ///
@@ -8252,6 +8294,12 @@ abstract class AppLocalizations {
   /// **'先選一個 AI 才能產生草稿。'**
   String get chooseAiFirst;
 
+  /// Warning on the describe-workout page when no AI is chosen: the lines are read by on-device rules instead.
+  ///
+  /// In zh, this message translates to:
+  /// **'未啟用 AI，改在裝置上讀取。'**
+  String get aiOffReadsOnDevice;
+
   /// Screen-reader label.
   ///
   /// In zh, this message translates to:
@@ -9763,6 +9811,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'已登入 Microsoft 365 Copilot'**
   String get signedInCopilot;
+
+  /// Toast.
+  ///
+  /// In zh, this message translates to:
+  /// **'已登入 ChatGPT'**
+  String get signedInChatGpt;
+
+  /// Row title that signs out of the AI provider.
+  ///
+  /// In zh, this message translates to:
+  /// **'登出'**
+  String get signOut;
+
+  /// Warning toast: signed out here, but OpenAI could not be told.
+  ///
+  /// In zh, this message translates to:
+  /// **'已登出，授權未撤銷。到 ChatGPT 設定中斷開連線。'**
+  String get signOutUnconfirmed;
 
   /// Row and dialog title.
   ///
