@@ -3627,7 +3627,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('a meal\'s row presses from edge to edge of its card', (
+  testWidgets('a meal\'s row presses from edge to edge of its segment', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -3658,7 +3658,9 @@ void main() {
     );
 
     final card = tester.getRect(
-      find.ancestor(of: find.text('雞腿便當'), matching: find.byType(AppCard)),
+      find
+          .ancestor(of: find.text('雞腿便當'), matching: find.byType(Material))
+          .first,
     );
     for (final text in ['雞腿便當', '雞腿']) {
       final pressed = tester.getRect(
@@ -4245,28 +4247,17 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('the day\'s cards keep one inset', (tester) async {
+  testWidgets('the day\'s group headings keep one height', (tester) async {
     usePhoneViewport(tester);
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
     await pumpScreen(tester, const DailyNutritionScreen(), store: store);
 
-    double insetOf(Finder text) {
-      final card = find.ancestor(of: text, matching: find.byType(AppCard));
-      return tester.getTopLeft(text).dy - tester.getTopLeft(card.first).dy;
-    }
-
-    // The ring sits centred beside the macros, whose first line leads.
-    final energy = insetOf(find.text(testL10n.macroCarb).first);
-    final indicators = insetOf(find.text(testL10n.macroFibre));
     expect(
-      (energy - indicators).abs(),
-      lessThan(3),
-      reason: 'a card\'s first line sits its inset from the top, not more',
-    );
-    expect(
-      tester.getSize(find.widgetWithText(SectionLabel, testL10n.macroEnergy)),
-      tester.getSize(find.widgetWithText(SectionLabel, '每日指標')),
-      reason: 'the 變更 link does not push its card further down',
+      tester.getSize(
+        find.widgetWithText(CategoryHeading, testL10n.macroEnergy),
+      ),
+      tester.getSize(find.widgetWithText(CategoryHeading, '每日指標')),
+      reason: 'the 變更 link does not push its group further down',
     );
     await disposeTree(tester);
   });

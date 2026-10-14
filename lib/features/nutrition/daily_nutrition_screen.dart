@@ -19,6 +19,10 @@ import 'nutrition_view_model.dart';
 import 'split_dish_sheet.dart';
 import '../../l10n/l10n.dart';
 
+/// A heading here is as tall as a touch target, so those that carry a
+/// link (変更, 佔比) sit as far above their group as those that do not.
+const _headingHeight = 44.0;
+
 class DailyNutritionScreen extends StatefulWidget {
   const DailyNutritionScreen({super.key, this.day});
 
@@ -307,31 +311,16 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
       children: [
         if (merging == null) ...[
           Gutter(
-            child: SectionLabel(
-              convention.energyName(context.l10n),
-              trailing: LinkText(
-                label: targets.kcal == null
-                    ? context.l10n.setGoal
-                    : context.l10n.changeAction,
-                color: AppColors.nutrition,
-                alignment: Alignment.bottomRight,
-                onTap: () => pushPage(context, const NutritionTargetScreen()),
-              ),
-            ),
-          ),
-          Gutter(
-            child: _EnergyCard(
+            child: _EnergyGroup(
               summary: summary,
               targets: targets,
               convention: convention,
+              onTarget: () => pushPage(context, const NutritionTargetScreen()),
             ),
           ),
-          Gutter(child: SectionLabel(context.l10n.dailyIndicators)),
           Gutter(
-            child: _IndicatorsCard(
+            child: _IndicatorsGroup(
               convention: convention,
-              fibreGrams: summary.fibreGrams,
-              fibreTarget: targets.fibreGrams?.toDouble(),
               carbPart: total(convention.carbPart),
               salt: total(convention.saltMeasure),
               saltMeasure: convention.saltMeasure,
@@ -339,74 +328,100 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
               caffeineMg: day == today ? _nutrition.estimatedCaffeineMg : null,
             ),
           ),
-          Gutter(
-            child: SectionLabel(
-              context.l10n.mealsSection,
-              // A text action like 變更 above, naming what a tap does.
-              trailing: eaten.length > 1
-                  ? LinkText(
-                      label: showsShare
-                          ? context.l10n.mealShareHide
-                          : context.l10n.mealShare,
-                      color: AppColors.nutrition,
-                      alignment: Alignment.bottomRight,
-                      onTap: () => setState(() => _showsShare = !_showsShare),
-                    )
-                  : null,
-            ),
-          ),
         ],
-        if (eaten.isEmpty)
-          Gutter(
-            child: EmptyStateCard(
-              icon: Icons.no_meals_outlined,
-              title: context.l10n.noMealsThisDay,
-            ),
-          ),
-        if (merging != null)
-          for (final meal in eaten)
-            Gutter(
-              child: Semantics(
-                selected: merging.contains(_keyOf(meal)),
-                child: NavCard(
-                  leading: CheckSquare(
-                    isChecked: merging.contains(_keyOf(meal)),
-                    checkedColor: AppColors.nutrition,
-                  ),
-                  title: _nutrition.nameOfMeal(meal),
-                  subtitle:
-                      '${meal.first.timeLabel} · '
-                      '${formatKcalOrDash(mealKcalOf(meal))} kcal',
-                  showChevron: false,
-                  onTap: () => setState(() {
-                    if (!merging.remove(_keyOf(meal))) {
-                      merging.add(_keyOf(meal));
-                    }
-                  }),
-                ),
+        Gutter(
+          child: CategoryGroup(
+            headingHeight: _headingHeight,
+            label: context.l10n.mealsSection,
+            color: AppColors.nutrition,
+            // A text action like 變更 above, naming what a tap does.
+            tag: merging == null && eaten.length > 1
+                ? LinkText(
+                    label: showsShare
+                        ? context.l10n.mealShareHide
+                        : context.l10n.mealShare,
+                    color: AppColors.nutrition,
+                    alignment: Alignment.bottomRight,
+                    onTap: () => setState(() => _showsShare = !_showsShare),
+                  )
+                : null,
+            children: [
+              SegmentedGroup(
+                rows: [
+                  if (eaten.isEmpty)
+                    [
+                      Segment(
+                        child: SegmentRow(
+                          leading: const Icon(
+                            Icons.no_meals_outlined,
+                            color: AppColors.textTertiary,
+                          ),
+                          title: context.l10n.noMealsThisDay,
+                        ),
+                      ),
+                    ]
+                  else
+                    for (final meal in eaten)
+                      [
+                        if (merging != null)
+                          Segment(
+                            onTap: () => setState(() {
+                              if (!merging.remove(_keyOf(meal))) {
+                                merging.add(_keyOf(meal));
+                              }
+                            }),
+                            child: Semantics(
+                              selected: merging.contains(_keyOf(meal)),
+                              child: SegmentRow(
+                                leading: CheckSquare(
+                                  isChecked: merging.contains(_keyOf(meal)),
+                                  checkedColor: AppColors.nutrition,
+                                ),
+                                title: _nutrition.nameOfMeal(meal),
+                                caption:
+                                    '${meal.first.timeLabel} · '
+                                    '${formatKcalOrDash(mealKcalOf(meal))} kcal',
+                              ),
+                            ),
+                          )
+                        else if (meal.length == 1)
+                          Segment(
+                            // The meal opens to what it was, as a list row
+                            // does; its dishes open on their own.
+                            onTap: () => pushPage(
+                              context,
+                              MealDetailScreen(meal: meal.single),
+                            ),
+                            child: _MealCard(
+                              meal: meal.single,
+                              shares: showsShare ? sharesOf(meal) : const [],
+                              isExpanded: (dish) => _expanded.contains(
+                                '${meal.single.id}/${dish.name}',
+                              ),
+                              onToggle: (dish) =>
+                                  _toggle('${meal.single.id}/${dish.name}'),
+                              onSplit: (dishIndex) =>
+                                  _split(meal.single, dishIndex),
+                            ),
+                          )
+                        else
+                          Segment(
+                            onTap: () =>
+                                pushPage(context, MealGroupScreen(items: meal)),
+                            child: _MealGroupCard(
+                              items: meal,
+                              shares: showsShare ? sharesOf(meal) : const [],
+                              name: _nutrition.nameOfMeal(meal),
+                              convention: convention,
+                              onRemove: _removeItem,
+                            ),
+                          ),
+                      ],
+                ],
               ),
-            )
-        else
-          for (final meal in eaten)
-            Gutter(
-              child: meal.length == 1
-                  ? _MealCard(
-                      meal: meal.single,
-                      shares: showsShare ? sharesOf(meal) : const [],
-                      isExpanded: (dish) =>
-                          _expanded.contains('${meal.single.id}/${dish.name}'),
-                      onToggle: (dish) =>
-                          _toggle('${meal.single.id}/${dish.name}'),
-                      onSplit: (dishIndex) => _split(meal.single, dishIndex),
-                    )
-                  : _MealGroupCard(
-                      items: meal,
-                      shares: showsShare ? sharesOf(meal) : const [],
-                      name: _nutrition.nameOfMeal(meal),
-                      convention: convention,
-                      onRemove: _removeItem,
-                    ),
-            ),
+            ],
+          ),
+        ),
         // Sugar and salt are up with the day's limits, salt in one measure
         // with the other folded into it.
         if ([
@@ -416,12 +431,10 @@ class _DailyNutritionScreenState extends State<DailyNutritionScreen> {
                     !convention.foldedAway.contains(total.nutrient))
                   total,
             ]
-            case final rest when rest.isNotEmpty && merging == null) ...[
-          Gutter(child: SectionLabel(context.l10n.otherNutrients)),
+            case final rest when rest.isNotEmpty && merging == null)
           Gutter(
-            child: _NutrientTotals(totals: rest, convention: convention),
+            child: _NutrientsGroup(totals: rest, convention: convention),
           ),
-        ],
         // Logs to the day shown, as the training page's 新增課表 adds a
         // routine: another day is a swipe away on the strip above, and the
         // label says so.
@@ -559,53 +572,55 @@ class _MealGroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final first = items.first;
-    return GroupedCard(
+    return Column(
       children: [
         // The meal opens to its sum, as a single meal's row does.
-        InkWell(
-          onTap: () => pushPage(context, MealGroupScreen(items: items)),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const AccentBar(color: AppColors.nutrition),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name, style: AppTextStyles.itemTitle),
-                          Text(
-                            [
-                              first.timeLabel,
-                              ?first.mealType?.labelIn(context.l10n),
-                              context.l10n.itemsCountShort(count: items.length),
-                            ].join(' · '),
-                            style: AppTextStyles.caption,
-                          ),
-                        ],
-                      ),
+        Padding(
+          padding: segmentPadding,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const AccentBar(color: AppColors.nutrition),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: AppTextStyles.itemTitle),
+                        Text(
+                          [
+                            first.timeLabel,
+                            ?first.mealType?.labelIn(context.l10n),
+                            context.l10n.itemsCountShort(count: items.length),
+                          ].join(' · '),
+                          style: AppTextStyles.caption,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    ValueWithUnit(
-                      value: formatKcalOrDash(mealKcalOf(items)),
-                      unit: 'kcal',
-                      style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-                    ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: AppColors.textTertiary,
-                    ),
-                  ],
-                ),
-                _SharesSlot(shares: shares),
-              ],
-            ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  ValueWithUnit(
+                    value: formatKcalOrDash(mealKcalOf(items)),
+                    unit: 'kcal',
+                    style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textTertiary,
+                  ),
+                ],
+              ),
+              _SharesSlot(shares: shares),
+            ],
           ),
         ),
-        for (final item in items)
+        for (final item in items) ...[
+          const Divider(
+            height: 1,
+            indent: AppSpacing.md,
+            endIndent: AppSpacing.md,
+          ),
           SwipeAction(
             key: ValueKey(item.id),
             label: context.l10n.removeAction,
@@ -629,6 +644,7 @@ class _MealGroupCard extends StatelessWidget {
               onTap: () => pushPage(context, MealDetailScreen(meal: item)),
             ),
           ),
+        ],
       ],
     );
   }
@@ -669,73 +685,64 @@ class _MealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // No padding on the card: each row that can be pressed pads itself,
-    // so its highlight reaches the card's edges.
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // The meal opens to what it was, as a list row does.
-          InkWell(
-            onTap: () => pushPage(context, MealDetailScreen(meal: meal)),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: segmentPadding,
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      const AccentBar(color: AppColors.nutrition),
-                      const SizedBox(width: AppSpacing.sm),
-                      // The name takes the row and wraps; the time goes under
-                      // it so a long name is not squeezed into a column.
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(meal.name, style: AppTextStyles.itemTitle),
-                            Text(
-                              [
-                                meal.timeLabel,
-                                if (meal.amount.isNotEmpty) meal.amount,
-                              ].join(' · '),
-                              style: AppTextStyles.caption,
-                            ),
-                          ],
+                  const AccentBar(color: AppColors.nutrition),
+                  const SizedBox(width: AppSpacing.sm),
+                  // The name takes the row and wraps; the time goes under
+                  // it so a long name is not squeezed into a column.
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(meal.name, style: AppTextStyles.itemTitle),
+                        Text(
+                          [
+                            meal.timeLabel,
+                            if (meal.amount.isNotEmpty) meal.amount,
+                          ].join(' · '),
+                          style: AppTextStyles.caption,
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      ValueWithUnit(
-                        value: formatKcalOrDash(meal.kcal),
-                        unit: 'kcal',
-                        style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
-                      ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: AppColors.textTertiary,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  _SharesSlot(shares: shares),
+                  const SizedBox(width: AppSpacing.sm),
+                  ValueWithUnit(
+                    value: formatKcalOrDash(meal.kcal),
+                    unit: 'kcal',
+                    style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textTertiary,
+                  ),
                 ],
               ),
-            ),
+              _SharesSlot(shares: shares),
+            ],
           ),
-          for (var i = 0; i < meal.dishes.length; i++) ...[
-            const Divider(
-              height: 1,
-              indent: AppSpacing.md,
-              endIndent: AppSpacing.md,
-            ),
-            _DishRow(
-              dish: meal.dishes[i],
-              isExpanded: isExpanded(meal.dishes[i]),
-              onToggle: () => onToggle(meal.dishes[i]),
-              onSplit: () => onSplit(i),
-            ),
-          ],
+        ),
+        for (var i = 0; i < meal.dishes.length; i++) ...[
+          const Divider(
+            height: 1,
+            indent: AppSpacing.md,
+            endIndent: AppSpacing.md,
+          ),
+          _DishRow(
+            dish: meal.dishes[i],
+            isExpanded: isExpanded(meal.dishes[i]),
+            onToggle: () => onToggle(meal.dishes[i]),
+            onSplit: () => onSplit(i),
+          ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -816,203 +823,167 @@ class _DishRow extends StatelessWidget {
 /// The day's other nutrients, each saying how much of the day it could
 /// see. A nutrient nobody recorded is not listed at all — it would read
 /// as zero, and zero is a claim this screen cannot make.
-class _NutrientTotals extends StatelessWidget {
-  const _NutrientTotals({required this.totals, required this.convention});
+class _NutrientsGroup extends StatelessWidget {
+  const _NutrientsGroup({required this.totals, required this.convention});
 
   final List<NutrientTotal> totals;
   final NutritionConvention convention;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          for (final total in totals)
-            KeyValueRow(
-              label: convention.nameOf(context.l10n, total.nutrient),
-              value: total.labelIn(context.l10n),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The day's energy against its target, as a ring with what is left,
-/// and the three macronutrients against theirs.
-class _EnergyCard extends StatelessWidget {
-  const _EnergyCard({
-    required this.summary,
-    required this.targets,
-    required this.convention,
-  });
-
-  final NutritionConvention convention;
-
-  final DaySummary summary;
-  final NutritionTargets targets;
-
-  @override
-  Widget build(BuildContext context) {
-    final target = targets.kcal;
-    final eaten = summary.kcal;
-    final mark = summary.hasEstimates ? '~' : '';
-    final left = target == null ? null : target - eaten;
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (summary.mealsWithoutFigures > 0) ...[
-            Text(
-              context.l10n.entriesWithoutKcal(
-                count: summary.mealsWithoutFigures,
-              ),
-              style: AppTextStyles.caption,
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-          LayoutBuilder(
-            builder: (context, space) {
-              // Side by side where there is room; the ring above the
-              // macros at large text sizes.
-              final isWide = space.maxWidth >= 300;
-              final ring = ProgressRing(
-                progress: target == null || target <= 0 ? 0 : eaten / target,
-                color: AppColors.nutrition,
-                semanticLabel: target == null
-                    ? context.l10n.eatenKcal(kcal: formatKcal(eaten))
-                    : context.l10n.eatenOfTarget(
-                        kcal: formatKcal(eaten),
-                        target: formatKcal(target),
-                      ),
-                size: 148,
-                strokeWidth: 18,
-                title: left == null
-                    ? context.l10n.eatenKcalTitle
-                    : left >= 0
-                    ? context.l10n.remainingKcalTitle
-                    : context.l10n.overKcalTitle,
-                footer: target == null
-                    ? null
-                    : '$mark${formatKcal(eaten)}/${formatKcal(target)}',
-                child: Text(
-                  '$mark${formatKcal(left?.abs() ?? eaten)}',
-                  style: AppTextStyles.bigNumber.copyWith(fontSize: 28),
-                ),
-              );
-              final macros = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _MacroLine(
-                    label: convention.carbName(context.l10n),
-                    color: AppColors.macroCarb,
-                    grams: convention.countsAvailableCarb
-                        ? summary.availableCarbGrams
-                        : summary.carbGrams,
-                    target: targets.carbGrams?.toDouble(),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _MacroLine(
-                    label: convention.proteinName(context.l10n),
-                    color: AppColors.macroProtein,
-                    grams: summary.proteinGrams,
-                    target: targets.proteinGrams?.toDouble(),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  _MacroLine(
-                    label: convention.fatName(context.l10n),
-                    color: AppColors.macroFat,
-                    grams: summary.fatGrams,
-                    target: targets.fatGrams?.toDouble(),
-                  ),
-                ],
-              );
-              return isWide
-                  ? Row(
-                      children: [
-                        ring,
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(child: macros),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        ring,
-                        const SizedBox(height: AppSpacing.md),
-                        macros,
-                      ],
-                    );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MacroLine extends StatelessWidget {
-  const _MacroLine({
-    required this.label,
-    required this.color,
-    required this.grams,
-    required this.target,
-  });
-
-  final String label;
-  final Color color;
-  final double grams;
-  final double? target;
-
-  @override
-  Widget build(BuildContext context) {
-    final target = this.target;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final l10n = context.l10n;
+    return CategoryGroup(
+      headingHeight: _headingHeight,
+      label: l10n.otherNutrients,
+      color: AppColors.textSecondary,
       children: [
-        Row(
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Flexible(child: Text(label, style: AppTextStyles.caption)),
+        SegmentedGroup(
+          rows: [
+            for (var i = 0; i < totals.length; i += 2)
+              [
+                for (final total in totals.skip(i).take(2))
+                  Segment(
+                    child: SegmentStat(
+                      label: convention.nameOf(l10n, total.nutrient),
+                      color: AppColors.textSecondary,
+                      placeholder: '—',
+                      value: total.labelIn(l10n),
+                      valueSize: 18,
+                    ),
+                  ),
+              ],
           ],
         ),
-        // One line always: a figure with a decimal is wider, and the
-        // column is narrow beside the ring.
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            target == null
-                ? '${formatAmount(grams)} g'
-                : '${formatAmount(grams)} / ${formatAmount(target)} g',
-            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
-        if (target case final target? when target > 0) ...[
-          const SizedBox(height: AppSpacing.xxs),
-          ProgressLine(
-            progress: grams / target,
-            color: color,
-            height: 6,
-            drawsIn: true,
-          ),
-        ],
       ],
     );
   }
 }
 
-/// The rest of the day at a glance, one row each: fibre against its
-/// target, sugar (or 糖質) as eaten, salt against its limit, and, today, the caffeine still in the body.
-class _IndicatorsCard extends StatelessWidget {
-  const _IndicatorsCard({
-    required this.fibreGrams,
-    required this.fibreTarget,
+/// The day's energy against its target with what is left, and under it
+/// the macronutrients and fibre against theirs, as the figures of 今天.
+class _EnergyGroup extends StatelessWidget {
+  const _EnergyGroup({
+    required this.summary,
+    required this.targets,
+    required this.convention,
+    required this.onTarget,
+  });
+
+  final NutritionConvention convention;
+  final DaySummary summary;
+  final NutritionTargets targets;
+  final VoidCallback onTarget;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final target = targets.kcal;
+    final eaten = summary.kcal;
+    final mark = summary.hasEstimates ? '~' : '';
+    final left = target == null ? null : target - eaten;
+    Segment macro(String name, Color color, double grams, double? goal) =>
+        Segment(
+          child: SegmentStat(
+            label: name,
+            color: color,
+            mark: segmentDot,
+            placeholder: '—',
+            value: goal == null
+                ? formatAmount(grams)
+                : '${formatAmount(grams)} / ${formatAmount(goal)}',
+            unit: 'g',
+            valueSize: 20,
+            progress: goal != null && goal > 0 ? grams / goal : null,
+          ),
+        );
+    return CategoryGroup(
+      headingHeight: _headingHeight,
+      label: convention.energyName(l10n),
+      color: AppColors.nutrition,
+      tag: LinkText(
+        label: target == null ? l10n.setGoal : l10n.changeAction,
+        color: AppColors.nutrition,
+        alignment: Alignment.bottomRight,
+        onTap: onTarget,
+      ),
+      children: [
+        SegmentedGroup(
+          rows: [
+            [
+              Segment(
+                surface: AppColors.surfaceRaised,
+                semanticLabel: target == null
+                    ? l10n.eatenKcal(kcal: formatKcal(eaten))
+                    : l10n.eatenOfTarget(
+                        kcal: formatKcal(eaten),
+                        target: formatKcal(target),
+                      ),
+                child: SegmentHero(
+                  label: left == null
+                      ? l10n.eatenKcalTitle
+                      : left >= 0
+                      ? l10n.remainingKcalTitle
+                      : l10n.overKcalTitle,
+                  color: AppColors.nutrition,
+                  value: '$mark${formatKcal(left?.abs() ?? eaten)}',
+                  unit: target == null
+                      ? null
+                      : '$mark${formatKcal(eaten)} / ${formatKcal(target)}',
+                  progress: target == null || target <= 0
+                      ? null
+                      : eaten / target,
+                ),
+              ),
+            ],
+            [
+              macro(
+                convention.proteinName(l10n),
+                AppColors.macroProtein,
+                summary.proteinGrams,
+                targets.proteinGrams?.toDouble(),
+              ),
+              macro(
+                convention.carbName(l10n),
+                AppColors.macroCarb,
+                convention.countsAvailableCarb
+                    ? summary.availableCarbGrams
+                    : summary.carbGrams,
+                targets.carbGrams?.toDouble(),
+              ),
+            ],
+            [
+              macro(
+                convention.fatName(l10n),
+                AppColors.macroFat,
+                summary.fatGrams,
+                targets.fatGrams?.toDouble(),
+              ),
+              macro(
+                convention.fibreName(l10n),
+                AppColors.macroFibre,
+                summary.fibreGrams,
+                targets.fibreGrams?.toDouble(),
+              ),
+            ],
+          ],
+        ),
+        if (summary.mealsWithoutFigures > 0)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+            child: Text(
+              l10n.entriesWithoutKcal(count: summary.mealsWithoutFigures),
+              style: AppTextStyles.caption,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The rest of the day at a glance: sugar (or 糖質) as eaten, salt against
+/// its limit, and, today, the caffeine still in the body.
+class _IndicatorsGroup extends StatelessWidget {
+  const _IndicatorsGroup({
     required this.convention,
     required this.carbPart,
     required this.salt,
@@ -1021,8 +992,6 @@ class _IndicatorsCard extends StatelessWidget {
     required this.caffeineMg,
   });
 
-  final double fibreGrams;
-  final double? fibreTarget;
   final NutritionConvention convention;
 
   /// Sugar, or 糖質 read the Japanese way: [NutritionConvention.carbPart].
@@ -1038,110 +1007,70 @@ class _IndicatorsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final amount = salt?.amount;
     // Sodium to the mg, salt to a tenth of a gram, as labels print them.
     String figure(double value) => saltMeasure.unit == NutrientUnit.milligram
         ? formatKcal(value.round())
         : formatAmount((value * 10).round() / 10);
-    final rows = [
-      _MeterRow(
-        label: convention.fibreName(context.l10n),
-        value: fibreTarget == null
-            ? '${formatAmount(fibreGrams)} g'
-            : '${formatAmount(fibreGrams)} / ${formatAmount(fibreTarget!)} g',
-        progress: fibreTarget == null || fibreTarget == 0
-            ? null
-            : fibreGrams / fibreTarget!,
-        color: AppColors.macroFibre,
-      ),
-      _MeterRow(
-        label: convention.nameOf(context.l10n, convention.carbPart),
-        value: switch (carbPart) {
-          final total? => total.nutrient.format(
-            (total.amount * 10).round() / 10,
-          ),
-          null => '—',
-        },
-        note: carbPart?.isWorkedOut == true ? context.l10n.workedOut : null,
-      ),
-      _MeterRow(
-        label: convention.nameOf(context.l10n, saltMeasure),
-        value:
-            '${amount == null ? '—' : figure(amount)}'
-            ' / ${figure(saltLimit)} ${saltMeasure.unit.label}',
-        progress: amount == null ? null : amount / saltLimit,
-        color: AppColors.body,
-        note: salt?.isWorkedOut == true ? context.l10n.workedOut : null,
-      ),
-      if (caffeineMg case final caffeine? when caffeine >= 1)
-        _MeterRow(
-          label: context.l10n.caffeineRemaining,
-          value: '${caffeine.round()} mg',
-          note: context.l10n.halfLifeBasis(
-            hours: formatAmount(caffeineHalfLifeHours),
-          ),
-        ),
-    ];
-    // Space between the rows only, so the first and last sit the card's
-    // own inset from its edge, as every other card's content does.
-    return AppCard(
-      child: Column(
-        children: [
-          for (final (index, row) in rows.indexed) ...[
-            if (index > 0) const SizedBox(height: AppSpacing.sm),
-            row,
+    return CategoryGroup(
+      headingHeight: _headingHeight,
+      label: l10n.dailyIndicators,
+      color: AppColors.textSecondary,
+      children: [
+        SegmentedGroup(
+          rows: [
+            [
+              Segment(
+                child: SegmentStat(
+                  label: convention.nameOf(l10n, convention.carbPart),
+                  color: AppColors.nutrition,
+                  mark: segmentDot,
+                  placeholder: '—',
+                  value: carbPart?.nutrient.format(
+                    (carbPart!.amount * 10).round() / 10,
+                  ),
+                  valueSize: 20,
+                  caption: carbPart?.isWorkedOut == true
+                      ? l10n.workedOut
+                      : null,
+                ),
+              ),
+              Segment(
+                child: SegmentStat(
+                  label: convention.nameOf(l10n, saltMeasure),
+                  color: AppColors.body,
+                  mark: segmentDot,
+                  placeholder: '—',
+                  value:
+                      '${amount == null ? '—' : figure(amount)}'
+                      ' / ${figure(saltLimit)}',
+                  unit: saltMeasure.unit.label,
+                  valueSize: 20,
+                  progress: amount == null ? null : amount / saltLimit,
+                  caption: salt?.isWorkedOut == true ? l10n.workedOut : null,
+                ),
+              ),
+            ],
+            if (caffeineMg case final caffeine? when caffeine >= 1)
+              [
+                Segment(
+                  child: SegmentStat(
+                    label: l10n.caffeineRemaining,
+                    color: AppColors.caffeine,
+                    mark: segmentDot,
+                    placeholder: '—',
+                    value: '${caffeine.round()} mg',
+                    valueSize: 20,
+                    caption: l10n.halfLifeBasis(
+                      hours: formatAmount(caffeineHalfLifeHours),
+                    ),
+                  ),
+                ),
+              ],
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// A label, its value on the right, and a bar under them when there is
-/// something to measure it against. Every row the same height, so the
-/// card reads as one list.
-class _MeterRow extends StatelessWidget {
-  const _MeterRow({
-    required this.label,
-    required this.value,
-    this.progress,
-    this.color = AppColors.nutrition,
-    this.note,
-  });
-
-  final String label;
-  final String value;
-  final double? progress;
-  final Color color;
-  final String? note;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Expanded(child: Text(label, style: AppTextStyles.body)),
-          const SizedBox(width: AppSpacing.sm),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-      if (note case final note?) Text(note, style: AppTextStyles.caption),
-      if (progress case final progress?) ...[
-        const SizedBox(height: AppSpacing.xxs),
-        ProgressLine(
-          progress: progress,
-          color: color,
-          height: 4,
-          drawsIn: true,
         ),
       ],
-    ],
-  );
+    );
+  }
 }
