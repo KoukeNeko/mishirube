@@ -20,7 +20,7 @@ const _closeFadeDuration = Duration(milliseconds: 150);
 /// shrinks it back.
 ///
 /// It spans the toolbar row, so use it on pages whose toolbar shows no
-/// title (`CompactBarBehavior.none`).
+/// title.
 class SearchableHeaderActions extends StatefulWidget {
   const SearchableHeaderActions({
     super.key,

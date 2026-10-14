@@ -158,7 +158,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('Log has no compact bar: only the week strip stays', (
+  testWidgets('Log keeps its bar, and the week strip stays under it', (
     tester,
   ) async {
     await _pumpApp(tester, tab: HomeTab.log);
@@ -167,15 +167,15 @@ void main() {
     final pinnedTop = tester.getRect(find.byType(WeekDayStrip)).top;
     expect(
       pinnedTop,
-      lessThan(phoneTopInset + _toolbarHeight),
-      reason: 'no toolbar row above the pinned strip',
+      greaterThanOrEqualTo(phoneTopInset + _toolbarHeight),
+      reason: 'the toolbar row stays above the pinned strip',
     );
 
     await _scroll(tester, -120);
     expect(
       tester.getRect(find.byType(WeekDayStrip)).top,
       pinnedTop,
-      reason: 'scrolling up does not bring a small bar back',
+      reason: 'scrolling up does not move the bar or the strip',
     );
     expect(tester.takeException(), isNull);
     await disposeTree(tester);

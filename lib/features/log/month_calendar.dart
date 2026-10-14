@@ -254,14 +254,16 @@ class WeekdayHeader extends StatelessWidget {
 
   final int firstWeekday;
 
-  static const height = _weekdayHeight;
+  /// The weekdays and the room above them, which is as far under the bar
+  /// as the week strip of the timeline sits.
+  static const height = _weekdayHeight + AppSpacing.xs;
 
   @override
   Widget build(BuildContext context) => Container(
     height: height,
     // The page column's, so the days stay put on switching to the
     // timeline's week strip.
-    padding: PageColumn.gutterOf(context),
+    padding: PageColumn.gutterOf(context).copyWith(top: AppSpacing.xs),
     child: Row(
       children: [
         for (var i = 0; i < DateTime.daysPerWeek; i++)

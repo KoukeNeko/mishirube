@@ -149,25 +149,31 @@ class _LogScreenState extends State<LogScreen> {
           listed.last;
       _isRevealing = true;
       try {
+        ScrollPosition? position;
+        bool? isBelow;
         for (var step = 0; step < 100 && mounted; step++) {
           final built = [
             for (final day in listed)
               if (_dayKeys[day]?.currentContext != null) day,
           ];
-          if (built.isEmpty) return;
-          final position = Scrollable.of(_dayKeys[built.first]!.currentContext!)
-              .position;
-          // The newest day is the list's top, toolbar and all.
-          if (target == listed.first) {
-            await _scrollTo(position, position.minScrollExtent);
-            return;
+          if (built.isNotEmpty) {
+            position = Scrollable.of(_dayKeys[built.first]!.currentContext!)
+                .position;
+            // The newest day is the list's top, toolbar and all.
+            if (target == listed.first) {
+              await _scrollTo(position, position.minScrollExtent);
+              return;
+            }
+            if (_dayKeys[target]?.currentContext != null) {
+              await _settle(position, _dayKeys[target]!);
+              return;
+            }
+            // Newest first: an older day lies further down.
+            isBelow = target.isBefore(built.last);
           }
-          if (_dayKeys[target]?.currentContext != null) {
-            await _settle(position, _dayKeys[target]!);
-            return;
-          }
-          // Newest first: an older day lies further down.
-          final isBelow = target.isBefore(built.last);
+          // A day taller than the screen can leave no header built after a
+          // step: the way on is the way it was going.
+          if (position == null || isBelow == null) return;
           final next =
               position.pixels +
               (isBelow ? 1 : -1) * position.viewportDimension * 0.8;
@@ -367,9 +373,6 @@ class _LogScreenState extends State<LogScreen> {
       // month view: its month pinned as a title, and the year to reach
       // other months from.
       title: null,
-      compactBar: isTimeline
-          ? CompactBarBehavior.none
-          : CompactBarBehavior.pinned,
       // The calendar's grid starts right under its pinned weekdays; held,
       // the grid is not in the list, which keeps the gap under it.
       hasTopGap: isTimeline || calendarStays,

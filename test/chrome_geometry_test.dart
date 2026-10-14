@@ -12,6 +12,7 @@ import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/shell/bottom_chrome/app_bottom_chrome.dart';
 import 'package:mishirube/features/shell/bottom_chrome/split_dock.dart';
 import 'package:mishirube/features/me/me_screen.dart';
+import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
@@ -291,15 +292,22 @@ void main() {
         );
       }
 
-      // Without a compact bar the pinned strip takes the toolbar's place.
+      // The log keeps its bar as 睡眠 and the others do, its week strip
+      // right under it, in the same place.
+      Future<double> stripTop() async {
+        for (var i = 0; i < 3; i++) {
+          await _dragAndSettle(tester, 600);
+        }
+        return tester.getRect(find.byType(WeekDayStrip)).top;
+      }
+
       store.selectTab(HomeTab.log);
       await tester.pump(_settle);
-      for (var i = 0; i < 3; i++) {
-        await _dragAndSettle(tester, 600);
-      }
-      final strip = tester.getRect(find.byType(WeekDayStrip));
-      expect(strip.top, greaterThanOrEqualTo(phoneTopInset));
-      expect(strip.top, lessThan(phoneTopInset + toolbar.controlRowHeight));
+      final logStrip = await stripTop();
+      await disposeTree(tester);
+
+      await pumpScreen(tester, const SleepScreen(), store: store);
+      expect(logStrip, await stripTop(), reason: 'the log and 睡眠');
       await disposeTree(tester);
 
       await pumpScreen(tester, const WeightEntryScreen(), store: store);
