@@ -68,30 +68,36 @@ class SegmentedGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget cell(int row, int column, int columns) => _SegmentCell(
+      segment: rows[row][column],
+      radius: segmentRadius(
+        row: row,
+        rows: rows.length,
+        column: column,
+        columns: columns,
+      ),
+    );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: segmentGap,
       children: [
         for (final (row, segments) in rows.indexed)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: segmentGap,
-              children: [
-                for (final (column, segment) in segments.indexed)
-                  Expanded(
-                    child: _SegmentCell(
-                      segment: segment,
-                      radius: segmentRadius(
-                        row: row,
-                        rows: rows.length,
-                        column: column,
-                        columns: segments.length,
-                      ),
-                    ),
-                  ),
-              ],
+          // Side by side they are as tall as the tallest; alone, nothing
+          // needs measuring, and what a segment holds may not be able to
+          // be (a layout builder).
+          if (segments.length == 1)
+            cell(row, 0, 1)
+          else
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: segmentGap,
+                children: [
+                  for (var column = 0; column < segments.length; column++)
+                    Expanded(child: cell(row, column, segments.length)),
+                ],
+              ),
             ),
-          ),
       ],
     );
   }

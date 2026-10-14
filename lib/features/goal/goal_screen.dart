@@ -145,7 +145,7 @@ class GoalScreen extends StatelessWidget {
                 [
                   Segment(
                     child: Padding(
-                      padding: segmentPadding,
+                      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                       child: _GoalMonth(
                         month: today,
                         today: today,
@@ -203,8 +203,8 @@ class GoalScreen extends StatelessWidget {
   }
 }
 
-/// The month with a dot on the days something was done, and how each
-/// week ended up in a column of its own.
+/// The month with a dot on the days something was done, as the log's
+/// months are, and how each week ended up in a column of its own.
 class _GoalMonth extends StatelessWidget {
   const _GoalMonth({
     required this.month,
@@ -216,6 +216,12 @@ class _GoalMonth extends StatelessWidget {
   final DateTime today;
   final GoalOverview overview;
 
+  /// Weeks of the goal run Monday to Sunday, whatever the device starts
+  /// its own on.
+  static const _firstWeekday = DateTime.monday;
+  static const _resultWidth = 56.0;
+  static const _insets = EdgeInsets.symmetric(horizontal: AppSpacing.xs);
+
   WeekProgress? _weekOf(DateTime start) {
     for (final week in overview.weeks) {
       if (week.start == start) return week;
@@ -225,88 +231,35 @@ class _GoalMonth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MonthGrid(
-      month: month,
-      dayBuilder: (context, day) {
-        final date = DateTime(month.year, month.month, day);
-        return _DayCell(
-          day: day,
-          isActive: overview.activeDays.contains(date),
-          isToday: date == DateTime(today.year, today.month, today.day),
-          isFuture: date.isAfter(today),
-        );
-      },
-      weekTrailingBuilder: (context, start) =>
-          _WeekResult(week: _weekOf(start)),
-    );
-  }
-}
-
-const _cellMinHeight = 44.0;
-const _dotSize = 8.0;
-
-class _DayCell extends StatelessWidget {
-  const _DayCell({
-    required this.day,
-    required this.isActive,
-    required this.isToday,
-    required this.isFuture,
-  });
-
-  final int day;
-  final bool isActive;
-  final bool isToday;
-  final bool isFuture;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: isActive
-          ? context.l10n.goalDayActive(day: day)
-          : context.l10n.goalDayLabel(day: day),
-      excludeSemantics: true,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: _cellMinHeight),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: isToday ? Border.all(color: AppColors.training) : null,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Text(
-                  '$day',
-                  style: TextStyle(
-                    color: isFuture
-                        ? AppColors.textTertiary
-                        : AppColors.textPrimary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 3),
-            // Always as tall as a dot, so the dates line up.
-            SizedBox(
-              height: _dotSize,
-              width: _dotSize,
-              child: isActive
-                  ? const DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.training,
-                        shape: BoxShape.circle,
-                      ),
-                    )
-                  : null,
-            ),
-          ],
+    final first = DateTime(month.year, month.month);
+    final days = DateTime(month.year, month.month + 1, 0).day;
+    return Column(
+      children: [
+        const WeekdayHeader(
+          firstWeekday: _firstWeekday,
+          trailingWidth: _resultWidth,
+          sideInsets: _insets,
         ),
-      ),
+        MonthBlock(
+          month: first,
+          firstWeekday: _firstWeekday,
+          categories: {
+            for (var day = 1; day <= days; day++)
+              if (overview.activeDays.contains(
+                DateTime(month.year, month.month, day),
+              ))
+                day: const [RecordCategory.training],
+          },
+          today: DateTime(today.year, today.month, today.day),
+          showsTitle: false,
+          trailingWidth: _resultWidth,
+          weekTrailing: (context, start) => _WeekResult(week: _weekOf(start)),
+          semanticLabelOf: (context, date, categories) => categories.isEmpty
+              ? context.l10n.goalDayLabel(day: date.day)
+              : context.l10n.goalDayActive(day: date.day),
+          sideInsets: _insets,
+        ),
+      ],
     );
   }
 }
@@ -338,21 +291,26 @@ class _WeekResult extends StatelessWidget {
               target: week.targetDays,
             ),
       excludeSemantics: true,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null)
-            Icon(icon, color: color, size: 18)
-          else
-            const SizedBox(height: 18),
-          const SizedBox(height: 2),
-          Text(
-            week.isPaused
-                ? context.l10n.commonPause
-                : '${week.activeDays}/${week.targetDays}',
-            style: AppTextStyles.caption.copyWith(color: color),
-          ),
-        ],
+      // A week is a row of set height: the result shrinks to it rather than
+      // overflows at a large text size.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null)
+              Icon(icon, color: color, size: 18)
+            else
+              const SizedBox(height: 18),
+            const SizedBox(height: 2),
+            Text(
+              week.isPaused
+                  ? context.l10n.commonPause
+                  : '${week.activeDays}/${week.targetDays}',
+              style: AppTextStyles.caption.copyWith(color: color),
+            ),
+          ],
+        ),
       ),
     );
   }
