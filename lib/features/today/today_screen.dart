@@ -340,17 +340,23 @@ class TodayScreen extends StatelessWidget {
         orEmpty(section, AppColors.caffeine, [
           if (today.caffeine case (:final curve, :final nowIndex))
             Gutter(
-              child: CaffeineCard(
-                curve: curve,
-                nowIndex: nowIndex,
-                onTap: () => pushPage(context, const CaffeineScreen()),
-                action: switch (CaffeineActivityScope.maybeOf(context)) {
+              child: CategoryGroup(
+                label: context.l10n.nutrientCaffeine,
+                color: AppColors.caffeine,
+                tag: switch (CaffeineActivityScope.maybeOf(context)) {
                   final liveActivity? when liveActivity.isShowing => ChipButton(
                     label: context.l10n.endLiveActivity,
                     onTap: liveActivity.end,
                   ),
                   _ => null,
                 },
+                children: [
+                  CaffeineCard(
+                    curve: curve,
+                    nowIndex: nowIndex,
+                    onTap: () => pushPage(context, const CaffeineScreen()),
+                  ),
+                ],
               ),
             ),
         ]),
@@ -401,20 +407,42 @@ class TodayScreen extends StatelessWidget {
         AppColors.wellness,
         [
           if (store.todayInsights.isNotEmpty)
-            PageSection(
-              label: TodaySection.insights.labelIn(context.l10n),
-              children: [
-                for (final insight in store.todayInsights)
-                  Gutter(
-                    child: InsightCard(
-                      insight: insight,
-                      onTap: switch (insightDestination(insight)) {
-                        final page? => () => pushPage(context, page),
-                        null => null,
-                      },
-                    ),
+            Gutter(
+              child: CategoryGroup(
+                label: TodaySection.insights.labelIn(context.l10n),
+                color: AppColors.wellness,
+                children: [
+                  SegmentedGroup(
+                    rows: [
+                      for (final insight in store.todayInsights)
+                        [
+                          Segment(
+                            onTap: switch (insightDestination(insight)) {
+                              final page? => () => pushPage(context, page),
+                              null => null,
+                            },
+                            child: Padding(
+                              padding: segmentPadding,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    insight.statement,
+                                    style: AppTextStyles.body.copyWith(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  TagWrap(labels: insight.evidence),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                    ],
                   ),
-              ],
+                ],
+              ),
             ),
         ],
       ),
@@ -559,21 +587,22 @@ class TodayScreen extends StatelessWidget {
     final now = store.now();
     return [
       Gutter(
-        child: SectionLabel(
-          TodaySection.week.labelIn(context.l10n),
-          trailing: Text(
+        child: CategoryGroup(
+          label: TodaySection.week.labelIn(context.l10n),
+          color: AppColors.training,
+          tag: Text(
             target == null
                 ? context.l10n.daysCount(count: active)
                 : context.l10n.daysFraction(active: active, target: target),
             style: AppTextStyles.caption,
           ),
-        ),
-      ),
-      Gutter(
-        child: WeekStrip(
-          days: days,
-          today: DateTime(now.year, now.month, now.day),
-          onTap: () => pushPage(context, const GoalScreen()),
+          children: [
+            WeekStrip(
+              days: days,
+              today: DateTime(now.year, now.month, now.day),
+              onTap: () => pushPage(context, const GoalScreen()),
+            ),
+          ],
         ),
       ),
     ];
@@ -588,38 +617,49 @@ class TodayScreen extends StatelessWidget {
     final records = all.skip(all.length > shown ? all.length - shown : 0);
     return [
       Gutter(
-        child: SectionLabel(
-          TodaySection.records.labelIn(context.l10n, isToday: today.isToday),
-          trailing: all.length > shown
+        child: CategoryGroup(
+          label: TodaySection.records.labelIn(
+            context.l10n,
+            isToday: today.isToday,
+          ),
+          color: AppColors.textSecondary,
+          tag: all.length > shown
               ? LinkText(
                   label: context.l10n.allCount(count: all.length),
                   onTap: () =>
                       AppStoreScope.read(context).selectTab(HomeTab.log),
                 )
               : null,
-        ),
-      ),
-      Gutter(
-        child: GroupedCard(
           children: [
-            for (final entry in records)
-              NavRow(
-                leading: AccentBar(color: entry.category.color, height: 28),
-                title: entry.title,
-                subtitle: [
-                  entry.timeLabel,
-                  if (entry.detail.isNotEmpty) entry.detail,
-                ].join(' · '),
-                onTap: switch (timelineDestination(
-                  entry,
-                  isSleep: today.isSleep,
-                  mealById: today.backend.nutrition.mealById,
-                  mealGroup: today.backend.nutrition.mealGroup,
-                )) {
-                  final page? => () => pushPage(context, page),
-                  null => null,
-                },
-              ),
+            SegmentedGroup(
+              rows: [
+                for (final entry in records)
+                  [
+                    Segment(
+                      onTap: switch (timelineDestination(
+                        entry,
+                        isSleep: today.isSleep,
+                        mealById: today.backend.nutrition.mealById,
+                        mealGroup: today.backend.nutrition.mealGroup,
+                      )) {
+                        final page? => () => pushPage(context, page),
+                        null => null,
+                      },
+                      child: SegmentRow(
+                        leading: AccentBar(
+                          color: entry.category.color,
+                          height: 28,
+                        ),
+                        title: entry.title,
+                        caption: [
+                          entry.timeLabel,
+                          if (entry.detail.isNotEmpty) entry.detail,
+                        ].join(' · '),
+                      ),
+                    ),
+                  ],
+              ],
+            ),
           ],
         ),
       ),

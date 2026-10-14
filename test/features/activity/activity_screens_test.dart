@@ -222,6 +222,31 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('Today\'s vitals count what the card leaves out, and open them', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = storeWith(
+      (today) => [
+        daily(ActivityMetric.restingHeartRate, today, 58),
+        daily(ActivityMetric.oxygenSaturation, today, 0.97),
+        daily(ActivityMetric.bodyTemperature, today, 36.6),
+        daily(ActivityMetric.respiratoryRate, today, 15),
+      ],
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+    await tester.scrollUntilVisible(
+      find.byType(VitalsCard),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    await tester.tap(find.text('另 1 項'));
+    await tester.pumpAndSettle();
+    expect(find.byType(VitalsScreen), findsOneWidget);
+    await disposeTree(tester);
+  });
+
   testWidgets('mindful minutes are counted like exercise minutes', (
     tester,
   ) async {

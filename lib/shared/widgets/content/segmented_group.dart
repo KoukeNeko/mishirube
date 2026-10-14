@@ -57,7 +57,7 @@ class Segment {
   final String? semanticLabel;
 }
 
-/// A group of figures as one block cut into parts: rows of one or two
+/// A group of figures as one block cut into parts: rows of one or more
 /// segments, [segmentGap] apart, the group's corners round and the ones
 /// between its parts tight. A segment that does something gives under
 /// the finger: the tight corners open to the round ones, on a spring.
@@ -113,7 +113,7 @@ class _SegmentCellState extends State<_SegmentCell>
   late final _held = AnimationController.unbounded(vsync: this);
 
   void _setHeld(bool isHeld) {
-    if (widget.segment.onTap == null) return;
+    if (!mounted) return;
     final target = isHeld ? 1.0 : 0.0;
     if (prefersReducedMotion(context)) {
       _held.value = target;
@@ -156,41 +156,45 @@ class _SegmentCellState extends State<_SegmentCell>
         segment.child,
       ],
     );
+    final cell = AnimatedBuilder(
+      animation: _held,
+      child: content,
+      builder: (context, child) {
+        final shape = RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: _opened(rest.topLeft, _held.value),
+            topRight: _opened(rest.topRight, _held.value),
+            bottomLeft: _opened(rest.bottomLeft, _held.value),
+            bottomRight: _opened(rest.bottomRight, _held.value),
+          ),
+        );
+        return Material(
+          color: segment.surface,
+          shape: shape,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            customBorder: shape,
+            onTap: segment.onTap,
+            // The ink's own highlight, which a scroll that wins the touch
+            // cancels: a page dragged by its segments does not flex them.
+            onHighlightChanged: _setHeld,
+            child: child,
+          ),
+        );
+      },
+    );
+    // One node that carries the label and the tap, not a nameless button
+    // with the label beside it.
     if (segment.semanticLabel case final label?) {
-      content = Semantics(
+      return Semantics(
         container: true,
         label: label,
-        child: ExcludeSemantics(child: content),
+        button: segment.onTap != null,
+        onTap: segment.onTap,
+        excludeSemantics: true,
+        child: cell,
       );
     }
-    return Listener(
-      onPointerDown: (_) => _setHeld(true),
-      onPointerUp: (_) => _setHeld(false),
-      onPointerCancel: (_) => _setHeld(false),
-      child: AnimatedBuilder(
-        animation: _held,
-        child: content,
-        builder: (context, child) {
-          final shape = RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: _opened(rest.topLeft, _held.value),
-              topRight: _opened(rest.topRight, _held.value),
-              bottomLeft: _opened(rest.bottomLeft, _held.value),
-              bottomRight: _opened(rest.bottomRight, _held.value),
-            ),
-          );
-          return Material(
-            color: segment.surface,
-            shape: shape,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              customBorder: shape,
-              onTap: segment.onTap,
-              child: child,
-            ),
-          );
-        },
-      ),
-    );
+    return cell;
   }
 }

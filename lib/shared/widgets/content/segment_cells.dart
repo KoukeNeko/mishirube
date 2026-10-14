@@ -5,7 +5,7 @@ import '../../motion.dart';
 import 'stats.dart';
 
 /// The room a segment's content keeps on every side.
-const _cellPadding = EdgeInsets.symmetric(
+const segmentPadding = EdgeInsets.symmetric(
   horizontal: AppSpacing.md,
   vertical: AppSpacing.sm,
 );
@@ -47,7 +47,7 @@ class MetricValue extends StatelessWidget {
   }
 }
 
-/// A figure of a segmented group, half a row wide: a mark and the name,
+/// A figure of a segmented group, a part of a row: a mark and the name,
 /// the value under them, and a line of what it is measured against.
 /// Without a value the mark goes quiet and the value says [placeholder].
 class SegmentStat extends StatelessWidget {
@@ -55,8 +55,8 @@ class SegmentStat extends StatelessWidget {
     super.key,
     required this.label,
     required this.color,
-    required this.mark,
     required this.placeholder,
+    this.mark,
     this.value,
     this.unit,
     this.caption,
@@ -69,8 +69,9 @@ class SegmentStat extends StatelessWidget {
   /// The area's colour, which the mark and the bar are drawn in.
   final Color color;
 
-  /// The mark in front of the name, given the colour to draw it in.
-  final Widget Function(Color tint) mark;
+  /// The mark in front of the name, given the colour to draw it in; the
+  /// name stands alone without one.
+  final Widget Function(Color tint)? mark;
   final String placeholder;
   final String? value;
   final String? unit;
@@ -87,7 +88,7 @@ class SegmentStat extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 56),
       child: Padding(
-        padding: _cellPadding,
+        padding: segmentPadding,
         child: Column(
           // From the top, so the names of two segments side by side line up
           // whatever each has under it.
@@ -96,7 +97,8 @@ class SegmentStat extends StatelessWidget {
             Row(
               spacing: AppSpacing.xs,
               children: [
-                mark(value == null ? AppColors.textTertiary : color),
+                if (mark case final mark?)
+                  mark(value == null ? AppColors.textTertiary : color),
                 Expanded(
                   child: Text(
                     label,
@@ -139,6 +141,88 @@ class SegmentStat extends StatelessWidget {
   }
 }
 
+/// A part of a segmented group the width of a row: [title] with a line
+/// under it, then [trailing] (a small chart) and the [value] at the end.
+/// [leading] stands before the title.
+class SegmentRow extends StatelessWidget {
+  const SegmentRow({
+    super.key,
+    required this.title,
+    this.caption,
+    this.value,
+    this.leading,
+    this.trailing,
+  });
+
+  final String title;
+  final String? caption;
+  final String? value;
+  final Widget? leading;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Padding(
+        padding: segmentPadding,
+        child: Center(
+          child: Row(
+            spacing: AppSpacing.sm,
+            children: [
+              ?leading,
+              // The end sits across from the title; with no room for both,
+              // at a large text size, it goes under it instead.
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body,
+                        ),
+                        if (caption case final caption?)
+                          Text(
+                            caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption,
+                          ),
+                      ],
+                    ),
+                    if (trailing != null || value != null)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: AppSpacing.sm,
+                          children: [
+                            ?trailing,
+                            if (value case final value?)
+                              Text(value, style: AppTextStyles.itemTitle),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The one figure of a group that matters most: its name small, the value
 /// large, and as a bar how far it is towards its target.
 class SegmentHero extends StatelessWidget {
@@ -149,6 +233,7 @@ class SegmentHero extends StatelessWidget {
     required this.value,
     this.unit,
     this.progress,
+    this.chart,
   });
 
   final String label;
@@ -159,10 +244,13 @@ class SegmentHero extends StatelessWidget {
   /// 0–1; null for a figure with no target, which has no bar.
   final double? progress;
 
+  /// Under the value: how the figure came about.
+  final Widget? chart;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: _cellPadding,
+      padding: segmentPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -173,6 +261,10 @@ class SegmentHero extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(fontSize: 12),
           ),
           MetricValue(value: value, unit: unit, size: 44),
+          if (chart case final chart?) ...[
+            const SizedBox(height: AppSpacing.sm),
+            chart,
+          ],
           if (progress case final progress?) ...[
             const SizedBox(height: AppSpacing.sm),
             ThickProgress(progress: progress, color: color),

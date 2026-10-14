@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
+import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/journal_repository.dart';
@@ -8,6 +9,7 @@ import 'package:mishirube/features/bath/bath_screen.dart';
 import 'package:mishirube/features/caffeine/caffeine_card.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/body/body_screen.dart';
+import 'package:mishirube/features/goal/goal_screen.dart';
 import 'package:mishirube/features/nutrition/daily_nutrition_screen.dart';
 import 'package:mishirube/features/nutrition/meal_detail_screen.dart';
 import 'package:mishirube/features/nutrition/meal_group_screen.dart';
@@ -506,6 +508,68 @@ void main() {
 
     expect(find.byType(CompletedWorkoutCard), findsOneWidget);
     await disposeTree(tester);
+  });
+
+  testWidgets('the week is a segment to a day, and opens the goal', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay()
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final week = find.byType(WeekStrip);
+    await tester.scrollUntilVisible(week, 200, scrollable: pageScroll);
+    expect(
+      find.descendant(of: week, matching: find.byType(InkWell)),
+      findsNWidgets(7),
+    );
+    expect(
+      find.descendant(of: week, matching: find.text('${store.now().day}')),
+      findsOneWidget,
+      reason: 'today, by its date',
+    );
+
+    // Clear of the dock, which the strip may sit under at the page's end.
+    await tester.drag(pageScroll, const Offset(0, -200));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(of: week, matching: find.byType(InkWell)).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(GoalScreen), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets('a category is a heading, and shortens beside its tag', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: Scaffold(
+          body: SizedBox(
+            width: 200,
+            child: CategoryGroup(
+              label: '一個很長很長很長很長很長的分類名稱',
+              color: AppColors.nutrition,
+              tag: const TagChip(label: '含估計值', tone: TagTone.nutrition),
+              children: const [],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull, reason: 'the name gives way');
+    expect(
+      tester.getSemantics(find.textContaining('一個很長')).flagsCollection.isHeader,
+      isTrue,
+    );
+    semantics.dispose();
   });
 
   /// Picks [day] on the week strip.

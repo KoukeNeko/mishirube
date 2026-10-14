@@ -8,10 +8,9 @@ import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
 
-const _weekDotSize = 28.0;
-
-/// The week, Monday to Sunday: a check on each day something was trained
-/// or done, today marked with its date, days to come left open.
+/// The week, Monday to Sunday, a segment to a day: a check on each day
+/// something was trained or done, today marked with its date, days to
+/// come quiet.
 class WeekStrip extends StatelessWidget {
   const WeekStrip({
     super.key,
@@ -27,45 +26,37 @@ class WeekStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      child: Row(
-        children: [
+    return SegmentedGroup(
+      rows: [
+        [
           for (final (day, isActive) in days)
-            Expanded(
-              child: Semantics(
-                label: isActive
-                    ? context.l10n.weekdayActive(
-                        weekday: context.dates.weekdayName(day),
-                      )
-                    : context.dates.weekdayName(day),
-                excludeSemantics: true,
-                child: Column(
-                  children: [
-                    Text(
-                      context.dates.weekday(day),
-                      style: AppTextStyles.caption,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    _WeekDot(
-                      day: day,
-                      isToday: day == today,
-                      isActive: isActive,
-                      isFuture: day.isAfter(today),
-                    ),
-                  ],
-                ),
+            Segment(
+              onTap: onTap,
+              surface: day == today
+                  ? AppColors.training
+                  : isActive
+                  ? AppColors.trainingSurface
+                  : AppColors.surface,
+              semanticLabel: isActive
+                  ? context.l10n.weekdayActive(
+                      weekday: context.dates.weekdayName(day),
+                    )
+                  : context.dates.weekdayName(day),
+              child: _WeekDay(
+                day: day,
+                isToday: day == today,
+                isActive: isActive,
+                isFuture: day.isAfter(today),
               ),
             ),
         ],
-      ),
+      ],
     );
   }
 }
 
-class _WeekDot extends StatelessWidget {
-  const _WeekDot({
+class _WeekDay extends StatelessWidget {
+  const _WeekDay({
     required this.day,
     required this.isToday,
     required this.isActive,
@@ -79,40 +70,41 @@ class _WeekDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: _weekDotSize,
-      height: _weekDotSize,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isToday
-            ? AppColors.training
-            : isActive
-            ? AppColors.trainingSurface
-            : isFuture
-            ? Colors.transparent
-            : AppColors.surfaceRaised,
-        border: Border.all(
-          color: isActive
-              ? AppColors.trainingDim
-              : isFuture
-              ? AppColors.outline
-              : Colors.transparent,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Column(
+        children: [
+          Text(
+            context.dates.weekday(day),
+            style: AppTextStyles.caption.copyWith(
+              color: isToday
+                  ? AppColors.onTraining
+                  : isFuture
+                  ? AppColors.textTertiary
+                  : null,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          SizedBox(
+            height: 20,
+            child: Center(
+              child: isToday
+                  ? Text(
+                      '${day.day}',
+                      style: const TextStyle(
+                        color: AppColors.onTraining,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
+                    )
+                  : isActive
+                  ? const Icon(Icons.check, size: 16, color: AppColors.training)
+                  : null,
+            ),
+          ),
+        ],
       ),
-      child: isToday
-          ? Text(
-              '${day.day}',
-              style: const TextStyle(
-                color: AppColors.onTraining,
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                fontFeatures: [FontFeature.tabularFigures()],
-              ),
-            )
-          : isActive
-          ? const Icon(Icons.check, size: 16, color: AppColors.training)
-          : null,
     );
   }
 }
@@ -159,22 +151,38 @@ class NextMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      tone: CardTone.nutrition,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CardEyebrow(label: context.l10n.nextStep, color: AppColors.nutrition),
-          const SizedBox(height: AppSpacing.xs),
-          Text(mealType.labelIn(context.l10n), style: AppTextStyles.pageTitle),
-          const SizedBox(height: AppSpacing.md),
-          NutritionButton(
-            label: context.l10n.logItem(item: mealType.labelIn(context.l10n)),
-            icon: Icons.search,
-            onPressed: onLog,
+    return SegmentedGroup(
+      rows: [
+        [
+          Segment(
+            child: Padding(
+              padding: segmentPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CardEyebrow(
+                    label: context.l10n.nextStep,
+                    color: AppColors.nutrition,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    mealType.labelIn(context.l10n),
+                    style: AppTextStyles.pageTitle,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  NutritionButton(
+                    label: context.l10n.logItem(
+                      item: mealType.labelIn(context.l10n),
+                    ),
+                    icon: Icons.search,
+                    onPressed: onLog,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -332,8 +340,17 @@ class CategoryGroup extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
           child: Row(
             children: [
-              CategoryLabel(label: label, color: color),
-              const Spacer(),
+              // A heading to a screen reader, as a section label is. It
+              // takes the room the tag leaves, so a long name shortens.
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Semantics(
+                    header: true,
+                    child: CategoryLabel(label: label, color: color),
+                  ),
+                ),
+              ),
               ?tag,
             ],
           ),
@@ -368,7 +385,8 @@ String? _leftOut(
   return l10n.partialMacros(macros: joinList(l10n, macros));
 }
 
-/// Today's finished workout, once there is nothing left to start.
+/// Today's finished workout, once there is nothing left to start: how
+/// long it took, and under it the sets, the exercises and the records.
 class CompletedWorkoutCard extends StatelessWidget {
   const CompletedWorkoutCard({
     super.key,
@@ -382,56 +400,51 @@ class CompletedWorkoutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = workout;
-    final duration = formatClock(session.elapsedAt(session.finishedAt!));
-    return AppCard(
+    Segment stat(String label, int value) => Segment(
       onTap: onTap,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.check_circle, color: AppColors.training),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  context.l10n.routineCompleted(name: session.routineName),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.itemTitle,
+      child: SegmentStat(
+        label: label,
+        color: AppColors.training,
+        placeholder: '—',
+        value: '$value',
+      ),
+    );
+    return CategoryGroup(
+      label: context.l10n.moduleTraining,
+      color: AppColors.training,
+      children: [
+        SegmentedGroup(
+          rows: [
+            [
+              Segment(
+                onTap: onTap,
+                surface: AppColors.surfaceRaised,
+                child: SegmentHero(
+                  label: context.l10n.routineCompleted(
+                    name: session.routineName,
+                  ),
+                  color: AppColors.training,
+                  value: formatClock(session.elapsedAt(session.finishedAt!)),
                 ),
               ),
-              Text(
-                duration,
-                style: AppTextStyles.bigNumber.copyWith(fontSize: 22),
+            ],
+            [
+              stat(context.l10n.totalSets, session.completedSets),
+              stat(context.l10n.exercisesLabel, session.exercises.length),
+              stat(
+                context.l10n.personalRecords,
+                AppStoreScope.of(context).workoutReview(session).records,
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          StatRow(
-            stats: [
-              StatBlock(
-                value: '${session.completedSets}',
-                label: context.l10n.totalSets,
-              ),
-              StatBlock(
-                value: '${session.exercises.length}',
-                label: context.l10n.exercisesLabel,
-              ),
-              StatBlock(
-                value:
-                    '${AppStoreScope.of(context).workoutReview(session).records}',
-                label: context.l10n.personalRecords,
-                valueColor: AppColors.training,
-              ),
-            ],
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-/// Today's movement as the health platform counted it: the lead figure,
-/// the other counted ones, and the lead hour by hour.
+/// Today's movement as the health platform counted it: the lead figure
+/// hour by hour, and the other counted ones under it two by two.
 class TodayActivityCard extends StatelessWidget {
   const TodayActivityCard({
     super.key,
@@ -448,42 +461,56 @@ class TodayActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final others = [
       for (final metric in ActivityMetric.headline)
         if (metric != lead)
           if (totals[metric] case final value?)
-            withUnit(metric.format(value), metric.unitIn(context.l10n)),
-    ];
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CategoryLabel(
-            label: context.l10n.dailyActivityTitle,
-            color: AppColors.activity,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          ValueWithUnit(
-            value: lead.format(totals[lead]!),
-            unit: lead.unitIn(context.l10n),
-            style: AppTextStyles.bigNumber,
-          ),
-          if (others.isNotEmpty)
-            Text(others.join(' · '), style: AppTextStyles.caption),
-          const SizedBox(height: AppSpacing.sm),
-          ExcludeSemantics(
-            child: MiniBarChart(
-              bars: [for (final value in hours) ('', value.round())],
-              height: 32,
-              showLabels: false,
-              color: AppColors.activity,
-              dimColor: AppColors.activity.withValues(alpha: 0.4),
-              highlightsLast: false,
+            Segment(
+              onTap: onTap,
+              child: SegmentStat(
+                label: metric.labelIn(l10n),
+                color: AppColors.activity,
+                mark: _dot,
+                placeholder: '—',
+                value: metric.format(value),
+                unit: metric.unitIn(l10n),
+              ),
             ),
-          ),
-        ],
-      ),
+    ];
+    return CategoryGroup(
+      label: l10n.dailyActivityTitle,
+      color: AppColors.activity,
+      children: [
+        SegmentedGroup(
+          rows: [
+            [
+              Segment(
+                onTap: onTap,
+                surface: AppColors.surfaceRaised,
+                child: SegmentHero(
+                  label: lead.labelIn(l10n),
+                  color: AppColors.activity,
+                  value: lead.format(totals[lead]!),
+                  unit: lead.unitIn(l10n),
+                  chart: ExcludeSemantics(
+                    child: MiniBarChart(
+                      bars: [for (final value in hours) ('', value.round())],
+                      height: 32,
+                      showLabels: false,
+                      color: AppColors.activity,
+                      dimColor: AppColors.activity.withValues(alpha: 0.4),
+                      highlightsLast: false,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            for (var i = 0; i < others.length; i += 2)
+              others.sublist(i, i + 2 > others.length ? others.length : i + 2),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -540,44 +567,38 @@ class VitalsCard extends StatelessWidget {
             day,
           ),
     ];
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CategoryLabel(label: l10n.vitalsTitle, color: AppColors.heart),
-          for (final (label, value, metric, day) in rows.take(_shown)) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(label, style: AppTextStyles.body),
-                      if (day.isBefore(today))
-                        Text(
-                          context.dates.monthDay(day),
-                          style: AppTextStyles.caption,
-                        ),
-                    ],
+    return CategoryGroup(
+      label: l10n.vitalsTitle,
+      color: AppColors.heart,
+      children: [
+        SegmentedGroup(
+          rows: [
+            for (final (label, value, metric, day) in rows.take(_shown))
+              [
+                Segment(
+                  onTap: onTap,
+                  child: SegmentRow(
+                    title: label,
+                    caption: day.isBefore(today)
+                        ? context.dates.monthDay(day)
+                        : null,
+                    trailing: weekOf(metric, day),
+                    value: value,
                   ),
                 ),
-                weekOf(metric, day),
-                const SizedBox(width: AppSpacing.sm),
-                Text(value, style: AppTextStyles.itemTitle),
               ],
-            ),
+            if (rows.length > _shown)
+              [
+                Segment(
+                  onTap: onTap,
+                  child: SegmentRow(
+                    title: l10n.moreItemsCount(count: rows.length - _shown),
+                  ),
+                ),
+              ],
           ],
-          if (rows.length > _shown) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              l10n.moreItemsCount(count: rows.length - _shown),
-              style: AppTextStyles.caption,
-            ),
-          ],
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -598,14 +619,20 @@ class EmptySectionCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    onTap: onTap,
-    child: Row(
-      children: [
-        CategoryLabel(label: label, color: color),
-        const Spacer(),
-        Text(context.l10n.noEntriesShort, style: AppTextStyles.caption),
+  Widget build(BuildContext context) => SegmentedGroup(
+    rows: [
+      [
+        Segment(
+          onTap: onTap,
+          child: SegmentStat(
+            label: label,
+            color: color,
+            // The section keeps its colour though it has no figure.
+            mark: (_) => _dot(color),
+            placeholder: context.l10n.noEntriesShort,
+          ),
+        ),
       ],
-    ),
+    ],
   );
 }

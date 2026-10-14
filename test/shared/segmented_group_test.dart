@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/theme.dart';
 import 'package:mishirube/shared/widgets/widgets.dart';
@@ -90,6 +91,144 @@ void main() {
       expect(taps, 1, reason: 'nothing to do, nothing to open');
     },
   );
+
+  group('a held segment', () {
+    /// The right corner of the first of two segments side by side, which is
+    /// tight at rest.
+    double innerCorner(WidgetTester tester) {
+      final material = tester.widget<Material>(
+        find
+            .ancestor(of: find.text('a'), matching: find.byType(Material))
+            .first,
+      );
+      final shape = material.shape! as RoundedRectangleBorder;
+      return (shape.borderRadius as BorderRadius).topRight.x;
+    }
+
+    Widget group({required Widget Function(Widget) around}) => MaterialApp(
+      theme: buildAppTheme(),
+      home: Scaffold(
+        body: around(
+          SegmentedGroup(
+            rows: [
+              [
+                Segment(
+                  onTap: () {},
+                  child: const SizedBox(height: 56, child: Text('a')),
+                ),
+                Segment(
+                  onTap: () {},
+                  child: const SizedBox(height: 56, child: Text('b')),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+
+    testWidgets('opens its tight corners, and closes them when let go', (
+      tester,
+    ) async {
+      await tester.pumpWidget(group(around: (child) => child));
+      expect(innerCorner(tester), segmentInnerRadius);
+
+      final touch = await tester.startGesture(tester.getCenter(find.text('a')));
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(innerCorner(tester), closeTo(segmentOuterRadius, 0.5));
+
+      await touch.up();
+      await tester.pumpAndSettle();
+      expect(innerCorner(tester), closeTo(segmentInnerRadius, 0.01));
+    });
+
+    testWidgets('stays as it is when the touch becomes a scroll', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        group(around: (child) => ListView(children: [child])),
+      );
+      final touch = await tester.startGesture(tester.getCenter(find.text('a')));
+      await touch.moveBy(const Offset(0, -80));
+      // The first frame only starts a spring, so there are two.
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(innerCorner(tester), closeTo(segmentInnerRadius, 0.01));
+      await touch.up();
+      await tester.pumpAndSettle();
+    });
+  });
+
+  testWidgets('a labelled segment is one button that carries its label', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: Scaffold(
+          body: SegmentedGroup(
+            rows: [
+              [
+                Segment(
+                  onTap: () {},
+                  semanticLabel: '週一，有紀錄',
+                  child: const SizedBox(height: 56, child: Text('一')),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final node = tester.getSemantics(find.bySemanticsLabel('週一，有紀錄'));
+    expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+    expect(
+      find.semantics.byAction(SemanticsAction.tap),
+      findsOneWidget,
+      reason: 'no nameless button beside the label',
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('a row keeps its figure on the row at a large text size', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(2.4)),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: SizedBox(
+            width: 320,
+            child: SegmentedGroup(
+              rows: [
+                [
+                  Segment(
+                    child: SegmentRow(
+                      title: '血壓',
+                      caption: '10 月 9 日',
+                      trailing: const SizedBox(width: 72, height: 24),
+                      value: '118/76 mmHg',
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull, reason: 'it shrinks, not overflows');
+    expect(find.text('118/76 mmHg'), findsOneWidget);
+  });
 
   testWidgets('a figure without a value says so and draws no bar', (
     tester,
