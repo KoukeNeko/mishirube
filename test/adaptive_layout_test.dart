@@ -99,7 +99,7 @@ WindowCase _galaxyFold(DisplayFeatureState posture) => WindowCase(
 AppStore _store() => AppStore(clock: FakeClock().now, isOnboarded: true);
 
 Iterable<Rect> _cardRects(WidgetTester tester) => [
-  for (final type in [AppCard, GroupedCard])
+  for (final type in [AppCard, GroupedCard, PillTile])
     for (final element in find.byType(type).evaluate())
       tester.getRect(find.byWidget(element.widget)),
 ];

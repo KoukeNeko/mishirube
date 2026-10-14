@@ -274,6 +274,9 @@ class NextMealCard extends StatelessWidget {
   }
 }
 
+/// The day's eating as pills under its name: the energy against its
+/// target, filled from the left as far as it is reached and no further past
+/// it, then the macros two by two. Any of them opens the day.
 class IntakeCard extends StatelessWidget {
   const IntakeCard({
     super.key,
@@ -281,124 +284,195 @@ class IntakeCard extends StatelessWidget {
     required this.convention,
     required this.kcalTarget,
     required this.onTap,
+    this.extra = const [],
   });
 
   /// What was eaten on the day.
   final DaySummary summary;
   final NutritionConvention convention;
 
-  /// What the day's energy is set against; null draws no bar.
+  /// What the day's energy is set against; null draws no fill.
   final double? kcalTarget;
   final VoidCallback onTap;
 
+  /// What else belongs to eating, under the totals: the water drunk.
+  final List<Widget> extra;
+
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    final target = kcalTarget;
+    final macros = [
+      (
+        convention.proteinName(context.l10n),
+        summary.proteinGrams,
+        summary.mealsWithoutProtein,
+        AppColors.macroProtein,
+      ),
+      (
+        convention.carbName(context.l10n),
+        convention.countsAvailableCarb
+            ? summary.availableCarbGrams
+            : summary.carbGrams,
+        convention.countsAvailableCarb
+            ? summary.mealsWithoutAvailableCarb
+            : summary.mealsWithoutCarb,
+        AppColors.macroCarb,
+      ),
+      (
+        convention.fatName(context.l10n),
+        summary.fatGrams,
+        summary.mealsWithoutFat,
+        AppColors.macroFat,
+      ),
+      (
+        convention.fibreName(context.l10n),
+        summary.fibreGrams,
+        summary.mealsWithoutFibre,
+        AppColors.macroFibre,
+      ),
+    ];
+    return PillGroup(
+      label: context.l10n.moduleNutrition,
+      color: AppColors.nutrition,
+      tag: summary.hasEstimates
+          ? TagChip(
+              label: context.l10n.includesEstimates,
+              tone: TagTone.nutrition,
+            )
+          : null,
+      children: [
+        PillTile(
+          label: context.l10n.mealsCount(count: summary.mealCount),
+          color: AppColors.nutrition,
+          surface: AppColors.nutritionSurface,
+          outline: AppColors.nutritionOutline,
+          leading: const Icon(Icons.restaurant),
+          placeholder: context.l10n.noEntriesShort,
+          value: formatKcal(summary.kcal.roundToDouble()),
+          unit: target == null ? 'kcal' : '/ ${formatKcal(target)} kcal',
+          progress: switch (target) {
+            final target? when target > 0 => summary.kcal / target,
+            _ => null,
+          },
+          onTap: onTap,
+        ),
+        // Two across, one to a row where two do not fit.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 260 ? 2 : 1;
+            final width =
+                (constraints.maxWidth - AppSpacing.xs * (columns - 1)) /
+                columns;
+            return Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (final (label, grams, missing, color) in macros)
+                  SizedBox(
+                    width: width,
+                    child: PillTile(
+                      isCompact: true,
+                      label: label,
+                      color: AppColors.nutrition,
+                      surface: AppColors.nutritionSurface,
+                      outline: AppColors.nutritionOutline,
+                      leading: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const SizedBox.square(dimension: 8),
+                      ),
+                      placeholder: '—',
+                      // Unknown when no record had the figure.
+                      value:
+                          missing == summary.recordCount &&
+                              summary.recordCount > 0
+                          ? null
+                          : formatAmount(grams),
+                      unit: 'g',
+                      onTap: onTap,
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        if (_leftOut(context.l10n, summary, convention) case final note?)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+            child: Text(note, style: AppTextStyles.caption),
+          ),
+        ...extra,
+      ],
+    );
+  }
+}
+
+/// A category of Today: its name under a dot in its colour, and the pills
+/// that belong to it, one gap apart so they read as one group.
+class PillGroup extends StatelessWidget {
+  const PillGroup({
+    super.key,
+    required this.label,
+    required this.color,
+    required this.children,
+    this.tag,
+  });
+
+  final String label;
+  final Color color;
+
+  /// Beside the name, at the end.
+  final Widget? tag;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.xs,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          child: Row(
             children: [
-              CategoryLabel(
-                label: context.l10n.moduleNutrition,
-                color: AppColors.nutrition,
-              ),
+              CategoryLabel(label: label, color: color),
               const Spacer(),
-              if (summary.hasEstimates)
-                TagChip(
-                  label: context.l10n.includesEstimates,
-                  tone: TagTone.nutrition,
-                ),
+              ?tag,
             ],
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text.rich(
-            TextSpan(
+        ),
+        ...children,
+      ],
+    );
+  }
+}
+
+/// Pills side by side, two across and as tall as the tallest; a last one
+/// alone takes the row.
+class PillRow extends StatelessWidget {
+  const PillRow({super.key, required this.tiles});
+
+  final List<Widget> tiles;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      spacing: AppSpacing.xs,
+      children: [
+        for (var row = 0; row < tiles.length; row += 2)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpacing.xs,
               children: [
-                TextSpan(
-                  text: '~${formatKcal(summary.kcal)}',
-                  style: AppTextStyles.bigNumber,
-                ),
-                TextSpan(
-                  text:
-                      '${kcalTarget == null ? '' : ' / ${formatKcal(kcalTarget!)}'}'
-                      ' kcal · ${context.l10n.mealsCount(count: summary.mealCount)}',
-                  style: AppTextStyles.caption.copyWith(fontSize: 15),
-                ),
+                Expanded(child: tiles[row]),
+                if (row + 1 < tiles.length) Expanded(child: tiles[row + 1]),
               ],
             ),
           ),
-          if (kcalTarget case final target? when target > 0) ...[
-            const SizedBox(height: AppSpacing.xs),
-            ProgressLine(
-              progress: summary.kcal / target,
-              color: AppColors.nutrition,
-              height: 6,
-            ),
-          ],
-          const SizedBox(height: AppSpacing.sm),
-          // Four across when the names fit, else two by two: they are
-          // written in full, and 碳水化合物 needs the room.
-          LayoutBuilder(
-            builder: (context, constraints) {
-              const minMacroWidth = 72.0;
-              final columns =
-                  constraints.maxWidth >= 4 * minMacroWidth + 3 * AppSpacing.xs
-                  ? 4
-                  : 2;
-              final width =
-                  (constraints.maxWidth - AppSpacing.xs * (columns - 1)) /
-                  columns;
-              return Wrap(
-                spacing: AppSpacing.xs,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  for (final (label, grams, missing) in [
-                    (
-                      convention.proteinName(context.l10n),
-                      summary.proteinGrams,
-                      summary.mealsWithoutProtein,
-                    ),
-                    (
-                      convention.carbName(context.l10n),
-                      convention.countsAvailableCarb
-                          ? summary.availableCarbGrams
-                          : summary.carbGrams,
-                      convention.countsAvailableCarb
-                          ? summary.mealsWithoutAvailableCarb
-                          : summary.mealsWithoutCarb,
-                    ),
-                    (
-                      convention.fatName(context.l10n),
-                      summary.fatGrams,
-                      summary.mealsWithoutFat,
-                    ),
-                    (
-                      convention.fibreName(context.l10n),
-                      summary.fibreGrams,
-                      summary.mealsWithoutFibre,
-                    ),
-                  ])
-                    SizedBox(
-                      width: width,
-                      child: _MacroTotal(
-                        label: label,
-                        grams: grams,
-                        missing: missing,
-                        records: summary.recordCount,
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-          if (_leftOut(context.l10n, summary, convention) case final note?) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(note, style: AppTextStyles.caption),
-          ],
-        ],
-      ),
+      ],
     );
   }
 }
@@ -425,36 +499,6 @@ String? _leftOut(
   ];
   if (macros.isEmpty) return null;
   return l10n.partialMacros(macros: joinList(l10n, macros));
-}
-
-/// One macro's day total: what the records that carried the figure add
-/// up to, or `—` when none did. Records without it are named under the
-/// totals rather than marked on the number.
-class _MacroTotal extends StatelessWidget {
-  const _MacroTotal({
-    required this.label,
-    required this.grams,
-    required this.missing,
-    required this.records,
-  });
-
-  final String label;
-  final double grams;
-
-  /// Records in the day with no figure for this macro, out of [records].
-  final int missing;
-  final int records;
-
-  @override
-  Widget build(BuildContext context) {
-    final isUnknown = missing == records && records > 0;
-    return StatBlock(
-      value: isUnknown ? '—' : formatAmount(grams),
-      unit: isUnknown ? null : 'g',
-      label: label,
-      valueStyle: AppTextStyles.bigNumber.copyWith(fontSize: 20),
-    );
-  }
 }
 
 /// Today's finished workout, once there is nothing left to start.

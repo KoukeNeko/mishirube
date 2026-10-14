@@ -30,6 +30,11 @@ void main() {
       )
       .first;
 
+  /// The pill for [label], whatever is said after the name.
+  Finder pill(String label) => find.byWidgetPredicate(
+    (widget) => widget is PillTile && widget.label == label,
+  );
+
   /// A store with the demo records hidden: the day as a new user has it.
   AppStore emptyDay() {
     final store = AppStore(clock: FakeClock().now, isOnboarded: true);
@@ -169,8 +174,8 @@ void main() {
       ..dispose();
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    expect(find.text('睡眠'), findsNothing, reason: 'the module is off');
-    expect(find.text('體重'), findsOneWidget);
+    expect(pill('睡眠'), findsNothing, reason: 'the module is off');
+    expect(pill('體重'), findsOneWidget);
     expect(find.text('今天的紀錄'), findsNothing, reason: 'hidden');
     await disposeTree(tester);
   });
@@ -194,10 +199,11 @@ void main() {
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    expect(find.text('8 小時 10 分'), findsOneWidget);
-    expect(find.text('在床時間'), findsOneWidget);
+    final sleep = tester.widget<PillTile>(pill('睡眠'));
+    expect(sleep.value, '8 小時 10 分');
+    expect(sleep.caption, '在床時間');
     expect(find.textContaining('目標'), findsNothing);
-    expect(find.byType(ProgressLine), findsNothing);
+    expect(sleep.progress, isNull, reason: 'no bar against the goal');
     await disposeTree(tester);
   });
 
@@ -213,11 +219,8 @@ void main() {
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    final row = find.widgetWithText(NavCard, '洗澡');
-    expect(
-      find.descendant(of: row, matching: find.textContaining('溫水')),
-      findsOneWidget,
-    );
+    final row = pill('洗澡');
+    expect(tester.widget<PillTile>(row).unit, contains('溫水'));
     await tester.tap(row);
     await tester.pumpAndSettle();
     expect(find.byType(BathScreen), findsOneWidget);
@@ -312,7 +315,9 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('energy eaten reads against its target on a bar', (tester) async {
+  testWidgets('energy eaten fills its pill as far as the target is reached', (
+    tester,
+  ) async {
     usePhoneViewport(tester);
     final store = emptyDay();
     store.backend.journal
@@ -339,10 +344,126 @@ void main() {
       find.textContaining('/ ${formatKcal(target)}', findRichText: true),
       findsOneWidget,
     );
-    final bar = tester.widget<ProgressLine>(
-      find.descendant(of: card, matching: find.byType(ProgressLine)),
+    final fill = tester.widget<FractionallySizedBox>(
+      find.descendant(
+        of: card,
+        matching: find.byKey(const ValueKey('pill-fill')),
+      ),
     );
-    expect(bar.progress, 600 / target);
+    expect(fill.widthFactor, 600 / target);
+    await disposeTree(tester);
+  });
+
+  testWidgets('energy is a whole number, and the bath sits below the meals', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'lunch',
+        name: '午餐',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 833.3,
+      ),
+      eatenAt: store.now(),
+    );
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final card = find.byType(IntakeCard);
+    expect(
+      find.descendant(
+        of: card,
+        matching: find.textContaining('833', findRichText: true),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('~', findRichText: true), findsNothing);
+    expect(find.textContaining('833.3', findRichText: true), findsNothing);
+    expect(
+      tester.getTopLeft(pill('洗澡')).dy,
+      greaterThan(tester.getBottomLeft(card).dy),
+      reason: 'a logged card, not a reading, so after the day\'s meals',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('water is drunk under 飲食, with or without a meal', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.nutrition.logWater(500);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    expect(find.byType(IntakeCard), findsNothing, reason: 'nothing eaten');
+    final group = find.ancestor(
+      of: pill('喝水'),
+      matching: find.byType(PillGroup),
+    );
+    expect(
+      find.descendant(of: group, matching: find.text('飲食')),
+      findsOneWidget,
+      reason: 'under the name of eating',
+    );
+
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'lunch',
+        name: '午餐',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 600,
+      ),
+      eatenAt: store.now(),
+    );
+    await tester.pump();
+    expect(
+      find.descendant(of: find.byType(IntakeCard), matching: pill('喝水')),
+      findsOneWidget,
+      reason: 'the same group once there is a meal',
+    );
+    await disposeTree(tester);
+  });
+
+  testWidgets('the macro names stay on one line, at any text size', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay();
+    store.backend.nutrition.logMeal(
+      const MealEvent(
+        id: 'lunch',
+        name: '午餐',
+        timeLabel: '12:00',
+        qualityTag: '手動',
+        dishes: [],
+        kcal: 600,
+      ),
+      eatenAt: store.now(),
+    );
+    addTearDown(tester.platformDispatcher.clearAllTestValues);
+    for (final scale in [1.0, 1.3, 1.6]) {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      await pumpScreen(tester, const TodayScreen(), store: store);
+
+      for (final name in ['蛋白質', '碳水化合物', '脂肪', '膳食纖維']) {
+        final label = find.descendant(
+          of: find.byType(IntakeCard),
+          matching: find.text(name),
+        );
+        expect(label, findsOneWidget, reason: name);
+        // One line of the caption: 13 px at a line height of 1.5.
+        expect(
+          tester.getSize(label).height,
+          lessThanOrEqualTo(13 * 1.5 * scale * 1.2),
+          reason: '$name at $scale',
+        );
+      }
+    }
     await disposeTree(tester);
   });
 
@@ -350,7 +471,8 @@ void main() {
     tester,
   ) async {
     usePhoneViewport(tester);
-    final store = emptyDay();
+    // Water is part of 飲食, which is then never empty while it is on.
+    final store = emptyDay()..toggleModule(AppModule.water);
     final layout = TodayViewModel(store.backend);
     addTearDown(layout.dispose);
     expect(layout.showsOnlyWithData, isTrue, reason: 'by default');

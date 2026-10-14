@@ -10,10 +10,11 @@ import '../vitals/vitals_view_model.dart';
 /// The parts of Today a user can hide. What is in progress and the next
 /// step are not among them: they are the page's reason to exist.
 enum TodaySection {
-  glance,
-  activity,
   intake,
   caffeine,
+  sleep,
+  body,
+  activity,
   vitals,
   week,
   records,
@@ -22,10 +23,11 @@ enum TodaySection {
   /// The records of another day are no longer today's.
   String labelIn(AppLocalizations l10n, {bool isToday = true}) =>
       switch (this) {
-        glance => l10n.todaySectionGlance,
         activity => l10n.todaySectionActivity,
         intake => l10n.moduleNutrition,
         caffeine => l10n.nutrientCaffeine,
+        sleep => l10n.moduleSleep,
+        body => l10n.recordCategoryBody,
         vitals => l10n.vitalsTitle,
         week => l10n.todaySectionWeek,
         records => isToday ? l10n.todaySectionRecords : l10n.tabLog,

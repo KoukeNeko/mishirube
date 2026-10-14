@@ -16,6 +16,7 @@ export 'content/feedback.dart';
 export 'content/insight_card.dart';
 export 'content/level_fill.dart';
 export 'content/month_grid.dart';
+export 'content/pill_tile.dart';
 export 'content/progress_ring.dart';
 export 'content/rows.dart';
 export 'content/shake_shear.dart';

@@ -22,6 +22,7 @@ import 'package:mishirube/features/sleep/sleep_screen.dart';
 import 'package:mishirube/features/nutrition/nutrition_view_model.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
+import 'package:mishirube/shared/widgets/widgets.dart';
 
 import 'support/harness.dart';
 
@@ -1534,8 +1535,17 @@ void main() {
         at: wake,
         startedAt: wake.subtract(const Duration(hours: 8)),
       );
+
+      /// The sleep pill that says [caption] after its name.
+      Finder sleepPill(String caption) => find.byWidgetPredicate(
+        (widget) =>
+            widget is PillTile &&
+            widget.label == '睡眠' &&
+            widget.caption == caption,
+      );
+
       await pumpScreen(tester, const TodayScreen(), store: store);
-      expect(find.text('含小睡共 8 小時 40 分'), findsNothing);
+      expect(sleepPill('含小睡共 8 小時 40 分'), findsNothing);
 
       store.backend.journal.recordSleep(
         const Duration(minutes: 40),
@@ -1544,7 +1554,7 @@ void main() {
         kind: SleepKind.nap,
       );
       await tester.pump();
-      expect(find.text('含小睡共 8 小時 40 分'), findsOneWidget);
+      expect(sleepPill('含小睡共 8 小時 40 分'), findsOneWidget);
       await disposeTree(tester);
     });
 
@@ -1559,12 +1569,13 @@ void main() {
         kind: SleepKind.nap,
       );
       await pumpScreen(tester, const TodayScreen(), store: store);
-      expect(find.text('含小睡共 40 分'), findsOneWidget);
-      expect(
-        find.text('40 分'),
-        findsNothing,
-        reason: 'a nap is not last night',
+      final sleep = tester.widget<PillTile>(
+        find.byWidgetPredicate(
+          (widget) => widget is PillTile && widget.label == '睡眠',
+        ),
       );
+      expect(sleep.caption, '含小睡共 40 分');
+      expect(sleep.value, isNull, reason: 'a nap is not last night');
       await disposeTree(tester);
     });
 
