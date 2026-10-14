@@ -260,7 +260,7 @@ class IntakeCard extends StatelessWidget {
           child: SegmentStat(
             label: name,
             color: color,
-            mark: _dot,
+            mark: segmentDot,
             placeholder: '—',
             // Unknown when no record had the figure.
             value: missing == summary.recordCount && summary.recordCount > 0
@@ -344,12 +344,6 @@ class IntakeCard extends StatelessWidget {
     );
   }
 }
-
-/// The dot a macro has in front of its name, in its colour.
-Widget _dot(Color tint) => DecoratedBox(
-  decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
-  child: const SizedBox.square(dimension: 8),
-);
 
 /// `蛋白質、碳水化合物有紀錄沒有數字，未計入。`, or null when every
 /// total is complete. A total that some records lacked is only what the
@@ -493,7 +487,7 @@ class TodayActivityCard extends StatelessWidget {
               child: SegmentStat(
                 label: metric.labelIn(l10n),
                 color: AppColors.activity,
-                mark: _dot,
+                mark: segmentDot,
                 placeholder: '—',
                 value: metric.format(value),
                 unit: metric.unitIn(l10n),
@@ -650,7 +644,7 @@ class EmptySectionCard extends StatelessWidget {
             label: label,
             color: color,
             // The section keeps its colour though it has no figure.
-            mark: (_) => _dot(color),
+            mark: (_) => segmentDot(color),
             placeholder: context.l10n.noEntriesShort,
           ),
         ),

@@ -11,6 +11,12 @@ const segmentPadding = EdgeInsets.symmetric(
   vertical: AppSpacing.sm,
 );
 
+/// The dot a figure has in front of its name, in its colour.
+Widget segmentDot(Color tint) => DecoratedBox(
+  decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
+  child: const SizedBox.square(dimension: 8),
+);
+
 /// A figure with its unit beside it at a size a unit can be read at; a
 /// value that carries its own words (`7 小時 45 分`) sets them as units too.
 class MetricValue extends StatelessWidget {

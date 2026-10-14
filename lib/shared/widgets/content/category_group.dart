@@ -11,30 +11,43 @@ class CategoryHeading extends StatelessWidget {
     required this.label,
     required this.color,
     this.tag,
+    this.minHeight = 0,
   });
 
   final String label;
   final Color color;
   final Widget? tag;
 
+  /// As tall as a touch target, for a page whose headings carry a link,
+  /// so each sits as far above its group as every other: a heading that
+  /// is only a name is then as tall as one with a link, its name on the
+  /// bottom line.
+  final double minHeight;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-      child: Row(
-        children: [
-          // It takes the room the tag leaves, so a long name shortens.
-          Expanded(
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Semantics(
-                header: true,
-                child: CategoryLabel(label: label, color: color),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: minHeight),
+        child: Row(
+          crossAxisAlignment: minHeight > 0
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.center,
+          children: [
+            // It takes the room the tag leaves, so a long name shortens.
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Semantics(
+                  header: true,
+                  child: CategoryLabel(label: label, color: color),
+                ),
               ),
             ),
-          ),
-          ?tag,
-        ],
+            ?tag,
+          ],
+        ),
       ),
     );
   }
@@ -49,6 +62,7 @@ class CategoryGroup extends StatelessWidget {
     required this.color,
     required this.children,
     this.tag,
+    this.headingHeight = 0,
   });
 
   final String label;
@@ -56,6 +70,9 @@ class CategoryGroup extends StatelessWidget {
 
   /// Beside the name, at the end.
   final Widget? tag;
+
+  /// See [CategoryHeading.minHeight].
+  final double headingHeight;
   final List<Widget> children;
 
   @override
@@ -64,7 +81,12 @@ class CategoryGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.xs,
       children: [
-        CategoryHeading(label: label, color: color, tag: tag),
+        CategoryHeading(
+          label: label,
+          color: color,
+          tag: tag,
+          minHeight: headingHeight,
+        ),
         ...children,
       ],
     );
