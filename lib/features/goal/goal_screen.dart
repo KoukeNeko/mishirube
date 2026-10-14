@@ -8,7 +8,6 @@ import '../../domain/domain.dart';
 import '../../shared/widgets/widgets.dart';
 import 'goal_setup_sheet.dart';
 import 'goal_view_model.dart';
-import 'weekly_goal_ring.dart';
 import '../../l10n/l10n.dart';
 
 /// This week's rhythm, the run of weeks met, and the month behind it.
@@ -50,19 +49,33 @@ class GoalScreen extends StatelessWidget {
 
   List<Widget> _setUp(BuildContext context, GoalOverview overview) => [
     Gutter(
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(context.l10n.weeklyGoalPrompt, style: AppTextStyles.body),
-            const SizedBox(height: AppSpacing.md),
-            PrimaryButton(
-              label: context.l10n.setWeeklyGoal,
-              onPressed: () =>
-                  pushPage(context, GoalSetupScreen(overview: overview)),
+      child: SegmentedGroup(
+        rows: [
+          [
+            Segment(
+              child: Padding(
+                padding: segmentPadding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.weeklyGoalPrompt,
+                      style: AppTextStyles.body,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    PrimaryButton(
+                      label: context.l10n.setWeeklyGoal,
+                      onPressed: () => pushPage(
+                        context,
+                        GoalSetupScreen(overview: overview),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
-        ),
+        ],
       ),
     ),
   ];
@@ -72,52 +85,109 @@ class GoalScreen extends StatelessWidget {
     GoalOverview overview,
     DateTime today,
   ) {
+    final l10n = context.l10n;
     final week = overview.thisWeek;
-    final streak = overview.streak;
     return [
       Gutter(
-        child: AppCard(
-          child: Column(
-            children: [
-              WeeklyGoalRing(
-                value: week.activeDays,
-                target: week.targetDays,
-                isPaused: week.isPaused,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${week.activeDays}',
-                      style: AppTextStyles.hugeNumber.copyWith(
-                        color: week.isMet
-                            ? AppColors.training
-                            : AppColors.textPrimary,
-                      ),
+        child: CategoryGroup(
+          label: _headline(l10n, week),
+          color: AppColors.training,
+          children: [
+            SegmentedGroup(
+              rows: [
+                [
+                  Segment(
+                    surface: AppColors.surfaceRaised,
+                    semanticLabel: week.isPaused
+                        ? l10n.thisWeekPaused
+                        : l10n.thisWeekActiveDays(
+                            active: week.activeDays,
+                            target: week.targetDays,
+                          ),
+                    child: SegmentHero(
+                      label: _detail(l10n, week),
+                      color: week.isPaused
+                          ? AppColors.textTertiary
+                          : AppColors.training,
+                      value: '${week.activeDays}',
+                      unit: '/ ${week.targetDays}',
+                      progress: week.isPaused || week.targetDays <= 0
+                          ? null
+                          : week.activeDays / week.targetDays,
                     ),
-                    Text('/ ${week.targetDays}', style: AppTextStyles.caption),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                _headline(context.l10n, week),
-                style: AppTextStyles.cardTitle,
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(_detail(context.l10n, week), style: AppTextStyles.caption),
-            ],
-          ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
       ),
-      Gutter(child: SectionLabel(context.l10n.streakSection)),
-      Gutter(child: _StreakCard(streak: streak)),
-      Gutter(child: SectionLabel(context.dates.month(today.month))),
       Gutter(
-        child: AppCard(
-          child: _GoalMonth(month: today, today: today, overview: overview),
+        child: CategoryGroup(
+          label: l10n.streakSection,
+          color: AppColors.training,
+          children: [
+            SegmentedGroup(
+              rows: [
+                [Segment(child: _streak(l10n, overview.streak))],
+              ],
+            ),
+          ],
+        ),
+      ),
+      Gutter(
+        child: CategoryGroup(
+          label: context.dates.month(today.month),
+          color: AppColors.textSecondary,
+          children: [
+            SegmentedGroup(
+              rows: [
+                [
+                  Segment(
+                    child: Padding(
+                      padding: segmentPadding,
+                      child: _GoalMonth(
+                        month: today,
+                        today: today,
+                        overview: overview,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
       ),
     ];
+  }
+
+  /// The run of weeks met. Nothing to keep alive yet, and nothing lost
+  /// either.
+  Widget _streak(AppLocalizations l10n, StreakSummary streak) {
+    Widget fire(Color tint) =>
+        Icon(Icons.local_fire_department, size: 16, color: tint);
+    if (!streak.hasRun) {
+      return SegmentStat(
+        label: streak.previous > 0
+            ? l10n.lastStreak(previous: streak.previous, best: streak.best)
+            : l10n.streakStartsAfterGoal,
+        color: AppColors.training,
+        mark: fire,
+        placeholder: streak.previous > 0
+            ? l10n.streakRestartsThisWeek
+            : l10n.noStreakYet,
+      );
+    }
+    return SegmentStat(
+      label: streak.isThisWeekPending
+          ? l10n.streakPendingBest(best: streak.best)
+          : l10n.streakBest(best: streak.best),
+      color: AppColors.training,
+      mark: fire,
+      placeholder: '—',
+      value: l10n.streakWeeks(count: streak.current),
+    );
   }
 
   static String _headline(AppLocalizations l10n, WeekProgress week) {
@@ -130,72 +200,6 @@ class GoalScreen extends StatelessWidget {
     if (week.isPaused) return l10n.notCountedInStreak;
     if (week.isMet) return l10n.activeDaysCount(count: week.activeDays);
     return l10n.activeDaysToGo(count: week.remaining);
-  }
-}
-
-class _StreakCard extends StatelessWidget {
-  const _StreakCard({required this.streak});
-
-  final StreakSummary streak;
-
-  @override
-  Widget build(BuildContext context) {
-    // Nothing to keep alive yet, and nothing lost either.
-    if (!streak.hasRun) {
-      return AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              streak.previous > 0
-                  ? context.l10n.streakRestartsThisWeek
-                  : context.l10n.noStreakYet,
-              style: AppTextStyles.cardTitle,
-            ),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              streak.previous > 0
-                  ? context.l10n.lastStreak(
-                      previous: streak.previous,
-                      best: streak.best,
-                    )
-                  : context.l10n.streakStartsAfterGoal,
-              style: AppTextStyles.caption,
-            ),
-          ],
-        ),
-      );
-    }
-    return AppCard(
-      child: Row(
-        children: [
-          const Icon(
-            Icons.local_fire_department,
-            color: AppColors.training,
-            size: 28,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.streakWeeks(count: streak.current),
-                  style: AppTextStyles.cardTitle,
-                ),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  streak.isThisWeekPending
-                      ? context.l10n.streakPendingBest(best: streak.best)
-                      : context.l10n.streakBest(best: streak.best),
-                  style: AppTextStyles.caption,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 

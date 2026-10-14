@@ -6,8 +6,8 @@ import '../../l10n/l10n.dart';
 
 const _trackWidth = 10.0;
 
-/// How far this week has got, as a ring. Takes plain numbers: the same
-/// ring is the page's hero and, small, the entry in the toolbar.
+/// How far this week has got, as a ring, small: the entry to the goal
+/// page in the toolbar.
 class WeeklyGoalRing extends StatelessWidget {
   const WeeklyGoalRing({
     super.key,
@@ -25,7 +25,7 @@ class WeeklyGoalRing extends StatelessWidget {
   final double strokeWidth;
   final bool isPaused;
 
-  /// What sits inside the ring; the page puts the numbers there.
+  /// What sits inside the ring.
   final Widget? child;
 
   @override
