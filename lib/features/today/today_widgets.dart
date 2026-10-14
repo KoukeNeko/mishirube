@@ -10,7 +10,8 @@ import '../../l10n/l10n.dart';
 
 /// The week, Monday to Sunday, a segment to a day: a check on each day
 /// something was trained or done, today marked with its date, days to
-/// come quiet.
+/// come quiet. The days light up one after another from the first, as a
+/// chart draws in ([ChartEntrance]).
 class WeekStrip extends StatelessWidget {
   const WeekStrip({
     super.key,
@@ -26,31 +27,53 @@ class WeekStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedGroup(
-      rows: [
-        [
-          for (final (day, isActive) in days)
-            Segment(
-              onTap: onTap,
-              surface: day == today
-                  ? AppColors.training
-                  : isActive
-                  ? AppColors.trainingSurface
-                  : AppColors.surface,
-              semanticLabel: isActive
-                  ? context.l10n.weekdayActive(
-                      weekday: context.dates.weekdayName(day),
-                    )
-                  : context.dates.weekdayName(day),
-              child: _WeekDay(
-                day: day,
-                isToday: day == today,
-                isActive: isActive,
-                isFuture: day.isAfter(today),
+    return ChartEntrance(
+      shows: [for (final (day, isActive) in days) (day, isActive)],
+      builder: (context, drawn) => SegmentedGroup(
+        rows: [
+          [
+            for (final (index, (day, isActive)) in days.indexed)
+              _segment(
+                context,
+                day,
+                isActive,
+                staggeredProgress(drawn, index, days.length),
               ),
-            ),
+          ],
         ],
-      ],
+      ),
+    );
+  }
+
+  /// The day's segment, [lit] of the way to how it looks when done.
+  Segment _segment(
+    BuildContext context,
+    DateTime day,
+    bool isActive,
+    double lit,
+  ) {
+    final isToday = day == today;
+    return Segment(
+      onTap: onTap,
+      surface: Color.lerp(
+        AppColors.surface,
+        isToday
+            ? AppColors.training
+            : isActive
+            ? AppColors.trainingSurface
+            : AppColors.surface,
+        lit,
+      )!,
+      semanticLabel: isActive
+          ? context.l10n.weekdayActive(weekday: context.dates.weekdayName(day))
+          : context.dates.weekdayName(day),
+      child: _WeekDay(
+        day: day,
+        isToday: isToday,
+        isActive: isActive,
+        isFuture: day.isAfter(today),
+        lit: lit,
+      ),
     );
   }
 }
@@ -61,6 +84,7 @@ class _WeekDay extends StatelessWidget {
     required this.isToday,
     required this.isActive,
     required this.isFuture,
+    required this.lit,
   });
 
   final DateTime day;
@@ -68,38 +92,53 @@ class _WeekDay extends StatelessWidget {
   final bool isActive;
   final bool isFuture;
 
+  /// 0–1: how far the day has come to how it looks when done.
+  final double lit;
+
   @override
   Widget build(BuildContext context) {
+    final weekdayColor = isToday
+        ? Color.lerp(AppColors.textSecondary, AppColors.onTraining, lit)
+        : isFuture
+        ? AppColors.textTertiary
+        : null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Column(
         children: [
           Text(
             context.dates.weekday(day),
-            style: AppTextStyles.caption.copyWith(
-              color: isToday
-                  ? AppColors.onTraining
-                  : isFuture
-                  ? AppColors.textTertiary
-                  : null,
-            ),
+            style: AppTextStyles.caption.copyWith(color: weekdayColor),
           ),
           const SizedBox(height: AppSpacing.xs),
           SizedBox(
             height: 20,
             child: Center(
               child: isToday
-                  ? Text(
-                      '${day.day}',
-                      style: const TextStyle(
-                        color: AppColors.onTraining,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        fontFeatures: [FontFeature.tabularFigures()],
+                  ? Opacity(
+                      opacity: lit,
+                      child: Text(
+                        '${day.day}',
+                        style: const TextStyle(
+                          color: AppColors.onTraining,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
                       ),
                     )
                   : isActive
-                  ? const Icon(Icons.check, size: 16, color: AppColors.training)
+                  ? Opacity(
+                      opacity: lit,
+                      child: Transform.scale(
+                        scale: 0.5 + 0.5 * lit,
+                        child: const Icon(
+                          Icons.check,
+                          size: 16,
+                          color: AppColors.training,
+                        ),
+                      ),
+                    )
                   : null,
             ),
           ),

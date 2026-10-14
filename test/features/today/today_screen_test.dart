@@ -601,6 +601,11 @@ void main() {
       findsNWidgets(7),
     );
     expect(
+      find.descendant(of: week, matching: find.byType(ChartEntrance)),
+      findsOneWidget,
+      reason: 'the days light up as a chart draws in',
+    );
+    expect(
       find.descendant(of: week, matching: find.text('${store.now().day}')),
       findsOneWidget,
       reason: 'today, by its date',
