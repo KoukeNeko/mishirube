@@ -19,15 +19,22 @@ class MetricValue extends StatelessWidget {
     required this.value,
     this.unit,
     this.size = 28,
+    this.color,
   });
 
   final String value;
   final String? unit;
   final double size;
 
+  /// The figure's colour; the text's own without one.
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
-    final style = AppTextStyles.bigNumber.copyWith(fontSize: size);
+    final style = AppTextStyles.bigNumber.copyWith(
+      fontSize: size,
+      color: color,
+    );
     return FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
@@ -64,6 +71,7 @@ class SegmentStat extends StatelessWidget {
     this.progress,
     this.chart,
     this.valueSize = 28,
+    this.valueColor,
   });
 
   final String label;
@@ -87,6 +95,9 @@ class SegmentStat extends StatelessWidget {
   /// own; none without a value.
   final Widget? chart;
   final double valueSize;
+
+  /// The value in a colour of its own, for a figure that is lit.
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +134,12 @@ class SegmentStat extends StatelessWidget {
                 style: AppTextStyles.caption.copyWith(fontSize: 14),
               )
             else
-              MetricValue(value: value, unit: unit, size: valueSize),
+              MetricValue(
+                value: value,
+                unit: unit,
+                size: valueSize,
+                color: valueColor,
+              ),
             if (chart case final chart? when value != null) ...[
               const SizedBox(height: AppSpacing.xs),
               chart,

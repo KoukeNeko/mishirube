@@ -8,12 +8,14 @@ import '../../shared/format.dart';
 import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
+import 'today_widgets.dart';
 import '../training/active_workout_screen.dart';
 import '../../l10n/l10n.dart';
 
 /// Today while a workout runs: insights pause, only facts are shown.
 List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
   final workout = store.activeWorkout!;
+  final records = store.workoutReview(workout).records;
   Segment stat(String label, String value) => Segment(
     child: SegmentStat(
       label: label,
@@ -30,30 +32,34 @@ List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
             : context.l10n.workoutInProgress,
         color: AppColors.training,
         children: [
-          SegmentedGroup(
-            rows: [
-              [
-                Segment(
-                  surface: AppColors.surfaceRaised,
-                  child: workout.isReady
-                      ? _ScheduledWorkout(workout: workout)
-                      : _RunningWorkout(workout: workout),
-                ),
-              ],
-              // Nothing done yet: no row of zeros.
-              if (!workout.isReady)
+          // The records light up as one is set, and again for the next.
+          ChartEntrance(
+            shows: [records],
+            builder: (context, drawn) => SegmentedGroup(
+              rows: [
                 [
-                  stat(context.l10n.setsCompleted, '${workout.completedSets}'),
-                  stat(
-                    context.l10n.exerciseProgress,
-                    '${workout.completedExercises}/${workout.exercises.length}',
-                  ),
-                  stat(
-                    context.l10n.personalRecords,
-                    '${store.workoutReview(workout).records}',
+                  Segment(
+                    surface: AppColors.surfaceRaised,
+                    child: workout.isReady
+                        ? _ScheduledWorkout(workout: workout)
+                        : _RunningWorkout(workout: workout),
                   ),
                 ],
-            ],
+                // Nothing done yet: no row of zeros.
+                if (!workout.isReady)
+                  [
+                    stat(
+                      context.l10n.setsCompleted,
+                      '${workout.completedSets}',
+                    ),
+                    stat(
+                      context.l10n.exerciseProgress,
+                      '${workout.completedExercises}/${workout.exercises.length}',
+                    ),
+                    personalRecordsSegment(context, records, drawn),
+                  ],
+              ],
+            ),
           ),
         ],
       ),

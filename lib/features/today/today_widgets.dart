@@ -391,6 +391,7 @@ class CompletedWorkoutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final session = workout;
+    final records = AppStoreScope.of(context).workoutReview(session).records;
     Segment stat(String label, int value) => Segment(
       onTap: onTap,
       child: SegmentStat(
@@ -400,30 +401,68 @@ class CompletedWorkoutCard extends StatelessWidget {
         value: '$value',
       ),
     );
-    return SegmentedGroup(
-      rows: [
-        [
-          Segment(
-            onTap: onTap,
-            surface: AppColors.surfaceRaised,
-            child: SegmentHero(
-              label: context.l10n.routineCompleted(name: session.routineName),
-              color: AppColors.training,
-              value: formatClock(session.elapsedAt(session.finishedAt!)),
+    return ChartEntrance(
+      shows: [records],
+      builder: (context, drawn) => SegmentedGroup(
+        rows: [
+          [
+            Segment(
+              onTap: onTap,
+              surface: AppColors.surfaceRaised,
+              child: SegmentHero(
+                label: context.l10n.routineCompleted(name: session.routineName),
+                color: AppColors.training,
+                value: formatClock(session.elapsedAt(session.finishedAt!)),
+              ),
             ),
-          ),
+          ],
+          [
+            stat(context.l10n.totalSets, session.completedSets),
+            stat(context.l10n.exercisesLabel, session.exercises.length),
+            personalRecordsSegment(context, records, drawn, onTap: onTap),
+          ],
         ],
-        [
-          stat(context.l10n.totalSets, session.completedSets),
-          stat(context.l10n.exercisesLabel, session.exercises.length),
-          stat(
-            context.l10n.personalRecords,
-            AppStoreScope.of(context).workoutReview(session).records,
-          ),
-        ],
-      ],
+      ),
     );
   }
+}
+
+/// 個人紀錄 as a part of a group. With some it is lit: its surface tinted,
+/// the trophy popping in tilted and settling, and the count running up to
+/// its figure, as far as [drawn] (0–1, from a [ChartEntrance]) has come.
+/// With none it is as quiet as any figure.
+Segment personalRecordsSegment(
+  BuildContext context,
+  int records,
+  double drawn, {
+  VoidCallback? onTap,
+}) {
+  final isLit = records > 0;
+  final eased = easedProgress(drawn);
+  return Segment(
+    onTap: onTap,
+    surface: isLit
+        ? Color.lerp(AppColors.surface, AppColors.trainingSurface, eased)!
+        : AppColors.surface,
+    // The count runs through its figures; a screen reader hears the one.
+    semanticLabel: '${context.l10n.personalRecords} $records',
+    child: SegmentStat(
+      label: context.l10n.personalRecords,
+      color: AppColors.training,
+      placeholder: '—',
+      mark: isLit
+          ? (tint) => Transform.rotate(
+              angle: -0.4 * (1 - eased),
+              child: Transform.scale(
+                scale: Curves.elasticOut.transform(drawn.clamp(0.0, 1.0)),
+                child: Icon(Icons.emoji_events, size: 16, color: tint),
+              ),
+            )
+          : null,
+      value: '${isLit ? (records * eased).round() : records}',
+      valueColor: isLit ? AppColors.training : null,
+    ),
+  );
 }
 
 /// Today's movement as the health platform counted it: the lead figure

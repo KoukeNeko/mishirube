@@ -584,6 +584,59 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('a record lights its figure up, and none leaves it quiet', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final clock = FakeClock();
+    final store = AppStore(clock: clock.now, isOnboarded: true);
+    store.backend.provenance.setShowsDemo(false);
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    clock.advance(const Duration(hours: 1));
+    store
+      ..startWorkout()
+      ..completeNextSet()
+      ..finishWorkout();
+    // Far heavier than before: a record.
+    final newest = store.lastFinishedWorkout!;
+    final lifted = newest.exercises.first;
+    store.correctWorkout(newest, [
+      (
+        exercise: lifted.exercise,
+        was: lifted,
+        loads: [SetLoad(weightKg: 300, reps: 5)],
+      ),
+    ]);
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    final cards = find.byType(CompletedWorkoutCard);
+    expect(cards, findsNWidgets(2));
+    final trophy = find.byIcon(Icons.emoji_events);
+    expect(
+      find.descendant(of: cards.first, matching: trophy),
+      findsOneWidget,
+      reason: 'the newest has its record',
+    );
+    expect(
+      find.descendant(of: cards.last, matching: trophy),
+      findsNothing,
+      reason: 'the earlier has none',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: cards.first,
+        matching: find.bySemanticsLabel('個人紀錄 1'),
+      ),
+      findsOneWidget,
+      reason: 'a screen reader hears the figure, not the count running up',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('the week is a segment to a day, and opens the goal', (
     tester,
   ) async {
