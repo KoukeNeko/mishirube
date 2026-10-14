@@ -16,6 +16,7 @@ import 'package:mishirube/features/nutrition/meal_group_screen.dart';
 import 'package:mishirube/features/today/today_screen.dart';
 import 'package:mishirube/features/today/today_view_model.dart';
 import 'package:mishirube/features/today/today_widgets.dart';
+import 'package:mishirube/features/training/active_workout_screen.dart';
 import 'package:mishirube/features/training/workout_summary_screen.dart';
 import 'package:mishirube/features/trends/insight_detail_screen.dart';
 import 'package:mishirube/features/trends/trend_detail_screen.dart';
@@ -507,6 +508,52 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), store: store);
 
     expect(find.byType(CompletedWorkoutCard), findsOneWidget);
+    await disposeTree(tester);
+  });
+
+  testWidgets(
+    'while a workout runs Today shows where it is, and the way back',
+    (tester) async {
+      usePhoneViewport(tester);
+      final store = emptyDay()
+        ..startWorkout()
+        ..beginWorkout()
+        ..completeNextSet();
+      await pumpScreen(tester, const TodayScreen(), store: store);
+
+      expect(find.text('訓練進行中'), findsOneWidget);
+      expect(find.byType(ThickProgress), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is SegmentStat &&
+              widget.label == '已完成組數' &&
+              widget.value == '1',
+        ),
+        findsOneWidget,
+        reason: 'the set done',
+      );
+
+      await tester.tap(find.text('回到訓練'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ActiveWorkoutScreen), findsOneWidget);
+      await disposeTree(tester);
+    },
+  );
+
+  testWidgets('the other entries stay one tap away while a workout runs', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    final store = emptyDay()
+      ..startWorkout()
+      ..beginWorkout();
+    await pumpScreen(tester, const TodayScreen(), store: store);
+
+    expect(find.text('其他紀錄'), findsOneWidget);
+    await tester.tap(find.widgetWithText(SegmentRow, '飲食'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DailyNutritionScreen), findsOneWidget);
     await disposeTree(tester);
   });
 

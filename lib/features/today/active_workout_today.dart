@@ -9,78 +9,100 @@ import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/active_workout_screen.dart';
+import 'today_widgets.dart';
 import '../../l10n/l10n.dart';
 
 /// Today while a workout runs: insights pause, only facts are shown.
 List<Widget> buildActiveWorkoutToday(BuildContext context, AppStore store) {
   final workout = store.activeWorkout!;
+  Segment stat(String label, String value) => Segment(
+    child: SegmentStat(
+      label: label,
+      color: AppColors.training,
+      placeholder: '—',
+      value: value,
+    ),
+  );
   return [
     Gutter(
-      child: AppCard(
-        tone: CardTone.training,
-        child: workout.isReady
-            ? _ScheduledWorkout(workout: workout)
-            : _RunningWorkout(workout: workout),
-      ),
-    ),
-    // Nothing done yet: no row of zeros.
-    if (!workout.isReady)
-      Gutter(
-        child: AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(context.l10n.thisSession, style: AppTextStyles.overline),
-              const SizedBox(height: AppSpacing.sm),
-              StatRow(
-                stats: [
-                  StatBlock(
-                    value: '${workout.completedSets}',
-                    label: context.l10n.setsCompleted,
+      child: CategoryGroup(
+        label: workout.isReady
+            ? context.l10n.workoutScheduled
+            : context.l10n.workoutInProgress,
+        color: AppColors.training,
+        children: [
+          SegmentedGroup(
+            rows: [
+              [
+                Segment(
+                  surface: AppColors.surfaceRaised,
+                  child: workout.isReady
+                      ? _ScheduledWorkout(workout: workout)
+                      : _RunningWorkout(workout: workout),
+                ),
+              ],
+              // Nothing done yet: no row of zeros.
+              if (!workout.isReady)
+                [
+                  stat(context.l10n.setsCompleted, '${workout.completedSets}'),
+                  stat(
+                    context.l10n.exerciseProgress,
+                    '${workout.completedExercises}/${workout.exercises.length}',
                   ),
-                  StatBlock(
-                    value:
-                        '${workout.completedExercises}/${workout.exercises.length}',
-                    label: context.l10n.exerciseProgress,
-                  ),
-                  StatBlock(
-                    value: '${store.workoutReview(workout).records}',
-                    label: context.l10n.personalRecords,
-                    valueColor: AppColors.training,
+                  stat(
+                    context.l10n.personalRecords,
+                    '${store.workoutReview(workout).records}',
                   ),
                 ],
-              ),
             ],
           ),
-        ),
-      ),
-    Gutter(child: SectionLabel(context.l10n.otherEntries)),
-    Gutter(
-      child: AccentRow(
-        color: AppColors.nutrition,
-        title: context.l10n.moduleNutrition,
-        trailing:
-            '${context.l10n.mealsCount(count: store.todayMeals.length)} · '
-            '~${formatKcal(store.todayKcal)} kcal',
-        onTap: () => pushPage(context, const DailyNutritionScreen()),
+        ],
       ),
     ),
-    if (store.weightSummary.latest case final weight?)
-      Gutter(
-        child: AccentRow(
-          color: AppColors.body,
-          title: context.l10n.moduleWeight,
-          trailing: '${formatWeight(weight.weightKg)} kg',
-        ),
+    Gutter(
+      child: CategoryGroup(
+        label: context.l10n.otherEntries,
+        color: AppColors.textSecondary,
+        children: [
+          SegmentedGroup(
+            rows: [
+              [
+                Segment(
+                  onTap: () => pushPage(context, const DailyNutritionScreen()),
+                  child: SegmentRow(
+                    leading: const AccentBar(color: AppColors.nutrition),
+                    title: context.l10n.moduleNutrition,
+                    value:
+                        '${context.l10n.mealsCount(count: store.todayMeals.length)} · '
+                        '${formatKcal(store.todayKcal)} kcal',
+                  ),
+                ),
+              ],
+              if (store.weightSummary.latest case final weight?)
+                [
+                  Segment(
+                    child: SegmentRow(
+                      leading: const AccentBar(color: AppColors.body),
+                      title: context.l10n.moduleWeight,
+                      value: '${formatWeight(weight.weightKg)} kg',
+                    ),
+                  ),
+                ],
+              if (store.lastNight case final night?)
+                [
+                  Segment(
+                    child: SegmentRow(
+                      leading: const AccentBar(color: AppColors.wellness),
+                      title: context.l10n.moduleSleep,
+                      value: formatDuration(context.l10n, night.entry.duration),
+                    ),
+                  ),
+                ],
+            ],
+          ),
+        ],
       ),
-    if (store.lastNight case final night?)
-      Gutter(
-        child: AccentRow(
-          color: AppColors.wellness,
-          title: context.l10n.moduleSleep,
-          trailing: formatDuration(context.l10n, night.entry.duration),
-        ),
-      ),
+    ),
   ];
 }
 
@@ -93,36 +115,34 @@ class _ScheduledWorkout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CategoryLabel(
-          label: context.l10n.workoutScheduled,
-          color: AppColors.training,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(workout.routineName, style: AppTextStyles.cardTitle),
-        Text(
-          context.l10n.routineSummary(
-            exercises: workout.exercises.length,
-            sets: workout.totalSets,
+    return Padding(
+      padding: segmentPadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(workout.routineName, style: AppTextStyles.cardTitle),
+          Text(
+            context.l10n.routineSummary(
+              exercises: workout.exercises.length,
+              sets: workout.totalSets,
+            ),
+            style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
-          style: AppTextStyles.caption.copyWith(fontSize: 14),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        PrimaryButton(
-          label: context.l10n.startExercising,
-          icon: Icons.play_arrow_outlined,
-          onPressed: () {
-            AppStoreScope.read(context).beginWorkout();
-            pushPage(context, const ActiveWorkoutScreen());
-          },
-        ),
-        LinkText(
-          label: context.l10n.commonView,
-          onTap: () => pushPage(context, const ActiveWorkoutScreen()),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.md),
+          PrimaryButton(
+            label: context.l10n.startExercising,
+            icon: Icons.play_arrow_outlined,
+            onPressed: () {
+              AppStoreScope.read(context).beginWorkout();
+              pushPage(context, const ActiveWorkoutScreen());
+            },
+          ),
+          LinkText(
+            label: context.l10n.commonView,
+            onTap: () => pushPage(context, const ActiveWorkoutScreen()),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -139,46 +159,38 @@ class _RunningWorkout extends StatelessWidget {
     final progress = workout.totalSets == 0
         ? 0.0
         : workout.completedSets / workout.totalSets;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CategoryLabel(
-          label: context.l10n.workoutInProgress,
-          color: AppColors.training,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Row(
-          children: [
-            Expanded(
-              child: Text(workout.routineName, style: AppTextStyles.cardTitle),
-            ),
-            ElapsedClock(
-              session: ActiveWorkout(workout),
-              builder: (_, elapsed) => Text(
-                elapsed,
-                style: AppTextStyles.hugeNumber.copyWith(
-                  color: AppColors.training,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Text(
-          context.l10n.workoutCurrentSet(
-            exercise: current.exercise.name,
-            set: (current.nextSetIndex ?? current.sets.length - 1) + 1,
-            done: workout.completedSets,
+    return Padding(
+      padding: segmentPadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            workout.routineName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(fontSize: 12),
           ),
-          style: AppTextStyles.caption.copyWith(fontSize: 14),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        ProgressLine(progress: progress),
-        const SizedBox(height: AppSpacing.md),
-        PrimaryButton(
-          label: context.l10n.backToWorkout,
-          onPressed: () => pushPage(context, const ActiveWorkoutScreen()),
-        ),
-      ],
+          ElapsedClock(
+            session: ActiveWorkout(workout),
+            builder: (_, elapsed) => MetricValue(value: elapsed, size: 44),
+          ),
+          Text(
+            context.l10n.workoutCurrentSet(
+              exercise: current.exercise.name,
+              set: (current.nextSetIndex ?? current.sets.length - 1) + 1,
+              done: workout.completedSets,
+            ),
+            style: AppTextStyles.caption.copyWith(fontSize: 14),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ThickProgress(progress: progress, color: AppColors.training),
+          const SizedBox(height: AppSpacing.md),
+          PrimaryButton(
+            label: context.l10n.backToWorkout,
+            onPressed: () => pushPage(context, const ActiveWorkoutScreen()),
+          ),
+        ],
+      ),
     );
   }
 }
