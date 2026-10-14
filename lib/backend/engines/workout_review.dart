@@ -3,7 +3,7 @@ import 'training_metrics.dart';
 
 /// Bumped whenever a rule below changes, so a stored or exported result
 /// can say which version produced it.
-const workoutReviewVersion = 1;
+const workoutReviewVersion = 2;
 
 /// Whether [set] beats every earlier session of its exercise, recorded as
 /// [type]. With weight and reps: heavier than any of them, or a higher
@@ -52,6 +52,31 @@ bool isPersonalRecordSet(
       .fold<double?>(null, (best, e) => best == null || e > best ? e : best);
   return estimate != null && bestEstimate != null && estimate > bestEstimate;
 }
+
+/// Whether [a] is a better set than [b] of an exercise recorded as [type].
+/// With weight and reps that is the higher estimated max, so more reps at
+/// the same weight count; any other is better by its own measure.
+bool _beats(TrackingType type, WorkoutSet a, WorkoutSet b) =>
+    type == TrackingType.weightReps
+    ? (estimateOneRepMax(a.weightKg, a.reps) ?? a.weightKg) >
+          (estimateOneRepMax(b.weightKg, b.reps) ?? b.weightKg)
+    : isBetterSet(type, figuresOfSet(a), figuresOfSet(b));
+
+/// Whether [set] is better than every other set done of the same exercise
+/// in [others], the workout's sets of it, itself among them. A record is
+/// the best set of the workout, said once: not again by each set that is
+/// only as good, nor by a second entry of the exercise that is no better.
+bool isBestSet(
+  WorkoutSet set,
+  Iterable<WorkoutSet> others, {
+  TrackingType type = TrackingType.weightReps,
+}) => others.every(
+  (other) =>
+      identical(other, set) ||
+      !other.isDone ||
+      other.type == SetType.warmup ||
+      _beats(type, set, other),
+);
 
 /// One exercise of a workout as it came out.
 class ExerciseReview {
@@ -127,26 +152,53 @@ WorkoutReview reviewWorkout(
   required Map<String, List<ExerciseHistoryEntry>> earlier,
   WorkoutSession? previous,
 }) {
-  final exercises = [
+  final sessions = [
     for (final session in workout.exercises)
-      if (session.completedSets > 0)
-        ExerciseReview(
-          exercise: session.exercise,
-          done: [
-            for (final set in session.sets)
-              if (set.isDone) set,
-          ],
-          best: bestSet(session.exercise.trackingType, session.sets),
-          volumeKg: sessionVolumeKg(session),
-          seconds: sessionSeconds(session),
-          reps: sessionReps(session),
-          meters: sessionMeters(session),
-          record: _record(
-            session.exercise.trackingType,
-            session.sets,
-            earlier[session.exercise.id] ?? const [],
-          ),
-        ),
+      if (session.completedSets > 0) session,
+  ];
+  final records = [
+    for (final session in sessions)
+      _record(
+        session.exercise.trackingType,
+        session.sets,
+        earlier[session.exercise.id] ?? const [],
+      ),
+  ];
+  // An exercise done twice in a workout sets a record once: in the entry
+  // whose set is best, the first when they are as good.
+  for (var i = 0; i < sessions.length; i++) {
+    final record = records[i];
+    if (record == null) continue;
+    final type = sessions[i].exercise.trackingType;
+    for (var j = 0; j < sessions.length; j++) {
+      final other = records[j];
+      if (j == i ||
+          other == null ||
+          sessions[j].exercise.id != sessions[i].exercise.id) {
+        continue;
+      }
+      if (_beats(type, other, record) ||
+          (!_beats(type, record, other) && j < i)) {
+        records[i] = null;
+        break;
+      }
+    }
+  }
+  final exercises = [
+    for (final (i, session) in sessions.indexed)
+      ExerciseReview(
+        exercise: session.exercise,
+        done: [
+          for (final set in session.sets)
+            if (set.isDone) set,
+        ],
+        best: bestSet(session.exercise.trackingType, session.sets),
+        volumeKg: sessionVolumeKg(session),
+        seconds: sessionSeconds(session),
+        reps: sessionReps(session),
+        meters: sessionMeters(session),
+        record: records[i],
+      ),
   ];
   return WorkoutReview(
     exercises: exercises,
@@ -163,15 +215,9 @@ WorkoutSet? _record(
   List<ExerciseHistoryEntry> earlier,
 ) {
   WorkoutSet? record;
-  // A weight and reps set is ranked by its estimated max, so more reps at
-  // the same weight count; any other by its own measure.
-  bool beats(WorkoutSet a, WorkoutSet b) => type == TrackingType.weightReps
-      ? (estimateOneRepMax(a.weightKg, a.reps) ?? a.weightKg) >
-            (estimateOneRepMax(b.weightKg, b.reps) ?? b.weightKg)
-      : isBetterSet(type, figuresOfSet(a), figuresOfSet(b));
   for (final set in sets) {
     if (!isPersonalRecordSet(set, earlier, type: type)) continue;
-    if (record == null || beats(set, record)) record = set;
+    if (record == null || _beats(type, set, record)) record = set;
   }
   return record;
 }

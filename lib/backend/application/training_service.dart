@@ -365,18 +365,25 @@ class TrainingService {
     );
   }
 
-  /// Whether [set] of [exercise] beats every earlier session of it.
+  /// Whether [set] of [exercise] beats every earlier session of it and
+  /// every other set of it done in [workout], so that a record is said
+  /// once and not again by each set as good.
   bool isPersonalRecord(
     WorkoutSession workout,
     ExerciseDefinition exercise,
     WorkoutSet set,
-  ) => isPersonalRecordSet(
-    set,
-    _exercises
-        .history(exercise.id, tracking: exercise.trackingType)
-        .before(workout.startedAt),
-    type: exercise.trackingType,
-  );
+  ) =>
+      isPersonalRecordSet(
+        set,
+        _exercises
+            .history(exercise.id, tracking: exercise.trackingType)
+            .before(workout.startedAt),
+        type: exercise.trackingType,
+      ) &&
+      isBestSet(set, [
+        for (final session in workout.exercises)
+          if (session.exercise.id == exercise.id) ...session.sets,
+      ], type: exercise.trackingType);
 
   /// Marks the next pending set of the current exercise as done and moves
   /// on to the next unfinished exercise once every set is logged.

@@ -2381,6 +2381,97 @@ Wall sit 2 x 1.5 min
     });
   });
 
+  group('a record is said once', () {
+    const press = ExerciseDefinition(
+      id: 'press',
+      name: '啞鈴臥推',
+      equipment: Equipment.dumbbell,
+      primaryMuscles: [MuscleGroup.chest],
+      pattern: MovementPattern.horizontalPush,
+    );
+    WorkoutSet done(double kg, int reps) => WorkoutSet(
+      weightKg: kg,
+      reps: reps,
+      previousWeightKg: kg,
+      previousReps: reps,
+      isDone: true,
+    );
+    final earlier = [
+      ExerciseHistoryEntry(
+        date: DateTime(2026, 9, 16),
+        weightKg: 17.5,
+        reps: 8,
+        oneRepMaxKg: estimateOneRepMax(17.5, 8),
+      ),
+    ];
+
+    test('an exercise entered twice sets it in the better entry only', () {
+      final review = reviewWorkout(
+        WorkoutSession(
+          id: 'w',
+          routineName: '自由訓練',
+          startedAt: DateTime(2026, 9, 20),
+          exercises: [
+            ExerciseSession(exercise: press, sets: [done(20, 6), done(20, 6)]),
+            ExerciseSession(exercise: press, sets: [done(20, 4)]),
+          ],
+        ),
+        earlier: {'press': earlier},
+      );
+
+      expect(review.exercises[0].record, isNotNull);
+      expect(
+        review.exercises[1].record,
+        isNull,
+        reason: '20 kg × 4 is no better than the 20 kg × 6 before it',
+      );
+      expect(review.records, 1);
+    });
+
+    test('the better entry wins even when it comes second', () {
+      final review = reviewWorkout(
+        WorkoutSession(
+          id: 'w',
+          routineName: '自由訓練',
+          startedAt: DateTime(2026, 9, 20),
+          exercises: [
+            ExerciseSession(exercise: press, sets: [done(20, 4)]),
+            ExerciseSession(exercise: press, sets: [done(20, 6)]),
+          ],
+        ),
+        earlier: {'press': earlier},
+      );
+
+      expect(review.exercises[0].record, isNull);
+      expect(review.exercises[1].record!.reps, 6);
+    });
+
+    test('sets as good as one that set a record are not records again', () {
+      final first = done(20, 6);
+      final same = done(20, 6);
+      final better = done(20, 7);
+
+      expect(isBestSet(first, [first, same]), isFalse, reason: 'a tie');
+      expect(isBestSet(better, [first, same, better]), isTrue);
+      expect(isBestSet(first, [first]), isTrue, reason: 'alone');
+      expect(
+        isBestSet(first, [
+          first,
+          WorkoutSet(
+            weightKg: 40,
+            reps: 5,
+            previousWeightKg: 40,
+            previousReps: 5,
+            type: SetType.warmup,
+            isDone: true,
+          ),
+        ]),
+        isTrue,
+        reason: 'a warm-up never stands in the way',
+      );
+    });
+  });
+
   group('muscle load', () {
     ExerciseDefinition of(String id, List<MuscleGroup> primary) =>
         ExerciseDefinition(

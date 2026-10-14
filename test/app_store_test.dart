@@ -92,6 +92,30 @@ void main() {
       expect(store.workoutReview(store.activeWorkout!).records, 1);
     });
 
+    test('a record is said by the first set that sets it, not each after', () {
+      store.startWorkout();
+      final squat = store.activeWorkout!.exercises.first.exercise;
+      final first = store.completeNextSet()!;
+      expect(store.isPersonalRecord(squat, first), isTrue);
+
+      final second = store.completeNextSet()!;
+      expect(
+        (second.weightKg, second.reps),
+        (first.weightKg, first.reps),
+        reason: 'the demo plans its sets alike',
+      );
+      expect(
+        store.isPersonalRecord(squat, second),
+        isFalse,
+        reason: 'as good as the one that set it',
+      );
+      expect(
+        store.workoutReview(store.activeWorkout!).records,
+        1,
+        reason: 'one exercise, one record',
+      );
+    });
+
     test('a workout is ready until it begins, and times from there', () {
       store.startWorkout();
       expect(store.activeWorkout!.isReady, isTrue);
