@@ -9,6 +9,7 @@ import '../../shared/widgets/widgets.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'describe_workout_screen.dart';
+import 'generate_routines_screen.dart';
 import 'routine_detail_screen.dart';
 import '../../l10n/l10n.dart';
 
@@ -170,6 +171,12 @@ class _TrainingScreenState extends State<TrainingScreen> {
       ),
     Gutter(
       child: DashedActionCard(label: context.l10n.newRoutine, onTap: _create),
+    ),
+    Gutter(
+      child: DashedActionCard(
+        label: context.l10n.generateRoutines,
+        onTap: () => pushPage(context, const GenerateRoutinesScreen()),
+      ),
     ),
   ];
 

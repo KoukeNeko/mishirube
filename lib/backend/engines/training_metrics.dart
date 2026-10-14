@@ -127,6 +127,22 @@ double? estimateOneRepMax(double weightKg, int reps) {
   return weightKg * (1 + reps / 30);
 }
 
+/// The weight [reps] can be done at with [rir] left, from an estimated
+/// max: Epley turned round, `max / (1 + (reps + rir) / 30)`, rounded down
+/// to the plate step. Null past [maxRepsForEstimate] reps to failure,
+/// where the formula no longer holds.
+double? weightForReps(
+  double oneRepMaxKg, {
+  required int reps,
+  required int rir,
+}) {
+  final toFailure = reps + rir;
+  if (oneRepMaxKg <= 0 || reps <= 0 || toFailure > maxRepsForEstimate) {
+    return null;
+  }
+  return roundToPlate(oneRepMaxKg / (1 + toFailure / 30));
+}
+
 /// The best estimated max from completed sessions in the 90 days before
 /// [startedAt]. A session at the same time is not its own reference.
 ExerciseHistoryEntry? relativeLoadReference(

@@ -1,0 +1,164 @@
+# generator version
+program generator: 2
+
+# muscle, intermediate, 3 days, 60 min, gym
+fullBody 0: 19 sets, 50 min
+  back-squat 4 x 8 rir 2
+  bench-press 4 x 8 rir 2
+  barbell-row 4 x 8 rir 2
+  deadlift 4 x 8 rir 2
+  ohp 3 x 10 rir 2
+fullBody 1: 18 sets, 48 min
+  dumbbell-romanian-deadlift 4 x 8 rir 2
+  seated-dumbbell-press 3 x 10 rir 2
+  lat-pulldown 3 x 10 rir 2
+  goblet-squat 4 x 8 rir 2
+  incline-dumbbell-press 4 x 8 rir 2
+fullBody 2: 21 sets, 54 min
+  leg-press 4 x 8 rir 2
+  pull-up 3 x 10 rir 2
+  machine-chest-press 4 x 8 rir 2
+  lying-leg-curl 3 x 12 rir 1
+  dumbbell-bent-over-row 4 x 8 rir 2
+  plank 3 x 45s rir 1
+weekly: lats 14, chest 12, glutes 12, quads 12, hamstrings 11, frontDelts 6, abs 3
+
+# muscle, intermediate, 4 days, 60 min, gym
+upper 0: 20 sets, 50 min
+  bench-press 4 x 8 rir 2
+  barbell-row 4 x 8 rir 2
+  ohp 3 x 10 rir 2
+  lat-pulldown 3 x 10 rir 2
+  tricep-pushdown 3 x 12 rir 1
+  bicep-curl 3 x 12 rir 1
+lower 0: 20 sets, 50 min
+  back-squat 4 x 8 rir 2
+  deadlift 4 x 8 rir 2
+  bulgarian-split-squat 3 x 10 rir 2
+  lying-leg-curl 3 x 12 rir 1
+  standing-calf-raise 3 x 12 rir 1
+  plank 3 x 45s rir 1
+upper 1: 20 sets, 50 min
+  incline-dumbbell-press 4 x 8 rir 2
+  dumbbell-bent-over-row 4 x 8 rir 2
+  seated-dumbbell-press 3 x 10 rir 2
+  pull-up 3 x 10 rir 2
+  rope-tricep-pushdown 3 x 12 rir 1
+  hammer-curl 3 x 12 rir 1
+lower 1: 20 sets, 50 min
+  goblet-squat 4 x 8 rir 2
+  dumbbell-romanian-deadlift 4 x 8 rir 2
+  reverse-lunge 3 x 10 rir 2
+  seated-leg-curl 3 x 12 rir 1
+  seated-calf-raise 3 x 12 rir 1
+  cable-crunch 3 x 12 rir 1
+weekly: glutes 18, lats 14, quads 14, hamstrings 14, chest 8, frontDelts 6, biceps 6, triceps 6, abs 6, calves 6
+
+# strength, beginner, 3 days, 45 min, gym
+fullBody 0: 14 sets, 37 min
+  goblet-squat 3 x 5 rir 3
+  machine-chest-press 3 x 5 rir 3
+  seated-row 3 x 5 rir 3
+  dumbbell-romanian-deadlift 3 x 5 rir 3
+  machine-shoulder-press 2 x 8 rir 3
+fullBody 1: 15 sets, 39 min
+  hip-thrust 3 x 5 rir 3
+  seated-dumbbell-press 2 x 8 rir 3
+  lat-pulldown 2 x 8 rir 3
+  leg-press 3 x 5 rir 3
+  incline-dumbbell-press 3 x 5 rir 3
+  plank 2 x 30s rir 2
+fullBody 2: 15 sets, 39 min
+  smith-squat 3 x 5 rir 3
+  assisted-pull-up 2 x 8 rir 3
+  bench-press 3 x 5 rir 3
+  lying-leg-curl 2 x 10 rir 2
+  chest-supported-row 3 x 5 rir 3
+  cable-crunch 2 x 10 rir 2
+weekly: glutes 12, chest 9, quads 9, lats 7, hamstrings 5, frontDelts 4, abs 4, upperBack 3
+
+# general, beginner, 2 days, 30 min, dumbbells
+fullBody 0: 9 sets, 24 min
+  goblet-squat 3 x 10 rir 3
+  incline-dumbbell-press 3 x 10 rir 3
+  one-arm-dumbbell-row 3 x 10 rir 3
+fullBody 1: 7 sets, 18 min
+  dumbbell-romanian-deadlift 3 x 10 rir 3
+  seated-dumbbell-press 2 x 12 rir 3
+  banded-lat-pulldown 2 x 12 rir 3
+weekly: glutes 6, lats 5, chest 3, quads 3, hamstrings 3, frontDelts 2
+
+# muscle, advanced, 6 days, 90 min, gym
+push 0: 16 sets, 38 min
+  bench-press 4 x 8 rir 2
+  ohp 3 x 10 rir 2
+  cable-fly 3 x 12 rir 1
+  lateral-raise 3 x 12 rir 1
+  tricep-pushdown 3 x 12 rir 1
+pull 0: 16 sets, 41 min
+  lat-pulldown 3 x 10 rir 2
+  barbell-row 4 x 8 rir 2
+  face-pull 3 x 12 rir 1
+  bicep-curl 3 x 12 rir 1
+  plank 3 x 45s rir 1
+legs 0: 20 sets, 50 min
+  back-squat 4 x 8 rir 2
+  deadlift 4 x 8 rir 2
+  bulgarian-split-squat 3 x 10 rir 2
+  lying-leg-curl 3 x 12 rir 1
+  standing-calf-raise 3 x 12 rir 1
+  cable-crunch 3 x 12 rir 1
+push 1: 16 sets, 38 min
+  incline-dumbbell-press 4 x 8 rir 2
+  seated-dumbbell-press 3 x 10 rir 2
+  pec-deck 3 x 12 rir 1
+  cable-lateral-raise 3 x 12 rir 1
+  rope-tricep-pushdown 3 x 12 rir 1
+pull 1: 16 sets, 39 min
+  pull-up 3 x 10 rir 2
+  dumbbell-bent-over-row 4 x 8 rir 2
+  reverse-pec-deck 3 x 12 rir 1
+  hammer-curl 3 x 12 rir 1
+  hanging-leg-raise 3 x 12 rir 1
+legs 1: 20 sets, 50 min
+  goblet-squat 4 x 8 rir 2
+  dumbbell-romanian-deadlift 4 x 8 rir 2
+  reverse-lunge 3 x 10 rir 2
+  seated-leg-curl 3 x 12 rir 1
+  seated-calf-raise 3 x 12 rir 1
+  plank 3 x 45s rir 1
+weekly: glutes 18, chest 14, lats 14, quads 14, hamstrings 14, abs 12, frontDelts 6, sideDelts 6, rearDelts 6, biceps 6, triceps 6, calves 6
+
+# muscle, intermediate, 5 days, 60 min, bodyweight
+upper 0: 20 sets, 53 min
+  push-up 4 x 8 rir 2
+  inverted-row 4 x 8 rir 2
+  pike-push-up 3 x 10 rir 2
+  pull-up 3 x 10 rir 2
+  dip 3 x 12 rir 1
+  chin-up 3 x 12 rir 1
+lower 0: 20 sets, 50 min
+  bodyweight-squat 4 x 8 rir 2
+  glute-bridge 4 x 8 rir 2
+  bodyweight-reverse-lunge 3 x 10 rir 2
+  nordic-hamstring-curl 3 x 12 rir 1
+  calf-raise 3 x 12 rir 1
+  plank 3 x 45s rir 1
+push 0: 13 sets, 34 min
+  incline-push-up 4 x 8 rir 2
+  pike-push-up 3 x 10 rir 2
+  push-up 3 x 12 rir 1
+  bench-dip 3 x 12 rir 1
+pull 0: 13 sets, 34 min
+  neutral-grip-pull-up 3 x 10 rir 2
+  inverted-row 4 x 8 rir 2
+  chin-up 3 x 12 rir 1
+  hanging-leg-raise 3 x 12 rir 1
+legs 0: 20 sets, 50 min
+  bodyweight-squat 4 x 8 rir 2
+  back-extension 4 x 8 rir 2
+  bodyweight-step-up 3 x 10 rir 2
+  nordic-hamstring-curl 3 x 12 rir 1
+  calf-raise 3 x 12 rir 1
+  dead-bug 3 x 12 rir 1
+weekly: quads 14, lats 12, chest 11, glutes 10, abs 9, upperBack 8, frontDelts 6, triceps 6, hamstrings 6, calves 6, spinalErectors 4

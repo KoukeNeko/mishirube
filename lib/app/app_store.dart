@@ -11,6 +11,7 @@ import 'set_timer.dart';
 
 export 'device_motion.dart';
 import '../backend/application/ai_service.dart';
+import '../backend/engines/program_generator.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/body_metrics.dart';
@@ -133,6 +134,7 @@ class AppStore extends ChangeNotifier {
   /// How the device is held and moved; none unless the app passes the
   /// sensor in.
   final DeviceMotion motion;
+
   final bool _ownsBackend;
 
   late bool _isOnboarded;
@@ -536,6 +538,24 @@ class AppStore extends ChangeNotifier {
     final created = _backend.training.createRoutine(name, exercises: planned);
     notifyListeners();
     return created;
+  }
+
+  /// The answers a program starts from: how the lifter has been training.
+  ProgramRequest get suggestedProgramRequest => suggestProgramRequest(
+    recentWorkouts,
+    now(),
+    base: ProgramRequest.initial(),
+  );
+
+  /// A program built for [request]; nothing is kept until [saveProgram].
+  GeneratedProgram buildProgram(ProgramRequest request) =>
+      _backend.training.buildProgram(request, library: _exercises);
+
+  /// Keeps each workout of [program] as a template of its own.
+  List<Routine> saveProgram(GeneratedProgram program) {
+    final saved = _backend.training.saveProgram(program);
+    notifyListeners();
+    return saved;
   }
 
   /// The name a template of [planned] gets: what it trains.

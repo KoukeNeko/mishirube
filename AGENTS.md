@@ -60,7 +60,11 @@ flutter test test/<file>_test.dart
   - `storage/` – `AppDatabase` (SQLite via `package:sqlite3`, migrations in
     `schema.dart`), one repository per area, and `TimelineQuery`.
   - `engines/` – deterministic calculation over domain values only:
-    training metrics, trends, insights, nutrition summaries, substitutions.
+    training metrics, trends, insights, nutrition summaries, substitutions,
+    and program generation (`program_generator.dart`: a request in, a set
+    of editable 課表 out; the exercise pools it draws from are
+    `program_slots.dart`, ids of the built-in library, which a test checks
+    exist). It never uses AI: the same request gives the same program.
   - `application/` – the use cases screens work through (`TrainingService`,
     `NutritionService`, `CatalogService`, `JournalService`,
     `InsightsService`).

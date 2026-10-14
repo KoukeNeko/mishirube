@@ -6521,6 +6521,71 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get daysOffLabel => '假日';
+
+  @override
+  String get generateRoutines => '生成課表';
+
+  @override
+  String get programGoal => '目標';
+
+  @override
+  String get programGoalGeneral => '一般';
+
+  @override
+  String get programGoalMuscle => '增肌';
+
+  @override
+  String get programGoalStrength => '力量';
+
+  @override
+  String get programLevel => '經驗';
+
+  @override
+  String get programLevelBeginner => '新手';
+
+  @override
+  String get programLevelIntermediate => '中階';
+
+  @override
+  String get programLevelAdvanced => '進階';
+
+  @override
+  String get programDays => '每週天數';
+
+  @override
+  String get programMinutes => '每次時間';
+
+  @override
+  String get programEquipmentGym => '健身房';
+
+  @override
+  String get shuffleProgram => '換一組';
+
+  @override
+  String savedRoutinesCount({required int count}) {
+    return '已存成 $count 份課表';
+  }
+
+  @override
+  String get workoutKindFullBody => '全身';
+
+  @override
+  String get workoutKindUpper => '上肢';
+
+  @override
+  String get workoutKindLower => '下肢';
+
+  @override
+  String get workoutKindPush => '推';
+
+  @override
+  String get workoutKindPull => '拉';
+
+  @override
+  String get workoutKindLegs => '腿';
+
+  @override
+  String get generatedProgramName => '生成的課表';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -13039,6 +13104,71 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get daysOffLabel => '假日';
+
+  @override
+  String get generateRoutines => '生成课表';
+
+  @override
+  String get programGoal => '目标';
+
+  @override
+  String get programGoalGeneral => '一般';
+
+  @override
+  String get programGoalMuscle => '增肌';
+
+  @override
+  String get programGoalStrength => '力量';
+
+  @override
+  String get programLevel => '经验';
+
+  @override
+  String get programLevelBeginner => '新手';
+
+  @override
+  String get programLevelIntermediate => '中阶';
+
+  @override
+  String get programLevelAdvanced => '进阶';
+
+  @override
+  String get programDays => '每周天数';
+
+  @override
+  String get programMinutes => '每次时间';
+
+  @override
+  String get programEquipmentGym => '健身房';
+
+  @override
+  String get shuffleProgram => '换一组';
+
+  @override
+  String savedRoutinesCount({required int count}) {
+    return '已存成 $count 份课表';
+  }
+
+  @override
+  String get workoutKindFullBody => '全身';
+
+  @override
+  String get workoutKindUpper => '上肢';
+
+  @override
+  String get workoutKindLower => '下肢';
+
+  @override
+  String get workoutKindPush => '推';
+
+  @override
+  String get workoutKindPull => '拉';
+
+  @override
+  String get workoutKindLegs => '腿';
+
+  @override
+  String get generatedProgramName => '生成的课表';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

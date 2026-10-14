@@ -6652,4 +6652,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get daysOffLabel => 'Days off';
+
+  @override
+  String get generateRoutines => 'Generate routines';
+
+  @override
+  String get programGoal => 'Goal';
+
+  @override
+  String get programGoalGeneral => 'General';
+
+  @override
+  String get programGoalMuscle => 'Muscle';
+
+  @override
+  String get programGoalStrength => 'Strength';
+
+  @override
+  String get programLevel => 'Experience';
+
+  @override
+  String get programLevelBeginner => 'Beginner';
+
+  @override
+  String get programLevelIntermediate => 'Intermediate';
+
+  @override
+  String get programLevelAdvanced => 'Advanced';
+
+  @override
+  String get programDays => 'Days a week';
+
+  @override
+  String get programMinutes => 'Time per workout';
+
+  @override
+  String get programEquipmentGym => 'Gym';
+
+  @override
+  String get shuffleProgram => 'Shuffle';
+
+  @override
+  String savedRoutinesCount({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Saved $count routines',
+      one: 'Saved 1 routine',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutKindFullBody => 'Full body';
+
+  @override
+  String get workoutKindUpper => 'Upper';
+
+  @override
+  String get workoutKindLower => 'Lower';
+
+  @override
+  String get workoutKindPush => 'Push';
+
+  @override
+  String get workoutKindPull => 'Pull';
+
+  @override
+  String get workoutKindLegs => 'Legs';
+
+  @override
+  String get generatedProgramName => 'Generated program';
 }

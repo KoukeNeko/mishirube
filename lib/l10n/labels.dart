@@ -1,5 +1,6 @@
 import '../app/app_store.dart';
 import '../backend/engines/body_metrics.dart';
+import '../backend/engines/program_generator.dart';
 import '../backend/engines/trend_findings.dart';
 import '../domain/domain.dart';
 import '../shared/format.dart';
@@ -1035,6 +1036,43 @@ extension AiReasoningText on AiReasoning {
     AiReasoning.low => l10n.aiReasoningLow,
     AiReasoning.medium => l10n.aiReasoningMedium,
     AiReasoning.high => l10n.aiReasoningHigh,
+  };
+}
+
+extension WorkoutKindText on WorkoutKind {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    WorkoutKind.fullBody => l10n.workoutKindFullBody,
+    WorkoutKind.upper => l10n.workoutKindUpper,
+    WorkoutKind.lower => l10n.workoutKindLower,
+    WorkoutKind.push => l10n.workoutKindPush,
+    WorkoutKind.pull => l10n.workoutKindPull,
+    WorkoutKind.legs => l10n.workoutKindLegs,
+  };
+}
+
+extension GeneratedProgramText on GeneratedProgram {
+  /// What a workout of this program is called: its kind, with a letter
+  /// after it when the program has several of that kind.
+  String nameOf(AppLocalizations l10n, GeneratedWorkout workout) =>
+      countOf(workout.kind) > 1
+      ? '${workout.kind.labelIn(l10n)} '
+            '${String.fromCharCode(0x41 + workout.index)}'
+      : workout.kind.labelIn(l10n);
+}
+
+extension ProgramGoalText on ProgramGoal {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    ProgramGoal.general => l10n.programGoalGeneral,
+    ProgramGoal.muscle => l10n.programGoalMuscle,
+    ProgramGoal.strength => l10n.programGoalStrength,
+  };
+}
+
+extension ProgramLevelText on ProgramLevel {
+  String labelIn(AppLocalizations l10n) => switch (this) {
+    ProgramLevel.beginner => l10n.programLevelBeginner,
+    ProgramLevel.intermediate => l10n.programLevelIntermediate,
+    ProgramLevel.advanced => l10n.programLevelAdvanced,
   };
 }
 

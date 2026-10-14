@@ -9871,5 +9871,94 @@
   "daysOffLabel": "假日",
   "@daysOffLabel": {
     "description": "Label of a figure: Saturday and Sunday."
+  },
+  "generateRoutines": "生成課表",
+  "@generateRoutines": {
+    "description": "Button and page title: builds a set of routines from a few answers."
+  },
+  "programGoal": "目標",
+  "@programGoal": {
+    "description": "Section label: what the generated program trains for."
+  },
+  "programGoalGeneral": "一般",
+  "@programGoalGeneral": {
+    "description": "Program goal."
+  },
+  "programGoalMuscle": "增肌",
+  "@programGoalMuscle": {
+    "description": "Program goal."
+  },
+  "programGoalStrength": "力量",
+  "@programGoalStrength": {
+    "description": "Program goal."
+  },
+  "programLevel": "經驗",
+  "@programLevel": {
+    "description": "Section label: how long the lifter has trained."
+  },
+  "programLevelBeginner": "新手",
+  "@programLevelBeginner": {
+    "description": "Training experience."
+  },
+  "programLevelIntermediate": "中階",
+  "@programLevelIntermediate": {
+    "description": "Training experience."
+  },
+  "programLevelAdvanced": "進階",
+  "@programLevelAdvanced": {
+    "description": "Training experience."
+  },
+  "programDays": "每週天數",
+  "@programDays": {
+    "description": "Section label."
+  },
+  "programMinutes": "每次時間",
+  "@programMinutes": {
+    "description": "Section label."
+  },
+  "programEquipmentGym": "健身房",
+  "@programEquipmentGym": {
+    "description": "Equipment choice: everything a gym has."
+  },
+  "shuffleProgram": "換一組",
+  "@shuffleProgram": {
+    "description": "Button: builds the same request with other exercises."
+  },
+  "savedRoutinesCount": "已存成 {count} 份課表",
+  "@savedRoutinesCount": {
+    "description": "Toast after a generated program is kept.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutKindFullBody": "全身",
+  "@workoutKindFullBody": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "workoutKindUpper": "上肢",
+  "@workoutKindUpper": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "workoutKindLower": "下肢",
+  "@workoutKindLower": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "workoutKindPush": "推",
+  "@workoutKindPush": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "workoutKindPull": "拉",
+  "@workoutKindPull": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "workoutKindLegs": "腿",
+  "@workoutKindLegs": {
+    "description": "Kind of generated workout; part of a routine name."
+  },
+  "generatedProgramName": "生成的課表",
+  "@generatedProgramName": {
+    "description": "Name a generated program is kept under."
   }
 }

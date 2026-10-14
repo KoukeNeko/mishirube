@@ -6540,4 +6540,69 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get daysOffLabel => '휴일';
+
+  @override
+  String get generateRoutines => '루틴 생성';
+
+  @override
+  String get programGoal => '목표';
+
+  @override
+  String get programGoalGeneral => '일반';
+
+  @override
+  String get programGoalMuscle => '근비대';
+
+  @override
+  String get programGoalStrength => '근력';
+
+  @override
+  String get programLevel => '경력';
+
+  @override
+  String get programLevelBeginner => '초보';
+
+  @override
+  String get programLevelIntermediate => '중급';
+
+  @override
+  String get programLevelAdvanced => '고급';
+
+  @override
+  String get programDays => '주당 일수';
+
+  @override
+  String get programMinutes => '회당 시간';
+
+  @override
+  String get programEquipmentGym => '헬스장';
+
+  @override
+  String get shuffleProgram => '다른 구성';
+
+  @override
+  String savedRoutinesCount({required int count}) {
+    return '루틴 $count개를 저장했습니다';
+  }
+
+  @override
+  String get workoutKindFullBody => '전신';
+
+  @override
+  String get workoutKindUpper => '상체';
+
+  @override
+  String get workoutKindLower => '하체';
+
+  @override
+  String get workoutKindPush => '푸시';
+
+  @override
+  String get workoutKindPull => '풀';
+
+  @override
+  String get workoutKindLegs => '다리';
+
+  @override
+  String get generatedProgramName => '생성한 프로그램';
 }

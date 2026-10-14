@@ -11373,6 +11373,132 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'假日'**
   String get daysOffLabel;
+
+  /// Button and page title: builds a set of routines from a few answers.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成課表'**
+  String get generateRoutines;
+
+  /// Section label: what the generated program trains for.
+  ///
+  /// In zh, this message translates to:
+  /// **'目標'**
+  String get programGoal;
+
+  /// Program goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'一般'**
+  String get programGoalGeneral;
+
+  /// Program goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'增肌'**
+  String get programGoalMuscle;
+
+  /// Program goal.
+  ///
+  /// In zh, this message translates to:
+  /// **'力量'**
+  String get programGoalStrength;
+
+  /// Section label: how long the lifter has trained.
+  ///
+  /// In zh, this message translates to:
+  /// **'經驗'**
+  String get programLevel;
+
+  /// Training experience.
+  ///
+  /// In zh, this message translates to:
+  /// **'新手'**
+  String get programLevelBeginner;
+
+  /// Training experience.
+  ///
+  /// In zh, this message translates to:
+  /// **'中階'**
+  String get programLevelIntermediate;
+
+  /// Training experience.
+  ///
+  /// In zh, this message translates to:
+  /// **'進階'**
+  String get programLevelAdvanced;
+
+  /// Section label.
+  ///
+  /// In zh, this message translates to:
+  /// **'每週天數'**
+  String get programDays;
+
+  /// Section label.
+  ///
+  /// In zh, this message translates to:
+  /// **'每次時間'**
+  String get programMinutes;
+
+  /// Equipment choice: everything a gym has.
+  ///
+  /// In zh, this message translates to:
+  /// **'健身房'**
+  String get programEquipmentGym;
+
+  /// Button: builds the same request with other exercises.
+  ///
+  /// In zh, this message translates to:
+  /// **'換一組'**
+  String get shuffleProgram;
+
+  /// Toast after a generated program is kept.
+  ///
+  /// In zh, this message translates to:
+  /// **'已存成 {count} 份課表'**
+  String savedRoutinesCount({required int count});
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'全身'**
+  String get workoutKindFullBody;
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'上肢'**
+  String get workoutKindUpper;
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'下肢'**
+  String get workoutKindLower;
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'推'**
+  String get workoutKindPush;
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'拉'**
+  String get workoutKindPull;
+
+  /// Kind of generated workout; part of a routine name.
+  ///
+  /// In zh, this message translates to:
+  /// **'腿'**
+  String get workoutKindLegs;
+
+  /// Name a generated program is kept under.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成的課表'**
+  String get generatedProgramName;
 }
 
 class _AppLocalizationsDelegate

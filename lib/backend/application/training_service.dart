@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../domain/domain.dart';
+import '../engines/program_generator.dart';
 import '../engines/training_metrics.dart';
 import '../storage/database.dart';
 import '../storage/exercise_repository.dart';
@@ -1071,16 +1072,45 @@ class TrainingService {
   List<Routine> routines(Map<String, ExerciseDefinition> exercises) =>
       _routines.all(exercises);
 
+  /// A program built for [request] from [library], each exercise planned
+  /// from what the lifter has done of it and rested as they have set it.
+  /// Nothing is kept until [saveProgram].
+  GeneratedProgram buildProgram(
+    ProgramRequest request, {
+    required Iterable<ExerciseDefinition> library,
+  }) => generateProgram(
+    request,
+    library: library,
+    historyOf: (exercise) => exercise.recordCount == 0
+        ? ExerciseHistory.empty
+        : _exercises.history(exercise.id, tracking: exercise.trackingType),
+    progressionLabel: _l10n.progressionHold,
+    restOf: restFor,
+  );
+
+  /// Keeps each workout of [program] as a template of its own, named for
+  /// what it trains: with a letter after the name when the program has
+  /// several of the kind.
+  List<Routine> saveProgram(GeneratedProgram program) => [
+    for (final workout in program.workouts)
+      createRoutine(
+        program.nameOf(_l10n, workout),
+        exercises: workout.exercises,
+        programName: _l10n.generatedProgramName,
+      ),
+  ];
+
   /// A new template, empty unless [exercises] are given. Exercises are
   /// otherwise added afterwards, the same way as to any other.
   Routine createRoutine(
     String name, {
     List<PlannedExercise> exercises = const [],
+    String programName = _ownProgramName,
   }) {
     final routine = Routine(
       id: _db.newId(),
       name: name,
-      programName: _ownProgramName,
+      programName: programName,
       estimatedMinutes: 0,
       lastCompletedLabel: _l10n.routineNeverDone,
       exercises: exercises,

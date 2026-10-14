@@ -6534,4 +6534,69 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get daysOffLabel => '休日';
+
+  @override
+  String get generateRoutines => 'ルーティンを生成';
+
+  @override
+  String get programGoal => '目的';
+
+  @override
+  String get programGoalGeneral => '一般';
+
+  @override
+  String get programGoalMuscle => '筋肥大';
+
+  @override
+  String get programGoalStrength => '筋力';
+
+  @override
+  String get programLevel => '経験';
+
+  @override
+  String get programLevelBeginner => '初心者';
+
+  @override
+  String get programLevelIntermediate => '中級者';
+
+  @override
+  String get programLevelAdvanced => '上級者';
+
+  @override
+  String get programDays => '週の日数';
+
+  @override
+  String get programMinutes => '1回の時間';
+
+  @override
+  String get programEquipmentGym => 'ジム';
+
+  @override
+  String get shuffleProgram => '別の組み合わせ';
+
+  @override
+  String savedRoutinesCount({required int count}) {
+    return '$count件のルーティンを保存しました';
+  }
+
+  @override
+  String get workoutKindFullBody => '全身';
+
+  @override
+  String get workoutKindUpper => '上半身';
+
+  @override
+  String get workoutKindLower => '下半身';
+
+  @override
+  String get workoutKindPush => 'プッシュ';
+
+  @override
+  String get workoutKindPull => 'プル';
+
+  @override
+  String get workoutKindLegs => '脚';
+
+  @override
+  String get generatedProgramName => '生成したプログラム';
 }

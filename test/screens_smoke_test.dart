@@ -45,6 +45,7 @@ import 'package:mishirube/features/nutrition/meal_portion_screen.dart';
 import 'package:mishirube/features/onboarding/onboarding_screen.dart';
 import 'package:mishirube/features/shell/home_shell.dart';
 import 'package:mishirube/features/training/active_workout_screen.dart';
+import 'package:mishirube/features/training/generate_routines_screen.dart';
 import 'package:mishirube/features/journal/measurement_entry_screen.dart';
 import 'package:mishirube/features/journal/sleep_entry_screen.dart';
 import 'package:mishirube/features/journal/wellness_entry_screen.dart';
@@ -372,6 +373,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'measurement entry': ((_) => const MeasurementEntryScreen(), _noSetup),
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
   'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
+  'generate routines': ((_) => const GenerateRoutinesScreen(), _noSetup),
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'sleep': ((_) => const SleepScreen(), _withStagedNight),
