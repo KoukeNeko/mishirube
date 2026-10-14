@@ -824,15 +824,23 @@ class HeaderAction extends StatelessWidget {
   }
 }
 
-/// The first [count] children of a page that the user can put in another
-/// order, by holding one down and dragging it. Each has a key, and gives
-/// the part to hold in a [ReorderableDelayedDragStartListener]. [onReorder]
-/// says where a child came from and the place it ends up in.
+/// [count] children of a page, from the [start]th, that the user can put in
+/// another order, by holding one down and dragging it. Each has a key, and
+/// gives the part to hold in a [ReorderableDelayedDragStartListener].
+/// [onReorder] says where a child came from and the place it ends up in,
+/// counted among the [count] and not the page.
 class ReorderableChildren {
-  const ReorderableChildren({required this.count, required this.onReorder});
+  const ReorderableChildren({
+    required this.count,
+    required this.onReorder,
+    this.start = 0,
+  });
 
   final int count;
   final void Function(int from, int to) onReorder;
+
+  /// How many children come before the first that moves.
+  final int start;
 }
 
 /// How much a held child grows as it comes off the page.
@@ -975,11 +983,12 @@ Widget _pageItems(
   required double bottomPadding,
   ReorderableChildren? reorder,
 }) {
+  final before = reorder?.start ?? 0;
   final held = reorder?.count ?? 0;
   final rest = SliverList.separated(
-    itemCount: children.length - held,
+    itemCount: children.length - before - held,
     separatorBuilder: (_, _) => const SizedBox(height: pageItemSpacing),
-    itemBuilder: (_, index) => children[held + index],
+    itemBuilder: (_, index) => children[before + held + index],
   );
   return SliverPadding(
     padding: EdgeInsets.only(
@@ -990,13 +999,25 @@ Widget _pageItems(
         ? rest
         : SliverMainAxisGroup(
             slivers: [
+              // What comes before, with the gap the page puts after it.
+              SliverList.separated(
+                itemCount: before,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: pageItemSpacing),
+                itemBuilder: (_, index) => Padding(
+                  padding: EdgeInsets.only(
+                    bottom: index == before - 1 ? pageItemSpacing : 0,
+                  ),
+                  child: children[index],
+                ),
+              ),
               SliverReorderableList(
                 itemCount: held,
                 // The page's gap under a child goes with it.
                 itemBuilder: (_, index) => Padding(
-                  key: ValueKey(children[index].key),
+                  key: ValueKey(children[before + index].key),
                   padding: const EdgeInsets.only(bottom: pageItemSpacing),
-                  child: children[index],
+                  child: children[before + index],
                 ),
                 onReorderStart: (_) => AppHaptics.tap(),
                 onReorderItem: reorder.onReorder,

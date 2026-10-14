@@ -37,7 +37,12 @@ class CollapsingPage extends StatelessWidget {
     this.hasTopGap = true,
     this.held,
     this.listHeader,
+    this.reorder,
   });
+
+  /// Which of [children] can be put in another order, if any; not with
+  /// [held].
+  final ReorderableChildren? reorder;
 
   /// A block held at the top, under the toolbar and what is pinned, whose
   /// own scrolling runs up behind them, as a calendar's months do; given
@@ -178,6 +183,7 @@ class CollapsingPage extends StatelessWidget {
             return CollapsingScrollView(
               header: header,
               hasTopGap: hasTopGap,
+              reorder: reorder,
               children: children,
             );
           },

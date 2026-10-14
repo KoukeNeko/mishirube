@@ -7194,6 +7194,12 @@ abstract class AppLocalizations {
   /// **'移除「{name}」'**
   String removeNamed({required String name});
 
+  /// Screen-reader label.
+  ///
+  /// In zh, this message translates to:
+  /// **'替換「{name}」'**
+  String replaceNamed({required String name});
+
   /// Row subtitle.
   ///
   /// In zh, this message translates to:

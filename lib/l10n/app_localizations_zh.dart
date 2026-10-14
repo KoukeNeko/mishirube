@@ -4096,6 +4096,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String replaceNamed({required String name}) {
+    return '替換「$name」';
+  }
+
+  @override
   String get exerciseNotFound => '找不到這個動作';
 
   @override
@@ -10606,6 +10611,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String removeNamed({required String name}) {
     return '移除「$name」';
+  }
+
+  @override
+  String replaceNamed({required String name}) {
+    return '替换「$name」';
   }
 
   @override

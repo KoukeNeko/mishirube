@@ -4104,6 +4104,11 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String replaceNamed({required String name}) {
+    return '「$name」を置き換え';
+  }
+
+  @override
   String get exerciseNotFound => '種目が見つかりません';
 
   @override

@@ -1173,6 +1173,7 @@
   "describeWorkoutHint": "例如：\n杠铃深蹲 4×8 60kg\n卧推 3 组 10 下 40 公斤\n引体向上 3x8",
   "noExercisesRead": "没有读到动作",
   "removeNamed": "移除「{name}」",
+  "replaceNamed": "替换「{name}」",
   "exerciseNotFound": "找不到这个动作",
   "setsTimesReps": "{sets} 组 × {reps} 下 · {weight} kg",
   "setsSameWeight": "{sets} 组 · {weight} kg × {reps} 下",

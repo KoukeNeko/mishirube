@@ -821,7 +821,12 @@ class TrainingService {
         if (loads.isNotEmpty)
           ExerciseSession(
             exercise: exercise,
-            isPersonalRecordCandidate: was?.isPersonalRecordCandidate ?? false,
+            // Planned against the exercise it was done as: another one,
+            // swapped in, has no such plan.
+            isPersonalRecordCandidate:
+                was != null &&
+                was.exercise == exercise &&
+                was.isPersonalRecordCandidate,
             joinsNext: was?.joinsNext ?? false,
             sets: [
               for (final (i, load) in loads.indexed) doneAt(was, i, load),

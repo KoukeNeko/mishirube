@@ -1173,6 +1173,7 @@
   "describeWorkoutHint": "예:\n바벨 스쿼트 4×8 60kg\n벤치 프레스 10회 3세트 40kg\n풀업 3x8",
   "noExercisesRead": "운동을 찾지 못함",
   "removeNamed": "'{name}' 제거",
+  "replaceNamed": "'{name}' 교체",
   "exerciseNotFound": "운동을 찾을 수 없음",
   "setsTimesReps": "{sets}세트 × {reps}회 · {weight} kg",
   "setsSameWeight": "{sets}세트 · {weight} kg × {reps}회",

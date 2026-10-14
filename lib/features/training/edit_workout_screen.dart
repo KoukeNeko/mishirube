@@ -14,8 +14,8 @@ const _maxMinutes = 600;
 
 /// A finished workout corrected after the fact: when it started and how
 /// long it took, each exercise's sets at the weight and reps they were
-/// really done at, an exercise taken out or one added. Nothing is
-/// written until 儲存.
+/// really done at, an exercise taken out, swapped for another or one
+/// added. Nothing is written until 儲存.
 class EditWorkoutScreen extends StatefulWidget {
   const EditWorkoutScreen({super.key, required this.workout});
 
@@ -96,10 +96,44 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
     _isChanged = true;
   });
 
+  /// The exercise at [from] goes to [to], its place once it is out.
+  void _move(int from, int to) => setState(() {
+    _exercises.insert(to, _exercises.removeAt(from));
+    _isChanged = true;
+  });
+
   void _remove(int index) => setState(() {
     _exercises.removeAt(index);
     _isChanged = true;
   });
+
+  /// Swaps the exercise at [index] for one from the library: the sets stay
+  /// as they were done, unless the new one is recorded another way (reps
+  /// for a time), when its usual sets take their place.
+  Future<void> _replace(int index) async {
+    final picked = await pushModalPage<List<ExerciseDefinition>>(
+      context,
+      const ExercisePickerScreen(purpose: PickerPurpose.single),
+    );
+    if (picked == null || picked.isEmpty || !mounted) return;
+    final replacement = picked.first;
+    final (key, correction) = _exercises[index];
+    if (replacement == correction.exercise) return;
+    final store = AppStoreScope.read(context);
+    setState(() {
+      _exercises[index] = (
+        key,
+        (
+          exercise: replacement,
+          was: correction.was,
+          loads: replacement.trackingType == correction.exercise.trackingType
+              ? correction.loads
+              : store.usualPlan(replacement).loads,
+        ),
+      );
+      _isChanged = true;
+    });
+  }
 
   Future<void> _add() async {
     final picked = await pushModalPage<List<ExerciseDefinition>>(
@@ -140,10 +174,45 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // What comes before the exercises, which are held by their headers and
+    // dragged into another order.
+    final before = [
+      PageSection(
+        label: context.l10n.timeSection,
+        children: [
+          Gutter(
+            child: GroupedCard(
+              children: [
+                NavRow(
+                  title: context.l10n.activityStartTime,
+                  subtitle:
+                      '${context.dates.monthDay(_startedAt)} '
+                      '${formatTimeOfDay(_startedAt)}',
+                  onTap: _pickStart,
+                ),
+              ],
+            ),
+          ),
+          Gutter(
+            child: NumberFieldRow(
+              label: context.l10n.durationLabel,
+              unit: context.l10n.minutesUnit,
+              controller: _minutes,
+            ),
+          ),
+        ],
+      ),
+      Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
+    ];
     return DetailPage(
       appBar: PageAppBar(
         title: context.l10n.editWorkout,
         subtitle: widget.workout.routineName,
+      ),
+      reorder: ReorderableChildren(
+        start: before.length,
+        count: _exercises.length,
+        onReorder: _move,
       ),
       // A workout with nothing left in it is deleted, not saved empty.
       footer: PrimaryButton(
@@ -156,32 +225,7 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
             : null,
       ),
       children: [
-        PageSection(
-          label: context.l10n.timeSection,
-          children: [
-            Gutter(
-              child: GroupedCard(
-                children: [
-                  NavRow(
-                    title: context.l10n.activityStartTime,
-                    subtitle:
-                        '${context.dates.monthDay(_startedAt)} '
-                        '${formatTimeOfDay(_startedAt)}',
-                    onTap: _pickStart,
-                  ),
-                ],
-              ),
-            ),
-            Gutter(
-              child: NumberFieldRow(
-                label: context.l10n.durationLabel,
-                unit: context.l10n.minutesUnit,
-                controller: _minutes,
-              ),
-            ),
-          ],
-        ),
-        Gutter(child: SectionLabel(context.l10n.exercisesLabel)),
+        ...before,
         for (final (index, (key, correction)) in _exercises.indexed)
           Gutter(
             key: key,
@@ -191,6 +235,8 @@ class _EditWorkoutScreenState extends State<EditWorkoutScreen> {
               loads: correction.loads,
               onLoads: (loads) => _setLoads(index, loads),
               onRemove: () => _remove(index),
+              onReplace: () => _replace(index),
+              reorderIndex: index,
             ),
           ),
         Gutter(

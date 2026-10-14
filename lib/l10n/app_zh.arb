@@ -6180,6 +6180,15 @@
       }
     }
   },
+  "replaceNamed": "替換「{name}」",
+  "@replaceNamed": {
+    "description": "Screen-reader label.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "exerciseNotFound": "找不到這個動作",
   "@exerciseNotFound": {
     "description": "Row subtitle."

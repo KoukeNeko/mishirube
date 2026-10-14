@@ -148,6 +148,7 @@ class PageScaffold extends StatelessWidget {
     this.footer,
     this.pinned,
     this.pinnedHeight,
+    this.reorder,
   });
 
   final PageAppBar appBar;
@@ -155,6 +156,9 @@ class PageScaffold extends StatelessWidget {
   final Widget? footer;
   final Widget? pinned;
   final double? pinnedHeight;
+
+  /// Which of [children] can be put in another order, if any.
+  final ReorderableChildren? reorder;
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +175,7 @@ class PageScaffold extends StatelessWidget {
         pinned: pinned,
         pinnedHeight: pinnedHeight,
         compactBar: appBar.compactBar,
+        reorder: reorder,
         children: children,
       ),
     );
@@ -184,17 +189,22 @@ class DetailPage extends StatelessWidget {
     required this.appBar,
     required this.children,
     this.footer,
+    this.reorder,
   });
 
   final PageAppBar appBar;
   final List<Widget> children;
   final Widget? footer;
 
+  /// Which of [children] can be put in another order, if any.
+  final ReorderableChildren? reorder;
+
   @override
   Widget build(BuildContext context) {
     return PageScaffold(
       appBar: appBar,
       footer: footer == null ? null : BottomActionBar(child: footer!),
+      reorder: reorder,
       children: children,
     );
   }

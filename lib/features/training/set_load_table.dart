@@ -174,6 +174,8 @@ class ExerciseLoadsCard extends StatelessWidget {
     required this.loads,
     required this.onLoads,
     required this.onRemove,
+    this.onReplace,
+    this.reorderIndex,
   });
 
   final String name;
@@ -182,22 +184,43 @@ class ExerciseLoadsCard extends StatelessWidget {
   final ValueChanged<List<SetLoad>> onLoads;
   final VoidCallback onRemove;
 
+  /// Swaps the exercise for another, keeping the sets; null where an
+  /// exercise cannot be swapped.
+  final VoidCallback? onReplace;
+
+  /// Its place among the page's reorderable children, where it is held by
+  /// its header and dragged to another; null where the order is fixed.
+  final int? reorderIndex;
+
   @override
   Widget build(BuildContext context) {
+    final header = Row(
+      children: [
+        Expanded(child: Text(name, style: AppTextStyles.itemTitle)),
+        if (onReplace case final onReplace?) ...[
+          ChipButton(
+            label: context.l10n.replaceAction,
+            semanticLabel: context.l10n.replaceNamed(name: name),
+            onTap: onReplace,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
+        ChipButton(
+          label: context.l10n.removeAction,
+          semanticLabel: context.l10n.removeNamed(name: name),
+          onTap: onRemove,
+        ),
+      ],
+    );
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(child: Text(name, style: AppTextStyles.itemTitle)),
-              ChipButton(
-                label: context.l10n.removeAction,
-                semanticLabel: context.l10n.removeNamed(name: name),
-                onTap: onRemove,
-              ),
-            ],
-          ),
+          // Hold the header to pick the exercise up and drag it elsewhere.
+          if (reorderIndex case final index?)
+            ReorderableDelayedDragStartListener(index: index, child: header)
+          else
+            header,
           const SizedBox(height: AppSpacing.sm),
           SetLoadTable(
             trackingType: trackingType,

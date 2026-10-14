@@ -1173,6 +1173,7 @@
   "describeWorkoutHint": "例：\nバーベルスクワット 4×8 60kg\nベンチプレス 10回×3セット 40kg\n懸垂 3x8",
   "noExercisesRead": "種目が見つかりません",
   "removeNamed": "「{name}」を削除",
+  "replaceNamed": "「{name}」を置き換え",
   "exerciseNotFound": "種目が見つかりません",
   "setsTimesReps": "{sets}セット × {reps}回 · {weight} kg",
   "setsSameWeight": "{sets}セット · {weight} kg × {reps}回",

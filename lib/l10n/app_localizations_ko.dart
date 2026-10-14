@@ -4105,6 +4105,11 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String replaceNamed({required String name}) {
+    return '\'$name\' 교체';
+  }
+
+  @override
   String get exerciseNotFound => '운동을 찾을 수 없음';
 
   @override

@@ -1173,6 +1173,7 @@
   "describeWorkoutHint": "E.g.\nBarbell squat 4×8 60kg\nBench press 3 sets of 10 at 40 kg\nPull-up 3x8",
   "noExercisesRead": "No exercises found",
   "removeNamed": "Remove \"{name}\"",
+  "replaceNamed": "Replace \"{name}\"",
   "exerciseNotFound": "Exercise not found",
   "setsTimesReps": "{sets} × {reps} · {weight} kg",
   "setsSameWeight": "{sets} sets · {weight} kg × {reps}",
