@@ -267,7 +267,7 @@ class TodayScreen extends StatelessWidget {
         switch ((
           modules.contains(AppModule.nutrition) && today.intake.recordCount > 0,
           modules.contains(AppModule.water)
-              ? _waterPill(context, store, today)
+              ? _waterSegment(context, store, today)
               : null,
         )) {
           (true, final water) => [
@@ -278,16 +278,24 @@ class TodayScreen extends StatelessWidget {
                 kcalTarget: today.kcalTarget,
                 onTap: () =>
                     pushPage(context, DailyNutritionScreen(day: today.day)),
-                extra: [?water],
+                extraRows: [
+                  if (water != null) [water],
+                ],
               ),
             ),
           ],
           (false, final water?) => [
             Gutter(
-              child: PillGroup(
+              child: CategoryGroup(
                 label: TodaySection.intake.labelIn(context.l10n),
                 color: AppColors.nutrition,
-                children: [water],
+                children: [
+                  SegmentedGroup(
+                    rows: [
+                      [water],
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -295,14 +303,16 @@ class TodayScreen extends StatelessWidget {
         },
       TodaySection.sleep when modules.contains(AppModule.sleep) => [
         Gutter(
-          child: PillGroup(
+          child: CategoryGroup(
             label: TodaySection.sleep.labelIn(context.l10n),
             color: AppColors.wellness,
             children: [
-              PillRow(
-                tiles: [
-                  _sleepPill(context, store, today),
-                  _bathPill(context, today),
+              SegmentedGroup(
+                rows: [
+                  [
+                    _sleepSegment(context, store, today),
+                    _bathSegment(context, today),
+                  ],
                 ],
               ),
             ],
@@ -311,10 +321,16 @@ class TodayScreen extends StatelessWidget {
       ],
       TodaySection.body when modules.contains(AppModule.weight) => [
         Gutter(
-          child: PillGroup(
+          child: CategoryGroup(
             label: TodaySection.body.labelIn(context.l10n),
             color: AppColors.body,
-            children: [_WeightTile(weight: today.weight)],
+            children: [
+              SegmentedGroup(
+                rows: [
+                  [_weightSegment(context, today.weight)],
+                ],
+              ),
+            ],
           ),
         ),
       ],
@@ -410,7 +426,7 @@ class TodayScreen extends StatelessWidget {
     ];
   }
 
-  Widget _sleepPill(
+  Segment _sleepSegment(
     BuildContext context,
     AppStore store,
     TodayViewModel today,
@@ -418,101 +434,104 @@ class TodayScreen extends StatelessWidget {
     final night = today.night;
     final sleepGoal = today.sleepGoal;
     final napTime = today.napTimeOn(night?.entry.sleptAt ?? today.day);
-    return PillTile(
-      label: context.l10n.moduleSleep,
-      color: AppColors.wellness,
-      surface: AppColors.wellnessSurface,
-      outline: AppColors.wellnessOutline,
-      leading: const Icon(Icons.bedtime_outlined),
-      placeholder: context.l10n.noEntriesShort,
-      value: night == null
-          ? null
-          : formatDuration(context.l10n, night.entry.duration),
-      // Time in bed is not measured against a goal for sleep, as the sleep
-      // page does not.
-      progress:
-          night != null &&
-              sleepGoal != null &&
-              night.entry.measure == SleepMeasure.asleep
-          ? night.entry.duration.inMinutes / sleepGoal.inMinutes
-          : null,
-      caption: switch (night) {
-        _ when napTime > Duration.zero => context.l10n.withNapsTotal(
-          time: formatDuration(
-            context.l10n,
-            (night?.entry.duration ?? Duration.zero) + napTime,
-          ),
-        ),
-        null => null,
-        final night when night.entry.measure == SleepMeasure.inBed =>
-          context.l10n.sleepMeasureInBed,
-        _ when sleepGoal != null => context.l10n.goalValue(
-          goal: formatDuration(context.l10n, sleepGoal),
-        ),
-        final night when night.isTypedIn => context.l10n.sourceManual,
-        final night =>
-          night.entry.sourceName.isEmpty
-              ? store.healthSourceName
-              : night.entry.sourceName,
-      },
+    return Segment(
       onTap: () => pushPage(context, SleepScreen(day: today.day)),
+      child: SegmentStat(
+        label: context.l10n.moduleSleep,
+        color: AppColors.wellness,
+        mark: (tint) => Icon(Icons.bedtime_outlined, size: 16, color: tint),
+        placeholder: context.l10n.noEntriesShort,
+        value: night == null
+            ? null
+            : formatDuration(context.l10n, night.entry.duration),
+        // Time in bed is not measured against a goal for sleep, as the
+        // sleep page does not.
+        progress:
+            night != null &&
+                sleepGoal != null &&
+                night.entry.measure == SleepMeasure.asleep
+            ? night.entry.duration.inMinutes / sleepGoal.inMinutes
+            : null,
+        caption: switch (night) {
+          _ when napTime > Duration.zero => context.l10n.withNapsTotal(
+            time: formatDuration(
+              context.l10n,
+              (night?.entry.duration ?? Duration.zero) + napTime,
+            ),
+          ),
+          null => null,
+          final night when night.entry.measure == SleepMeasure.inBed =>
+            context.l10n.sleepMeasureInBed,
+          _ when sleepGoal != null => context.l10n.goalValue(
+            goal: formatDuration(context.l10n, sleepGoal),
+          ),
+          final night when night.isTypedIn => context.l10n.sourceManual,
+          final night =>
+            night.entry.sourceName.isEmpty
+                ? store.healthSourceName
+                : night.entry.sourceName,
+        },
+      ),
     );
   }
 
-  Widget _bathPill(BuildContext context, TodayViewModel today) {
+  Segment _bathSegment(BuildContext context, TodayViewModel today) {
     final baths = today.baths;
     final bath = baths.lastOrNull;
-    return PillTile(
-      label: context.l10n.recordBath,
-      color: AppColors.wellness,
-      surface: AppColors.wellnessSurface,
-      outline: AppColors.wellnessOutline,
-      leading: const Icon(Icons.bathtub_outlined),
-      placeholder: context.l10n.noEntriesShort,
-      value: bath == null ? null : formatTimeOfDay(bath.bathedAt),
-      unit: bath == null
-          ? null
-          : [
-              ?bath.water?.labelIn(context.l10n),
-              ?bath.kind?.labelIn(context.l10n),
-            ].join(' · '),
-      caption: baths.length > 1
-          ? context.l10n.timesCount(count: baths.length)
-          : null,
+    return Segment(
       onTap: () => pushPage(context, BathScreen(day: today.day)),
+      child: SegmentStat(
+        label: context.l10n.recordBath,
+        color: AppColors.wellness,
+        mark: (tint) => Icon(Icons.bathtub_outlined, size: 16, color: tint),
+        placeholder: context.l10n.noEntriesShort,
+        value: bath == null ? null : formatTimeOfDay(bath.bathedAt),
+        unit: bath == null
+            ? null
+            : [
+                ?bath.water?.labelIn(context.l10n),
+                ?bath.kind?.labelIn(context.l10n),
+              ].join(' · '),
+        caption: baths.length > 1
+            ? context.l10n.timesCount(count: baths.length)
+            : null,
+      ),
     );
   }
 
-  Widget _waterPill(
+  Segment _waterSegment(
     BuildContext context,
     AppStore store,
     TodayViewModel today,
   ) {
     final water = today.water;
     final reference = today.waterReferenceMl;
-    return PillTile(
-      label: context.l10n.healthDataWater,
-      color: AppColors.water,
-      surface: AppColors.waterSurface,
-      outline: AppColors.waterOutline,
-      leading: const Icon(Icons.water_drop_outlined),
-      placeholder: context.l10n.noEntriesShort,
-      value: water.times == 0 ? null : formatKcal(water.millilitres),
-      unit: switch (reference) {
-        final reference? => '/ ${formatKcal(reference)} mL',
-        null => 'mL',
-      },
-      // Up to the reference and no further: past it the pill stays full
-      // rather than rewarding more.
-      level: switch (reference) {
-        final reference? when reference > 0 => water.millilitres / reference,
+    return Segment(
+      onTap: () => pushPage(context, WaterScreen(day: today.day)),
+      // Up to the reference and no further: past it the water stays full
+      // rather than rewarding more; none without a reference or a glass.
+      background: switch (reference) {
+        final reference? when reference > 0 && water.times > 0 => LevelFill(
+          level: water.millilitres / reference,
+          color: AppColors.water,
+          motion: store.motion.acceleration,
+        ),
         _ => null,
       },
-      motion: store.motion.acceleration,
-      caption: water.times == 0
-          ? null
-          : context.l10n.timesCount(count: water.times),
-      onTap: () => pushPage(context, WaterScreen(day: today.day)),
+      child: SegmentStat(
+        label: context.l10n.healthDataWater,
+        color: AppColors.water,
+        mark: (tint) => Icon(Icons.water_drop_outlined, size: 16, color: tint),
+        placeholder: context.l10n.noEntriesShort,
+        value: water.times == 0 ? null : formatKcal(water.millilitres),
+        unit: switch (reference) {
+          final reference? => '/ ${formatKcal(reference)} mL',
+          null => 'mL',
+        },
+        caption: water.times == 0
+            ? null
+            : context.l10n.timesCount(count: water.times),
+      ),
     );
   }
 
@@ -608,25 +627,23 @@ class TodayScreen extends StatelessWidget {
   }
 }
 
-class _WeightTile extends StatelessWidget {
-  const _WeightTile({required this.weight});
-
-  final ({
+Segment _weightSegment(
+  BuildContext context,
+  ({
     BodyWeight? latest,
     List<(DateTime, double, double)> week,
     double? weekChange,
   })
-  weight;
-
-  @override
-  Widget build(BuildContext context) {
-    final (:latest, :week, :weekChange) = weight;
-    return PillTile(
+  weight,
+) {
+  final (:latest, :week, :weekChange) = weight;
+  return Segment(
+    onTap: () => pushPage(context, const BodyScreen()),
+    child: SegmentStat(
       label: context.l10n.moduleWeight,
       color: AppColors.body,
-      surface: AppColors.bodySurface,
-      outline: AppColors.bodyOutline,
-      leading: const Icon(Icons.monitor_weight_outlined),
+      mark: (tint) =>
+          Icon(Icons.monitor_weight_outlined, size: 16, color: tint),
       placeholder: context.l10n.noEntriesShort,
       value: latest == null ? null : formatWeight(latest.weightKg),
       unit: 'kg',
@@ -638,7 +655,6 @@ class _WeightTile extends StatelessWidget {
         ),
         _ => context.dates.compactMonthDay(latest!.measuredAt),
       },
-      onTap: () => pushPage(context, const BodyScreen()),
-    );
-  }
+    ),
+  );
 }

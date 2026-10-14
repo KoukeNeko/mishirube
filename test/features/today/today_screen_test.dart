@@ -30,9 +30,9 @@ void main() {
       )
       .first;
 
-  /// The pill for [label], whatever is said after the name.
+  /// The figure named [label].
   Finder pill(String label) => find.byWidgetPredicate(
-    (widget) => widget is PillTile && widget.label == label,
+    (widget) => widget is SegmentStat && widget.label == label,
   );
 
   /// A store with the demo records hidden: the day as a new user has it.
@@ -199,7 +199,7 @@ void main() {
     );
     await pumpScreen(tester, const TodayScreen(), store: store);
 
-    final sleep = tester.widget<PillTile>(pill('睡眠'));
+    final sleep = tester.widget<SegmentStat>(pill('睡眠'));
     expect(sleep.value, '8 小時 10 分');
     expect(sleep.caption, '在床時間');
     expect(find.textContaining('目標'), findsNothing);
@@ -220,7 +220,7 @@ void main() {
     await pumpScreen(tester, const TodayScreen(), store: store);
 
     final row = pill('洗澡');
-    expect(tester.widget<PillTile>(row).unit, contains('溫水'));
+    expect(tester.widget<SegmentStat>(row).unit, contains('溫水'));
     await tester.tap(row);
     await tester.pumpAndSettle();
     expect(find.byType(BathScreen), findsOneWidget);
@@ -315,7 +315,7 @@ void main() {
     await disposeTree(tester);
   });
 
-  testWidgets('energy eaten fills its pill as far as the target is reached', (
+  testWidgets('energy eaten fills its bar as far as the target is reached', (
     tester,
   ) async {
     usePhoneViewport(tester);
@@ -344,13 +344,10 @@ void main() {
       find.textContaining('/ ${formatKcal(target)}', findRichText: true),
       findsOneWidget,
     );
-    final fill = tester.widget<FractionallySizedBox>(
-      find.descendant(
-        of: card,
-        matching: find.byKey(const ValueKey('pill-fill')),
-      ),
+    final bar = tester.widget<ThickProgress>(
+      find.descendant(of: card, matching: find.byType(ThickProgress)),
     );
-    expect(fill.widthFactor, 600 / target);
+    expect(bar.progress, 600 / target);
     await disposeTree(tester);
   });
 
@@ -401,7 +398,7 @@ void main() {
     expect(find.byType(IntakeCard), findsNothing, reason: 'nothing eaten');
     final group = find.ancestor(
       of: pill('喝水'),
-      matching: find.byType(PillGroup),
+      matching: find.byType(CategoryGroup),
     );
     expect(
       find.descendant(of: group, matching: find.text('飲食')),

@@ -150,101 +150,6 @@ class CardEyebrow extends StatelessWidget {
   }
 }
 
-/// One of the day's figures: its category, the value or 沒有紀錄, and
-/// underneath an optional small picture of it and a caption. Tiles in a
-/// row are stretched to one height, so the pictures and captions line up.
-class QuickStatTile extends StatelessWidget {
-  const QuickStatTile({
-    super.key,
-    required this.category,
-    required this.color,
-    required this.value,
-    this.unit,
-    this.caption,
-    this.visual,
-    this.level,
-    this.motion,
-    this.onTap,
-  });
-
-  final String category;
-  final Color color;
-
-  /// Null when nothing is recorded.
-  final String? value;
-  final String? unit;
-  final String? caption;
-
-  /// A progress line or sparkline, drawn in [color].
-  final Widget? visual;
-
-  /// How full the tile is drawn, 0–1 from the bottom, in [color]; null
-  /// for no level.
-  final double? level;
-
-  /// How the device moves, for the level to answer as water would.
-  final Stream<Offset>? motion;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final value = this.value;
-    final content = Padding(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CategoryLabel(label: category, color: color),
-          const SizedBox(height: AppSpacing.xs),
-          if (value == null)
-            Text(context.l10n.noEntriesShort, style: AppTextStyles.caption)
-          else
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: ValueWithUnit(
-                value: value,
-                unit: unit,
-                style: AppTextStyles.bigNumber.copyWith(fontSize: 26),
-              ),
-            ),
-          const Spacer(),
-          if (visual case final visual?) ...[
-            const SizedBox(height: AppSpacing.xs),
-            visual,
-          ],
-          if (caption case final caption?) ...[
-            const SizedBox(height: AppSpacing.xxs),
-            Text(
-              caption,
-              style: AppTextStyles.caption.copyWith(fontSize: 12),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
-    );
-    // The level reaches the card's edges, so the card pads nothing and
-    // the content pads itself.
-    return AppCard(
-      onTap: onTap,
-      padding: EdgeInsets.zero,
-      child: switch (level) {
-        final level? => Stack(
-          children: [
-            Positioned.fill(
-              child: LevelFill(level: level, color: color, motion: motion),
-            ),
-            content,
-          ],
-        ),
-        null => content,
-      },
-    );
-  }
-}
-
 /// The meal the user usually logs about now, not yet logged today.
 class NextMealCard extends StatelessWidget {
   const NextMealCard({super.key, required this.mealType, required this.onLog});
@@ -274,9 +179,10 @@ class NextMealCard extends StatelessWidget {
   }
 }
 
-/// The day's eating as pills under its name: the energy against its
-/// target, filled from the left as far as it is reached and no further past
-/// it, then the macros two by two. Any of them opens the day.
+/// The day's eating as one group under its name: the energy against its
+/// target as the figure that matters, then the macros two by two, and what
+/// else belongs to eating (the water drunk) as rows of its own. Any part
+/// opens the day.
 class IntakeCard extends StatelessWidget {
   const IntakeCard({
     super.key,
@@ -284,54 +190,40 @@ class IntakeCard extends StatelessWidget {
     required this.convention,
     required this.kcalTarget,
     required this.onTap,
-    this.extra = const [],
+    this.extraRows = const [],
   });
 
   /// What was eaten on the day.
   final DaySummary summary;
   final NutritionConvention convention;
 
-  /// What the day's energy is set against; null draws no fill.
+  /// What the day's energy is set against; null draws no bar.
   final double? kcalTarget;
   final VoidCallback onTap;
 
-  /// What else belongs to eating, under the totals: the water drunk.
-  final List<Widget> extra;
+  /// Rows under the macros.
+  final List<List<Segment>> extraRows;
 
   @override
   Widget build(BuildContext context) {
     final target = kcalTarget;
-    final macros = [
-      (
-        convention.proteinName(context.l10n),
-        summary.proteinGrams,
-        summary.mealsWithoutProtein,
-        AppColors.macroProtein,
-      ),
-      (
-        convention.carbName(context.l10n),
-        convention.countsAvailableCarb
-            ? summary.availableCarbGrams
-            : summary.carbGrams,
-        convention.countsAvailableCarb
-            ? summary.mealsWithoutAvailableCarb
-            : summary.mealsWithoutCarb,
-        AppColors.macroCarb,
-      ),
-      (
-        convention.fatName(context.l10n),
-        summary.fatGrams,
-        summary.mealsWithoutFat,
-        AppColors.macroFat,
-      ),
-      (
-        convention.fibreName(context.l10n),
-        summary.fibreGrams,
-        summary.mealsWithoutFibre,
-        AppColors.macroFibre,
-      ),
-    ];
-    return PillGroup(
+    Segment macro(String name, double grams, int missing, Color color) =>
+        Segment(
+          onTap: onTap,
+          child: SegmentStat(
+            label: name,
+            color: color,
+            mark: _dot,
+            placeholder: '—',
+            // Unknown when no record had the figure.
+            value: missing == summary.recordCount && summary.recordCount > 0
+                ? null
+                : formatAmount(grams),
+            unit: 'g',
+            valueSize: 20,
+          ),
+        );
+    return CategoryGroup(
       label: context.l10n.moduleNutrition,
       color: AppColors.nutrition,
       tag: summary.hasEstimates
@@ -341,78 +233,81 @@ class IntakeCard extends StatelessWidget {
             )
           : null,
       children: [
-        PillTile(
-          label: context.l10n.mealsCount(count: summary.mealCount),
-          color: AppColors.nutrition,
-          surface: AppColors.nutritionSurface,
-          outline: AppColors.nutritionOutline,
-          leading: const Icon(Icons.restaurant),
-          placeholder: context.l10n.noEntriesShort,
-          value: formatKcal(summary.kcal.roundToDouble()),
-          unit: target == null ? 'kcal' : '/ ${formatKcal(target)} kcal',
-          progress: switch (target) {
-            final target? when target > 0 => summary.kcal / target,
-            _ => null,
-          },
-          onTap: onTap,
-        ),
-        // Two across, one to a row where two do not fit.
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final columns = constraints.maxWidth >= 260 ? 2 : 1;
-            final width =
-                (constraints.maxWidth - AppSpacing.xs * (columns - 1)) /
-                columns;
-            return Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: [
-                for (final (label, grams, missing, color) in macros)
-                  SizedBox(
-                    width: width,
-                    child: PillTile(
-                      isCompact: true,
-                      label: label,
-                      color: AppColors.nutrition,
-                      surface: AppColors.nutritionSurface,
-                      outline: AppColors.nutritionOutline,
-                      leading: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const SizedBox.square(dimension: 8),
-                      ),
-                      placeholder: '—',
-                      // Unknown when no record had the figure.
-                      value:
-                          missing == summary.recordCount &&
-                              summary.recordCount > 0
-                          ? null
-                          : formatAmount(grams),
-                      unit: 'g',
-                      onTap: onTap,
-                    ),
-                  ),
-              ],
-            );
-          },
+        SegmentedGroup(
+          rows: [
+            [
+              Segment(
+                onTap: onTap,
+                surface: AppColors.surfaceRaised,
+                child: SegmentHero(
+                  label: context.l10n.mealsCount(count: summary.mealCount),
+                  color: AppColors.nutrition,
+                  value: formatKcal(summary.kcal.roundToDouble()),
+                  unit: target == null
+                      ? 'kcal'
+                      : '/ ${formatKcal(target)} kcal',
+                  progress: switch (target) {
+                    final target? when target > 0 => summary.kcal / target,
+                    _ => null,
+                  },
+                ),
+              ),
+            ],
+            [
+              macro(
+                convention.proteinName(context.l10n),
+                summary.proteinGrams,
+                summary.mealsWithoutProtein,
+                AppColors.macroProtein,
+              ),
+              macro(
+                convention.carbName(context.l10n),
+                convention.countsAvailableCarb
+                    ? summary.availableCarbGrams
+                    : summary.carbGrams,
+                convention.countsAvailableCarb
+                    ? summary.mealsWithoutAvailableCarb
+                    : summary.mealsWithoutCarb,
+                AppColors.macroCarb,
+              ),
+            ],
+            [
+              macro(
+                convention.fatName(context.l10n),
+                summary.fatGrams,
+                summary.mealsWithoutFat,
+                AppColors.macroFat,
+              ),
+              macro(
+                convention.fibreName(context.l10n),
+                summary.fibreGrams,
+                summary.mealsWithoutFibre,
+                AppColors.macroFibre,
+              ),
+            ],
+            ...extraRows,
+          ],
         ),
         if (_leftOut(context.l10n, summary, convention) case final note?)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
             child: Text(note, style: AppTextStyles.caption),
           ),
-        ...extra,
       ],
     );
   }
 }
 
-/// A category of Today: its name under a dot in its colour, and the pills
-/// that belong to it, one gap apart so they read as one group.
-class PillGroup extends StatelessWidget {
-  const PillGroup({
+/// The dot a macro has in front of its name, in its colour.
+Widget _dot(Color tint) => DecoratedBox(
+  decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
+  child: const SizedBox.square(dimension: 8),
+);
+
+/// A category of Today: its name under a dot in its colour, and what
+/// belongs to it, one gap apart so it reads as one group.
+class CategoryGroup extends StatelessWidget {
+  const CategoryGroup({
     super.key,
     required this.label,
     required this.color,
@@ -444,34 +339,6 @@ class PillGroup extends StatelessWidget {
           ),
         ),
         ...children,
-      ],
-    );
-  }
-}
-
-/// Pills side by side, two across and as tall as the tallest; a last one
-/// alone takes the row.
-class PillRow extends StatelessWidget {
-  const PillRow({super.key, required this.tiles});
-
-  final List<Widget> tiles;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      spacing: AppSpacing.xs,
-      children: [
-        for (var row = 0; row < tiles.length; row += 2)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpacing.xs,
-              children: [
-                Expanded(child: tiles[row]),
-                if (row + 1 < tiles.length) Expanded(child: tiles[row + 1]),
-              ],
-            ),
-          ),
       ],
     );
   }

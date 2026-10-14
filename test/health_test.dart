@@ -1536,10 +1536,10 @@ void main() {
         startedAt: wake.subtract(const Duration(hours: 8)),
       );
 
-      /// The sleep pill that says [caption] after its name.
+      /// The sleep figure that says [caption] under its value.
       Finder sleepPill(String caption) => find.byWidgetPredicate(
         (widget) =>
-            widget is PillTile &&
+            widget is SegmentStat &&
             widget.label == '睡眠' &&
             widget.caption == caption,
       );
@@ -1569,9 +1569,9 @@ void main() {
         kind: SleepKind.nap,
       );
       await pumpScreen(tester, const TodayScreen(), store: store);
-      final sleep = tester.widget<PillTile>(
+      final sleep = tester.widget<SegmentStat>(
         find.byWidgetPredicate(
-          (widget) => widget is PillTile && widget.label == '睡眠',
+          (widget) => widget is SegmentStat && widget.label == '睡眠',
         ),
       );
       expect(sleep.caption, '含小睡共 40 分');
