@@ -8,6 +8,7 @@ export 'chrome/chrome_visibility.dart';
 // Display: cards, rows, stats, charts, banners.
 export 'content/card_pager.dart';
 export 'content/cards.dart';
+export 'content/category_group.dart';
 export 'content/chart_entrance.dart';
 export 'content/chart_parts.dart';
 export 'content/chart_scrubber.dart';

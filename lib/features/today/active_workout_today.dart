@@ -9,7 +9,6 @@ import '../../shared/widgets/content/elapsed_clock.dart';
 import '../../shared/widgets/widgets.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../training/active_workout_screen.dart';
-import 'today_widgets.dart';
 import '../../l10n/l10n.dart';
 
 /// Today while a workout runs: insights pause, only facts are shown.
