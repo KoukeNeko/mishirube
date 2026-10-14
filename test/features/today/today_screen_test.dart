@@ -557,6 +557,33 @@ void main() {
     await disposeTree(tester);
   });
 
+  testWidgets('the week of weight is drawn in, and sways when shaken', (
+    tester,
+  ) async {
+    usePhoneViewport(tester);
+    await pumpScreen(
+      tester,
+      const TodayScreen(),
+      store: AppStore(clock: FakeClock().now, isOnboarded: true),
+    );
+
+    final weight = find.ancestor(
+      of: find.text('體重'),
+      matching: find.byType(SegmentStat),
+    );
+    expect(weight, findsOneWidget);
+    expect(
+      find.descendant(of: weight, matching: find.byType(ShakeShear)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: weight, matching: find.byType(ChartEntrance)),
+      findsOneWidget,
+      reason: 'drawn in as the other charts are',
+    );
+    await disposeTree(tester);
+  });
+
   testWidgets('the week is a segment to a day, and opens the goal', (
     tester,
   ) async {
@@ -764,8 +791,17 @@ void main() {
     );
     expect(tester.getTopRight(cards.last).dx, greaterThan(screen));
 
+    final heading = find.text('訓練');
+    expect(heading, findsOneWidget, reason: 'one name for both workouts');
+    final headingAt = tester.getTopLeft(heading);
+
     await tester.drag(cards.first, const Offset(-250, 0));
     await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(heading),
+      headingAt,
+      reason: 'the name stays put as the workouts are swiped',
+    );
     await tester.tap(cards.last);
     await tester.pumpAndSettle();
     expect(

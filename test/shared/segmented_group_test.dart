@@ -256,7 +256,7 @@ void main() {
     expect(find.byType(ThickProgress), findsOneWidget);
   });
 
-  testWidgets('a bar runs to a new length, and stops at the target', (
+  testWidgets('a bar fills in as a chart does, and again when it changes', (
     tester,
   ) async {
     Widget bar(double progress) => MaterialApp(
@@ -269,7 +269,35 @@ void main() {
     );
 
     await tester.pumpWidget(bar(0.25));
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isTrue, reason: 'drawn in on show');
     await tester.pumpAndSettle();
+    expect(tester.hasRunningAnimations, isFalse);
+
+    await tester.pumpWidget(bar(0.5));
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isTrue, reason: 'and on a change');
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a bar for work under way runs to a new length, and stops at '
+      'the target', (tester) async {
+    Widget bar(double progress) => MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 200,
+          child: ThickProgress(
+            progress: progress,
+            color: Colors.orange,
+            drawsIn: false,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(bar(0.25));
+    await tester.pump();
+    expect(tester.hasRunningAnimations, isFalse, reason: 'there as it is');
     await tester.pumpWidget(bar(1.5));
     await tester.pump(const Duration(milliseconds: 100));
     expect(tester.hasRunningAnimations, isTrue, reason: 'on its way');

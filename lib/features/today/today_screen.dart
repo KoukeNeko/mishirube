@@ -12,6 +12,7 @@ import '../../shared/motion.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/daily_activity_screen.dart';
 import '../body/body_screen.dart';
+import '../body/weight_trend_chart.dart';
 import '../goal/goal_entry_button.dart';
 import '../goal/goal_screen.dart';
 import '../log/timeline_destination.dart';
@@ -200,16 +201,28 @@ class TodayScreen extends StatelessWidget {
       }
     }
     if (done.isNotEmpty) {
-      return CardPager(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpacing.xs,
         children: [
-          for (final workout in done)
-            CompletedWorkoutCard(
-              workout: workout,
-              onTap: () => pushPage(
-                context,
-                WorkoutSummaryScreen(workoutId: workout.id),
-              ),
+          Gutter(
+            child: CategoryHeading(
+              label: context.l10n.moduleTraining,
+              color: AppColors.training,
             ),
+          ),
+          CardPager(
+            children: [
+              for (final workout in done)
+                CompletedWorkoutCard(
+                  workout: workout,
+                  onTap: () => pushPage(
+                    context,
+                    WorkoutSummaryScreen(workoutId: workout.id),
+                  ),
+                ),
+            ],
+          ),
         ],
       );
     }
@@ -687,6 +700,23 @@ Segment _weightSegment(
       placeholder: context.l10n.noEntriesShort,
       value: latest == null ? null : formatWeight(latest.weightKg),
       unit: 'kg',
+      // The week sways when the device is shaken, held at its left edge,
+      // and is drawn in from there as a chart is.
+      chart: week.length < 2
+          ? null
+          : ShakeShear(
+              motion: AppStoreScope.of(context).motion.acceleration,
+              child: ChartEntrance(
+                shows: week,
+                builder: (context, drawn) => ClipRect(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    widthFactor: easedProgress(drawn),
+                    child: WeightTrendChart(points: week, height: 28),
+                  ),
+                ),
+              ),
+            ),
       caption: switch ((latest, weekChange)) {
         (null, _) => null,
         (_, final change?) => context.l10n.weightChange7Days(

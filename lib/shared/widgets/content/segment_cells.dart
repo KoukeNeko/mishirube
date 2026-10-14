@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../motion.dart';
+import 'chart_entrance.dart';
 import 'stats.dart';
 
 /// The room a segment's content keeps on every side.
@@ -61,6 +62,7 @@ class SegmentStat extends StatelessWidget {
     this.unit,
     this.caption,
     this.progress,
+    this.chart,
     this.valueSize = 28,
   });
 
@@ -80,6 +82,10 @@ class SegmentStat extends StatelessWidget {
   /// 0–1: a thin bar under the value for a figure with a target; none
   /// without one, and none without a value.
   final double? progress;
+
+  /// Between the value and its caption, for a figure with a line of its
+  /// own; none without a value.
+  final Widget? chart;
   final double valueSize;
 
   @override
@@ -118,6 +124,10 @@ class SegmentStat extends StatelessWidget {
               )
             else
               MetricValue(value: value, unit: unit, size: valueSize),
+            if (chart case final chart? when value != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              chart,
+            ],
             if (caption case final caption? when value != null)
               Text(
                 caption,
@@ -278,8 +288,12 @@ class SegmentHero extends StatelessWidget {
 /// A bar of [height], filled in [color] as far as [progress], a [gap]
 /// apart from its track, which has a dot at its end where the bar would
 /// have reached: Material 3 Expressive's determinate linear indicator.
-/// It runs to its new length rather than jumping, and not at all with
-/// reduced motion; the track is only the bar's room, never a value.
+/// The track is only the bar's room, never a value.
+///
+/// A figure against its target fills in as a chart does
+/// ([ChartEntrance]), and again when it changes. With [drawsIn] off, for
+/// work under way, whose bar moves on its own, it runs to its new length
+/// instead. With reduced motion it is drawn whole.
 class ThickProgress extends StatelessWidget {
   const ThickProgress({
     super.key,
@@ -288,6 +302,7 @@ class ThickProgress extends StatelessWidget {
     this.height = 8,
     this.gap = 4,
     this.track = AppColors.outline,
+    this.drawsIn = true,
   });
 
   final double progress;
@@ -295,22 +310,31 @@ class ThickProgress extends StatelessWidget {
   final double height;
   final double gap;
   final Color track;
+  final bool drawsIn;
 
   @override
   Widget build(BuildContext context) {
+    final value = progress.clamp(0.0, 1.0);
+    Widget bar(double shown) => CustomPaint(
+      size: Size(double.infinity, height),
+      painter: _ThickProgressPainter(
+        progress: shown,
+        color: color,
+        track: track,
+        gap: gap,
+      ),
+    );
+    if (drawsIn) {
+      return ChartEntrance(
+        shows: [value],
+        builder: (context, drawn) => bar(value * easedProgress(drawn)),
+      );
+    }
     return TweenAnimationBuilder<double>(
-      tween: Tween(end: progress.clamp(0.0, 1.0)),
+      tween: Tween(end: value),
       duration: chromeDuration(context, const Duration(milliseconds: 330)),
       curve: Curves.easeOutCubic,
-      builder: (context, shown, _) => CustomPaint(
-        size: Size(double.infinity, height),
-        painter: _ThickProgressPainter(
-          progress: shown,
-          color: color,
-          track: track,
-          gap: gap,
-        ),
-      ),
+      builder: (context, shown, _) => bar(shown),
     );
   }
 }

@@ -183,7 +183,11 @@ class _RunningWorkout extends StatelessWidget {
             style: AppTextStyles.caption.copyWith(fontSize: 14),
           ),
           const SizedBox(height: AppSpacing.sm),
-          ThickProgress(progress: progress, color: AppColors.training),
+          ThickProgress(
+            progress: progress,
+            color: AppColors.training,
+            drawsIn: false,
+          ),
           const SizedBox(height: AppSpacing.md),
           PrimaryButton(
             label: context.l10n.backToWorkout,

@@ -312,6 +312,43 @@ Widget _dot(Color tint) => DecoratedBox(
   child: const SizedBox.square(dimension: 8),
 );
 
+/// A category's name beside a dot in its colour, and a [tag] at the end.
+/// A heading to a screen reader, as a section label is.
+class CategoryHeading extends StatelessWidget {
+  const CategoryHeading({
+    super.key,
+    required this.label,
+    required this.color,
+    this.tag,
+  });
+
+  final String label;
+  final Color color;
+  final Widget? tag;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+      child: Row(
+        children: [
+          // It takes the room the tag leaves, so a long name shortens.
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Semantics(
+                header: true,
+                child: CategoryLabel(label: label, color: color),
+              ),
+            ),
+          ),
+          ?tag,
+        ],
+      ),
+    );
+  }
+}
+
 /// A category of Today: its name under a dot in its colour, and what
 /// belongs to it, one gap apart so it reads as one group.
 class CategoryGroup extends StatelessWidget {
@@ -336,25 +373,7 @@ class CategoryGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.xs,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-          child: Row(
-            children: [
-              // A heading to a screen reader, as a section label is. It
-              // takes the room the tag leaves, so a long name shortens.
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Semantics(
-                    header: true,
-                    child: CategoryLabel(label: label, color: color),
-                  ),
-                ),
-              ),
-              ?tag,
-            ],
-          ),
-        ),
+        CategoryHeading(label: label, color: color, tag: tag),
         ...children,
       ],
     );
@@ -386,7 +405,8 @@ String? _leftOut(
 }
 
 /// Today's finished workout, once there is nothing left to start: how
-/// long it took, and under it the sets, the exercises and the records.
+/// long it took, and under it the sets, the exercises and the records. The
+/// category's name is the page's, so it stays put as these are swiped.
 class CompletedWorkoutCard extends StatelessWidget {
   const CompletedWorkoutCard({
     super.key,
@@ -409,35 +429,27 @@ class CompletedWorkoutCard extends StatelessWidget {
         value: '$value',
       ),
     );
-    return CategoryGroup(
-      label: context.l10n.moduleTraining,
-      color: AppColors.training,
-      children: [
-        SegmentedGroup(
-          rows: [
-            [
-              Segment(
-                onTap: onTap,
-                surface: AppColors.surfaceRaised,
-                child: SegmentHero(
-                  label: context.l10n.routineCompleted(
-                    name: session.routineName,
-                  ),
-                  color: AppColors.training,
-                  value: formatClock(session.elapsedAt(session.finishedAt!)),
-                ),
-              ),
-            ],
-            [
-              stat(context.l10n.totalSets, session.completedSets),
-              stat(context.l10n.exercisesLabel, session.exercises.length),
-              stat(
-                context.l10n.personalRecords,
-                AppStoreScope.of(context).workoutReview(session).records,
-              ),
-            ],
-          ],
-        ),
+    return SegmentedGroup(
+      rows: [
+        [
+          Segment(
+            onTap: onTap,
+            surface: AppColors.surfaceRaised,
+            child: SegmentHero(
+              label: context.l10n.routineCompleted(name: session.routineName),
+              color: AppColors.training,
+              value: formatClock(session.elapsedAt(session.finishedAt!)),
+            ),
+          ),
+        ],
+        [
+          stat(context.l10n.totalSets, session.completedSets),
+          stat(context.l10n.exercisesLabel, session.exercises.length),
+          stat(
+            context.l10n.personalRecords,
+            AppStoreScope.of(context).workoutReview(session).records,
+          ),
+        ],
       ],
     );
   }
