@@ -1,0 +1,1405 @@
+{
+ "source": "ExerciseDB free tier (AscendAPI), https://oss.exercisedb.dev",
+ "matches": {
+  "alternating-kettlebell-floor-press": {
+   "id": "7w6i0vE",
+   "name": "kettlebell alternating press on floor"
+  },
+  "alternating-kettlebell-press": {
+   "id": "5KLbZWx",
+   "name": "kettlebell alternating press"
+  },
+  "ankle-circle": {
+   "id": "uL9CsKm",
+   "name": "ankle circles"
+  },
+  "archer-pull-up": {
+   "id": "72BC5Za",
+   "name": "archer pull up"
+  },
+  "archer-push-up": {
+   "id": "A9qxk2F",
+   "name": "archer push up"
+  },
+  "arnold-press": {
+   "id": "Xy4jlWA",
+   "name": "dumbbell arnold press"
+  },
+  "assisted-chin-up": {
+   "id": "MaMuGH6",
+   "name": "lever assisted chin-up"
+  },
+  "assisted-pull-up": {
+   "id": "kiJ4Z2K",
+   "name": "assisted pull-up"
+  },
+  "back-lever": {
+   "id": "GaSzzuh",
+   "name": "back lever"
+  },
+  "band-bench-press": {
+   "id": "khlHMqs",
+   "name": "band bench press"
+  },
+  "banded-alternating-curl": {
+   "id": "3omWx6P",
+   "name": "band alternating biceps curl"
+  },
+  "banded-bent-over-reverse-fly": {
+   "id": "sTfvVsG",
+   "name": "band reverse fly"
+  },
+  "banded-concentration-curl": {
+   "id": "kmVVAfu",
+   "name": "band concentration curl"
+  },
+  "banded-front-raise": {
+   "id": "TFA88iB",
+   "name": "band front raise"
+  },
+  "banded-pull-through": {
+   "id": "VtTbiP3",
+   "name": "band pull through"
+  },
+  "banded-seated-hip-abduction": {
+   "id": "0xDpB4L",
+   "name": "resistance band seated hip abduction"
+  },
+  "banded-shoulder-press": {
+   "id": "peAeMR3",
+   "name": "band shoulder press"
+  },
+  "banded-shrug": {
+   "id": "trmte8s",
+   "name": "band shrug"
+  },
+  "banded-y-raise": {
+   "id": "aHDy5O5",
+   "name": "band y-raise"
+  },
+  "barbell-behind-the-back-wrist-curl": {
+   "id": "2qTvJAZ",
+   "name": "barbell standing back wrist curl"
+  },
+  "barbell-bent-arm-pullover": {
+   "id": "cA9FuWG",
+   "name": "barbell bent arm pullover"
+  },
+  "barbell-bulgarian-split-squat": {
+   "id": "gGNQmVt",
+   "name": "barbell single leg split squat"
+  },
+  "barbell-clean-and-press": {
+   "id": "SGY8Zui",
+   "name": "barbell clean and press"
+  },
+  "barbell-concentration-curl": {
+   "id": "1V1gj1u",
+   "name": "barbell seated close-grip concentration curl"
+  },
+  "barbell-curl": {
+   "id": "25GPyDY",
+   "name": "barbell curl"
+  },
+  "barbell-finger-curl": {
+   "id": "awG04cF",
+   "name": "finger curls"
+  },
+  "barbell-front-raise": {
+   "id": "b2Uoz54",
+   "name": "barbell front raise"
+  },
+  "barbell-front-raise-and-pullover": {
+   "id": "33AzZeV",
+   "name": "barbell front raise and pullover"
+  },
+  "barbell-glute-bridge": {
+   "id": "qKBpF7I",
+   "name": "barbell glute bridge"
+  },
+  "barbell-hack-squat": {
+   "id": "5VCj6iH",
+   "name": "barbell hack squat"
+  },
+  "barbell-jump-squat": {
+   "id": "1gFNTZV",
+   "name": "barbell jump squat"
+  },
+  "barbell-lateral-lunge": {
+   "id": "py1HSzx",
+   "name": "barbell lateral lunge"
+  },
+  "barbell-lunge": {
+   "id": "t8iSghb",
+   "name": "barbell lunge"
+  },
+  "barbell-overhead-triceps-extension": {
+   "id": "dZl9Q27",
+   "name": "barbell standing overhead triceps extension"
+  },
+  "barbell-preacher-curl": {
+   "id": "qOgPVf6",
+   "name": "barbell preacher curl"
+  },
+  "barbell-rear-delt-row": {
+   "id": "S9zHIvU",
+   "name": "barbell rear delt row"
+  },
+  "barbell-reverse-lunge": {
+   "id": "VaP75jl",
+   "name": "barbell rear lunge"
+  },
+  "barbell-reverse-wrist-curl": {
+   "id": "LsZkfU6",
+   "name": "barbell reverse wrist curl"
+  },
+  "barbell-seated-calf-raise": {
+   "id": "ktsFQAZ",
+   "name": "barbell seated calf raise"
+  },
+  "barbell-single-leg-romanian-deadlift": {
+   "id": "gEyURal",
+   "name": "barbell single leg deadlift"
+  },
+  "barbell-skull-crusher": {
+   "id": "iZop9xO",
+   "name": "barbell lying triceps extension"
+  },
+  "barbell-spider-curl": {
+   "id": "WLvTAv5",
+   "name": "barbell prone incline curl"
+  },
+  "barbell-standing-calf-raise": {
+   "id": "8ozhUIZ",
+   "name": "barbell standing calf raise"
+  },
+  "barbell-step-up": {
+   "id": "Kxquu2E",
+   "name": "barbell step-up"
+  },
+  "barbell-suitcase-deadlift": {
+   "id": "2DxtqHL",
+   "name": "barbell one arm side deadlift"
+  },
+  "barbell-thruster": {
+   "id": "f7Y9eDZ",
+   "name": "barbell thruster"
+  },
+  "bear-crawl": {
+   "id": "0Yz8WdV",
+   "name": "bear crawl"
+  },
+  "bench-press": {
+   "id": "EIeI8Vf",
+   "name": "barbell bench press"
+  },
+  "bicep-curl": {
+   "id": "NbVPDMW",
+   "name": "dumbbell biceps curl"
+  },
+  "bodyweight-donkey-calf-raise": {
+   "id": "u5ESqzH",
+   "name": "donkey calf raise"
+  },
+  "bodyweight-split-squat": {
+   "id": "9E25EOx",
+   "name": "split squats"
+  },
+  "bodyweight-walking-lunge": {
+   "id": "IZVHb27",
+   "name": "walking lunge"
+  },
+  "box-drop-push-up": {
+   "id": "Q497lAE",
+   "name": "drop push up"
+  },
+  "burpee": {
+   "id": "dK9394r",
+   "name": "burpee"
+  },
+  "cable-concentration-curl": {
+   "id": "NvfE43H",
+   "name": "cable concentration curl"
+  },
+  "cable-curl": {
+   "id": "G08RZcQ",
+   "name": "cable curl"
+  },
+  "cable-deadlift": {
+   "id": "eGDudUV",
+   "name": "cable deadlift"
+  },
+  "cable-external-rotation": {
+   "id": "FWdVhcW",
+   "name": "cable standing shoulder external rotation"
+  },
+  "cable-front-raise": {
+   "id": "u2X71Np",
+   "name": "cable front raise"
+  },
+  "cable-kickback": {
+   "id": "HEJ6DIX",
+   "name": "cable kickback"
+  },
+  "cable-lateral-raise": {
+   "id": "goJ6ezq",
+   "name": "cable lateral raise"
+  },
+  "cable-preacher-curl": {
+   "id": "P2lNrGL",
+   "name": "cable preacher curl"
+  },
+  "cable-pull-through": {
+   "id": "OM46QHm",
+   "name": "cable pull through (with rope)"
+  },
+  "cable-reverse-crunch": {
+   "id": "RqOtqD7",
+   "name": "cable reverse crunch"
+  },
+  "cable-reverse-wrist-curl": {
+   "id": "eYmsEPR",
+   "name": "cable reverse wrist curl"
+  },
+  "cable-rope-rear-delt-row": {
+   "id": "wqNPGCg",
+   "name": "cable rear delt row (with rope)"
+  },
+  "cable-shoulder-press": {
+   "id": "PzQanLE",
+   "name": "cable shoulder press"
+  },
+  "cable-shrug": {
+   "id": "Eg98Ft9",
+   "name": "cable shrug"
+  },
+  "cable-side-bend": {
+   "id": "wPypxFY",
+   "name": "cable side bend"
+  },
+  "cable-skull-crusher": {
+   "id": "uxJcFUU",
+   "name": "cable lying triceps extension v. 2"
+  },
+  "cable-upright-row": {
+   "id": "cALKspW",
+   "name": "cable upright row"
+  },
+  "cable-wrist-curl": {
+   "id": "LrV4s90",
+   "name": "cable wrist curl"
+  },
+  "chair-seated-hamstring-stretch": {
+   "id": "xGgAGPm",
+   "name": "chair leg extended stretch"
+  },
+  "chest-dip": {
+   "id": "9WTm7dq",
+   "name": "chest dip"
+  },
+  "chest-supported-cable-row": {
+   "id": "yaMIo4D",
+   "name": "cable incline bench row"
+  },
+  "chest-supported-dumbbell-y-raise": {
+   "id": "PbzNu7c",
+   "name": "dumbbell incline y-raise"
+  },
+  "chin-up": {
+   "id": "T2mxWqc",
+   "name": "chin-up"
+  },
+  "clock-push-up": {
+   "id": "CMAxnsG",
+   "name": "clock push-up"
+  },
+  "close-grip-barbell-curl": {
+   "id": "4dUn2iv",
+   "name": "barbell standing close grip curl"
+  },
+  "close-grip-bench-press": {
+   "id": "J6Dx1Mu",
+   "name": "barbell close-grip bench press"
+  },
+  "close-grip-dumbbell-press": {
+   "id": "RxayqAZ",
+   "name": "dumbbell close-grip press"
+  },
+  "close-grip-ez-bar-curl": {
+   "id": "V4ryaZa",
+   "name": "ez barbell close-grip curl"
+  },
+  "concentration-curl": {
+   "id": "gvsWLQw",
+   "name": "dumbbell concentration curl"
+  },
+  "crab-toe-touch": {
+   "id": "xgsGFVM",
+   "name": "crab twist toe touch"
+  },
+  "cross-body-hammer-curl": {
+   "id": "Qyk5J3p",
+   "name": "dumbbell cross body hammer curl"
+  },
+  "db-bench": {
+   "id": "SpYC0Kp",
+   "name": "dumbbell bench press"
+  },
+  "dead-bug": {
+   "id": "iny3m5y",
+   "name": "dead bug"
+  },
+  "deadlift": {
+   "id": "ila4NZS",
+   "name": "barbell deadlift"
+  },
+  "decline-bench-press": {
+   "id": "GrO65fd",
+   "name": "barbell decline bench press"
+  },
+  "decline-cable-chest-press": {
+   "id": "2Pya1cP",
+   "name": "cable decline press"
+  },
+  "decline-crunch": {
+   "id": "9Ap7miY",
+   "name": "decline crunch"
+  },
+  "decline-dumbbell-fly": {
+   "id": "xXm4nYq",
+   "name": "dumbbell decline fly"
+  },
+  "decline-dumbbell-triceps-extension": {
+   "id": "OTgkHwR",
+   "name": "dumbbell decline triceps extension"
+  },
+  "decline-ez-bar-triceps-extension": {
+   "id": "CQHoDm0",
+   "name": "ez barbell decline triceps extension"
+  },
+  "decline-push-up": {
+   "id": "i5cEhka",
+   "name": "decline push-up"
+  },
+  "decline-sit-up": {
+   "id": "QLL2gdc",
+   "name": "decline sit-up"
+  },
+  "diamond-push-up": {
+   "id": "soIB2rj",
+   "name": "diamond push-up"
+  },
+  "donkey-calf-raise": {
+   "id": "C9LuR4A",
+   "name": "lever donkey calf raise"
+  },
+  "double-kettlebell-alternating-clean": {
+   "id": "a4F9Oyc",
+   "name": "kettlebell double alternating hang clean"
+  },
+  "double-kettlebell-clean": {
+   "id": "7Ba7bQ2",
+   "name": "kettlebell two arm clean"
+  },
+  "double-kettlebell-jerk": {
+   "id": "tznL2Ad",
+   "name": "kettlebell double jerk"
+  },
+  "double-kettlebell-press": {
+   "id": "blBXysN",
+   "name": "kettlebell two arm military press"
+  },
+  "double-kettlebell-push-press": {
+   "id": "I4KkPdl",
+   "name": "kettlebell double push press"
+  },
+  "double-kettlebell-snatch": {
+   "id": "M74kdvm",
+   "name": "kettlebell double snatch"
+  },
+  "double-kettlebell-windmill": {
+   "id": "OaE7CpD",
+   "name": "kettlebell double windmill"
+  },
+  "drag-curl": {
+   "id": "IENzBdA",
+   "name": "barbell drag curl"
+  },
+  "dumbbell-bent-over-row": {
+   "id": "BJ0Hz5L",
+   "name": "dumbbell bent over row"
+  },
+  "dumbbell-burpee": {
+   "id": "0JtKWum",
+   "name": "dumbbell burpee"
+  },
+  "dumbbell-clean": {
+   "id": "7Hg55JG",
+   "name": "dumbbell clean"
+  },
+  "dumbbell-cuban-press": {
+   "id": "QfAKy1G",
+   "name": "dumbbell cuban press"
+  },
+  "dumbbell-deadlift": {
+   "id": "nUwVh7b",
+   "name": "dumbbell deadlift"
+  },
+  "dumbbell-finger-curl": {
+   "id": "mtXengz",
+   "name": "dumbbell finger curls"
+  },
+  "dumbbell-fly": {
+   "id": "yz9nUhF",
+   "name": "dumbbell fly"
+  },
+  "dumbbell-forward-lunge": {
+   "id": "RRWFUcw",
+   "name": "dumbbell lunge"
+  },
+  "dumbbell-lateral-to-front-raise": {
+   "id": "xMjBKwn",
+   "name": "dumbbell lateral to front raise"
+  },
+  "dumbbell-lying-pronation": {
+   "id": "mym4hJo",
+   "name": "dumbbell lying pronation"
+  },
+  "dumbbell-lying-supination": {
+   "id": "M2Pm3zj",
+   "name": "dumbbell lying supination"
+  },
+  "dumbbell-preacher-curl": {
+   "id": "jivWf8n",
+   "name": "dumbbell preacher curl"
+  },
+  "dumbbell-pullover": {
+   "id": "9XjtHvS",
+   "name": "dumbbell pullover"
+  },
+  "dumbbell-push-press": {
+   "id": "FS63wTN",
+   "name": "dumbbell push press"
+  },
+  "dumbbell-reverse-preacher-curl": {
+   "id": "O8Aq69u",
+   "name": "dumbbell reverse preacher curl"
+  },
+  "dumbbell-romanian-deadlift": {
+   "id": "rR0LJzx",
+   "name": "dumbbell romanian deadlift"
+  },
+  "dumbbell-shrug": {
+   "id": "NJzBsGJ",
+   "name": "dumbbell shrug"
+  },
+  "dumbbell-side-bend": {
+   "id": "IpONWYv",
+   "name": "dumbbell side bend"
+  },
+  "dumbbell-single-arm-overhead-carry": {
+   "id": "mWBtgmb",
+   "name": "dumbbell single arm overhead carry"
+  },
+  "dumbbell-squat": {
+   "id": "HsvHqgf",
+   "name": "dumbbell squat"
+  },
+  "dumbbell-step-up-with-biceps-curl": {
+   "id": "76vfTdU",
+   "name": "dumbbell step up single leg balance with bicep curl"
+  },
+  "dumbbell-tate-press": {
+   "id": "s5PdDyY",
+   "name": "dumbbell tate press"
+  },
+  "dumbbell-upright-row": {
+   "id": "ainizkb",
+   "name": "dumbbell upright row"
+  },
+  "dynamic-chest-stretch": {
+   "id": "3uj0Ozg",
+   "name": "dynamic chest stretch (male)"
+  },
+  "ez-bar-close-grip-bench-press": {
+   "id": "da4cXST",
+   "name": "ez-bar close-grip bench press"
+  },
+  "ez-bar-curl": {
+   "id": "6TG6x2w",
+   "name": "ez barbell curl"
+  },
+  "ez-bar-reverse-preacher-curl": {
+   "id": "vBNyir7",
+   "name": "ez barbell reverse grip preacher curl"
+  },
+  "ez-bar-spider-curl": {
+   "id": "Ye5Qxb0",
+   "name": "ez barbell spider curl"
+  },
+  "flutter-kick": {
+   "id": "UVo2Qs2",
+   "name": "flutter kicks"
+  },
+  "front-lever": {
+   "id": "PkCN2lv",
+   "name": "front lever"
+  },
+  "front-raise": {
+   "id": "3eGE2JC",
+   "name": "dumbbell front raise"
+  },
+  "front-squat": {
+   "id": "zG0zs85",
+   "name": "barbell front squat"
+  },
+  "full-planche": {
+   "id": "YZ4961r",
+   "name": "full planche"
+  },
+  "glute-bridge-march": {
+   "id": "GibBPPg",
+   "name": "glute bridge march"
+  },
+  "goblet-squat": {
+   "id": "yn8yg1r",
+   "name": "dumbbell goblet squat"
+  },
+  "good-morning": {
+   "id": "XlZ4lAC",
+   "name": "barbell good morning"
+  },
+  "gorilla-chin-crunch": {
+   "id": "bmwlYvD",
+   "name": "gorilla chin"
+  },
+  "hack-squat": {
+   "id": "Qa55kX1",
+   "name": "sled hack squat"
+  },
+  "hack-squat-calf-raise": {
+   "id": "2ORFMoR",
+   "name": "hack calf raise"
+  },
+  "hammer-curl": {
+   "id": "slDvUAU",
+   "name": "dumbbell hammer curl"
+  },
+  "hands-clasped-behind-back-chest-stretch": {
+   "id": "Uto7l43",
+   "name": "chest and front of shoulder stretch"
+  },
+  "handstand-push-up": {
+   "id": "rQxwMxO",
+   "name": "handstand push-up"
+  },
+  "hanging-leg-raise": {
+   "id": "I3tsCnC",
+   "name": "hanging leg raise"
+  },
+  "hanging-oblique-knee-raise": {
+   "id": "BaE7O6U",
+   "name": "hanging oblique knee raise"
+  },
+  "hanging-pike": {
+   "id": "nuBF9MO",
+   "name": "hanging pike"
+  },
+  "high-cable-curl": {
+   "id": "wDUqY2u",
+   "name": "cable overhead curl"
+  },
+  "inchworm": {
+   "id": "ZgsNQ6d",
+   "name": "inchworm"
+  },
+  "incline-bench-press": {
+   "id": "3TZduzM",
+   "name": "barbell incline bench press"
+  },
+  "incline-cable-triceps-extension": {
+   "id": "Hx1WC8I",
+   "name": "cable incline triceps extension"
+  },
+  "incline-close-grip-bench-press": {
+   "id": "gx7s7uF",
+   "name": "barbell incline close grip bench press"
+  },
+  "incline-close-grip-push-up": {
+   "id": "1YB40kg",
+   "name": "incline close-grip push-up"
+  },
+  "incline-dumbbell-curl": {
+   "id": "ae9UoXQ",
+   "name": "dumbbell incline curl"
+  },
+  "incline-dumbbell-fly": {
+   "id": "ESOd5Pl",
+   "name": "dumbbell incline fly"
+  },
+  "incline-dumbbell-hammer-curl": {
+   "id": "ByX0WxV",
+   "name": "dumbbell incline hammer curl"
+  },
+  "incline-dumbbell-triceps-extension": {
+   "id": "OVIKwsd",
+   "name": "dumbbell incline triceps extension"
+  },
+  "incline-push-up": {
+   "id": "F7vjXqT",
+   "name": "incline push-up (on box)"
+  },
+  "incline-side-lying-dumbbell-lateral-raise": {
+   "id": "aTNKZiC",
+   "name": "dumbbell incline one arm lateral raise"
+  },
+  "inverted-row": {
+   "id": "bZGHsAZ",
+   "name": "inverted row"
+  },
+  "isometric-chest-squeeze": {
+   "id": "HbSG1Pw",
+   "name": "isometric chest squeeze"
+  },
+  "janda-sit-up": {
+   "id": "1GPHRyK",
+   "name": "janda sit-up"
+  },
+  "jefferson-squat": {
+   "id": "pkSoCW9",
+   "name": "barbell jefferson squat"
+  },
+  "jump-squat": {
+   "id": "LIlE5Tn",
+   "name": "jump squat"
+  },
+  "kb-swing": {
+   "id": "UHJlbu3",
+   "name": "kettlebell swing"
+  },
+  "kettlebell-arnold-press": {
+   "id": "UM8mgyG",
+   "name": "kettlebell arnold press"
+  },
+  "kettlebell-bent-over-row": {
+   "id": "wf24o8S",
+   "name": "kettlebell two arm row"
+  },
+  "kettlebell-bent-press": {
+   "id": "kjE55n5",
+   "name": "kettlebell bent press"
+  },
+  "kettlebell-figure-8": {
+   "id": "L4ay0PW",
+   "name": "kettlebell figure 8"
+  },
+  "kettlebell-goblet-squat": {
+   "id": "ZA8b5hc",
+   "name": "kettlebell goblet squat"
+  },
+  "kettlebell-lunge-pass-through": {
+   "id": "WKMQzCD",
+   "name": "kettlebell lunge pass through"
+  },
+  "kettlebell-pistol-squat": {
+   "id": "5bpPTHv",
+   "name": "kettlebell pistol squat"
+  },
+  "kettlebell-renegade-row": {
+   "id": "b9kqlBy",
+   "name": "kettlebell alternating renegade row"
+  },
+  "kettlebell-sumo-high-pull": {
+   "id": "8ARQ9Hw",
+   "name": "kettlebell sumo high pull"
+  },
+  "kettlebell-thruster": {
+   "id": "yWxMvB5",
+   "name": "kettlebell thruster"
+  },
+  "kettlebell-windmill": {
+   "id": "9Tkqa9O",
+   "name": "kettlebell windmill"
+  },
+  "kipping-muscle-up": {
+   "id": "pM07UxU",
+   "name": "kipping muscle up"
+  },
+  "kneeling-leg-curl": {
+   "id": "nnmCTLN",
+   "name": "lever kneeling leg curl"
+  },
+  "l-sit-pull-up": {
+   "id": "d1GgzTU",
+   "name": "l-pull-up"
+  },
+  "landmine-lateral-raise": {
+   "id": "eXMFHww",
+   "name": "landmine lateral raise"
+  },
+  "landmine-twist": {
+   "id": "QYysSLV",
+   "name": "landmine 180"
+  },
+  "lateral-raise": {
+   "id": "DsgkuIt",
+   "name": "dumbbell lateral raise"
+  },
+  "leg-extension": {
+   "id": "my33uHU",
+   "name": "lever leg extension"
+  },
+  "low-bar-squat": {
+   "id": "bTpEUcm",
+   "name": "barbell low bar squat"
+  },
+  "lunge-with-twist-stretch": {
+   "id": "K9VL0Jq",
+   "name": "lunge with twist"
+  },
+  "lying-cable-curl": {
+   "id": "otqIxU4",
+   "name": "cable lying bicep curl"
+  },
+  "lying-leg-curl": {
+   "id": "17lJ1kr",
+   "name": "lever lying leg curl"
+  },
+  "lying-supine-dumbbell-curl": {
+   "id": "KUaZst7",
+   "name": "dumbbell lying supine curl"
+  },
+  "machine-back-extension": {
+   "id": "rUXfn3R",
+   "name": "lever back extension"
+  },
+  "machine-chest-press": {
+   "id": "T0yTjgW",
+   "name": "lever chest press"
+  },
+  "machine-deadlift": {
+   "id": "GUT8I22",
+   "name": "lever deadlift"
+  },
+  "machine-decline-chest-press": {
+   "id": "vsVoPHt",
+   "name": "lever decline chest press"
+  },
+  "machine-high-row": {
+   "id": "nZZZy9m",
+   "name": "lever high row"
+  },
+  "machine-incline-chest-press": {
+   "id": "jHAnWmT",
+   "name": "lever incline chest press"
+  },
+  "machine-lateral-raise": {
+   "id": "dRTfGZT",
+   "name": "lever lateral raise"
+  },
+  "machine-shoulder-press": {
+   "id": "67n3r98",
+   "name": "lever shoulder press"
+  },
+  "machine-shrug": {
+   "id": "ZZKbeMw",
+   "name": "lever shrug"
+  },
+  "machine-t-bar-row": {
+   "id": "aaXr7ld",
+   "name": "lever t bar row"
+  },
+  "machine-triceps-extension": {
+   "id": "Ser9eQp",
+   "name": "lever triceps extension"
+  },
+  "medicine-ball-chest-pass": {
+   "id": "aDoFKrE",
+   "name": "medicine ball chest pass"
+  },
+  "medicine-ball-overhead-throw": {
+   "id": "PsVS1QP",
+   "name": "medicine ball catch and overhead throw"
+  },
+  "medicine-ball-push-up": {
+   "id": "W8KAlkI",
+   "name": "push-up medicine ball"
+  },
+  "medicine-ball-supine-chest-throw": {
+   "id": "Al3tP0D",
+   "name": "medicine ball supine chest throw"
+  },
+  "mountain-climber": {
+   "id": "RJgzwny",
+   "name": "mountain climber"
+  },
+  "muscle-up": {
+   "id": "yJUHKTn",
+   "name": "muscle up"
+  },
+  "narrow-stance-squat": {
+   "id": "elhhVgj",
+   "name": "barbell narrow stance squat"
+  },
+  "neck-side-stretch": {
+   "id": "x2chWLO",
+   "name": "neck side stretch"
+  },
+  "neutral-grip-dumbbell-bench-press": {
+   "id": "pP8wP2P",
+   "name": "dumbbell neutral grip bench press"
+  },
+  "neutral-grip-incline-dumbbell-press": {
+   "id": "PG1kcIb",
+   "name": "dumbbell incline hammer press"
+  },
+  "neutral-grip-pull-up": {
+   "id": "0V2YQjW",
+   "name": "pull up (neutral grip)"
+  },
+  "one-arm-barbell-floor-press": {
+   "id": "vtusOWT",
+   "name": "barbell one arm floor press"
+  },
+  "one-arm-chin-up": {
+   "id": "HjdqmZa",
+   "name": "one arm chin-up"
+  },
+  "one-arm-dumbbell-lateral-raise": {
+   "id": "n5cWCsI",
+   "name": "dumbbell one arm lateral raise"
+  },
+  "one-arm-dumbbell-shoulder-press": {
+   "id": "84RyJf8",
+   "name": "dumbbell one arm shoulder press"
+  },
+  "one-arm-dumbbell-snatch": {
+   "id": "6pTkI99",
+   "name": "dumbbell one arm snatch"
+  },
+  "one-arm-dumbbell-upright-row": {
+   "id": "6cKQC5E",
+   "name": "dumbbell one arm upright row"
+  },
+  "one-arm-incline-dumbbell-press": {
+   "id": "rDAiRf9",
+   "name": "dumbbell incline one arm press"
+  },
+  "one-arm-kettlebell-clean-and-jerk": {
+   "id": "vzAxBtt",
+   "name": "kettlebell one arm clean and jerk"
+  },
+  "one-arm-kettlebell-floor-press": {
+   "id": "rg59QCH",
+   "name": "kettlebell one arm floor press"
+  },
+  "one-arm-kettlebell-jerk": {
+   "id": "S37C94C",
+   "name": "kettlebell one arm jerk"
+  },
+  "one-arm-kettlebell-push-press": {
+   "id": "osdXT3K",
+   "name": "kettlebell one arm push press"
+  },
+  "one-arm-kettlebell-row": {
+   "id": "g9AsZ8P",
+   "name": "kettlebell one arm row"
+  },
+  "one-arm-kettlebell-snatch": {
+   "id": "aXcUyKb",
+   "name": "kettlebell one arm snatch"
+  },
+  "one-arm-medicine-ball-slam": {
+   "id": "jCrtE9b",
+   "name": "one arm slam (with medicine ball)"
+  },
+  "overhead-squat": {
+   "id": "gfk9kD4",
+   "name": "barbell overhead squat"
+  },
+  "overhead-tricep-extension": {
+   "id": "2IxROQ1",
+   "name": "cable overhead triceps extension (rope attachment)"
+  },
+  "pelvic-tilt": {
+   "id": "NKJ8o6x",
+   "name": "pelvic tilt"
+  },
+  "pendlay-row": {
+   "id": "r0z6xzQ",
+   "name": "barbell pendlay row"
+  },
+  "planche-lean": {
+   "id": "LYJodFS",
+   "name": "lean planche"
+  },
+  "plate-front-raise": {
+   "id": "e4aFmFY",
+   "name": "weighted front raise"
+  },
+  "plate-russian-twist": {
+   "id": "fZFZ704",
+   "name": "weighted russian twist"
+  },
+  "power-clean": {
+   "id": "SiWCcTN",
+   "name": "power clean"
+  },
+  "preacher-curl": {
+   "id": "b6hQYMb",
+   "name": "lever preacher curl"
+  },
+  "prone-dumbbell-rear-delt-raise": {
+   "id": "53Ttlck",
+   "name": "dumbbell lying rear lateral raise"
+  },
+  "pull-up": {
+   "id": "lBDjFxJ",
+   "name": "pull-up"
+  },
+  "pullover-machine": {
+   "id": "4U7iLb5",
+   "name": "lever pullover"
+  },
+  "push-up": {
+   "id": "I4hDWkc",
+   "name": "push-up"
+  },
+  "push-up-plus": {
+   "id": "pvBMLHA",
+   "name": "push-up plus"
+  },
+  "push-up-shoulder-tap": {
+   "id": "qEse6fe",
+   "name": "shoulder tap push-up"
+  },
+  "push-up-to-side-plank": {
+   "id": "KhHJ338",
+   "name": "push-up to side plank"
+  },
+  "rack-pull": {
+   "id": "za9Ni4z",
+   "name": "barbell rack pull"
+  },
+  "rdl": {
+   "id": "wQ2c4XD",
+   "name": "barbell romanian deadlift"
+  },
+  "reverse-cable-curl": {
+   "id": "eOG0r6v",
+   "name": "cable reverse curl"
+  },
+  "reverse-crunch": {
+   "id": "nCU1Ekp",
+   "name": "reverse crunch"
+  },
+  "reverse-curl": {
+   "id": "xNrS20v",
+   "name": "barbell reverse curl"
+  },
+  "reverse-grip-barbell-row": {
+   "id": "SzX3uzM",
+   "name": "barbell reverse grip bent over row"
+  },
+  "reverse-grip-incline-bench-press": {
+   "id": "DU7I633",
+   "name": "barbell reverse grip incline bench press"
+  },
+  "reverse-grip-tricep-pushdown": {
+   "id": "VjYliFZ",
+   "name": "cable reverse-grip pushdown"
+  },
+  "reverse-hyperextension": {
+   "id": "Krmb3cB",
+   "name": "lever reverse hyperextension"
+  },
+  "ring-dip": {
+   "id": "ezTvXcr",
+   "name": "ring dips"
+  },
+  "rocking-frog": {
+   "id": "2Dk4xQV",
+   "name": "rocking frog stretch"
+  },
+  "rope-hammer-curl": {
+   "id": "HPlPoQA",
+   "name": "cable hammer curl (with rope)"
+  },
+  "runners-stretch": {
+   "id": "0mB6wHO",
+   "name": "runners stretch"
+  },
+  "russian-twist": {
+   "id": "XVDdcoj",
+   "name": "russian twist"
+  },
+  "scapular-dip": {
+   "id": "7xeukSt",
+   "name": "scapula dips"
+  },
+  "scapular-pull-up": {
+   "id": "uTBt1HV",
+   "name": "scapular pull-up"
+  },
+  "seated-barbell-twist": {
+   "id": "dFSNDOA",
+   "name": "barbell seated twist"
+  },
+  "seated-cable-crunch": {
+   "id": "8xUv4J7",
+   "name": "cable seated crunch"
+  },
+  "seated-calf-raise": {
+   "id": "bOOdeyc",
+   "name": "lever seated calf raise"
+  },
+  "seated-calf-stretch": {
+   "id": "17bqEXD",
+   "name": "seated calf stretch (male)"
+  },
+  "seated-dumbbell-calf-raise": {
+   "id": "r29jP7S",
+   "name": "dumbbell seated calf raise"
+  },
+  "seated-dumbbell-lateral-raise": {
+   "id": "hxyTtWj",
+   "name": "dumbbell seated lateral raise"
+  },
+  "seated-dumbbell-press": {
+   "id": "znQUdHY",
+   "name": "dumbbell seated shoulder press"
+  },
+  "seated-good-morning": {
+   "id": "d960PgE",
+   "name": "barbell seated good morning"
+  },
+  "seated-leg-curl": {
+   "id": "Zg3XY7P",
+   "name": "lever seated leg curl"
+  },
+  "seated-one-arm-kettlebell-press": {
+   "id": "BkxB8LW",
+   "name": "kettlebell seated press"
+  },
+  "seated-row": {
+   "id": "fUBheHs",
+   "name": "cable seated row"
+  },
+  "shrug": {
+   "id": "dG7tG5y",
+   "name": "barbell shrug"
+  },
+  "side-lying-hip-abduction": {
+   "id": "7WaDzyL",
+   "name": "side hip abduction"
+  },
+  "side-lying-hip-adduction": {
+   "id": "c8f5cSY",
+   "name": "side lying hip adduction (male)"
+  },
+  "single-arm-cable-curl": {
+   "id": "YTur5nR",
+   "name": "cable one arm curl"
+  },
+  "single-arm-lat-pulldown": {
+   "id": "U5INZY6",
+   "name": "cable one arm pulldown"
+  },
+  "single-arm-machine-row": {
+   "id": "oROuvrX",
+   "name": "lever unilateral row"
+  },
+  "single-arm-machine-shoulder-press": {
+   "id": "2KGnL6M",
+   "name": "lever one arm shoulder press"
+  },
+  "single-arm-push-up": {
+   "id": "MUic5zN",
+   "name": "single arm push-up"
+  },
+  "single-leg-leg-press-calf-raise": {
+   "id": "u0pLNgz",
+   "name": "sled one leg calf press on leg press"
+  },
+  "single-leg-romanian-deadlift": {
+   "id": "gKozT8X",
+   "name": "dumbbell single leg deadlift"
+  },
+  "single-leg-seated-dumbbell-calf-raise": {
+   "id": "Ia7tumC",
+   "name": "dumbbell seated one leg calf raise"
+  },
+  "single-leg-standing-dumbbell-calf-raise": {
+   "id": "1kB3Wmk",
+   "name": "dumbbell single leg calf raise"
+  },
+  "sissy-squat": {
+   "id": "xdYPUtE",
+   "name": "sissy squat"
+  },
+  "skater-hop": {
+   "id": "zfNHMN9",
+   "name": "skater hops"
+  },
+  "skin-the-cat": {
+   "id": "MSfvriJ",
+   "name": "skin the cat"
+  },
+  "smith-machine-behind-the-neck-press": {
+   "id": "Gpn4ADc",
+   "name": "smith behind neck press"
+  },
+  "smith-machine-bench-press": {
+   "id": "trqKQv2",
+   "name": "smith bench press"
+  },
+  "smith-machine-bent-over-row": {
+   "id": "ZX9UZmj",
+   "name": "smith bent over row"
+  },
+  "smith-machine-close-grip-bench-press": {
+   "id": "WcHl7ru",
+   "name": "smith close-grip bench press"
+  },
+  "smith-machine-curl": {
+   "id": "zILLZ98",
+   "name": "smith machine bicep curl"
+  },
+  "smith-machine-deadlift": {
+   "id": "UfePqpx",
+   "name": "smith deadlift"
+  },
+  "smith-machine-hack-squat": {
+   "id": "ZuPXtCK",
+   "name": "smith hack squat"
+  },
+  "smith-machine-hip-raise": {
+   "id": "CqhoytW",
+   "name": "smith hip raise"
+  },
+  "smith-machine-incline-bench-press": {
+   "id": "5v7KYld",
+   "name": "smith incline bench press"
+  },
+  "smith-machine-leg-press": {
+   "id": "7zdxRTl",
+   "name": "smith leg press"
+  },
+  "smith-machine-one-arm-row": {
+   "id": "Q4DSJPC",
+   "name": "smith one arm row"
+  },
+  "smith-machine-rear-delt-row": {
+   "id": "nFUwqG6",
+   "name": "smith rear delt row"
+  },
+  "smith-machine-reverse-grip-bench-press": {
+   "id": "zK8Fu1W",
+   "name": "smith reverse-grip press"
+  },
+  "smith-machine-shoulder-press": {
+   "id": "903mzG8",
+   "name": "smith shoulder press"
+  },
+  "smith-machine-shrug": {
+   "id": "OUQ0ZyW",
+   "name": "smith shrug"
+  },
+  "smith-machine-upright-row": {
+   "id": "1DN3iz4",
+   "name": "smith upright row"
+  },
+  "smith-squat": {
+   "id": "jFtipLl",
+   "name": "smith squat"
+  },
+  "snatch-pull": {
+   "id": "dG5Smob",
+   "name": "snatch pull"
+  },
+  "spider-hammer-curl": {
+   "id": "cWemPG8",
+   "name": "dumbbell prone incline hammer curl"
+  },
+  "squat-jerk": {
+   "id": "IMRsOCn",
+   "name": "squat jerk"
+  },
+  "stability-ball-crunch": {
+   "id": "MCUhf1F",
+   "name": "crunch (on stability ball)"
+  },
+  "stability-ball-knee-tuck": {
+   "id": "UQr48Oi",
+   "name": "pull-in (on stability ball)"
+  },
+  "stability-ball-push-up": {
+   "id": "Y4BRNQF",
+   "name": "push-up (on stability ball)"
+  },
+  "standing-cable-crunch": {
+   "id": "jpgqxiS",
+   "name": "cable standing crunch"
+  },
+  "standing-calf-raise": {
+   "id": "ykUOVze",
+   "name": "lever standing calf raise"
+  },
+  "standing-calf-stretch": {
+   "id": "qOKcgVP",
+   "name": "standing calves calf stretch"
+  },
+  "standing-concentration-curl": {
+   "id": "7inpWch",
+   "name": "dumbbell standing concentration curl"
+  },
+  "standing-neutral-grip-dumbbell-press": {
+   "id": "UilDHSs",
+   "name": "dumbbell standing palms in press"
+  },
+  "standing-pelvic-tilt": {
+   "id": "cuKYxhu",
+   "name": "standing pelvic tilt"
+  },
+  "standing-side-bend-stretch": {
+   "id": "1jXLYEw",
+   "name": "standing lateral stretch"
+  },
+  "step-up": {
+   "id": "aXtJhlg",
+   "name": "dumbbell step-up"
+  },
+  "sternum-chin-up": {
+   "id": "IL0JUxR",
+   "name": "gironda sternum chin"
+  },
+  "stiff-leg-deadlift": {
+   "id": "hrVQWvE",
+   "name": "barbell straight leg deadlift"
+  },
+  "straddle-planche": {
+   "id": "BL3GHeY",
+   "name": "straddle planche"
+  },
+  "straight-arm-dumbbell-pullover": {
+   "id": "i8BdLTK",
+   "name": "dumbbell straight arm pullover"
+  },
+  "straight-arm-pulldown": {
+   "id": "x69MAlq",
+   "name": "cable straight arm pulldown"
+  },
+  "sumo-deadlift": {
+   "id": "KgI0tqW",
+   "name": "barbell sumo deadlift"
+  },
+  "supine-cross-over-stretch": {
+   "id": "pZwUsKB",
+   "name": "iron cross stretch"
+  },
+  "supine-hamstring-stretch": {
+   "id": "sU5BrfP",
+   "name": "leg up hamstring stretch"
+  },
+  "suspension-bulgarian-split-squat": {
+   "id": "QpXqiq8",
+   "name": "suspended split squat"
+  },
+  "svend-press": {
+   "id": "I1OBLnn",
+   "name": "weighted svend press"
+  },
+  "trap-bar-deadlift": {
+   "id": "jQGwmxN",
+   "name": "trap bar deadlift"
+  },
+  "triceps-stretch": {
+   "id": "uOV3Itw",
+   "name": "triceps stretch"
+  },
+  "tuck-crunch": {
+   "id": "BMMolZ3",
+   "name": "tuck crunch"
+  },
+  "twisting-crunch": {
+   "id": "rbu5UUb",
+   "name": "cross body crunch"
+  },
+  "upper-back-stretch": {
+   "id": "GSDioYu",
+   "name": "upper back stretch"
+  },
+  "upright-row": {
+   "id": "UDlhcO8",
+   "name": "barbell upright row"
+  },
+  "upward-facing-dog": {
+   "id": "01qpYSe",
+   "name": "upward facing dog"
+  },
+  "v-bar-tricep-pushdown": {
+   "id": "gAwDzB3",
+   "name": "cable triceps pushdown (v-bar)"
+  },
+  "wall-push-up": {
+   "id": "LEH9jxP",
+   "name": "push-up (wall)"
+  },
+  "weighted-crunch": {
+   "id": "s8nrDXF",
+   "name": "weighted crunch"
+  },
+  "weighted-plank": {
+   "id": "VBAWRPG",
+   "name": "weighted front plank"
+  },
+  "wide-grip-barbell-curl": {
+   "id": "faHKVkK",
+   "name": "barbell standing wide grip biceps curl"
+  },
+  "wide-grip-pull-up": {
+   "id": "Qqi7bko",
+   "name": "wide grip pull-up"
+  },
+  "wide-grip-seated-cable-row": {
+   "id": "qcY50ZD",
+   "name": "cable seated wide-grip row"
+  },
+  "wide-grip-upright-row": {
+   "id": "RgJDRR1",
+   "name": "barbell wide-grip upright row"
+  },
+  "wide-push-up": {
+   "id": "JmMVpR3",
+   "name": "wide hand push up"
+  },
+  "worlds-greatest-stretch": {
+   "id": "DFGXwZr",
+   "name": "world greatest stretch"
+  },
+  "wrist-circles": {
+   "id": "2zNKRUB",
+   "name": "wrist circles"
+  },
+  "wrist-curl": {
+   "id": "82LxxkW",
+   "name": "barbell wrist curl"
+  },
+  "zercher-squat": {
+   "id": "LSTChY9",
+   "name": "barbell zercher squat"
+  },
+  "zombie-squat": {
+   "id": "bdWcbaU",
+   "name": "frankenstein squat"
+  },
+  "zottman-curl": {
+   "id": "kXaIn5A",
+   "name": "dumbbell zottman curl"
+  },
+  "zottman-preacher-curl": {
+   "id": "y5U5B9Y",
+   "name": "dumbbell zottman preacher curl"
+  }
+ }
+}

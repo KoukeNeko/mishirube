@@ -12,6 +12,7 @@ import 'set_timer.dart';
 export 'device_motion.dart';
 import '../backend/application/ai_service.dart';
 import '../backend/engines/program_generator.dart';
+import '../backend/application/exercise_gifs.dart';
 import '../backend/ai/copilot_drafter.dart';
 import '../backend/application/health_service.dart';
 import '../backend/engines/body_metrics.dart';
@@ -60,9 +61,11 @@ class AppStore extends ChangeNotifier {
     AiService? ai,
     HealthSource? health,
     this.motion = const NoDeviceMotion(),
+    ExerciseGifs? gifs,
   }) : _clock = clock ?? DateTime.now,
        _backend = backend ?? Backend.inMemory(clock: clock),
-       _ownsBackend = backend == null {
+       _ownsBackend = backend == null,
+       gifs = gifs ?? ExerciseGifs.none() {
     _ai = ai ?? AiService.none(_backend.db);
     _health = _backend.healthFrom(health ?? const NoHealthSource());
     seedDemoData(_backend, now());
@@ -135,6 +138,9 @@ class AppStore extends ChangeNotifier {
   /// sensor in.
   final DeviceMotion motion;
 
+  /// The animated demonstrations, downloaded when shown; none unless the
+  /// app passes them in.
+  final ExerciseGifs gifs;
   final bool _ownsBackend;
 
   late bool _isOnboarded;

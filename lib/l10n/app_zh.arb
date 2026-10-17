@@ -4583,6 +4583,10 @@
   "@exerciseDemoCredit": {
     "description": "Credit the licence asks for."
   },
+  "exerciseGifCredit": "動畫：ExerciseDB／AscendAPI",
+  "@exerciseGifCredit": {
+    "description": "Credit under an exercise's animation."
+  },
   "myAliases": "我的別名",
   "@myAliases": {
     "description": "Names the user finds an exercise by."
@@ -7902,6 +7906,14 @@
   },
   "privacyWidgetsValue": "數字的副本，只在這台裝置",
   "@privacyWidgetsValue": {
+    "description": "Privacy value."
+  },
+  "privacyExerciseGifs": "動作動畫",
+  "@privacyExerciseGifs": {
+    "description": "Privacy row."
+  },
+  "privacyExerciseGifsValue": "從 ExerciseDB 下載，只送出動畫檔名",
+  "@privacyExerciseGifsValue": {
     "description": "Privacy value."
   },
   "privacyAccount": "帳號",

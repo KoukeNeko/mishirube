@@ -124,6 +124,14 @@ void registerExerciseDemoLicences() {
       'exercise may show the frames of the exercise it is a version of.',
     );
     yield const LicenseEntryWithLineBreaks(
+      ['ExerciseDB（exercise animations）'],
+      'The exercise animations are GIFs of ExerciseDB (https://exercisedb.dev), '
+      'provided by AscendAPI under the terms of its free tier: non-commercial '
+      'use, with credit to AscendAPI. They are downloaded from '
+      'static.exercisedb.dev when an exercise is shown and are not part of '
+      'this app\'s files.',
+    );
+    yield const LicenseEntryWithLineBreaks(
       ['Workout Guide（exercise list）'],
       'MIT License\n\n'
       'Copyright (c) 2026 Bryl Lim\n\n'

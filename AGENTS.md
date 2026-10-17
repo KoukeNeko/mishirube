@@ -93,6 +93,11 @@ flutter test test/<file>_test.dart
     their wording or pictures). `test/backend/exercise_catalogue_test.dart`
     is its gate, and an id that shipped never goes
     (`test/golden/exercise_ids.txt`).
+    Animations are not in the app: `tool/match_exercisedb.py` matches
+    exercises to ExerciseDB's free GIFs (`exercisedb.json`, then
+    `assets/exercises/gifs.json`), which `ExerciseGifs` downloads when one
+    is shown. That tier is non-commercial
+    (`third_party/exercisedb/README.md`).
 - `lib/shared/widgets/` – shared UI; import through `widgets.dart`. Put new
   widgets in the matching folder: `page/` (page frame, app bar, collapsing
   header, footers), `chrome/` (floating glass surfaces), `controls/`

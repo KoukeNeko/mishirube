@@ -3115,6 +3115,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '이미지: Workout Guide / Everkinetic · CC BY-SA 4.0';
 
   @override
+  String get exerciseGifCredit => '애니메이션: ExerciseDB / AscendAPI';
+
+  @override
   String get myAliases => '내 별칭';
 
   @override
@@ -5220,6 +5223,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get privacyWidgetsValue => '수치 사본, 이 기기에만';
+
+  @override
+  String get privacyExerciseGifs => '동작 애니메이션';
+
+  @override
+  String get privacyExerciseGifsValue => 'ExerciseDB에서 다운로드, 애니메이션 파일 이름만 전송';
 
   @override
   String get privacyAccount => '계정';

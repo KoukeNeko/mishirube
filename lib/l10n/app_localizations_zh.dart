@@ -3107,6 +3107,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exerciseDemoCredit => '圖：Workout Guide／Everkinetic · CC BY-SA 4.0';
 
   @override
+  String get exerciseGifCredit => '動畫：ExerciseDB／AscendAPI';
+
+  @override
   String get myAliases => '我的別名';
 
   @override
@@ -5211,6 +5214,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get privacyWidgetsValue => '數字的副本，只在這台裝置';
+
+  @override
+  String get privacyExerciseGifs => '動作動畫';
+
+  @override
+  String get privacyExerciseGifsValue => '從 ExerciseDB 下載，只送出動畫檔名';
 
   @override
   String get privacyAccount => '帳號';
@@ -9690,6 +9699,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get exerciseDemoCredit => '图：Workout Guide／Everkinetic · CC BY-SA 4.0';
 
   @override
+  String get exerciseGifCredit => '动画：ExerciseDB／AscendAPI';
+
+  @override
   String get myAliases => '我的别名';
 
   @override
@@ -11794,6 +11806,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get privacyWidgetsValue => '数字的副本，只在这台设备';
+
+  @override
+  String get privacyExerciseGifs => '动作动画';
+
+  @override
+  String get privacyExerciseGifsValue => '从 ExerciseDB 下载，只发送动画文件名';
 
   @override
   String get privacyAccount => '账号';

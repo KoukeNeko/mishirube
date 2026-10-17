@@ -70,7 +70,7 @@ class ExerciseInfoCard extends StatelessWidget {
         ],
       ),
       children: [
-        if (exercise.frames.isNotEmpty) ...[
+        if (hasExerciseDemo(context, exercise)) ...[
           Gutter(
             child: Center(
               child: ConstrainedBox(
@@ -78,12 +78,7 @@ class ExerciseInfoCard extends StatelessWidget {
                   maxWidth: _demoMaxSize,
                   maxHeight: _demoMaxSize,
                 ),
-                child: AppCard(
-                  child: ExerciseDemo(
-                    name: exercise.name,
-                    frames: exercise.frames,
-                  ),
-                ),
+                child: AppCard(child: ExerciseDemo(exercise: exercise)),
               ),
             ),
           ),

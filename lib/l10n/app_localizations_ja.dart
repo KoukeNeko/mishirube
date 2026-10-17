@@ -3115,6 +3115,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '画像：Workout Guide／Everkinetic · CC BY-SA 4.0';
 
   @override
+  String get exerciseGifCredit => 'アニメーション：ExerciseDB／AscendAPI';
+
+  @override
   String get myAliases => 'マイ別名';
 
   @override
@@ -5218,6 +5221,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get privacyWidgetsValue => '数値のコピー、この端末のみ';
+
+  @override
+  String get privacyExerciseGifs => '動作のアニメーション';
+
+  @override
+  String get privacyExerciseGifsValue => 'ExerciseDB からダウンロード。送るのはファイル名だけ';
 
   @override
   String get privacyAccount => 'アカウント';

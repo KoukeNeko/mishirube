@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/backend/backend.dart';
 import 'package:mishirube/backend/engines/exercise_search.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/backend/application/exercise_gifs.dart';
 import 'package:mishirube/backend/seed/exercise_catalogue.dart';
 import 'package:mishirube/backend/seed/seed.dart';
 import 'package:mishirube/backend/storage/database.dart';
@@ -23,6 +24,25 @@ void main() {
 
   String normalized(String value) =>
       value.toLowerCase().replaceAll(RegExp(r'[\s\-_]'), '');
+
+  test('every animation is of an exercise of the library, once', () {
+    final matches = (jsonDecode(
+      File(exerciseGifIdsFile).readAsStringSync(),
+    ) as Map<String, dynamic>).cast<String, String>();
+    final ids = {for (final e in shipped) e.id};
+    expect(matches, isNotEmpty);
+    expect(matches.keys.toSet().difference(ids), isEmpty);
+    expect(
+      matches.values.every(RegExp(r'^[A-Za-z0-9]{7}$').hasMatch),
+      isTrue,
+      reason: 'an ExerciseDB media id',
+    );
+    expect(
+      matches.values.toSet(),
+      hasLength(matches.length),
+      reason: 'one animation shows one exercise',
+    );
+  });
 
   test('the library is whole: names, muscles, frames and unique ids', () {
     expect(shipped.length, greaterThan(250));

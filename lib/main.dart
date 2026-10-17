@@ -9,6 +9,7 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'app/app.dart';
 import 'app/app_store.dart';
 import 'backend/application/ai_service.dart';
+import 'backend/application/exercise_gifs.dart';
 import 'backend/backend.dart';
 import 'backend/health/health_source.dart';
 import 'backend/seed/catalogue.dart';
@@ -48,6 +49,7 @@ Future<void> main() async {
     ai: AiService.onDevice(backend.db),
     health: PlatformHealthSource.forThisDevice(),
     motion: SensorDeviceMotion(),
+    gifs: await ExerciseGifs.onDevice(),
   );
   runApp(
     LiquidGlassWidgets.wrap(

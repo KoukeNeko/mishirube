@@ -15,6 +15,10 @@ where `demoFrom` names an exercise of the core whose three poses stand in
 for this one (the same movement with other equipment or grip) or is null.
 The validation that matters is `test/backend/exercise_catalogue_test.dart`;
 this only joins the two files and fails on what cannot be joined.
+
+It also writes `assets/exercises/gifs.json`, exercise id -> ExerciseDB
+animation id, from `tool/exercise_data/exercisedb.json` (see
+`tool/match_exercisedb.py`).
 """
 
 import json
@@ -24,6 +28,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / 'tool' / 'exercise_data'
 OUT = ROOT / 'assets' / 'exercises' / 'catalogue.json'
+GIFS_OUT = ROOT / 'assets' / 'exercises' / 'gifs.json'
 
 
 def main() -> None:
@@ -64,6 +69,16 @@ def main() -> None:
         'exercises': exercises,
     }, ensure_ascii=False, indent=1) + '\n')
     print(f'{len(exercises)} exercises ({len(core["exercises"])} core, {len(additions)} added)')
+
+    matches = json.loads((DATA / 'exercisedb.json').read_text())['matches']
+    unknown = sorted(set(matches) - {e['id'] for e in exercises})
+    if unknown:
+        sys.exit(f'exercisedb.json names exercises that are not in the library: {unknown}')
+    GIFS_OUT.write_text(json.dumps(
+        {id_: match['id'] for id_, match in sorted(matches.items())},
+        indent=1,
+    ) + '\n')
+    print(f'{len(matches)} animations')
 
 
 if __name__ == '__main__':

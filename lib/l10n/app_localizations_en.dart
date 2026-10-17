@@ -3153,6 +3153,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Images: Workout Guide / Everkinetic · CC BY-SA 4.0';
 
   @override
+  String get exerciseGifCredit => 'Animations: ExerciseDB / AscendAPI';
+
+  @override
   String get myAliases => 'My aliases';
 
   @override
@@ -5280,6 +5283,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyWidgetsValue =>
       'A copy of the figures, only on this device';
+
+  @override
+  String get privacyExerciseGifs => 'Exercise animations';
+
+  @override
+  String get privacyExerciseGifsValue =>
+      'Downloaded from ExerciseDB; only the file name is sent';
 
   @override
   String get privacyAccount => 'Account';

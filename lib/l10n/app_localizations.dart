@@ -5625,6 +5625,12 @@ abstract class AppLocalizations {
   /// **'圖：Workout Guide／Everkinetic · CC BY-SA 4.0'**
   String get exerciseDemoCredit;
 
+  /// Credit under an exercise's animation.
+  ///
+  /// In zh, this message translates to:
+  /// **'動畫：ExerciseDB／AscendAPI'**
+  String get exerciseGifCredit;
+
   /// Names the user finds an exercise by.
   ///
   /// In zh, this message translates to:
@@ -9097,6 +9103,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'數字的副本，只在這台裝置'**
   String get privacyWidgetsValue;
+
+  /// Privacy row.
+  ///
+  /// In zh, this message translates to:
+  /// **'動作動畫'**
+  String get privacyExerciseGifs;
+
+  /// Privacy value.
+  ///
+  /// In zh, this message translates to:
+  /// **'從 ExerciseDB 下載，只送出動畫檔名'**
+  String get privacyExerciseGifsValue;
 
   /// Privacy row.
   ///

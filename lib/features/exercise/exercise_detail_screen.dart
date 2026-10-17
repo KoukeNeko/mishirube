@@ -123,11 +123,9 @@ class ExerciseDetailScreen extends StatelessWidget {
             )
           : null,
       children: [
-        if (exercise.frames.isNotEmpty) ...[
+        if (hasExerciseDemo(context, exercise)) ...[
           Gutter(
-            child: AppCard(
-              child: ExerciseDemo(name: exercise.name, frames: exercise.frames),
-            ),
+            child: AppCard(child: ExerciseDemo(exercise: exercise)),
           ),
           Gutter(child: ExerciseDemoCredit(exercise: exercise)),
         ],
