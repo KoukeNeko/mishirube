@@ -308,4 +308,47 @@ void main() {
       reason: 'it is told what it is; it draws only as far as full',
     );
   });
+
+  testWidgets('a choice lights the one picked, says so, and picks another', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final picked = <int>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(),
+        home: Scaffold(
+          body: SegmentedGroup(
+            rows: [
+              choiceButtons<int>(
+                options: const [1, 2, 3],
+                labelOf: (days) => '$days 天',
+                isSelected: (days) => days == 2,
+                onTap: picked.add,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    Color surfaceOf(String label) => tester
+        .widget<Material>(
+          find
+              .ancestor(of: find.text(label), matching: find.byType(Material))
+              .first,
+        )
+        .color!;
+    expect(surfaceOf('2 天'), AppColors.training);
+    expect(surfaceOf('1 天'), AppColors.surface);
+    expect(
+      find.semantics.byFlag(SemanticsFlag.isSelected),
+      findsOneWidget,
+      reason: 'the picked one says it is selected',
+    );
+
+    await tester.tap(find.text('3 天'));
+    expect(picked, [3]);
+    semantics.dispose();
+  });
 }

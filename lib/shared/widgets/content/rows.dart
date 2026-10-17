@@ -315,11 +315,16 @@ class RadioRow extends StatelessWidget {
 }
 
 class RadioDot extends StatelessWidget {
-  const RadioDot({super.key, required this.isSelected});
+  const RadioDot({
+    super.key,
+    required this.isSelected,
+    this.color = AppColors.training,
+  });
 
   static const _size = 24.0;
 
   final bool isSelected;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -328,9 +333,9 @@ class RadioDot extends StatelessWidget {
       height: _size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isSelected ? AppColors.training : Colors.transparent,
+        color: isSelected ? color : Colors.transparent,
         border: Border.all(
-          color: isSelected ? AppColors.training : AppColors.textTertiary,
+          color: isSelected ? color : AppColors.textTertiary,
           width: 2,
         ),
       ),

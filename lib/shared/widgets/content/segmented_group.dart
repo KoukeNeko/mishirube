@@ -42,6 +42,7 @@ class Segment {
     this.surface = AppColors.surface,
     this.background,
     this.semanticLabel,
+    this.isSelected,
   });
 
   final Widget child;
@@ -55,6 +56,10 @@ class Segment {
 
   /// What a screen reader says in place of [child]'s own text.
   final String? semanticLabel;
+
+  /// Whether it is the one picked, for a segment that is a choice; null
+  /// for one that is not.
+  final bool? isSelected;
 }
 
 /// A group of figures as one block cut into parts: rows of one or more
@@ -196,10 +201,14 @@ class _SegmentCellState extends State<_SegmentCell>
         container: true,
         label: label,
         button: segment.onTap != null,
+        selected: segment.isSelected,
         onTap: segment.onTap,
         excludeSemantics: true,
         child: cell,
       );
+    }
+    if (segment.isSelected case final isSelected?) {
+      return Semantics(selected: isSelected, child: cell);
     }
     return cell;
   }

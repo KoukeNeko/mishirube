@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../motion.dart';
 import 'chart_entrance.dart';
+import 'rows.dart';
+import 'segmented_group.dart';
 import 'stats.dart';
 
 /// The room a segment's content keeps on every side.
@@ -184,6 +186,7 @@ class SegmentRow extends StatelessWidget {
     this.value,
     this.leading,
     this.trailing,
+    this.showsChevron = false,
   });
 
   final String title;
@@ -191,6 +194,9 @@ class SegmentRow extends StatelessWidget {
   final String? value;
   final Widget? leading;
   final Widget? trailing;
+
+  /// Whether the row ends in a chevron, as one that opens a page does.
+  final bool showsChevron;
 
   @override
   Widget build(BuildContext context) {
@@ -247,6 +253,8 @@ class SegmentRow extends StatelessWidget {
                   ],
                 ),
               ),
+              if (showsChevron)
+                const Icon(Icons.chevron_right, color: AppColors.textTertiary),
             ],
           ),
         ),
@@ -409,3 +417,60 @@ class _ThickProgressPainter extends CustomPainter {
       old.track != track ||
       old.gap != gap;
 }
+
+/// One of a group's choices, the picked one lit: a radio dot, its title
+/// and what choosing it means. [color] and [tint] are the area's.
+Segment choiceSegment({
+  required String title,
+  String? caption,
+  required bool isSelected,
+  required VoidCallback onTap,
+  Color color = AppColors.training,
+  Color tint = AppColors.trainingSurface,
+}) => Segment(
+  onTap: onTap,
+  isSelected: isSelected,
+  surface: isSelected ? tint : AppColors.surface,
+  child: SegmentRow(
+    leading: RadioDot(isSelected: isSelected, color: color),
+    title: title,
+    caption: caption,
+  ),
+);
+
+/// A row of choices side by side, as many segments as there are options,
+/// the picked one filled in the area's colour.
+List<Segment> choiceButtons<T>({
+  required List<T> options,
+  required String Function(T option) labelOf,
+  required bool Function(T option) isSelected,
+  required ValueChanged<T> onTap,
+  Color color = AppColors.training,
+  Color onColor = AppColors.onTraining,
+}) => [
+  for (final option in options)
+    Segment(
+      onTap: () => onTap(option),
+      isSelected: isSelected(option),
+      surface: isSelected(option) ? color : AppColors.surface,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+            // Shrinks rather than overflows at large text sizes.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                labelOf(option),
+                style: AppTextStyles.itemTitle.copyWith(
+                  color: isSelected(option) ? onColor : null,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+];
