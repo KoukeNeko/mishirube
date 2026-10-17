@@ -1438,7 +1438,6 @@
   "modulesEnabled": "{modules} 켜짐",
   "notEnabled": "꺼짐",
   "dataSection": "데이터",
-  "databaseRecovered": "이전 데이터 파일을 읽을 수 없어 {path}(으)로 옮기고 빈 상태로 시작했습니다. 이전 파일은 삭제되지 않았습니다.",
   "localData": "기기 내 데이터",
   "dataSourcesDetail": "직접 입력, 가져오기, 기본 카탈로그",
   "showDemoData": "데모 데이터 표시",
@@ -1888,5 +1887,14 @@
   "workoutKindPush": "푸시",
   "workoutKindPull": "풀",
   "workoutKindLegs": "다리",
-  "generatedProgramName": "생성한 프로그램"
+  "generatedProgramName": "생성한 프로그램",
+  "startupLoading": "데이터 읽는 중",
+  "startupLocked": "잠금 해제 대기 중",
+  "startupUnreadable": "데이터를 읽을 수 없음",
+  "startupVersionMismatch": "호환되지 않는 버전",
+  "startupFailed": "시작할 수 없음",
+  "startupUnlockHint": "기기의 잠금을 해제하면 자동으로 다시 시도합니다.",
+  "startupPreserveHint": "복구를 위해 앱과 데이터를 보존해 주세요.",
+  "startupUpdateHint": "앱을 업데이트한 후 다시 시도해 주세요.",
+  "startupRetryHint": "잠시 후 다시 시도해 주세요."
 }

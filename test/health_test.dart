@@ -15,6 +15,7 @@ import 'package:mishirube/backend/health/health_source.dart';
 import 'package:mishirube/backend/import_export/canonical_archive.dart';
 import 'package:mishirube/backend/storage/database.dart';
 import 'package:mishirube/backend/storage/journal_repository.dart';
+import 'package:mishirube/backend/storage/storage_access.dart';
 import 'package:mishirube/domain/domain.dart';
 import 'package:mishirube/features/journal/journal_detail_screen.dart';
 import 'package:mishirube/features/me/privacy_screen.dart';
@@ -487,6 +488,104 @@ void main() {
       final again = await store.syncHealth();
       expect(again!.added[HealthDataKind.sleep], 0, reason: 'not twice');
     });
+
+    for (final lockDuringRead in [false, true]) {
+      test(
+        'protected storage ${lockDuringRead ? 'locking during a read' : 'unavailable before sync'} '
+        'defers health writes and resumes without duplicates',
+        () async {
+          final previous = debugDefaultTargetPlatformOverride;
+          debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+          final access = StorageAccess();
+          debugDefaultTargetPlatformOverride = previous;
+          addTearDown(access.dispose);
+          var available = true;
+          final messenger =
+              TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+          messenger.setMockMethodCallHandler(
+            StorageAccess.channel,
+            (_) async => available,
+          );
+          addTearDown(
+            () =>
+                messenger.setMockMethodCallHandler(StorageAccess.channel, null),
+          );
+          final directory = Directory.systemTemp.createTempSync(
+            'mishirube_protection_',
+          );
+          addTearDown(() => directory.deleteSync(recursive: true));
+          final backend = Backend(
+            AppDatabase.open(
+              '${directory.path}/store.sqlite3',
+              clock: clock.now,
+            ),
+            storageAccess: access,
+          );
+          addTearDown(backend.close);
+          final health = _FakeHealth([]);
+          final store = AppStore(
+            backend: backend,
+            clock: clock.now,
+            isOnboarded: true,
+            health: health,
+          );
+          addTearDown(store.dispose);
+          await store.connectHealth();
+          health.samples = [lastNight];
+          health.readFrom.clear();
+          final cursor = backend.db.setting('health.synced_at');
+          final audit = backend.db
+              .select('SELECT COUNT(*) AS n FROM audit_events')
+              .single['n'];
+          if (lockDuringRead) {
+            health.gate = Completer<void>();
+            final running = store.syncHealthInBackground();
+            while (health.readFrom.isEmpty) {
+              await Future<void>.delayed(const Duration(milliseconds: 1));
+            }
+            available = false;
+            health.gate!.complete();
+            await running;
+            health.gate = null;
+          } else {
+            available = false;
+            await Future.wait([
+              store.syncHealthInBackground(),
+              store.syncHealthInBackground(),
+            ]);
+            expect(
+              health.readFrom,
+              isEmpty,
+              reason: 'not even a platform read while locked',
+            );
+          }
+          expect(store.healthSyncFailed, isTrue);
+          expect(imported(store), isEmpty);
+          expect(backend.db.setting('health.synced_at'), cursor);
+          expect(
+            backend.db
+                .select('SELECT COUNT(*) AS n FROM audit_events')
+                .single['n'],
+            audit,
+          );
+          available = true;
+          health.readFrom.clear();
+          await Future.wait([
+            store.syncHealthInBackground(),
+            store.syncHealthInBackground(),
+          ]);
+          expect(
+            health.readFrom,
+            hasLength(1),
+            reason: 'one rolling-window sync',
+          );
+          expect(imported(store), hasLength(1));
+          expect(store.healthSyncFailed, isFalse);
+          await store.syncHealthInBackground();
+          expect(imported(store), hasLength(1));
+        },
+      );
+    }
 
     test('coming back to the front mid-sync joins the sync, once', () async {
       final health = _FakeHealth([lastNight]);

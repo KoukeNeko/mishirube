@@ -8792,12 +8792,6 @@ abstract class AppLocalizations {
   /// **'資料'**
   String get dataSection;
 
-  /// Warning.
-  ///
-  /// In zh, this message translates to:
-  /// **'上次的資料檔無法讀取，已移到 {path}，並從空白重新開始。舊檔案沒有被刪除。'**
-  String databaseRecovered({required String path});
-
   /// Row.
   ///
   /// In zh, this message translates to:
@@ -11517,6 +11511,60 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'生成的課表'**
   String get generatedProgramName;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'讀取資料中'**
+  String get startupLoading;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'等待解鎖'**
+  String get startupLocked;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'資料無法讀取'**
+  String get startupUnreadable;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'版本不相容'**
+  String get startupVersionMismatch;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'無法啟動'**
+  String get startupFailed;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'解鎖裝置後會自動重試。'**
+  String get startupUnlockHint;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'請保留 App 及其資料，以便復原。'**
+  String get startupPreserveHint;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'請更新 App 後重試。'**
+  String get startupUpdateHint;
+
+  /// Database startup status or recovery error message.
+  ///
+  /// In zh, this message translates to:
+  /// **'請稍後重試。'**
+  String get startupRetryHint;
 }
 
 class _AppLocalizationsDelegate

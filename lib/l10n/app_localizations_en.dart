@@ -5106,11 +5106,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSection => 'Data';
 
   @override
-  String databaseRecovered({required String path}) {
-    return 'The last data file couldn\'t be read; it was moved to $path and the app started empty. The old file was not deleted.';
-  }
-
-  @override
   String get localData => 'On-device data';
 
   @override
@@ -6733,4 +6728,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get generatedProgramName => 'Generated program';
+
+  @override
+  String get startupLoading => 'Reading data';
+
+  @override
+  String get startupLocked => 'Waiting for unlock';
+
+  @override
+  String get startupUnreadable => 'Unable to read data';
+
+  @override
+  String get startupVersionMismatch => 'Incompatible version';
+
+  @override
+  String get startupFailed => 'Unable to start';
+
+  @override
+  String get startupUnlockHint => 'Unlock the device to retry automatically.';
+
+  @override
+  String get startupPreserveHint => 'Keep the app and its data for recovery.';
+
+  @override
+  String get startupUpdateHint => 'Update the app, then retry.';
+
+  @override
+  String get startupRetryHint => 'Please retry later.';
 }

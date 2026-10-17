@@ -5047,11 +5047,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get dataSection => 'データ';
 
   @override
-  String databaseRecovered({required String path}) {
-    return '前回のデータファイルを読み込めなかったため、$pathに移動し、空の状態から開始しました。古いファイルは削除されていません。';
-  }
-
-  @override
   String get localData => '端末内のデータ';
 
   @override
@@ -6608,4 +6603,31 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get generatedProgramName => '生成したプログラム';
+
+  @override
+  String get startupLoading => 'データ読み込み中';
+
+  @override
+  String get startupLocked => 'ロック解除待ち';
+
+  @override
+  String get startupUnreadable => 'データを読み込めません';
+
+  @override
+  String get startupVersionMismatch => 'バージョン非対応';
+
+  @override
+  String get startupFailed => '起動できません';
+
+  @override
+  String get startupUnlockHint => 'デバイスのロックを解除すると自動的に再試行します。';
+
+  @override
+  String get startupPreserveHint => '復元のため、アプリとデータを削除せずに保持してください。';
+
+  @override
+  String get startupUpdateHint => 'アプリを更新してから再試行してください。';
+
+  @override
+  String get startupRetryHint => 'しばらくしてから再試行してください。';
 }

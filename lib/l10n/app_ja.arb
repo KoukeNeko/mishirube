@@ -1438,7 +1438,6 @@
   "modulesEnabled": "{modules}がオン",
   "notEnabled": "オフ",
   "dataSection": "データ",
-  "databaseRecovered": "前回のデータファイルを読み込めなかったため、{path}に移動し、空の状態から開始しました。古いファイルは削除されていません。",
   "localData": "端末内のデータ",
   "dataSourcesDetail": "手入力、インポート、組み込みカタログ",
   "showDemoData": "デモデータを表示",
@@ -1888,5 +1887,14 @@
   "workoutKindPush": "プッシュ",
   "workoutKindPull": "プル",
   "workoutKindLegs": "脚",
-  "generatedProgramName": "生成したプログラム"
+  "generatedProgramName": "生成したプログラム",
+  "startupLoading": "データ読み込み中",
+  "startupLocked": "ロック解除待ち",
+  "startupUnreadable": "データを読み込めません",
+  "startupVersionMismatch": "バージョン非対応",
+  "startupFailed": "起動できません",
+  "startupUnlockHint": "デバイスのロックを解除すると自動的に再試行します。",
+  "startupPreserveHint": "復元のため、アプリとデータを削除せずに保持してください。",
+  "startupUpdateHint": "アプリを更新してから再試行してください。",
+  "startupRetryHint": "しばらくしてから再試行してください。"
 }

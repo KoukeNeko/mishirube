@@ -57,24 +57,22 @@ void main() {
       expect(second.db.schemaVersion, latestSchemaVersion);
     });
 
-    test('an unreadable file is set aside instead of taking the app down', () {
+    test('an unreadable file is refused with its original contents intact', () {
       final path = '${directory.path}/broken.sqlite3';
       File(path).writeAsStringSync('this is not a database');
 
-      final db = AppDatabase.open(path, clock: clock.now);
-      addTearDown(db.close);
-
-      expect(db.schemaVersion, latestSchemaVersion, reason: 'a fresh start');
       expect(
-        db.recoveredFrom,
-        isNotNull,
-        reason: 'the app can say where the old file went',
+        () => AppDatabase.open(path, clock: clock.now),
+        throwsA(
+          isA<DatabaseOpenFailure>()
+              .having((e) => e.kind, 'kind', DatabaseFailureKind.corrupt)
+              .having((e) => e.resultCode, 'SQLite code', 26),
+        ),
       );
-      expect(File(db.recoveredFrom!).existsSync(), isTrue);
+      expect(File(path).readAsStringSync(), 'this is not a database');
       expect(
-        File(db.recoveredFrom!).readAsStringSync(),
-        'this is not a database',
-        reason: 'nothing is destroyed on the way',
+        directory.listSync().where((f) => f.path.contains('.corrupt-')),
+        isEmpty,
       );
     });
 
@@ -84,7 +82,19 @@ void main() {
         ..userVersion = latestSchemaVersion + 1
         ..close();
 
-      expect(() => AppDatabase.open(path), throwsStateError);
+      expect(
+        () => AppDatabase.open(path),
+        throwsA(
+          isA<DatabaseOpenFailure>().having(
+            (e) => e.kind,
+            'kind',
+            DatabaseFailureKind.incompatibleVersion,
+          ),
+        ),
+      );
+      final db = sqlite3.open(path);
+      expect(db.userVersion, latestSchemaVersion + 1);
+      db.close();
     });
 
     test('a failed transaction leaves neither the change nor its audit', () {

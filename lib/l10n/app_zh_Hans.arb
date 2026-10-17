@@ -1438,7 +1438,6 @@
   "modulesEnabled": "{modules} 已启用",
   "notEnabled": "未启用",
   "dataSection": "数据",
-  "databaseRecovered": "上次的数据文件无法读取，已移到 {path}，并从空白重新开始。旧文件没有被删除。",
   "localData": "本机数据",
   "dataSourcesDetail": "手动输入、导入与内置目录",
   "showDemoData": "显示示例数据",
@@ -1888,5 +1887,14 @@
   "workoutKindPush": "推",
   "workoutKindPull": "拉",
   "workoutKindLegs": "腿",
-  "generatedProgramName": "生成的课表"
+  "generatedProgramName": "生成的课表",
+  "startupLoading": "正在读取数据",
+  "startupLocked": "等待解锁",
+  "startupUnreadable": "无法读取数据",
+  "startupVersionMismatch": "版本不兼容",
+  "startupFailed": "无法启动",
+  "startupUnlockHint": "解锁设备后会自动重试。",
+  "startupPreserveHint": "请保留 App 及其数据，以便恢复。",
+  "startupUpdateHint": "请更新 App 后重试。",
+  "startupRetryHint": "请稍后重试。"
 }

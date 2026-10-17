@@ -24,6 +24,9 @@ import WatchConnectivity
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "StorageAccess") {
+      StorageAccessBridge.register(with: registrar.messenger())
+    }
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AppleIntelligence") {
       AppleIntelligence.register(with: registrar.messenger())
     }
@@ -69,6 +72,40 @@ import WatchConnectivity
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WidgetBridge") {
       WidgetBridge.shared.register(with: registrar)
     }
+  }
+}
+
+/// Readiness only: file-protection classes and the database remain unchanged.
+enum StorageAccessBridge {
+  private static var channel: FlutterMethodChannel?
+  private static var observers: [NSObjectProtocol] = []
+
+  static func register(with messenger: FlutterBinaryMessenger) {
+    for observer in observers { NotificationCenter.default.removeObserver(observer) }
+    let channel = FlutterMethodChannel(name: "mishirube/storage_access", binaryMessenger: messenger)
+    self.channel = channel
+    channel.setMethodCallHandler { call, result in
+      if call.method == "isAvailable" {
+        result(UIApplication.shared.isProtectedDataAvailable)
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    }
+    observers = [
+      NotificationCenter.default.addObserver(
+        forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+        object: nil, queue: .main
+      ) { _ in
+        self.channel?.invokeMethod("availabilityChanged", arguments: true)
+      },
+      NotificationCenter.default.addObserver(
+        forName: UIApplication.protectedDataWillBecomeUnavailableNotification,
+        object: nil, queue: .main
+      ) { _ in
+        // This notification precedes the property changing to false.
+        self.channel?.invokeMethod("availabilityChanged", arguments: false)
+      },
+    ]
   }
 }
 

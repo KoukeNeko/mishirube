@@ -5,7 +5,11 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import 'database_diagnostics.dart';
+import 'database_open_failure.dart';
 import 'schema.dart';
+
+export 'database_open_failure.dart';
 
 /// Where a change came from, recorded on rows and in the audit log.
 /// Where a change came from.
@@ -35,68 +39,118 @@ enum ChangeSource {
 /// deleted; `deleted_at` marks a tombstone and every change is written to
 /// `audit_events` inside the same transaction as the change itself.
 class AppDatabase {
-  AppDatabase._(this._db, this._clock, this.path) {
-    _db
-      ..execute('PRAGMA foreign_keys = ON')
-      ..execute('PRAGMA busy_timeout = 5000');
-    migrate(_db);
-  }
+  AppDatabase._(this._db, this._clock, this.path);
 
   /// Opens (creating or upgrading) the database file at [path].
   ///
-  /// A file that cannot be opened or read is not thrown back at the
-  /// user: there is no server to restore from, so a corrupt file is set
-  /// aside under `<path>.corrupt-<timestamp>` and a fresh one is opened
-  /// in its place. [recoveredFrom] says whether that happened, so the
-  /// app can tell the user where their old file went rather than
-  /// pretending it started empty.
-  factory AppDatabase.open(String path, {DateTime Function()? clock}) {
-    final now = clock ?? DateTime.now;
-    try {
-      return AppDatabase._(_openFile(path), now, path);
-    } on StateError {
-      // A newer schema is a different problem: opening a fresh file
-      // would throw away data this app simply cannot read yet.
-      rethrow;
-    } on SqliteException catch (_) {
-      final moved = _setAside(path, now());
-      final db = AppDatabase._(_openFile(path), now, path);
-      db._recoveredFrom = moved;
-      return db;
-    }
-  }
+  /// An opening failure never moves, replaces or recreates an existing
+  /// database. Only a clean first install may create a new file.
+  factory AppDatabase.open(String path, {DateTime Function()? clock}) =>
+      AppDatabase._(_openFile(path, create: true), clock ?? DateTime.now, path);
 
   /// A second connection to the file at [path], which a store opened with
   /// [AppDatabase.open] is already using: for writing on another isolate
-  /// while the screens keep theirs. Unlike [AppDatabase.open] it never
-  /// sets the file aside; a file it cannot open is the other connection's
-  /// to deal with, and a busy one is not a corrupt one.
+  /// while the screens keep theirs. It never creates or migrates a file;
+  /// the main connection must have completed initialization first.
   factory AppDatabase.connect(String path, {DateTime Function()? clock}) =>
-      AppDatabase._(_openFile(path), clock ?? DateTime.now, path);
+      AppDatabase._(
+        _openFile(path, create: false),
+        clock ?? DateTime.now,
+        path,
+      );
 
-  static Database _openFile(String path) {
-    final db = sqlite3.open(path);
-    db.execute('PRAGMA journal_mode = WAL');
-    // Reading the schema is what first touches the file's pages, so a
-    // corrupt file fails here rather than at the first user action.
-    db.select('SELECT count(*) FROM sqlite_schema');
-    return db;
-  }
-
-  /// Renames the unreadable file (and its journal) out of the way.
-  static String _setAside(String path, DateTime now) {
-    final stamp = now.toIso8601String().replaceAll(':', '-');
-    final target = '$path.corrupt-$stamp';
-    for (final suffix in ['', '-wal', '-shm']) {
-      final file = File('$path$suffix');
-      if (file.existsSync()) file.renameSync('$target$suffix');
+  static Database _openFile(String path, {required bool create}) {
+    Database? db;
+    bool? existing;
+    var stage = DatabaseOpenStage.inspection;
+    final file = File(path);
+    final diagnostics = DatabaseDiagnostics(file.parent);
+    final context = create ? 'startup' : 'background';
+    try {
+      existing = file.existsSync();
+      if (!existing) {
+        final name = file.uri.pathSegments.last;
+        final remnants =
+            file.parent.existsSync() &&
+            file.parent.listSync().any((item) {
+              final sibling = item.uri.pathSegments.last;
+              return sibling == '$name-wal' ||
+                  sibling == '$name-shm' ||
+                  sibling.startsWith('$name.corrupt-');
+            });
+        if (!create || remnants) throw const MissingDatabase();
+      }
+      stage = DatabaseOpenStage.opening;
+      db = sqlite3.open(
+        path,
+        mode: existing ? OpenMode.readWrite : OpenMode.readWriteCreate,
+      );
+      stage = DatabaseOpenStage.configuration;
+      _configure(db);
+      stage = DatabaseOpenStage.validation;
+      checkSchemaVersion(db, requireLatest: !create);
+      if (existing) {
+        // SQLite accepts an empty file as a new database. That does not
+        // make it a valid existing app store, even at user_version 0.
+        final core = db.select(
+          "SELECT name FROM sqlite_schema WHERE type='table' "
+          "AND name IN ('settings', 'audit_events')",
+        );
+        if (core.length != 2 || db.userVersion == 0) {
+          throw const InvalidDatabase();
+        }
+      }
+      if (create) {
+        stage = DatabaseOpenStage.configuration;
+        db.execute('PRAGMA journal_mode = WAL');
+        stage = DatabaseOpenStage.migration;
+        migrate(db);
+      }
+      diagnostics.resolved(context: context);
+      return db;
+    } catch (error, stack) {
+      try {
+        db?.close();
+      } catch (closeError) {
+        // Closing is secondary: preserve the original opening failure.
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: StateError(
+              'Failed database connection could not close '
+              '(${closeError.runtimeType}).',
+            ),
+            library: 'database startup',
+            silent: true,
+          ),
+        );
+      }
+      final failure = DatabaseOpenFailure.from(
+        error,
+        stack,
+        stage: stage,
+        existingFile: existing,
+      );
+      diagnostics.failed(failure, context: context);
+      Error.throwWithStackTrace(failure, stack);
     }
-    return target;
   }
+
+  static void _configure(Database db) => db
+    ..execute('PRAGMA busy_timeout = 5000')
+    ..execute('PRAGMA foreign_keys = ON');
 
   /// A throwaway database, for tests and previews.
-  factory AppDatabase.inMemory({DateTime Function()? clock}) =>
-      AppDatabase._(sqlite3.openInMemory(), clock ?? DateTime.now, null);
+  factory AppDatabase.inMemory({DateTime Function()? clock}) {
+    final db = sqlite3.openInMemory();
+    try {
+      _configure(db);
+      migrate(db);
+      return AppDatabase._(db, clock ?? DateTime.now, null);
+    } catch (_) {
+      db.close();
+      rethrow;
+    }
+  }
 
   /// The file this store lives in; null for one in memory, which no other
   /// connection can reach.
@@ -115,12 +169,6 @@ class AppDatabase {
   /// Tells [changes] about a write another connection to the same file
   /// committed ([AppDatabase.connect]), which this one cannot see made.
   void notifyWrittenElsewhere() => _changes.notify();
-
-  /// Where the previous, unreadable file was moved to; null on a normal
-  /// open.
-  String? _recoveredFrom;
-
-  String? get recoveredFrom => _recoveredFrom;
 
   DateTime now() => _clock();
 

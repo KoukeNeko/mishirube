@@ -5039,11 +5039,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dataSection => '資料';
 
   @override
-  String databaseRecovered({required String path}) {
-    return '上次的資料檔無法讀取，已移到 $path，並從空白重新開始。舊檔案沒有被刪除。';
-  }
-
-  @override
   String get localData => '本機資料';
 
   @override
@@ -6595,6 +6590,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get generatedProgramName => '生成的課表';
+
+  @override
+  String get startupLoading => '讀取資料中';
+
+  @override
+  String get startupLocked => '等待解鎖';
+
+  @override
+  String get startupUnreadable => '資料無法讀取';
+
+  @override
+  String get startupVersionMismatch => '版本不相容';
+
+  @override
+  String get startupFailed => '無法啟動';
+
+  @override
+  String get startupUnlockHint => '解鎖裝置後會自動重試。';
+
+  @override
+  String get startupPreserveHint => '請保留 App 及其資料，以便復原。';
+
+  @override
+  String get startupUpdateHint => '請更新 App 後重試。';
+
+  @override
+  String get startupRetryHint => '請稍後重試。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -11631,11 +11653,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get dataSection => '数据';
 
   @override
-  String databaseRecovered({required String path}) {
-    return '上次的数据文件无法读取，已移到 $path，并从空白重新开始。旧文件没有被删除。';
-  }
-
-  @override
   String get localData => '本机数据';
 
   @override
@@ -13187,6 +13204,33 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get generatedProgramName => '生成的课表';
+
+  @override
+  String get startupLoading => '正在读取数据';
+
+  @override
+  String get startupLocked => '等待解锁';
+
+  @override
+  String get startupUnreadable => '无法读取数据';
+
+  @override
+  String get startupVersionMismatch => '版本不兼容';
+
+  @override
+  String get startupFailed => '无法启动';
+
+  @override
+  String get startupUnlockHint => '解锁设备后会自动重试。';
+
+  @override
+  String get startupPreserveHint => '请保留 App 及其数据，以便恢复。';
+
+  @override
+  String get startupUpdateHint => '请更新 App 后重试。';
+
+  @override
+  String get startupRetryHint => '请稍后重试。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).

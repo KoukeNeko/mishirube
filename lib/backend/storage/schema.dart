@@ -620,14 +620,28 @@ int get latestSchemaVersion => _migrations.length;
 /// installs and quietly gives the two different schemas.
 List<String> get schemaSteps => List.unmodifiable(_migrations);
 
+class SchemaVersionMismatch extends StateError {
+  SchemaVersionMismatch(this.found, this.expected)
+    : super(
+        'Database schema $found is incompatible with this app ($expected).',
+      );
+
+  final int found;
+  final int expected;
+}
+
+int checkSchemaVersion(Database db, {bool requireLatest = false}) {
+  final version = db.userVersion;
+  if (version > latestSchemaVersion ||
+      (requireLatest && version != latestSchemaVersion)) {
+    throw SchemaVersionMismatch(version, latestSchemaVersion);
+  }
+  return version;
+}
+
 /// Brings [db] up to [latestSchemaVersion], all steps in one transaction.
 void migrate(Database db) {
-  final from = db.userVersion;
-  if (from > latestSchemaVersion) {
-    throw StateError(
-      'Database schema $from is newer than this app ($latestSchemaVersion).',
-    );
-  }
+  final from = checkSchemaVersion(db);
   if (from == latestSchemaVersion) return;
   db.execute('BEGIN IMMEDIATE');
   try {

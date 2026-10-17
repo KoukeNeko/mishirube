@@ -17,6 +17,7 @@ import 'storage/activity_repository.dart';
 import 'storage/activity_sample_repository.dart';
 import 'storage/goal_repository.dart';
 import 'storage/database.dart';
+import 'storage/storage_access.dart';
 import 'storage/exercise_repository.dart';
 import 'storage/food_repository.dart';
 import 'storage/journal_repository.dart';
@@ -79,10 +80,17 @@ class Storage {
 class Backend {
   /// [l10n] is the language the backend writes the names it makes up in
   /// (a new routine, a workout without one); the system's by default.
-  Backend(AppDatabase database, {AppLocalizations? l10n})
-    : this._(database, l10n ?? systemLocalizations());
+  Backend(
+    AppDatabase database, {
+    AppLocalizations? l10n,
+    StorageAccess? storageAccess,
+  }) : this._(
+         database,
+         l10n ?? systemLocalizations(),
+         storageAccess ?? StorageAccess.instance,
+       );
 
-  Backend._(AppDatabase database, this.l10n)
+  Backend._(AppDatabase database, this.l10n, this._storageAccess)
     : storage = Storage(database, l10n) {
     catalog = CatalogService(db, storage.exercises);
     training = TrainingService(
@@ -137,15 +145,25 @@ class Backend {
 
   /// Opens the database in the app's private support directory; it is an
   /// implementation detail, not a user document.
-  static Future<Backend> openOnDevice() async {
+  static Future<Backend> openOnDevice({StorageAccess? storageAccess}) async {
+    final access = storageAccess ?? StorageAccess.instance;
+    await access.requireAvailable();
     final directory = await getApplicationSupportDirectory();
     await directory.create(recursive: true);
     // Android has no usable /tmp for SQLite's temporary files.
     sqlite3.tempDirectory = (await getTemporaryDirectory()).path;
-    return Backend(AppDatabase.open(p.join(directory.path, _databaseFileName)));
+    await access.requireAvailable();
+    final db = AppDatabase.open(p.join(directory.path, _databaseFileName));
+    try {
+      return Backend(db, storageAccess: access);
+    } catch (_) {
+      db.close();
+      rethrow;
+    }
   }
 
   final Storage storage;
+  final StorageAccess _storageAccess;
   late final CatalogService catalog;
   late final TrainingService training;
   late final NutritionService nutrition;
@@ -159,8 +177,13 @@ class Backend {
   AppDatabase get db => storage.db;
 
   /// Records read from [source] into this store.
-  HealthService healthFrom(HealthSource source) =>
-      HealthService(db, storage.journal, nutrition, source);
+  HealthService healthFrom(HealthSource source) => HealthService(
+    db,
+    storage.journal,
+    nutrition,
+    source,
+    storageAccess: _storageAccess,
+  );
 
   TimelineQuery get timeline => storage.timeline;
 

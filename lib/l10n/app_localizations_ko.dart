@@ -5048,11 +5048,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dataSection => '데이터';
 
   @override
-  String databaseRecovered({required String path}) {
-    return '이전 데이터 파일을 읽을 수 없어 $path(으)로 옮기고 빈 상태로 시작했습니다. 이전 파일은 삭제되지 않았습니다.';
-  }
-
-  @override
   String get localData => '기기 내 데이터';
 
   @override
@@ -6614,4 +6609,31 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get generatedProgramName => '생성한 프로그램';
+
+  @override
+  String get startupLoading => '데이터 읽는 중';
+
+  @override
+  String get startupLocked => '잠금 해제 대기 중';
+
+  @override
+  String get startupUnreadable => '데이터를 읽을 수 없음';
+
+  @override
+  String get startupVersionMismatch => '호환되지 않는 버전';
+
+  @override
+  String get startupFailed => '시작할 수 없음';
+
+  @override
+  String get startupUnlockHint => '기기의 잠금을 해제하면 자동으로 다시 시도합니다.';
+
+  @override
+  String get startupPreserveHint => '복구를 위해 앱과 데이터를 보존해 주세요.';
+
+  @override
+  String get startupUpdateHint => '앱을 업데이트한 후 다시 시도해 주세요.';
+
+  @override
+  String get startupRetryHint => '잠시 후 다시 시도해 주세요.';
 }

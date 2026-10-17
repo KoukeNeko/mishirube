@@ -1438,7 +1438,6 @@
   "modulesEnabled": "{modules} on",
   "notEnabled": "Off",
   "dataSection": "Data",
-  "databaseRecovered": "The last data file couldn't be read; it was moved to {path} and the app started empty. The old file was not deleted.",
   "localData": "On-device data",
   "dataSourcesDetail": "Typed in, imported and built in",
   "showDemoData": "Show demo data",
@@ -1888,5 +1887,14 @@
   "workoutKindPush": "Push",
   "workoutKindPull": "Pull",
   "workoutKindLegs": "Legs",
-  "generatedProgramName": "Generated program"
+  "generatedProgramName": "Generated program",
+  "startupLoading": "Reading data",
+  "startupLocked": "Waiting for unlock",
+  "startupUnreadable": "Unable to read data",
+  "startupVersionMismatch": "Incompatible version",
+  "startupFailed": "Unable to start",
+  "startupUnlockHint": "Unlock the device to retry automatically.",
+  "startupPreserveHint": "Keep the app and its data for recovery.",
+  "startupUpdateHint": "Update the app, then retry.",
+  "startupRetryHint": "Please retry later."
 }

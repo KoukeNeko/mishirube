@@ -272,13 +272,6 @@ class _MeScreenState extends State<MeScreen> {
         PageSection(
           label: context.l10n.dataSection,
           children: [
-            if (store.recoveredDatabasePath case final moved?)
-              Gutter(
-                child: InfoBanner(
-                  tone: CardTone.warning,
-                  message: context.l10n.databaseRecovered(path: moved),
-                ),
-              ),
             Gutter(
               child: GroupedCard(
                 children: [

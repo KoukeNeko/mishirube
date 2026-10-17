@@ -3,6 +3,7 @@ import '../engines/sleep_nights.dart';
 import '../health/health_source.dart';
 import '../storage/database.dart';
 import '../storage/journal_repository.dart';
+import '../storage/storage_access.dart';
 import 'health_export.dart';
 import 'health_writer.dart';
 import 'nutrition_service.dart';
@@ -57,7 +58,13 @@ int moodScore(double valence) => (3 + valence.clamp(-1.0, 1.0) * 2).round();
 /// instead of adding it twice. A record the user deleted stays deleted,
 /// and a night they logged themselves is left alone.
 class HealthService {
-  HealthService(this._db, this._journal, this._nutrition, this.source);
+  HealthService(
+    this._db,
+    this._journal,
+    this._nutrition,
+    this.source, {
+    StorageAccess? storageAccess,
+  }) : _storageAccess = storageAccess ?? StorageAccess.instance;
 
   static const _connectedKey = 'health.connected';
 
@@ -104,6 +111,12 @@ class HealthService {
   final JournalRepository _journal;
   final NutritionService _nutrition;
   final HealthSource source;
+  final StorageAccess _storageAccess;
+
+  /// Call before reading connection state as well as before file writes.
+  Future<void> requireStorage() async {
+    if (_db.path != null) await _storageAccess.requireAvailable();
+  }
 
   Future<bool> isAvailable() => source.isAvailable();
 
@@ -120,7 +133,9 @@ class HealthService {
   }
 
   Future<bool> _ask() async {
+    await requireStorage();
     if (!await source.requestAccess(source.kinds)) return false;
+    await requireStorage();
     _db.setSetting(
       _askedKey,
       [for (final kind in source.kinds) kind.name].join(','),
@@ -164,8 +179,10 @@ class HealthService {
   /// the platform holds. Null when the platform is not there or the
   /// request did not go through.
   Future<HealthImport?> connect() async {
+    await requireStorage();
     if (!await source.isAvailable()) return null;
     if (!await _ask()) return null;
+    await requireStorage();
     _db.setSetting(_connectedKey, 'true');
     return importAll();
   }
@@ -177,6 +194,7 @@ class HealthService {
   /// type has been added since, everything back to [earliest] a year at
   /// a time: one read of a decade of samples would not fit in memory.
   Future<HealthImport> importAll() async {
+    await requireStorage();
     if (isConnected && _hasUnaskedKinds) await _ask();
     final now = _db.now();
     // Only what was allowed: Health Connect refuses a read it was not
@@ -203,6 +221,7 @@ class HealthService {
         ),
       );
     }
+    await requireStorage();
     _db.setSetting(_syncedKey, '${now.millisecondsSinceEpoch}');
     if (isFullRead) _db.setSetting(_fullReadKey, '$_accessVersion');
     await writeChanges();
@@ -213,15 +232,18 @@ class HealthService {
   /// the app since the last write, the first time everything. Throws
   /// when the platform fails; what it took by then is not written again.
   Future<void> writeChanges() async {
+    await requireStorage();
     if (!isConnected) return;
     final since = int.tryParse(_db.setting(_writtenKey) ?? '') ?? 0;
     final changes = HealthExport(_db).changesSince(since);
     for (var start = 0; start < changes.length; start += _writeChunk) {
+      await requireStorage();
       final chunk = changes.sublist(
         start,
         (start + _writeChunk).clamp(0, changes.length),
       );
       await source.write([for (final (writes, _) in chunk) ...writes]);
+      await requireStorage();
       // Through the last change of this chunk, unless the next one
       // changed in the same millisecond: then only through the one before,
       // so it is not passed over.
@@ -255,6 +277,7 @@ class HealthService {
     required bool isHourly,
     required bool isFullRead,
   }) async {
+    await requireStorage();
     // Read everything first: a platform call can fail, and a failure
     // should leave the log as it was, not half imported.
     final samples = kinds.contains(HealthDataKind.sleep)
@@ -284,6 +307,7 @@ class HealthService {
     final activity = kinds.contains(HealthDataKind.activity)
         ? await source.activitySamples(from, now, isHourly: isHourly)
         : const <ActivitySample>[];
+    await requireStorage();
     final sleeps = [for (final night in nightsOf(samples)) _planOf(night)];
     // Only over the time each sleep covers: a whole month of heart rate
     // is not what the sleep page shows.
@@ -294,6 +318,7 @@ class HealthService {
           ])
         : null;
 
+    await requireStorage();
     final batch = HealthBatch(
       kinds: kinds,
       idPrefix: source.idPrefix,
@@ -348,6 +373,7 @@ class HealthService {
     // (tests, previews) has nothing else that could reach it.
     final path = _db.path;
     if (path == null) return HealthWriter(_db).write(batch);
+    await requireStorage();
     final imported = await writeHealthBatchApart(path, _db.now(), batch);
     _db.notifyWrittenElsewhere();
     return imported;

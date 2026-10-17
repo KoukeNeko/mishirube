@@ -7638,15 +7638,6 @@
   "@dataSection": {
     "description": "Section."
   },
-  "databaseRecovered": "上次的資料檔無法讀取，已移到 {path}，並從空白重新開始。舊檔案沒有被刪除。",
-  "@databaseRecovered": {
-    "description": "Warning.",
-    "placeholders": {
-      "path": {
-        "type": "String"
-      }
-    }
-  },
   "localData": "本機資料",
   "@localData": {
     "description": "Row."
@@ -9972,5 +9963,41 @@
   "generatedProgramName": "生成的課表",
   "@generatedProgramName": {
     "description": "Name a generated program is kept under."
+  },
+  "startupLoading": "讀取資料中",
+  "@startupLoading": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupLocked": "等待解鎖",
+  "@startupLocked": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupUnreadable": "資料無法讀取",
+  "@startupUnreadable": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupVersionMismatch": "版本不相容",
+  "@startupVersionMismatch": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupFailed": "無法啟動",
+  "@startupFailed": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupUnlockHint": "解鎖裝置後會自動重試。",
+  "@startupUnlockHint": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupPreserveHint": "請保留 App 及其資料，以便復原。",
+  "@startupPreserveHint": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupUpdateHint": "請更新 App 後重試。",
+  "@startupUpdateHint": {
+    "description": "Database startup status or recovery error message."
+  },
+  "startupRetryHint": "請稍後重試。",
+  "@startupRetryHint": {
+    "description": "Database startup status or recovery error message."
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:sqlite3/sqlite3.dart' show SqliteException;
 
 import '../backend/application/training_service.dart'
     show RemovedSet, WorkoutTiming, routineNameFor;
@@ -26,6 +28,7 @@ import '../backend/engines/nutrition_summary.dart';
 import '../backend/seed/demo_content.dart';
 import '../backend/seed/seed.dart';
 import '../backend/storage/database.dart';
+import '../backend/storage/database_diagnostics.dart';
 import '../domain/domain.dart';
 import '../shared/system_calendar.dart';
 
@@ -366,11 +369,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Where the previous database file was moved to when it could not be
-  /// read, or null on a normal start. The app says so rather than
-  /// looking as though the records were never there.
-  String? get recoveredDatabasePath => _backend.db.recoveredFrom;
-
   /// How much the store takes on disk.
   int get databaseBytes => _backend.db.sizeInBytes;
 
@@ -423,6 +421,13 @@ class AppStore extends ChangeNotifier {
     _backend.db.changes.removeListener(_onRecordsChanged);
     if (_ownsBackend) _backend.close();
     super.dispose();
+  }
+
+  /// The startup owner also owns an explicitly supplied backend. Ordinary
+  /// screen/test owners can still dispose a store without closing theirs.
+  void disposeWithBackend() {
+    dispose();
+    if (!_ownsBackend) _backend.close();
   }
 
   void selectTab(HomeTab tab) {
@@ -1622,6 +1627,7 @@ class AppStore extends ChangeNotifier {
 
   /// Reads the last month again, when connected.
   Future<HealthImport?> syncHealth() async {
+    await _health.requireStorage();
     if (!_health.isConnected) return null;
     final imported = await _health.importAll();
     _reloadAfterImport();
@@ -1642,12 +1648,6 @@ class AppStore extends ChangeNotifier {
     if (_backgroundSync case final running?) return running;
     final sync = _syncInBackground();
     _backgroundSync = sync;
-    if (isHealthConnected) {
-      _slowRead = Timer(_slowReadAfter, () {
-        _isHealthReadSlow = true;
-        notifyListeners();
-      });
-    }
     return sync;
   }
 
@@ -1665,10 +1665,19 @@ class AppStore extends ChangeNotifier {
 
   Future<void> _syncInBackground() async {
     try {
+      await _health.requireStorage();
+      if (isHealthConnected) {
+        _slowRead = Timer(_slowReadAfter, () {
+          _isHealthReadSlow = true;
+          notifyListeners();
+        });
+      }
       await syncHealth();
       _healthSyncFailed = false;
-    } on Exception {
+      _resolveHealthStorageFailure();
+    } on Exception catch (error, stack) {
       _healthSyncFailed = true;
+      _recordHealthStorageFailure(error, stack);
     } finally {
       _backgroundSync = null;
       _slowRead?.cancel();
@@ -1685,9 +1694,35 @@ class AppStore extends ChangeNotifier {
   Future<void> writeHealthInBackground() async {
     try {
       await _health.writeChanges();
-    } on Exception {
+      _resolveHealthStorageFailure();
+    } on Exception catch (error, stack) {
       _healthSyncFailed = true;
+      _recordHealthStorageFailure(error, stack);
       notifyListeners();
+    }
+  }
+
+  void _recordHealthStorageFailure(Object error, StackTrace stack) {
+    final path = _backend.db.path;
+    if (path == null ||
+        (error is! DatabaseOpenFailure && error is! SqliteException)) {
+      return;
+    }
+    DatabaseDiagnostics(File(path).parent).failed(
+      DatabaseOpenFailure.from(
+        error,
+        stack,
+        stage: DatabaseOpenStage.access,
+        existingFile: true,
+      ),
+      context: 'background',
+    );
+  }
+
+  void _resolveHealthStorageFailure() {
+    final path = _backend.db.path;
+    if (path != null) {
+      DatabaseDiagnostics(File(path).parent).resolved(context: 'background');
     }
   }
 
