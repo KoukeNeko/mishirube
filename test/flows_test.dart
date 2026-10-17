@@ -971,7 +971,10 @@ void main() {
       store: store,
     );
     Finder switchOf(String title) => find.descendant(
-      of: find.ancestor(of: find.text(title), matching: find.byType(NavRow)),
+      of: find.ancestor(
+        of: find.text(title),
+        matching: find.byType(SegmentRow),
+      ),
       matching: find.byType(Switch),
     );
 
@@ -4285,6 +4288,12 @@ void main() {
     await tester.tap(find.textContaining('−0.25% · −', findRichText: true));
     await tester.pumpAndSettle();
     expect(store.backend.nutrition.targetSettings.weeklyPercent, -0.25);
+    // The result is at the top of the page, where the choices add up.
+    await tester.scrollUntilVisible(
+      find.text('維持熱量'),
+      -300,
+      scrollable: _pageScroll,
+    );
     expect(find.text('維持熱量'), findsOneWidget);
     await disposeTree(tester);
   });

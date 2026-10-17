@@ -137,264 +137,326 @@ class _NutritionTargetScreenState extends State<NutritionTargetScreen> {
     final targets = _nutrition.targetsOn(today);
     final weight = _nutrition.weightOn(today);
     final height = _nutrition.heightCm;
-    return DetailPage(
-      appBar: PageAppBar(title: context.l10n.dailyTargets),
-      children: [
-        PageSection(
-          label: context.l10n.kcalTarget,
-          children: [
-            Gutter(
-              child: RadioRow(
-                title: context.l10n.estimateFromBody,
-                subtitle: context.l10n.estimateFromBodyDetail,
-                isSelected: !settings.isCustom,
-                onTap: () => _update(settings.copyWith(customKcal: () => null)),
-              ),
-            ),
-            Gutter(
-              child: RadioRow(
-                title: context.l10n.setMyself,
-                subtitle: settings.customKcal == null
-                    ? context.l10n.notSet
-                    : '${formatKcal(settings.customKcal!)} kcal',
-                isSelected: settings.isCustom,
-                onTap: _typeKcal,
-              ),
-            ),
-          ],
+    final l10n = context.l10n;
+    final convention = _nutrition.convention;
+    Segment row({
+      required String title,
+      String? caption,
+      required String value,
+      VoidCallback? onTap,
+    }) => Segment(
+      onTap: onTap,
+      child: SegmentRow(
+        title: title,
+        caption: caption,
+        value: value,
+        showsChevron: onTap != null,
+      ),
+    );
+    Segment figure(String label, String value) => Segment(
+      child: SegmentStat(
+        label: label,
+        color: AppColors.nutrition,
+        placeholder: '—',
+        value: value,
+        valueSize: 20,
+      ),
+    );
+    final kcal = targets.kcal;
+    final figures = [
+      if (targets.restingKcal case final resting?)
+        figure(l10n.restingMetabolism, '${formatKcal(resting)} kcal'),
+      if (targets.maintenanceKcal case final maintenance?
+          when settings.goal != WeightGoal.maintain)
+        figure(l10n.maintenanceKcal, '${formatKcal(maintenance)} kcal'),
+      figure(convention.fibreName(l10n), _grams(targets.fibreGrams)),
+      figure(
+        convention.nameOf(l10n, convention.saltMeasure),
+        l10n.limitValue(
+          value: convention.saltMeasure.unit == NutrientUnit.milligram
+              ? '${formatKcal(_nutrition.saltLimit.round())} mg'
+              : '${formatAmount(_nutrition.saltLimit)} g',
         ),
-        if (!settings.isCustom) ...[
-          PageSection(
-            label: context.l10n.bodyData,
+      ),
+    ];
+    return DetailPage(
+      appBar: PageAppBar(title: l10n.dailyTargets),
+      children: [
+        // What the choices below add up to, at the top where each change
+        // shows.
+        Gutter(
+          child: CategoryGroup(
+            label: l10n.resultSection,
+            color: AppColors.nutrition,
             children: [
-              Gutter(
-                child: GroupedCard(
-                  children: [
-                    NavRow(
-                      title: context.l10n.moduleWeight,
-                      trailing: _value(
-                        weight == null
-                            ? context.l10n.notSet
-                            : '${formatWeight(weight.weightKg)} kg',
-                      ),
-                      onTap: () => pushModalPage<void>(
-                        context,
-                        const WeightEntryScreen(),
-                      ),
-                    ),
-                    NavRow(
-                      title: context.l10n.bodyMetricHeight,
-                      trailing: _value(
-                        height == null
-                            ? context.l10n.notSet
-                            : '${formatAmount(height)} cm',
-                      ),
-                      onTap: () => pushModalPage<void>(
-                        context,
-                        const BodyReadingEntryScreen(only: BodyMetric.height),
-                      ),
-                    ),
-                    NavRow(
-                      title: context.l10n.targetInputBirthYear,
-                      trailing: _value(switch (_nutrition.birthYear) {
-                        final year? => context.l10n.yearValue(year: year),
-                        null => context.l10n.notSet,
-                      }),
-                      onTap: () => editBirthYear(context),
-                    ),
-                    NavRow(
-                      title: context.l10n.targetInputSex,
-                      trailing: _value(
-                        _nutrition.sex?.labelIn(context.l10n) ??
-                            context.l10n.notSet,
-                      ),
-                      onTap: () => pickSex(context),
+              SegmentedGroup(
+                rows: [
+                  [
+                    Segment(
+                      surface: AppColors.surfaceRaised,
+                      child: kcal == null
+                          ? SegmentStat(
+                              label: l10n.dailyKcal,
+                              color: AppColors.nutrition,
+                              placeholder: l10n.missingInputs(
+                                inputs: joinList(
+                                  l10n,
+                                  targets.missing.map((i) => i.labelIn(l10n)),
+                                ),
+                              ),
+                            )
+                          : SegmentHero(
+                              label: l10n.dailyKcal,
+                              color: AppColors.nutrition,
+                              value: formatKcal(kcal),
+                              unit: 'kcal',
+                            ),
                     ),
                   ],
-                ),
+                  for (var i = 0; i < figures.length; i += 2)
+                    figures.sublist(
+                      i,
+                      i + 2 > figures.length ? figures.length : i + 2,
+                    ),
+                ],
               ),
-            ],
-          ),
-          PageSection(
-            label: context.l10n.activityLevelSection,
-            children: [
-              for (final level in ActivityLevel.values)
-                Gutter(
-                  child: RadioRow(
-                    title: level.labelIn(context.l10n),
-                    subtitle: level.detailIn(context.l10n),
-                    isSelected: level == settings.activity,
-                    onTap: () => _update(settings.copyWith(activity: level)),
+              if (targets.maintenanceSource case final source?)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
                   ),
-                ),
-            ],
-          ),
-          PageSection(
-            label: context.l10n.purposeSection,
-            children: [
-              Gutter(
-                child: ChipWrap(
-                  options: WeightGoal.values,
-                  labelOf: (goal) => goal.labelIn(context.l10n),
-                  isSelected: (goal) => goal == settings.goal,
-                  // A rate picked for one goal means nothing for another.
-                  onTap: (goal) => _update(
-                    settings.copyWith(goal: goal, weeklyPercent: () => null),
-                  ),
-                  selectedColor: AppColors.nutrition,
-                ),
-              ),
-              if (settings.goal.weeklyPercents.length > 1)
-                Gutter(
-                  child: GroupedCard(
-                    children: [
-                      NavRow(
-                        title: context.l10n.weeklyChange,
-                        trailing: _value(
-                          _rateLabel(
-                            settings.weeklyPercentInUse,
-                            weight?.weightKg,
-                          ),
-                        ),
-                        onTap: () => _pickRate(settings, weight?.weightKg),
-                      ),
+                  child: TagWrap(
+                    labels: [
+                      switch (source) {
+                        MaintenanceSource.measured =>
+                          l10n.fromRecentFoodAndWeight(days: energyWindowDays),
+                        MaintenanceSource.formula => l10n.mifflinEstimate,
+                      },
                     ],
                   ),
                 ),
             ],
           ),
-        ],
-        PageSection(
-          label: context.l10n.macroSplit,
-          children: [
-            Gutter(
-              child: GroupedCard(
-                children: [
-                  NavRow(
-                    title: _nutrition.convention.proteinName(context.l10n),
-                    subtitle: [
-                      if (settings.proteinPerKg == null) context.l10n.byGoal,
-                      context.l10n.perKgBodyWeight(
-                        grams: formatAmount(settings.proteinPerKgInUse),
-                      ),
-                    ].join(' · '),
-                    trailing: _value(_grams(targets.proteinGrams)),
-                    onTap: () => _typeNumber(
-                      title: context.l10n.proteinPerKgTitle,
-                      initial: settings.proteinPerKg,
-                      fallback: context.l10n.byGoalGrams(
-                        grams: formatAmount(settings.goalProteinPerKg),
-                      ),
-                      min: 0.8,
-                      max: 3,
-                      onValue: (value) =>
-                          _update(settings.copyWith(proteinPerKg: () => value)),
-                    ),
-                  ),
-                  NavRow(
-                    title: _nutrition.convention.fatName(context.l10n),
-                    subtitle: context.l10n.percentOfKcal(
-                      percent: settings.fatPercentInUse,
-                    ),
-                    trailing: _value(_grams(targets.fatGrams)),
-                    onTap: () => _typeNumber(
-                      title: context.l10n.fatPercentTitle,
-                      initial: settings.fatPercent,
-                      fallback: context.l10n.defaultPercent(
-                        percent: NutritionTargetSettings.defaultFatPercent,
-                      ),
-                      min: 15,
-                      max: 45,
-                      onValue: (value) => _update(
-                        settings.copyWith(fatPercent: () => value?.round()),
-                      ),
-                    ),
-                  ),
-                  NavRow(
-                    title: _nutrition.convention.carbName(context.l10n),
-                    subtitle: context.l10n.restOfKcal,
-                    trailing: _value(_grams(targets.carbGrams)),
-                    showChevron: false,
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
-        PageSection(
-          label: context.l10n.resultSection,
-          children: [
-            Gutter(
-              child: GroupedCard(
-                children: [
-                  if (targets.restingKcal case final resting?)
-                    KeyValueRow(
-                      label: context.l10n.restingMetabolism,
-                      value: '${formatKcal(resting)} kcal',
+        Gutter(
+          child: CategoryGroup(
+            label: l10n.kcalTarget,
+            color: AppColors.nutrition,
+            children: [
+              SegmentedGroup(
+                rows: [
+                  [
+                    choiceSegment(
+                      title: l10n.estimateFromBody,
+                      caption: l10n.estimateFromBodyDetail,
+                      isSelected: !settings.isCustom,
+                      onTap: () =>
+                          _update(settings.copyWith(customKcal: () => null)),
+                      color: AppColors.nutrition,
+                      tint: AppColors.nutritionSurface,
                     ),
-                  if (targets.maintenanceKcal case final maintenance?
-                      when settings.goal != WeightGoal.maintain)
-                    KeyValueRow(
-                      label: context.l10n.maintenanceKcal,
-                      value: '${formatKcal(maintenance)} kcal',
+                  ],
+                  [
+                    choiceSegment(
+                      title: l10n.setMyself,
+                      caption: settings.customKcal == null
+                          ? l10n.notSet
+                          : '${formatKcal(settings.customKcal!)} kcal',
+                      isSelected: settings.isCustom,
+                      onTap: _typeKcal,
+                      color: AppColors.nutrition,
+                      tint: AppColors.nutritionSurface,
                     ),
-                  KeyValueRow(
-                    label: context.l10n.dailyKcal,
-                    value: switch (targets.kcal) {
-                      final kcal? => '${formatKcal(kcal)} kcal',
-                      null => context.l10n.missingInputs(
-                        inputs: joinList(
-                          context.l10n,
-                          targets.missing.map((i) => i.labelIn(context.l10n)),
-                        ),
-                      ),
-                    },
-                  ),
-                  KeyValueRow(
-                    label: _nutrition.convention.fibreName(context.l10n),
-                    value: _grams(targets.fibreGrams),
-                  ),
-                  KeyValueRow(
-                    label: _nutrition.convention.nameOf(
-                      context.l10n,
-                      _nutrition.convention.saltMeasure,
-                    ),
-                    value:
-                        _nutrition.convention.saltMeasure.unit ==
-                            NutrientUnit.milligram
-                        ? context.l10n.limitValue(
-                            value:
-                                '${formatKcal(_nutrition.saltLimit.round())} mg',
-                          )
-                        : context.l10n.limitValue(
-                            value: '${formatAmount(_nutrition.saltLimit)} g',
-                          ),
-                  ),
+                  ],
                 ],
               ),
-            ),
-            if (targets.maintenanceSource case final source?)
-              Gutter(
-                child: TagWrap(
-                  labels: [
-                    switch (source) {
-                      MaintenanceSource.measured =>
-                        context.l10n.fromRecentFoodAndWeight(
-                          days: energyWindowDays,
+            ],
+          ),
+        ),
+        if (!settings.isCustom) ...[
+          Gutter(
+            child: CategoryGroup(
+              label: l10n.bodyData,
+              color: AppColors.body,
+              children: [
+                SegmentedGroup(
+                  rows: [
+                    [
+                      row(
+                        title: l10n.moduleWeight,
+                        value: weight == null
+                            ? l10n.notSet
+                            : '${formatWeight(weight.weightKg)} kg',
+                        onTap: () => pushModalPage<void>(
+                          context,
+                          const WeightEntryScreen(),
                         ),
-                      MaintenanceSource.formula => context.l10n.mifflinEstimate,
-                    },
+                      ),
+                    ],
+                    [
+                      row(
+                        title: l10n.bodyMetricHeight,
+                        value: height == null
+                            ? l10n.notSet
+                            : '${formatAmount(height)} cm',
+                        onTap: () => pushModalPage<void>(
+                          context,
+                          const BodyReadingEntryScreen(only: BodyMetric.height),
+                        ),
+                      ),
+                    ],
+                    [
+                      row(
+                        title: l10n.targetInputBirthYear,
+                        value: switch (_nutrition.birthYear) {
+                          final year? => l10n.yearValue(year: year),
+                          null => l10n.notSet,
+                        },
+                        onTap: () => editBirthYear(context),
+                      ),
+                    ],
+                    [
+                      row(
+                        title: l10n.targetInputSex,
+                        value: _nutrition.sex?.labelIn(l10n) ?? l10n.notSet,
+                        onTap: () => pickSex(context),
+                      ),
+                    ],
                   ],
                 ),
+              ],
+            ),
+          ),
+          Gutter(
+            child: CategoryGroup(
+              label: l10n.activityLevelSection,
+              color: AppColors.activity,
+              children: [
+                SegmentedGroup(
+                  rows: [
+                    for (final level in ActivityLevel.values)
+                      [
+                        choiceSegment(
+                          title: level.labelIn(l10n),
+                          caption: level.detailIn(l10n),
+                          isSelected: level == settings.activity,
+                          onTap: () =>
+                              _update(settings.copyWith(activity: level)),
+                          color: AppColors.nutrition,
+                          tint: AppColors.nutritionSurface,
+                        ),
+                      ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Gutter(
+            child: CategoryGroup(
+              label: l10n.purposeSection,
+              color: AppColors.nutrition,
+              children: [
+                SegmentedGroup(
+                  rows: [
+                    choiceButtons<WeightGoal>(
+                      options: WeightGoal.values,
+                      labelOf: (goal) => goal.labelIn(l10n),
+                      isSelected: (goal) => goal == settings.goal,
+                      // A rate picked for one goal means nothing for another.
+                      onTap: (goal) => _update(
+                        settings.copyWith(
+                          goal: goal,
+                          weeklyPercent: () => null,
+                        ),
+                      ),
+                      color: AppColors.nutrition,
+                      onColor: AppColors.textPrimary,
+                    ),
+                    if (settings.goal.weeklyPercents.length > 1)
+                      [
+                        row(
+                          title: l10n.weeklyChange,
+                          value: _rateLabel(
+                            settings.weeklyPercentInUse,
+                            weight?.weightKg,
+                          ),
+                          onTap: () => _pickRate(settings, weight?.weightKg),
+                        ),
+                      ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+        Gutter(
+          child: CategoryGroup(
+            label: l10n.macroSplit,
+            color: AppColors.macroProtein,
+            children: [
+              SegmentedGroup(
+                rows: [
+                  [
+                    row(
+                      title: convention.proteinName(l10n),
+                      caption: [
+                        if (settings.proteinPerKg == null) l10n.byGoal,
+                        l10n.perKgBodyWeight(
+                          grams: formatAmount(settings.proteinPerKgInUse),
+                        ),
+                      ].join(' · '),
+                      value: _grams(targets.proteinGrams),
+                      onTap: () => _typeNumber(
+                        title: l10n.proteinPerKgTitle,
+                        initial: settings.proteinPerKg,
+                        fallback: l10n.byGoalGrams(
+                          grams: formatAmount(settings.goalProteinPerKg),
+                        ),
+                        min: 0.8,
+                        max: 3,
+                        onValue: (value) => _update(
+                          settings.copyWith(proteinPerKg: () => value),
+                        ),
+                      ),
+                    ),
+                  ],
+                  [
+                    row(
+                      title: convention.fatName(l10n),
+                      caption: l10n.percentOfKcal(
+                        percent: settings.fatPercentInUse,
+                      ),
+                      value: _grams(targets.fatGrams),
+                      onTap: () => _typeNumber(
+                        title: l10n.fatPercentTitle,
+                        initial: settings.fatPercent,
+                        fallback: l10n.defaultPercent(
+                          percent: NutritionTargetSettings.defaultFatPercent,
+                        ),
+                        min: 15,
+                        max: 45,
+                        onValue: (value) => _update(
+                          settings.copyWith(fatPercent: () => value?.round()),
+                        ),
+                      ),
+                    ),
+                  ],
+                  [
+                    row(
+                      title: convention.carbName(l10n),
+                      caption: l10n.restOfKcal,
+                      value: _grams(targets.carbGrams),
+                    ),
+                  ],
+                ],
               ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 }
-
-Widget _value(String text) => Text(text, style: AppTextStyles.caption);
 
 String _grams(num? grams) =>
     grams == null ? '—' : '${formatAmount(grams.toDouble())} g';

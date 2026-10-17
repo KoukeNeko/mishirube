@@ -76,6 +76,28 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
     _goal.pause(until: duration == null ? null : _goal.now().add(duration));
   }
 
+  /// A setting that is on or off; the whole segment flips it.
+  Segment _switch({
+    required String title,
+    String? subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) => Segment(
+    onTap: () => onChanged(!value),
+    // One element for a screen reader: the title and the switch's state.
+    child: MergeSemantics(
+      child: SegmentRow(
+        title: title,
+        caption: subtitle,
+        trailing: Switch.adaptive(
+          value: value,
+          onChanged: onChanged,
+          activeTrackColor: AppColors.training,
+        ),
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) =>
       ListenableBuilder(listenable: _goal, builder: (context, _) => _page());
@@ -92,60 +114,84 @@ class _GoalSetupScreenState extends State<GoalSetupScreen> {
       footer: PrimaryButton(label: context.l10n.commonSave, onPressed: _save),
       children: [
         Gutter(
-          child: ChipWrap(
-            options: [
-              for (var days = minWeeklyGoal; days <= maxWeeklyGoal; days++)
-                days,
+          child: SegmentedGroup(
+            rows: [
+              choiceButtons<int>(
+                options: [
+                  for (var days = minWeeklyGoal; days <= maxWeeklyGoal; days++)
+                    days,
+                ],
+                labelOf: (days) => context.l10n.daysCount(count: days),
+                isSelected: (days) => days == _days,
+                onTap: (days) => setState(() => _days = days),
+              ),
             ],
-            labelOf: (days) => context.l10n.daysCount(count: days),
-            isSelected: (days) => days == _days,
-            onTap: (days) => setState(() => _days = days),
           ),
         ),
         if (overview.weeks.any((week) => week.activeDays > 0))
           Gutter(
-            child: Text(
-              context.l10n.suggestedDays(count: overview.suggestedDays),
-              style: AppTextStyles.caption,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+              child: Text(
+                context.l10n.suggestedDays(count: overview.suggestedDays),
+                style: AppTextStyles.caption,
+              ),
             ),
           ),
         if (overview.hasGoal) ...[
-          Gutter(child: SectionLabel(context.l10n.goalStartSection)),
           Gutter(
-            child: GroupedCard(
+            child: CategoryGroup(
+              label: context.l10n.goalStartSection,
+              color: AppColors.training,
               children: [
-                RadioRow(
-                  title: context.l10n.fromNextWeek,
-                  subtitle: context.l10n.fromNextWeekDetail,
-                  isSelected: !_applyThisWeek,
-                  onTap: () => setState(() => _applyThisWeek = false),
-                ),
-                RadioRow(
-                  title: context.l10n.applyThisWeek,
-                  subtitle: context.l10n.applyThisWeekDetail,
-                  isSelected: _applyThisWeek,
-                  onTap: () => setState(() => _applyThisWeek = true),
+                SegmentedGroup(
+                  rows: [
+                    [
+                      choiceSegment(
+                        title: context.l10n.fromNextWeek,
+                        caption: context.l10n.fromNextWeekDetail,
+                        isSelected: !_applyThisWeek,
+                        onTap: () => setState(() => _applyThisWeek = false),
+                      ),
+                    ],
+                    [
+                      choiceSegment(
+                        title: context.l10n.applyThisWeek,
+                        caption: context.l10n.applyThisWeekDetail,
+                        isSelected: _applyThisWeek,
+                        onTap: () => setState(() => _applyThisWeek = true),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
           ),
-        ],
-        if (overview.hasGoal) ...[
-          Gutter(child: SectionLabel(context.l10n.pauseOrTurnOff)),
           Gutter(
-            child: GroupedCard(
+            child: CategoryGroup(
+              label: context.l10n.pauseOrTurnOff,
+              color: AppColors.textSecondary,
               children: [
-                if (_goal.isEnabled)
-                  SwitchRow(
-                    title: context.l10n.pauseWeeklyGoal,
-                    value: overview.isPaused,
-                    onChanged: (pause) => pause ? _pause() : _goal.resume(),
-                  ),
-                SwitchRow(
-                  title: context.l10n.weeklyGoal,
-                  subtitle: context.l10n.weeklyGoalOffDetail,
-                  value: _goal.isEnabled,
-                  onChanged: _goal.setEnabled,
+                SegmentedGroup(
+                  rows: [
+                    if (_goal.isEnabled)
+                      [
+                        _switch(
+                          title: context.l10n.pauseWeeklyGoal,
+                          value: overview.isPaused,
+                          onChanged: (pause) =>
+                              pause ? _pause() : _goal.resume(),
+                        ),
+                      ],
+                    [
+                      _switch(
+                        title: context.l10n.weeklyGoal,
+                        subtitle: context.l10n.weeklyGoalOffDetail,
+                        value: _goal.isEnabled,
+                        onChanged: _goal.setEnabled,
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
