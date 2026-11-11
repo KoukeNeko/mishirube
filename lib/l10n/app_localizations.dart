@@ -7886,12 +7886,6 @@ abstract class AppLocalizations {
   /// **'沒有食物'**
   String get noFoods;
 
-  /// Section.
-  ///
-  /// In zh, this message translates to:
-  /// **'吃過的食物'**
-  String get eatenFoods;
-
   /// Empty banner.
   ///
   /// In zh, this message translates to:

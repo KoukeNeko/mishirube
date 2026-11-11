@@ -4509,9 +4509,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noFoods => '음식 없음';
 
   @override
-  String get eatenFoods => '먹은 음식';
-
-  @override
   String get noRecentFoods => '최근 먹은 음식이 없습니다.';
 
   @override

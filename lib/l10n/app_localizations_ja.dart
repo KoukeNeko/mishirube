@@ -4508,9 +4508,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get noFoods => '食品なし';
 
   @override
-  String get eatenFoods => '食べた食品';
-
-  @override
   String get noRecentFoods => '最近食べた食品はありません。';
 
   @override

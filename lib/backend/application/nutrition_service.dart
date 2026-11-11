@@ -277,6 +277,7 @@ class NutritionService {
   List<RecentMeal> recent({
     int limit = 3,
     Duration? window = const Duration(days: 30),
+    bool fromSavedFoods = true,
   }) {
     final now = _db.now();
     final seen = <String>{};
@@ -285,6 +286,9 @@ class NutritionService {
         ? DateTime.fromMillisecondsSinceEpoch(0)
         : now.subtract(window);
     for (final (eatenAt, meal) in between(since, now).reversed) {
+      if (!fromSavedFoods) {
+        if (meal.foodId case final id? when _foods.byId(id) != null) continue;
+      }
       final label = RecentMeal(meal: meal, eatenAt: eatenAt).label;
       if (!seen.add(label)) continue;
       recent.add(RecentMeal(meal: meal, eatenAt: eatenAt));

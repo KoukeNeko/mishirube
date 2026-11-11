@@ -4500,9 +4500,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noFoods => '沒有食物';
 
   @override
-  String get eatenFoods => '吃過的食物';
-
-  @override
   String get noRecentFoods => '沒有最近吃過的食物。';
 
   @override
@@ -11112,9 +11109,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get noFoods => '没有食物';
-
-  @override
-  String get eatenFoods => '吃过的食物';
 
   @override
   String get noRecentFoods => '没有最近吃过的食物。';

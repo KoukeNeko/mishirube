@@ -4565,9 +4565,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noFoods => 'No foods';
 
   @override
-  String get eatenFoods => 'Foods eaten';
-
-  @override
   String get noRecentFoods => 'No recent foods.';
 
   @override

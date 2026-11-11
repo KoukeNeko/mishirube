@@ -6807,10 +6807,6 @@
   "@noFoods": {
     "description": "Empty state."
   },
-  "eatenFoods": "吃過的食物",
-  "@eatenFoods": {
-    "description": "Section."
-  },
   "noRecentFoods": "沒有最近吃過的食物。",
   "@noRecentFoods": {
     "description": "Empty banner."

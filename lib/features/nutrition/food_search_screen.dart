@@ -5,6 +5,7 @@ import '../../app/navigation.dart';
 import '../../app/theme.dart';
 import '../../backend/engines/food_portion.dart';
 import '../../domain/domain.dart';
+import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import 'brand_menu_screen.dart';
 import 'daily_nutrition_screen.dart';
@@ -22,6 +23,9 @@ import '../../l10n/l10n.dart';
 
 /// Which part of the list is showing. A scope narrows what is listed; it
 /// is not a separate search, and typing searches within it.
+/// One thing eaten, a saved food or a meal, for 「最近」 to list by day.
+typedef _Eaten = ({DateTime at, RecentFood? food, RecentMeal? meal});
+
 enum _Scope {
   all(Icons.apps),
   recent(Icons.history),
@@ -126,26 +130,40 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
 
   _Scope _scope = _Scope.all;
 
-  /// How much of what was eaten 「最近」 lists so far: foods first, then,
-  /// once every food is listed, meals, as far back as the log goes.
+  /// How many of what was eaten 「最近」 lists so far, foods and meals
+  /// together, as far back as the log goes.
   int _recentShown = _recentPage;
 
-  /// What 「最近」 lists within [_recentShown], and whether there is more.
-  ({List<RecentFood> foods, List<RecentMeal> meals, bool hasMore}) _recentUpTo(
-    int shown,
-  ) {
-    final foods = _nutrition.recentFoodsUpTo(shown + 1);
-    if (foods.length > shown) {
-      return (foods: foods.take(shown).toList(), meals: [], hasMore: true);
-    }
-    final room = shown - foods.length;
-    final meals = _nutrition.recentMealsUpTo(room + 1);
-    return (
-      foods: foods,
-      meals: meals.take(room).toList(),
-      hasMore: meals.length > room,
-    );
+  /// What 「最近」 lists, newest first. It is read when the tab opens and
+  /// only ever extended backwards: logging a meal again from here would
+  /// otherwise lift it to today, out of its own day and the list shifting
+  /// under the finger.
+  var _recent = <_Eaten>[];
+  var _recentHasMore = false;
+
+  void _listRecent() {
+    final shown = _recentShown;
+    final items = <_Eaten>[
+      for (final r in _nutrition.recentFoodsUpTo(shown + 1))
+        (at: r.eatenAt, food: r, meal: null),
+      for (final m in _nutrition.recentMealsUpTo(shown + 1))
+        (at: m.eatenAt, food: null, meal: m),
+    ]..sort((a, b) => b.at.compareTo(a.at));
+    final older = _recent.isEmpty
+        ? items
+        : items.where((item) => item.at.isBefore(_recent.last.at));
+    _recent = [..._recent, ...older.take(shown - _recent.length)];
+    _recentHasMore = items.length > shown;
   }
+
+  void _selectScope(_Scope scope) => setState(() {
+    _scope = scope;
+    if (scope == _Scope.recent) {
+      _recentShown = _recentPage;
+      _recent = [];
+      _listRecent();
+    }
+  });
 
   /// Lists the next page of 「最近」 once its end is near.
   bool _onScroll(ScrollNotification notification) {
@@ -153,8 +171,11 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
         _query.text.trim().isEmpty &&
         notification.metrics.axis == Axis.vertical &&
         notification.metrics.extentAfter < 600 &&
-        _recentUpTo(_recentShown).hasMore) {
-      setState(() => _recentShown += _recentPage);
+        _recentHasMore) {
+      setState(() {
+        _recentShown += _recentPage;
+        _listRecent();
+      });
     }
     return false;
   }
@@ -382,9 +403,21 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
       scaledMeal(recent.meal, servings),
       at: _at,
     );
+    // It joins the listing at the top, under today, the one it was
+    // copied from staying where it is.
+    final at = _at ?? _nutrition.now();
+    _recent = [
+      (at: at, food: null, meal: RecentMeal(meal: logged, eatenAt: at)),
+      ..._recent,
+    ]..sort((a, b) => b.at.compareTo(a.at));
     ToastScope.read(context).showUndo(
       context.l10n.loggedNamed(name: recent.label),
-      onUndo: () => _nutrition.deleteMeals([logged]),
+      onUndo: () {
+        _nutrition.deleteMeals([logged]);
+        setState(
+          () => _recent.removeWhere((e) => e.meal?.meal.id == logged.id),
+        );
+      },
       onTap: () =>
           AppStoreScope.read(context)
               .openFromChrome(MealDetailScreen(meal: logged)),
@@ -394,6 +427,20 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
   void _toggleFavorite(RecentMeal recent) {
     final isFavorite = !recent.meal.isFavorite;
     _nutrition.setMealFavorite(recent.meal, isFavorite: isFavorite);
+    // The listing is not read again, so the star is changed in it.
+    _recent = [
+      for (final item in _recent)
+        item.meal?.meal.id == recent.meal.id
+            ? (
+                at: item.at,
+                food: null,
+                meal: RecentMeal(
+                  meal: recent.meal.copyWith(isFavorite: isFavorite),
+                  eatenAt: item.at,
+                ),
+              )
+            : item,
+    ];
     showToast(
       context,
       isFavorite ? context.l10n.favoriteAdded : context.l10n.favoriteRemoved,
@@ -448,7 +495,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           selected: _scope,
           labelOf: (scope) => scope.labelIn(context.l10n),
           iconOf: (scope) => scope.icon,
-          onSelected: (scope) => setState(() => _scope = scope),
+          onSelected: _selectScope,
         ),
         ...query.isEmpty ? _browse(store) : _results(store, query),
       ],
@@ -492,7 +539,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
           [for (final r in recent.take(_preview)) r.food],
           // The rest is under 「最近」, which goes as far back as the log.
           more: recent.length > _preview
-              ? () => setState(() => _scope = _Scope.recent)
+              ? () => _selectScope(_Scope.recent)
               : null,
         ),
         ..._section(
@@ -515,17 +562,7 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
             ),
           ),
       ],
-      _Scope.recent => switch (_recentUpTo(_recentShown)) {
-        (:final foods, :final meals, hasMore: _) => [
-          ..._section(context.l10n.eatenFoods, [for (final r in foods) r.food]),
-          if (meals.isNotEmpty) ...[
-            Gutter(child: SectionLabel(context.l10n.recentMealsSection)),
-            for (final meal in meals) Gutter(child: _mealRow(meal)),
-          ],
-          if (foods.isEmpty && meals.isEmpty)
-            Gutter(child: InfoBanner(message: context.l10n.noRecentFoods)),
-        ],
-      },
+      _Scope.recent => _recentByDay(_recent),
       _Scope.starred => [
         ..._section(context.l10n.starredFoods, starred),
         if (_nutrition.favoriteMeals case final meals
@@ -681,9 +718,41 @@ class _FoodSearchScreenState extends State<FoodSearchScreen> {
     ],
   ];
 
-  Widget _mealRow(RecentMeal meal) => RecentMealRow(
+  /// [items] under a heading for each day they were eaten on.
+  List<Widget> _recentByDay(List<_Eaten> items) {
+    if (items.isEmpty) {
+      return [Gutter(child: InfoBanner(message: context.l10n.noRecentFoods))];
+    }
+    final today = AppStoreScope.read(context).now();
+    final rows = <Widget>[];
+    DateTime? day;
+    for (final (:at, :food, :meal) in items) {
+      if (day == null || !DateUtils.isSameDay(day, at)) {
+        day = at;
+        rows.add(
+          Gutter(
+            child: SectionLabel(
+              DateUtils.isSameDay(at, today)
+                  ? context.l10n.tabToday
+                  : context.dates.dayWithWeekday(at),
+            ),
+          ),
+        );
+      }
+      rows.add(
+        Gutter(
+          child: food != null
+              ? _row(food.food)
+              : _mealRow(meal!, when: formatTimeOfDay(at)),
+        ),
+      );
+    }
+    return rows;
+  }
+
+  Widget _mealRow(RecentMeal meal, {String? when}) => RecentMealRow(
     meal: meal,
-    when: mealWhenLabel(context, meal.eatenAt),
+    when: when ?? mealWhenLabel(context, meal.eatenAt),
     onAdd: () => _logAgain(meal),
     onToggleFavorite: () => _toggleFavorite(meal),
     onTap: () => _chooseMealPortion(meal),
