@@ -11,6 +11,7 @@ import 'health/health_source.dart';
 import 'application/journal_service.dart';
 import 'application/nutrition_service.dart';
 import 'application/provenance_service.dart';
+import 'application/record_tools.dart';
 import 'application/sleep_service.dart';
 import 'application/training_service.dart';
 import 'storage/activity_repository.dart';
@@ -186,6 +187,20 @@ class Backend {
   );
 
   TimelineQuery get timeline => storage.timeline;
+
+  /// The read-only tools a model answers questions about the records with.
+  late final RecordTools recordTools = RecordTools(
+    catalog,
+    training,
+    nutrition,
+    sleep,
+    journal,
+    activity,
+    goal,
+    insights,
+    timeline,
+    l10n,
+  );
 
   void close() => db.close();
 }

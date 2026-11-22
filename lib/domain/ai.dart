@@ -350,3 +350,22 @@ final class ColumnMismatch extends DraftWarning {
 final class CarbWithoutFibre extends DraftWarning {
   const CarbWithoutFibre();
 }
+
+/// A question a model may ask of the records while it answers, in the
+/// one form every provider's tool calling is translated from.
+///
+/// [parameters] is a JSON Schema object that already meets OpenAI's
+/// strict mode: every property is required and nothing else is allowed,
+/// an optional one taking null instead. The other providers accept it
+/// as it is.
+class AiTool {
+  const AiTool({
+    required this.name,
+    required this.description,
+    required this.parameters,
+  });
+
+  final String name;
+  final String description;
+  final Map<String, Object?> parameters;
+}

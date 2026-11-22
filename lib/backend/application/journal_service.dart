@@ -408,6 +408,10 @@ class JournalService {
   List<BodyWeight> recentWeights(Duration window) =>
       _journal.weightsBetween(_db.now().subtract(window), _db.nowInclusive);
 
+  /// Check-ins recorded in `[start, end)`, oldest first.
+  List<WellnessEntry> wellnessBetween(DateTime start, DateTime end) =>
+      _journal.wellnessBetween(start, end);
+
   List<WellnessEntry> recentWellness(Duration window) =>
       _journal.wellnessBetween(_db.now().subtract(window), _db.nowInclusive);
 
