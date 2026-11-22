@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 
 import '../../domain/domain.dart';
 import 'cloud_drafter.dart';
+import 'conversation.dart';
 import 'food_photo.dart';
 import 'meal_drafter.dart';
 import 'secret_store.dart';
@@ -378,68 +379,18 @@ class ChatGptDrafter extends CloudDrafter {
     ThinkingSink? onThinking,
   }) async {
     try {
-      return await readStream(() async {
-        final request = jsonRequest(
-          _responsesEndpoint,
-          {
-            'Authorization': 'Bearer ${await key()}',
-            'Content-Type': 'application/json',
-          },
-          {
-            'model': await modelName(),
-            'instructions': instructions,
-            'input': [
-              {
-                'role': 'user',
-                'content': photo == null
-                    ? message
-                    : [
-                        {'type': 'input_text', 'text': message},
-                        {'type': 'input_image', 'image_url': photo.dataUrl},
-                      ],
-              },
-            ],
-            'store': false,
-            'stream': true,
-            if (readReasoning() != AiReasoning.auto || onThinking != null)
-              'reasoning': {
-                if (readReasoning() != AiReasoning.auto)
-                  'effort': readReasoning().name,
-                if (onThinking != null) 'summary': 'auto',
-              },
-          },
-        );
-        final answer = StringBuffer();
-        var isComplete = false;
-        await for (final event in sse(request)) {
-          switch (event['type']) {
-            case 'response.output_text.delta':
-              if (event['delta'] case final String text) answer.write(text);
-            case 'response.reasoning_summary_text.delta':
-              if (event['delta'] case final String text) onThinking?.call(text);
-            case 'response.completed':
-              isComplete = true;
-            case 'response.failed':
-              final error = switch (event) {
-                {'response': {'error': final Map<String, dynamic> error}} =>
-                  error,
-                _ => const <String, dynamic>{},
-              };
-              throw AiException(
-                _failureOf(error['code']) ?? AiFailure.providerError,
-                jsonEncode(error),
-              );
-            case 'response.incomplete':
-              unreadable(event);
-          }
-        }
-        // A stream that stops before `response.completed` is a failure,
-        // whatever text it had got to.
-        if (!isComplete) {
-          throw const AiException(AiFailure.network, 'the stream ended early');
-        }
-        return answer.isEmpty ? unreadable('empty reply') : '$answer';
-      });
+      final (:text, items: _) = await _stream(instructions, [
+        {
+          'role': 'user',
+          'content': photo == null
+              ? message
+              : [
+                  {'type': 'input_text', 'text': message},
+                  {'type': 'input_image', 'image_url': photo.dataUrl},
+                ],
+        },
+      ], onThinking: onThinking);
+      return text.isEmpty ? unreadable('empty reply') : text;
     } on AiException catch (error) {
       if (photo != null &&
           _errorCode(error.detail) ==
@@ -447,6 +398,151 @@ class ChatGptDrafter extends CloudDrafter {
         throw AiException(AiFailure.photoUnsupported, error.detail);
       }
       rethrow;
+    }
+  }
+
+  /// Streams one response to [input]: its text and the output items it
+  /// finished, among them any function calls.
+  Future<({String text, List<Map<String, dynamic>> items})> _stream(
+    String instructions,
+    List<Map<String, Object?>> input, {
+    List<AiTool> tools = const [],
+    ThinkingSink? onThinking,
+  }) => readStream(() async {
+    final request = jsonRequest(
+      _responsesEndpoint,
+      {
+        'Authorization': 'Bearer ${await key()}',
+        'Content-Type': 'application/json',
+      },
+      {
+        'model': await modelName(),
+        'instructions': instructions,
+        'input': input,
+        if (tools.isNotEmpty)
+          'tools': [
+            for (final tool in tools)
+              {
+                'type': 'function',
+                'name': tool.name,
+                'description': tool.description,
+                'parameters': tool.parameters,
+                'strict': true,
+              },
+          ],
+        'store': false,
+        'stream': true,
+        if (readReasoning() != AiReasoning.auto || onThinking != null)
+          'reasoning': {
+            if (readReasoning() != AiReasoning.auto)
+              'effort': readReasoning().name,
+            if (onThinking != null) 'summary': 'auto',
+          },
+      },
+    );
+    final answer = StringBuffer();
+    final items = <Map<String, dynamic>>[];
+    var isComplete = false;
+    await for (final event in sse(request)) {
+      switch (event['type']) {
+        case 'response.output_text.delta':
+          if (event['delta'] case final String text) answer.write(text);
+        case 'response.reasoning_summary_text.delta':
+          if (event['delta'] case final String text) onThinking?.call(text);
+        case 'response.output_item.done':
+          if (event['item'] case final Map<String, dynamic> item) {
+            items.add(item);
+          }
+        case 'response.completed':
+          isComplete = true;
+        case 'response.failed':
+          final error = switch (event) {
+            {'response': {'error': final Map<String, dynamic> error}} => error,
+            _ => const <String, dynamic>{},
+          };
+          throw AiException(
+            _failureOf(error['code']) ?? AiFailure.providerError,
+            jsonEncode(error),
+          );
+        case 'response.incomplete':
+          unreadable(event);
+      }
+    }
+    // A stream that stops before `response.completed` is a failure,
+    // whatever text it had got to.
+    if (!isComplete) {
+      throw const AiException(AiFailure.network, 'the stream ended early');
+    }
+    return (text: '$answer', items: items);
+  });
+
+  @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final (:text, :items) = await _stream(
+      instructions,
+      messages,
+      tools: tools,
+      onThinking: onThinking,
+    );
+    // With `store: false` nothing can be referred to by id, so a call
+    // goes back with only what the next request needs.
+    final calls = [
+      for (final item in items)
+        if (item case {
+          'type': 'function_call',
+          'call_id': final String id,
+          'name': final String name,
+        })
+          (
+            AiToolCall(
+              id: id,
+              name: name,
+              arguments: _argumentsOf(item['arguments']),
+            ),
+            item['arguments'],
+          ),
+    ];
+    return (
+      text: text,
+      calls: [for (final (call, _) in calls) call],
+      echo: [
+        for (final (call, arguments) in calls)
+          {
+            'type': 'function_call',
+            'call_id': call.id,
+            'name': call.name,
+            'arguments': arguments,
+          },
+      ],
+    );
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => [
+    for (final (call, result) in results)
+      {
+        'type': 'function_call_output',
+        'call_id': call.id,
+        'output': jsonEncode(result),
+      },
+  ];
+
+  static Map<String, Object?> _argumentsOf(Object? arguments) {
+    if (arguments is! String) return const {};
+    try {
+      return switch (jsonDecode(arguments)) {
+        final Map<String, dynamic> object => object,
+        _ => const {},
+      };
+    } on FormatException {
+      return const {};
     }
   }
 

@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
 
 import '../../domain/domain.dart';
 import '../engines/workout_text.dart';
+import 'conversation.dart';
 import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
@@ -15,7 +17,7 @@ import 'workout_draft_json.dart';
 /// to Swift
 /// (`AppleIntelligence` in `ios/Runner/AppDelegate.swift`). There is no Flutter plugin
 /// from Apple, and the job is small enough not to hang it on a 0.x one.
-class AppleMealDrafter implements MealDrafter {
+class AppleMealDrafter implements MealDrafter, AiConverser {
   const AppleMealDrafter();
 
   static const _channel = MethodChannel('mishirube/apple_intelligence');
@@ -110,18 +112,73 @@ class AppleMealDrafter implements MealDrafter {
     model: await modelName(),
   );
 
+  /// How many earlier turns go with a message: the model's context is
+  /// 4,096 tokens, and the tools' descriptions take their share of it.
+  static const historyTurns = 6;
+
+  /// The model calls the tools back through the channel while it works
+  /// on the reply. The session has no memory of earlier turns, so the
+  /// last few go in front of the message as text.
+  @override
+  Future<String> converse({
+    required String instructions,
+    required List<AiTurn> history,
+    required String message,
+    required List<AiTool> tools,
+    required ToolRunner runTool,
+    ThinkingSink? onThinking,
+  }) async {
+    final earlier = history.length > historyTurns
+        ? history.sublist(history.length - historyTurns)
+        : history;
+    _channel.setMethodCallHandler((call) async {
+      if (call.method != 'runTool') throw MissingPluginException();
+      final arguments = call.arguments as Map<Object?, Object?>;
+      final decoded = jsonDecode(arguments['arguments']! as String);
+      return jsonEncode(
+        runTool(
+          arguments['name']! as String,
+          decoded is Map<String, dynamic> ? decoded : const {},
+        ),
+      );
+    });
+    try {
+      return await _ask(
+        'converse',
+        instructions,
+        [
+          for (final turn in earlier) '${turn.speaker.name}: ${turn.text}',
+          if (earlier.isNotEmpty) '',
+          message,
+        ].join('\n'),
+        tools: [
+          for (final tool in tools)
+            {
+              'name': tool.name,
+              'description': tool.description,
+              'parameters': jsonEncode(tool.parameters),
+            },
+        ],
+      );
+    } finally {
+      _channel.setMethodCallHandler(null);
+    }
+  }
+
   /// Runs one of the Swift side's guided generations; its JSON answer.
   Future<String> _ask(
     String method,
     String instructions,
     String text, {
     String? path,
+    List<Map<String, Object?>>? tools,
   }) async {
     try {
       return await _channel.invokeMethod<String>(method, {
             'instructions': instructions,
             'text': text,
             'path': ?path,
+            'tools': ?tools,
           }) ??
           '';
     } on PlatformException catch (error) {

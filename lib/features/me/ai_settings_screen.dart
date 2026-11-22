@@ -520,19 +520,20 @@ Future<bool> askPhotoConsent(BuildContext context) async {
 }
 
 /// Why a request produced no draft, in the words the screens show.
-String aiFailureMessage(AppLocalizations l10n, AiFailure failure) =>
-    switch (failure) {
-      AiFailure.unavailable => l10n.aiFailureUnavailable(me: l10n.tabMe),
-      AiFailure.needsConsent => l10n.aiFailureNeedsConsent,
-      AiFailure.authentication => l10n.aiFailureAuthentication(me: l10n.tabMe),
-      AiFailure.rateLimited => l10n.aiFailureRateLimited,
-      AiFailure.network => l10n.aiFailureNetwork,
-      AiFailure.providerError => l10n.aiFailureProvider,
-      AiFailure.unreadable => l10n.aiFailureUnreadable,
-      AiFailure.needsPhotoConsent => l10n.aiFailureNeedsPhotoConsent,
-      AiFailure.photoUnsupported => l10n.aiFailurePhotoUnsupported(
-        me: l10n.tabMe,
-      ),
-      AiFailure.noFood => l10n.aiFailureNoFood,
-      AiFailure.photoFormat => l10n.aiFailurePhotoFormat,
-    };
+String aiFailureMessage(
+  AppLocalizations l10n,
+  AiFailure failure,
+) => switch (failure) {
+  AiFailure.unavailable => l10n.aiFailureUnavailable(me: l10n.tabMe),
+  AiFailure.needsConsent => l10n.aiFailureNeedsConsent,
+  AiFailure.authentication => l10n.aiFailureAuthentication(me: l10n.tabMe),
+  AiFailure.rateLimited => l10n.aiFailureRateLimited,
+  AiFailure.network => l10n.aiFailureNetwork,
+  AiFailure.providerError => l10n.aiFailureProvider,
+  AiFailure.unreadable => l10n.aiFailureUnreadable,
+  AiFailure.needsPhotoConsent => l10n.aiFailureNeedsPhotoConsent,
+  AiFailure.photoUnsupported => l10n.aiFailurePhotoUnsupported(me: l10n.tabMe),
+  AiFailure.noFood => l10n.aiFailureNoFood,
+  AiFailure.photoFormat => l10n.aiFailurePhotoFormat,
+  AiFailure.toolsUnsupported => l10n.aiFailureToolsUnsupported(me: l10n.tabMe),
+};

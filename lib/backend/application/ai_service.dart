@@ -11,6 +11,7 @@ import '../ai/label_reader.dart';
 import '../ai/meal_drafter.dart';
 import '../ai/meal_name.dart';
 import '../ai/cloud_drafter.dart';
+import '../ai/conversation.dart';
 import '../ai/food_photo.dart';
 import '../ai/copilot_drafter.dart';
 import '../ai/secret_store.dart';
@@ -290,6 +291,31 @@ class AiService {
     String description, {
     ThinkingSink? onThinking,
   }) async => _drafter().draftMeal(description, onThinking: onThinking);
+
+  /// The model's answer to [message] after [history], having called
+  /// [tools] through [runTool]. Throws [AiException];
+  /// [AiFailure.needsConsent] before the first cloud request and
+  /// [AiFailure.toolsUnsupported] for a provider that cannot call tools.
+  Future<String> converse({
+    required String instructions,
+    required List<AiTurn> history,
+    required String message,
+    required List<AiTool> tools,
+    required ToolRunner runTool,
+    ThinkingSink? onThinking,
+  }) async {
+    if (_drafter() case final AiConverser converser) {
+      return converser.converse(
+        instructions: instructions,
+        history: history,
+        message: message,
+        tools: tools,
+        runTool: runTool,
+        onThinking: onThinking,
+      );
+    }
+    throw const AiException(AiFailure.toolsUnsupported);
+  }
 
   /// The exercises a workout written as [text] lists, for when the rules
   /// could not read all of it. Throws [AiException];

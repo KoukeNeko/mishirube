@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../assistant/assistant_screen.dart';
 import '../exercise/exercise_picker_screen.dart';
 import 'active_workout_screen.dart';
 import 'describe_workout_screen.dart';
@@ -176,6 +177,13 @@ class _TrainingScreenState extends State<TrainingScreen> {
       child: DashedActionCard(
         label: context.l10n.generateRoutines,
         onTap: () => pushPage(context, const GenerateRoutinesScreen()),
+      ),
+    ),
+    Gutter(
+      child: DashedActionCard(
+        label: context.l10n.assistantTitle,
+        onTap: () =>
+            pushPage(context, const AssistantScreen(aboutTemplates: true)),
       ),
     ),
   ];

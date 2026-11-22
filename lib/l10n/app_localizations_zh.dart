@@ -5743,6 +5743,66 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiFailurePhotoFormat => '這張照片的格式無法讀取，換一張再試。';
 
   @override
+  String get assistantTitle => 'AI 助理';
+
+  @override
+  String get assistantHint => '問紀錄或課表';
+
+  @override
+  String get workoutReviewTitle => 'AI 評語';
+
+  @override
+  String get workoutReviewAsk => '評這次訓練';
+
+  @override
+  String get assistantThinking => '思考中';
+
+  @override
+  String assistantReadCount({required int count}) {
+    return '已讀取 $count 項紀錄';
+  }
+
+  @override
+  String assistantStepRead({required String area}) {
+    return '讀取$area紀錄';
+  }
+
+  @override
+  String get assistantStepRecords => '讀取紀錄';
+
+  @override
+  String get assistantStepDraft => '草擬課表';
+
+  @override
+  String get assistantStop => '停止';
+
+  @override
+  String get assistantNewChat => '新對話';
+
+  @override
+  String get assistantCopy => '複製';
+
+  @override
+  String get assistantRegenerate => '重新產生';
+
+  @override
+  String get assistantSuggestWeek => '這週練了幾次';
+
+  @override
+  String get assistantSuggestProtein => '這週吃了多少蛋白質';
+
+  @override
+  String get assistantSuggestProgram => '排一份三天課表';
+
+  @override
+  String get assistantSend => '傳送';
+
+  @override
+  String aiFailureToolsUnsupported({required String me}) {
+    return '目前的 AI 不能讀紀錄，到「$me > AI」換一個。';
+  }
+
+  @override
   String get prior4Weeks => '前 4 週';
 
   @override
@@ -12352,6 +12412,66 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get aiFailurePhotoFormat => '这张照片的格式无法读取，换一张再试。';
+
+  @override
+  String get assistantTitle => 'AI 助理';
+
+  @override
+  String get assistantHint => '问记录或课表';
+
+  @override
+  String get workoutReviewTitle => 'AI 评语';
+
+  @override
+  String get workoutReviewAsk => '评这次训练';
+
+  @override
+  String get assistantThinking => '思考中';
+
+  @override
+  String assistantReadCount({required int count}) {
+    return '已读取 $count 项记录';
+  }
+
+  @override
+  String assistantStepRead({required String area}) {
+    return '读取$area记录';
+  }
+
+  @override
+  String get assistantStepRecords => '读取记录';
+
+  @override
+  String get assistantStepDraft => '草拟课表';
+
+  @override
+  String get assistantStop => '停止';
+
+  @override
+  String get assistantNewChat => '新对话';
+
+  @override
+  String get assistantCopy => '复制';
+
+  @override
+  String get assistantRegenerate => '重新生成';
+
+  @override
+  String get assistantSuggestWeek => '这周练了几次';
+
+  @override
+  String get assistantSuggestProtein => '这周吃了多少蛋白质';
+
+  @override
+  String get assistantSuggestProgram => '排一份三天课表';
+
+  @override
+  String get assistantSend => '发送';
+
+  @override
+  String aiFailureToolsUnsupported({required String me}) {
+    return '目前的 AI 不能读记录，到「$me > AI」换一个。';
+  }
 
   @override
   String get prior4Weeks => '前 4 周';

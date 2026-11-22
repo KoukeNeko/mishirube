@@ -13,6 +13,7 @@ import 'set_timer.dart';
 
 export 'device_motion.dart';
 import '../backend/application/ai_service.dart';
+import '../backend/application/assistant_tools.dart';
 import '../backend/engines/program_generator.dart';
 import '../backend/application/exercise_gifs.dart';
 import '../backend/ai/copilot_drafter.dart';
@@ -567,6 +568,84 @@ class AppStore extends ChangeNotifier {
     final saved = _backend.training.saveProgram(program);
     notifyListeners();
     return saved;
+  }
+
+  /// The assistant's reply to [message] after [history], with whatever
+  /// its tools drafted on the way; nothing is kept. [aboutTemplates]
+  /// narrows the tools an on-device model gets to those for templates;
+  /// [workout] is the finished workout the conversation is about.
+  /// [onTool] hears the name of each tool as the model calls it, and
+  /// [onThinking] its reasoning where the provider streams it.
+  /// Throws [AiException].
+  Future<AssistantReply> askAssistant(
+    List<AiTurn> history,
+    String message, {
+    bool aboutTemplates = false,
+    WorkoutSession? workout,
+    void Function(String tool)? onTool,
+    ThinkingSink? onThinking,
+  }) async {
+    final isOnDevice = aiProvider == AiProviderKind.appleOnDevice;
+    final tools = AssistantTools(
+      _backend.recordTools,
+      _backend.training,
+      _backend.catalog,
+      _backend.l10n,
+    );
+    final text = await _ai.converse(
+      instructions: [
+        assistantInstructions(now()),
+        if (workout != null)
+          workoutReviewInstructions(
+            _backend.recordTools.workoutFacts(
+              workout,
+              workoutReview(workout),
+              compact: isOnDevice,
+            ),
+          ),
+      ].join('\n\n'),
+      history: history,
+      message: message,
+      tools: isOnDevice
+          ? AssistantTools.compact(aboutTemplates: aboutTemplates)
+          : AssistantTools.all,
+      onThinking: onThinking,
+      runTool: (name, arguments) {
+        onTool?.call(name);
+        return tools.call(name, arguments);
+      },
+    );
+    return AssistantReply(
+      text: text,
+      program: tools.program,
+      routineChange: tools.routineChange,
+    );
+  }
+
+  /// Makes [change] to its template as the template is now: the
+  /// exercises it takes out that are still there go, and the ones it
+  /// adds go at the end. Null when the template is gone.
+  Routine? applyRoutineChange(RoutineChangeDraft change) {
+    final current = _backend.training.routine(
+      change.routine.id,
+      _exercisesById,
+    );
+    if (current == null) return null;
+    final updated = current.copyWith(
+      exercises: [
+        for (final planned in current.exercises)
+          if (!change.removed.contains(planned.exercise.id)) planned,
+        ...change.added,
+      ],
+    );
+    _backend.training.saveRoutine(
+      updated,
+      action: 'accept_ai_proposal',
+      source: ChangeSource.aiDraft,
+    );
+    if (_routine?.id == updated.id) _routine = updated;
+    notifyListeners();
+    return updated;
   }
 
   /// The name a template of [planned] gets: what it trains.

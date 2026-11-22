@@ -5850,6 +5850,72 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can\'t read this photo\'s format; try another.';
 
   @override
+  String get assistantTitle => 'AI assistant';
+
+  @override
+  String get assistantHint => 'Ask about entries or routines';
+
+  @override
+  String get workoutReviewTitle => 'AI review';
+
+  @override
+  String get workoutReviewAsk => 'Review this workout';
+
+  @override
+  String get assistantThinking => 'Thinking';
+
+  @override
+  String assistantReadCount({required int count}) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Read $count records',
+      one: 'Read 1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String assistantStepRead({required String area}) {
+    return 'Records: $area';
+  }
+
+  @override
+  String get assistantStepRecords => 'Records';
+
+  @override
+  String get assistantStepDraft => 'Drafting a program';
+
+  @override
+  String get assistantStop => 'Stop';
+
+  @override
+  String get assistantNewChat => 'New chat';
+
+  @override
+  String get assistantCopy => 'Copy';
+
+  @override
+  String get assistantRegenerate => 'Regenerate';
+
+  @override
+  String get assistantSuggestWeek => 'Workouts this week';
+
+  @override
+  String get assistantSuggestProtein => 'Protein this week';
+
+  @override
+  String get assistantSuggestProgram => 'A 3-day program';
+
+  @override
+  String get assistantSend => 'Send';
+
+  @override
+  String aiFailureToolsUnsupported({required String me}) {
+    return 'The current AI can\'t read entries; choose another in $me > AI.';
+  }
+
+  @override
   String get prior4Weeks => 'Prior 4 weeks';
 
   @override

@@ -5752,6 +5752,66 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiFailurePhotoFormat => 'この写真の形式は読み込めません。別の写真でお試しください。';
 
   @override
+  String get assistantTitle => 'AIアシスタント';
+
+  @override
+  String get assistantHint => '記録やルーティンについて質問';
+
+  @override
+  String get workoutReviewTitle => 'AI 講評';
+
+  @override
+  String get workoutReviewAsk => 'このトレーニングを講評して';
+
+  @override
+  String get assistantThinking => '考え中';
+
+  @override
+  String assistantReadCount({required int count}) {
+    return '$count件の記録を読み取り';
+  }
+
+  @override
+  String assistantStepRead({required String area}) {
+    return '$areaの記録を読み取り';
+  }
+
+  @override
+  String get assistantStepRecords => '記録を読み取り';
+
+  @override
+  String get assistantStepDraft => 'プログラムを作成';
+
+  @override
+  String get assistantStop => '停止';
+
+  @override
+  String get assistantNewChat => '新しい会話';
+
+  @override
+  String get assistantCopy => 'コピー';
+
+  @override
+  String get assistantRegenerate => '再生成';
+
+  @override
+  String get assistantSuggestWeek => '今週のトレーニング回数';
+
+  @override
+  String get assistantSuggestProtein => '今週のたんぱく質';
+
+  @override
+  String get assistantSuggestProgram => '3日間のプログラム';
+
+  @override
+  String get assistantSend => '送信';
+
+  @override
+  String aiFailureToolsUnsupported({required String me}) {
+    return '現在のAIは記録を読めません。「$me > AI」で変更してください。';
+  }
+
+  @override
   String get prior4Weeks => 'その前の4週';
 
   @override

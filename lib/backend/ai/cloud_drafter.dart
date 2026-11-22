@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../domain/domain.dart';
 import '../engines/workout_text.dart';
+import 'conversation.dart';
 import 'food_label_json.dart';
 import 'food_photo.dart';
 import 'meal_draft_json.dart';
@@ -20,7 +21,8 @@ import 'workout_draft_json.dart';
 /// where the reply sits in their response. That is why each has its own
 /// subclass instead of one "OpenAI compatible" client: the wire formats
 /// only look alike until they don't.
-abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
+abstract class CloudDrafter
+    implements MealDrafter, ModelCatalogue, AiConverser {
   CloudDrafter({
     required this.client,
     required this.readKey,
@@ -184,6 +186,66 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
     }
   }
 
+  /// How many rounds of tool calls one answer may take before the
+  /// conversation gives up on it.
+  static const maxToolRounds = 8;
+
+  @override
+  Future<String> converse({
+    required String instructions,
+    required List<AiTurn> history,
+    required String message,
+    required List<AiTool> tools,
+    required ToolRunner runTool,
+    ThinkingSink? onThinking,
+  }) async {
+    final messages = [
+      for (final turn in history) turnMessage(turn),
+      turnMessage(AiTurn(AiSpeaker.user, message)),
+    ];
+    for (var round = 0; round < maxToolRounds; round++) {
+      final step = await toolStep(
+        instructions,
+        messages,
+        tools,
+        onThinking: onThinking,
+      );
+      if (step.calls.isEmpty) {
+        return step.text.isEmpty ? unreadable('empty reply') : step.text;
+      }
+      messages
+        ..addAll(step.echo)
+        ..addAll(
+          toolResults([
+            for (final call in step.calls)
+              (call, runTool(call.name, call.arguments)),
+          ]),
+        );
+    }
+    throw const AiException(AiFailure.providerError, 'too many tool rounds');
+  }
+
+  /// [turn] as a message in the provider's own conversation format.
+  Map<String, Object?> turnMessage(AiTurn turn) => {
+    'role': turn.speaker.name,
+    'content': turn.text,
+  };
+
+  /// One request of a conversation: [messages] so far, with [tools] the
+  /// model may call, its reasoning fed to [onThinking] where the provider
+  /// streams it. A provider that cannot call tools keeps this base.
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) => throw const AiException(AiFailure.toolsUnsupported);
+
+  /// The messages that carry each tool's answer back to the model.
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => throw const AiException(AiFailure.toolsUnsupported);
+
   /// The key, or [AiFailure.unavailable] when there is none: a request
   /// without one is not sent at all.
   Future<String> key() async {
@@ -299,7 +361,7 @@ abstract class CloudDrafter implements MealDrafter, ModelCatalogue {
 
   /// Reads a streamed draft, catching a malformed stream as
   /// [AiFailure.unreadable] so [_run] can fall back to the one-shot.
-  Future<String> readStream(Future<String> Function() read) async {
+  Future<T> readStream<T>(Future<T> Function() read) async {
     try {
       return await read();
     } on FormatException catch (error) {
@@ -424,6 +486,58 @@ class OllamaDrafter extends CloudDrafter {
       return content.isEmpty ? unreadable('empty stream') : '$content';
     });
   }
+
+  @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final body = await send(
+      () async => client.post(
+        endpoint,
+        headers: {
+          'Authorization': 'Bearer ${await key()}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': readModel(),
+          'stream': false,
+          'messages': [
+            {'role': 'system', 'content': instructions},
+            ...messages,
+          ],
+          'tools': _openAiTools(tools, strict: false),
+        }),
+      ),
+    );
+    final reply = switch (body) {
+      {'message': final Map<String, dynamic> reply} => reply,
+      _ => unreadable(body),
+    };
+    return (
+      text: reply['content'] as String? ?? '',
+      calls: [
+        for (final call in reply['tool_calls'] as List? ?? const [])
+          if (call case {'function': {'name': final String name}})
+            AiToolCall(
+              id: '',
+              name: name,
+              arguments: _argumentsOf(call['function']['arguments']),
+            ),
+      ],
+      echo: [reply],
+    );
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => [
+    for (final (call, result) in results)
+      {'role': 'tool', 'tool_name': call.name, 'content': jsonEncode(result)},
+  ];
 
   @override
   Future<List<String>> models() async {
@@ -581,6 +695,97 @@ class GoogleAiStudioDrafter extends CloudDrafter {
       return content.isEmpty ? unreadable('empty stream') : '$content';
     });
   }
+
+  @override
+  Map<String, Object?> turnMessage(AiTurn turn) => {
+    'role': turn.speaker == AiSpeaker.user ? 'user' : 'model',
+    'parts': [
+      {'text': turn.text},
+    ],
+  };
+
+  @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final body = await send(
+      () async => client.post(
+        Uri.https(host, '/v1beta/models/${readModel()}:generateContent'),
+        headers: {
+          'x-goog-api-key': await key(),
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'systemInstruction': {
+            'parts': [
+              {'text': instructions},
+            ],
+          },
+          'contents': messages,
+          'tools': [
+            {
+              'functionDeclarations': [
+                for (final tool in tools)
+                  {
+                    'name': tool.name,
+                    'description': tool.description,
+                    'parametersJsonSchema': tool.parameters,
+                  },
+              ],
+            },
+          ],
+        }),
+      ),
+    );
+    final content = switch (body) {
+      {'candidates': [{'content': final Map<String, dynamic> content}, ...]} =>
+        content,
+      _ => unreadable(body),
+    };
+    final parts = content['parts'] as List? ?? const [];
+    return (
+      text: [
+        for (final part in parts)
+          if (part case {'text': final String text}
+              when part['thought'] != true)
+            text,
+      ].join(),
+      calls: [
+        for (final part in parts)
+          if (part case {'functionCall': {'name': final String name}})
+            AiToolCall(
+              id: part['functionCall']['id'] as String? ?? '',
+              name: name,
+              arguments: _argumentsOf(part['functionCall']['args']),
+            ),
+      ],
+      // Sent back as it came: a thinking model's calls carry a
+      // signature the next request must return.
+      echo: [content],
+    );
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => [
+    {
+      'role': 'user',
+      'parts': [
+        for (final (call, result) in results)
+          {
+            'functionResponse': {
+              if (call.id.isNotEmpty) 'id': call.id,
+              'name': call.name,
+              'response': result,
+            },
+          },
+      ],
+    },
+  ];
 
   @override
   Future<List<String>> models() async {
@@ -786,6 +991,78 @@ class AnthropicDrafter extends CloudDrafter {
   }
 
   @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final body = await send(
+      () async => client.post(
+        endpoint,
+        headers: await _headers(),
+        body: jsonEncode({
+          'model': readModel(),
+          'max_tokens': 2048,
+          'system': instructions,
+          'messages': messages,
+          'tools': [
+            for (final tool in tools)
+              {
+                'name': tool.name,
+                'description': tool.description,
+                'input_schema': tool.parameters,
+              },
+          ],
+        }),
+      ),
+    );
+    final content = switch (body) {
+      {'content': final List<dynamic> content} => content,
+      _ => unreadable(body),
+    };
+    return (
+      text: [
+        for (final block in content)
+          if (block case {'type': 'text', 'text': final String text}) text,
+      ].join(),
+      calls: [
+        for (final block in content)
+          if (block case {
+            'type': 'tool_use',
+            'id': final String id,
+            'name': final String name,
+          })
+            AiToolCall(
+              id: id,
+              name: name,
+              arguments: _argumentsOf(block['input']),
+            ),
+      ],
+      echo: [
+        {'role': 'assistant', 'content': content},
+      ],
+    );
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => [
+    {
+      'role': 'user',
+      'content': [
+        for (final (call, result) in results)
+          {
+            'type': 'tool_result',
+            'tool_use_id': call.id,
+            'content': jsonEncode(result),
+          },
+      ],
+    },
+  ];
+
+  @override
   Future<List<String>> models() async {
     final body = await send(
       () async => client.get(modelsEndpoint, headers: await _headers()),
@@ -883,6 +1160,38 @@ class AzureAiFoundryDrafter extends CloudDrafter {
     );
   }
 
+  @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final base = baseOf(readEndpoint());
+    if (base == null) throw const AiException(AiFailure.unavailable);
+    final body = await send(
+      () async => client.post(
+        base.replace(
+          path: '${base.path}/chat/completions',
+          queryParameters: {'api-version': apiVersion},
+        ),
+        headers: {
+          'Authorization': 'Bearer ${await key()}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          _openAiToolRequest(readModel(), instructions, messages, tools),
+        ),
+      ),
+    );
+    return _openAiToolStep(body, this);
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => _openAiToolResults(results);
+
   /// Foundry's inference API has no listing of what is deployed, so the
   /// settings page falls back to typing the deployment's name.
   @override
@@ -969,6 +1278,33 @@ class OpenAiCompatibleDrafter extends CloudDrafter {
   );
 
   @override
+  Future<ToolStep> toolStep(
+    String instructions,
+    List<Map<String, Object?>> messages,
+    List<AiTool> tools, {
+    ThinkingSink? onThinking,
+  }) async {
+    final body = await send(
+      () async => client.post(
+        _at('/chat/completions'),
+        headers: {
+          'Authorization': 'Bearer ${await key()}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(
+          _openAiToolRequest(readModel(), instructions, messages, tools),
+        ),
+      ),
+    );
+    return _openAiToolStep(body, this);
+  }
+
+  @override
+  List<Map<String, Object?>> toolResults(
+    List<(AiToolCall, Map<String, Object?>)> results,
+  ) => _openAiToolResults(results);
+
+  @override
   Future<List<String>> models() async {
     final body = await send(
       () async => client.get(
@@ -1024,3 +1360,81 @@ String _openAiReply(Map<String, dynamic> body, CloudDrafter drafter) =>
         content,
       _ => drafter.unreadable(body),
     };
+
+/// [tools] in OpenAI's function format, which Ollama takes too, though
+/// without strict mode.
+List<Map<String, Object?>> _openAiTools(
+  List<AiTool> tools, {
+  bool strict = true,
+}) => [
+  for (final tool in tools)
+    {
+      'type': 'function',
+      'function': {
+        'name': tool.name,
+        'description': tool.description,
+        'parameters': tool.parameters,
+        if (strict) 'strict': true,
+      },
+    },
+];
+
+/// A chat completion request that offers [tools].
+Map<String, Object?> _openAiToolRequest(
+  String model,
+  String instructions,
+  List<Map<String, Object?>> messages,
+  List<AiTool> tools,
+) => {
+  'model': model,
+  'messages': [
+    {'role': 'system', 'content': instructions},
+    ...messages,
+  ],
+  'tools': _openAiTools(tools),
+};
+
+/// The reply and tool calls of a chat completion.
+ToolStep _openAiToolStep(Map<String, dynamic> body, CloudDrafter drafter) {
+  final reply = switch (body) {
+    {'choices': [{'message': final Map<String, dynamic> reply}, ...]} => reply,
+    _ => drafter.unreadable(body),
+  };
+  return (
+    text: reply['content'] as String? ?? '',
+    calls: [
+      for (final call in reply['tool_calls'] as List? ?? const [])
+        if (call case {
+          'id': final String id,
+          'function': {'name': final String name},
+        })
+          AiToolCall(
+            id: id,
+            name: name,
+            arguments: _argumentsOf(call['function']['arguments']),
+          ),
+    ],
+    echo: [reply],
+  );
+}
+
+List<Map<String, Object?>> _openAiToolResults(
+  List<(AiToolCall, Map<String, Object?>)> results,
+) => [
+  for (final (call, result) in results)
+    {'role': 'tool', 'tool_call_id': call.id, 'content': jsonEncode(result)},
+];
+
+/// A tool call's arguments, which arrive as an object or as the JSON
+/// text of one. Anything else is no arguments, and the tool answers
+/// with what is missing.
+Map<String, Object?> _argumentsOf(Object? arguments) {
+  if (arguments is String) {
+    try {
+      arguments = jsonDecode(arguments);
+    } on FormatException {
+      return const {};
+    }
+  }
+  return arguments is Map<String, dynamic> ? arguments : const {};
+}

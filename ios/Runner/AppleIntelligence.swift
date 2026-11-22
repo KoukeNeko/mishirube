@@ -23,9 +23,13 @@ import ImageIO
 /// draft's shape is enforced here by guided generation and handed back
 /// as the same JSON every provider returns, so Dart reads one format.
 enum AppleIntelligence {
+  /// Kept for the calls back into Dart a conversation's tools make.
+  nonisolated(unsafe) static var channel: FlutterMethodChannel?
+
   static func register(with messenger: FlutterBinaryMessenger) {
     let channel = FlutterMethodChannel(
       name: "mishirube/apple_intelligence", binaryMessenger: messenger)
+    self.channel = channel
     channel.setMethodCallHandler { call, result in
       switch call.method {
       case "availability":
@@ -79,8 +83,54 @@ enum AppleIntelligence {
         }
         draftPhoto(
           path: path, text: text, instructions: instructions, result: result)
+      case "converse":
+        guard let arguments = call.arguments as? [String: Any],
+          let text = arguments["text"] as? String,
+          let instructions = arguments["instructions"] as? String,
+          let tools = arguments["tools"] as? [[String: Any]]
+        else {
+          result(FlutterError(code: "badArguments", message: nil, details: nil))
+          return
+        }
+        converse(text: text, instructions: instructions, tools: tools, result: result)
       default:
         result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  /// A reply in a conversation, the model calling the app's tools, which
+  /// run in Dart, as often as it needs before it answers.
+  static func converse(
+    text: String, instructions: String, tools: [[String: Any]],
+    result: @escaping FlutterResult
+  ) {
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        Task { @MainActor in
+          do {
+            let session = LanguageModelSession(
+              tools: tools.compactMap(BridgedTool.init), instructions: instructions)
+            let response = try await session.respond(to: text)
+            result(response.content)
+          } catch {
+            report(error, to: result)
+          }
+        }
+        return
+      }
+    #endif
+    result(FlutterError(code: "unavailable", message: nil, details: nil))
+  }
+
+  /// Runs a tool on the Dart side: its answer as JSON.
+  @MainActor
+  static func runTool(name: String, arguments: String) async -> String {
+    guard let channel else { return #"{"error":"no channel"}"# }
+    return await withCheckedContinuation { continuation in
+      channel.invokeMethod("runTool", arguments: ["name": name, "arguments": arguments]) {
+        reply in
+        continuation.resume(returning: reply as? String ?? #"{"error":"tool failed"}"#)
       }
     }
   }
@@ -528,6 +578,74 @@ enum AppleIntelligence {
       let data = try JSONSerialization.data(
         withJSONObject: ["items": list, "notes": notes])
       return String(decoding: data, as: UTF8.self)
+    }
+  }
+#endif
+
+#if canImport(FoundationModels)
+  /// One of the app's tools, described by the JSON Schema Dart gives it
+  /// and run in Dart, so the tools have one definition for every
+  /// provider.
+  @available(iOS 26.0, macOS 26.0, *)
+  struct BridgedTool: Tool {
+    typealias Arguments = GeneratedContent
+
+    let name: String
+    let description: String
+    let parameters: GenerationSchema
+
+    init?(_ spec: [String: Any]) {
+      guard let name = spec["name"] as? String,
+        let description = spec["description"] as? String,
+        let json = (spec["parameters"] as? String)?.data(using: .utf8),
+        let schema = (try? JSONSerialization.jsonObject(with: json)) as? [String: Any],
+        let parameters = try? GenerationSchema(
+          root: Self.schema(schema, name: name), dependencies: [])
+      else { return nil }
+      self.name = name
+      self.description = description
+      self.parameters = parameters
+    }
+
+    func call(arguments: GeneratedContent) async throws -> String {
+      await AppleIntelligence.runTool(name: name, arguments: arguments.jsonString)
+    }
+
+    /// The JSON Schema the tools are written in: objects, arrays,
+    /// strings with or without a list of choices, numbers and booleans,
+    /// a type that also takes null being an optional property.
+    static func schema(_ schema: [String: Any], name: String) -> DynamicGenerationSchema {
+      let description = schema["description"] as? String
+      let types = schema["type"] as? [String] ?? [schema["type"] as? String ?? "string"]
+      switch types.first(where: { $0 != "null" }) ?? "string" {
+      case "object":
+        let properties = schema["properties"] as? [String: [String: Any]] ?? [:]
+        let required = Set(schema["required"] as? [String] ?? [])
+        return DynamicGenerationSchema(
+          name: name, description: description,
+          properties: properties.keys.sorted().map { key in
+            let property = properties[key]!
+            let nullable = (property["type"] as? [String])?.contains("null") ?? false
+            return DynamicGenerationSchema.Property(
+              name: key, description: property["description"] as? String,
+              schema: self.schema(property, name: "\(name)_\(key)"),
+              isOptional: nullable || !required.contains(key))
+          })
+      case "array":
+        return DynamicGenerationSchema(
+          arrayOf: self.schema(schema["items"] as? [String: Any] ?? [:], name: "\(name)_item"))
+      case "integer":
+        return DynamicGenerationSchema(type: Int.self)
+      case "number":
+        return DynamicGenerationSchema(type: Double.self)
+      case "boolean":
+        return DynamicGenerationSchema(type: Bool.self)
+      default:
+        let choices = (schema["enum"] as? [Any])?.compactMap { $0 as? String } ?? []
+        return choices.isEmpty
+          ? DynamicGenerationSchema(type: String.self)
+          : DynamicGenerationSchema(name: name, description: description, anyOf: choices)
+      }
     }
   }
 #endif

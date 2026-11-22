@@ -8638,6 +8638,93 @@
   "@aiFailurePhotoFormat": {
     "description": "Error."
   },
+  "assistantTitle": "AI 助理",
+  "@assistantTitle": {
+    "description": "Title of the AI assistant page, and its way in on 課表."
+  },
+  "assistantHint": "問紀錄或課表",
+  "@assistantHint": {
+    "description": "Placeholder of the field a question to the AI assistant is typed in, on its page and at the top of 趨勢."
+  },
+  "workoutReviewTitle": "AI 評語",
+  "@workoutReviewTitle": {
+    "description": "Button on a finished workout that opens the AI assistant asking for a review of it."
+  },
+  "workoutReviewAsk": "評這次訓練",
+  "@workoutReviewAsk": {
+    "description": "The question the AI assistant is first asked when opened from a finished workout, shown as the user's line."
+  },
+  "assistantThinking": "思考中",
+  "@assistantThinking": {
+    "description": "Collapsed line above the reply while the AI assistant is working; opens the list of what it read."
+  },
+  "assistantReadCount": "已讀取 {count} 項紀錄",
+  "@assistantReadCount": {
+    "description": "Collapsed line above a reply: how many times the AI assistant read the records; opens the list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assistantStepRead": "讀取{area}紀錄",
+  "@assistantStepRead": {
+    "description": "One step in the AI assistant's list: it read the records of an area (訓練, 飲食…).",
+    "placeholders": {
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "assistantStepRecords": "讀取紀錄",
+  "@assistantStepRecords": {
+    "description": "One step in the AI assistant's list: it read records across areas."
+  },
+  "assistantStepDraft": "草擬課表",
+  "@assistantStepDraft": {
+    "description": "One step in the AI assistant's list: it drafted a program or a change to one."
+  },
+  "assistantStop": "停止",
+  "@assistantStop": {
+    "description": "Tooltip of the button that stops waiting for the AI assistant's reply."
+  },
+  "assistantNewChat": "新對話",
+  "@assistantNewChat": {
+    "description": "App bar action that clears the AI assistant's conversation."
+  },
+  "assistantCopy": "複製",
+  "@assistantCopy": {
+    "description": "Tooltip of the button that copies a reply of the AI assistant."
+  },
+  "assistantRegenerate": "重新產生",
+  "@assistantRegenerate": {
+    "description": "Tooltip of the button that asks the AI assistant for its last reply again."
+  },
+  "assistantSuggestWeek": "這週練了幾次",
+  "@assistantSuggestWeek": {
+    "description": "Suggested first question on the empty AI assistant page, sent as typed."
+  },
+  "assistantSuggestProtein": "這週吃了多少蛋白質",
+  "@assistantSuggestProtein": {
+    "description": "Suggested first question on the empty AI assistant page, sent as typed."
+  },
+  "assistantSuggestProgram": "排一份三天課表",
+  "@assistantSuggestProgram": {
+    "description": "Suggested first question on the empty AI assistant page, sent as typed."
+  },
+  "assistantSend": "傳送",
+  "@assistantSend": {
+    "description": "Tooltip of the button that sends a question to the AI assistant."
+  },
+  "aiFailureToolsUnsupported": "目前的 AI 不能讀紀錄，到「{me} > AI」換一個。",
+  "@aiFailureToolsUnsupported": {
+    "description": "Error: the chosen AI cannot call the tools that read the records.",
+    "placeholders": {
+      "me": {
+        "type": "String"
+      }
+    }
+  },
   "prior4Weeks": "前 4 週",
   "@prior4Weeks": {
     "description": "Baseline range."

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/backend/engines/food_portion.dart';
 import 'package:mishirube/backend/seed/demo_content.dart';
+import 'package:mishirube/features/assistant/assistant_screen.dart';
 import 'package:mishirube/features/caffeine/caffeine_screen.dart';
 import 'package:mishirube/features/activity/activity_detail_screen.dart';
 import 'package:mishirube/features/activity/activity_type_picker.dart';
@@ -374,6 +375,7 @@ final _screens = <String, (Widget Function(AppStore), _StoreSetup)>{
   'data sources': ((_) => const DataSourcesScreen(), _noSetup),
   'ai settings': ((_) => const AiSettingsScreen(), _noSetup),
   'generate routines': ((_) => const GenerateRoutinesScreen(), _noSetup),
+  'assistant': ((_) => const AssistantScreen(), _noSetup),
   'food library': ((_) => const FoodLibraryScreen(), _noSetup),
   'privacy': ((_) => const PrivacyScreen(), _noSetup),
   'sleep': ((_) => const SleepScreen(), _withStagedNight),

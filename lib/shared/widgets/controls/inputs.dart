@@ -100,6 +100,59 @@ class SearchFieldButton extends StatelessWidget {
   }
 }
 
+/// What looks like a field but opens a page to type on, such as the way
+/// into the assistant.
+class FieldLink extends StatelessWidget {
+  const FieldLink({
+    super.key,
+    required this.icon,
+    required this.hint,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String hint;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(_fieldRadius),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          AppHaptics.tap();
+          onTap();
+        },
+        child: SizedBox(
+          height: _fieldHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
+              spacing: AppSpacing.sm,
+              children: [
+                Icon(icon, color: AppColors.textSecondary),
+                Expanded(
+                  child: Text(
+                    hint,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body.copyWith(
+                      fontSize: 17,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class SearchField extends StatelessWidget {
   const SearchField({super.key, required this.controller, required this.hint});
 
@@ -142,11 +195,19 @@ class AppTextField extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType,
     this.isLoading = false,
+    this.minLines,
+    this.trailing,
   });
 
   final TextEditingController controller;
   final String hint;
   final bool autofocus;
+
+  /// The lines a field that grows with its text starts at.
+  final int? minLines;
+
+  /// A control at the field's end, in place of the clear button.
+  final Widget? trailing;
 
   /// Shows a small spinner in the field while its text is being filled in.
   final bool isLoading;
@@ -166,6 +227,7 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           autofocus: autofocus,
           onTapOutside: dismissKeyboardOnTapOutside,
+          minLines: minLines,
           maxLines: maxLines,
           keyboardType: keyboardType,
           style: AppTextStyles.body.copyWith(fontSize: 17),
@@ -184,6 +246,13 @@ class AppTextField extends StatelessWidget {
                         ),
                       ),
                     ),
+                  )
+                : trailing != null
+                ? Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      end: AppSpacing.xs,
+                    ),
+                    child: trailing,
                   )
                 : maxLines == 1
                 ? _ClearButton.orNull(controller)

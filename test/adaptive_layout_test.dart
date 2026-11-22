@@ -2,6 +2,7 @@ import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mishirube/features/assistant/assistant_screen.dart';
 import 'package:mishirube/features/trends/trends_screen.dart';
 import 'package:mishirube/app/app_store.dart';
 import 'package:mishirube/app/theme.dart';
@@ -283,6 +284,20 @@ void main() {
         isWide,
         reason: '$window: side by side only when wide',
       );
+      await disposeTree(tester);
+    }
+  });
+
+  testWidgets('the field at the top of trends opens the assistant', (
+    tester,
+  ) async {
+    for (final window in [phone, tablet]) {
+      final store = _store()..selectTab(HomeTab.trends);
+      await pumpScreen(tester, const HomeShell(), store: store, window: window);
+      await tester.tap(find.text('問紀錄或課表'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AssistantScreen), findsOneWidget, reason: '$window');
+      expect(tester.takeException(), isNull);
       await disposeTree(tester);
     }
   });

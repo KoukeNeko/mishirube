@@ -110,6 +110,10 @@ enum AiFailure {
 
   /// The photo is in a format the providers do not read.
   photoFormat,
+
+  /// The chosen provider cannot call the app's tools, so it cannot read
+  /// the records to answer from.
+  toolsUnsupported,
 }
 
 class AiException implements Exception {
@@ -368,4 +372,31 @@ class AiTool {
   final String name;
   final String description;
   final Map<String, Object?> parameters;
+}
+
+/// Who said a line of a conversation with the AI.
+enum AiSpeaker { user, assistant }
+
+/// One line of a conversation, as plain text. Earlier turns go back to
+/// the model like this; what the tools answered stays inside the turn
+/// that asked for it.
+class AiTurn {
+  const AiTurn(this.speaker, this.text);
+
+  final AiSpeaker speaker;
+  final String text;
+}
+
+/// A model asking to run one of the app's [AiTool]s.
+class AiToolCall {
+  const AiToolCall({
+    required this.id,
+    required this.name,
+    required this.arguments,
+  });
+
+  /// The provider's id for the call, empty when it gives none.
+  final String id;
+  final String name;
+  final Map<String, Object?> arguments;
 }

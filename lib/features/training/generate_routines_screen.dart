@@ -24,7 +24,11 @@ extension on ProgramPlace {
 ///
 /// Pops with true once kept.
 class GenerateRoutinesScreen extends StatefulWidget {
-  const GenerateRoutinesScreen({super.key});
+  const GenerateRoutinesScreen({super.key, this.initialRequest});
+
+  /// The answers to start from; how the lifter has been training when
+  /// null.
+  final ProgramRequest? initialRequest;
 
   @override
   State<GenerateRoutinesScreen> createState() => _GenerateRoutinesScreenState();
@@ -33,8 +37,9 @@ class GenerateRoutinesScreen extends StatefulWidget {
 class _GenerateRoutinesScreenState extends State<GenerateRoutinesScreen> {
   static const _days = [2, 3, 4, 5, 6];
 
-  late ProgramRequest _request = AppStoreScope.read(context)
-      .suggestedProgramRequest;
+  late ProgramRequest _request =
+      widget.initialRequest ??
+      AppStoreScope.read(context).suggestedProgramRequest;
   late GeneratedProgram _program = AppStoreScope.read(context)
       .buildProgram(_request);
 
@@ -137,7 +142,7 @@ class _GenerateRoutinesScreenState extends State<GenerateRoutinesScreen> {
                   NavRow(
                     title: planned.exercise.name,
                     trailing: Text(
-                      _plannedFigures(planned),
+                      plannedFigures(planned),
                       style: AppTextStyles.itemTitle,
                     ),
                   ),
@@ -157,7 +162,7 @@ class _GenerateRoutinesScreenState extends State<GenerateRoutinesScreen> {
 }
 
 /// `3 × 8`, or `3 × 0:45` for an exercise held for a time.
-String _plannedFigures(PlannedExercise planned) {
+String plannedFigures(PlannedExercise planned) {
   final seconds = planned.targetSeconds;
   return seconds != null && planned.reps == 0
       ? '${planned.sets} × ${formatClock(Duration(seconds: seconds))}'

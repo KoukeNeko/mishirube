@@ -10112,6 +10112,114 @@ abstract class AppLocalizations {
   /// **'這張照片的格式無法讀取，換一張再試。'**
   String get aiFailurePhotoFormat;
 
+  /// Title of the AI assistant page, and its way in on 課表.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 助理'**
+  String get assistantTitle;
+
+  /// Placeholder of the field a question to the AI assistant is typed in, on its page and at the top of 趨勢.
+  ///
+  /// In zh, this message translates to:
+  /// **'問紀錄或課表'**
+  String get assistantHint;
+
+  /// Button on a finished workout that opens the AI assistant asking for a review of it.
+  ///
+  /// In zh, this message translates to:
+  /// **'AI 評語'**
+  String get workoutReviewTitle;
+
+  /// The question the AI assistant is first asked when opened from a finished workout, shown as the user's line.
+  ///
+  /// In zh, this message translates to:
+  /// **'評這次訓練'**
+  String get workoutReviewAsk;
+
+  /// Collapsed line above the reply while the AI assistant is working; opens the list of what it read.
+  ///
+  /// In zh, this message translates to:
+  /// **'思考中'**
+  String get assistantThinking;
+
+  /// Collapsed line above a reply: how many times the AI assistant read the records; opens the list.
+  ///
+  /// In zh, this message translates to:
+  /// **'已讀取 {count} 項紀錄'**
+  String assistantReadCount({required int count});
+
+  /// One step in the AI assistant's list: it read the records of an area (訓練, 飲食…).
+  ///
+  /// In zh, this message translates to:
+  /// **'讀取{area}紀錄'**
+  String assistantStepRead({required String area});
+
+  /// One step in the AI assistant's list: it read records across areas.
+  ///
+  /// In zh, this message translates to:
+  /// **'讀取紀錄'**
+  String get assistantStepRecords;
+
+  /// One step in the AI assistant's list: it drafted a program or a change to one.
+  ///
+  /// In zh, this message translates to:
+  /// **'草擬課表'**
+  String get assistantStepDraft;
+
+  /// Tooltip of the button that stops waiting for the AI assistant's reply.
+  ///
+  /// In zh, this message translates to:
+  /// **'停止'**
+  String get assistantStop;
+
+  /// App bar action that clears the AI assistant's conversation.
+  ///
+  /// In zh, this message translates to:
+  /// **'新對話'**
+  String get assistantNewChat;
+
+  /// Tooltip of the button that copies a reply of the AI assistant.
+  ///
+  /// In zh, this message translates to:
+  /// **'複製'**
+  String get assistantCopy;
+
+  /// Tooltip of the button that asks the AI assistant for its last reply again.
+  ///
+  /// In zh, this message translates to:
+  /// **'重新產生'**
+  String get assistantRegenerate;
+
+  /// Suggested first question on the empty AI assistant page, sent as typed.
+  ///
+  /// In zh, this message translates to:
+  /// **'這週練了幾次'**
+  String get assistantSuggestWeek;
+
+  /// Suggested first question on the empty AI assistant page, sent as typed.
+  ///
+  /// In zh, this message translates to:
+  /// **'這週吃了多少蛋白質'**
+  String get assistantSuggestProtein;
+
+  /// Suggested first question on the empty AI assistant page, sent as typed.
+  ///
+  /// In zh, this message translates to:
+  /// **'排一份三天課表'**
+  String get assistantSuggestProgram;
+
+  /// Tooltip of the button that sends a question to the AI assistant.
+  ///
+  /// In zh, this message translates to:
+  /// **'傳送'**
+  String get assistantSend;
+
+  /// Error: the chosen AI cannot call the tools that read the records.
+  ///
+  /// In zh, this message translates to:
+  /// **'目前的 AI 不能讀紀錄，到「{me} > AI」換一個。'**
+  String aiFailureToolsUnsupported({required String me});
+
   /// Baseline range.
   ///
   /// In zh, this message translates to:

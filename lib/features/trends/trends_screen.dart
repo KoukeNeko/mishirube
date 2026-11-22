@@ -10,6 +10,7 @@ import '../../backend/engines/trend_insights.dart';
 import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
+import '../assistant/assistant_screen.dart';
 import '../body/body_screen.dart';
 import '../nutrition/daily_nutrition_screen.dart';
 import '../sleep/sleep_screen.dart';
@@ -231,6 +232,13 @@ class _TrendsPage extends StatelessWidget {
         return CollapsingPage(
           title: context.l10n.tabTrends,
           children: [
+            Gutter(
+              child: FieldLink(
+                icon: Icons.auto_awesome_outlined,
+                hint: context.l10n.assistantHint,
+                onTap: () => pushPage(context, const AssistantScreen()),
+              ),
+            ),
             if (isWide)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

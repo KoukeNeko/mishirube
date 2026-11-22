@@ -12,6 +12,7 @@ import '../../domain/domain.dart';
 import '../../shared/format.dart';
 import '../../shared/widgets/widgets.dart';
 import '../activity/activity_detail_screen.dart';
+import '../assistant/assistant_screen.dart';
 import '../activity/activity_view_model.dart';
 import '../trends/muscle_map.dart';
 import 'edit_workout_screen.dart';
@@ -221,6 +222,15 @@ class _WorkoutSummaryScreenState extends State<WorkoutSummaryScreen> {
         ),
         if (_volumeChange(context.l10n, review) case final change?)
           Gutter(child: TagWrap(labels: [change])),
+        if (store.aiProvider != null && review.exercises.isNotEmpty)
+          Gutter(
+            child: SecondaryButton(
+              label: context.l10n.workoutReviewTitle,
+              icon: Icons.auto_awesome_outlined,
+              onPressed: () =>
+                  pushPage(context, AssistantScreen(workout: workout)),
+            ),
+          ),
         if (heartRate.isNotEmpty)
           ViewModelBuilder(
             create: ActivityViewModel.new,

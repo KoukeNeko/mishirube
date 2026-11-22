@@ -2,6 +2,7 @@ import '../../domain/domain.dart';
 import '../../l10n/l10n.dart';
 import '../engines/nutrition_summary.dart';
 import '../engines/training_metrics.dart';
+import '../engines/workout_review.dart';
 import '../storage/timeline_query.dart';
 import 'activity_service.dart';
 import 'catalog_service.dart';
@@ -62,7 +63,7 @@ class RecordTools {
     },
   };
 
-  static Map<String, Object?> _object(Map<String, Object?> properties) => {
+  static Map<String, Object?> strictObject(Map<String, Object?> properties) => {
     'type': 'object',
     'properties': properties,
     'required': properties.keys.toList(),
@@ -84,7 +85,7 @@ class RecordTools {
       description:
           'Exercises in the library matching a name, best first, with the '
           'id the other exercise tools take.',
-      parameters: _object({
+      parameters: strictObject({
         'query': {'type': 'string'},
       }),
     ),
@@ -93,7 +94,7 @@ class RecordTools {
       description:
           'Each finished session of one exercise in a period: counted sets, '
           'best set and volume, and the current estimated one-rep max.',
-      parameters: _object({
+      parameters: strictObject({
         'exercise_id': {'type': 'string'},
         ..._period,
       }),
@@ -103,7 +104,7 @@ class RecordTools {
       description:
           'Finished workouts in a period, each with its sets and volume, '
           'and the totals.',
-      parameters: _object({..._period, ..._comparePrevious}),
+      parameters: strictObject({..._period, ..._comparePrevious}),
     ),
     AiTool(
       name: 'nutrition_days',
@@ -111,33 +112,33 @@ class RecordTools {
           'Energy and macronutrients eaten each day of a period, whether the '
           "day's log is complete, the user's own targets, and the average "
           'over complete days.',
-      parameters: _object({..._period, ..._comparePrevious}),
+      parameters: strictObject({..._period, ..._comparePrevious}),
     ),
     AiTool(
       name: 'meals',
       description: 'The meals logged each day of a period.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'sleep_days',
       description:
           'Time asleep for each morning in a period, naps included, and the '
           "user's sleep goal.",
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'body_records',
       description:
           'Weights, tape measurements and body composition readings taken '
           'in a period.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'activities',
       description:
           'Activities recorded and the day\'s movement figures (steps, '
           'distance, energy, exercise time) for each day of a period.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'vitals',
@@ -145,19 +146,19 @@ class RecordTools {
           'Overnight readings for each night of a period (heart rate, '
           'breathing, oxygen, temperature, HRV), and the daily heart and '
           'vital figures health platforms recorded.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'wellness',
       description:
           'Check-ins (mood, energy, symptoms, each out of 5), baths, water '
           'and caffeine for each day of a period.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'search_notes',
       description: 'Notes written in a period that contain the query.',
-      parameters: _object({
+      parameters: strictObject({
         'query': {'type': 'string'},
         ..._period,
       }),
@@ -167,21 +168,21 @@ class RecordTools {
       description:
           'Every record of each day of a period, in time order, as the log '
           'lists it; at most $maxTimelineDays days.',
-      parameters: _object(_period),
+      parameters: strictObject(_period),
     ),
     AiTool(
       name: 'weekly_goal',
       description:
           "The user's weekly active-day goal, recent weeks against it, and "
           'the streak.',
-      parameters: _object({}),
+      parameters: strictObject({}),
     ),
     AiTool(
       name: 'insights',
       description:
           'The observations the app has already worked out from the last 28 '
           'days, each with what it rests on.',
-      parameters: _object({}),
+      parameters: strictObject({}),
     ),
   ];
 
@@ -287,6 +288,99 @@ class RecordTools {
             'exercises': [
               for (final session in workout.exercises) session.exercise.name,
             ],
+          },
+      ],
+    };
+  }
+
+  /// How many earlier sessions of an exercise, and earlier workouts, a
+  /// workout's facts carry; fewer when [workoutFacts] is `compact`.
+  static const workoutFactsSessions = 12;
+  static const workoutFactsWorkouts = 30;
+
+  /// One finished workout as [review] worked it out (every set done, the
+  /// records it set, its total against the same template's last time)
+  /// and the training before it: each exercise's earlier sessions and the
+  /// workouts finished before, for a model asked about that workout.
+  /// [compact] keeps a quarter of the latest ones, for a small context.
+  Map<String, Object?> workoutFacts(
+    WorkoutSession workout,
+    WorkoutReview review, {
+    bool compact = false,
+  }) => {
+    'date': _date(workout.startedAt),
+    'name': workout.routineName,
+    'minutes': workout.finishedAt?.difference(workout.startedAt).inMinutes,
+    'workload': workout.workload?.name,
+    'counted_sets': review.sets,
+    'volume_kg': _round(review.volumeKg),
+    'previous_volume_kg': _round(review.previousVolumeKg),
+    'exercises': [
+      for (final item in review.exercises)
+        {
+          'exercise_id': item.exercise.id,
+          'name': item.exercise.name,
+          'sets': [
+            for (final set in item.done) {'type': set.type.name, ...?_set(set)},
+          ],
+          'volume_kg': _round(item.volumeKg),
+          'personal_record': ?_set(item.record),
+          'history': _historyBefore(
+            item.exercise,
+            workout,
+            sessions: workoutFactsSessions ~/ (compact ? 4 : 1),
+          ),
+        },
+    ],
+    'earlier_workouts': [
+      for (final earlier in _training.recentFinished(
+        limit: workoutFactsWorkouts ~/ (compact ? 4 : 1),
+      ))
+        if (earlier.id != workout.id &&
+            earlier.startedAt.isBefore(workout.startedAt))
+          {
+            'date': _date(earlier.startedAt),
+            'name': earlier.routineName,
+            'counted_sets': earlier.exercises.fold<int>(
+              0,
+              (sum, session) => sum + countedSets(session.sets).length,
+            ),
+          },
+    ],
+  };
+
+  /// [exercise]'s sessions before [workout]: how many and since when, the
+  /// best set of them all, and the latest few.
+  Map<String, Object?> _historyBefore(
+    ExerciseDefinition exercise,
+    WorkoutSession workout, {
+    required int sessions,
+  }) {
+    final type = exercise.trackingType;
+    final earlier = [
+      for (final record in _training.sessionsOf(exercise))
+        if (record.workoutId != workout.id &&
+            record.date.isBefore(workout.startedAt))
+          record,
+    ];
+    return {
+      'session_count': earlier.length,
+      if (earlier.isNotEmpty) 'first_date': _date(earlier.last.date),
+      'best_set_before': ?_set(
+        bestSet(type, [for (final record in earlier) ...record.sets]),
+      ),
+      'estimated_one_rep_max_kg': _round(
+        _catalog.history(exercise.id).estimatedOneRepMaxKg,
+      ),
+      'latest_sessions': [
+        for (final record in earlier.take(sessions))
+          {
+            'date': _date(record.date),
+            'counted_sets': countedSets(record.sets).length,
+            'volume_kg': _round(
+              type == TrackingType.weightReps ? volumeKg(record.sets) : null,
+            ),
+            'best_set': _set(bestSet(type, record.sets)),
           },
       ],
     };

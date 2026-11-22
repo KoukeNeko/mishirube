@@ -5,8 +5,6 @@ import '../../app/theme.dart';
 import '../../shared/widgets/widgets.dart';
 import '../../l10n/l10n.dart';
 
-enum _ChangeKind { removed, added, unchanged }
-
 class _ProposedChange {
   const _ProposedChange(
     this.kind,
@@ -16,7 +14,7 @@ class _ProposedChange {
     this.rir,
   });
 
-  final _ChangeKind kind;
+  final ChangeKind kind;
   final String exercise;
   final int sets;
   final int reps;
@@ -35,15 +33,15 @@ const _routine = '下肢 A';
 
 const _changes = [
   // l10n-ignore: demo data.
-  _ProposedChange(_ChangeKind.removed, '槓鈴深蹲', 4, 5, rir: 2),
+  _ProposedChange(ChangeKind.removed, '槓鈴深蹲', 4, 5, rir: 2),
   // l10n-ignore: demo data.
-  _ProposedChange(_ChangeKind.added, '槓鈴深蹲', 5, 5, rir: 2),
+  _ProposedChange(ChangeKind.added, '槓鈴深蹲', 5, 5, rir: 2),
   // l10n-ignore: demo data.
-  _ProposedChange(_ChangeKind.removed, '腿彎舉', 3, 12),
+  _ProposedChange(ChangeKind.removed, '腿彎舉', 3, 12),
   // l10n-ignore: demo data.
-  _ProposedChange(_ChangeKind.added, '腿彎舉', 4, 12),
+  _ProposedChange(ChangeKind.added, '腿彎舉', 4, 12),
   // l10n-ignore: demo data.
-  _ProposedChange(_ChangeKind.unchanged, '羅馬尼亞硬舉', 3, 8),
+  _ProposedChange(ChangeKind.unchanged, '羅馬尼亞硬舉', 3, 8),
 ];
 
 /// A draft change from AI, shown as a diff that only applies on accept.
@@ -93,7 +91,13 @@ class AiProposalScreen extends StatelessWidget {
         ),
         Gutter(child: SectionLabel(context.l10n.changesCount(count: 2))),
         for (final change in _changes)
-          Gutter(child: _ChangeRow(change: change)),
+          Gutter(
+            child: ChangeRow(
+              kind: change.kind,
+              title: change.exercise,
+              subtitle: change.prescription(context.l10n),
+            ),
+          ),
         Gutter(
           child: AppCard(
             child: Column(
@@ -120,27 +124,38 @@ class AiProposalScreen extends StatelessWidget {
   }
 }
 
-class _ChangeRow extends StatelessWidget {
-  const _ChangeRow({required this.change});
+/// What a proposed change does to one exercise.
+enum ChangeKind { removed, added, unchanged }
 
-  final _ProposedChange change;
+/// One exercise of a proposed change: taken out, added, or as it was.
+class ChangeRow extends StatelessWidget {
+  const ChangeRow({
+    super.key,
+    required this.kind,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final ChangeKind kind;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
-    final (tone, symbol, label, color) = switch (change.kind) {
-      _ChangeKind.removed => (
+    final (tone, symbol, label, color) = switch (kind) {
+      ChangeKind.removed => (
         CardTone.nutrition,
         '−',
         context.l10n.removeAction,
         AppColors.nutrition,
       ),
-      _ChangeKind.added => (
+      ChangeKind.added => (
         CardTone.training,
         '+',
         context.l10n.addedLabel,
         AppColors.training,
       ),
-      _ChangeKind.unchanged => (
+      ChangeKind.unchanged => (
         CardTone.neutral,
         '·',
         context.l10n.unchangedLabel,
@@ -160,8 +175,8 @@ class _ChangeRow extends StatelessWidget {
           ),
         ),
       ),
-      title: change.exercise,
-      subtitle: change.prescription(context.l10n),
+      title: title,
+      subtitle: subtitle,
       trailing: Text(
         label,
         style: TextStyle(
